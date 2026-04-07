@@ -876,17 +876,37 @@ export default class AutofillService implements AutofillServiceInterface {
     // Note; targeted fields intentionally skip the untrusted iframe check. The
     // presence of targeting rules represents explicit expectations of the target
 
+    // Pre-resolve TOTP code if any oneTimeCode fields are present, since
+    // cipher.login.totp is the seed, not the generated code
+    let totpCode: string | null = null;
+    const hasOtpFields = pageDetails.fields.some(
+      (f) => f.targeted && f.targetingRuleFieldType === "oneTimeCode",
+    );
+    if (hasOtpFields && cipher.login?.totp) {
+      const totpResponse = await firstValueFrom(this.totpService.getCode$(cipher.login.totp));
+      totpCode = totpResponse?.code ?? null;
+    }
+
     for (const field of pageDetails.fields) {
-      if (!field.targeted || !field.fieldQualifier) {
+      if (!field.targeted || !field.targetingRuleFieldType) {
         continue;
       }
 
-      const value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      const value =
+        field.targetingRuleFieldType === "oneTimeCode"
+          ? totpCode
+          : this.getValueForTargetedFieldType(field.targetingRuleFieldType, cipher);
       if (!value) {
         continue;
       }
 
-      AutofillService.fillByOpid(fillScript, field, value);
+      if (field.sequenceLength != null && field.sequencePosition != null) {
+        // Distribute one character per element across the sequence
+        const charValue = value[field.sequencePosition] ?? "";
+        AutofillService.fillByOpid(fillScript, field, charValue);
+      } else {
+        AutofillService.fillByOpid(fillScript, field, value);
+      }
     }
 
     if (!fillScript.script.length) {
@@ -907,9 +927,8 @@ export default class AutofillService implements AutofillServiceInterface {
     if (fieldType === "password" || fieldType === "newPassword") {
       return cipher.login?.password ?? null;
     }
-    if (fieldType === "oneTimeCode") {
-      return cipher.login?.totp ?? null;
-    }
+    // oneTimeCode is handled separately in generateTargetedFillScript
+    // via totpService.getCode$ (the seed must be resolved to a live code)
 
     // Card fields
     if (fieldType === "cardholderName") {

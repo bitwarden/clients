@@ -270,36 +270,63 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
           continue;
         }
 
-        // Try each selector alternative in order, use the first match found.
-        // Composite selectors (string[]) are skipped for now; only single
-        // selectors (string) are supported.
-        let matchedElement: Element | null = null;
+        let matched = false;
+
         for (const selector of selectorAlternatives) {
-          if (typeof selector !== "string") {
-            continue;
+          if (typeof selector === "string") {
+            // Single selector: one element = one field
+            const element = this.domQueryService.queryDeepSelector(selector);
+            if (!element) {
+              continue;
+            }
+
+            const fieldId = `targeted_field_${formIndex}_${fieldType}`;
+            const formFieldElement = element as ElementWithOpId<FormFieldElement>;
+            formFieldElement.opid = fieldId;
+
+            const autofillField = this.buildTargetedAutofillField(
+              formFieldElement,
+              fieldType as AutofillTargetingRuleType,
+              fields.length,
+            );
+
+            fields.push(autofillField);
+            this.autofillFieldElements.set(formFieldElement, autofillField);
+            matched = true;
+            break;
           }
-          matchedElement = this.domQueryService.queryDeepSelector(selector);
-          if (matchedElement) {
+
+          if (Array.isArray(selector)) {
+            // Selector sequence: multiple elements compose a single value
+            const elements = selector.map((s) => this.domQueryService.queryDeepSelector(s));
+            if (elements.some((el) => !el)) {
+              continue;
+            }
+
+            for (let seqIndex = 0; seqIndex < elements.length; seqIndex++) {
+              const fieldId = `targeted_field_${formIndex}_${fieldType}_${seqIndex}`;
+              const formFieldElement = elements[seqIndex] as ElementWithOpId<FormFieldElement>;
+              formFieldElement.opid = fieldId;
+
+              const autofillField = this.buildTargetedAutofillField(
+                formFieldElement,
+                fieldType as AutofillTargetingRuleType,
+                fields.length,
+              );
+              autofillField.sequencePosition = seqIndex;
+              autofillField.sequenceLength = elements.length;
+
+              fields.push(autofillField);
+              this.autofillFieldElements.set(formFieldElement, autofillField);
+            }
+            matched = true;
             break;
           }
         }
 
-        if (!matchedElement) {
+        if (!matched) {
           continue;
         }
-
-        const fieldId = `targeted_field_${formIndex}_${fieldType}`;
-        const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-        formFieldElement.opid = fieldId;
-
-        const autofillField = this.buildTargetedAutofillField(
-          formFieldElement,
-          fieldType as AutofillTargetingRuleType,
-          fields.length,
-        );
-
-        fields.push(autofillField);
-        this.autofillFieldElements.set(formFieldElement, autofillField);
       }
     }
 
@@ -337,8 +364,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     field.title = element.getAttribute("title");
     field.tagName = element.tagName?.toLowerCase();
     field.type = (element as HTMLInputElement).type?.toLowerCase() || undefined;
-    field.fieldQualifier = fieldType as AutofillField["fieldQualifier"];
     field.targeted = true;
+    field.targetingRuleFieldType = fieldType;
     return field;
   }
 

@@ -17,6 +17,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
   SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -1568,8 +1569,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const pageDetails = pageDetailsMap?.get(currentFrameId);
 
     const fields = pageDetails?.details?.fields || [];
-    const totpFields = fields.filter((f: AutofillField) =>
-      this.inlineMenuFieldQualificationService.isTotpField(f),
+    const totpFields = fields.filter(
+      (f: AutofillField) =>
+        this.inlineMenuFieldQualificationService.isTotpField(f) ||
+        (f.targeted && f.targetingRuleFieldType === AutofillTargetingRuleTypes.oneTimeCode),
     );
 
     return totpFields;

@@ -9,8 +9,8 @@ import {
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
   AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
   EVENTS,
+  AutofillTargetingRuleTypes,
 } from "@bitwarden/common/autofill/constants";
-import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
@@ -1136,9 +1136,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * bypassing heuristic qualification.
    */
   private setTargetedFieldFillType(autofillFieldData: AutofillField): void {
-    // Targeted fields use AutofillTargetingRuleType values in fieldQualifier,
-    // which are distinct from the heuristic AutofillFieldQualifierType values.
-    const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
+    const qualifier = autofillFieldData.targetingRuleFieldType;
+
+    if (qualifier === AutofillTargetingRuleTypes.oneTimeCode) {
+      autofillFieldData.inlineMenuFillType = CipherType.Login;
+      autofillFieldData.accountCreationFieldType = InlineMenuAccountCreationFieldType.Totp;
+      return;
+    }
 
     if (loginQualifiers.includes(qualifier)) {
       autofillFieldData.inlineMenuFillType = CipherType.Login;

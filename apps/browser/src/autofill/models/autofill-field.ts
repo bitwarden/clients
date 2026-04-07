@@ -1,3 +1,5 @@
+import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
+
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
@@ -125,9 +127,28 @@ export default class AutofillField {
   fieldQualifier?: AutofillFieldQualifierType;
 
   /**
-   * Indicates this field was qualified by targeting rules rather than heuristics
+   * Indicates this field was qualified by targeting rules rather than heuristics.
+   * When set, `targetingRuleFieldType` identifies the field's data concept.
    */
   targeted?: boolean;
+
+  /**
+   * The targeting rule field type that qualified this field. Only set when
+   * `targeted` is true. Separate from `fieldQualifier` (heuristic qualifier)
+   * to keep heuristic and targeting rule concerns isolated.
+   */
+  targetingRuleFieldType?: AutofillTargetingRuleType;
+
+  /**
+   * For fields that are part of a selector sequence (e.g. a 6-digit OTP split
+   * across 6 inputs), the 0-based position within the sequence.
+   */
+  sequencePosition?: number;
+
+  /**
+   * Total number of elements in the selector sequence this field belongs to.
+   */
+  sequenceLength?: number;
 
   accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
 
