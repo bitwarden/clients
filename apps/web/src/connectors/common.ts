@@ -11,6 +11,29 @@ export function isKnownCloudOrigin(): boolean {
   return managedSuffixes.some((suffix) => hostname.endsWith(suffix));
 }
 
+/**
+ * Determines the targetOrigin for postMessage calls from the connector.
+ *
+ * Desktop (file:// parent): preserves the provided parentUrl for Electron compatibility.
+ * Other environments: preserves the provided parentUrl.
+ */
+export function resolvePostMessageOrigin(parentUrl: string | null): string | null {
+  if (parentUrl) {
+    try {
+      if (new URL(parentUrl).protocol === "file:") {
+        return parentUrl;
+      }
+    } catch {
+      // Invalid URL — fall through
+    }
+  }
+
+  if (isKnownCloudOrigin()) {
+    return window.location.origin;
+  }
+  return parentUrl;
+}
+
 export function getQsParam(name: string) {
   const url = window.location.href;
   // eslint-disable-next-line

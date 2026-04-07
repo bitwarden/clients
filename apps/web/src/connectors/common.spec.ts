@@ -3,6 +3,7 @@ import {
   b64Decode,
   buildMobileDeeplinkUriFromParam,
   isKnownCloudOrigin,
+  resolvePostMessageOrigin,
 } from "./common";
 
 describe("common connector utilities", () => {
@@ -178,6 +179,63 @@ describe("common connector utilities", () => {
       it("returns false for an empty hostname", () => {
         setLocation("", "");
         expect(isKnownCloudOrigin()).toBe(false);
+      });
+    });
+  });
+
+  describe("resolvePostMessageOrigin", () => {
+    function setLocation(hostname: string, origin: string) {
+      Object.defineProperty(window, "location", {
+        value: { hostname, origin, href: origin + "/connector" },
+        writable: true,
+        configurable: true,
+      });
+    }
+
+    describe("on Bitwarden-managed domains", () => {
+      it("returns window.location.origin when parent is a web URL", () => {
+        setLocation("vault.bitwarden.com", "https://vault.bitwarden.com");
+        expect(resolvePostMessageOrigin("https://vault.bitwarden.com/some-page")).toBe(
+          "https://vault.bitwarden.com",
+        );
+      });
+
+      it("returns window.location.origin regardless of the provided parent URL", () => {
+        setLocation("vault.bitwarden.com", "https://vault.bitwarden.com");
+        expect(resolvePostMessageOrigin("https://unrelated.example.com")).toBe(
+          "https://vault.bitwarden.com",
+        );
+      });
+
+      it("preserves a file:// parent URL for desktop compatibility", () => {
+        setLocation("vault.bitwarden.com", "https://vault.bitwarden.com");
+        expect(resolvePostMessageOrigin("file:///path/to/electron/index.html")).toBe(
+          "file:///path/to/electron/index.html",
+        );
+      });
+
+      it("returns window.location.origin when parent URL is null", () => {
+        setLocation("vault.bitwarden.com", "https://vault.bitwarden.com");
+        expect(resolvePostMessageOrigin(null)).toBe("https://vault.bitwarden.com");
+      });
+
+      it("returns window.location.origin when parent URL is invalid", () => {
+        setLocation("vault.bitwarden.com", "https://vault.bitwarden.com");
+        expect(resolvePostMessageOrigin("not-a-url")).toBe("https://vault.bitwarden.com");
+      });
+    });
+
+    describe("on unmanaged domains", () => {
+      it("returns the provided parent URL unchanged", () => {
+        setLocation("vault.customer.com", "https://vault.customer.com");
+        expect(resolvePostMessageOrigin("https://vault.customer.com/page")).toBe(
+          "https://vault.customer.com/page",
+        );
+      });
+
+      it("returns null when parent URL is null", () => {
+        setLocation("vault.customer.com", "https://vault.customer.com");
+        expect(resolvePostMessageOrigin(null)).toBeNull();
       });
     });
   });
