@@ -163,7 +163,7 @@ describe("LineChartComponent", () => {
     });
 
     it("adds min as first tick and max as last tick on empty ticks array", () => {
-      const scale = { ticks: [] };
+      const scale: { ticks: { value: number }[] } = { ticks: [] };
       afterBuildTicks(scale);
       expect(scale.ticks[0].value).toBe(min);
       expect(scale.ticks[scale.ticks.length - 1].value).toBe(max);
@@ -171,7 +171,7 @@ describe("LineChartComponent", () => {
 
     it("preserves auto ticks in the safe middle zone", () => {
       const safeTick = min + range * 0.5;
-      const scale = { ticks: [{ value: safeTick }] };
+      const scale: { ticks: { value: number }[] } = { ticks: [{ value: safeTick }] };
       afterBuildTicks(scale);
       const middleTicks = scale.ticks.slice(1, -1);
       expect(middleTicks.some((t) => t.value === safeTick)).toBe(true);
@@ -179,7 +179,7 @@ describe("LineChartComponent", () => {
 
     it("filters auto ticks within 10% of min endpoint", () => {
       const crowdedTick = min + threshold * 0.5;
-      const scale = { ticks: [{ value: crowdedTick }] };
+      const scale: { ticks: { value: number }[] } = { ticks: [{ value: crowdedTick }] };
       afterBuildTicks(scale);
       const middleTicks = scale.ticks.slice(1, -1);
       expect(middleTicks.some((t) => t.value === crowdedTick)).toBe(false);
@@ -187,7 +187,7 @@ describe("LineChartComponent", () => {
 
     it("filters auto ticks within 10% of max endpoint", () => {
       const crowdedTick = max - threshold * 0.5;
-      const scale = { ticks: [{ value: crowdedTick }] };
+      const scale: { ticks: { value: number }[] } = { ticks: [{ value: crowdedTick }] };
       afterBuildTicks(scale);
       const middleTicks = scale.ticks.slice(1, -1);
       expect(middleTicks.some((t) => t.value === crowdedTick)).toBe(false);
@@ -200,7 +200,7 @@ describe("LineChartComponent", () => {
         { min: singleTimestamp, max: singleTimestamp },
       );
       const singlePointAfterBuildTicks = singlePointOptions.scales.x.afterBuildTicks;
-      const scale = {
+      const scale: { ticks: { value: number }[] } = {
         ticks: [{ value: singleTimestamp - 1000 }, { value: singleTimestamp + 1000 }],
       };
       singlePointAfterBuildTicks(scale);

@@ -193,7 +193,12 @@ export class LineChartComponent implements OnDestroy {
     // if we need to show min and max dates
     // and we have a valid date range
     // and the x-axis is datetime, add the min and max as ticks
-    if (configuration.showMinMaxDates && dateRange && configuration.xAxisType === "datetime") {
+    if (
+      configuration.showMinMaxDates &&
+      dateRange &&
+      configuration.xAxisType === "datetime" &&
+      options.scales?.x
+    ) {
       options.scales.x.afterBuildTicks = (scale) => {
         const { min, max } = dateRange;
 
