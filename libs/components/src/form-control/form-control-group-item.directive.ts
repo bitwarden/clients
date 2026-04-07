@@ -9,6 +9,9 @@ export class FormControlGroupItemDirective {
   readonly group = inject(FormControlGroupComponent, { optional: true });
 
   // Optional — undefined is safe when used outside a group
+  // When `value` is provided, this card participates in group selection:
+  // `isSelected` is derived by matching `value` against the group's `selectedValues`.
+  // Omitting `value` opts the card out of group selection even when nested inside a group.
   readonly value = input<unknown>();
 
   readonly isSelected = computed(() => {

@@ -46,6 +46,25 @@ Use `bit-form-control-group` when you have multiple related checkboxes that shou
 together as a single form field. The group binds to a `string[]` form control — each card's
 `[value]` input is added to or removed from the array when checked.
 
+```html
+<bit-form-control-group formControlName="features">
+  <bit-form-control-card [value]="'featureA'">
+    <input type="checkbox" bitCheckbox />
+    <bit-label>Feature A</bit-label>
+  </bit-form-control-card>
+  <bit-form-control-card [value]="'featureB'">
+    <input type="checkbox" bitCheckbox />
+    <bit-label>Feature B</bit-label>
+  </bit-form-control-card>
+</bit-form-control-group>
+```
+
+### Opting out of group selection (not recommended)
+
+Omitting `[value]` while nested inside a group renders the card as a standalone control — it manages
+its own checked state via `formControlName` and does not interact with the group's selection. In
+most cases, if a card doesn't need group selection, it should be placed outside the group entirely.
+
 Choose checkboxes in a group when:
 
 - The user selects from a set of options that are saved via a form submit action
