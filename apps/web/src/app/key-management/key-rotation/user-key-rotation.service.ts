@@ -123,20 +123,23 @@ export class UserKeyRotationService {
       this.logService.info(
         "[UserKey Rotation] Using SDK-based key rotation service from user-crypto-management",
       );
-      await this.sdkUserKeyRotationService.changePasswordAndRotateUserKey(
+      const success = await this.sdkUserKeyRotationService.changePasswordAndRotateUserKey(
         currentMasterPassword,
         newMasterPassword,
         newMasterPasswordHint,
         asUuid(user.id),
       );
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("rotationCompletedTitle"),
-        message: this.i18nService.t("rotationCompletedDesc"),
-        timeout: 15000,
-      });
 
-      await this.logoutService.logout(user.id);
+      if (success) {
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("rotationCompletedTitle"),
+          message: this.i18nService.t("rotationCompletedDesc"),
+          timeout: 15000,
+        });
+
+        await this.logoutService.logout(user.id);
+      }
       return;
     }
 

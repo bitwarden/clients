@@ -28,7 +28,7 @@ export abstract class UserKeyRotationService {
     newMasterPassword: string,
     hint: string | undefined,
     userId: UserId,
-  ): Promise<void>;
+  ): Promise<boolean>;
 
   /**
    * Verifies the trust of organizations and emergency access users by prompting the user.
