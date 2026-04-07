@@ -1,4 +1,4 @@
-import { Component, HostBinding, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 
 import { FormControlModule } from "../form-control/form-control.module";
 
@@ -11,7 +11,12 @@ import { RadioInputComponent } from "./radio-input.component";
   selector: "bit-radio-button",
   templateUrl: "radio-button.component.html",
   imports: [FormControlModule, RadioInputComponent],
-  host: { "[id]": "base.id()" },
+  host: {
+    "[id]": "base.id()",
+    class: "[&_bit-hint]:tw-mt-0",
+    "[class.tw-block]": "base.block",
+    "[class.tw-inline-block]": "!base.block",
+  },
   hostDirectives: [
     {
       directive: RadioButtonBaseDirective,
@@ -24,10 +29,6 @@ export class RadioButtonComponent {
 
   get selected() {
     return this.base.selected;
-  }
-
-  @HostBinding("class") get classList() {
-    return [this.base.block ? "tw-block" : "tw-inline-block", "[&_bit-hint]:tw-mt-0"];
   }
 
   protected onInputChange() {

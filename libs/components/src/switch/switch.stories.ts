@@ -187,22 +187,30 @@ export const InactiveFormControlCard: Story = {
 
 export const FormControlCardGroup: Story = {
   render: () => ({
+    props: {
+      formObj: new FormGroup({
+        emailNotifications: new FormControl(false),
+        autoLock: new FormControl(false),
+      }),
+    },
     template: /* HTML */ `
-      <bit-form-control-group>
-        <bit-label>Notification preferences</bit-label>
+      <form [formGroup]="formObj">
+        <bit-form-control-group>
+          <bit-label>Notification preferences</bit-label>
 
-        <bit-form-control-card icon="bwi-envelope">
-          <bit-switch></bit-switch>
-          <bit-label>Email notifications</bit-label>
-          <bit-hint>Receive email updates for important activity</bit-hint>
-        </bit-form-control-card>
+          <bit-form-control-card icon="bwi-envelope">
+            <bit-switch formControlName="emailNotifications"></bit-switch>
+            <bit-label>Email notifications</bit-label>
+            <bit-hint>Receive email updates for important activity</bit-hint>
+          </bit-form-control-card>
 
-        <bit-form-control-card icon="bwi-lock">
-          <bit-switch></bit-switch>
-          <bit-label>Auto-lock</bit-label>
-          <bit-hint>Automatically lock after inactivity</bit-hint>
-        </bit-form-control-card>
-      </bit-form-control-group>
+          <bit-form-control-card icon="bwi-lock">
+            <bit-switch formControlName="autoLock"></bit-switch>
+            <bit-label>Auto-lock</bit-label>
+            <bit-hint>Automatically lock after inactivity</bit-hint>
+          </bit-form-control-card>
+        </bit-form-control-group>
+      </form>
     `,
   }),
 };
