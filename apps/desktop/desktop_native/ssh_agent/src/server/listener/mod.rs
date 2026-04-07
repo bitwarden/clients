@@ -33,7 +33,7 @@ pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
 #[cfg(windows)]
 pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
     // TODO: PM-30763 add named pipe here
-    Ok(vec![])
+    Ok::<std::vec::Vec<_>, anyhow::Error>(vec![])
 }
 
 /// Spawns an independent tokio task for each listener in `listeners`.
