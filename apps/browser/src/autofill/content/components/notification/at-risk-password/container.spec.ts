@@ -53,7 +53,7 @@ describe("AtRiskNotification", () => {
         },
       });
 
-      expect(chrome.i18n.getMessage).toHaveBeenCalledWith("atRiskChangePrompt", "Acme Co.");
+      expect(chrome.i18n.getMessage).toHaveBeenCalledWith("atRiskChangePromptV2", "Acme Co.");
     });
 
     it("uses atRiskNavigatePrompt when passwordChangeUri is absent from params", () => {
@@ -64,7 +64,7 @@ describe("AtRiskNotification", () => {
         },
       });
 
-      expect(chrome.i18n.getMessage).toHaveBeenCalledWith("atRiskNavigatePrompt", "Acme Co.");
+      expect(chrome.i18n.getMessage).toHaveBeenCalledWith("atRiskNavigatePromptV2", "Acme Co.");
     });
   });
 
