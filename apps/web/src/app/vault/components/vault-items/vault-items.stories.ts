@@ -19,6 +19,7 @@ import {
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -27,9 +28,11 @@ import {
   Environment,
   EnvironmentService,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -120,7 +123,7 @@ export default {
           useValue: {
             getFeatureFlag$() {
               // does not currently affect any display logic, default all to OFF
-              return false;
+              return of(false);
             },
           },
         },
@@ -155,6 +158,30 @@ export default {
               type: null,
             }),
           },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            async getAccount() {
+              return { id: "account-id", profile: { name: "Foo" } };
+            },
+          } as Partial<AccountService>,
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            isDesktop() {
+              return false;
+            },
+          } as Partial<PlatformUtilsService>,
+        },
+        {
+          provide: CipherService,
+          useValue: {
+            updateLastLaunchedDate() {
+              return void 0;
+            },
+          } as Partial<CipherService>,
         },
       ],
     }),
