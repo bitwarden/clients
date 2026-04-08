@@ -130,7 +130,7 @@
       ></button>
       <bit-menu #cipherOptions>
         @if (!(showCopyAndLaunchActions$ | async)) {
-          <ng-container *ngIf="isLoginCipher">
+          @if (isLoginCipher) {
             <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copyUsername" | i18n }}
@@ -145,20 +145,20 @@
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copyVerificationCode" | i18n }}
             </button>
-            <a
-              bitMenuItem
-              *ngIf="canLaunch"
-              type="button"
-              [href]="launchUri"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <i class="bwi bwi-fw bwi-external-link" aria-hidden="true"></i>
-              {{ "launch" | i18n }}
-            </a>
-          </ng-container>
+            @if (canLaunch) {
+              <button
+                type="button"
+                bitMenuItem
+                (click)="openUri(launchUri)"
+                bitIconButton="bwi-external-link"
+                [label]="'launchWebsiteName' | i18n: cipher.name"
+              >
+                {{ "launch" | i18n }}
+              </button>
+            }
+          }
 
-          <ng-container *ngIf="isCardCipher">
+          @if (isCardCipher) {
             <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher">
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copyNumber" | i18n }}
@@ -167,9 +167,9 @@
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copySecurityCode" | i18n }}
             </button>
-          </ng-container>
+          }
 
-          <ng-container *ngIf="isIdentityCipher">
+          @if (isIdentityCipher) {
             <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copyUsername" | i18n }}
@@ -186,16 +186,18 @@
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copyAddress" | i18n }}
             </button>
-          </ng-container>
+          }
 
-          <ng-container *ngIf="isSecureNoteCipher">
+          @if (isSecureNoteCipher) {
             <button type="button" bitMenuItem appCopyField="secureNote" [cipher]="cipher">
               <i class="bwi bwi-fw bwi-clone" aria-hidden="true"></i>
               {{ "copyNote" | i18n }}
             </button>
-          </ng-container>
+          }
 
-          <bit-menu-divider *ngIf="showMenuDivider"></bit-menu-divider>
+          @if (showMenuDivider) {
+            <bit-menu-divider></bit-menu-divider>
+          }
         }
         @if (showFavorite) {
           <button bitMenuItem type="button" (click)="toggleFavorite()">

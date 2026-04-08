@@ -64,7 +64,7 @@ describe("ItemCopyActionsComponent", () => {
   it("passes quick copy mode through when enabled by the popup service", () => {
     const sharedComponent = getSharedComponent();
 
-    expect(sharedComponent.showQuickCopyActions).toBe(true);
+    expect(sharedComponent.showQuickCopyActions()).toBe(true);
   });
 
   it("passes quick copy mode through when disabled by the popup service", () => {
@@ -72,6 +72,6 @@ describe("ItemCopyActionsComponent", () => {
 
     const sharedComponent = getSharedComponent();
 
-    expect(sharedComponent.showQuickCopyActions).toBe(false);
+    expect(sharedComponent.showQuickCopyActions()).toBe(false);
   });
 });
