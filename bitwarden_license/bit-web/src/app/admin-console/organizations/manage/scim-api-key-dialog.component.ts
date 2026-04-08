@@ -7,6 +7,8 @@ import { OrganizationApiKeyType } from "@bitwarden/common/admin-console/enums";
 import { OrganizationApiKeyRequest } from "@bitwarden/common/admin-console/models/request/organization-api-key.request";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { Verification } from "@bitwarden/common/auth/types/verification";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -16,6 +18,8 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
+  IconButtonModule,
+  ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -40,6 +44,7 @@ export interface ScimApiKeyDialogResult {
     AsyncActionsModule,
     CalloutModule,
     FormFieldModule,
+    IconButtonModule,
     UserVerificationFormInputComponent,
   ],
 })
@@ -49,6 +54,9 @@ export class ScimApiKeyDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly userVerificationService = inject(UserVerificationService);
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly toastService = inject(ToastService);
+  private readonly i18nService = inject(I18nService);
 
   protected readonly clientSecret = signal<string | undefined>(undefined);
 
@@ -83,6 +91,18 @@ export class ScimApiKeyDialogComponent {
 
     this.clientSecret.set(response.apiKey);
   };
+
+  copyScimKey() {
+    const secret = this.clientSecret();
+    if (secret) {
+      this.platformUtilsService.copyToClipboard(secret);
+      this.toastService.showToast({
+        message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
+        variant: "success",
+        title: null,
+      });
+    }
+  }
 
   close() {
     const secret = this.clientSecret();

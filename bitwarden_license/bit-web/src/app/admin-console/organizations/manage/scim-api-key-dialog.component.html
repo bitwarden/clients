@@ -19,6 +19,13 @@
         <bit-form-field>
           <bit-label>{{ "scimApiKey" | i18n }}</bit-label>
           <input bitInput id="clientSecret" type="text" [value]="clientSecret()" disabled />
+          <button
+            type="button"
+            bitSuffix
+            bitIconButton="bwi-clone"
+            (click)="copyScimKey()"
+            [label]="'copyScimKey' | i18n"
+          ></button>
         </bit-form-field>
       }
     </div>

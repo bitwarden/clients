@@ -238,28 +238,6 @@ describe("ScimComponent", () => {
     }));
   });
 
-  describe("copyScimKey", () => {
-    beforeEach(fakeAsync(() => {
-      initComponent(mockConnection(true));
-      void component.load();
-      tick();
-    }));
-
-    it("copies the client secret value to clipboard and shows toast", fakeAsync(() => {
-      component.formData.patchValue({ clientSecret: "my-secret-key" });
-
-      void component.copyScimKey();
-      tick();
-
-      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("my-secret-key");
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        message: "valueCopied",
-        variant: "success",
-        title: null,
-      });
-    }));
-  });
-
   describe("submit", () => {
     beforeEach(fakeAsync(() => {
       initComponent(mockConnection(true));

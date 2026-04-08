@@ -8,7 +8,8 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { ApiKeyResponse } from "@bitwarden/common/auth/models/response/api-key.response";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ScimApiKeyDialogComponent, ScimApiKeyDialogData } from "./scim-api-key-dialog.component";
@@ -37,6 +38,8 @@ describe("ScimApiKeyDialogComponent", () => {
         { provide: UserVerificationService, useValue: userVerificationService },
         { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
         { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nPipe, useValue: i18nPipe },
       ],
     }).compileComponents();

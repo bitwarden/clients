@@ -117,15 +117,6 @@ export class ScimComponent implements OnInit {
     }
   };
 
-  copyScimKey = async () => {
-    this.platformUtilsService.copyToClipboard(this.formData.get("clientSecret").value);
-    this.toastService.showToast({
-      message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
-      variant: "success",
-      title: null,
-    });
-  };
-
   submit = async () => {
     const request = new OrganizationConnectionRequest(
       this.organizationId,
