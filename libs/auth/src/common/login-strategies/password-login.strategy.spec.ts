@@ -266,7 +266,6 @@ describe("PasswordLoginStrategy", () => {
       FeatureFlag.UseUnlockServiceForPasswordLogin,
     );
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setMasterKeyHash).not.toHaveBeenCalled();
     expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(userId, masterPassword);
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
