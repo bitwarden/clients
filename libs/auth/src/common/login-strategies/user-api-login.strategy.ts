@@ -55,10 +55,11 @@ export class UserApiLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    if (
+    const sdkHandledKeyConnector =
       response.canUnlockWithKeyConnector() &&
-      !(await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk))
-    ) {
+      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
+
+    if (!sdkHandledKeyConnector && response.apiUseKeyConnector) {
       const env = await firstValueFrom(this.environmentService.environment$);
       const keyConnectorUrl = env.getKeyConnectorUrl();
       await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
@@ -69,18 +70,16 @@ export class UserApiLoginStrategy extends LoginStrategy {
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    if (
+    const sdkHandledKeyConnector =
       response.canUnlockWithKeyConnector() &&
-      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk))
-    ) {
+      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
+
+    if (sdkHandledKeyConnector) {
       await this.unlockService.unlockWithKeyConnector(
         userId,
         response.intoKeyConnectorUnlockData(),
       );
-    } else if (
-      response.canUnlockWithKeyConnector() &&
-      !(await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk))
-    ) {
+    } else if (response.apiUseKeyConnector) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (masterKey) {

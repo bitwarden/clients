@@ -217,6 +217,22 @@ describe("UserApiLoginStrategy", () => {
     expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
   });
 
+  it("uses the legacy Key Connector master key path when SDK handling is disabled", async () => {
+    const tokenResponse = identityTokenResponseFactory();
+    tokenResponse.apiUseKeyConnector = true;
+    tokenResponse.canUnlockWithKeyConnector = jest.fn().mockReturnValue(false);
+
+    const env = mock<Environment>();
+    env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
+    environmentService.environment$ = new BehaviorSubject(env);
+
+    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+    await apiLogInStrategy.logIn(credentials);
+
+    expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
+  });
+
   it("uses unlock service when SDK key connector feature flag is enabled", async () => {
     const tokenResponse = identityTokenResponseFactory(undefined, {
       HasMasterPassword: false,
@@ -244,7 +260,7 @@ describe("UserApiLoginStrategy", () => {
 
   it("decrypts and sets the user key if Key Connector is enabled", async () => {
     const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
+    const masterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
 
     const tokenResponse = identityTokenResponseFactory();
     tokenResponse.apiUseKeyConnector = true;
@@ -259,6 +275,36 @@ describe("UserApiLoginStrategy", () => {
 
     await apiLogInStrategy.logIn(credentials);
 
+    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
+      masterKey,
+      userId,
+      undefined,
+    );
+    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+  });
+
+  it("uses the legacy Key Connector user key path when SDK handling is disabled", async () => {
+    const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
+    const masterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
+
+    const tokenResponse = identityTokenResponseFactory();
+    tokenResponse.apiUseKeyConnector = true;
+    tokenResponse.canUnlockWithKeyConnector = jest.fn().mockReturnValue(false);
+
+    const env = mock<Environment>();
+    env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
+    environmentService.environment$ = new BehaviorSubject(env);
+
+    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+    masterPasswordService.masterKeySubject.next(masterKey);
+    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
+
+    await apiLogInStrategy.logIn(credentials);
+
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+      tokenResponse.key,
+      userId,
+    );
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
       masterKey,
       userId,
