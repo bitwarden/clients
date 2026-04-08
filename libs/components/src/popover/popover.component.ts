@@ -23,14 +23,7 @@ import { PopoverHeaderDirective } from "./popover-header.directive";
  */
 @Component({
   selector: "bit-popover",
-  imports: [
-    A11yModule,
-    I18nPipe,
-    IconButtonModule,
-    TypographyModule,
-    PopoverHeaderDirective,
-    PopoverFooterDirective,
-  ],
+  imports: [A11yModule, I18nPipe, IconButtonModule, TypographyModule],
   templateUrl: "./popover.component.html",
   styleUrl: "./popover.component.css",
   exportAs: "popoverComponent",
