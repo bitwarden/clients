@@ -3,9 +3,10 @@
   class="tw-flex tw-items-center tw-relative tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 has-[label:hover]:tw-border-border-brand-soft has-[input:focus-visible]:tw-ring-2 has-[input:focus-visible]:tw-ring-border-focus has-[input:focus-visible]:tw-border-transparent has-[input:checked]:tw-bg-bg-brand-soft"
   (change)="onInnerChange()"
 >
+  <!-- label z-index to ensure label sits on top of switch thumb control(z-index: 2) -->
   <label
     [for]="base.inputId()"
-    class="tw-absolute tw-top-0 tw-left-0 tw-size-full"
+    class="tw-absolute tw-top-0 tw-left-0 tw-size-full tw-z-[3]"
     [class]="base.formControl().disabled ? 'tw-cursor-default' : 'tw-cursor-pointer'"
   ></label>
 

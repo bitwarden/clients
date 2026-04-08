@@ -104,7 +104,7 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
       "tw-items-center",
       "tw-justify-center",
       "tw-absolute",
-      "tw-z-10",
+      "tw-z-[2]",
       "tw-block",
       "tw-bg-text-alt2",
       "tw-rounded-full",
