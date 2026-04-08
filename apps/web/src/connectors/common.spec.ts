@@ -145,14 +145,14 @@ describe("common connector utilities", () => {
         setLocation(`https://${hostname}/connector`, hostname);
         expect(isKnownCloudOrigin()).toBe(true);
       });
-
-      it("returns true for localhost", () => {
-        setLocation("http://localhost/connector", "localhost");
-        expect(isKnownCloudOrigin()).toBe(true);
-      });
     });
 
     describe("rejects unmanaged domains", () => {
+      it("returns false for localhost", () => {
+        setLocation("http://localhost/connector", "localhost");
+        expect(isKnownCloudOrigin()).toBe(false);
+      });
+
       it("returns false for a customer self-hosted domain", () => {
         setLocation("https://vault.customer.com/connector", "vault.customer.com");
         expect(isKnownCloudOrigin()).toBe(false);

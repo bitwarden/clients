@@ -3,11 +3,9 @@
  * Determined by window.location.hostname, which reflects the actual serving domain.
  */
 export function isKnownCloudOrigin(): boolean {
+  // https://bitwarden.atlassian.net/browse/PM-32091
   const managedSuffixes = [".bitwarden.com", ".bitwarden.eu", ".bitwarden.pw"];
   const hostname = window.location.hostname || "";
-  if (hostname === "localhost") {
-    return true;
-  }
   return managedSuffixes.some((suffix) => hostname.endsWith(suffix));
 }
 

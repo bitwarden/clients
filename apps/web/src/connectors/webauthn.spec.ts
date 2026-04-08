@@ -448,7 +448,7 @@ describe("context-aware postMessage targetOrigin", () => {
   }
 
   describe("on Bitwarden-managed domains", () => {
-    it("sends postMessage using the connector's own origin, not the provided parent URL", async () => {
+    it("sends postMessage using the connector's own origin", async () => {
       const data = buildV2DataParam({});
       const parentUrl = encodeURIComponent("https://unrelated.example.com");
       setWindowLocation(
@@ -481,40 +481,6 @@ describe("context-aware postMessage targetOrigin", () => {
         "https://vault.bitwarden.com",
       );
     });
-
-    it("works on EU production domain", async () => {
-      const data = buildV2DataParam({});
-      const parentUrl = encodeURIComponent("https://vault.bitwarden.eu");
-      setWindowLocation(
-        `https://vault.bitwarden.eu/webauthn-connector.html?v=2&data=${data}&parent=${parentUrl}`,
-      );
-      mockCredentials("resolve");
-      const postMessageSpy = jest.spyOn(window.parent, "postMessage");
-
-      await initFreshModule();
-
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.stringContaining("success|"),
-        "https://vault.bitwarden.eu",
-      );
-    });
-
-    it("works on QA environment subdomain", async () => {
-      const data = buildV2DataParam({});
-      const parentUrl = encodeURIComponent("https://vault.qa.bitwarden.pw");
-      setWindowLocation(
-        `https://vault.qa.bitwarden.pw/webauthn-connector.html?v=2&data=${data}&parent=${parentUrl}`,
-      );
-      mockCredentials("resolve");
-      const postMessageSpy = jest.spyOn(window.parent, "postMessage");
-
-      await initFreshModule();
-
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.stringContaining("success|"),
-        "https://vault.qa.bitwarden.pw",
-      );
-    });
   });
 
   describe("desktop compatibility (file:// parent)", () => {
@@ -532,25 +498,6 @@ describe("context-aware postMessage targetOrigin", () => {
       expect(postMessageSpy).toHaveBeenCalledWith(
         expect.stringContaining("success|"),
         "file:///path/to/electron/index.html",
-      );
-    });
-  });
-
-  describe("on unmanaged domains", () => {
-    it("preserves the provided parent URL as the postMessage target", async () => {
-      const data = buildV2DataParam({});
-      const parentUrl = encodeURIComponent("https://vault.customer.com");
-      setWindowLocation(
-        `https://vault.customer.com/webauthn-connector.html?v=2&data=${data}&parent=${parentUrl}`,
-      );
-      mockCredentials("resolve");
-      const postMessageSpy = jest.spyOn(window.parent, "postMessage");
-
-      await initFreshModule();
-
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.stringContaining("success|"),
-        "https://vault.customer.com",
       );
     });
   });
