@@ -208,24 +208,24 @@ const Template: Story = {
           </bit-nav-group>
           <bit-nav-group text="Organizations" icon="bwi-business" [open]="true">
             <bit-nav-item text="Acme Corp" icon="bwi-collection-shared"></bit-nav-item>
-            <bit-nav-item text="Acme Corp — Vault" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Acme Corp — Members" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Acme Corp — Settings" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Acme Corp — Vault"></bit-nav-item>
+            <bit-nav-item text="Acme Corp — Members"></bit-nav-item>
+            <bit-nav-item text="Acme Corp — Settings"></bit-nav-item>
             <bit-nav-item text="My Family" icon="bwi-collection-shared"></bit-nav-item>
-            <bit-nav-item text="My Family — Vault" variant="tree"></bit-nav-item>
-            <bit-nav-item text="My Family — Members" variant="tree"></bit-nav-item>
+            <bit-nav-item text="My Family — Vault"></bit-nav-item>
+            <bit-nav-item text="My Family — Members"></bit-nav-item>
             <bit-nav-item text="Initech" icon="bwi-collection-shared"></bit-nav-item>
-            <bit-nav-item text="Initech — Vault" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Initech — Members" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Initech — Settings" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Initech — Vault"></bit-nav-item>
+            <bit-nav-item text="Initech — Members"></bit-nav-item>
+            <bit-nav-item text="Initech — Settings"></bit-nav-item>
             <bit-nav-item text="Umbrella Corp" icon="bwi-collection-shared"></bit-nav-item>
-            <bit-nav-item text="Umbrella Corp — Vault" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Umbrella Corp — Members" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Umbrella Corp — Settings" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp — Vault"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp — Members"></bit-nav-item>
+            <bit-nav-item text="Umbrella Corp — Settings"></bit-nav-item>
             <bit-nav-item text="Stark Industries" icon="bwi-collection-shared"></bit-nav-item>
-            <bit-nav-item text="Stark Industries — Vault" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Stark Industries — Members" variant="tree"></bit-nav-item>
-            <bit-nav-item text="Stark Industries — Settings" variant="tree"></bit-nav-item>
+            <bit-nav-item text="Stark Industries — Vault"></bit-nav-item>
+            <bit-nav-item text="Stark Industries — Members"></bit-nav-item>
+            <bit-nav-item text="Stark Industries — Settings"></bit-nav-item>
           </bit-nav-group>
           <bit-nav-item text="Settings" icon="bwi-cog"></bit-nav-item>
           <ng-container slot="product-switcher">

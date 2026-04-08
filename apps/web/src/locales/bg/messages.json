@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Приложенията не успяха да бъдат отбелязани като важни"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Приложенията не успяха да бъдат премахнати от важните"
+  },
   "application": {
     "message": "Приложение"
   },
@@ -3398,6 +3401,9 @@
   "discount": {
     "message": "отстъпка"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Отстъпката е изтекла. Моля, прегледайте крайната цена в количката си и опитайте отново."
+  },
   "downloadLicense": {
     "message": "Изтегляне на лиценз"
   },
@@ -3804,6 +3810,15 @@
   },
   "policies": {
     "message": "Политики"
+  },
+  "dataControls": {
+    "message": "Управление на данните"
+  },
+  "authentication": {
+    "message": "Удостоверяване"
+  },
+  "vaultManagement": {
+    "message": "Управление на трезора"
   },
   "singleSignOn": {
     "message": "Еднократна идентификация"
@@ -4288,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 или повече е-пощи принадлежат на членове с преустановен достъп. Възстановете достъпа им, за да ги поканите отново."
   },
   "restoredUserId": {
     "message": "Достъпът на $ID$ до организацията е възстановен.",
@@ -6226,6 +6244,16 @@
     "message": "Поради политика на организация, може само да изтривате съществуващи изпращания.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Управление на Изпращанията"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Управлявайте настройките си за създаване и редактиране на Изпращания, включително и възможността да ги премахвате.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Членовете на организацията, които имат права да управляват политиките ѝ, не са ограничени от тази политика."
+  },
   "sendOptions": {
     "message": "Настройки за изпращането",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6485,6 +6513,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Потвърдете е-пощата си, за да видите това Изпращане",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Не получихте код? Свържете се с подателя, за да потвърдите адреса на е-пощата си или ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Повторно пращане на кода за потвърждаване",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Потребителят, който е създал това изпращане, е избрал да скрие адреса на своята е-поща. Уверете се, че източникът на тази връзка е достоверен, преди да я последвате или да свалите съдържание чрез нея.",

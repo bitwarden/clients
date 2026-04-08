@@ -2,7 +2,7 @@
 @let term = this.term();
 @let hideTerm = this.hidePricingTerm();
 <div class="tw-size-full">
-  <div class="tw-flex tw-items-center tw-pb-2">
+  <div class="tw-flex tw-items-center tw-pb-2 tw-gap-0.5">
     <div class="tw-flex tw-items-center">
       @if (this.header(); as header) {
         <ng-container *ngTemplateOutlet="header; context: { total: total() }" />
@@ -17,7 +17,7 @@
         </h2>
         <span bitTypography="h3">&nbsp;</span>
         @if (!hideTerm) {
-          <span bitTypography="body1" class="tw-text-muted tw-ms-2"> / {{ term | i18n }} </span>
+          <span bitTypography="body1" class="tw-text-muted tw-ms-1"> / {{ term | i18n }} </span>
         }
       }
     </div>

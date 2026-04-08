@@ -251,7 +251,7 @@ type StateUpdateOptions = {
 }
 ```
 
-> [!WARNING] > `firstValueFrom()` and state updates
+> [!WARNING] `firstValueFrom()` and state updates
 >
 > A usage pattern of updating state and then immediately requesting a value through `firstValueFrom()` > **will not always result in the updated value being returned**. This is because we cannot guarantee
 > that the update has taken place before the `firstValueFrom()` executes, in which case the previous
