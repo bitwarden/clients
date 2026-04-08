@@ -4,24 +4,22 @@
 >
   <div class="tw-flex tw-px-6 tw-flex-col tw-items-center tw-gap-2 tw-text-center">
     @if (!hideIcon()) {
-      @if (hasIcon) {
-        <ng-content select="[bitDialogIcon]"></ng-content>
-      } @else {
-        <i class="bwi bwi-exclamation-triangle tw-text-3xl tw-text-warning" aria-hidden="true"></i>
-      }
+      <ng-content select="[bitDialogIcon]">
+        <bit-icon name="bwi-exclamation-triangle" class="tw-text-3xl tw-text-warning"></bit-icon>
+      </ng-content>
     }
     <h1
       bitDialogTitleContainer
       bitTypography="h3"
       noMargin
-      class="tw-w-full tw-text-main tw-break-words tw-hyphens-auto"
+      class="tw-w-full tw-text-main tw-break-words focus-visible:tw-outline-none"
+      #dialogHeader
+      tabindex="-1"
     >
       <ng-content select="[bitDialogTitle]"></ng-content>
     </h1>
   </div>
-  <div
-    class="tw-overflow-y-auto tw-px-6 tw-mb-6 tw-text-center tw-text-base tw-break-words tw-hyphens-auto"
-  >
+  <div class="tw-overflow-y-auto tw-px-6 tw-mb-6 tw-text-center tw-text-base tw-break-words">
     <ng-content select="[bitDialogContent]"></ng-content>
   </div>
   <div class="tw-flex tw-flex-col tw-gap-2 tw-px-6">

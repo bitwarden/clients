@@ -1,35 +1,77 @@
 <bit-dialog #dialog dialogSize="large" background="alt">
   <span bitDialogTitle>
-    {{ headerText }}
+    @if (showGenerator()) {
+      {{ "passwordGenerator" | i18n }}
+    } @else {
+      {{ headerText }}
+    }
   </span>
+  @if (showGenerator()) {
+    <button
+      bitDialogHeaderEnd
+      type="button"
+      bitIconButton="bwi-close"
+      buttonType="primaryGhost"
+      size="default"
+      [label]="'close' | i18n"
+      (click)="closeGenerator()"
+    ></button>
+  }
   <span bitDialogContent>
-    <tools-send-form
-      formId="sendForm"
-      [config]="config"
-      (onSendCreated)="onSendCreated($event)"
-      (onSendUpdated)="onSendUpdated($event)"
-      [submitBtn]="submitBtn"
-    >
-    </tools-send-form>
+    <div [hidden]="showGenerator()">
+      <tools-send-form
+        formId="sendForm"
+        [config]="config"
+        (onSendCreated)="onSendCreated($event)"
+        (onSendUpdated)="onSendUpdated($event)"
+        (openPasswordGenerator)="openGenerator()"
+        [submitBtn]="submitBtn"
+      >
+      </tools-send-form>
+    </div>
+    @if (showGenerator()) {
+      <vault-cipher-form-generator
+        type="password"
+        (valueGenerated)="onValueGenerated($event)"
+        (algorithmSelected)="onAlgorithmSelected($event)"
+        disableMargin
+      ></vault-cipher-form-generator>
+    }
   </span>
 
   <ng-container bitDialogFooter>
-    <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
-      {{ "save" | i18n }}
-    </button>
-    <button bitButton type="button" buttonType="secondary" bitDialogClose>
-      {{ "cancel" | i18n }}
-    </button>
-    <div class="tw-ml-auto">
+    @if (showGenerator()) {
       <button
-        *ngIf="config?.mode !== 'add'"
         type="button"
-        buttonType="danger"
-        slot="end"
-        bitIconButton="bwi-trash"
-        [bitAction]="deleteSend"
-        label="{{ 'delete' | i18n }}"
-      ></button>
+        bitButton
+        buttonType="primary"
+        (click)="useGeneratedPassword()"
+        [disabled]="!(generatorButtonLabel() && generatedValue())"
+      >
+        {{ generatorButtonLabel() }}
+      </button>
+      <button bitButton type="button" buttonType="secondary" (click)="closeGenerator()">
+        {{ "cancel" | i18n }}
+      </button>
+    }
+    <div [hidden]="showGenerator()" class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-flex-1">
+      <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
+        {{ "save" | i18n }}
+      </button>
+      <button bitButton type="button" buttonType="secondary" bitDialogClose>
+        {{ "cancel" | i18n }}
+      </button>
+      <div class="tw-ml-auto">
+        <button
+          *ngIf="config?.mode !== 'add'"
+          type="button"
+          buttonType="dangerGhost"
+          slot="end"
+          bitIconButton="bwi-trash"
+          [bitAction]="deleteSend"
+          label="{{ 'delete' | i18n }}"
+        ></button>
+      </div>
     </div>
   </ng-container>
 </bit-dialog>
