@@ -371,7 +371,6 @@ export default tseslint.config(
             "logo",
             "logo-themed",
             "file-selector",
-            "mfaType.*",
             "filter.*", // Temporary until filters are migrated
             "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",
@@ -688,11 +687,9 @@ export default tseslint.config(
       "**/jest.config.js",
 
       "apps/browser/config/config.js",
-      "apps/browser/src/auth/scripts/duo.js",
       "apps/browser/webpack/manifest.js",
 
       "apps/desktop/desktop_native",
-      "apps/desktop/src/auth/scripts/duo.js",
 
       "apps/web/config.js",
       "apps/web/scripts/*.js",

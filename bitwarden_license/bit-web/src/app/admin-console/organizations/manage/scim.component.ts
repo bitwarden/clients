@@ -6,13 +6,8 @@ import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import {
-  OrganizationApiKeyType,
-  OrganizationConnectionType,
-} from "@bitwarden/common/admin-console/enums";
+import { OrganizationConnectionType } from "@bitwarden/common/admin-console/enums";
 import { ScimConfigApi } from "@bitwarden/common/admin-console/models/api/scim-config.api";
-import { OrganizationApiKeyRequest } from "@bitwarden/common/admin-console/models/request/organization-api-key.request";
 import { OrganizationConnectionRequest } from "@bitwarden/common/admin-console/models/request/organization-connection.request";
 import { ScimConfigRequest } from "@bitwarden/common/admin-console/models/request/scim-config.request";
 import { OrganizationConnectionResponse } from "@bitwarden/common/admin-console/models/response/organization-connection.response";
@@ -20,6 +15,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+
+import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -48,7 +45,6 @@ export class ScimComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
     private toastService: ToastService,
   ) {}
@@ -70,19 +66,27 @@ export class ScimComponent implements OnInit {
     await this.setConnectionFormValues(connection);
   }
 
-  async loadApiKey() {
-    const apiKeyRequest = new OrganizationApiKeyRequest();
-    apiKeyRequest.type = OrganizationApiKeyType.Scim;
-    apiKeyRequest.masterPasswordHash = "N/A";
-    const apiKeyResponse = await this.organizationApiService.getOrCreateApiKey(
-      this.organizationId,
-      apiKeyRequest,
-    );
-    this.formData.setValue({
-      endpointUrl: await this.getScimEndpointUrl(),
-      clientSecret: apiKeyResponse.apiKey,
+  loadApiKey = async () => {
+    if (this.showScimKey) {
+      this.showScimKey = false;
+      this.formData.patchValue({ clientSecret: "••••••••••••••••" });
+      return;
+    }
+
+    const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
+      organizationId: this.organizationId,
+      isRotation: false,
     });
-  }
+
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.apiKey) {
+      this.formData.setValue({
+        endpointUrl: await this.getScimEndpointUrl(),
+        clientSecret: result.apiKey,
+      });
+      this.showScimKey = true;
+    }
+  };
 
   copyScimUrl = async () => {
     this.platformUtilsService.copyToClipboard(await this.getScimEndpointUrl());
@@ -94,31 +98,23 @@ export class ScimComponent implements OnInit {
   };
 
   rotateScimKey = async () => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "rotateScimKey" },
-      content: { key: "rotateScimKeyWarning" },
-      acceptButtonText: { key: "rotateKey" },
-      type: "warning",
+    const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
+      organizationId: this.organizationId,
+      isRotation: true,
     });
 
-    if (!confirmed) {
-      return false;
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.apiKey) {
+      this.formData.setValue({
+        endpointUrl: await this.getScimEndpointUrl(),
+        clientSecret: result.apiKey,
+      });
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("scimApiKeyRotated"),
+      });
     }
-
-    const request = new OrganizationApiKeyRequest();
-    request.type = OrganizationApiKeyType.Scim;
-    request.masterPasswordHash = "N/A";
-
-    const response = await this.organizationApiService.rotateApiKey(this.organizationId, request);
-    this.formData.setValue({
-      endpointUrl: await this.getScimEndpointUrl(),
-      clientSecret: response.apiKey,
-    });
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("scimApiKeyRotated"),
-    });
   };
 
   copyScimKey = async () => {
@@ -162,11 +158,6 @@ export class ScimComponent implements OnInit {
     return env.getScimUrl() + "/" + this.organizationId;
   }
 
-  toggleScimKey = () => {
-    this.showScimKey = !this.showScimKey;
-    document.getElementById("clientSecret").focus();
-  };
-
   private async setConnectionFormValues(connection: OrganizationConnectionResponse<ScimConfigApi>) {
     this.existingConnectionId = connection?.id;
     if (connection !== null && connection.config?.enabled) {
@@ -174,9 +165,8 @@ export class ScimComponent implements OnInit {
       this.enabled.setValue(true);
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
-        clientSecret: "",
+        clientSecret: "••••••••••••••••",
       });
-      await this.loadApiKey();
     } else {
       this.showScimSettings = false;
       this.enabled.setValue(false);

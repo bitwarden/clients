@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Deblocați opțiunile"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configurați metoda de deblocare care să schimbe acțiunea de expirare a seifului."
-  },
   "unlockMethodNeeded": {
     "message": "Setați o metodă de deblocare in setări"
   },
   "sessionTimeoutHeader": {
     "message": "Expirarea sesiunii"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Vault timeout"
   },
   "otherOptions": {
     "message": "Alte opțiuni"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Parola principală aleasă este slabă. Ar trebui să folosiți o parolă principală (sau o frază de acces) puternică pentru a vă proteja corespunzător contul Bitwarden. Sigur doriți să folosiți această parolă principală?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Acțiune la expirarea seifului"
   },
-  "vaultTimeoutAction1": {
-    "message": "Timeout action"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Blocare",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Minute"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Politicile organizației dvs. au stabilit timpul maxim de expirare permis pentru seif la $HOURS$ oră/ore și $MINUTES$ de minut(e).",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "Vault data exported"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

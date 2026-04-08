@@ -1,105 +1,87 @@
-import { Component, EventEmitter, Input, Output } from "@angular/core";
-import { Router } from "@angular/router";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitwarden/components";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dirt-activity-card",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./activity-card.component.html",
-  imports: [TypographyModule, JslibModule, LinkModule, ButtonModule],
+  imports: [TypographyModule, LinkModule, ButtonModule],
   host: {
     class:
-      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border tw-border-secondary-300 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-min-h-56 tw-overflow-hidden",
+      "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border-secondary-100 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-min-h-56 tw-overflow-hidden",
   },
 })
 export class ActivityCardComponent {
   /**
    * The title of the card goes here
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() title: string = "";
+  readonly title = input.required<string>();
   /**
    * The card metrics text to display next to the value
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() cardMetrics: string = "";
+  readonly cardMetrics = input.required<string>();
   /**
    * The description text to display below the value and metrics
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() metricDescription: string = "";
+  readonly metricDescription = input.required<string>();
 
   /**
    * The text to display for the action link
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() actionText: string = "";
+  readonly actionText = input<string>("");
 
   /**
    * Show action link
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showActionLink: boolean = false;
+  readonly showActionLink = input<boolean>(false);
 
   /**
    * Icon class to display next to metrics (e.g., "bwi-exclamation-triangle").
    * If null, no icon is displayed.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() iconClass: string | null = null;
+  readonly iconClass = input<string | null>(null);
 
   /**
    * CSS class for icon color (e.g., "tw-text-success", "tw-text-muted").
    * Defaults to "tw-text-muted" if not provided.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() iconColorClass: string = "tw-text-muted";
+  readonly iconColorClass = input<string>("tw-text-muted");
 
   /**
    * Button text. If provided, a button will be displayed instead of a navigation link.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() buttonText: string = "";
+  readonly buttonText = input<string>("");
 
   /**
    * Button type (e.g., "primary", "secondary")
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() buttonType: ButtonType = "primary";
+  readonly buttonType = input<ButtonType>("primary");
 
   /**
    * Event emitted when button is clicked
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() buttonClick = new EventEmitter<void>();
+  readonly buttonClick = output<void>();
+
+  /*
+   * To facilitate automated testing, provide a testId that will be
+   * added as a data attribute to the root element of the card
+   * (e.g., <dirt-activity-card [testId]="'my-card'">).
+   * This allows tests to easily select the card using
+   * the data attribute (e.g., [data-test-id="my-card"].
+   */
+  readonly testId = input.required<string>();
 
   /**
    * Event emitted when action link is clicked
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() actionClick = new EventEmitter<void>();
+  readonly actionClick = output<void>();
 
-  constructor(private router: Router) {}
-
-  onButtonClick = () => {
+  readonly onButtonClick = () => {
     this.buttonClick.emit();
   };
 
-  onActionClick = () => {
+  readonly onActionClick = () => {
     this.actionClick.emit();
   };
 }
