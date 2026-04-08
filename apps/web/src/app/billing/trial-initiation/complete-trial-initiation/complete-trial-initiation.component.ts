@@ -89,6 +89,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   productTierValue?: ProductTierType;
 
   trialLength!: number;
+  paymentOptional = false;
 
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
@@ -164,6 +165,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       }
 
       this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : 7;
+      this.paymentOptional = qParams.paymentOptional === "true";
 
       // Are they coming from an email for sponsoring a families organization
       // After logging in redirect them to setup the families sponsorship
@@ -231,8 +233,8 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
-    /** Only skip payment if the flag is on AND trialLength > 0 */
-    if (isTrialPaymentOptional && this.trialLength > 0) {
+    /** Skip payment if flag is on AND (paymentOptional from URL OR trialLength > 0) */
+    if (isTrialPaymentOptional && (this.paymentOptional || this.trialLength > 0)) {
       await this.createOrganizationOnTrial(activeUserId);
     } else {
       await this.conditionallyCreateOrganization(activeUserId);
@@ -349,7 +351,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     map((trialPaymentOptional) => {
       return (
         (!trialPaymentOptional && !this.isSecretsManagerFree) ||
-        (trialPaymentOptional && this.trialLength === 0)
+        (trialPaymentOptional && this.trialLength === 0 && !this.paymentOptional)
       );
     }),
   );
