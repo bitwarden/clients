@@ -56,12 +56,13 @@ where
     /// Stops the ssh agent server
     pub fn stop_server(&mut self) {
         debug!("Stopping the server.");
-        self.server.stop()
+        self.server.stop();
     }
 
     /// # Returns
     ///
     /// `true` if the server is running, `false` if it is not.
+    #[must_use]
     pub fn is_running(&self) -> bool {
         self.server.is_running()
     }

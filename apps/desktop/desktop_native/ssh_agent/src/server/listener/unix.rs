@@ -41,7 +41,7 @@ impl UnixListener {
         info!(?socket_path, "Binding socket");
 
         let listener = tokio::net::UnixListener::bind(&socket_path)
-            .map_err(|e| anyhow!("Unable to bind to socket {socket_path:?}: {e}"))?;
+            .map_err(|e| anyhow!("Unable to bind to socket {}: {e}", socket_path.display()))?;
 
         set_user_permissions(&socket_path)?;
 
@@ -73,7 +73,7 @@ fn get_peer_info(stream: &UnixStream) -> Option<PeerInfo> {
         .peer_cred()
         .ok()
         .and_then(|cred| cred.pid())
-        .map(|pid| pid as u32)?;
+        .and_then(|pid| u32::try_from(pid).ok())?;
 
     PeerInfo::from_pid(pid)
 }
@@ -108,14 +108,18 @@ fn get_default_socket_path() -> Result<PathBuf> {
 }
 
 fn set_user_permissions(path: &PathBuf) -> Result<()> {
-    fs::set_permissions(path, fs::Permissions::from_mode(0o600))
-        .map_err(|e| anyhow!("Could not set socket permissions for {path:?}: {e}"))
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600)).map_err(|e| {
+        anyhow!(
+            "Could not set socket permissions for {}: {e}",
+            path.display()
+        )
+    })
 }
 
 fn remove_stale_socket(path: &PathBuf) -> Result<()> {
     if let Ok(true) = std::fs::exists(path) {
         std::fs::remove_file(path)
-            .map_err(|e| anyhow!("Error removing stale socket {path:?}: {e}"))?;
+            .map_err(|e| anyhow!("Error removing stale socket {}: {e}", path.display()))?;
     }
     Ok(())
 }
