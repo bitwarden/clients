@@ -6619,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "Two-step login reset for user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "Reset SSO link for user $ID$",
     "placeholders": {
