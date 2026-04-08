@@ -3,13 +3,14 @@ import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -75,6 +76,10 @@ describe("VaultCipherRowComponent", () => {
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(true)) },
+        },
         {
           provide: BillingAccountProfileStateService,
           useValue: mock<BillingAccountProfileStateService>(),

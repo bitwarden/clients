@@ -9,12 +9,14 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
@@ -137,12 +139,19 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   ];
   protected organization?: Organization;
 
+  protected showCopyAndLaunchActions$: Observable<boolean>;
+
   constructor(
     private i18nService: I18nService,
     private accountService: AccountService,
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
+    );
+  }
 
   /**
    * Lifecycle hook for component initialization.
