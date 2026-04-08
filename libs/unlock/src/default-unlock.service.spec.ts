@@ -23,6 +23,8 @@ import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 import { StateProvider, StateService } from "@bitwarden/state";
 
+import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
+
 import { DefaultUnlockService } from "./default-unlock.service";
 
 const mockUserId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
@@ -106,6 +108,7 @@ describe("DefaultUnlockService", () => {
 
     const mockStateUpdate = jest.fn().mockResolvedValue(undefined);
     stateProvider.getUser.mockReturnValue({ update: mockStateUpdate } as any);
+    stateProvider.setUserState.mockResolvedValue(undefined);
 
     service = new DefaultUnlockService(
       registerSdkService,
@@ -180,6 +183,11 @@ describe("DefaultUnlockService", () => {
       expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(userEncryptionKey.toBase64(), {
         userId: mockUserId,
       });
+      expect(stateProvider.setUserState).toHaveBeenCalledWith(
+        USER_EVER_HAD_USER_KEY,
+        true,
+        mockUserId,
+      );
     });
   });
 
@@ -207,6 +215,26 @@ describe("DefaultUnlockService", () => {
       await expect(
         service.unlockWithMasterPassword(mockUserId, mockMasterPassword),
       ).rejects.toThrow("SDK not available");
+    });
+
+    it("sets unlock side effects after successful unlock", async () => {
+      const userEncryptionKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray);
+      mockCrypto.get_user_encryption_key.mockResolvedValue(userEncryptionKey.toBase64());
+
+      await service.unlockWithMasterPassword(mockUserId, mockMasterPassword);
+
+      expect(biometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+        mockUserId,
+        expect.any(SymmetricCryptoKey),
+      );
+      expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(userEncryptionKey.toBase64(), {
+        userId: mockUserId,
+      });
+      expect(stateProvider.setUserState).toHaveBeenCalledWith(
+        USER_EVER_HAD_USER_KEY,
+        true,
+        mockUserId,
+      );
     });
   });
 
@@ -246,5 +274,24 @@ describe("DefaultUnlockService", () => {
 
       await expect(service.unlockWithBiometrics(mockUserId)).rejects.toThrow("SDK not available");
     });
-  });
-});
+
+    it("sets unlock side effects after successful unlock", async () => {
+      biometricsService.unlockWithBiometricsForUser.mockResolvedValue(mockUserKey);
+      const userEncryptionKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray);
+      mockCrypto.get_user_encryption_key.mockResolvedValue(userEncryptionKey.toBase64());
+
+      await service.unlockWithBiometrics(mockUserId);
+
+      expect(biometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+        mockUserId,
+        expect.any(SymmetricCryptoKey),
+      );
+      expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(userEncryptionKey.toBase64(), {
+        userId: mockUserId,
+      });
+      expect(stateProvider.setUserState).toHaveBeenCalledWith(
+        USER_EVER_HAD_USER_KEY,
+        true,
+        mockUserId,
+      );
+    });

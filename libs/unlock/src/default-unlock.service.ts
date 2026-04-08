@@ -37,6 +37,7 @@ import { StateProvider, StateService } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockService } from "./unlock.service";
+import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 
 export class DefaultUnlockService implements UnlockService {
   constructor(
@@ -251,6 +252,7 @@ export class DefaultUnlockService implements UnlockService {
     if (await this.shouldStoreSessionKey(userId)) {
       await this.stateService.setUserKeyAutoUnlock(userKey.toBase64(), { userId: userId });
     }
+    await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
   }
 
   private async shouldStoreSessionKey(userId: UserId): Promise<boolean> {
