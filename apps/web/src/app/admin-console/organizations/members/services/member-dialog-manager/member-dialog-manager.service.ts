@@ -7,12 +7,15 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
+import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
 import {
   AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,
@@ -36,6 +39,7 @@ import { BulkActionResult } from "../member-actions/member-actions.service";
 @Injectable()
 export class MemberDialogManagerService {
   constructor(
+    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -89,14 +93,29 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
   ): Promise<AccountRecoveryDialogResultType> {
-    const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
-      data: {
-        name: this.userNamePipe.transform(user),
-        email: user.email,
-        organizationId: organization.id as OrganizationId,
-        organizationUserId: user.id,
-      },
-    });
+    const adminResetTwoFactorEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AdminResetTwoFactor,
+    );
+
+    const dialogRef = adminResetTwoFactorEnabled
+      ? AccountRecoveryDialogV2Component.open(this.dialogService, {
+          data: {
+            name: this.userNamePipe.transform(user),
+            email: user.email,
+            organizationId: organization.id as OrganizationId,
+            organizationUserId: user.id,
+            organizationUserType: user.type,
+          },
+        })
+      : AccountRecoveryDialogComponent.open(this.dialogService, {
+          data: {
+            name: this.userNamePipe.transform(user),
+            email: user.email,
+            organizationId: organization.id as OrganizationId,
+            organizationUserId: user.id,
+            organizationUserType: user.type,
+          },
+        });
 
     const result = await lastValueFrom(dialogRef.closed);
     return result ?? AccountRecoveryDialogResultType.Ok;

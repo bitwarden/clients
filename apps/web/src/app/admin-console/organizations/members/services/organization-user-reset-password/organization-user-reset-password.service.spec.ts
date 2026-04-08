@@ -6,7 +6,6 @@ import { BehaviorSubject, of } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserResetPasswordDetailsResponse,
-  OrganizationUserResetPasswordRequest,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -193,7 +192,7 @@ describe("OrganizationUserResetPasswordService", () => {
 
     it("should reset the user's master password", async () => {
       await sut.resetMasterPassword(mockNewMP, mockEmail, mockOrgUserId, mockOrgId);
-      expect(organizationUserApiService.putOrganizationUserResetPassword).toHaveBeenCalled();
+      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalled();
     });
 
     it("should throw an error if the user details are null", async () => {
@@ -326,11 +325,6 @@ describe("OrganizationUserResetPasswordService", () => {
       await sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
 
       // Assert
-      const request = OrganizationUserResetPasswordRequest.newConstructor(
-        authenticationData,
-        unlockData,
-      );
-
       expect(masterPasswordService.mock.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
         newMasterPassword,
         kdfConfig,
@@ -344,10 +338,15 @@ describe("OrganizationUserResetPasswordService", () => {
         userKey,
       );
 
-      expect(organizationUserApiService.putOrganizationUserResetPassword).toHaveBeenCalledWith(
+      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
         orgId,
         orgUserId,
-        request,
+        expect.objectContaining({
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+          key: unlockData.masterKeyWrappedUserKey,
+        }),
       );
     });
 
@@ -356,16 +355,290 @@ describe("OrganizationUserResetPasswordService", () => {
       await sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
 
       // Assert
-      const request = OrganizationUserResetPasswordRequest.newConstructor(
-        authenticationData,
-        unlockData,
-      );
-      expect(organizationUserApiService.putOrganizationUserResetPassword).toHaveBeenCalledTimes(1);
-      expect(organizationUserApiService.putOrganizationUserResetPassword).toHaveBeenCalledWith(
+      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledTimes(1);
+      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
         orgId,
         orgUserId,
-        request,
+        expect.objectContaining({
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+          key: unlockData.masterKeyWrappedUserKey,
+        }),
       );
+    });
+  });
+
+  describe("recoverAccount", () => {
+    const newMasterPassword = "new-master-password";
+    const email = "user@example.com";
+    const orgUserId = "org-user-id";
+    const orgId = "org-id" as OrganizationId;
+
+    let kdfConfig: KdfConfig;
+    let salt: MasterPasswordSalt;
+    let authenticationData: MasterPasswordAuthenticationData;
+    let unlockData: MasterPasswordUnlockData;
+
+    /** Sets up mocks needed when resetMasterPassword is true */
+    function setupPasswordResetMocks(flagEnabled: boolean) {
+      configService.getFeatureFlag.mockResolvedValue(flagEnabled);
+
+      kdfConfig = DEFAULT_KDF_CONFIG;
+
+      organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+        new OrganizationUserResetPasswordDetailsResponse({
+          organizationUserId: orgUserId,
+          kdf: kdfConfig.kdfType,
+          kdfIterations: kdfConfig.iterations,
+          resetPasswordKey: "test-reset-password-key",
+          encryptedPrivateKey: "test-encrypted-private-key",
+        }),
+      );
+
+      const mockDecryptedOrgKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as OrgKey;
+      keyService.orgKeys$.mockReturnValue(
+        of({ [orgId]: mockDecryptedOrgKey } as Record<OrganizationId, OrgKey>),
+      );
+
+      encryptService.unwrapDecapsulationKey.mockResolvedValue(new Uint8Array(64).fill(2));
+
+      const mockDecryptedUserKey = new SymmetricCryptoKey(new Uint8Array(64).fill(3));
+      encryptService.decapsulateKeyUnsigned.mockResolvedValue(mockDecryptedUserKey);
+
+      if (flagEnabled) {
+        salt = email as MasterPasswordSalt;
+        masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
+
+        authenticationData = {
+          salt,
+          kdf: kdfConfig,
+          masterPasswordAuthenticationHash:
+            "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+        };
+
+        unlockData = {
+          salt,
+          kdf: kdfConfig,
+          masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+        } as MasterPasswordUnlockData;
+
+        masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue(
+          authenticationData,
+        );
+        masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
+      } else {
+        const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+        const mockMasterKey = new SymmetricCryptoKey(mockRandomBytes) as MasterKey;
+        keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
+        keyService.hashMasterKey.mockResolvedValue("test-master-key-hash");
+        const mockEncryptedUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
+        keyService.encryptUserKeyWithMasterKey.mockResolvedValue([
+          mockEncryptedUserKey,
+          new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "test-encrypted-user-key"),
+        ]);
+      }
+    }
+
+    describe("reset 2FA only", () => {
+      beforeEach(() => {
+        // No feature flag or password details needed for 2FA-only reset
+        configService.getFeatureFlag.mockResolvedValue(false);
+      });
+
+      it("should call putOrganizationUserRecoverAccount with resetTwoFactor: true and resetMasterPassword: false", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: false,
+          resetTwoFactor: true,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({ resetMasterPassword: false, resetTwoFactor: true }),
+        );
+      });
+
+      it("should not fetch reset password details when only resetting 2FA", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: false,
+          resetTwoFactor: true,
+        });
+
+        expect(
+          organizationUserApiService.getOrganizationUserResetPasswordDetails,
+        ).not.toHaveBeenCalled();
+      });
+
+      it("should not perform any crypto operations when only resetting 2FA", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: false,
+          resetTwoFactor: true,
+        });
+
+        expect(encryptService.unwrapDecapsulationKey).not.toHaveBeenCalled();
+        expect(encryptService.decapsulateKeyUnsigned).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag DISABLED]", () => {
+      beforeEach(() => {
+        setupPasswordResetMocks(false);
+      });
+
+      it("should call putOrganizationUserRecoverAccount with resetMasterPassword: true and resetTwoFactor: false", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({ resetMasterPassword: true, resetTwoFactor: false }),
+        );
+      });
+
+      it("should throw if reset password details are null", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(null);
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow();
+      });
+
+      it("should throw if org key is null", async () => {
+        keyService.orgKeys$.mockReturnValue(of(null));
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow();
+      });
+    });
+
+    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+      beforeEach(() => {
+        setupPasswordResetMocks(true);
+      });
+
+      it("should call putOrganizationUserRecoverAccount with password data and resetTwoFactor: false", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+            key: unlockData.masterKeyWrappedUserKey,
+          }),
+        );
+      });
+
+      it("should throw if reset password details are null", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(null);
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow();
+      });
+
+      it("should throw if org key cannot be found", async () => {
+        keyService.orgKeys$.mockReturnValue(of({} as Record<OrganizationId, OrgKey>));
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow("No org key found");
+      });
+    });
+
+    describe("reset both master password and 2FA [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+      beforeEach(() => {
+        setupPasswordResetMocks(true);
+      });
+
+      it("should call putOrganizationUserRecoverAccount with both flags true and password data", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: true,
+          newMasterPassword,
+          email,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({
+            resetMasterPassword: true,
+            resetTwoFactor: true,
+            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+            key: unlockData.masterKeyWrappedUserKey,
+          }),
+        );
+      });
+
+      it("should fetch reset password details when resetting both", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: true,
+          newMasterPassword,
+          email,
+        });
+
+        expect(
+          organizationUserApiService.getOrganizationUserResetPasswordDetails,
+        ).toHaveBeenCalledWith(orgId, orgUserId);
+      });
     });
   });
 

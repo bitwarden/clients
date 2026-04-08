@@ -4,6 +4,7 @@ import { switchMap } from "rxjs";
 
 import { InputPasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -47,6 +48,11 @@ export type AccountRecoveryDialogData = {
    * The organization's `organizationId`
    */
   organizationId: OrganizationId;
+
+  /**
+   * The organization user's role type, used to determine policy exemption
+   */
+  organizationUserType: OrganizationUserType;
 };
 
 export const AccountRecoveryDialogResultType = {

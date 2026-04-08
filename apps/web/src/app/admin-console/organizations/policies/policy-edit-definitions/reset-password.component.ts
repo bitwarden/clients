@@ -1,8 +1,9 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom, map, tap } from "rxjs";
 
 import {
   getOrganizationById,
@@ -12,6 +13,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { SharedModule } from "../../../../shared";
@@ -27,7 +29,12 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   component = ResetPasswordPolicyComponent;
 
   display$(organization: Organization, configService: ConfigService) {
-    return of(organization.useResetPassword);
+    return configService.getFeatureFlag$(FeatureFlag.AdminResetTwoFactor).pipe(
+      tap((enabled) => {
+        this.description = enabled ? "accountRecoveryPolicyDescV2" : "accountRecoveryPolicyDesc";
+      }),
+      map(() => organization.useResetPassword),
+    );
   }
 }
 
@@ -38,10 +45,16 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
+  private configService = inject(ConfigService);
+
   data = this.formBuilder.group({
     autoEnrollEnabled: false,
   });
   showKeyConnectorInfo = false;
+  protected readonly adminResetTwoFactorEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.AdminResetTwoFactor),
+    { initialValue: false },
+  );
 
   constructor(
     private formBuilder: FormBuilder,
