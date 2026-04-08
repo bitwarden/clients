@@ -12,9 +12,9 @@ import { Messenger } from "./messaging/messenger";
 
 // ❌ Note: These are no longer directly used by tests (describe.skip blocks the tests that used them)
 // but they're referenced by test code that won't execute, so we keep them to avoid compilation errors.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const originalGlobalThis = globalThis;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 const mockGlobalThisDocument = {
   ...originalGlobalThis.document,
   contentType: "text/html",
