@@ -12,7 +12,7 @@ export default {
   },
   "apps/desktop/desktop_native/**/Cargo.toml": () => {
     const hint =
-      "\nIf you are missing the required Rust tools, you can install them with scripts/prepare-env-rust.sh\n";
+      "\nIf you are missing the required Rust tools, you can install them with scripts/prepare-env-[platform]-rust.sh\n";
     return [
       `sh -c 'cd apps/desktop/desktop_native && cargo sort --workspace --check || (echo "${hint}" && exit 1)'`,
       `sh -c 'cd apps/desktop/desktop_native && cargo +nightly udeps --workspace --all-features --all-targets || (echo "${hint}" && exit 1)'`,
