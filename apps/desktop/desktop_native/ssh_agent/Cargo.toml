@@ -28,7 +28,7 @@ tracing = { workspace = true }
 homedir = { workspace = true }
 libc = { workspace = true }
 
-[dev-dependencies]
+[target.'cfg(unix)'.dev-dependencies]
 mockall = { workspace = true }
 rand = { workspace = true }
 serial_test = "=3.4.0"
