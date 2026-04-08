@@ -283,7 +283,7 @@ describe("LoginStrategyService", () => {
     expect(result).toBeInstanceOf(AuthResult);
   });
 
-  it("should clear the cache if more than 2 mins have passed since expiration date", async () => {
+  it("should clear the cache if the session has expired (expiration date is in the past)", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     apiService.postIdentityToken.mockResolvedValue(
       new IdentityTwoFactorResponse({
