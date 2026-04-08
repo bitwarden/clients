@@ -9,7 +9,7 @@ import { CRYPTO_DISK, CRYPTO_MEMORY, UserKeyDefinition } from "../../state";
  * The former allows trusting the device, and has master password (if available)
  * or trusted-device / admin approval as unlock methods. The latter has regular
  * lock methods.
- * 
+ *
  * Ideally, this state hack would be replaced by a more robust solution that just
  * checks the available unlock methods, and routes depending on those.
  */
