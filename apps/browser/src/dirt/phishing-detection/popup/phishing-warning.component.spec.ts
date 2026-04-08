@@ -75,13 +75,13 @@ describe("PhishingWarning", () => {
 
       expect(eventCollectionService.collect).toHaveBeenCalledWith(
         EventType.PhishingBlocker_SiteAccessed,
-        null,
+        undefined,
         false,
         "org-1",
       );
       expect(eventCollectionService.collect).not.toHaveBeenCalledWith(
         EventType.PhishingBlocker_SiteAccessed,
-        null,
+        undefined,
         false,
         "org-2",
       );
@@ -108,13 +108,13 @@ describe("PhishingWarning", () => {
 
       expect(eventCollectionService.collect).toHaveBeenCalledWith(
         EventType.PhishingBlocker_SiteExited,
-        null,
+        undefined,
         false,
         "org-1",
       );
       expect(eventCollectionService.collect).not.toHaveBeenCalledWith(
         EventType.PhishingBlocker_SiteExited,
-        null,
+        undefined,
         false,
         "org-2",
       );
@@ -135,13 +135,13 @@ describe("PhishingWarning", () => {
 
       expect(eventCollectionService.collect).toHaveBeenCalledWith(
         EventType.PhishingBlocker_Bypassed,
-        null,
+        undefined,
         true,
         "org-1",
       );
       expect(eventCollectionService.collect).not.toHaveBeenCalledWith(
         EventType.PhishingBlocker_Bypassed,
-        null,
+        undefined,
         true,
         "org-2",
       );

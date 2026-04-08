@@ -85,7 +85,7 @@ export class PhishingWarning implements OnInit {
       const orgs = await this.getOrgsWithEvents();
       await Promise.all(
         orgs.map((org) =>
-          this.eventCollectionService.collect(eventType, null, uploadImmediately, org.id),
+          this.eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id),
         ),
       );
     } catch {
