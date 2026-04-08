@@ -5,7 +5,6 @@ import {
   Directive,
   effect,
   ElementRef,
-  HostBinding,
   inject,
   input,
   signal,
@@ -20,6 +19,9 @@ let nextId = 0;
 
 @Directive({
   selector: "[bitFormControlBase]",
+  host: {
+    "[class]": "hostClasses()",
+  },
 })
 export class FormControlBaseDirective {
   readonly id = `bit-form-control-${++nextId}`;
@@ -34,17 +36,16 @@ export class FormControlBaseDirective {
     () => this.disableMargin() || this.disableMarginSignal(),
   );
 
+  protected readonly hostClasses = computed(() => [
+    ...(this.inline() ? ["tw-inline-block", "tw-me-4"] : ["tw-block"]),
+    ...(this.computedDisableMargin() ? [] : ["tw-mb-4"]),
+  ]);
+
   readonly formControl = contentChild.required(BitFormControlAbstraction);
   readonly formControlEl = contentChild.required(BitFormControlAbstraction, { read: ElementRef });
   readonly ngControl = contentChild(NgControl);
 
   readonly inputId = signal(this.id);
-
-  @HostBinding("class") get classes() {
-    return ([] as string[])
-      .concat(this.inline() ? ["tw-inline-block", "tw-me-4"] : ["tw-block"])
-      .concat(this.computedDisableMargin() ? [] : ["tw-mb-4"]);
-  }
 
   private i18nService = inject(I18nService);
 
