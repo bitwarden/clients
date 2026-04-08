@@ -1,6 +1,28 @@
+import { KdfType } from "../enums/kdf-type.enum";
+
 import { Argon2KdfConfig, PBKDF2KdfConfig } from "./kdf-config";
 
 describe("KdfConfig", () => {
+  describe("PBKDF2KdfConfig default constructor", () => {
+    it("should use default iterations when none provided", () => {
+      const kdfConfig = new PBKDF2KdfConfig();
+
+      expect(kdfConfig.iterations).toBe(600_000);
+      expect(kdfConfig.kdfType).toBe(KdfType.PBKDF2_SHA256);
+    });
+  });
+
+  describe("Argon2KdfConfig default constructor", () => {
+    it("should use default values when none provided", () => {
+      const kdfConfig = new Argon2KdfConfig();
+
+      expect(kdfConfig.iterations).toBe(6);
+      expect(kdfConfig.memory).toBe(32);
+      expect(kdfConfig.parallelism).toBe(4);
+      expect(kdfConfig.kdfType).toBe(KdfType.Argon2id);
+    });
+  });
+
   it("validateKdfConfigForSetting(): should validate the PBKDF2 KDF config", () => {
     const kdfConfig: PBKDF2KdfConfig = new PBKDF2KdfConfig(600_000);
     expect(() => kdfConfig.validateKdfConfigForSetting()).not.toThrow();

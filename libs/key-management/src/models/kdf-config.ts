@@ -64,9 +64,9 @@ export class PBKDF2KdfConfig {
  * Argon2 KDF configuration.
  */
 export class Argon2KdfConfig {
-  static MEMORY = new RangeWithDefault(16, 1024, 64);
+  static MEMORY = new RangeWithDefault(16, 1024, 32);
   static PARALLELISM = new RangeWithDefault(1, 16, 4);
-  static ITERATIONS = new RangeWithDefault(2, 10, 3);
+  static ITERATIONS = new RangeWithDefault(2, 10, 6);
 
   static PRELOGIN_MEMORY_MIN = 16;
   static PRELOGIN_PARALLELISM_MIN = 1;
