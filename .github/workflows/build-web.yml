@@ -407,7 +407,6 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
-
   crowdin-push:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
@@ -453,7 +452,6 @@ jobs:
           upload_sources: true
           upload_translations: false
 
-
   trigger-web-vault-deploy:
     name: Trigger web vault deploy
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
@@ -461,6 +459,7 @@ jobs:
     needs: build-containers
     permissions:
       id-token: write
+      actions: write
     steps:
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -469,20 +468,10 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Retrieve github PAT secrets
-        id: retrieve-secret-pat
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: Trigger web vault deploy using GitHub Run ID
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
-          github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: 'bitwarden',
@@ -494,7 +483,6 @@ jobs:
                 'build-web-run-id': '${{ github.run_id }}'
               }
             })
-
 
   check-failures:
     name: Check for failures

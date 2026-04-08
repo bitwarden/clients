@@ -120,7 +120,7 @@ export class DesktopSettingsService {
   /**
    * The applications setting for whether or not to close the application into the system tray.
    */
-  closeToTray$ = this.closeToTrayState.state$.pipe(map((v) => v ?? true));
+  closeToTray$ = this.closeToTrayState.state$.pipe(map(Boolean));
 
   private readonly minimizeToTrayState = this.stateProvider.getGlobal(MINIMIZE_TO_TRAY_KEY);
   /**
@@ -132,19 +132,19 @@ export class DesktopSettingsService {
   /**
    * The application setting for whether or not to start the application into the system tray.
    */
-  startToTray$ = this.startToTrayState.state$.pipe(map((v) => v ?? true));
+  startToTray$ = this.startToTrayState.state$.pipe(map(Boolean));
 
   private readonly trayEnabledState = this.stateProvider.getGlobal(TRAY_ENABLED_KEY);
   /**
    * Whether or not the system tray has been enabled.
    */
-  trayEnabled$ = this.trayEnabledState.state$.pipe(map((v) => v ?? true));
+  trayEnabled$ = this.trayEnabledState.state$.pipe(map(Boolean));
 
   private readonly openAtLoginState = this.stateProvider.getGlobal(OPEN_AT_LOGIN_KEY);
   /**
    * The application setting for whether or not the application should open at system login.
    */
-  openAtLogin$ = this.openAtLoginState.state$.pipe(map((v) => v ?? true));
+  openAtLogin$ = this.openAtLoginState.state$.pipe(map(Boolean));
 
   private readonly alwaysShowDockState = this.stateProvider.getGlobal(ALWAYS_SHOW_DOCK_KEY);
   /**
