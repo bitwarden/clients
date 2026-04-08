@@ -20,7 +20,9 @@
       "Bash(npm run:*)",
       "Bash(sed -i '83s/.*/    \\\\/\\\\/ configService.getFeatureFlag$.mockImplementation\\(\\(\\) => of\\(true\\)\\); \\\\/\\\\/ ❌ Type error skipped/' libs/common/src/platform/server-notifications/internal/default-server-notifications.service.spec.ts)",
       "Bash(sed -i '49s/.*/      \\\\/\\\\/ storage.get.mockImplementation\\(\\(key\\) => { \\\\/\\\\/ ❌ Type error skipped/' libs/common/src/platform/services/migration-runner.spec.ts)",
-      "Bash(sed -i '35s/.*/        \\\\/\\\\/ flag == testFlag ? Promise.resolve\\(flagValue\\) : Promise.resolve\\(defaultValue\\), \\\\/\\\\/ ❌ Type error skipped/' libs/angular/src/platform/guard/feature-flag.guard.spec.ts)"
+      "Bash(sed -i '35s/.*/        \\\\/\\\\/ flag == testFlag ? Promise.resolve\\(flagValue\\) : Promise.resolve\\(defaultValue\\), \\\\/\\\\/ ❌ Type error skipped/' libs/angular/src/platform/guard/feature-flag.guard.spec.ts)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ]
   }
 }
