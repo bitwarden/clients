@@ -32,6 +32,7 @@ export class ScimComponent implements OnInit {
   enabled = new FormControl(false);
   showScimSettings = false;
   showScimKey = false;
+  private cachedApiKey: string;
 
   formData = this.formBuilder.group({
     endpointUrl: new FormControl({ value: "", disabled: true }),
@@ -73,16 +74,11 @@ export class ScimComponent implements OnInit {
       return;
     }
 
-    const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
-      organizationId: this.organizationId,
-      isRotation: false,
-    });
-
-    const result = await firstValueFrom(dialogRef.closed);
-    if (result?.apiKey) {
+    const apiKey = await this.getOrFetchApiKey("view");
+    if (apiKey) {
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
-        clientSecret: result.apiKey,
+        clientSecret: apiKey,
       });
       this.showScimKey = true;
     }
@@ -97,18 +93,32 @@ export class ScimComponent implements OnInit {
     });
   };
 
+  copyScimKey = async () => {
+    const apiKey = await this.getOrFetchApiKey("copy");
+    if (apiKey) {
+      this.platformUtilsService.copyToClipboard(apiKey);
+      this.toastService.showToast({
+        message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
+        variant: "success",
+        title: null,
+      });
+    }
+  };
+
   rotateScimKey = async () => {
     const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
       organizationId: this.organizationId,
-      isRotation: true,
+      mode: "rotate",
     });
 
     const result = await firstValueFrom(dialogRef.closed);
     if (result?.apiKey) {
+      this.cachedApiKey = result.apiKey;
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
         clientSecret: result.apiKey,
       });
+      this.showScimKey = true;
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -149,8 +159,29 @@ export class ScimComponent implements OnInit {
     return env.getScimUrl() + "/" + this.organizationId;
   }
 
+  private async getOrFetchApiKey(mode: "view" | "copy"): Promise<string | undefined> {
+    if (this.cachedApiKey) {
+      return this.cachedApiKey;
+    }
+
+    const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
+      organizationId: this.organizationId,
+      mode,
+    });
+
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.apiKey) {
+      this.cachedApiKey = result.apiKey;
+      return result.apiKey;
+    }
+
+    return undefined;
+  }
+
   private async setConnectionFormValues(connection: OrganizationConnectionResponse<ScimConfigApi>) {
     this.existingConnectionId = connection?.id;
+    this.cachedApiKey = undefined;
+    this.showScimKey = false;
     if (connection !== null && connection.config?.enabled) {
       this.showScimSettings = true;
       this.enabled.setValue(true);

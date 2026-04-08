@@ -8,16 +8,13 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { ApiKeyResponse } from "@bitwarden/common/auth/models/response/api-key.response";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ScimApiKeyDialogComponent, ScimApiKeyDialogData } from "./scim-api-key-dialog.component";
 
 describe("ScimApiKeyDialogComponent", () => {
   const orgId = "org-id-123";
-  const testAccess = (comp: ScimApiKeyDialogComponent) => comp as any;
-
   let dialogRef: MockProxy<DialogRef>;
   let userVerificationService: MockProxy<UserVerificationService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -38,8 +35,6 @@ describe("ScimApiKeyDialogComponent", () => {
         { provide: UserVerificationService, useValue: userVerificationService },
         { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
         { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nPipe, useValue: i18nPipe },
       ],
     }).compileComponents();
@@ -57,15 +52,15 @@ describe("ScimApiKeyDialogComponent", () => {
   let component: ScimApiKeyDialogComponent;
   let fixture: ComponentFixture<ScimApiKeyDialogComponent>;
 
-  describe("non-rotation mode", () => {
+  describe("view mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, isRotation: false });
+      await setupTestBed({ organizationId: orgId, mode: "view" });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
 
-    it("isRotation returns false", () => {
-      expect(component.isRotation).toBe(false);
+    it("mode returns view", () => {
+      expect(component.mode).toBe("view");
     });
 
     it("marks form as touched and returns when form is invalid", async () => {
@@ -77,7 +72,7 @@ describe("ScimApiKeyDialogComponent", () => {
       expect(userVerificationService.buildRequest).not.toHaveBeenCalled();
     });
 
-    it("calls getOrCreateApiKey and sets clientSecret", async () => {
+    it("calls getOrCreateApiKey and closes with apiKey", async () => {
       const mockRequest = setVerificationAndMockRequest();
       organizationApiService.getOrCreateApiKey.mockResolvedValue({
         apiKey: "test-api-key",
@@ -91,40 +86,28 @@ describe("ScimApiKeyDialogComponent", () => {
       );
       expect(mockRequest.type).toBe(OrganizationApiKeyType.Scim);
       expect(organizationApiService.getOrCreateApiKey).toHaveBeenCalledWith(orgId, mockRequest);
-      expect(testAccess(component).clientSecret()).toBe("test-api-key");
+      expect(dialogRef.close).toHaveBeenCalledWith({ apiKey: "test-api-key" });
     });
 
-    it("closes with undefined when no clientSecret is set", () => {
+    it("closes with undefined when dismissed", () => {
       component.close();
 
       expect(dialogRef.close).toHaveBeenCalledWith(undefined);
-    });
-
-    it("closes with apiKey when clientSecret is set", async () => {
-      setVerificationAndMockRequest();
-      organizationApiService.getOrCreateApiKey.mockResolvedValue({
-        apiKey: "test-key",
-      } as ApiKeyResponse);
-
-      await component.submit();
-      component.close();
-
-      expect(dialogRef.close).toHaveBeenCalledWith({ apiKey: "test-key" });
     });
   });
 
   describe("rotation mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, isRotation: true });
+      await setupTestBed({ organizationId: orgId, mode: "rotate" });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
 
-    it("isRotation returns true", () => {
-      expect(component.isRotation).toBe(true);
+    it("mode returns rotate", () => {
+      expect(component.mode).toBe("rotate");
     });
 
-    it("calls rotateApiKey and sets clientSecret", async () => {
+    it("calls rotateApiKey and closes with apiKey", async () => {
       const mockRequest = setVerificationAndMockRequest();
       organizationApiService.rotateApiKey.mockResolvedValue({
         apiKey: "rotated-api-key",
@@ -134,14 +117,14 @@ describe("ScimApiKeyDialogComponent", () => {
 
       expect(organizationApiService.rotateApiKey).toHaveBeenCalledWith(orgId, mockRequest);
       expect(organizationApiService.getOrCreateApiKey).not.toHaveBeenCalled();
-      expect(testAccess(component).clientSecret()).toBe("rotated-api-key");
+      expect(dialogRef.close).toHaveBeenCalledWith({ apiKey: "rotated-api-key" });
     });
   });
 
   describe("open", () => {
     it("calls dialogService.open with correct arguments", () => {
       const service = mock<DialogService>();
-      const data: ScimApiKeyDialogData = { organizationId: orgId, isRotation: true };
+      const data: ScimApiKeyDialogData = { organizationId: orgId, mode: "rotate" };
 
       ScimApiKeyDialogComponent.open(service, data);
 

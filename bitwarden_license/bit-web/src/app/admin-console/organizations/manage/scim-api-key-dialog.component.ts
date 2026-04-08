@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
@@ -7,8 +7,6 @@ import { OrganizationApiKeyType } from "@bitwarden/common/admin-console/enums";
 import { OrganizationApiKeyRequest } from "@bitwarden/common/admin-console/models/request/organization-api-key.request";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { Verification } from "@bitwarden/common/auth/types/verification";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -18,14 +16,14 @@ import {
   DialogRef,
   DialogService,
   FormFieldModule,
-  IconButtonModule,
-  ToastService,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+export type ScimApiKeyDialogMode = "view" | "copy" | "rotate";
+
 export interface ScimApiKeyDialogData {
   organizationId: string;
-  isRotation: boolean;
+  mode: ScimApiKeyDialogMode;
 }
 
 export interface ScimApiKeyDialogResult {
@@ -44,7 +42,6 @@ export interface ScimApiKeyDialogResult {
     AsyncActionsModule,
     CalloutModule,
     FormFieldModule,
-    IconButtonModule,
     UserVerificationFormInputComponent,
   ],
 })
@@ -54,18 +51,13 @@ export class ScimApiKeyDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly userVerificationService = inject(UserVerificationService);
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
-  private readonly platformUtilsService = inject(PlatformUtilsService);
-  private readonly toastService = inject(ToastService);
-  private readonly i18nService = inject(I18nService);
-
-  protected readonly clientSecret = signal<string | undefined>(undefined);
 
   readonly formGroup = this.formBuilder.group({
     verification: [null as Verification | null, Validators.required],
   });
 
-  get isRotation(): boolean {
-    return this.data.isRotation;
+  get mode(): ScimApiKeyDialogMode {
+    return this.data.mode;
   }
 
   readonly submit = async () => {
@@ -85,28 +77,16 @@ export class ScimApiKeyDialogComponent {
     );
     request.type = OrganizationApiKeyType.Scim;
 
-    const response = this.isRotation
-      ? await this.organizationApiService.rotateApiKey(this.data.organizationId, request)
-      : await this.organizationApiService.getOrCreateApiKey(this.data.organizationId, request);
+    const response =
+      this.mode === "rotate"
+        ? await this.organizationApiService.rotateApiKey(this.data.organizationId, request)
+        : await this.organizationApiService.getOrCreateApiKey(this.data.organizationId, request);
 
-    this.clientSecret.set(response.apiKey);
+    this.dialogRef.close({ apiKey: response.apiKey });
   };
 
-  copyScimKey() {
-    const secret = this.clientSecret();
-    if (secret) {
-      this.platformUtilsService.copyToClipboard(secret);
-      this.toastService.showToast({
-        message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
-        variant: "success",
-        title: null,
-      });
-    }
-  }
-
   close() {
-    const secret = this.clientSecret();
-    this.dialogRef.close(secret ? { apiKey: secret } : undefined);
+    this.dialogRef.close(undefined);
   }
 
   static open(dialogService: DialogService, data: ScimApiKeyDialogData) {
