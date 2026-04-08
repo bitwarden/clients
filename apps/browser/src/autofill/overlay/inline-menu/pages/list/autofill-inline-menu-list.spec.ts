@@ -49,6 +49,21 @@ describe("AutofillInlineMenuList", () => {
   });
 
   describe("initAutofillInlineMenuList", () => {
+    it("adds the no-animations class to the container when showAnimations is false", async () => {
+      postWindowMessage(
+        createInitAutofillInlineMenuListMessageMock({
+          authStatus: AuthenticationStatus.Unlocked,
+          ciphers: [],
+          portKey,
+          showAnimations: false,
+        }),
+      );
+      await flushPromises();
+
+      const container = autofillInlineMenuList["inlineMenuListContainer"];
+      expect(container.classList.contains("no-animations")).toBe(true);
+    });
+
     describe("the locked inline menu for an unauthenticated user", () => {
       beforeEach(() => {
         postWindowMessage(
