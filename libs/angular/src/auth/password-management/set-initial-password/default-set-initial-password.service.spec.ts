@@ -252,7 +252,6 @@ describe("DefaultSetInitialPasswordService", () => {
       [
         "newMasterKey",
         "newServerMasterKeyHash",
-        "newLocalMasterKeyHash",
         "newPasswordHint",
         "kdfConfig",
         "orgSsoIdentifier",

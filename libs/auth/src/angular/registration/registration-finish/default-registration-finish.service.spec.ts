@@ -152,7 +152,7 @@ describe("DefaultRegistrationFinishService", () => {
         salt = "test@email.com" as MasterPasswordSalt;
 
         // When the Auth flag is ON, InputPasswordComponent emits newApisWithInputPasswordFlagEnabled: true
-        // and does NOT emit newMasterKey, newServerMasterKeyHash, or newLocalMasterKeyHash.
+        // and does NOT emit newMasterKey, newServerMasterKeyHash.
         passwordInputResult = {
           newPassword: "newPassword",
           kdfConfig: DEFAULT_KDF_CONFIG,

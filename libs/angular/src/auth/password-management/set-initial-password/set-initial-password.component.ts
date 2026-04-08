@@ -150,7 +150,7 @@ export class SetInitialPasswordComponent implements OnInit {
         if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
           /**
            * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey,
-           * newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create them here and add them late
+           * newServerMasterKeyHash. So we must create them here and add them late
            * to the PasswordInputResult before calling setInitialPassword().
            *
            * This is a temporary state. The end-goal will be to use KM's V2Encryption method above.
