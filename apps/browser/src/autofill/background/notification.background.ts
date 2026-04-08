@@ -251,8 +251,11 @@ export default class NotificationBackground {
 
     const cipherQueueMessage = this.notificationQueue.find(
       (message): message is AddChangePasswordNotificationQueueMessage | AddLoginQueueMessage =>
-        message.type === NotificationType.ChangePassword ||
-        message.type === NotificationType.AddLogin,
+        (message.type === NotificationType.ChangePassword ||
+          message.type === NotificationType.AddLogin) &&
+        currentTab.id != null &&
+        message.tab.id === currentTab.id &&
+        this.queueMessageIsFromTabOrigin(message, currentTab),
     );
 
     if (cipherQueueMessage) {
@@ -1018,13 +1021,15 @@ export default class NotificationBackground {
     // involves all ciphers, making it mutually exclusive from any other scenario)
     if (noFieldMatches.length === ciphersForURL.length) {
       // trigger a new cipher notification in these input scenarios
+      // Note: username-only is excluded because a username with no password is insufficient
+      // signal to assume a new login is being created. Multistep login forms accumulate
+      // username + password across steps, so the combined data will trigger on form submission.
       if (
         (
           [
             inputScenarios.usernamePasswordNewPassword,
             inputScenarios.usernameNewPassword,
             inputScenarios.usernamePassword,
-            inputScenarios.username,
             inputScenarios.passwordNewPassword,
           ] as InputScenario[]
         ).includes(inputScenario) &&
@@ -1050,23 +1055,40 @@ export default class NotificationBackground {
         return true;
       }
 
-      // Trigger an update cipher notification with all URI ciphers
-      // in these input scenarios
+      // Trigger an update or new cipher notification for password-only input scenarios
       if (
         ([inputScenarios.password, inputScenarios.newPassword] as InputScenario[]).includes(
           inputScenario,
-        ) &&
-        changePasswordNotificationIsEnabled
+        )
       ) {
-        await this.pushChangePasswordToQueue(
-          ciphersForURL.map((c) => c.id),
-          loginDomain,
-          // @TODO handle empty strings / incomplete data structure
-          data.newPassword || data.password,
-          tab,
-        );
+        if (ciphersForURL.length > 0 && changePasswordNotificationIsEnabled) {
+          await this.pushChangePasswordToQueue(
+            ciphersForURL.map((c) => c.id),
+            loginDomain,
+            // @TODO handle empty strings / incomplete data structure
+            data.newPassword || data.password,
+            tab,
+          );
 
-        return true;
+          return true;
+        }
+
+        // No existing ciphers for this URL — offer to save the generated password as a new login.
+        // The cipher may lack a username, but that is easier for the user to fix than losing
+        // a generated password they cannot easily retrieve.
+        if (ciphersForURL.length === 0 && newLoginNotificationIsEnabled) {
+          await this.pushAddLoginToQueue(
+            loginDomain,
+            {
+              username: data.username,
+              url: data.uri,
+              password: data.newPassword || data.password,
+            },
+            tab,
+          );
+
+          return true;
+        }
       }
 
       return false;
@@ -1863,6 +1885,7 @@ export default class NotificationBackground {
 
   /**
    * Validates whether the queue message is associated with the passed tab.
+   * The tab's current URL must match the domain the notification was queued for.
    *
    * @param queueMessage - The queue message to check
    * @param tab - The tab to check the queue message against
@@ -1872,7 +1895,11 @@ export default class NotificationBackground {
     tab: chrome.tabs.Tab,
   ) {
     const tabDomain = Utils.getDomain(tab.url);
-    return tabDomain === queueMessage.domain || tabDomain === Utils.getDomain(queueMessage.tab.url);
+    if (tabDomain == null) {
+      return false;
+    }
+
+    return tabDomain === queueMessage.domain;
   }
 
   private setupUnlockPopoutCloseListener() {

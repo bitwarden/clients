@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Gagal menandai aplikasi sebagai penting"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
+  },
   "application": {
     "message": "Aplikasi"
   },
@@ -3398,6 +3401,9 @@
   "discount": {
     "message": "discount"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
+  },
   "downloadLicense": {
     "message": "Unduh Lisensi"
   },
@@ -3804,6 +3810,15 @@
   },
   "policies": {
     "message": "Kebijakan"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "Single Sign-On"
@@ -4288,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "Pulihkan akses organisasi untuk $ID$.",
@@ -6226,6 +6244,16 @@
     "message": "Karena kebijakan perusahaan, Anda hanya dapat menghapus kirim yang sudah ada.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+  },
   "sendOptions": {
     "message": "Pilihan Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6485,6 +6513,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Pengguna Bitwarden yang membuat Send ini memilih untuk menyembunyikan alamat emailnya. Kamu harus yakin bahwa kamu mempercayai sumber dari link it sebelum mengunduh isinya.",
