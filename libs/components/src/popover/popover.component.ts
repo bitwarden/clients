@@ -25,7 +25,6 @@ import { PopoverHeaderDirective } from "./popover-header.directive";
   selector: "bit-popover",
   imports: [A11yModule, I18nPipe, IconButtonModule, TypographyModule],
   templateUrl: "./popover.component.html",
-  styleUrl: "./popover.component.css",
   exportAs: "popoverComponent",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
