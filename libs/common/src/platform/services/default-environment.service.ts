@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { distinctUntilChanged, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { distinctUntilChanged, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -153,23 +153,40 @@ export class DefaultEnvironmentService implements EnvironmentService {
       .getGlobal(GLOBAL_ENVIRONMENT_KEY)
       .state$.pipe(map((state) => this.buildEnvironment(state?.region, state?.urls)));
 
+    // The current environment emitted by environment$ can come from two sources: the "global" environment,
+    // which represents the environment used by the application before a user authenticates, and the "user" environment,
+    // which represents the environment of an authenticated account using the application.
+    // We preference the user environment, only falling back to the global environment if a user is not logged in.
+    // However, there does exist the possibility that - due to timing of state updates - the active userId state may
+    // be cleared after the user environment state.
+    // To handle this, we fall back to the global state as a last resort, if the user state is not set.
+    const globalEnvState$ = this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
     this.environment$ = account$.pipe(
       switchMap((userId) => {
-        const t = userId
-          ? this.stateProvider.getUser(userId, USER_ENVIRONMENT_KEY).state$
-          : this.stateProvider.getGlobal(GLOBAL_ENVIRONMENT_KEY).state$;
-        return t;
+        if (!userId) {
+          return globalEnvState$;
+        }
+        return this.stateProvider
+          .getUser(userId, USER_ENVIRONMENT_KEY)
+          .state$.pipe(
+            switchMap((userState) => (userState != null ? of(userState) : globalEnvState$)),
+          );
       }),
       map((state) => {
         return this.buildEnvironment(state?.region, state?.urls);
       }),
     );
+    const globalCloudRegionState$ = this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY).state$;
     this.cloudWebVaultUrl$ = account$.pipe(
       switchMap((userId) => {
-        const t = userId
-          ? this.stateProvider.getUser(userId, USER_CLOUD_REGION_KEY).state$
-          : this.stateProvider.getGlobal(GLOBAL_CLOUD_REGION_KEY).state$;
-        return t;
+        if (!userId) {
+          return globalCloudRegionState$;
+        }
+        return this.stateProvider
+          .getUser(userId, USER_CLOUD_REGION_KEY)
+          .state$.pipe(
+            switchMap((userState) => (userState != null ? of(userState) : globalCloudRegionState$)),
+          );
       }),
       map((region) => {
         if (region != null) {

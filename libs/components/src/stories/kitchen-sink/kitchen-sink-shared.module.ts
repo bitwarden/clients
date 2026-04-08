@@ -7,6 +7,7 @@ import { AsyncActionsModule } from "../../async-actions";
 import { AvatarModule } from "../../avatar";
 import { BadgeModule } from "../../badge";
 import { BannerModule } from "../../banner";
+import { BerryComponent } from "../../berry";
 import { BreadcrumbsModule } from "../../breadcrumbs";
 import { ButtonModule } from "../../button";
 import { CalloutModule } from "../../callout";
@@ -18,7 +19,7 @@ import { FormFieldModule } from "../../form-field";
 import { HeaderComponent } from "../../header";
 import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
-import { InputModule } from "../../input";
+import { AutofocusDirective, InputModule } from "../../input";
 import { LayoutComponent } from "../../layout";
 import { LinkModule } from "../../link";
 import { MenuModule } from "../../menu";
@@ -38,10 +39,12 @@ import { TypographyModule } from "../../typography";
 
 @NgModule({
   imports: [
+    AutofocusDirective,
     AsyncActionsModule,
     AvatarModule,
     BadgeModule,
     BannerModule,
+    BerryComponent,
     BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
@@ -76,10 +79,12 @@ import { TypographyModule } from "../../typography";
     TypographyModule,
   ],
   exports: [
+    AutofocusDirective,
     AsyncActionsModule,
     AvatarModule,
     BadgeModule,
     BannerModule,
+    BerryComponent,
     BreadcrumbsModule,
     ButtonModule,
     CalloutModule,

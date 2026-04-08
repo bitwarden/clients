@@ -147,14 +147,13 @@
               <bit-item-action>
                 <button
                   type="button"
-                  bitBadge
+                  bit-chip-action
                   variant="primary"
                   (click)="doAutofill(cipher)"
                   [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: cipher.name)"
                   [attr.aria-label]="'autofillTitle' | i18n: cipher.name"
-                >
-                  {{ "fill" | i18n }}
-                </button>
+                  [label]="'fill' | i18n"
+                ></button>
               </bit-item-action>
             }
             @if (showLaunchButton() && CipherViewLikeUtils.canLaunch(cipher)) {

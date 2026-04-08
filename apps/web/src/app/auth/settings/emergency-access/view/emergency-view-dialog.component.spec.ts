@@ -20,6 +20,7 @@ import { UserId, EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
@@ -76,6 +77,12 @@ describe("EmergencyViewDialogComponent", () => {
           useValue: mock<BillingAccountProfileStateService>(),
         },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: VaultSettingsService,
+          useValue: mock<VaultSettingsService>({
+            showAtRiskPasswordNotifications$: of(true),
+          }),
+        },
       ],
     })
       .overrideComponent(EmergencyViewDialogComponent, {

@@ -5,10 +5,10 @@ import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Observable, Subject, of, take } from "rxjs";
+import { BehaviorSubject, Observable, Subject, of } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
-import { NudgeType, NudgesService } from "@bitwarden/angular/vault";
+import { NudgeType, NudgesService, PremiumUpsellService } from "@bitwarden/angular/vault";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutomaticUserConfirmationService,
@@ -168,7 +168,7 @@ describe("VaultComponent", () => {
   }
 
   function queryAllSpotlights(fixture: any): HTMLElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll("bit-spotlight")) as HTMLElement[];
+    return Array.from(fixture.nativeElement.querySelectorAll("bit-callout")) as HTMLElement[];
   }
 
   const itemsSvc: any = {
@@ -197,6 +197,7 @@ describe("VaultComponent", () => {
 
   const cipherSvc = {
     failedToDecryptCiphers$: jest.fn().mockReturnValue(of([])),
+    ciphers$: jest.fn().mockReturnValue(of({})),
   } as Partial<CipherService>;
 
   const nudgesSvc = {
@@ -234,6 +235,10 @@ describe("VaultComponent", () => {
     getFeatureFlag$: jest.fn().mockImplementation((_flag: string) => of(false)),
   };
 
+  const premiumUpsellSvc = {
+    showUpsell: jest.fn().mockReturnValue(false),
+  };
+
   const autoConfirmSvc = {
     configuration$: jest.fn().mockReturnValue(of({})),
     canManageAutoConfirm$: jest.fn().mockReturnValue(of(false)),
@@ -243,6 +248,7 @@ describe("VaultComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    premiumUpsellSvc.showUpsell.mockReturnValue(false);
     await TestBed.configureTestingModule({
       imports: [VaultComponent, RouterTestingModule],
       providers: [
@@ -301,6 +307,7 @@ describe("VaultComponent", () => {
           provide: InternalOrganizationServiceAbstraction,
           useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
         },
+        { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -472,24 +479,16 @@ describe("VaultComponent", () => {
     expect(spy).toHaveBeenCalledWith(NudgeType.HasVaultItems, "user-xyz");
   }));
 
-  it("accountAgeInDays$ computes integer days since creation", fakeAsync(() => {
+  it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
     activeAccount$.next({
-      id: "user-123",
-      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 days ago
+      id: "user-1",
+      creationDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
     } as any);
 
-    void component.ngOnInit();
-    tick();
-
-    getObs<number | null>(component, "accountAgeInDays$")
-      .pipe(take(1))
-      .subscribe((days) => expect(days).toBeGreaterThanOrEqual(7));
-  }));
-
-  it("renders Premium spotlight when eligible and opens dialog on click", fakeAsync(() => {
     itemsSvc.cipherCount$.next(10);
 
     hasPremiumFromAnySource$.next(false);
+    premiumUpsellSvc.showUpsell.mockReturnValue(true);
 
     configSvc.getFeatureFlag$.mockImplementation((_flag: string) => of(true));
 
@@ -508,14 +507,16 @@ describe("VaultComponent", () => {
     fixture.detectChanges();
 
     const spotlights = Array.from(
-      fixture.nativeElement.querySelectorAll("bit-spotlight"),
+      fixture.nativeElement.querySelectorAll("bit-callout"),
     ) as HTMLElement[];
     expect(spotlights.length).toBe(1);
 
-    const spotDe = fixture.debugElement.query(By.css("bit-spotlight"));
+    const spotDe = fixture.debugElement.query(By.css("bit-callout"));
     expect(spotDe).toBeTruthy();
 
-    spotDe.triggerEventHandler("onButtonClick", undefined);
+    const button = spotDe.query(By.css("[slot='end']"));
+    button.nativeElement.click();
+
     fixture.detectChanges();
 
     expect(PremiumUpgradeDialogComponent.open).toHaveBeenCalledTimes(1);

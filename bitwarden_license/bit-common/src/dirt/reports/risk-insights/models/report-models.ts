@@ -55,6 +55,11 @@ export type OrganizationReportSummary = {
   totalCriticalMemberCount: number;
   totalCriticalAtRiskMemberCount: number;
   totalCriticalAtRiskApplicationCount: number;
+  // Password counts — required; old blobs without these fields should default to 0
+  totalPasswordCount: number;
+  totalAtRiskPasswordCount: number;
+  totalCriticalPasswordCount: number;
+  totalCriticalAtRiskPasswordCount: number;
 };
 
 /**
