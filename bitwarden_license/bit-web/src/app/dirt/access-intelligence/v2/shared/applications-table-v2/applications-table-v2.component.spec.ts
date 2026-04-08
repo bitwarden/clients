@@ -25,7 +25,7 @@ global.ResizeObserver = class ResizeObserver {
  * DOM dimensions (viewport height) to determine which rows to render — JSDOM provides
  * no real dimensions, so *cdkVirtualFor renders zero rows.
  *
- * Template/row rendering is covered visually by Storybook stories (applications-table-v2.component.stories.ts).
+ * Template/row rendering is covered visually by Storybook stories (dirt-applications-table-v2.component.stories.ts).
  * Component logic and header elements (which render without virtual scroll) are tested here.
  *
  */
