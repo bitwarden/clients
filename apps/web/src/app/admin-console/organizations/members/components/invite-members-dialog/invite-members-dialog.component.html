@@ -7,22 +7,23 @@
         (selectedIndexChange)="selectedTabIndex.set($event)"
       >
         <bit-tab [label]="'byEmail' | i18n">
-          <ng-container *ngIf="organization$ | async as organization">
+          @if (organization$ | async; as organization) {
             <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
-            <bit-form-field *ngIf="{ seats: remainingSeats$ | async } as remaining">
-              <bit-label>{{ "email" | i18n }}</bit-label>
-              <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
-
-              <bit-hint *ngIf="remaining.seats > 1">{{
-                "inviteMultipleEmailDesc" | i18n: remaining.seats
-              }}</bit-hint>
-
-              <bit-hint *ngIf="remaining.seats === 1">{{
-                "inviteSingleEmailDesc" | i18n
-              }}</bit-hint>
-
-              <bit-hint *ngIf="remaining.seats === 0">{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
-            </bit-form-field>
+            @if ({ seats: remainingSeats$ | async }; as remaining) {
+              <bit-form-field>
+                <bit-label>{{ "email" | i18n }}</bit-label>
+                <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
+                @if (remaining.seats > 1) {
+                  <bit-hint>{{ "inviteMultipleEmailDesc" | i18n: remaining.seats }}</bit-hint>
+                }
+                @if (remaining.seats === 1) {
+                  <bit-hint>{{ "inviteSingleEmailDesc" | i18n }}</bit-hint>
+                }
+                @if (remaining.seats === 0) {
+                  <bit-hint>{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
+                }
+              </bit-form-field>
+            }
             <bit-radio-group formControlName="type">
               <bit-label>
                 {{ "memberRole" | i18n }}
@@ -55,7 +56,7 @@
               >
                 <bit-label>{{ "custom" | i18n }}</bit-label>
                 <bit-hint>
-                  <ng-container *ngIf="!organization.useCustomPermissions; else enterprise">
+                  @if (!organization.useCustomPermissions) {
                     <p>
                       {{ "customDescNonEnterpriseStart" | i18n
                       }}<a
@@ -66,14 +67,13 @@
                         >{{ "customDescNonEnterpriseLink" | i18n }}</a
                       >{{ "customDescNonEnterpriseEnd" | i18n }}
                     </p>
-                  </ng-container>
-                  <ng-template #enterprise>
+                  } @else {
                     <p>{{ "customDesc" | i18n }}</p>
-                  </ng-template>
+                  }
                 </bit-hint>
               </bit-radio-button>
             </bit-radio-group>
-            <ng-container *ngIf="customUserTypeSelected">
+            @if (customUserTypeSelected) {
               <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
                 <div class="tw-col-span-4">
                   <bit-form-control>
@@ -119,8 +119,8 @@
                   </div>
                 </div>
               </div>
-            </ng-container>
-            <ng-container *ngIf="organization.useSecretsManager">
+            }
+            @if (organization.useSecretsManager) {
               <h3 class="tw-mt-4">
                 {{ "secretsManager" | i18n }}
                 <a
@@ -144,8 +144,8 @@
                   {{ "userAccessSecretsManagerGA" | i18n }}
                 </bit-label>
               </bit-form-control>
-            </ng-container>
-          </ng-container>
+            }
+          }
         </bit-tab>
         <bit-tab [label]="'byLink' | i18n">
           <app-by-link-tab />
