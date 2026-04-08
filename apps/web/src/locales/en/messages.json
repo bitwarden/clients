@@ -9474,6 +9474,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "Attempted to access blocked site"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Exited blocked site"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Bypassed blocked site"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
