@@ -299,28 +299,141 @@ describe("AutofillConfirmationDialogComponent", () => {
     expect(vc.savedUrlsExpanded()).toBe(false);
   });
 
-  it("shows autofillWithoutAdding text on autofill button when viewOnly is false", () => {
+  it("shows autofillOnly text on autofill button when viewOnly is false", () => {
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text.includes("autofillWithoutAdding")).toBe(true);
+    expect(text.includes("autofillOnly")).toBe(true);
   });
 
-  it("does not show autofillWithoutAdding text on autofill button when viewOnly is true", async () => {
+  it("does not show autofillOnly text on autofill button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
     const text = vf.nativeElement.textContent as string;
-    expect(text.includes("autofillWithoutAdding")).toBe(false);
+    expect(text.includes("autofillOnly")).toBe(false);
   });
 
   it("shows autofill and save button when viewOnly is false", () => {
     // default viewOnly is false
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text.includes("autofillAndAddWebsite")).toBe(true);
+    expect(text.includes("autofillAndSaveThisSite")).toBe(true);
   });
 
   it("does not show autofill and save button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
     const text = vf.nativeElement.textContent as string;
-    expect(text.includes("autofillAndAddWebsite")).toBe(false);
+    expect(text.includes("autofillAndSaveThisSite")).toBe(false);
+  });
+
+  describe("dialogTitle()", () => {
+    it("returns loginHasNoSiteSaved when no URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+      });
+      expect(c.dialogTitle()).toBe("loginHasNoSiteSaved");
+    });
+
+    it("returns siteDoesntMatch when 1 URI is saved", () => {
+      expect(component.dialogTitle()).toBe("siteDoesntMatch");
+    });
+
+    it("returns siteDoesntMatch when multiple URIs are saved", async () => {
+      const { component: c } = await createFreshFixture();
+      expect(c.dialogTitle()).toBe("siteDoesntMatch");
+    });
+  });
+
+  describe("dialogBody()", () => {
+    it("returns loginNoSiteDesc when no URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+      });
+      expect(c.dialogBody()).toBe("loginNoSiteDesc");
+    });
+
+    it("returns loginSingleSiteDesc when 1 URI is saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [makeUri("https://other.com")] },
+      });
+      expect(c.dialogBody()).toBe("loginSingleSiteDesc");
+    });
+
+    it("returns loginMultipleSitesDesc when multiple URIs are saved", () => {
+      expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
+    });
+  });
+
+  describe("isSingleSiteViewOnly()", () => {
+    it("is true when viewOnly=true and exactly 1 URI is saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [makeUri("https://other.com")] },
+        viewOnly: true,
+      });
+      expect(c.isSingleSiteViewOnly()).toBe(true);
+    });
+
+    it("is false when viewOnly=false and 1 URI is saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [makeUri("https://other.com")] },
+        viewOnly: false,
+      });
+      expect(c.isSingleSiteViewOnly()).toBe(false);
+    });
+
+    it("is false when viewOnly=true and 0 URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+        viewOnly: true,
+      });
+      expect(c.isSingleSiteViewOnly()).toBe(false);
+    });
+
+    it("is false when viewOnly=true and multiple URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({ viewOnly: true });
+      expect(c.isSingleSiteViewOnly()).toBe(false);
+    });
+  });
+
+  describe("scenario 3 (1 URI + viewOnly) button layout", () => {
+    it("hides the cancel button", async () => {
+      const { fixture: vf } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [makeUri("https://other.com")] },
+        viewOnly: true,
+      });
+      const text = vf.nativeElement.textContent as string;
+      expect(text.includes("cancel")).toBe(false);
+    });
+
+    it("shows only the Autofill button", async () => {
+      const { fixture: vf } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [makeUri("https://other.com")] },
+        viewOnly: true,
+      });
+      const text = vf.nativeElement.textContent as string;
+      expect(text.includes("autoFill")).toBe(true);
+      expect(text.includes("autofillAndSaveThisSite")).toBe(false);
+      expect(text.includes("autofillOnly")).toBe(false);
+    });
+  });
+
+  describe("cancel button visibility", () => {
+    it("shows the cancel button when not viewOnly (scenario 1, 2, 4)", () => {
+      const text = fixture.nativeElement.textContent as string;
+      expect(text.includes("cancel")).toBe(true);
+    });
+
+    it("shows the cancel button for viewOnly with 0 URIs saved", async () => {
+      const { fixture: vf } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+        viewOnly: true,
+      });
+      const text = vf.nativeElement.textContent as string;
+      expect(text.includes("cancel")).toBe(true);
+    });
+
+    it("shows the cancel button for viewOnly with multiple URIs saved", async () => {
+      const { fixture: vf } = await createFreshFixture({ viewOnly: true });
+      const text = vf.nativeElement.textContent as string;
+      expect(text.includes("cancel")).toBe(true);
+    });
   });
 });
