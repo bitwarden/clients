@@ -3,9 +3,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { KeyService } from "@bitwarden/key-management";
 
 import { MasterPasswordPolicyComponent } from "./master-password.component";
 
@@ -19,6 +21,8 @@ describe("MasterPasswordPolicyComponent", () => {
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: OrganizationService, useValue: mock<OrganizationService>() },
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
