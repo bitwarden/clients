@@ -264,7 +264,7 @@ jobs:
           if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
             echo "Fetching changelog for sdk-internal: $OLD_REF...$NEW_REF"
             CHANGELOG=$(gh api "repos/bitwarden/sdk-internal/compare/$OLD_REF...$NEW_REF" \
-              --jq '.commits | map("- " + .commit.message | split("\n")[0]) | join("\n")' 2>/dev/null || echo "")
+              --jq '.commits | map("- " + (.commit.message | split("\n")[0] | gsub("\\(#(?<n>[0-9]+)\\)$"; "(bitwarden/sdk-internal#\(.n))"))) | join("\n")' 2>/dev/null || echo "")
 
             if [ -n "$CHANGELOG" ]; then
               echo "changelog<<__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
