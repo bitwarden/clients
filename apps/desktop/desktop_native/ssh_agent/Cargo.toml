@@ -31,7 +31,7 @@ libc = { workspace = true }
 [target.'cfg(unix)'.dev-dependencies]
 mockall = { workspace = true }
 rand = { workspace = true }
-serial_test = "=3.4.0"
+serial_test = { workspace = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
 tracing-subscriber = { workspace = true }
 

@@ -101,7 +101,7 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["mockall"],
+      matchPackageNames: ["mockall", "serial_test"],
       description: "Autofill-Desktop owned dependencies",
       commitMessagePrefix: "[deps] Autofill-Desktop:",
       reviewers: ["team:team-autofill-desktop-dev"],

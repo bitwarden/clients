@@ -62,6 +62,7 @@ security-framework-sys = "=2.15.0"
 serde = "=1.0.209"
 serde_json = "=1.0.127"
 serde_with = "=3.14.1"
+serial_test = "=3.4.0"
 sha2 = "=0.10.9"
 ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false }
