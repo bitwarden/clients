@@ -1799,6 +1799,13 @@ describe("AutofillOverlayContentService", () => {
 
       expect(autofillOverlayContentService["userFilledFields"]).toEqual({});
     });
+
+    it("does not throw when userFilledFields is null such as after destroy)", () => {
+      autofillOverlayContentService["userFilledFields"] = null;
+
+      expect(() => autofillOverlayContentService.clearUserFilledFields()).not.toThrow();
+      expect(autofillOverlayContentService["userFilledFields"]).toBeNull();
+    });
   });
 
   describe("handleOverlayRepositionEvent", () => {
@@ -2710,7 +2717,7 @@ describe("AutofillOverlayContentService", () => {
       );
       expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
         EVENTS.KEYUP,
-        autofillOverlayContentService["handleFormFieldKeyupEvent"],
+        autofillOverlayContentService["handleFormFieldKeyupEventAsListener"],
       );
       expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
         autofillFieldElement,
