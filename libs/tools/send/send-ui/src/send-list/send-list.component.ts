@@ -53,9 +53,10 @@ export class SendListComponent {
   readonly disableSend = input<boolean>(false);
   readonly listState = input<SendListState | null>(null);
   readonly searchText = input<string>("");
+  readonly hideSearchBar = input<boolean>(false);
 
   protected readonly showSearchBar = computed(
-    () => this.sends().length > 0 || this.searchText().length > 0,
+    () => (this.sends().length > 0 || this.searchText().length > 0) && !this.hideSearchBar(),
   );
 
   protected readonly noSearchResults = computed(

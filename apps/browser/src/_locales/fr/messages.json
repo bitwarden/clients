@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Options de déverrouillage"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre."
-  },
   "unlockMethodNeeded": {
     "message": "Configurer une méthode de déverrouillage dans les Paramètres"
   },
   "sessionTimeoutHeader": {
     "message": "Expiration de la session"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Délai d'expiration du coffre"
   },
   "otherOptions": {
     "message": "Autres options"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Le mot de passe principal que vous avez choisi est faible. Vous devriez utiliser un mot de passe principal fort (ou une phrase de passe) pour protéger correctement votre compte Bitwarden. Êtes-vous sûr de vouloir utiliser ce mot de passe principal ?"
   },
+  "rotateAccountEncKey": {
+    "message": "Régénérer également la clé de chiffrement de mon compte"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Régénérer la clé de chiffrement"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Êtes-vous sûr de vouloir régénérer la clé de chiffrement de votre compte ?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Il y a d'anciennes pièces jointes dans votre coffre qui doivent être réparées avant que vous ne puissiez régénérer la clé de chiffrement de votre compte."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact de la régénération de votre clé de chiffrement"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
+  },
   "pin": {
     "message": "Code PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Action après délai d'expiration du coffre"
   },
-  "vaultTimeoutAction1": {
-    "message": "Expiration de l'action"
+  "showAtRiskPasswordNotifications": {
+    "message": "Afficher les notifications de mot de passe à risque"
   },
   "lock": {
     "message": "Verrouiller",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Minutes"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Les exigences de la politique de sécurité d'Entreprise ont été appliquées à vos options de délai d'expiration"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Les politiques de sécurité de votre organisation ont défini le délai d'expiration de votre coffre à $HOURS$ heure(s) et $MINUTES$ minute(s) maximum.",
@@ -4436,6 +4451,9 @@
   "exportSuccess": {
     "message": "Données du coffre exportées"
   },
+  "exportError": {
+    "message": "Une erreur s'est produite lors de l'exportation des données de votre coffre"
+  },
   "typePasskey": {
     "message": "Clé d'accès"
   },
@@ -4866,7 +4884,7 @@
     "message": "Copier l'adresse"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Mes éléments"
   },
   "adminConsole": {
     "message": "Console Admin"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que tous les éléments soient détenus par l’organisation pour des raisons de sécurité et de conformité. Cliquez sur Accepter pour transférer la propriété de vos éléments.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que tous les éléments soient la propriété de l'organisation pour la sécurité et la conformité.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Cliquez sur accepter pour transférer la propriété de vos éléments."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Ouvrir un article d'aide sur le transfert d'éléments"
+  },
   "acceptTransfer": {
     "message": "Accepter le transfert"
   },
   "declineAndLeave": {
     "message": "Refuser et quitter"
-  },
-  "whyAmISeeingThis": {
-    "message": "Pourquoi vois-je ceci ?"
   },
   "items": {
     "message": "Éléments"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Entrez plusieurs courriels en les séparant d'une virgule."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "La vérification de courriel requiert au moins une adresse courriel. Pour retirer toutes les adresses, changez le type d'accès ci-dessus."
-  },
   "emailPlaceholder": {
     "message": "utilisateur@bitwarden.com , utilisateur@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "Échec de la vérification d'utilisateur."
+  },
+  "downloadFailed": {
+    "message": "Échec du téléchargement."
   }
 }

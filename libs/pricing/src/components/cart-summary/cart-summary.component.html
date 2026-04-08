@@ -2,7 +2,7 @@
 @let term = this.term();
 @let hideTerm = this.hidePricingTerm();
 <div class="tw-size-full">
-  <div class="tw-flex tw-items-center tw-pb-2">
+  <div class="tw-flex tw-items-center tw-pb-2 tw-gap-0.5">
     <div class="tw-flex tw-items-center">
       @if (this.header(); as header) {
         <ng-container *ngTemplateOutlet="header; context: { total: total() }" />
@@ -17,7 +17,7 @@
         </h2>
         <span bitTypography="h3">&nbsp;</span>
         @if (!hideTerm) {
-          <span bitTypography="body1" class="tw-text-muted tw-ms-2"> / {{ term | i18n }} </span>
+          <span bitTypography="body1" class="tw-text-muted tw-ms-1"> / {{ term | i18n }} </span>
         }
       }
     </div>
@@ -33,6 +33,12 @@
       [attr.aria-controls]="'purchase-summary-details'"
       data-testid="toggle-purchase-summary-details"
     ></button>
+
+    @if (showDiscountBadges()) {
+      @for (discount of cart.discounts; track discount) {
+        <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
+      }
+    }
   </div>
 
   @if (isExpanded()) {
@@ -200,18 +206,19 @@
         </div>
       }
 
-      <!-- Discount -->
-      @if (discountAmount() > 0) {
-        <div
-          id="discount-section"
-          class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
-          data-testid="discount-section"
-        >
-          <div bitTypography="body1" class="tw-text-success-600">{{ discountLabel() }}</div>
-          <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
-            -{{ discountAmount() | currency: "USD" : "symbol" }}
+      <!-- Discounts -->
+      @for (discountItem of discountLineItems(); track discountItem.label) {
+        @if (discountItem.amount > 0) {
+          <div
+            class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
+            data-testid="discount-section"
+          >
+            <div bitTypography="body1" class="tw-text-success-600">{{ discountItem.label }}</div>
+            <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
+              -{{ discountItem.amount | currency: "USD" : "symbol" }}
+            </div>
           </div>
-        </div>
+        }
       }
 
       <!-- Credit -->
