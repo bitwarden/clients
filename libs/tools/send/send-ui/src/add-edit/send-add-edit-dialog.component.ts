@@ -19,6 +19,7 @@ import {
   SearchModule,
   ToastService,
   DialogModule,
+  ButtonComponent,
 } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
@@ -103,6 +104,8 @@ export class SendAddEditDialogComponent {
    * The label for the "Use this password" button.
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
+
+  readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
 
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,

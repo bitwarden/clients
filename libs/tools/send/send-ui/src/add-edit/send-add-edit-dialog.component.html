@@ -25,7 +25,7 @@
         (onSendCreated)="onSendCreated($event)"
         (onSendUpdated)="onSendUpdated($event)"
         (openPasswordGenerator)="openGenerator()"
-        [submitBtn]="submitBtn"
+        [submitBtn]="submitBtn()"
       >
       </tools-send-form>
     </div>
@@ -55,7 +55,14 @@
       </button>
     }
     <div [hidden]="showGenerator()" class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-flex-1">
-      <button [hidden]="disableForm" bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
+      <button
+        [hidden]="disableForm"
+        bitButton
+        type="submit"
+        form="sendForm"
+        buttonType="primary"
+        #submitBtn
+      >
         {{ "save" | i18n }}
       </button>
       <button bitButton type="button" buttonType="secondary" bitDialogClose>

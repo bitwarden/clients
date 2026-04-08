@@ -1,5 +1,5 @@
 <form [id]="formId" [formGroup]="sendForm" [bitSubmit]="submit">
-  <ng-container *ngIf="!loading">
+  @if (!loading) {
     @if (sendDisabled()) {
       <bit-callout type="warning" [title]="'sendDisabledBannerTitle' | i18n">
         {{ "sendDisabledBannerMessage" | i18n }}
@@ -10,5 +10,5 @@
       [originalSendView]="originalSendView"
       (openPasswordGenerator)="openPasswordGenerator.emit()"
     ></tools-send-details>
-  </ng-container>
+  }
 </form>

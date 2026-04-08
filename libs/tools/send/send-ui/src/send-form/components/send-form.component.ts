@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
@@ -35,6 +34,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -62,8 +62,8 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     FormFieldModule,
     ReactiveFormsModule,
     SelectModule,
-    NgIf,
     SendDetailsComponent,
+    I18nPipe,
   ],
 })
 export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, SendFormContainer {

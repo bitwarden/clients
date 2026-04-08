@@ -39,7 +39,6 @@ import {
   ToastService,
   DialogService,
 } from "@bitwarden/components";
-import { CredentialGeneratorService } from "@bitwarden/generator-core";
 import {
   SendFormConfig,
   SendFormGenerationService,
@@ -163,24 +162,28 @@ export class SendDetailsComponent implements OnInit {
     this.sendPolicyService.whoCanAccess$,
   ]).pipe(
     map(([enabled, hasPremium, whoCanAccess]) => {
-      /** Show the email auth type if the feature flag is enable AND EITHER
+      /** Show the email auth type if the feature flag is enabled AND EITHER
        * 1. There is an enterprise policy that mandates the email auth type
-       * 2. The Send currently uses the email auth type */
+       * 2. There are no policies dictating required auth types
+       * 3. The Send currently uses the email auth type */
       const includeEmail =
         enabled &&
         hasPremium &&
         (whoCanAccess === WhoCanAccessType.SpecificPeople ||
-          this.originalSendView.authType === AuthType.Email);
+          whoCanAccess === null ||
+          this.originalSendView?.authType === AuthType.Email);
       /** Show the password auth type if EITHER
        * 1. There is an enterprise policy that mandates the password auth type
-       * 2. The Send currently uses the password auth type */
+       * 2. There are no policies dictating required auth types
+       * 3. The Send currently uses the password auth type */
       const includePassword =
         whoCanAccess === WhoCanAccessType.PasswordProtected ||
-        this.originalSendView.authType === AuthType.Password;
+        whoCanAccess === null ||
+        this.originalSendView?.authType === AuthType.Password;
       /** Show the "Anyone with the link" auth type if EITHER
        * 1. There are no enterprise policies that dictate required auth types
        * 2. The Send currently uses the "Anyone with the link" auth type */
-      const includeAny = whoCanAccess == null || this.originalSendView.authType === AuthType.None;
+      const includeAny = whoCanAccess == null || this.originalSendView?.authType === AuthType.None;
       return this.authTypes.filter(
         (at) =>
           (includeEmail && at.value === AuthType.Email) ||
@@ -211,7 +214,6 @@ export class SendDetailsComponent implements OnInit {
     private configService: ConfigService,
     private accountService: AccountService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private generatorService: CredentialGeneratorService,
     private sendApiService: SendApiService,
     private dialogService: DialogService,
     private toastService: ToastService,
