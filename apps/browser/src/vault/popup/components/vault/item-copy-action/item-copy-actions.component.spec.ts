@@ -39,9 +39,9 @@ describe("ItemCopyActionsComponent", () => {
 
     fixture = TestBed.createComponent(ItemCopyActionsComponent);
     component = fixture.componentInstance;
-    component.cipher = {
+    fixture.componentRef.setInput("cipher", {
       name: "My cipher",
-    } as CipherViewLike;
+    } as CipherViewLike);
   });
 
   function getSharedComponent(): VaultItemCopyActionsComponent {
@@ -58,7 +58,7 @@ describe("ItemCopyActionsComponent", () => {
   it("passes the cipher input through to the shared component", () => {
     const sharedComponent = getSharedComponent();
 
-    expect(sharedComponent.cipher).toBe(component.cipher);
+    expect(sharedComponent.cipher()).toBe(component.cipher());
   });
 
   it("passes quick copy mode through when enabled by the popup service", () => {

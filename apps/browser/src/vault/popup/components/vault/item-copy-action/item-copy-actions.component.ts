@@ -1,5 +1,5 @@
 import { AsyncPipe } from "@angular/common";
-import { Component, Input, inject } from "@angular/core";
+import { Component, input, inject } from "@angular/core";
 
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { VaultItemCopyActionsComponent } from "@bitwarden/vault";
@@ -16,7 +16,5 @@ import { VaultPopupCopyButtonsService } from "../../../services/vault-popup-copy
 export class ItemCopyActionsComponent {
   protected showQuickCopyActions$ = inject(VaultPopupCopyButtonsService).showQuickCopyActions$;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) cipher!: CipherViewLike;
+  readonly cipher = input.required<CipherViewLike>();
 }

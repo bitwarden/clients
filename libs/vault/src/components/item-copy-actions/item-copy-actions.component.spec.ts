@@ -39,8 +39,7 @@ describe("VaultItemCopyActionsComponent", () => {
 
     fixture = TestBed.createComponent(VaultItemCopyActionsComponent);
     component = fixture.componentInstance;
-
-    component.cipher = {
+    fixture.componentRef.setInput("cipher", {
       type: CipherType.Login,
       name: "My cipher",
       viewPassword: true,
@@ -59,7 +58,7 @@ describe("VaultItemCopyActionsComponent", () => {
       },
       notes: null,
       copyableFields: [],
-    } as unknown as CipherViewLike;
+    } as unknown as CipherViewLike);
   });
 
   afterEach(() => {
@@ -83,12 +82,12 @@ describe("VaultItemCopyActionsComponent", () => {
         { key: "copyPassword", field: "password" as const },
       ];
 
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         username: true,
         password: false,
       };
 
-      const result = component.findSingleCopyableItem(items);
+      const result = component.findSingleCopyableItem(component.cipher(), items);
 
       expect(result).toEqual({
         key: "translated-copyUsername",
@@ -103,12 +102,12 @@ describe("VaultItemCopyActionsComponent", () => {
         { key: "copyPassword", field: "password" as const },
       ];
 
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         username: false,
         password: false,
       };
 
-      const result = component.findSingleCopyableItem(items);
+      const result = component.findSingleCopyableItem(component.cipher(), items);
 
       expect(result).toBeNull();
     });
@@ -119,12 +118,12 @@ describe("VaultItemCopyActionsComponent", () => {
         { key: "copyPassword", field: "password" as const },
       ];
 
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         username: true,
         password: true,
       };
 
-      const result = component.findSingleCopyableItem(items);
+      const result = component.findSingleCopyableItem(component.cipher(), items);
 
       expect(result).toBeNull();
     });
@@ -142,9 +141,9 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("returns username with special-case logic when password is hidden and both username/password exist and no totp", () => {
-      (component.cipher as CipherView).viewPassword = false;
+      (component.cipher() as CipherView).viewPassword = false;
 
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         username: true,
         password: true,
         totp: false,
@@ -160,9 +159,9 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("returns null when password is hidden but multiple fields exist, ensuring username and totp are shown in the menu UI", () => {
-      (component.cipher as CipherView).viewPassword = false;
+      (component.cipher() as CipherView).viewPassword = false;
 
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         username: true,
         password: true,
         totp: true,
@@ -175,7 +174,7 @@ describe("VaultItemCopyActionsComponent", () => {
 
     it("falls back to findSingleCopyableItem when password is visible", () => {
       const findSingleCopyableItemSpy = jest.spyOn(component, "findSingleCopyableItem");
-      (component.cipher as CipherView).viewPassword = true;
+      (component.cipher() as CipherView).viewPassword = true;
 
       void component.singleCopyableLogin;
 
@@ -195,7 +194,7 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("returns security code when it is the only available card value", () => {
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         securityCode: true,
         cardNumber: false,
       };
@@ -210,7 +209,7 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("returns null when both card number and security code are available", () => {
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         securityCode: true,
         cardNumber: true,
       };
@@ -233,7 +232,7 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("returns the only copyable identity field", () => {
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         address: false,
         email: true,
         username: false,
@@ -250,7 +249,7 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("returns null when multiple identity fields are available", () => {
-      (component.cipher as any).__copyable = {
+      (component.cipher() as any).__copyable = {
         address: true,
         email: true,
         username: false,
@@ -269,7 +268,7 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("computes hasLoginValues from login fields", () => {
-      (component.cipher as CipherView).login = {
+      (component.cipher() as CipherView).login = {
         username: "user",
         password: null,
         totp: null,
@@ -277,7 +276,7 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasLoginValues).toBe(true);
 
-      (component.cipher as CipherView).login = {
+      (component.cipher() as CipherView).login = {
         username: null,
         password: null,
         totp: null,
@@ -287,17 +286,17 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("computes hasCardValues from card fields", () => {
-      (component.cipher as CipherView).card = { code: "123", number: null } as any;
+      (component.cipher() as CipherView).card = { code: "123", number: null } as any;
 
       expect(component.hasCardValues).toBe(true);
 
-      (component.cipher as CipherView).card = { code: null, number: null } as any;
+      (component.cipher() as CipherView).card = { code: null, number: null } as any;
 
       expect(component.hasCardValues).toBe(false);
     });
 
     it("computes hasIdentityValues from identity fields", () => {
-      (component.cipher as CipherView).identity = {
+      (component.cipher() as CipherView).identity = {
         fullAddressForCopy: null,
         email: "test@example.com",
         username: null,
@@ -306,7 +305,7 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasIdentityValues).toBe(true);
 
-      (component.cipher as CipherView).identity = {
+      (component.cipher() as CipherView).identity = {
         fullAddressForCopy: null,
         email: null,
         username: null,
@@ -317,17 +316,17 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("computes hasSecureNoteValue from notes", () => {
-      (component.cipher as CipherView).notes = "Some note" as any;
+      (component.cipher() as CipherView).notes = "Some note" as any;
 
       expect(component.hasSecureNoteValue).toBe(true);
 
-      (component.cipher as CipherView).notes = null as any;
+      (component.cipher() as CipherView).notes = null as any;
 
       expect(component.hasSecureNoteValue).toBe(false);
     });
 
     it("computes hasSshKeyValues from sshKey fields", () => {
-      (component.cipher as CipherView).sshKey = {
+      (component.cipher() as CipherView).sshKey = {
         privateKey: "priv",
         publicKey: null,
         keyFingerprint: null,
@@ -335,7 +334,7 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasSshKeyValues).toBe(true);
 
-      (component.cipher as CipherView).sshKey = {
+      (component.cipher() as CipherView).sshKey = {
         privateKey: null,
         publicKey: null,
         keyFingerprint: null,
@@ -351,14 +350,14 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("uses copyableFields for login values", () => {
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "LoginUsername",
         "CardNumber",
       ] as CopyableCipherFields[];
 
       expect(component.hasLoginValues).toBe(true);
 
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "CardNumber",
       ] as CopyableCipherFields[];
 
@@ -366,13 +365,13 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("uses copyableFields for card values", () => {
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "CardSecurityCode",
       ] as CopyableCipherFields[];
 
       expect(component.hasCardValues).toBe(true);
 
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "LoginUsername",
       ] as CopyableCipherFields[];
 
@@ -380,13 +379,13 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("uses copyableFields for identity values", () => {
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "IdentityEmail",
       ] as CopyableCipherFields[];
 
       expect(component.hasIdentityValues).toBe(true);
 
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "LoginUsername",
       ] as CopyableCipherFields[];
 
@@ -394,13 +393,13 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("uses copyableFields for secure note value", () => {
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "SecureNotes",
       ] as CopyableCipherFields[];
 
       expect(component.hasSecureNoteValue).toBe(true);
 
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "LoginUsername",
       ] as CopyableCipherFields[];
 
@@ -408,11 +407,11 @@ describe("VaultItemCopyActionsComponent", () => {
     });
 
     it("uses copyableFields for ssh key values", () => {
-      (component.cipher as CipherListView).copyableFields = ["SshKey"] as CopyableCipherFields[];
+      (component.cipher() as CipherListView).copyableFields = ["SshKey"] as CopyableCipherFields[];
 
       expect(component.hasSshKeyValues).toBe(true);
 
-      (component.cipher as CipherListView).copyableFields = [
+      (component.cipher() as CipherListView).copyableFields = [
         "LoginUsername",
       ] as CopyableCipherFields[];
 

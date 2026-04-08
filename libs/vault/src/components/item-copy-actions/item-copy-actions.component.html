@@ -1,4 +1,5 @@
-@if (CipherViewLikeUtils.getType(cipher) === CipherType.Login) {
+@let _cipher = cipher();
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.Login) {
   @if (showQuickCopyActions()) {
     <bit-item-action>
       <button
@@ -6,18 +7,18 @@
         bitIconButton="bwi-user"
         size="small"
         appCopyField="username"
-        [cipher]="cipher"
+        [cipher]="_cipher"
         [label]="'copyUsername' | i18n"
       ></button>
     </bit-item-action>
     <bit-item-action>
-      @if (cipher.viewPassword) {
+      @if (_cipher.viewPassword) {
         <button
           type="button"
           bitIconButton="bwi-key"
           size="small"
           appCopyField="password"
-          [cipher]="cipher"
+          [cipher]="_cipher"
           [label]="'copyPassword' | i18n"
         ></button>
       }
@@ -28,7 +29,7 @@
         bitIconButton="bwi-clock"
         size="small"
         appCopyField="totp"
-        [cipher]="cipher"
+        [cipher]="_cipher"
         [label]="'copyVerificationCode' | i18n"
       ></button>
     </bit-item-action>
@@ -39,9 +40,9 @@
           type="button"
           bitIconButton="bwi-clone"
           size="small"
-          [label]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : cipher.name"
+          [label]="'copyFieldCipherName' | i18n: singleCopyableLogin.key : _cipher.name"
           [appCopyField]="singleCopyableLogin.field"
-          [cipher]="cipher"
+          [cipher]="_cipher"
         ></button>
       }
       @if (!singleCopyableLogin) {
@@ -50,21 +51,21 @@
           bitIconButton="bwi-clone"
           size="small"
           [label]="
-            hasLoginValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+            hasLoginValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
           "
           [disabled]="!hasLoginValues"
           [bitMenuTriggerFor]="loginOptions"
         ></button>
         <bit-menu #loginOptions>
-          <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
+          <button type="button" bitMenuItem appCopyField="username" [cipher]="_cipher">
             {{ "copyUsername" | i18n }}
           </button>
-          @if (cipher.viewPassword) {
-            <button type="button" bitMenuItem appCopyField="password" [cipher]="cipher">
+          @if (_cipher.viewPassword) {
+            <button type="button" bitMenuItem appCopyField="password" [cipher]="_cipher">
               {{ "copyPassword" | i18n }}
             </button>
           }
-          <button type="button" bitMenuItem appCopyField="totp" [cipher]="cipher">
+          <button type="button" bitMenuItem appCopyField="totp" [cipher]="_cipher">
             {{ "copyVerificationCode" | i18n }}
           </button>
         </bit-menu>
@@ -73,7 +74,7 @@
   }
 }
 
-@if (CipherViewLikeUtils.getType(cipher) === CipherType.Card) {
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.Card) {
   @if (showQuickCopyActions()) {
     <bit-item-action>
       <button
@@ -81,7 +82,7 @@
         bitIconButton="bwi-hashtag"
         size="small"
         appCopyField="cardNumber"
-        [cipher]="cipher"
+        [cipher]="_cipher"
         [label]="'copyNumber' | i18n"
       ></button>
     </bit-item-action>
@@ -91,7 +92,7 @@
         bitIconButton="bwi-key"
         size="small"
         appCopyField="securityCode"
-        [cipher]="cipher"
+        [cipher]="_cipher"
         [label]="'copySecurityCode' | i18n"
       ></button>
     </bit-item-action>
@@ -102,9 +103,9 @@
           type="button"
           bitIconButton="bwi-clone"
           size="small"
-          [label]="'copyFieldCipherName' | i18n: singleCopyableCard.key : cipher.name"
+          [label]="'copyFieldCipherName' | i18n: singleCopyableCard.key : _cipher.name"
           [appCopyField]="singleCopyableCard.field"
-          [cipher]="cipher"
+          [cipher]="_cipher"
           showToast
         ></button>
       }
@@ -114,16 +115,16 @@
           bitIconButton="bwi-clone"
           size="small"
           [label]="
-            hasCardValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+            hasCardValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
           "
           [disabled]="!hasCardValues"
           [bitMenuTriggerFor]="cardOptions"
         ></button>
         <bit-menu #cardOptions>
-          <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="cipher">
+          <button type="button" bitMenuItem appCopyField="cardNumber" [cipher]="_cipher">
             {{ "copyNumber" | i18n }}
           </button>
-          <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="cipher">
+          <button type="button" bitMenuItem appCopyField="securityCode" [cipher]="_cipher">
             {{ "copySecurityCode" | i18n }}
           </button>
         </bit-menu>
@@ -132,16 +133,16 @@
   }
 }
 
-@if (CipherViewLikeUtils.getType(cipher) === CipherType.Identity) {
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.Identity) {
   <bit-item-action>
     @if (singleCopyableIdentity) {
       <button
         type="button"
         bitIconButton="bwi-clone"
         size="small"
-        [label]="'copyFieldCipherName' | i18n: singleCopyableIdentity.key : cipher.name"
+        [label]="'copyFieldCipherName' | i18n: singleCopyableIdentity.key : _cipher.name"
         [appCopyField]="singleCopyableIdentity.field"
-        [cipher]="cipher"
+        [cipher]="_cipher"
         showToast
       ></button>
     }
@@ -151,22 +152,22 @@
         bitIconButton="bwi-clone"
         size="small"
         [label]="
-          hasIdentityValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+          hasIdentityValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
         "
         [disabled]="!hasIdentityValues"
         [bitMenuTriggerFor]="identityOptions"
       ></button>
       <bit-menu #identityOptions>
-        <button type="button" bitMenuItem appCopyField="username" [cipher]="cipher">
+        <button type="button" bitMenuItem appCopyField="username" [cipher]="_cipher">
           {{ "copyUsername" | i18n }}
         </button>
-        <button type="button" bitMenuItem appCopyField="email" [cipher]="cipher">
+        <button type="button" bitMenuItem appCopyField="email" [cipher]="_cipher">
           {{ "copyEmail" | i18n }}
         </button>
-        <button type="button" bitMenuItem appCopyField="phone" [cipher]="cipher">
+        <button type="button" bitMenuItem appCopyField="phone" [cipher]="_cipher">
           {{ "copyPhone" | i18n }}
         </button>
-        <button type="button" bitMenuItem appCopyField="address" [cipher]="cipher">
+        <button type="button" bitMenuItem appCopyField="address" [cipher]="_cipher">
           {{ "copyAddress" | i18n }}
         </button>
       </bit-menu>
@@ -174,39 +175,39 @@
   </bit-item-action>
 }
 
-@if (CipherViewLikeUtils.getType(cipher) === CipherType.SecureNote) {
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.SecureNote) {
   <bit-item-action>
     <button
       type="button"
       bitIconButton="bwi-clone"
       size="small"
       [label]="
-        hasSecureNoteValue ? ('copyNoteTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+        hasSecureNoteValue ? ('copyNoteTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)
       "
       appCopyField="secureNote"
-      [cipher]="cipher"
+      [cipher]="_cipher"
     ></button>
   </bit-item-action>
 }
 
-@if (CipherViewLikeUtils.getType(cipher) === CipherType.SshKey) {
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.SshKey) {
   <bit-item-action>
     <button
       type="button"
       bitIconButton="bwi-clone"
       size="small"
-      [label]="hasSshKeyValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)"
+      [label]="hasSshKeyValues ? ('copyInfoTitle' | i18n: _cipher.name) : ('noValuesToCopy' | i18n)"
       [disabled]="!hasSshKeyValues"
       [bitMenuTriggerFor]="sshKeyOptions"
     ></button>
     <bit-menu #sshKeyOptions>
-      <button type="button" bitMenuItem appCopyField="privateKey" [cipher]="cipher">
+      <button type="button" bitMenuItem appCopyField="privateKey" [cipher]="_cipher">
         {{ "copyPrivateKey" | i18n }}
       </button>
-      <button type="button" bitMenuItem appCopyField="publicKey" [cipher]="cipher">
+      <button type="button" bitMenuItem appCopyField="publicKey" [cipher]="_cipher">
         {{ "copyPublicKey" | i18n }}
       </button>
-      <button type="button" bitMenuItem appCopyField="keyFingerprint" [cipher]="cipher">
+      <button type="button" bitMenuItem appCopyField="keyFingerprint" [cipher]="_cipher">
         {{ "copyFingerprint" | i18n }}
       </button>
     </bit-menu>
