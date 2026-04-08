@@ -235,6 +235,11 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    if (await this._domainMatched(currentTab.url)) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      return;
+    }
+
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
@@ -255,6 +260,17 @@ export class ItemMoreOptionsComponent {
         await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
         return;
     }
+  }
+
+  private async _domainMatched(url: string): Promise<boolean> {
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(url),
+    );
+    const defaultMatch = await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
+
+    return CipherViewLikeUtils.matchesUri(this.cipher, url, equivalentDomains, defaultMatch);
   }
 
   async onView() {

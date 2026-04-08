@@ -60,6 +60,7 @@ describe("ItemMoreOptionsComponent", () => {
 
   const domainSettingsService = {
     resolvedDefaultUriMatchStrategy$: uriMatchStrategy$.asObservable(),
+    getUrlEquivalentDomains: jest.fn().mockReturnValue(of(new Set<string>())),
   };
 
   const baseCipher = {
@@ -137,6 +138,10 @@ describe("ItemMoreOptionsComponent", () => {
   }
 
   describe("doAutofill", () => {
+    beforeEach(() => {
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+    });
+
     it("calls the passwordService to passwordRepromptCheck", async () => {
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
       mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
@@ -162,6 +167,22 @@ describe("ItemMoreOptionsComponent", () => {
       beforeEach(() => {
         uriMatchStrategy$.next(UriMatchStrategy.Domain);
         passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
+        jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      });
+
+      it("autofills directly without showing confirmation dialog when domain matches", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://one.example.com" });
+        jest.spyOn(component as any, "_domainMatched").mockResolvedValue(true);
+        const openSpy = jest.spyOn(AutofillConfirmationDialogComponent, "open");
+
+        await component.doAutofill();
+
+        expect(openSpy).not.toHaveBeenCalled();
+        expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "cipher-1" }),
+          true,
+          true,
+        );
       });
 
       it("calls the passwordService to passwordRepromptCheck", async () => {
