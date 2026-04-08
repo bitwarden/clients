@@ -16,6 +16,7 @@ import {
   inject,
   DestroyRef,
   ElementRef,
+  Injector,
   signal,
   computed,
   ChangeDetectionStrategy,
@@ -54,6 +55,7 @@ let nextId = 0;
 })
 export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly resizeObserver: ResizeObserver;
 
   private readonly _groupId: number;
@@ -259,14 +261,20 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.keyManager.set(
-      new FocusKeyManager(this.tabLabels())
-        .withHorizontalOrientation("ltr")
-        .withWrap()
-        .withHomeAndEnd()
-        // Skip disabled and hidden tabs to allow focus to move to "More" button on keyboard navigation
-        .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden),
-    );
+    // Pass the signal (not a snapshot) so the key manager always sees the current set of displayed tabs.
+    const km = new FocusKeyManager(this.tabLabels, this.injector)
+      .withHorizontalOrientation("ltr")
+      .withWrap()
+      .withHomeAndEnd()
+      // Skip disabled and hidden tabs to allow focus to move to "More" button on keyboard navigation
+      .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden);
+
+    // Sync the key manager's active item with the already-selected tab.
+    // ngAfterContentChecked (which calls setActiveItem) runs before ngAfterViewInit,
+    // so the key manager is always initialized with activeItemIndex = -1 without this.
+    km.updateActiveItem(this._selectedIndex() ?? 0);
+
+    this.keyManager.set(km);
   }
 
   private _clampTabIndex(index: number): number {

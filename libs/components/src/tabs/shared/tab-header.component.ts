@@ -9,7 +9,7 @@ import { Component } from "@angular/core";
   selector: "bit-tab-header",
   host: {
     class:
-      "tw-min-h-16 tw-ms-4 tw-flex tw-items-end tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100",
+      "tw-min-h-16 tw-mx-6 tw-flex tw-items-end tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100",
   },
   template: `<ng-content></ng-content>`,
 })

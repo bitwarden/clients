@@ -111,17 +111,19 @@ export const ContentTabs: Story = {
     props: args,
     template: `
       <bit-tab-group label="Main Content Tabs" class="tw-text-main">
-        <bit-tab label="First Tab" [berryValue]="5">First Tab Content</bit-tab>
-        <bit-tab label="Second Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="First Tab">
+          First Tab Content
+        </bit-tab>
+        <bit-tab label="Second Tab">
           Second Tab Content
         </bit-tab>
         <bit-tab>
           <ng-template bitTabLabel>
-            <bit-icon name="bwi-search" /> Template Label
+            <bit-icon name="bwi-check-circle" /> Third Tab
           </ng-template>
-          Template Label Content
+          Third Tab Content
         </bit-tab>
-        <bit-tab [disabled]="true" label="Disabled">
+        <bit-tab [disabled]="true" label="Disabled Tab">
           Disabled Content
         </bit-tab>
       </bit-tab-group>
@@ -202,25 +204,50 @@ export const KeyboardNavigation: Story = {
   }),
 };
 
+export const TabsWithIcons: Story = {
+  render: (args: any) => ({
+    props: args,
+    template: `
+      <bit-tab-group label="Tabs With Icons" class="tw-text-main">
+        <bit-tab label="First Tab">
+          <ng-template bitTabLabel>
+            <bit-icon name="bwi-check-circle" /> First Tab Content
+          </ng-template>
+          First Tab Content
+        </bit-tab>
+        <bit-tab label="Second Tab" [berryValue]="2" [trailingIcon]="'bwi-check-circle'">
+          Second Tab Content
+        </bit-tab>
+        <bit-tab label="Third Tab" [berryValue]="3" [trailingIcon]="'bwi-check-circle'">
+          <ng-template bitTabLabel>
+            <bit-icon name="bwi-check-circle" /> Third Tab Content
+          </ng-template>
+          Third Tab Content
+        </bit-tab>
+      </bit-tab-group>
+    `,
+  }),
+};
+
 export const OverflowTabs: Story = {
   render: (args: any) => ({
     props: args,
     template: `
-      <bit-tab-group label="Main Content Tabs" class="tw-text-main">
-        <bit-tab label="First Long Named TabFirst Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+      <bit-tab-group label="Overflow Tabs" class="tw-text-main">
+        <bit-tab label="First Long Named Tab" [trailingIcon]="'bwi-check-circle'">
           First Tab Content
         </bit-tab>
-        <bit-tab label="Second Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Second Long Named Tab" [trailingIcon]="'bwi-check-circle'">
           Second Tab Content
         </bit-tab>
-        <bit-tab label="Third Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Third Long Named Tab" [trailingIcon]="'bwi-check-circle'">
           Third Tab Content
         </bit-tab>
-        <bit-tab label="Fourth Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Fourth Long Named Tab" [trailingIcon]="'bwi-check-circle'">
           Fourth Tab Content
         </bit-tab>
-        <bit-tab label="Another Long Named Tab" [berryValue]="5" [trailingIcon]="'bwi-check-circle'">
-          Another Tab Content
+        <bit-tab label="Another Even Longer Named Tab" [trailingIcon]="'bwi-check-circle'">
+          Another Even Longer Tab Content
         </bit-tab>
       </bit-tab-group>
     `,

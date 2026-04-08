@@ -74,5 +74,5 @@ export class TabListItemDirective implements FocusableOption {
 
   readonly disabledClassList: string[] = ["tw-cursor-not-allowed"];
 
-  readonly activeClassList: string[] = ["tw-font-semibold", "tw-border-bg-brand"];
+  readonly activeClassList: string[] = ["tw-font-semibold", "!tw-border-bg-brand"];
 }
