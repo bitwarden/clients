@@ -59,7 +59,7 @@ describe("DefaultChangePasswordService", () => {
     newServerMasterKeyHash: "newServerMasterKeyHash",
     newLocalMasterKeyHash: "newLocalMasterKeyHash",
 
-    kdfConfig: new PBKDF2KdfConfig(),
+    kdfConfig: PBKDF2KdfConfig.createDefault(),
     newApisWithInputPasswordFlagEnabled: false,
   };
 

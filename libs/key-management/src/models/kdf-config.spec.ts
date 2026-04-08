@@ -3,18 +3,18 @@ import { KdfType } from "../enums/kdf-type.enum";
 import { Argon2KdfConfig, PBKDF2KdfConfig } from "./kdf-config";
 
 describe("KdfConfig", () => {
-  describe("PBKDF2KdfConfig default constructor", () => {
-    it("should use default iterations when none provided", () => {
-      const kdfConfig = new PBKDF2KdfConfig();
+  describe("PBKDF2KdfConfig.createDefault()", () => {
+    it("should create with default iterations", () => {
+      const kdfConfig = PBKDF2KdfConfig.createDefault();
 
       expect(kdfConfig.iterations).toBe(600_000);
       expect(kdfConfig.kdfType).toBe(KdfType.PBKDF2_SHA256);
     });
   });
 
-  describe("Argon2KdfConfig default constructor", () => {
-    it("should use default values when none provided", () => {
-      const kdfConfig = new Argon2KdfConfig();
+  describe("Argon2KdfConfig.createDefault()", () => {
+    it("should create with default values", () => {
+      const kdfConfig = Argon2KdfConfig.createDefault();
 
       expect(kdfConfig.iterations).toBe(6);
       expect(kdfConfig.memory).toBe(32);
