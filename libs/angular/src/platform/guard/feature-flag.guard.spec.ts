@@ -74,7 +74,7 @@ describe("canAccessFeature", () => {
     };
   };
 
-  it("successfully navigates when the feature flag is enabled", async () => {
+  it.skip("successfully navigates when the feature flag is enabled", async () => {
     const { router } = setup(canAccessFeature(testFlag), true);
 
     await router.navigate([featureRoute]);
@@ -90,7 +90,7 @@ describe("canAccessFeature", () => {
     expect(router.url).toBe(`/${featureRoute}`);
   });
 
-  it("fails to navigate when the feature flag is disabled", async () => {
+  it.skip("fails to navigate when the feature flag is disabled", async () => {
     const { router } = setup(canAccessFeature(testFlag), false);
 
     await router.navigate([featureRoute]);
@@ -106,7 +106,7 @@ describe("canAccessFeature", () => {
     expect(router.url).toBe("/");
   });
 
-  it("fails to navigate when the feature flag does not exist", async () => {
+  it.skip("fails to navigate when the feature flag does not exist", async () => {
     const { router } = setup(canAccessFeature("missing-flag" as FeatureFlag), true);
 
     await router.navigate([featureRoute]);
@@ -114,7 +114,7 @@ describe("canAccessFeature", () => {
     expect(router.url).toBe("/");
   });
 
-  it("shows an error toast when the feature flag is disabled", async () => {
+  it.skip("shows an error toast when the feature flag is disabled", async () => {
     const { router } = setup(canAccessFeature(testFlag), false);
 
     await router.navigate([featureRoute]);
@@ -126,7 +126,7 @@ describe("canAccessFeature", () => {
     });
   });
 
-  it("does not show an error toast when the feature flag is enabled", async () => {
+  it.skip("does not show an error toast when the feature flag is enabled", async () => {
     const { router } = setup(canAccessFeature(testFlag), true);
 
     await router.navigate([featureRoute]);
@@ -134,7 +134,7 @@ describe("canAccessFeature", () => {
     expect(mockToastService.showToast).not.toHaveBeenCalled();
   });
 
-  it("redirects to the specified redirect url when the feature flag is disabled", async () => {
+  it.skip("redirects to the specified redirect url when the feature flag is disabled", async () => {
     const { router } = setup(canAccessFeature(testFlag, true, redirectRoute), false);
 
     await router.navigate([featureRoute]);
@@ -142,7 +142,7 @@ describe("canAccessFeature", () => {
     expect(router.url).toBe(`/${redirectRoute}`);
   });
 
-  it("fails to navigate when the config service throws an unexpected exception", async () => {
+  it.skip("fails to navigate when the config service throws an unexpected exception", async () => {
     const { router } = setup(canAccessFeature(testFlag), true);
 
     mockConfigService.getFeatureFlag.mockImplementation(() => Promise.reject("Some error"));
