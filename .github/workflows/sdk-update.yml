@@ -24,8 +24,8 @@ on:
         type: string
 
 env:
-  _BOT_NAME: "github-actions[bot]"
-  _BOT_EMAIL: "github-actions[bot]@users.noreply.github.com"
+  _BOT_NAME: "bw-ghapp[bot]"
+  _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
 
 defaults:
   run:
@@ -37,10 +37,36 @@ jobs:
     if: ${{ inputs.run-mode == 'Update' }}
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
-      pull-requests: write
+      id-token: write
 
     steps:
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-pull-requests: write
+          permission-actions: read
+          permission-contents: write
+
       - name: Log inputs to job summary
         env:
           RUN_MODE: ${{ inputs.run-mode }}
@@ -57,6 +83,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
+          token: ${{ steps.app-token.outputs.token }}
           ref: ${{ inputs.base-branch }}
           fetch-depth: 0
           persist-credentials: true
@@ -145,7 +172,7 @@ jobs:
       - name: Prevent updating branch with manual changes
         if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
@@ -176,7 +203,7 @@ jobs:
       - name: Check for stop-updates label
         if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
@@ -226,7 +253,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           OLD_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           NEW_VERSION: ${{ inputs.sdk-version }}
         run: |
@@ -285,7 +312,7 @@ jobs:
 
       - name: Create or Update Pull Request
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
           SDK_VERSION: ${{ inputs.sdk-version }}
           OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
