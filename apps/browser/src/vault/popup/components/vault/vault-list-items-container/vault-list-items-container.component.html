@@ -4,7 +4,7 @@
 >
   <ng-container *ngIf="collapsibleKey()">
     <button
-      class="tw-group/vault-section-header hover:tw-bg-primary-100 tw-rounded-md tw-pl-1 tw-mb-1 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+      class="tw-group/vault-section-header hover:tw-bg-primary-100 tw-rounded-md tw-pl-1 tw-mb-0.5 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
       [ngClass]="{
         'tw-border-b-secondary-300 tw-rounded-b-none [&:is(:hover,:focus-visible)]:tw-border-b-transparent [&:is(:hover,:focus-visible)]:tw-rounded-b-md':
           !sectionOpenState(),
@@ -23,7 +23,7 @@
   </ng-container>
 
   <ng-container *ngIf="!collapsibleKey()">
-    <div class="tw-pl-1 tw-mb-1">
+    <div class="tw-pl-1 tw-mb-0.5">
       <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
     </div>
     <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
