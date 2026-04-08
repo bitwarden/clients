@@ -1,7 +1,23 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from "@angular/core";
-import { firstValueFrom, Subject } from "rxjs";
+import {
+  Component,
+  input,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  SimpleChanges,
+} from "@angular/core";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+  switchMap,
+} from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -9,11 +25,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   VaultFilterServiceAbstraction,
@@ -21,6 +40,8 @@ import {
   VaultFilterSection,
   VaultFilterType,
   CollectionFilter,
+  CipherStatus,
+  CipherTypeFilter,
 } from "@bitwarden/vault";
 
 import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
@@ -46,6 +67,11 @@ export class VaultFilterComponent
     }
   }
   _organization: Organization;
+
+  /** Org-scoped ciphers provided by the parent vault component. Used to build type filter badges
+   * without triggering a personal vault decrypt. */
+  readonly ciphers$ = input<Observable<CipherView[]>>(of([]));
+
   protected destroy$: Subject<void>;
 
   constructor(
@@ -137,6 +163,60 @@ export class VaultFilterComponent
       action: this.applyCollectionFilter,
     };
     return collectionFilterSection;
+  }
+
+  protected override async addTypeFilter(
+    excludeTypes: CipherStatus[] = [],
+    organizationId?: string,
+  ): Promise<VaultFilterSection> {
+    const allFilter: CipherTypeFilter = {
+      id: "AllItems",
+      name: "allItems",
+      type: "all",
+    };
+
+    const data$ = combineLatest([
+      this.restrictedItemTypesService.restricted$,
+      this.ciphers$(),
+    ]).pipe(
+      map(([restrictedTypes, ciphers]) => {
+        const restrictedForUser = restrictedTypes
+          .filter((r) => {
+            if (r.allowViewOrgIds.length === 0) {
+              return true;
+            }
+            return !ciphers?.some((c) => {
+              if (c.deletedDate || CipherViewLikeUtils.getType(c) !== r.cipherType) {
+                return false;
+              }
+              if (!c.organizationId) {
+                return false;
+              }
+              if (organizationId && c.organizationId !== organizationId) {
+                return false;
+              }
+              return r.allowViewOrgIds.includes(uuidAsString(c.organizationId));
+            });
+          })
+          .map((r) => r.cipherType);
+
+        const toExclude = [...excludeTypes, ...restrictedForUser];
+        return this.allTypeFilters.filter((f) => !toExclude.includes(f.type));
+      }),
+      switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    const typeFilterSection: VaultFilterSection = {
+      data$,
+      header: {
+        showHeader: true,
+        isSelectable: true,
+      },
+      action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
+    };
+    return typeFilterSection;
   }
 
   async buildAllFilters(): Promise<VaultFilterList> {
