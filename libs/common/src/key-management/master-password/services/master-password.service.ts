@@ -131,8 +131,9 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
                     throw new Error("Master password unlock data not found for user.");
                   }
                   // TODO: PM-32059 — Edge case: user does not have a master password (e.g., TDE offboarding).
-                  // When salt is disconnected from email (Stage 3), this will need a userId-independent
-                  // origination mechanism.
+                  // When salt is disconnected from email (Stage 3), part of that should involve a "generateSalt"
+                  // function that TDE offboarding deliberately calls; it should not be a side-effect of retrieving
+                  // the user's salt.
                   return this.accountService.accounts$.pipe(
                     map((accounts) => accounts[userId].email),
                     map((email) => this.emailToSalt(email)),

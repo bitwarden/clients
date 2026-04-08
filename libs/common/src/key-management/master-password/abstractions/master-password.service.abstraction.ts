@@ -22,9 +22,25 @@ export abstract class MasterPasswordServiceAbstraction {
   abstract forceSetPasswordReason$: (userId: UserId) => Observable<ForceSetPasswordReason>;
   /**
    * An observable that emits the master password salt for the user.
+   *
+   * Operates in two modes behind the `PM31088_MasterPasswordServiceEmitSalt` feature flag:
+   * - **Read:** When the user has a master password, returns the salt from
+   *   `MasterPasswordUnlockData` in state.
+   * - **Originate:** When the user does not yet have a master password (e.g., TDE
+   *   offboarding, JIT provisioning), derives a salt from the user's email via
+   *   `emailToSalt()`. This is a transitional mechanism — PM-32059 (Stage 3) will
+   *   replace email-derived salt with a KM-originated value.
+   *
+   * When the flag is OFF, salt is always derived from the user's email (legacy behavior).
+   *
+   * Auth flows SHOULD use `saltForUser$` rather than calling `emailToSalt()` directly,
+   * to keep salt resolution inside this bottleneck.
+   *
    * @param userId The user ID.
    * @throws If the user ID is missing.
    * @throws If the user ID is provided, but the user is not found.
+   * @throws If the flag is ON, the user has a master password, but `MasterPasswordUnlockData`
+   *   is missing from state (hydration failure).
    */
   abstract saltForUser$: (userId: UserId) => Observable<MasterPasswordSalt>;
   /**
