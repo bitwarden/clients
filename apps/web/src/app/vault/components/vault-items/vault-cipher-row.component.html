@@ -195,7 +195,7 @@
             </button>
           </ng-container>
 
-          <bit-menu-divider *ngIf="hasCopyableValues"></bit-menu-divider>
+          <bit-menu-divider *ngIf="showMenuDivider"></bit-menu-divider>
         }
         @if (showFavorite) {
           <button bitMenuItem type="button" (click)="toggleFavorite()">

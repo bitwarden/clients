@@ -310,7 +310,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       (CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
         (this.cipher.viewPassword &&
           CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")) ||
-        this.showTotpCopyButton)
+        this.showTotpCopyButton ||
+        this.canLaunch)
     );
   }
 
@@ -356,7 +357,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  protected get hasCopyableValues(): boolean {
+  protected get showMenuDivider(): boolean {
     return (
       this.hasVisibleLoginOptions ||
       this.hasVisibleCardOptions ||
