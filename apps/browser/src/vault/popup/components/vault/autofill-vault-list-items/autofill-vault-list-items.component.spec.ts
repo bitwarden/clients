@@ -32,6 +32,8 @@ describe("AutofillVaultListItemsComponent", () => {
   const autofillAllowed$ = new BehaviorSubject<boolean>(true);
   const currentTabIsOnBlocklist$ = new BehaviorSubject<boolean>(false);
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
+  const autofillEnrichmentLoading$ = new BehaviorSubject<boolean>(false);
+  const startAutofillEnrichment = jest.fn();
 
   beforeEach(async () => {
     // Mock getAnimations for all span elements before any components are created
@@ -41,6 +43,7 @@ describe("AutofillVaultListItemsComponent", () => {
 
     jest.spyOn(BrowserPopupUtils, "inSidebar").mockReturnValue(false);
     jest.spyOn(BrowserPopupUtils, "inPopup").mockReturnValue(false);
+    startAutofillEnrichment.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [AutofillVaultListItemsComponent],
@@ -77,9 +80,11 @@ describe("AutofillVaultListItemsComponent", () => {
           provide: VaultPopupAutofillService,
           useValue: {
             autofillAllowed$,
+            autofillEnrichmentLoading$,
             currentTabIsOnBlocklist$,
             refreshCurrentTab: jest.fn(),
             currentAutofillTab$: of(null),
+            startAutofillEnrichment,
           },
         },
         {
@@ -113,5 +118,22 @@ describe("AutofillVaultListItemsComponent", () => {
         fixture.debugElement.query(By.directive(SimplifiedAutofillInfoComponent)),
       ).not.toBeNull();
     });
+  });
+
+  it("starts autofill enrichment after the first render", () => {
+    expect(startAutofillEnrichment).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows loading placeholder while autofill enrichment is in progress", async () => {
+    autoFillCiphers$.next([{ type: CipherType.Login } as PopupCipherViewLike]);
+    autofillEnrichmentLoading$.next(true);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const listContainer = fixture.debugElement.query(By.css("app-vault-list-items-container"))
+      .componentInstance;
+
+    expect(listContainer.description()).toBe("loading");
   });
 });

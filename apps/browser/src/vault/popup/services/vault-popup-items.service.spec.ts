@@ -310,6 +310,23 @@ describe("VaultPopupItemsService", () => {
         done();
       });
     });
+
+    it("emits autofill ciphers before non-login enrichment adds extra types", (done) => {
+      (vaultAutofillServiceMock.nonLoginCipherTypesOnPage$ as BehaviorSubject<any>).next({
+        [CipherType.Card]: false,
+        [CipherType.Identity]: false,
+      });
+
+      service.autoFillCiphers$.subscribe((ciphers) => {
+        expect(cipherServiceMock.filterCiphersForUrl).toHaveBeenCalledWith(
+          expect.anything(),
+          "https://example.com",
+          [],
+        );
+        expect(ciphers.length).toBe(2);
+        done();
+      });
+    });
   });
 
   describe("filteredCiphers$", () => {

@@ -1,12 +1,12 @@
 @if (autofillCiphers$ | async; as ciphers) {
-  @let showTip = showEmptyAutofillTip$ | async;
+  @let description = description$ | async;
 
   <app-vault-list-items-container
     [ciphers]="ciphers"
     [title]="((currentURIIsBlocked$ | async) ? 'itemSuggestions' : 'autofillSuggestions') | i18n"
-    [description]="showTip ? ('autofillSuggestionsTip' | i18n) : undefined"
+    [description]="description ? (description | i18n) : undefined"
     [showRefresh]="showRefresh"
-    [disableDescriptionMargin]="showTip"
+    [disableDescriptionMargin]="disableDescriptionMargin$ | async"
     [groupByType]="groupByType()"
     [primaryActionAutofill]="clickItemsToAutofillVaultView$ | async"
     isAutofillList

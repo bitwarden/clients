@@ -3,12 +3,12 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import {
+  BehaviorSubject,
   combineLatest,
   debounceTime,
   firstValueFrom,
   map,
   Observable,
-  of,
   shareReplay,
   startWith,
   Subject,
@@ -44,7 +44,19 @@ import { closeViewVaultItemPopout, VaultPopoutType } from "../utils/vault-popout
   providedIn: "root",
 })
 export class VaultPopupAutofillService {
+  private static readonly defaultNonLoginCipherTypesOnPage = {
+    [CipherType.Card]: false,
+    [CipherType.Identity]: false,
+  } as const;
+
   private _refreshCurrentTab$ = new Subject<void>();
+  private _autofillEnrichmentLoading$ = new BehaviorSubject(false);
+  private _nonLoginCipherTypesOnPage$ = new BehaviorSubject<{
+    [CipherType.Card]: boolean;
+    [CipherType.Identity]: boolean;
+  }>(VaultPopupAutofillService.defaultNonLoginCipherTypesOnPage);
+  private _currentPageDetailsPromise: Promise<PageDetail[]> | null = null;
+  private _autofillEnrichmentGeneration = 0;
   private senderTabId$: Observable<number | undefined> = this.route.queryParams.pipe(
     map((params) => (params?.senderTabId ? parseInt(params.senderTabId, 10) : undefined)),
   );
@@ -146,69 +158,14 @@ export class VaultPopupAutofillService {
    */
   autofillAllowed$: Observable<boolean> = this.currentAutofillTab$.pipe(map((tab) => !!tab));
 
-  private _currentPageDetails$: Observable<PageDetail[]> = this.currentAutofillTab$.pipe(
-    switchMap((tab) => {
-      if (!tab) {
-        return of([]);
-      }
-
-      return this.domainSettingsService.blockedInteractionsUris$.pipe(
-        switchMap((blockedURLs) => {
-          if (blockedURLs && tab?.url?.length) {
-            const tabIsBlocked = isUrlInList(tab.url, blockedURLs);
-
-            if (tabIsBlocked) {
-              return of([]);
-            }
-          }
-
-          return this.autofillService.collectPageDetailsFromTab$(tab);
-        }),
-      );
-    }),
-    debounceTime(50),
+  autofillEnrichmentLoading$: Observable<boolean> = this._autofillEnrichmentLoading$.pipe(
     shareReplay({ refCount: false, bufferSize: 1 }),
   );
 
   nonLoginCipherTypesOnPage$: Observable<{
     [CipherType.Card]: boolean;
     [CipherType.Identity]: boolean;
-  }> = this._currentPageDetails$.pipe(
-    map((pageDetails) => {
-      let pageHasCardFields = false;
-      let pageHasIdentityFields = false;
-
-      try {
-        if (!pageDetails) {
-          throw Error("No page details were provided");
-        }
-
-        for (const details of pageDetails) {
-          for (const field of details.details.fields) {
-            if (!pageHasCardFields) {
-              pageHasCardFields = this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
-                field,
-                details.details,
-              );
-            }
-
-            if (!pageHasIdentityFields) {
-              pageHasIdentityFields =
-                this.inlineMenuFieldQualificationService.isFieldForIdentityForm(
-                  field,
-                  details.details,
-                );
-            }
-          }
-        }
-      } catch (error) {
-        // no-op on failure; do not show extra cipher types
-        this.logService.warning(error.message);
-      }
-
-      return { [CipherType.Card]: pageHasCardFields, [CipherType.Identity]: pageHasIdentityFields };
-    }),
-  );
+  }> = this._nonLoginCipherTypesOnPage$.pipe(shareReplay({ refCount: false, bufferSize: 1 }));
 
   constructor(
     private autofillService: AutofillService,
@@ -223,8 +180,105 @@ export class VaultPopupAutofillService {
     private accountService: AccountService,
     private logService: LogService,
     private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
-  ) {
-    this._currentPageDetails$.subscribe();
+  ) {}
+
+  startAutofillEnrichment() {
+    if (this._currentPageDetailsPromise) {
+      return;
+    }
+
+    void this._getOrCollectPageDetails().catch(() => {
+      // no-op, callers observe loading state and page details are handled in _getOrCollectPageDetails
+    });
+  }
+
+  private async _getOrCollectPageDetails(tab?: chrome.tabs.Tab | null): Promise<PageDetail[]> {
+    if (this._currentPageDetailsPromise) {
+      return this._currentPageDetailsPromise;
+    }
+
+    const generation = this._autofillEnrichmentGeneration;
+    this._autofillEnrichmentLoading$.next(true);
+
+    this._currentPageDetailsPromise = this._collectCurrentPageDetails(tab, generation);
+
+    return this._currentPageDetailsPromise;
+  }
+
+  private async _collectCurrentPageDetails(
+    tab: chrome.tabs.Tab | null | undefined,
+    generation: number,
+  ): Promise<PageDetail[]> {
+    const currentTab = tab ?? (await firstValueFrom(this.currentAutofillTab$));
+    const blockedInteractionsUrls = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+
+    if (!currentTab) {
+      this._finalizeAutofillEnrichment([], generation);
+      return [];
+    }
+
+    if (blockedInteractionsUrls && currentTab.url?.length) {
+      const tabIsBlocked = isUrlInList(currentTab.url, blockedInteractionsUrls);
+
+      if (tabIsBlocked) {
+        this._finalizeAutofillEnrichment([], generation);
+        return [];
+      }
+    }
+
+    const pageDetails = await firstValueFrom(
+      this.autofillService.collectPageDetailsFromTab$(currentTab).pipe(debounceTime(50)),
+    ).catch(() => []);
+
+    this._finalizeAutofillEnrichment(pageDetails, generation);
+    return pageDetails;
+  }
+
+  private _finalizeAutofillEnrichment(pageDetails: PageDetail[], generation: number) {
+    if (generation !== this._autofillEnrichmentGeneration) {
+      return;
+    }
+
+    this._nonLoginCipherTypesOnPage$.next(this._extractNonLoginCipherTypes(pageDetails));
+    this._autofillEnrichmentLoading$.next(false);
+  }
+
+  private _extractNonLoginCipherTypes(pageDetails: PageDetail[]): {
+    [CipherType.Card]: boolean;
+    [CipherType.Identity]: boolean;
+  } {
+    let pageHasCardFields = false;
+    let pageHasIdentityFields = false;
+
+    try {
+      for (const details of pageDetails) {
+        for (const field of details.details.fields) {
+          if (!pageHasCardFields) {
+            pageHasCardFields = this.inlineMenuFieldQualificationService.isFieldForCreditCardForm(
+              field,
+              details.details,
+            );
+          }
+
+          if (!pageHasIdentityFields) {
+            pageHasIdentityFields = this.inlineMenuFieldQualificationService.isFieldForIdentityForm(
+              field,
+              details.details,
+            );
+          }
+        }
+      }
+    } catch (error) {
+      // no-op on failure; do not show extra cipher types
+      this.logService.warning(error.message);
+    }
+
+    return {
+      [CipherType.Card]: pageHasCardFields,
+      [CipherType.Identity]: pageHasIdentityFields,
+    };
   }
 
   private async _internalDoAutofill(
@@ -308,6 +362,12 @@ export class VaultPopupAutofillService {
    * Re-fetch the current tab
    */
   refreshCurrentTab() {
+    this._autofillEnrichmentGeneration++;
+    this._currentPageDetailsPromise = null;
+    this._autofillEnrichmentLoading$.next(false);
+    this._nonLoginCipherTypesOnPage$.next(
+      VaultPopupAutofillService.defaultNonLoginCipherTypesOnPage,
+    );
     this._refreshCurrentTab$.next(null);
   }
 
@@ -324,7 +384,7 @@ export class VaultPopupAutofillService {
     skipPasswordReprompt = false,
   ): Promise<boolean> {
     const tab = await firstValueFrom(this.currentAutofillTab$);
-    const pageDetails = await firstValueFrom(this._currentPageDetails$);
+    const pageDetails = await this._getOrCollectPageDetails(tab);
 
     const didAutofill = await this._internalDoAutofill(
       cipher,
@@ -372,8 +432,8 @@ export class VaultPopupAutofillService {
       return false;
     }
 
-    const pageDetails = await firstValueFrom(this._currentPageDetails$);
     const tab = await firstValueFrom(this.currentAutofillTab$);
+    const pageDetails = await this._getOrCollectPageDetails(tab);
 
     const didAutofill = await this._internalDoAutofill(
       cipher,

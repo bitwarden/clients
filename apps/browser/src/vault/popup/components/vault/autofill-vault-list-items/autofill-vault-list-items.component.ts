@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { afterNextRender, Component } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, Observable, startWith } from "rxjs";
 
@@ -72,6 +72,27 @@ export class AutofillVaultListItemsComponent {
     ),
   );
 
+  protected autofillEnrichmentLoading$: Observable<boolean> =
+    this.vaultPopupAutofillService.autofillEnrichmentLoading$;
+
+  protected description$: Observable<string | undefined> = combineLatest([
+    this.showEmptyAutofillTip$,
+    this.autofillEnrichmentLoading$,
+  ]).pipe(
+    map(([showTip, loading]) => {
+      if (loading) {
+        return "loading";
+      }
+
+      return showTip ? "autofillSuggestionsTip" : undefined;
+    }),
+  );
+
+  protected disableDescriptionMargin$: Observable<boolean> = combineLatest([
+    this.showEmptyAutofillTip$,
+    this.autofillEnrichmentLoading$,
+  ]).pipe(map(([showTip, loading]) => showTip && !loading));
+
   /**
    * Flag indicating that the current tab location is blocked
    */
@@ -82,7 +103,9 @@ export class AutofillVaultListItemsComponent {
     private vaultPopupItemsService: VaultPopupItemsService,
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private vaultSettingsService: VaultSettingsService,
-  ) {}
+  ) {
+    afterNextRender(() => this.vaultPopupAutofillService.startAutofillEnrichment());
+  }
 
   /**
    * Refreshes the current tab to re-populate the autofill ciphers.
@@ -90,5 +113,7 @@ export class AutofillVaultListItemsComponent {
    */
   protected refreshCurrentTab() {
     this.vaultPopupAutofillService.refreshCurrentTab();
+    // Let the current tab observable settle before kicking off the next lazy scan.
+    setTimeout(() => this.vaultPopupAutofillService.startAutofillEnrichment());
   }
 }

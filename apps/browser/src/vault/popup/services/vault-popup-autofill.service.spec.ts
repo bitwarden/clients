@@ -67,7 +67,16 @@ describe("VaultPopupAutofillService", () => {
       .mockReturnValue(true);
 
     mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(new BehaviorSubject([]));
+    mockAutofillService.doAutoFill.mockResolvedValue(null);
     mockDomainSettingsService.blockedInteractionsUris$ = new BehaviorSubject({});
+    mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
+    mockPlatformUtilsService.copyToClipboard.mockImplementation();
+    mockPlatformUtilsService.isFirefox.mockReturnValue(false);
+    mockPlatformUtilsService.isSafari.mockReturnValue(false);
+    mockToastService.showToast.mockImplementation();
+    mockCipherService.updateWithServer.mockResolvedValue(null);
+    mockCipherService.updateLastUsedDate.mockResolvedValue(undefined);
+    mockMessagingService.send.mockImplementation();
 
     testBed = TestBed.configureTestingModule({
       providers: [
@@ -99,11 +108,17 @@ describe("VaultPopupAutofillService", () => {
   });
 
   afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
     jest.clearAllMocks();
   });
 
   it("should be created", () => {
     expect(service).toBeTruthy();
+  });
+
+  it("does not collect page details on construction", () => {
+    expect(mockAutofillService.collectPageDetailsFromTab$).not.toHaveBeenCalled();
   });
 
   describe("currentAutofillTab$", () => {
@@ -169,8 +184,48 @@ describe("VaultPopupAutofillService", () => {
   describe("refreshCurrentTab()", () => {
     it("should refresh currentAutofillTab$", async () => {
       const tracked = subscribeTo(service.currentAutofillTab$);
+
+      await tracked.pauseUntilReceived(1);
       service.refreshCurrentTab();
       await tracked.pauseUntilReceived(2);
+    });
+  });
+
+  describe("autofill enrichment", () => {
+    it("emits default non-login cipher types before enrichment starts", (done) => {
+      service.nonLoginCipherTypesOnPage$.subscribe((types) => {
+        expect(types).toEqual({
+          [CipherType.Card]: false,
+          [CipherType.Identity]: false,
+        });
+        done();
+      });
+    });
+
+    it("starts enrichment only once per tab cycle", async () => {
+      const tracked = subscribeTo(service.autofillEnrichmentLoading$);
+
+      service.startAutofillEnrichment();
+      service.startAutofillEnrichment();
+
+      await tracked.pauseUntilReceived(3, 200);
+
+      expect(mockAutofillService.collectPageDetailsFromTab$).toHaveBeenCalledTimes(1);
+    });
+
+    it("allows a new scan after the current tab is refreshed", async () => {
+      const tracked = subscribeTo(service.autofillEnrichmentLoading$);
+
+      service.startAutofillEnrichment();
+
+      await tracked.pauseUntilReceived(3, 200);
+
+      service.refreshCurrentTab();
+      service.startAutofillEnrichment();
+
+      await tracked.pauseUntilReceived(6, 200);
+
+      expect(mockAutofillService.collectPageDetailsFromTab$).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -187,6 +242,7 @@ describe("VaultPopupAutofillService", () => {
       mockPageDetails$ = new BehaviorSubject(mockPageDetails);
 
       mockAutofillService.collectPageDetailsFromTab$.mockReturnValue(mockPageDetails$);
+      mockAutofillService.collectPageDetailsFromTab$.mockClear();
 
       expectedAutofillArgs = {
         tab: mockCurrentTab,
@@ -199,10 +255,17 @@ describe("VaultPopupAutofillService", () => {
 
       // Refresh the current tab so the mockedPageDetails$ are used
       service.refreshCurrentTab();
-      (service as any)._currentPageDetails$ = of(mockPageDetails);
     });
 
     describe("doAutofill()", () => {
+      it("collects page details on demand when enrichment has not started", async () => {
+        mockAutofillService.doAutoFill.mockResolvedValue(null);
+
+        await service.doAutofill(mockCipher);
+
+        expect(mockAutofillService.collectPageDetailsFromTab$).toHaveBeenCalledTimes(1);
+      });
+
       it("should return true if autofill is successful", async () => {
         mockCipher.id = "test-cipher-id";
         mockAutofillService.doAutoFill.mockResolvedValue(null);
@@ -287,20 +350,26 @@ describe("VaultPopupAutofillService", () => {
         });
 
         it("should close popup by default when in popup", async () => {
-          await service.doAutofill(mockCipher);
+          const autofillPromise = service.doAutofill(mockCipher);
+          await jest.advanceTimersByTimeAsync(50);
+          await autofillPromise;
           expect(BrowserApi.closePopup).toHaveBeenCalled();
         });
 
         it("should not close popup when closePopup is set to false", async () => {
-          await service.doAutofill(mockCipher, false);
+          const autofillPromise = service.doAutofill(mockCipher, false);
+          await jest.advanceTimersByTimeAsync(50);
+          await autofillPromise;
           expect(BrowserApi.closePopup).not.toHaveBeenCalled();
         });
 
         it("should close popup after a timeout for chromium browsers", async () => {
           mockPlatformUtilsService.isFirefox.mockReturnValue(false);
           jest.spyOn(global, "setTimeout");
-          await service.doAutofill(mockCipher);
-          jest.advanceTimersByTime(50);
+          const autofillPromise = service.doAutofill(mockCipher);
+          await jest.advanceTimersByTimeAsync(50);
+          await autofillPromise;
+          await jest.advanceTimersByTimeAsync(50);
           expect(setTimeout).toHaveBeenCalledTimes(1);
           expect(BrowserApi.closePopup).toHaveBeenCalled();
         });
@@ -308,7 +377,9 @@ describe("VaultPopupAutofillService", () => {
         it("should show a successful toast message if login form is populated", async () => {
           jest.spyOn(BrowserPopupUtils, "inSingleActionPopout").mockReturnValue(true);
           (service as any).currentAutofillTab$ = of({ id: 1234 });
-          await service.doAutofill(mockCipher);
+          const autofillPromise = service.doAutofill(mockCipher);
+          await jest.advanceTimersByTimeAsync(50);
+          await autofillPromise;
           expect(mockToastService.showToast).toHaveBeenCalledWith({
             variant: "success",
             title: null,
