@@ -5,7 +5,7 @@ use windows::Win32::Security::Cryptography::{
     CRYPTPROTECTMEMORY_SAME_PROCESS,
 };
 
-use crate::secure_memory::SecureMemoryStore;
+use crate::secure_memory::{DecryptionError, SecureMemoryStore};
 
 /// https://learn.microsoft.com/en-us/windows/win32/api/dpapi/nf-dpapi-cryptprotectdata
 /// The DPAPI store encrypts data using the Windows Data Protection API (DPAPI). The key is bound
@@ -26,7 +26,9 @@ impl DpapiSecretKVStore {
 }
 
 impl SecureMemoryStore for DpapiSecretKVStore {
-    fn put(&mut self, key: String, value: &[u8]) {
+    type KeyType = String;
+
+    fn put(&mut self, key: Self::KeyType, value: &[u8]) {
         let length_header_len = std::mem::size_of::<usize>();
 
         // The allocated data has to be a multiple of CRYPTPROTECTMEMORY_BLOCK_SIZE, so we pad it
@@ -55,8 +57,8 @@ impl SecureMemoryStore for DpapiSecretKVStore {
         self.map.insert(key, padded_data);
     }
 
-    fn get(&mut self, key: &str) -> Option<Vec<u8>> {
-        self.map.get(key).map(|data| {
+    fn get(&mut self, key: &Self::KeyType) -> Result<Option<Vec<u8>>, DecryptionError> {
+        if let Some(data) = self.map.get(key) {
             // A copy is created, that is then mutated by the DPAPI unprotect function.
             let mut data = data.clone();
             unsafe {
@@ -77,15 +79,19 @@ impl SecureMemoryStore for DpapiSecretKVStore {
                     .expect("length header should be usize"),
             );
 
-            data[length_header_size..length_header_size + data_length].to_vec()
-        })
+            Ok(Some(
+                data[length_header_size..length_header_size + data_length].to_vec(),
+            ))
+        } else {
+            Ok(None)
+        }
     }
 
-    fn has(&self, key: &str) -> bool {
+    fn has(&self, key: &Self::KeyType) -> bool {
         self.map.contains_key(key)
     }
 
-    fn remove(&mut self, key: &str) {
+    fn remove(&mut self, key: &Self::KeyType) {
         self.map.remove(key);
     }
 
@@ -113,7 +119,7 @@ mod tests {
             store.put(key.clone(), &value);
             assert!(store.has(&key), "Store should have key for size {}", size);
             assert_eq!(
-                store.get(&key),
+                store.get(&key).expect("entry in map for key"),
                 Some(value),
                 "Value mismatch for size {}",
                 size
@@ -128,7 +134,7 @@ mod tests {
         let value = vec![1, 2, 3, 4, 5];
         store.put(key.clone(), &value);
         assert!(store.has(&key));
-        assert_eq!(store.get(&key), Some(value));
+        assert_eq!(store.get(&key).expect("entry in map for key"), Some(value));
         store.remove(&key);
         assert!(!store.has(&key));
     }

@@ -203,7 +203,6 @@ describe("Fido2Background", () => {
             { file: Fido2ContentScript.PageScriptDelayAppend },
             { file: Fido2ContentScript.ContentScript },
           ],
-          world: "MAIN",
           ...sharedRegistrationOptions,
         });
       });
@@ -254,6 +253,84 @@ describe("Fido2Background", () => {
         });
         expect(BrowserApi.registerContentScriptsMv3).not.toHaveBeenCalledTimes(2);
       });
+    });
+  });
+
+  describe("isCredentialRequestInProgress", () => {
+    beforeEach(() => {
+      fido2Background.init();
+    });
+
+    it("returns false when no credential request is active", () => {
+      expect(fido2Background.isCredentialRequestInProgress(tabMock.id)).toBe(false);
+    });
+
+    it("returns true while a register credential request is in progress", async () => {
+      let duringRequestResult: boolean;
+      fido2ClientService.createCredential.mockImplementation(async () => {
+        duringRequestResult = fido2Background.isCredentialRequestInProgress(tabMock.id);
+        return mock();
+      });
+
+      const message = mock<Fido2ExtensionMessage>({
+        command: "fido2RegisterCredentialRequest",
+        requestId: "123",
+        data: mock<CreateCredentialParams>(),
+      });
+
+      sendMockExtensionMessage(message, senderMock);
+      await flushPromises();
+
+      expect(duringRequestResult).toBe(true);
+    });
+
+    it("returns true while a get credential request is in progress", async () => {
+      let duringRequestResult: boolean;
+      fido2ClientService.assertCredential.mockImplementation(async () => {
+        duringRequestResult = fido2Background.isCredentialRequestInProgress(tabMock.id);
+        return mock();
+      });
+
+      const message = mock<Fido2ExtensionMessage>({
+        command: "fido2GetCredentialRequest",
+        requestId: "123",
+        data: mock<AssertCredentialParams>(),
+      });
+
+      sendMockExtensionMessage(message, senderMock);
+      await flushPromises();
+
+      expect(duringRequestResult).toBe(true);
+    });
+
+    it("returns false after a credential request completes", async () => {
+      fido2ClientService.createCredential.mockResolvedValue(mock());
+
+      const message = mock<Fido2ExtensionMessage>({
+        command: "fido2RegisterCredentialRequest",
+        requestId: "123",
+        data: mock<CreateCredentialParams>(),
+      });
+
+      sendMockExtensionMessage(message, senderMock);
+      await flushPromises();
+
+      expect(fido2Background.isCredentialRequestInProgress(tabMock.id)).toBe(false);
+    });
+
+    it("returns false after a credential request errors", async () => {
+      fido2ClientService.createCredential.mockRejectedValue(new Error("error"));
+
+      const message = mock<Fido2ExtensionMessage>({
+        command: "fido2RegisterCredentialRequest",
+        requestId: "123",
+        data: mock<CreateCredentialParams>(),
+      });
+
+      sendMockExtensionMessage(message, senderMock);
+      await flushPromises();
+
+      expect(fido2Background.isCredentialRequestInProgress(tabMock.id)).toBe(false);
     });
   });
 

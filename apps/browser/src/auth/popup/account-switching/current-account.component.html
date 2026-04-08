@@ -2,7 +2,7 @@
   <button
     *ngIf="currentAccount$ | async as currentAccount; else defaultButton"
     type="button"
-    class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-offset-1 hover:tw-outline-primary-600"
+    class="tw-rounded-full hover:tw-outline hover:tw-outline-1 hover:tw-outline-primary-600"
     (click)="currentAccountClicked()"
   >
     <span class="tw-sr-only"> {{ "bitwardenAccount" | i18n }} {{ currentAccount.email }}</span>
@@ -10,7 +10,6 @@
       [id]="currentAccount.id"
       [text]="currentAccount.name"
       [color]="currentAccount.avatarColor"
-      size="small"
       aria-hidden="true"
     ></bit-avatar>
   </button>
@@ -24,7 +23,6 @@
       <bit-avatar
         [text]="'&hellip;'"
         [color]="'#6795E8'"
-        size="small"
         aria-hidden="true"
         class="[&>img]:tw-block"
       ></bit-avatar>

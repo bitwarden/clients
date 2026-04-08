@@ -11,18 +11,19 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-
-import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
-import { VaultFilterService } from "../../../../vault/individual-vault/vault-filter/services/abstractions/vault-filter.service";
 import {
+  VaultFilterServiceAbstraction,
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
-} from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter-section.type";
-import { CollectionFilter } from "../../../../vault/individual-vault/vault-filter/shared/models/vault-filter.type";
+  CollectionFilter,
+} from "@bitwarden/vault";
+
+import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../vault/individual-vault/vault-filter/components/vault-filter.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -48,7 +49,7 @@ export class VaultFilterComponent
   protected destroy$: Subject<void>;
 
   constructor(
-    protected vaultFilterService: VaultFilterService,
+    protected vaultFilterService: VaultFilterServiceAbstraction,
     protected policyService: PolicyService,
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
@@ -59,6 +60,7 @@ export class VaultFilterComponent
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
     protected cipherArchiveService: CipherArchiveService,
+    premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {
     super(
       vaultFilterService,
@@ -72,6 +74,7 @@ export class VaultFilterComponent
       restrictedItemTypesService,
       cipherService,
       cipherArchiveService,
+      premiumUpgradePromptService,
     );
   }
 

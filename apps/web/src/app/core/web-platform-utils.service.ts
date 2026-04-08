@@ -106,6 +106,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
     return Promise.resolve(false);
   }
 
+  isAnyViewFocused(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
   launchUri(uri: string, options?: any): void {
     const a = document.createElement("a");
     a.href = uri;
@@ -217,6 +221,10 @@ export class WebPlatformUtilsService implements PlatformUtilsService {
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {
+    return null;
+  }
+
+  packageType(): Promise<string | null> {
     return null;
   }
 }

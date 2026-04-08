@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -11,33 +13,39 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   name = "masterPassPolicyTitle";
   description = "masterPassPolicyDesc";
   type = PolicyType.MasterPassword;
+  category = PolicyCategory.Authentication;
+  priority = 10;
   component = MasterPasswordPolicyComponent;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "master-password-policy-edit",
   templateUrl: "master-password.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MasterPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
   MinPasswordLength = Utils.minimumPasswordLength;
+  MaxPasswordLength = Utils.maximumPasswordLength;
 
   data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
     minComplexity: [null],
-    minLength: [this.MinPasswordLength, [Validators.min(Utils.minimumPasswordLength)]],
+    minLength: [
+      this.MinPasswordLength,
+      [Validators.min(Utils.minimumPasswordLength), Validators.max(this.MaxPasswordLength)],
+    ],
     requireUpper: [false],
     requireLower: [false],
     requireNumbers: [false],
@@ -52,7 +60,6 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
     private formBuilder: FormBuilder,
     i18nService: I18nService,
     private organizationService: OrganizationService,
-    private accountService: AccountService,
   ) {
     super();
 
@@ -72,7 +79,7 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
     const organization = await firstValueFrom(
       this.organizationService
         .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse.organizationId)),
+        .pipe(getOrganizationById(this.policyResponse()!.organizationId)),
     );
     this.showKeyConnectorInfo = organization.keyConnectorEnabled;
   }

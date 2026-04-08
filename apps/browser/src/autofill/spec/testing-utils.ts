@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
+
 export function triggerTestFailure() {
   expect(true).toBe("Test has failed.");
 }
@@ -11,7 +13,11 @@ export function flushPromises() {
   });
 }
 
-export function postWindowMessage(data: any, origin = "https://localhost/", source = window) {
+export function postWindowMessage(
+  data: any,
+  origin: string = BrowserApi.getRuntimeURL("")?.slice(0, -1),
+  source: Window | MessageEventSource | null = window,
+) {
   globalThis.dispatchEvent(new MessageEvent("message", { data, origin, source }));
 }
 

@@ -1,22 +1,25 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
   description = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
+  category = PolicyCategory.VaultManagement;
+  priority = 50;
   component = RestrictedItemTypesPolicyComponent;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "restricted-item-types-policy-edit",
   templateUrl: "restricted-item-types.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {
   constructor() {

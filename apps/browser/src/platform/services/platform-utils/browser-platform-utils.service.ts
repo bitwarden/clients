@@ -149,38 +149,12 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return false;
   }
 
-  /**
-   * Identifies if the vault popup is currently open. This is done by sending a
-   * message to the popup and waiting for a response. If a response is received,
-   * the view is open.
-   */
   async isPopupOpen(): Promise<boolean> {
-    if (this.isSafari()) {
-      // Query views on safari since chrome.runtime.sendMessage does not timeout and will hang.
-      return BrowserApi.isPopupOpen();
-    }
+    return BrowserApi.isPopupOpen();
+  }
 
-    return new Promise<boolean>((resolve, reject) => {
-      chrome.runtime.sendMessage({ command: "checkVaultPopupHeartbeat" }, (response) => {
-        if (chrome.runtime.lastError != null) {
-          // This error means that nothing was there to listen to the message,
-          // meaning the view is not open.
-          if (
-            chrome.runtime.lastError.message ===
-            "Could not establish connection. Receiving end does not exist."
-          ) {
-            resolve(false);
-            return;
-          }
-
-          // All unhandled errors still reject
-          reject(chrome.runtime.lastError);
-          return;
-        }
-
-        resolve(Boolean(response));
-      });
-    });
+  async isAnyViewFocused(): Promise<boolean> {
+    return BrowserApi.isAnyViewFocused();
   }
 
   lockTimeout(): number {
@@ -327,6 +301,25 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       );
     }
     return autofillCommand;
+  }
+
+  async packageType(): Promise<string | null> {
+    switch (this.getDevice()) {
+      case DeviceType.ChromeExtension:
+        return "Chrome Extension";
+      case DeviceType.FirefoxExtension:
+        return "Firefox Extension";
+      case DeviceType.OperaExtension:
+        return "Opera Extension";
+      case DeviceType.EdgeExtension:
+        return "Edge Extension";
+      case DeviceType.VivaldiExtension:
+        return "Vivaldi Extension";
+      case DeviceType.SafariExtension:
+        return "Safari Extension";
+      default:
+        return "Unknown Browser Extension";
+    }
   }
 
   /**

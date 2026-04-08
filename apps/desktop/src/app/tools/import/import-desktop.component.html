@@ -1,13 +1,21 @@
 <bit-dialog #dialog dialogSize="large" background="alt">
-  <span bitDialogTitle>{{ "importData" | i18n }}</span>
+  <span bitDialogTitle>{{ "importNoun" | i18n }}</span>
   <ng-container bitDialogContent>
-    <tools-import
-      (formLoading)="this.loading = $event"
-      (formDisabled)="this.disabled = $event"
-      (onSuccessfulImport)="this.onSuccessfulImport($event)"
-      [onImportFromBrowser]="this.onImportFromBrowser"
-      [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
-    ></tools-import>
+    <div class="tw-relative">
+      <tools-import
+        (formLoading)="this.loading = $event"
+        (formDisabled)="this.disabled = $event"
+        (onSuccessfulImport)="this.onSuccessfulImport($event)"
+        [onImportFromBrowser]="this.onImportFromBrowser"
+        [onLoadProfilesFromBrowser]="this.onLoadProfilesFromBrowser"
+        [class.tw-invisible]="loading"
+      ></tools-import>
+      @if (loading) {
+        <div class="tw-absolute tw-inset-0 tw-flex tw-items-center tw-justify-center">
+          <i class="bwi bwi-spinner bwi-spin bwi-3x tw-text-primary-600" aria-hidden="true"></i>
+        </div>
+      }
+    </div>
   </ng-container>
   <ng-container bitDialogFooter>
     <button
@@ -19,7 +27,7 @@
       bitFormButton
       buttonType="primary"
     >
-      {{ "importData" | i18n }}
+      {{ "importVerb" | i18n }}
     </button>
     <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
       {{ "cancel" | i18n }}

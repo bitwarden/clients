@@ -25,7 +25,7 @@ import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BadgeModule } from "../badge";
+import { ChipComponent } from "../chips";
 import { BitFormFieldControl } from "../form-field/form-field-control";
 import { SpinnerComponent } from "../spinner";
 
@@ -44,7 +44,7 @@ let nextId = 0;
     NgSelectModule,
     ReactiveFormsModule,
     FormsModule,
-    BadgeModule,
+    ChipComponent,
     I18nPipe,
     SpinnerComponent,
   ],
@@ -108,11 +108,11 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   /** Needs to be arrow function to retain `this` scope. */
   keyDown = (event: KeyboardEvent) => {
     const select = this.select();
-    if (!select.isOpen && event.key === "Enter" && !hasModifierKey(event)) {
+    if (!select.isOpen() && event.key === "Enter" && !hasModifierKey(event)) {
       return false;
     }
 
-    if (select.isOpen && event.key === "Escape" && !hasModifierKey(event)) {
+    if (select.isOpen() && event.key === "Escape" && !hasModifierKey(event)) {
       this.selectedItems = [];
       select.close();
       event.stopPropagation();
@@ -198,7 +198,9 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   }
   set ariaDescribedBy(value: string | undefined) {
     this._ariaDescribedBy = value;
-    this.select()?.searchInput.nativeElement.setAttribute("aria-describedby", value ?? "");
+    this.select()
+      ?.searchInput()
+      .nativeElement.setAttribute("aria-describedby", value ?? "");
   }
   private _ariaDescribedBy?: string;
 

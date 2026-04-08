@@ -53,8 +53,13 @@ export class TrayMain {
       },
       {
         visible: isDev(),
-        label: "Fake Popup",
+        label: "Fake Popup Select",
         click: () => this.fakePopup(),
+      },
+      {
+        visible: isDev(),
+        label: "Fake Popup Create",
+        click: () => this.fakePopupCreate(),
       },
       { type: "separator" },
       {
@@ -217,5 +222,9 @@ export class TrayMain {
    */
   private async fakePopup() {
     await this.messagingService.send("loadurl", { url: "/passkeys", modal: true });
+  }
+
+  private async fakePopupCreate() {
+    await this.messagingService.send("loadurl", { url: "/create-passkey", modal: true });
   }
 }

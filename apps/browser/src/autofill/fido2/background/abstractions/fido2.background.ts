@@ -13,7 +13,6 @@ type SharedFido2ScriptRegistrationOptions = SharedFido2ScriptInjectionDetails & 
   matches: string[];
   excludeMatches: string[];
   allFrames: true;
-  world?: "MAIN" | "ISOLATED";
 };
 
 type Fido2ExtensionMessage = {
@@ -46,6 +45,8 @@ type Fido2BackgroundExtensionMessageHandlers = {
 
 interface Fido2Background {
   init(): void;
+  isCredentialRequestInProgress(tabId: number): boolean;
+  isPasskeySettingEnabled(): Promise<boolean>;
 }
 
 export {

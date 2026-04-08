@@ -67,6 +67,10 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return Promise.resolve(false);
   }
 
+  isAnyViewFocused(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
   launchUri(uri: string, options?: any): void {
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -150,5 +154,27 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
 
   getAutofillKeyboardShortcut(): Promise<string> {
     return null;
+  }
+
+  async packageType(): Promise<string> {
+    if (ipc.platform.isMacAppStore) {
+      return "MacAppStore";
+    } else if (ipc.platform.isWindowsStore) {
+      return "WindowsStore";
+    } else if (ipc.platform.isAppImage) {
+      return "AppImage";
+    } else if (ipc.platform.isSnapStore) {
+      return "Snap";
+    } else if (ipc.platform.isFlatpak) {
+      return "Flatpak";
+    } else if (this.getDevice() === DeviceType.WindowsDesktop) {
+      return "WindowsUnknown";
+    } else if (this.getDevice() === DeviceType.MacOsDesktop) {
+      return "MacOSUnknown";
+    } else if (this.getDevice() === DeviceType.LinuxDesktop) {
+      return "LinuxUnknown";
+    } else {
+      return "DesktopUnknown";
+    }
   }
 }

@@ -71,7 +71,6 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
       passwordMap,
       checkExposed,
     });
-
     return results[0];
   }
 
@@ -103,7 +102,8 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
         return (
           cipher.type === CipherType.Login &&
           cipher.login?.password != null &&
-          cipher.login.password !== ""
+          cipher.login.password !== "" &&
+          !cipher.isDeleted
         );
       })
       .map(

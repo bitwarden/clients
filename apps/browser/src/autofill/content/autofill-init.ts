@@ -72,20 +72,23 @@ class AutofillInit implements AutofillInitInterface {
    * to act on the page.
    */
   private collectPageDetailsOnLoad() {
-    const sendCollectDetailsMessage = () => {
-      this.clearCollectPageDetailsOnLoadTimeout();
-      this.collectPageDetailsOnLoadTimeout = setTimeout(
-        () => this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
-        750,
-      );
-    };
-
     if (globalThis.document.readyState === "complete") {
-      sendCollectDetailsMessage();
+      this.sendCollectDetailsMessage();
     }
 
-    globalThis.addEventListener(EVENTS.LOAD, sendCollectDetailsMessage);
+    globalThis.addEventListener(EVENTS.LOAD, this.sendCollectDetailsMessage);
   }
+
+  /**
+   * Sends a message to collect page details after a short delay.
+   */
+  private sendCollectDetailsMessage = () => {
+    this.clearCollectPageDetailsOnLoadTimeout();
+    this.collectPageDetailsOnLoadTimeout = setTimeout(
+      () => this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
+      750,
+    );
+  };
 
   /**
    * Collects the page details and sends them to the
@@ -119,7 +122,7 @@ class AutofillInit implements AutofillInitInterface {
    *
    * @param {AutofillExtensionMessage} message
    */
-  private async fillForm({ fillScript, pageDetailsUrl }: AutofillExtensionMessage) {
+  private async fillForm({ fillScript, pageDetailsUrl, showAnimations }: AutofillExtensionMessage) {
     if ((document.defaultView || window).location.href !== pageDetailsUrl || !fillScript) {
       return;
     }
@@ -128,7 +131,7 @@ class AutofillInit implements AutofillInitInterface {
     await this.sendExtensionMessage("updateIsFieldCurrentlyFilling", {
       isFieldCurrentlyFilling: true,
     });
-    await this.insertAutofillContentService.fillForm(fillScript);
+    await this.insertAutofillContentService.fillForm(fillScript, showAnimations ?? true);
 
     setTimeout(
       () =>
@@ -218,6 +221,7 @@ class AutofillInit implements AutofillInitInterface {
    */
   destroy() {
     this.clearCollectPageDetailsOnLoadTimeout();
+    globalThis.removeEventListener(EVENTS.LOAD, this.sendCollectDetailsMessage);
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();

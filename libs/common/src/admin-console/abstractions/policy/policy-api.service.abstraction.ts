@@ -3,10 +3,11 @@ import { PolicyType } from "../../enums";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Policy } from "../../models/domain/policy";
 import { PolicyRequest } from "../../models/request/policy.request";
+import { PolicyStatusResponse } from "../../models/response/policy-status.response";
 import { PolicyResponse } from "../../models/response/policy.response";
 
 export abstract class PolicyApiServiceAbstraction {
-  abstract getPolicy: (organizationId: string, type: PolicyType) => Promise<PolicyResponse>;
+  abstract getPolicy: (organizationId: string, type: PolicyType) => Promise<PolicyStatusResponse>;
   abstract getPolicies: (organizationId: string) => Promise<ListResponse<PolicyResponse>>;
 
   abstract getPoliciesByToken: (

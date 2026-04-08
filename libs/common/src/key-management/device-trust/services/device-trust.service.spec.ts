@@ -914,7 +914,7 @@ describe("deviceTrustService", () => {
     platformUtilsService.supportsSecureStorage.mockReturnValue(supportsSecureStorage);
 
     decryptionOptions.next({} as any);
-    userDecryptionOptionsService.userDecryptionOptions$ = decryptionOptions;
+    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(decryptionOptions);
 
     return new DeviceTrustService(
       keyGenerationService,
@@ -930,6 +930,7 @@ describe("deviceTrustService", () => {
       userDecryptionOptionsService,
       logService,
       configService,
+      accountService,
     );
   }
 });

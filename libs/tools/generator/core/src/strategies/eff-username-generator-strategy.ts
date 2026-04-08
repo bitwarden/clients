@@ -16,9 +16,10 @@ const UsernameDigits = Object.freeze({
 });
 
 /** Strategy for creating usernames from the EFF wordlist */
-export class EffUsernameGeneratorStrategy
-  implements GeneratorStrategy<EffUsernameGenerationOptions, NoPolicy>
-{
+export class EffUsernameGeneratorStrategy implements GeneratorStrategy<
+  EffUsernameGenerationOptions,
+  NoPolicy
+> {
   /** Instantiates the generation strategy
    *  @param usernameService generates a username from EFF word list
    */

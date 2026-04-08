@@ -6,6 +6,7 @@ import {
   distinctUntilChanged,
   shareReplay,
   combineLatest,
+  BehaviorSubject,
   Observable,
   switchMap,
   filter,
@@ -17,7 +18,6 @@ import {
   Account,
   AccountInfo,
   InternalAccountService,
-  accountInfoEqual,
 } from "../../auth/abstractions/account.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
@@ -36,7 +36,10 @@ export const ACCOUNT_ACCOUNTS = KeyDefinition.record<AccountInfo, UserId>(
   ACCOUNT_DISK,
   "accounts",
   {
-    deserializer: (accountInfo) => accountInfo,
+    deserializer: (accountInfo) => ({
+      ...accountInfo,
+      creationDate: accountInfo.creationDate ? new Date(accountInfo.creationDate) : undefined,
+    }),
   },
 );
 
@@ -61,6 +64,7 @@ const LOGGED_OUT_INFO: AccountInfo = {
   email: "",
   emailVerified: false,
   name: undefined,
+  creationDate: undefined,
 };
 
 /**
@@ -84,6 +88,7 @@ export const getOptionalUserId = map<Account | null, UserId | null>(
 export class AccountServiceImplementation implements InternalAccountService {
   private accountsState: GlobalState<Record<UserId, AccountInfo>>;
   private activeAccountIdState: GlobalState<UserId | undefined>;
+  private _showHeader$ = new BehaviorSubject<boolean>(true);
 
   accounts$: Observable<Record<UserId, AccountInfo>>;
   activeAccount$: Observable<Account | null>;
@@ -91,6 +96,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   accountVerifyNewDeviceLogin$: Observable<boolean>;
   sortedUserIds$: Observable<UserId[]>;
   nextUpAccount$: Observable<Account>;
+  showHeader$ = this._showHeader$.asObservable();
 
   constructor(
     private messagingService: MessagingService,
@@ -107,7 +113,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccount$ = this.activeAccountIdState.state$.pipe(
       combineLatestWith(this.accounts$),
       map(([id, accounts]) => (id ? ({ id, ...(accounts[id] as AccountInfo) } as Account) : null)),
-      distinctUntilChanged((a, b) => a?.id === b?.id && accountInfoEqual(a, b)),
+      distinctUntilChanged((a, b) => a?.id === b?.id && this.accountInfoEqual(a, b)),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
     this.accountActivity$ = this.globalStateProvider
@@ -162,6 +168,10 @@ export class AccountServiceImplementation implements InternalAccountService {
 
   async setAccountEmailVerified(userId: UserId, emailVerified: boolean): Promise<void> {
     await this.setAccountInfo(userId, { emailVerified });
+  }
+
+  async setAccountCreationDate(userId: UserId, creationDate: Date): Promise<void> {
+    await this.setAccountInfo(userId, { creationDate });
   }
 
   async clean(userId: UserId) {
@@ -262,6 +272,27 @@ export class AccountServiceImplementation implements InternalAccountService {
     }
   }
 
+  async setShowHeader(visible: boolean): Promise<void> {
+    this._showHeader$.next(visible);
+  }
+
+  private accountInfoEqual(a: AccountInfo, b: AccountInfo) {
+    if (a == null && b == null) {
+      return true;
+    }
+
+    if (a == null || b == null) {
+      return false;
+    }
+
+    return (
+      a.email === b.email &&
+      a.emailVerified === b.emailVerified &&
+      a.name === b.name &&
+      a.creationDate?.getTime() === b.creationDate?.getTime()
+    );
+  }
+
   private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {
     function newAccountInfo(oldAccountInfo: AccountInfo): AccountInfo {
       return { ...oldAccountInfo, ...update };
@@ -279,7 +310,7 @@ export class AccountServiceImplementation implements InternalAccountService {
             throw new Error("Account does not exist");
           }
 
-          return !accountInfoEqual(accounts[userId], newAccountInfo(accounts[userId]));
+          return !this.accountInfoEqual(accounts[userId], newAccountInfo(accounts[userId]));
         },
       },
     );

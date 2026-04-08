@@ -9,7 +9,7 @@ setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
   return /*html*/ `
-    <div class="tw-bg-background tw-px-5 tw-py-10 tw-@container">
+    <div class="tw-bg-bg-primary tw-px-5 tw-py-10 tw-@container">
       ${story}
     </div>
   `;
@@ -28,7 +28,7 @@ const preview: Preview = {
   ],
   parameters: {
     a11y: {
-      element: "#storybook-root",
+      context: "#storybook-root",
     },
     controls: {
       matchers: {
@@ -49,7 +49,7 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      disable: true,
+      disabled: true,
     },
   },
   tags: ["autodocs"],

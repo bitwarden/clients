@@ -13,9 +13,7 @@ import { atLeast, atLeastSum, maybe, readonlyTrueWhen, AtLeastOne, Zero } from "
 import { PasswordPolicyConstraints } from "./password-policy-constraints";
 
 /** Creates state constraints by blending policy and password settings. */
-export class DynamicPasswordPolicyConstraints
-  implements DynamicStateConstraints<PasswordGeneratorSettings>
-{
+export class DynamicPasswordPolicyConstraints implements DynamicStateConstraints<PasswordGeneratorSettings> {
   /** Instantiates the object.
    *  @param policy the password policy to enforce. This cannot be
    *  `null` or `undefined`.

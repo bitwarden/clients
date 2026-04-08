@@ -3,10 +3,7 @@ import { of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -18,6 +15,7 @@ import {
 } from "@bitwarden/key-management";
 
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
+import { MasterPasswordUnlockService } from "../../../key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinLockType } from "../../../key-management/pin/pin-lock-type";
 import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
@@ -46,6 +44,7 @@ describe("UserVerificationService", () => {
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
   const kdfConfigService = mock<KdfConfigService>();
   const biometricsService = mock<BiometricsService>();
+  const masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -64,6 +63,7 @@ describe("UserVerificationService", () => {
       pinService,
       kdfConfigService,
       biometricsService,
+      masterPasswordUnlockService,
     );
   });
 
@@ -146,11 +146,7 @@ describe("UserVerificationService", () => {
 
     describe("server verification type", () => {
       it("correctly returns master password availability", async () => {
-        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-          of({
-            hasMasterPassword: true,
-          } as UserDecryptionOptions),
-        );
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(true));
 
         const result = await sut.getAvailableVerificationOptions("server");
 
@@ -168,11 +164,7 @@ describe("UserVerificationService", () => {
       });
 
       it("correctly returns OTP availability", async () => {
-        userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-          of({
-            hasMasterPassword: false,
-          } as UserDecryptionOptions),
-        );
+        userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(false));
 
         const result = await sut.getAvailableVerificationOptions("server");
 
@@ -339,11 +331,10 @@ describe("UserVerificationService", () => {
     describe("client-side verification", () => {
       beforeEach(() => {
         setMasterPasswordAvailability(true);
+        masterPasswordUnlockService.proofOfDecryption.mockResolvedValue(true);
       });
 
       it("returns if verification is successful", async () => {
-        keyService.compareKeyHash.mockResolvedValueOnce(true);
-
         const result = await sut.verifyUserByMasterPassword(
           {
             type: VerificationType.MasterPassword,
@@ -353,7 +344,10 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(keyService.compareKeyHash).toHaveBeenCalled();
+        expect(masterPasswordUnlockService.proofOfDecryption).toHaveBeenCalledWith(
+          "password",
+          mockUserId,
+        );
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -367,7 +361,7 @@ describe("UserVerificationService", () => {
       });
 
       it("throws if verification fails", async () => {
-        keyService.compareKeyHash.mockResolvedValueOnce(false);
+        masterPasswordUnlockService.proofOfDecryption.mockResolvedValueOnce(false);
 
         await expect(
           sut.verifyUserByMasterPassword(
@@ -380,7 +374,10 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(keyService.compareKeyHash).toHaveBeenCalled();
+        expect(masterPasswordUnlockService.proofOfDecryption).toHaveBeenCalledWith(
+          "password",
+          mockUserId,
+        );
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
@@ -412,7 +409,7 @@ describe("UserVerificationService", () => {
           "email",
         );
 
-        expect(keyService.compareKeyHash).not.toHaveBeenCalled();
+        expect(masterPasswordUnlockService.proofOfDecryption).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
           "localHash",
           mockUserId,
@@ -446,7 +443,7 @@ describe("UserVerificationService", () => {
           ),
         ).rejects.toThrow("Invalid master password");
 
-        expect(keyService.compareKeyHash).not.toHaveBeenCalled();
+        expect(masterPasswordUnlockService.proofOfDecryption).not.toHaveBeenCalled();
         expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
@@ -526,11 +523,7 @@ describe("UserVerificationService", () => {
 
   // Helpers
   function setMasterPasswordAvailability(hasMasterPassword: boolean) {
-    userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
-      of({
-        hasMasterPassword: hasMasterPassword,
-      } as UserDecryptionOptions),
-    );
+    userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(hasMasterPassword));
     masterPasswordService.masterKeyHash$.mockReturnValue(
       of(hasMasterPassword ? "masterKeyHash" : null),
     );

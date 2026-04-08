@@ -1,6 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
-import { FakeStateProvider, awaitAsync } from "../../../spec";
+import { FakeStateProvider, awaitAsync, mockAccountInfoWith } from "../../../spec";
 import { FakeAccountService } from "../../../spec/fake-account-service";
 import { UserId } from "../../types/guid";
 import { CloudRegion, Region } from "../abstractions/environment.service";
@@ -28,16 +28,14 @@ describe("EnvironmentService", () => {
 
   beforeEach(async () => {
     accountService = new FakeAccountService({
-      [testUser]: {
+      [testUser]: mockAccountInfoWith({
         name: "name",
         email: "email",
-        emailVerified: false,
-      },
-      [alternateTestUser]: {
+      }),
+      [alternateTestUser]: mockAccountInfoWith({
         name: "name",
         email: "email",
-        emailVerified: false,
-      },
+      }),
     });
     stateProvider = new FakeStateProvider(accountService);
 
@@ -47,9 +45,10 @@ describe("EnvironmentService", () => {
   const switchUser = async (userId: UserId) => {
     accountService.activeAccountSubject.next({
       id: userId,
-      email: "test@example.com",
-      name: `Test Name ${userId}`,
-      emailVerified: false,
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: `Test Name ${userId}`,
+      }),
     });
     await awaitAsync();
   };
@@ -135,6 +134,50 @@ describe("EnvironmentService", () => {
         });
       },
     );
+
+    describe("logout race condition: USER_ENVIRONMENT_KEY cleared before activeAccountId$ switches to null", () => {
+      // The race: background clears USER_ENVIRONMENT_KEY ("logout" state event) before
+      // the popup's activeAccountId$ receives the null emission from accountService.clean().
+      // If the USER_ENVIRONMENT_KEY clear propagates first, environment$ watches USER state while
+      // setEnvironment() writes only to GLOBAL, causing the selector to fall back to the default (US) immediately.
+
+      it("falls back to global when user environment state is cleared mid-logout", async () => {
+        setGlobalData(Region.EU, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        // Storage event arrives: USER_ENVIRONMENT_KEY = null (logout cleared it)
+        // but activeAccountId$ still emits testUser (account not yet cleaned up)
+        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
+        await awaitAsync();
+
+        const env = await firstValueFrom(sut.environment$);
+        // Without fix: null USER state → buildEnvironment(null, null) → US (default)
+        // With fix: falls back to GLOBAL → EU
+        expect(env.getRegion()).toBe(Region.EU);
+      });
+
+      it("reflects setEnvironment call when user environment state is null mid-logout", async () => {
+        // GLOBAL is US (never explicitly set to EU on this context)
+        // USER was EU (seeded at login time)
+        setGlobalData(Region.US, new EnvironmentUrls());
+        setUserData(Region.EU, new EnvironmentUrls());
+        await switchUser(testUser);
+
+        // Race: USER_ENVIRONMENT_KEY clear arrives before activeAccountId$ → null
+        stateProvider.singleUser.getFake(testUser, USER_ENVIRONMENT_KEY).nextState(null);
+        await awaitAsync();
+
+        // User clicks EU in the environment selector → setEnvironment(EU) → writes GLOBAL
+        // Without fix: environment$ watches USER state (which is null and defaults to US) and ignores GLOBAL write and the value stays US
+        // With fix: environment$ falls back to GLOBAL, so setEnvironment(EU) updates GLOBAL and emits EU
+        await sut.setEnvironment(Region.EU);
+        await awaitAsync();
+
+        const env = await firstValueFrom(sut.environment$);
+        expect(env.getRegion()).toBe(Region.EU);
+      });
+    });
 
     it("returns user data", async () => {
       const globalEnvironmentUrls = new EnvironmentUrls();

@@ -1,7 +1,4 @@
-// FIXME (PM-22628): angular imports are forbidden in background
-// eslint-disable-next-line no-restricted-imports
-import { inject } from "@angular/core";
-import { combineLatest, defer, firstValueFrom, map, Observable } from "rxjs";
+import { combineLatest, defer, switchMap, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -11,7 +8,11 @@ import {
   BiometricsStatus,
   BiometricStateService,
 } from "@bitwarden/key-management";
-import { LockComponentService, UnlockOptions } from "@bitwarden/key-management-ui";
+import {
+  LockComponentService,
+  UnlockOptions,
+  WebAuthnPrfUnlockService,
+} from "@bitwarden/key-management-ui";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../../models/biometricErrors";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -21,11 +22,14 @@ import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 export class ExtensionLockComponentService implements LockComponentService {
-  private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
-  private readonly biometricsService = inject(BiometricsService);
-  private readonly pinService = inject(PinServiceAbstraction);
-  private readonly routerService = inject(BrowserRouterService);
-  private readonly biometricStateService = inject(BiometricStateService);
+  constructor(
+    private readonly userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private readonly biometricsService: BiometricsService,
+    private readonly pinService: PinServiceAbstraction,
+    private readonly biometricStateService: BiometricStateService,
+    private readonly routerService: BrowserRouterService,
+    private readonly webAuthnPrfUnlockService: WebAuthnPrfUnlockService,
+  ) {}
 
   getPreviousUrl(): string | null {
     return this.routerService.getPreviousUrl() ?? null;
@@ -63,26 +67,24 @@ export class ExtensionLockComponentService implements LockComponentService {
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
-      // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
-      defer(async () => {
-        if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$))) {
-          return BiometricsStatus.NotEnabledLocally;
-        } else {
-          // TODO remove after 2025.3
-          // remove after backward compatibility code for old biometrics ipc protocol is removed
-          const result: BiometricsStatus = (await Promise.race([
-            this.biometricsService.getBiometricsStatusForUser(userId),
-            new Promise((resolve) =>
-              setTimeout(() => resolve(BiometricsStatus.DesktopDisconnected), 1000),
-            ),
-          ])) as BiometricsStatus;
-          return result;
-        }
-      }),
+      // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
+      this.biometricStateService
+        .biometricUnlockEnabled$(userId)
+        .pipe(
+          switchMap(async (enabled) =>
+            enabled
+              ? await this.biometricsService.getBiometricsStatusForUser(userId)
+              : BiometricsStatus.NotEnabledLocally,
+          ),
+        ),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       defer(() => this.pinService.isPinDecryptionAvailable(userId)),
+      defer(async () => {
+        const available = await this.webAuthnPrfUnlockService.isPrfUnlockAvailable(userId);
+        return { available };
+      }),
     ]).pipe(
-      map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable]) => {
+      map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable, prfUnlockInfo]) => {
         const unlockOpts: UnlockOptions = {
           masterPassword: {
             enabled: userDecryptionOptions?.hasMasterPassword,
@@ -93,6 +95,9 @@ export class ExtensionLockComponentService implements LockComponentService {
           biometrics: {
             enabled: biometricsStatus === BiometricsStatus.Available,
             biometricsStatus: biometricsStatus,
+          },
+          prf: {
+            enabled: prfUnlockInfo.available,
           },
         };
         return unlockOpts;

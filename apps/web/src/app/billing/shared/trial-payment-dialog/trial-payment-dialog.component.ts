@@ -34,7 +34,10 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
-import { SubscriberBillingClient, TaxClient } from "@bitwarden/web-vault/app/billing/clients";
+import {
+  SubscriberBillingClient,
+  PreviewInvoiceClient,
+} from "@bitwarden/web-vault/app/billing/clients";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -73,7 +76,6 @@ interface OnSuccessArgs {
   selector: "app-trial-payment-dialog",
   templateUrl: "./trial-payment-dialog.component.html",
   standalone: false,
-  providers: [SubscriberBillingClient, TaxClient],
 })
 export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -118,7 +120,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private organizationBillingApiServiceAbstraction: OrganizationBillingApiServiceAbstraction,
     private subscriberBillingClient: SubscriberBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
   ) {
     this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
   }
@@ -300,7 +302,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
     const tier = getTierFromLegacyEnum(this.organization);
 
     if (tier && cadence) {
-      const costs = await this.taxClient.previewTaxForOrganizationSubscriptionPlanChange(
+      const costs = await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
         this.organization.id,
         {
           tier,

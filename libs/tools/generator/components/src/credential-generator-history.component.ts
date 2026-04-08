@@ -23,7 +23,6 @@ import {
 import { AlgorithmsByType, CredentialGeneratorService } from "@bitwarden/generator-core";
 import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
-import { GeneratorModule } from "./generator.module";
 import { translate } from "./util";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -32,13 +31,12 @@ import { translate } from "./util";
   selector: "bit-credential-generator-history",
   templateUrl: "credential-generator-history.component.html",
   imports: [
-    ColorPasswordModule,
     CommonModule,
+    ColorPasswordModule,
     IconButtonModule,
     NoItemsModule,
     JslibModule,
     ItemModule,
-    GeneratorModule,
   ],
 })
 export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, OnDestroy {

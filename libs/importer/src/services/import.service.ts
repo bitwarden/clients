@@ -4,16 +4,15 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CollectionService, CollectionWithIdRequest } from "@bitwarden/admin-console/common";
 import {
-  CollectionService,
-  CollectionWithIdRequest,
   CollectionView,
   CollectionTypes,
-} from "@bitwarden/admin-console/common";
+} from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { ImportCiphersRequest } from "@bitwarden/common/models/request/import-ciphers.request";
 import { ImportOrganizationCiphersRequest } from "@bitwarden/common/models/request/import-organization-ciphers.request";
 import { KvpRequest } from "@bitwarden/common/models/request/kvp.request";
@@ -25,13 +24,14 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
-import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
+import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/request/folder-with-optional-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
+  ArcCsvImporter,
   AscendoCsvImporter,
   AvastCsvImporter,
   AvastJsonImporter,
@@ -56,7 +56,6 @@ import {
   KeePass2XmlImporter,
   KeePassXCsvImporter,
   KeeperCsvImporter,
-  // KeeperJsonImporter,
   LastPassCsvImporter,
   LogMeOnceCsvImporter,
   MSecureCsvImporter,
@@ -119,7 +118,7 @@ export class ImportService implements ImportServiceAbstraction {
     private collectionService: CollectionService,
     private keyService: KeyService,
     private encryptService: EncryptService,
-    private pinService: PinServiceAbstraction,
+    private keyGenerationService: KeyGenerationService,
     private accountService: AccountService,
     private restrictedItemTypesService: RestrictedItemTypesService,
   ) {}
@@ -238,7 +237,7 @@ export class ImportService implements ImportServiceAbstraction {
           this.encryptService,
           this.i18nService,
           this.cipherService,
-          this.pinService,
+          this.keyGenerationService,
           this.accountService,
           promptForPassword_callback,
         );
@@ -257,6 +256,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new PadlockCsvImporter();
       case "keepass2xml":
         return new KeePass2XmlImporter();
+      case "arccsv":
+        return new ArcCsvImporter();
       case "edgecsv":
       case "chromecsv":
       case "operacsv":
@@ -374,16 +375,19 @@ export class ImportService implements ImportServiceAbstraction {
 
   private async handleIndividualImport(importResult: ImportResult, userId: UserId) {
     const request = new ImportCiphersRequest();
-    for (let i = 0; i < importResult.ciphers.length; i++) {
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
-      request.ciphers.push(new CipherRequest(c));
+
+    const encryptedCiphers = await this.cipherService.encryptMany(importResult.ciphers, userId);
+
+    for (const encryptedCipher of encryptedCiphers) {
+      request.ciphers.push(new CipherRequest(encryptedCipher));
     }
+
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (importResult.folders != null) {
       for (let i = 0; i < importResult.folders.length; i++) {
         const f = await this.folderService.encrypt(importResult.folders[i], userKey);
-        request.folders.push(new FolderWithIdRequest(f));
+        request.folders.push(new FolderWithOptionalIdRequest(f));
       }
     }
     if (importResult.folderRelationships != null) {
@@ -400,11 +404,18 @@ export class ImportService implements ImportServiceAbstraction {
     userId: UserId,
   ) {
     const request = new ImportOrganizationCiphersRequest();
-    for (let i = 0; i < importResult.ciphers.length; i++) {
-      importResult.ciphers[i].organizationId = organizationId;
-      const c = await this.cipherService.encrypt(importResult.ciphers[i], userId);
-      request.ciphers.push(new CipherRequest(c));
+
+    // Set organization ID on all ciphers before batch encryption
+    importResult.ciphers.forEach((cipher) => {
+      cipher.organizationId = organizationId;
+    });
+
+    const encryptedCiphers = await this.cipherService.encryptMany(importResult.ciphers, userId);
+
+    for (const encryptedCipher of encryptedCiphers) {
+      request.ciphers.push(new CipherRequest(encryptedCipher));
     }
+
     if (importResult.collections != null) {
       for (let i = 0; i < importResult.collections.length; i++) {
         importResult.collections[i].organizationId = organizationId;

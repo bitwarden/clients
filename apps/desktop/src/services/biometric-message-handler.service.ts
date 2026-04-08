@@ -119,13 +119,6 @@ export class BiometricMessageHandlerService {
       "[BiometricMessageHandlerService] Initializing biometric message handler",
     );
 
-    const windowsV2Enabled = await this.configService.getFeatureFlag(
-      FeatureFlag.WindowsBiometricsV2,
-    );
-    if (windowsV2Enabled) {
-      await this.biometricsService.enableWindowsV2Biometrics();
-    }
-
     const linuxV2Enabled = await this.configService.getFeatureFlag(FeatureFlag.LinuxBiometricsV2);
     if (linuxV2Enabled) {
       await this.biometricsService.enableLinuxV2Biometrics();

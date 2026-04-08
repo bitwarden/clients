@@ -16,7 +16,6 @@ import { OsBiometricService } from "./os-biometrics.service";
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
   private shouldAutoPrompt = true;
-  private windowsV2BiometricsEnabled = false;
   private linuxV2BiometricsEnabled = false;
 
   constructor(
@@ -30,15 +29,10 @@ export class MainBiometricsService extends DesktopBiometricsService {
   ) {
     super();
     if (platform === "win32") {
-      // eslint-disable-next-line
-      const OsBiometricsServiceWindows = require("./os-biometrics-windows.service").default;
-      this.osBiometricsService = new OsBiometricsServiceWindows(
+      this.osBiometricsService = new WindowsBiometricsSystem(
         this.i18nService,
         this.windowMain,
         this.logService,
-        this.biometricStateService,
-        this.encryptService,
-        this.cryptoFunctionService,
       );
     } else if (platform === "darwin") {
       // eslint-disable-next-line
@@ -154,22 +148,6 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return await this.osBiometricsService.hasPersistentKey(userId);
-  }
-
-  async enableWindowsV2Biometrics(): Promise<void> {
-    if (this.platform === "win32" && !this.windowsV2BiometricsEnabled) {
-      this.logService.info("[BiometricsMain] Loading native biometrics module v2 for windows");
-      this.osBiometricsService = new WindowsBiometricsSystem(
-        this.i18nService,
-        this.windowMain,
-        this.logService,
-      );
-      this.windowsV2BiometricsEnabled = true;
-    }
-  }
-
-  async isWindowsV2BiometricsEnabled(): Promise<boolean> {
-    return this.windowsV2BiometricsEnabled;
   }
 
   async enableLinuxV2Biometrics(): Promise<void> {

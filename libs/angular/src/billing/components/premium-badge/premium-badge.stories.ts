@@ -29,7 +29,7 @@ export default {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
-              premium: "Premium",
+              upgrade: "Upgrade",
             });
           },
         },

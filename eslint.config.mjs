@@ -63,7 +63,7 @@ export default tseslint.config(
       // TODO: Enable these.
       "@angular-eslint/component-class-suffix": "error",
       "@angular-eslint/contextual-lifecycle": "error",
-      "@angular-eslint/directive-class-suffix": 0,
+      "@angular-eslint/directive-class-suffix": "error",
       "@angular-eslint/no-empty-lifecycle-method": 0,
       "@angular-eslint/no-input-rename": 0,
       "@angular-eslint/no-inputs-metadata-property": "error",
@@ -71,6 +71,7 @@ export default tseslint.config(
       "@angular-eslint/no-output-on-prefix": 0,
       "@angular-eslint/no-output-rename": "error",
       "@angular-eslint/no-outputs-metadata-property": "error",
+      "@angular-eslint/prefer-inject": 0,
       "@angular-eslint/prefer-on-push-component-change-detection": "error",
       "@angular-eslint/prefer-output-emitter-ref": "error",
       "@angular-eslint/prefer-signals": "error",
@@ -172,6 +173,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ["**/*.component.ts", "**/*.directive.ts", "**/*.service.ts"],
+    rules: {
+      "@bitwarden/components/enforce-readonly-angular-properties": ["error", { onlyOnPush: true }],
+    },
+  },
+  {
     // Everything in this config object targets our HTML files (external templates,
     // and inline templates as long as we have the `processor` set on our TypeScript config above)
     files: ["**/*.html"],
@@ -196,7 +203,7 @@ export default tseslint.config(
         {
           // uses negative lookahead to whitelist any class that doesn't start with "tw-"
           // in other words: classnames that start with tw- must be valid TailwindCSS classes
-          whitelist: ["(?!(tw)\\-).*"],
+          whitelist: ["(?!(tw)\\-).*", "tw-app-region-drag", "tw-app-region-no-drag"],
         },
       ],
       "tailwindcss/enforces-negative-arbitrary-values": "error",
@@ -206,6 +213,8 @@ export default tseslint.config(
         "error",
         { ignoreIfHas: ["bitPasswordInputToggle"] },
       ],
+      "@bitwarden/components/no-bwi-class-usage": "warn",
+      "@bitwarden/components/no-icon-children-in-bit-button": "warn",
     },
   },
 
@@ -241,6 +250,22 @@ export default tseslint.config(
     files: ["**/src/**/*.ts"],
     rules: {
       "no-restricted-imports": buildNoRestrictedImports(),
+    },
+  },
+
+  // Desktop app overrides
+  {
+    files: ["apps/desktop/src/**/*.ts"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "CallExpression[callee.type='MemberExpression'][callee.object.name='shell'][callee.property.name='openExternal']",
+          message:
+            "Do not call shell.openExternal() directly. Use SafeShell.openExternal() instead.",
+        },
+      ],
     },
   },
 
@@ -346,8 +371,8 @@ export default tseslint.config(
             "logo",
             "logo-themed",
             "file-selector",
-            "mfaType.*",
             "filter.*", // Temporary until filters are migrated
+            "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",
           ],
         },
@@ -662,11 +687,9 @@ export default tseslint.config(
       "**/jest.config.js",
 
       "apps/browser/config/config.js",
-      "apps/browser/src/auth/scripts/duo.js",
       "apps/browser/webpack/manifest.js",
 
       "apps/desktop/desktop_native",
-      "apps/desktop/src/auth/scripts/duo.js",
 
       "apps/web/config.js",
       "apps/web/scripts/*.js",

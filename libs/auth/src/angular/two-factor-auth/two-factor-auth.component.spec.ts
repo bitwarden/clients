@@ -176,7 +176,9 @@ describe("TwoFactorAuthComponent", () => {
     selectedUserDecryptionOptions = new BehaviorSubject<UserDecryptionOptions>(
       mockUserDecryptionOpts.withMasterPassword,
     );
-    mockUserDecryptionOptionsService.userDecryptionOptions$ = selectedUserDecryptionOptions;
+    mockUserDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+      selectedUserDecryptionOptions,
+    );
 
     TestBed.configureTestingModule({
       declarations: [TestTwoFactorComponent],
@@ -419,6 +421,7 @@ describe("TwoFactorAuthComponent", () => {
             keyConnectorUrl:
               mockUserDecryptionOpts.noMasterPasswordWithKeyConnector.keyConnectorOption!
                 .keyConnectorUrl,
+            organizationSsoIdentifier: "test-sso-id",
           }),
         );
         const authResult = new AuthResult();

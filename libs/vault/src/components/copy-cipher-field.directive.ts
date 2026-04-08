@@ -36,7 +36,7 @@ export class CopyCipherFieldDirective implements OnChanges {
     alias: "appCopyField",
     required: true,
   })
-  action!: Exclude<CopyAction, "hiddenField">;
+  action!: CopyAction;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals

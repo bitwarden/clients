@@ -7,15 +7,13 @@ import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
 import { takeUntil } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BusinessUnitPortalLogo, Icon, ProviderPortalLogo } from "@bitwarden/assets/svg";
+import { BusinessUnitPortalLogo, BitSvg, ProviderPortalLogo } from "@bitwarden/assets/svg";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { IconModule } from "@bitwarden/components";
+import { SvgModule } from "@bitwarden/components";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
 import { TaxIdWarningType } from "@bitwarden/web-vault/app/billing/warnings/types";
@@ -33,7 +31,7 @@ import { ProviderWarningsService } from "../../billing/providers/warnings/servic
     RouterModule,
     JslibModule,
     WebLayoutModule,
-    IconModule,
+    SvgModule,
     TaxIdWarningComponent,
   ],
 })
@@ -43,12 +41,11 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected provider$: Observable<Provider>;
 
-  protected logo$: Observable<Icon>;
+  protected logo$: Observable<BitSvg>;
 
   protected canAccessBilling$: Observable<boolean>;
 
   protected clientsTranslationKey$: Observable<string>;
-  protected providerPortalTakeover$: Observable<boolean>;
 
   protected subscriber$: Observable<NonIndividualSubscriber>;
   protected getTaxIdWarning$: () => Observable<TaxIdWarningType>;
@@ -56,7 +53,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private providerService: ProviderService,
-    private configService: ConfigService,
     private providerWarningsService: ProviderWarningsService,
     private accountService: AccountService,
   ) {}
@@ -100,10 +96,6 @@ export class ProvidersLayoutComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.providerPortalTakeover$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM21821_ProviderPortalTakeover,
-    );
 
     this.subscriber$ = this.provider$.pipe(
       map((provider) => ({

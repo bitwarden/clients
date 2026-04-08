@@ -25,7 +25,10 @@ export type MasterPasswordSalt = Opaque<string, "MasterPasswordSalt">;
 export type MasterKeyWrappedUserKey = Opaque<EncString, "MasterKeyWrappedUserKey">;
 
 /**
- * The data required to unlock with the master password.
+ * Encapsulates the data needed to unlock a vault using a master password.
+ * It contains the masterKeyWrappedUserKey along with the KDF settings and salt used to derive the master key.
+ * It is currently backwards compatible to master-key based unlock, but this will not be the case in the future.
+ * Features relating to master-password-based unlock should use this abstraction.
  */
 export class MasterPasswordUnlockData {
   constructor(
@@ -40,6 +43,14 @@ export class MasterPasswordUnlockData {
       fromSdkKdfConfig(sdkData.kdf),
       sdkData.masterKeyWrappedUserKey as MasterKeyWrappedUserKey,
     );
+  }
+
+  toSdk(): SdkMasterPasswordUnlockData {
+    return {
+      salt: this.salt,
+      kdf: this.kdf.toSdkConfig(),
+      masterKeyWrappedUserKey: this.masterKeyWrappedUserKey,
+    };
   }
 
   toJSON(): any {
@@ -66,7 +77,9 @@ export class MasterPasswordUnlockData {
 }
 
 /**
- * The data required to authenticate with the master password.
+ * Encapsulates the data required to authenticate using a master password.
+ * It contains the masterPasswordAuthenticationHash, along with the KDF settings and salt used to derive it.
+ * The encapsulated abstraction prevents authentication issues resulting from unsynchronized state.
  */
 export type MasterPasswordAuthenticationData = {
   salt: MasterPasswordSalt;

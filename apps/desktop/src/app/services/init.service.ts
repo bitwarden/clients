@@ -1,15 +1,14 @@
-import { DOCUMENT } from "@angular/common";
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, DOCUMENT } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
+import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -19,7 +18,6 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
-import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 
@@ -27,9 +25,12 @@ import { DesktopAutofillService } from "../../autofill/services/desktop-autofill
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { VersionService } from "../../platform/services/version.service";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
+
+import { UpdateRestartService } from "./update-restart.service";
 
 @Injectable()
 export class InitService {
@@ -55,9 +56,10 @@ export class InitService {
     private autotypeService: DesktopAutotypeService,
     private sdkLoadService: SdkLoadService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
-    private configService: ConfigService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
+    private serverCommunicationConfigService: ServerCommunicationConfigService,
+    private updateRestartService: UpdateRestartService,
   ) {}
 
   init() {
@@ -66,7 +68,6 @@ export class InitService {
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
-      this.encryptService.init(this.configService);
 
       const accounts = await firstValueFrom(this.accountService.accounts$);
       const setUserKeyInMemoryPromises = [];
@@ -80,6 +81,7 @@ export class InitService {
       }
       await Promise.all(setUserKeyInMemoryPromises);
 
+      await this.serverCommunicationConfigService.init();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.syncService.fullSync(true);
@@ -93,6 +95,7 @@ export class InitService {
       this.themingService.applyThemeChangesTo(this.document);
 
       this.versionService.init();
+      this.updateRestartService.init();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);

@@ -60,6 +60,12 @@ export default class RuntimeBackground {
     chrome.runtime.onInstalled.addListener((details: any) => {
       this.onInstalledReason = details.reason;
     });
+
+    if (chrome?.permissions?.onAdded) {
+      chrome.permissions.onAdded.addListener((permissions) => {
+        void this.handleSetBitwardenAsDefaultPasswordManager(permissions);
+      });
+    }
   }
 
   async init() {
@@ -68,6 +74,7 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
+
     const backgroundMessageListener = (
       msg: any,
       sender: chrome.runtime.MessageSender,
@@ -216,6 +223,30 @@ export default class RuntimeBackground {
     }
   }
 
+  private async handleSetBitwardenAsDefaultPasswordManager(
+    permissions: chrome.permissions.Permissions,
+  ) {
+    if (!permissions.permissions?.includes("privacy")) {
+      return;
+    }
+
+    if (!chrome.storage?.session) {
+      return;
+    }
+
+    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
+    if (!result.pendingDefaultPasswordManagerApply) {
+      return;
+    }
+
+    try {
+      await BrowserApi.updateDefaultBrowserAutofillSettings(false);
+      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+    } catch (error) {
+      this.logService.error(error);
+    }
+  }
+
   async processMessage(msg: any) {
     switch (msg.command) {
       case "loggedIn":
@@ -291,16 +322,24 @@ export default class RuntimeBackground {
         }
         break;
       case "openPopup":
-        await this.openPopup();
+        await this.executeMessageActionOrOpenPopup(msg, this.openPopup.bind(this));
         break;
-      case VaultMessages.OpenAtRiskPasswords:
-        await this.main.openAtRisksPasswordsPage();
+      case VaultMessages.OpenAtRiskPasswords: {
+        await this.executeMessageActionOrOpenPopup(
+          msg,
+          this.main.openAtRisksPasswordsPage.bind(this),
+        );
         this.announcePopupOpen();
         break;
-      case VaultMessages.OpenBrowserExtensionToUrl:
-        await this.main.openTheExtensionToPage(msg.url);
+      }
+      case VaultMessages.OpenBrowserExtensionToUrl: {
+        await this.executeMessageActionOrOpenPopup(
+          msg,
+          this.main.openTheExtensionToPage.bind(this, msg.url),
+        );
         this.announcePopupOpen();
         break;
+      }
       case "bgUpdateContextMenu":
       case "editedCipher":
       case "addedCipher":
@@ -312,10 +351,7 @@ export default class RuntimeBackground {
         break;
       }
       case "authResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -334,10 +370,7 @@ export default class RuntimeBackground {
         break;
       }
       case "webAuthnResult": {
-        const env = await firstValueFrom(this.environmentService.environment$);
-        const vaultUrl = env.getWebVaultUrl();
-
-        if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
+        if (!(await this.isValidVaultReferrer(msg.referrer))) {
           return;
         }
 
@@ -370,6 +403,63 @@ export default class RuntimeBackground {
         break;
       }
     }
+  }
+
+  /**
+   * For messages that can originate from a vault host page or extension, validate referrer or external
+   *
+   * @param message
+   * @returns true if message fails validation
+   */
+  private async executeMessageActionOrOpenPopup(
+    message: {
+      webExtSender: chrome.runtime.MessageSender;
+    },
+    messageAction: () => Promise<void>,
+  ): Promise<boolean> {
+    const hasAccounts = await firstValueFrom(
+      this.accountService.accounts$.pipe(map((a) => Object.keys(a).length > 0)),
+    );
+
+    // When there are no accounts associated with the extension, only allow opening the popup
+    if (!hasAccounts) {
+      await this.openPopup();
+      return;
+    }
+
+    const isValidVaultReferrer = await this.isValidVaultReferrer(
+      Utils.getHostname(message?.webExtSender?.origin),
+    );
+
+    // When the referrer is not a known vault and the message is external, reject the message
+    if (!isValidVaultReferrer && isExternalMessage(message)) {
+      return;
+    }
+
+    await messageAction();
+  }
+
+  /**
+   * Validates that a referrer hostname matches any of the available regions' and current environment web vault URLs.
+   *
+   * @param referrer - hostname from message source (should not include protocol or path)
+   * @returns true if referrer matches any known vault hostname, false otherwise
+   */
+  private async isValidVaultReferrer(referrer: string | null | undefined): Promise<boolean> {
+    if (!referrer) {
+      return false;
+    }
+
+    const environment = await firstValueFrom(this.environmentService.environment$);
+
+    const regions = this.environmentService.availableRegions();
+    const regionVaultUrls = regions.map((r) => r.urls.webVault ?? r.urls.base);
+    const environmentWebVaultUrl = environment.getWebVaultUrl();
+    const messageIsFromKnownVault = [...regionVaultUrls, environmentWebVaultUrl].some(
+      (webVaultUrl) => Utils.getHostname(webVaultUrl) === referrer,
+    );
+
+    return messageIsFromKnownVault;
   }
 
   private async autofillPage(tabToAutoFill: chrome.tabs.Tab) {
@@ -458,21 +548,26 @@ export default class RuntimeBackground {
   /** Sends a message to each tab that the popup was opened */
   private announcePopupOpen() {
     const announceToAllTabs = async () => {
-      const isOpen = await this.platformUtilsService.isPopupOpen();
       const tabs = await this.getBwTabs();
-
-      if (isOpen && tabs.length > 0) {
-        // Send message to all vault tabs that the extension has opened
-        for (const tab of tabs) {
-          await BrowserApi.executeScriptInTab(tab.id, {
-            file: "content/send-popup-open-message.js",
-            runAt: "document_end",
-          });
-        }
+      for (const tab of tabs) {
+        await BrowserApi.executeScriptInTab(tab.id, {
+          file: "content/send-popup-open-message.js",
+          runAt: "document_end",
+        });
       }
     };
 
-    // Give the popup a buffer to complete opening
-    setTimeout(announceToAllTabs, 100);
+    // Poll every 200ms (up to 1s) until the popup is open, to handle browser timing differences
+    let attempts = 0;
+    const interval = setInterval(async () => {
+      attempts++;
+      const isOpen = await this.platformUtilsService.isPopupOpen();
+      if (isOpen) {
+        clearInterval(interval);
+        await announceToAllTabs();
+      } else if (attempts >= 5) {
+        clearInterval(interval);
+      }
+    }, 200);
   }
 }

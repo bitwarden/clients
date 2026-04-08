@@ -6,8 +6,8 @@ import { of } from "rxjs";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { Integration } from "@bitwarden/bit-common/dirt/organization-integrations/models/integration";
-import { DatadogOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/datadog-organization-integration-service";
-import { HecOrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/hec-organization-integration-service";
+import { OrganizationIntegrationService } from "@bitwarden/bit-common/dirt/organization-integrations/services/organization-integration-service";
+import { IntegrationStateService } from "@bitwarden/bit-common/dirt/organization-integrations/shared/integration-state.service";
 import { IntegrationType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -24,8 +24,7 @@ describe("IntegrationGridComponent", () => {
   let component: IntegrationGridComponent;
   let fixture: ComponentFixture<IntegrationGridComponent>;
   const mockActivatedRoute = mock<ActivatedRoute>();
-  const mockIntegrationService = mock<HecOrganizationIntegrationService>();
-  const mockDatadogIntegrationService = mock<DatadogOrganizationIntegrationService>();
+  const mockIntegrationService = mock<OrganizationIntegrationService>();
   const integrations: Integration[] = [
     {
       name: "Integration 1",
@@ -71,25 +70,25 @@ describe("IntegrationGridComponent", () => {
           provide: ActivatedRoute,
           useValue: mockActivatedRoute,
         },
-        { provide: HecOrganizationIntegrationService, useValue: mockIntegrationService },
-        { provide: DatadogOrganizationIntegrationService, useValue: mockDatadogIntegrationService },
+        { provide: OrganizationIntegrationService, useValue: mockIntegrationService },
         {
           provide: ToastService,
           useValue: mock<ToastService>(),
         },
+        { provide: IntegrationStateService, useValue: mock<IntegrationStateService>() },
       ],
     });
 
     fixture = TestBed.createComponent(IntegrationGridComponent);
     component = fixture.componentInstance;
-    component.integrations = integrations;
-    component.ariaI18nKey = "integrationCardAriaLabel";
-    component.tooltipI18nKey = "integrationCardTooltip";
+    fixture.componentRef.setInput("integrations", integrations);
+    fixture.componentRef.setInput("ariaI18nKey", "integrationCardAriaLabel");
+    fixture.componentRef.setInput("tooltipI18nKey", "integrationCardTooltip");
     fixture.detectChanges();
   });
 
   it("lists all integrations", () => {
-    expect(component.integrations).toEqual(integrations);
+    expect(component.integrations()).toEqual(integrations);
 
     const cards = fixture.debugElement.queryAll(By.directive(IntegrationCardComponent));
 
@@ -97,20 +96,20 @@ describe("IntegrationGridComponent", () => {
   });
 
   it("assigns the correct attributes to IntegrationCardComponent", () => {
-    expect(component.integrations).toEqual(integrations);
+    expect(component.integrations()).toEqual(integrations);
 
     const card = fixture.debugElement.queryAll(By.directive(IntegrationCardComponent))[1];
 
-    expect(card.componentInstance.name).toBe("SDK 2");
-    expect(card.componentInstance.image).toBe("test-image2.png");
-    expect(card.componentInstance.linkURL).toBe("https://example.com/2");
+    expect(card.componentInstance.name()).toBe("SDK 2");
+    expect(card.componentInstance.image()).toBe("test-image2.png");
+    expect(card.componentInstance.linkURL()).toBe("https://example.com/2");
   });
 
   it("assigns `externalURL` for SDKs", () => {
     const card = fixture.debugElement.queryAll(By.directive(IntegrationCardComponent));
 
-    expect(card[0].componentInstance.externalURL).toBe(false);
-    expect(card[1].componentInstance.externalURL).toBe(true);
+    expect(card[0].componentInstance.externalURL()).toBe(false);
+    expect(card[1].componentInstance.externalURL()).toBe(true);
   });
 
   it("has a tool tip and aria label attributes", () => {

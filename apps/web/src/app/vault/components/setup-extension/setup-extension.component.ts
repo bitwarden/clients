@@ -1,5 +1,5 @@
-import { DOCUMENT, NgIf } from "@angular/common";
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from "@angular/core";
+import { NgIf } from "@angular/common";
+import { Component, DestroyRef, inject, OnDestroy, OnInit, DOCUMENT } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, pairwise, startWith } from "rxjs";
@@ -18,7 +18,7 @@ import {
   CenterPositionStrategy,
   DialogRef,
   DialogService,
-  IconModule,
+  SvgModule,
   LinkModule,
 } from "@bitwarden/components";
 
@@ -52,7 +52,7 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
     JslibModule,
     ButtonComponent,
     LinkModule,
-    IconModule,
+    SvgModule,
     RouterModule,
     AddExtensionVideosComponent,
     ManuallyOpenExtensionComponent,

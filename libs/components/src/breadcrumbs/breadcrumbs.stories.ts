@@ -1,4 +1,4 @@
-import { Component, importProvidersFrom } from "@angular/core";
+import { ChangeDetectionStrategy, Component, importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 
@@ -18,10 +18,9 @@ interface Breadcrumb {
   route: string;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class EmptyComponent {}
 

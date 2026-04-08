@@ -1,5 +1,6 @@
 import {
   BehaviorSubject,
+  catchError,
   combineLatest,
   combineLatestWith,
   concatMap,
@@ -73,9 +74,25 @@ export class BadgeService {
             map((evt) => evt.tab),
             combineLatestWith(this.stateFunctions),
             switchMap(([tab, dynamicStateFunctions]) => {
-              const functions = [...Object.values(dynamicStateFunctions), defaultTabStateFunction];
+              const functions = [
+                ...Object.entries(dynamicStateFunctions),
+                ["default" as string, defaultTabStateFunction] as const,
+              ];
 
-              return combineLatest(functions.map((f) => f(tab).pipe(startWith(undefined)))).pipe(
+              return combineLatest(
+                functions.map(([name, f]) =>
+                  f(tab).pipe(
+                    startWith(undefined),
+                    catchError((error: unknown) => {
+                      this.logService.error(
+                        `BadgeService: State function "${name}" threw an error`,
+                        error,
+                      );
+                      return of(undefined);
+                    }),
+                  ),
+                ),
+              ).pipe(
                 map((states) => ({
                   tab,
                   states: states.filter((s): s is BadgeStateSetting => s !== undefined),

@@ -1,29 +1,39 @@
 <app-header></app-header>
 
+@let policySections = policySections$ | async;
+@let policiesEnabledMap = policiesEnabledMap$ | async;
+@let organization = organization$ | async;
+
 <bit-container>
-  @if (loading) {
+  @if (!policySections || !policiesEnabledMap || !organization) {
     <i
       class="bwi bwi-spinner bwi-spin tw-text-muted"
       title="{{ 'loading' | i18n }}"
       aria-hidden="true"
     ></i>
     <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-  }
-  @if (!loading) {
-    <bit-table>
-      <ng-template body>
-        @for (p of policies$ | async; track p.type) {
-          <tr bitRow>
-            <td bitCell ngPreserveWhitespaces>
-              <button type="button" bitLink (click)="edit(p)">{{ p.name | i18n }}</button>
-              @if (policiesEnabledMap.get(p.type)) {
-                <span bitBadge variant="success">{{ "on" | i18n }}</span>
-              }
-              <small class="tw-text-muted tw-block">{{ p.description | i18n }}</small>
-            </td>
-          </tr>
-        }
-      </ng-template>
-    </bit-table>
+  } @else {
+    @for (section of policySections; track section.category) {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h2">{{ section.labelKey | i18n }}</h2>
+        </bit-section-header>
+        <bit-item-group [attr.aria-label]="section.labelKey | i18n">
+          @for (p of section.policies; track p.type) {
+            <bit-item>
+              <button type="button" bit-item-content (click)="edit(p, organization)">
+                {{ p.name | i18n }}
+                <span slot="secondary">{{ p.description | i18n }}</span>
+                @if (policiesEnabledMap.get(p.type)) {
+                  <span bitBadge variant="success" slot="end">{{ "on" | i18n }}</span>
+                } @else {
+                  <span bitBadge variant="secondary" slot="end">{{ "off" | i18n }}</span>
+                }
+              </button>
+            </bit-item>
+          }
+        </bit-item-group>
+      </bit-section>
+    }
   }
 </bit-container>

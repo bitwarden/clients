@@ -18,7 +18,7 @@
     <!-- Column: Device Name -->
     <td bitCell class="tw-flex tw-gap-2 tw-items-center tw-h-16">
       <div class="tw-flex tw-items-center tw-justify-center tw-w-10">
-        <i [class]="device.icon" class="bwi-lg" aria-hidden="true"></i>
+        <bit-icon [name]="device.icon" class="bwi-lg"></bit-icon>
       </div>
 
       <div>
@@ -26,7 +26,9 @@
           <a bitLink href="#" appStopClick (click)="answerAuthRequest(device.pendingAuthRequest)">
             {{ device.displayName }}
           </a>
-          <br />
+          <div *ngIf="device.isTrusted" class="tw-text-sm tw-text-muted">
+            {{ "trusted" | i18n }}
+          </div>
         } @else {
           <span>{{ device.displayName }}</span>
           <div *ngIf="device.isTrusted" class="tw-text-sm tw-text-muted">

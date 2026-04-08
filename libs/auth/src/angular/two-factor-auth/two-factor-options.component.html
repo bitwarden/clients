@@ -11,30 +11,30 @@
             [ngSwitch]="provider.type"
             class="tw-w-16 md:tw-w-20 tw-mr-2 sm:tw-mr-4"
           >
-            <bit-icon
+            <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Authenticator"
-              [icon]="Icons.TwoFactorAuthAuthenticatorIcon"
-            ></bit-icon>
-            <bit-icon
+              [content]="Icons.TwoFactorAuthAuthenticatorIcon"
+            ></bit-svg>
+            <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Email"
-              [icon]="Icons.TwoFactorAuthEmailIcon"
-            ></bit-icon>
-            <bit-icon
+              [content]="Icons.TwoFactorAuthEmailIcon"
+            ></bit-svg>
+            <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Duo"
-              [icon]="Icons.TwoFactorAuthDuoIcon"
-            ></bit-icon>
-            <bit-icon
+              [content]="Icons.TwoFactorAuthDuoIcon"
+            ></bit-svg>
+            <bit-svg
               *ngSwitchCase="TwoFactorProviderType.Yubikey"
-              [icon]="Icons.TwoFactorAuthYubicoIcon"
-            ></bit-icon>
-            <bit-icon
+              [content]="Icons.TwoFactorAuthYubicoIcon"
+            ></bit-svg>
+            <bit-svg
               *ngSwitchCase="TwoFactorProviderType.OrganizationDuo"
-              [icon]="Icons.TwoFactorAuthDuoIcon"
-            ></bit-icon>
-            <bit-icon
+              [content]="Icons.TwoFactorAuthDuoIcon"
+            ></bit-svg>
+            <bit-svg
               *ngSwitchCase="TwoFactorProviderType.WebAuthn"
-              [icon]="Icons.TwoFactorAuthWebAuthnIcon"
-            ></bit-icon>
+              [content]="Icons.TwoFactorAuthWebAuthnIcon"
+            ></bit-svg>
           </div>
           {{ provider.name }}
           <ng-container slot="secondary"> {{ provider.description }} </ng-container>

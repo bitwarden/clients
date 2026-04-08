@@ -64,9 +64,12 @@ export class OrganizationData {
   userIsManagedByOrganization: boolean;
   useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
+  usePhishingBlocker: boolean;
+  useMyItems: boolean;
 
   constructor(
     response?: ProfileOrganizationResponse,
@@ -132,9 +135,12 @@ export class OrganizationData {
     this.userIsManagedByOrganization = response.userIsManagedByOrganization;
     this.useAccessIntelligence = response.useAccessIntelligence;
     this.useAdminSponsoredFamilies = response.useAdminSponsoredFamilies;
+    this.useDisableSMAdsForUsers = response.useDisableSMAdsForUsers ?? false;
     this.isAdminInitiated = response.isAdminInitiated;
     this.ssoEnabled = response.ssoEnabled;
     this.ssoMemberDecryptionType = response.ssoMemberDecryptionType;
+    this.usePhishingBlocker = response.usePhishingBlocker;
+    this.useMyItems = response.useMyItems;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;

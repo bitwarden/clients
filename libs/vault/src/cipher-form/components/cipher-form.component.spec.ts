@@ -10,6 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { ToastService } from "@bitwarden/components";
@@ -42,9 +43,18 @@ describe("CipherFormComponent", () => {
         { provide: CipherFormService, useValue: mockAddEditFormService },
         {
           provide: CipherFormCacheService,
-          useValue: { init: jest.fn(), getCachedCipherView: jest.fn() },
+          useValue: { init: jest.fn(), getCachedCipherView: jest.fn(), clearCache: jest.fn() },
         },
-        { provide: ViewCacheService, useValue: { signal: jest.fn(() => (): any => null) } },
+        {
+          provide: ViewCacheService,
+          useValue: {
+            signal: jest.fn(() => {
+              const signalFn = (): any => null;
+              signalFn.set = jest.fn();
+              return signalFn;
+            }),
+          },
+        },
         { provide: ConfigService, useValue: mock<ConfigService>() },
         { provide: AccountService, useValue: mockAccountService },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },
@@ -93,7 +103,7 @@ describe("CipherFormComponent", () => {
 
     it("should return null if updatedCipherView.login is undefined", () => {
       component["updatedCipherView"] = new CipherView();
-      delete component["updatedCipherView"].login;
+      component["updatedCipherView"].login = undefined as any;
       expect(component.website).toBeNull();
     });
 
@@ -131,7 +141,9 @@ describe("CipherFormComponent", () => {
   describe("clone", () => {
     const cipherView = new CipherView();
     cipherView.id = "test-id";
+    cipherView.key = "existingCipherKey" as any;
     cipherView.login.fido2Credentials = [new Fido2CredentialView()];
+    cipherView.attachments = [new AttachmentView()];
 
     beforeEach(() => {
       component.config = {
@@ -148,10 +160,22 @@ describe("CipherFormComponent", () => {
       expect(component["updatedCipherView"]?.id).toBeNull();
     });
 
+    it("clears key on updatedCipherView so a new cipher key is generated", async () => {
+      await component.ngOnInit();
+
+      expect(component["updatedCipherView"]?.key).toBeUndefined();
+    });
+
     it("clears fido2Credentials on updatedCipherView", async () => {
       await component.ngOnInit();
 
       expect(component["updatedCipherView"]?.login.fido2Credentials).toBeNull();
+    });
+
+    it("clears attachments on updatedCipherView", async () => {
+      await component.ngOnInit();
+
+      expect(component["updatedCipherView"]?.attachments).toEqual([]);
     });
 
     it("does not clear archiveDate on updatedCipherView", async () => {

@@ -11,7 +11,6 @@ import { TableDataSource, TableModule } from "../../../table";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "dialog-virtual-scroll-block",
-  standalone: true,
   imports: [
     DialogModule,
     IconButtonModule,
@@ -20,7 +19,7 @@ import { TableDataSource, TableModule } from "../../../table";
     ScrollingModule,
     ScrollLayoutDirective,
   ],
-  template: /*html*/ `<bit-section>
+  template: `<bit-section>
     <cdk-virtual-scroll-viewport bitScrollLayout itemSize="49.5">
       <bit-table [dataSource]="dataSource">
         <ng-container header>

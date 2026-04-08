@@ -12,10 +12,9 @@
       bitIconButton="bwi-angle-left"
       class="tw-size-6 tw-p-0 tw-flex tw-items-center tw-justify-center"
       size="small"
-      [attr.label]="'back' | i18n"
       (click)="prevSlide()"
       [disabled]="selectedIndex <= 0"
-      appA11yTitle="{{ 'back' | i18n }}"
+      label="{{ 'back' | i18n }}"
     ></button>
     <div
       class="tw-w-full tw-flex tw-gap-2 tw-justify-center tw-mt-auto"
@@ -34,11 +33,10 @@
       type="button"
       bitIconButton="bwi-angle-right"
       class="tw-size-6 tw-p-0 tw-flex tw-items-center tw-justify-center"
-      [attr.label]="'next' | i18n"
       size="small"
       (click)="nextSlide()"
       [disabled]="selectedIndex >= slides.length - 1"
-      appA11yTitle="{{ 'next' | i18n }}"
+      label="{{ 'next' | i18n }}"
     ></button>
   </div>
   <div class="tw-absolute tw-invisible" #tempSlideContainer *ngIf="minHeight === null">

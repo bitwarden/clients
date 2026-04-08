@@ -1,9 +1,5 @@
 <!-- Applying width and height styles directly to synchronize icon sizing between web/browser/desktop -->
-<div
-  class="tw-flex tw-justify-center tw-items-center"
-  [ngStyle]="coloredIcon() ? { width: '36px', height: '36px' } : {}"
-  aria-hidden="true"
->
+<div class="tw-flex tw-justify-center tw-items-center" [ngStyle]="iconStyle()" aria-hidden="true">
   <ng-container *ngIf="data$ | async as data">
     @if (data.imageEnabled && data.image) {
       <img
@@ -16,7 +12,7 @@
           'tw-invisible tw-absolute': !imageLoaded(),
           'tw-size-6': !coloredIcon(),
         }"
-        [ngStyle]="coloredIcon() ? { width: '36px', height: '36px' } : {}"
+        [ngStyle]="iconStyle()"
         (load)="imageLoaded.set(true)"
         (error)="imageLoaded.set(false)"
       />
@@ -28,7 +24,7 @@
           'tw-bg-illustration-bg-primary tw-rounded-full':
             data.icon?.startsWith('bwi-') && coloredIcon(),
         }"
-        [ngStyle]="coloredIcon() ? { width: '36px', height: '36px' } : {}"
+        [ngStyle]="iconStyle()"
       >
         <i
           class="tw-text-muted bwi bwi-lg {{ data.icon }}"
@@ -36,6 +32,7 @@
             color: coloredIcon() ? 'rgb(var(--color-illustration-outline))' : null,
             width: data.icon?.startsWith('credit-card') && coloredIcon() ? '36px' : null,
             height: data.icon?.startsWith('credit-card') && coloredIcon() ? '30px' : null,
+            fontSize: size() ? size() + 'px' : null,
           }"
         ></i>
       </div>

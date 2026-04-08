@@ -7,6 +7,7 @@ import {
   filter,
   firstValueFrom,
   map,
+  of,
   switchMap,
   throwError,
   timeout,
@@ -17,11 +18,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { fromChromeEvent } from "../../../../platform/browser/from-chrome-event";
 
 export type AvailableAccount = {
@@ -52,6 +56,7 @@ export class AccountSwitcherService {
     private messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private logService: LogService,
+    private configService: ConfigService,
     authService: AuthService,
   ) {
     this.availableAccounts$ = combineLatest([
@@ -121,6 +126,19 @@ export class AccountSwitcherService {
       filter(([message]) => message.command === "switchAccountFinish"),
       map(([message]) => ({ userId: message.userId, authenticationStatus: message.status })),
     );
+  }
+
+  /*
+   * PM-5594: This was a compile-time flag (default true) which made an exception for Safari in platform/flags.
+   * The truthiness of AccountSwitching has been enshrined at this point, so those compile-time flags have been removed
+   * in favor of this method to allow easier access to the config service for controlling Safari. Unwinding the Safari
+   * flag should be more straightforward from this consolidation.
+   */
+  accountSwitchingEnabled$(): Observable<boolean> {
+    if (BrowserApi.isSafariApi) {
+      return this.configService.getFeatureFlag$(FeatureFlag.SafariAccountSwitching);
+    }
+    return of(true);
   }
 
   get specialAccountAddId() {

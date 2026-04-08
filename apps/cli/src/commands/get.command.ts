@@ -2,16 +2,16 @@
 // @ts-strict-ignore
 import { filter, firstValueFrom, map, switchMap } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
@@ -417,10 +417,11 @@ export class GetCommand extends DownloadCommand {
   private async getFolder(id: string) {
     let decFolder: FolderView = null;
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (Utils.isGuid(id)) {
       const folder = await this.folderService.getFromState(id, activeUserId);
       if (folder != null) {
-        decFolder = await folder.decrypt();
+        decFolder = await folder.decrypt(userKey);
       }
     } else if (id.trim() !== "") {
       let folders = await this.folderService.getAllDecryptedFromState(activeUserId);

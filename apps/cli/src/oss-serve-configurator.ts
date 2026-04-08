@@ -1,11 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import * as koaMulter from "@koa/multer";
-import * as koaRouter from "@koa/router";
+import { Router } from "@koa/router";
 import * as koa from "koa";
 import { firstValueFrom, map } from "rxjs";
-
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
@@ -122,6 +120,7 @@ export class OssServeConfigurator {
       this.serviceContainer.syncService,
       this.serviceContainer.accountService,
       this.serviceContainer.authService,
+      this.serviceContainer.userAutoUnlockKeyService,
     );
     this.deleteCommand = new DeleteCommand(
       this.serviceContainer.cipherService,
@@ -136,7 +135,6 @@ export class OssServeConfigurator {
     this.archiveCommand = new ArchiveCommand(
       this.serviceContainer.cipherService,
       this.serviceContainer.accountService,
-      this.serviceContainer.configService,
       this.serviceContainer.cipherArchiveService,
       this.serviceContainer.billingAccountProfileStateService,
     );
@@ -146,7 +144,6 @@ export class OssServeConfigurator {
       this.serviceContainer.encryptService,
       this.serviceContainer.organizationUserApiService,
       this.serviceContainer.accountService,
-      this.serviceContainer.configService,
       this.serviceContainer.i18nService,
     );
     this.restoreCommand = new RestoreCommand(
@@ -154,7 +151,6 @@ export class OssServeConfigurator {
       this.serviceContainer.accountService,
       this.serviceContainer.cipherAuthorizationService,
       this.serviceContainer.cipherArchiveService,
-      this.serviceContainer.configService,
     );
     this.shareCommand = new ShareCommand(
       this.serviceContainer.cipherService,
@@ -166,9 +162,7 @@ export class OssServeConfigurator {
     );
     this.unlockCommand = new UnlockCommand(
       this.serviceContainer.accountService,
-      this.serviceContainer.masterPasswordService,
       this.serviceContainer.keyService,
-      this.serviceContainer.userVerificationService,
       this.serviceContainer.cryptoFunctionService,
       this.serviceContainer.logService,
       this.serviceContainer.keyConnectorService,
@@ -176,7 +170,9 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationApiService,
       async () => await this.serviceContainer.logout(),
       this.serviceContainer.i18nService,
+      this.serviceContainer.encryptedMigrator,
       this.serviceContainer.masterPasswordUnlockService,
+      this.serviceContainer.unlockService,
       this.serviceContainer.configService,
     );
 
@@ -220,7 +216,7 @@ export class OssServeConfigurator {
     );
   }
 
-  async configureRouter(router: koaRouter) {
+  async configureRouter(router: Router) {
     router.get("/generate", async (ctx, next) => {
       const response = await this.generateCommand.run(ctx.request.query);
       this.processResponse(ctx.response, response);
@@ -423,22 +419,16 @@ export class OssServeConfigurator {
       await next();
     });
 
-    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
-    if (isArchivedEnabled) {
-      router.post("/archive/:object/:id", async (ctx, next) => {
-        if (await this.errorIfLocked(ctx.response)) {
-          await next();
-          return;
-        }
-        let response: Response = null;
-        response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
-        this.processResponse(ctx.response, response);
+    router.post("/archive/:object/:id", async (ctx, next) => {
+      if (await this.errorIfLocked(ctx.response)) {
         await next();
-      });
-    }
+        return;
+      }
+      let response: Response = null;
+      response = await this.archiveCommand.run(ctx.params.object, ctx.params.id);
+      this.processResponse(ctx.response, response);
+      await next();
+    });
   }
 
   protected processResponse(res: koa.Response, commandResponse: Response) {

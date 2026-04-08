@@ -3,6 +3,7 @@ const { buildConfig } = require(path.resolve(__dirname, "../../apps/web/webpack.
 
 module.exports = (webpackConfig, context) => {
   const isNxBuild = context && context.options;
+
   if (isNxBuild) {
     return buildConfig({
       configName: "Commercial",
@@ -23,6 +24,7 @@ module.exports = (webpackConfig, context) => {
           alias: "@bitwarden/commercial-sdk-internal",
         },
       ],
+      env: context.options.env,
     });
   } else {
     return buildConfig({

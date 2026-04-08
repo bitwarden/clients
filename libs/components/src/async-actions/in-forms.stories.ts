@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 import { FormsModule, ReactiveFormsModule, Validators, FormBuilder } from "@angular/forms";
-import { action } from "@storybook/addon-actions";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { delay, of } from "rxjs";
+import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -35,8 +35,8 @@ const template = `
     <button class="tw-me-2" type="submit" buttonType="primary" bitButton bitFormButton>Submit</button>
     <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton>Cancel</button>
     <button class="tw-me-2" type="button" buttonType="danger" bitButton bitFormButton [bitAction]="delete">Delete</button>
-    <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Disabled</button>
-    <button class="tw-me-2" type="button" buttonType="muted" bitIconButton="bwi-star" label="Delete" bitFormButton [bitAction]="delete">Delete</button>
+    <button class="tw-me-2" type="button" buttonType="secondary" bitButton bitFormButton [disabled]="true">Inactive</button>
+    <button class="tw-me-2" type="button" buttonType="primaryGhost" bitIconButton="bwi-trash" label="Delete" bitFormButton [bitAction]="delete"></button>
   </form>`;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

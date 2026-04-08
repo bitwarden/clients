@@ -14,9 +14,10 @@ import { observe$PerUserId, optionsToEffWordListRequest, sharedStateByUserId } f
 import { PASSPHRASE_SETTINGS } from "./storage";
 
 /** Generates passphrases composed of random words */
-export class PassphraseGeneratorStrategy
-  implements GeneratorStrategy<PassphraseGenerationOptions, PassphraseGeneratorPolicy>
-{
+export class PassphraseGeneratorStrategy implements GeneratorStrategy<
+  PassphraseGenerationOptions,
+  PassphraseGeneratorPolicy
+> {
   /** instantiates the password generator strategy.
    *  @param legacy generates the passphrase
    *  @param stateProvider provides durable state

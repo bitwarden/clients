@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 import { BaseResponse } from "../../../models/response/base.response";
 

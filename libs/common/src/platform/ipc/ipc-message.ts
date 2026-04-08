@@ -5,8 +5,10 @@ export interface IpcMessage {
   message: SerializedOutgoingMessage;
 }
 
-export interface SerializedOutgoingMessage
-  extends Omit<OutgoingMessage, typeof Symbol.dispose | "free" | "payload"> {
+export interface SerializedOutgoingMessage extends Omit<
+  OutgoingMessage,
+  typeof Symbol.dispose | "free" | "payload"
+> {
   payload: number[];
 }
 

@@ -1,0 +1,37 @@
+<bit-simple-dialog hideIcon>
+  <span bitDialogTitle>{{ "transferItemsToOrganizationTitle" | i18n: organizationName }}</span>
+
+  <span bitDialogContent>
+    <p>
+      {{ "transferItemsToOrganizationDescription" | i18n: organizationName }}
+      <a
+        bitLink
+        href="#"
+        (click)="openLearnMore($event)"
+        endIcon="bwi-external-link"
+        [aria-label]="'openTransferItemsHelpArticle' | i18n"
+      >
+        {{ "learnMore" | i18n }}
+      </a>
+    </p>
+    <p class="tw-mb-0">
+      {{ "transferItemsToOrganizationAction" | i18n }}
+    </p>
+  </span>
+
+  <ng-container bitDialogFooter>
+    <button bitButton type="button" buttonType="primary" (click)="acceptTransfer()">
+      {{ "acceptTransfer" | i18n }}
+    </button>
+
+    <button
+      bitLink
+      type="button"
+      linkType="primary"
+      (click)="decline()"
+      class="tw-mt-1 tw-self-center tw-text-sm"
+    >
+      {{ "declineAndLeave" | i18n }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>
