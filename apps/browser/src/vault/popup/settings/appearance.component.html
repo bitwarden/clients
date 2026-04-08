@@ -1,4 +1,6 @@
 <popup-page [loading]="formLoading">
+  @let isPremium = isPremiumUser();
+
   <popup-header slot="header" [pageTitle]="'appearance' | i18n" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
@@ -50,15 +52,25 @@
           <vault-permit-cipher-details-popover></vault-permit-cipher-details-popover>
         </bit-label>
       </bit-form-control>
-      <bit-form-control [disableMargin]="simplifiedItemActionEnabled()">
+      <bit-form-control [disableMargin]="simplifiedItemActionEnabled() && !isPremium">
         <input bitCheckbox formControlName="showQuickCopyActions" type="checkbox" />
         <bit-label>{{ "showQuickCopyActions" | i18n }}</bit-label>
       </bit-form-control>
+
       @if (!simplifiedItemActionEnabled()) {
-        <bit-form-control disableMargin>
+        <bit-form-control [disableMargin]="!isPremium">
           <input bitCheckbox formControlName="clickItemsToAutofillVaultView" type="checkbox" />
           <bit-label>
             {{ "clickToAutofill" | i18n }}
+          </bit-label>
+        </bit-form-control>
+      }
+
+      @if (isPremium) {
+        <bit-form-control disableMargin>
+          <input bitCheckbox formControlName="showAtRiskNotifications" type="checkbox" />
+          <bit-label>
+            {{ "showAtRiskPasswordNotifications" | i18n }}
           </bit-label>
         </bit-form-control>
       }
