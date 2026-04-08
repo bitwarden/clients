@@ -18,6 +18,7 @@ import { BulkReinviteFailureDialogComponent } from "./components/bulk/bulk-reinv
 import { BulkRemoveDialogComponent } from "./components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "./components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "./components/bulk/bulk-status.component";
+import { InviteMembersDialogComponent } from "./components/invite-members-dialog";
 import { UserDialogModule } from "./components/member-dialog";
 import { MembersRoutingModule } from "./members-routing.module";
 import { MembersComponent } from "./members.component";
@@ -34,6 +35,7 @@ import {
     SharedOrganizationModule,
     MembersRoutingModule,
     UserDialogModule,
+    InviteMembersDialogComponent,
     PasswordCalloutComponent,
     HeaderModule,
     ScrollingModule,
