@@ -2,7 +2,7 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, switchMap, takeUntil } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -98,9 +98,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   protected readonly ProductType = ProductType;
-  protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
-    FeatureFlag.TrialPaymentOptional,
-  );
 
   constructor(
     protected router: Router,
@@ -231,10 +228,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
   async orgNameEntrySubmit(): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
-    /** Skip payment if flag is on AND (paymentOptional from URL OR trialLength > 0) */
-    if (isTrialPaymentOptional && (this.paymentOptional || this.trialLength > 0)) {
+    /** Skip payment if paymentOptional from URL and trialLength > 0 */
+    if (this.paymentOptional && this.trialLength > 0) {
       await this.createOrganizationOnTrial(activeUserId);
     } else {
       await this.conditionallyCreateOrganization(activeUserId);
@@ -347,14 +343,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  readonly showBillingStep$ = this.trialPaymentOptional$.pipe(
-    map((trialPaymentOptional) => {
-      return (
-        (!trialPaymentOptional && !this.isSecretsManagerFree) ||
-        (trialPaymentOptional && this.trialLength === 0 && !this.paymentOptional)
-      );
-    }),
-  );
+  get showBillingStep(): boolean {
+    return !this.paymentOptional && !this.isSecretsManagerFree;
+  }
 
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(activeUserId: UserId): Promise<void> {

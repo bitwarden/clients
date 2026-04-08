@@ -33,7 +33,6 @@ describe("CompleteTrialInitiationComponent", () => {
   let mockConfigService: MockProxy<ConfigService>;
   let mockOrganizationBillingService: MockProxy<OrganizationBillingServiceAbstraction>;
   let mockAccountService: MockProxy<AccountService>;
-  let trialPaymentOptionalSubject: BehaviorSubject<boolean>;
 
   beforeEach(async () => {
     mockRouter = mock<Router>();
@@ -41,15 +40,15 @@ describe("CompleteTrialInitiationComponent", () => {
     mockOrganizationBillingService = mock<OrganizationBillingServiceAbstraction>();
     mockAccountService = mock<AccountService>();
 
-    trialPaymentOptionalSubject = new BehaviorSubject<boolean>(false);
-    mockConfigService.getFeatureFlag$.mockReturnValue(trialPaymentOptionalSubject.asObservable());
-
     mockActivatedRoute = {
       queryParams: new BehaviorSubject({}),
     };
 
     // Mock activeAccount$ to return a valid user ID
     mockAccountService.activeAccount$ = of({ id: "user-id-123" } as any);
+
+    // Mock getFeatureFlag$ to return false by default
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       declarations: [CompleteTrialInitiationComponent],
@@ -148,67 +147,30 @@ describe("CompleteTrialInitiationComponent", () => {
     });
   });
 
-  describe("showBillingStep$ Observable", () => {
+  describe("showBillingStep getter", () => {
     beforeEach(() => {
       component.product = ProductType.PasswordManager;
       component.productTier = ProductTierType.Enterprise;
     });
 
-    it("should show billing step when feature flag is OFF and not Secrets Manager Free", (done) => {
-      trialPaymentOptionalSubject.next(false);
-      component.trialLength = 7;
-      component.paymentOptional = false;
-
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(true);
-        done();
-      });
-    });
-
-    it("should hide billing step when feature flag is ON and trialLength > 0", (done) => {
-      trialPaymentOptionalSubject.next(true);
-      component.trialLength = 7;
-      component.paymentOptional = false;
-
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(false);
-        done();
-      });
-    });
-
-    it("should hide billing step when feature flag is ON, paymentOptional is true, and trialLength is 0", (done) => {
-      trialPaymentOptionalSubject.next(true);
-      component.trialLength = 0;
+    it("should hide billing step when paymentOptional is true", () => {
       component.paymentOptional = true;
 
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(false);
-        done();
-      });
+      expect(component.showBillingStep).toBe(false);
     });
 
-    it("should show billing step when feature flag is ON, paymentOptional is false, and trialLength is 0", (done) => {
-      trialPaymentOptionalSubject.next(true);
-      component.trialLength = 0;
+    it("should show billing step when paymentOptional is false", () => {
       component.paymentOptional = false;
 
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(true);
-        done();
-      });
+      expect(component.showBillingStep).toBe(true);
     });
 
-    it("should hide billing step for Secrets Manager Free regardless of other conditions", (done) => {
-      trialPaymentOptionalSubject.next(false);
+    it("should hide billing step for Secrets Manager Free regardless of other conditions", () => {
       component.product = ProductType.SecretsManager;
       component.productTier = ProductTierType.Free;
-      component.trialLength = 0;
       component.paymentOptional = false;
 
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(false);
-        done();
-      });
+      expect(component.showBillingStep).toBe(false);
     });
   });
 
@@ -222,27 +184,8 @@ describe("CompleteTrialInitiationComponent", () => {
       });
     });
 
-    it("should call createOrganizationOnTrial when flag is ON and trialLength > 0", async () => {
-      trialPaymentOptionalSubject.next(true);
+    it("should call createOrganizationOnTrial when paymentOptional is true and trialLength > 0", async () => {
       component.trialLength = 7;
-      component.paymentOptional = false;
-
-      const createOnTrialSpy = jest
-        .spyOn(component, "createOrganizationOnTrial")
-        .mockResolvedValue(undefined);
-      const conditionalCreateSpy = jest
-        .spyOn(component as any, "conditionallyCreateOrganization")
-        .mockResolvedValue(undefined);
-
-      await component.orgNameEntrySubmit();
-
-      expect(createOnTrialSpy).toHaveBeenCalled();
-      expect(conditionalCreateSpy).not.toHaveBeenCalled();
-    });
-
-    it("should call createOrganizationOnTrial when flag is ON and paymentOptional is true (even if trialLength is 0)", async () => {
-      trialPaymentOptionalSubject.next(true);
-      component.trialLength = 0;
       component.paymentOptional = true;
 
       const createOnTrialSpy = jest
@@ -258,10 +201,9 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(conditionalCreateSpy).not.toHaveBeenCalled();
     });
 
-    it("should call conditionallyCreateOrganization when flag is OFF", async () => {
-      trialPaymentOptionalSubject.next(false);
-      component.trialLength = 7;
-      component.paymentOptional = false;
+    it("should call conditionallyCreateOrganization when paymentOptional is true but trialLength is 0", async () => {
+      component.trialLength = 0;
+      component.paymentOptional = true;
 
       const createOnTrialSpy = jest
         .spyOn(component, "createOrganizationOnTrial")
@@ -276,9 +218,8 @@ describe("CompleteTrialInitiationComponent", () => {
       expect(conditionalCreateSpy).toHaveBeenCalled();
     });
 
-    it("should call conditionallyCreateOrganization when flag is ON but paymentOptional is false and trialLength is 0", async () => {
-      trialPaymentOptionalSubject.next(true);
-      component.trialLength = 0;
+    it("should call conditionallyCreateOrganization when paymentOptional is false", async () => {
+      component.trialLength = 7;
       component.paymentOptional = false;
 
       const createOnTrialSpy = jest
@@ -299,37 +240,26 @@ describe("CompleteTrialInitiationComponent", () => {
     beforeEach(() => {
       component.product = ProductType.PasswordManager;
       component.productTier = ProductTierType.Enterprise;
-      trialPaymentOptionalSubject.next(true);
     });
 
-    it("AC2: should skip billing step when paymentOptional=true and trialLength != 0", (done) => {
+    it("AC2: should hide billing step when paymentOptional=true regardless of trialLength", () => {
       component.paymentOptional = true;
       component.trialLength = 7;
 
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(false);
-        done();
-      });
-    });
+      expect(component.showBillingStep).toBe(false);
 
-    it("AC2: should skip billing step when paymentOptional=true and trialLength = 0", (done) => {
-      component.paymentOptional = true;
       component.trialLength = 0;
-
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(false);
-        done();
-      });
+      expect(component.showBillingStep).toBe(false);
     });
 
-    it("should handle combination: paymentOptional=false, trialLength=7 -> skip billing", (done) => {
+    it("should show billing step when paymentOptional=false", () => {
       component.paymentOptional = false;
       component.trialLength = 7;
 
-      component.showBillingStep$.subscribe((showBilling) => {
-        expect(showBilling).toBe(false);
-        done();
-      });
+      expect(component.showBillingStep).toBe(true);
+
+      component.trialLength = 0;
+      expect(component.showBillingStep).toBe(true);
     });
   });
 });
