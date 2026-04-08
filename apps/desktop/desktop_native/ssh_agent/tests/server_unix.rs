@@ -1,3 +1,5 @@
+#![cfg(unix)]
+
 use std::{os::unix::fs::PermissionsExt, path::PathBuf};
 
 use serial_test::serial;
