@@ -90,35 +90,65 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   /** Whether the tab list has been rendered. Used to hide or display tab list container, preventing layout shifts. */
   protected readonly tabListRendered = signal(false);
 
-  /** Determines the index at which tabs start overflowing into the "More" menu. */
-  protected readonly overflowTabIndex = computed(() => {
+  /** Determines which tabs are displayed and which overflow into the "More" menu. */
+  protected readonly sortedTabs = computed(() => {
+    const allTabs = this.tabs().map((_, i) => i);
+
     if (!this.tabListRendered()) {
-      return undefined;
+      return { displayed: allTabs, overflow: [] };
     }
+
+    const tabWidths = this.tabWidths();
     const containerWidth = this.tabHeaderWidth();
 
-    const totalTabsWidth = this.tabWidths().reduce(
+    // Total width of all tabs including gaps
+    const totalTabsWidth = tabWidths.reduce(
       (sum, w, i) => sum + w + (i > 0 ? tabListContainerGap : 0),
       0,
     );
 
     // If all tabs fit without the more button, no overflow needed
     if (totalTabsWidth <= containerWidth) {
-      return undefined;
+      return { displayed: allTabs, overflow: [] };
     }
 
-    // Tabs overflow — reserve space for the more button and find the cutoff index
-    const availableWidth = containerWidth - this.moreButtonWidth(); // Add extra buffer to prevent edge case overflow when button width is close to available space
+    const displayed: number[] = []; // Store indexes of tabs that are displayed
+    const overflow: number[] = []; // Store indexes of tabs that are in the "More" overflow menu
+    const selectedIndex = this.selectedIndex();
+
+    // Reserve space for the more button and the selected tab.
+    const moreButtonWidth = this.moreButtonWidth();
+    const selectedTabWidth = tabWidths[selectedIndex] ?? 0;
+
+    const availableWidth = containerWidth - moreButtonWidth - selectedTabWidth;
     let totalWidth = 0;
-    const tabWidths = this.tabWidths();
     for (let i = 0; i < tabWidths.length; i++) {
-      totalWidth += tabWidths[i] + (i > 0 ? tabListContainerGap : 0);
-      if (totalWidth > availableWidth) {
-        return i;
+      if (i === selectedIndex) {
+        continue;
       }
+      const tabWidth = tabWidths[i] + tabListContainerGap;
+      if (totalWidth + tabWidth > availableWidth) {
+        overflow.push(...allTabs.slice(i));
+        break;
+      }
+      totalWidth += tabWidth;
+      displayed.push(i);
     }
 
-    return undefined;
+    // Determine where to display the selected tab while conserving tab order
+    const insertPos = displayed.findIndex((j) => j > selectedIndex);
+    // Insert the selected tab as the last displayed tab
+    if (insertPos === -1) {
+      displayed.push(selectedIndex);
+    } else {
+      // Display selected tab in its original position
+      displayed.splice(insertPos, 0, selectedIndex);
+    }
+
+    // Truncate the first displayed tab if it's the selected tab and there are overflowed tabs
+    const truncateTab = displayed.length === 1 && overflow.length > 0 && availableWidth < 0;
+
+    return { displayed, overflow, truncateTab };
   });
 
   /** The index of the active tab. Supports two-way binding via `[(selectedIndex)]`. */
