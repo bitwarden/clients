@@ -299,6 +299,13 @@ export class EventService {
           this.getShortId(ev.organizationUserId),
         );
         break;
+      case EventType.OrganizationUser_AdminResetTwoFactor:
+        msg = this.i18nService.t("eventAdminResetTwoFactor", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "eventAdminResetTwoFactor",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       case EventType.OrganizationUser_ResetSsoLink:
         msg = this.i18nService.t("eventResetSsoLink", this.formatOrgUserId(ev));
         humanReadableMsg = this.i18nService.t(
