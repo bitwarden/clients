@@ -14,7 +14,7 @@
         <textarea
           readonly
           bitInput
-          [value]="field.value"
+          [value]="field.value ?? ''"
           aria-readonly="true"
           vaultAutosizeReadOnlyTextArea
         ></textarea>
@@ -35,7 +35,7 @@
           readonly
           bitInput
           type="password"
-          [value]="field.value"
+          [value]="field.value ?? ''"
           aria-readonly="true"
           class="tw-font-mono"
           *ngIf="!revealedHiddenFields.includes(i)"
