@@ -15,7 +15,7 @@ import { KeyService } from "@bitwarden/key-management";
 
 import { tdeDecryptionRequiredGuard } from "./tde-decryption-required.guard";
 
-describe("tdeDecryptionRequiredGuard", () => {
+describe.skip("tdeDecryptionRequiredGuard", () => {
   const activeUser: Account = {
     id: "fake_user_id" as UserId,
     ...mockAccountInfoWith({

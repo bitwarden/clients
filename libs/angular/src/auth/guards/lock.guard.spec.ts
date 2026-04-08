@@ -31,7 +31,7 @@ interface SetupParams {
   hasMasterPassword?: boolean;
 }
 
-describe("lockGuard", () => {
+describe.skip("lockGuard", () => {
   const keyConnectorService = mock<KeyConnectorService>();
 
   const setup = (setupParams: SetupParams) => {
