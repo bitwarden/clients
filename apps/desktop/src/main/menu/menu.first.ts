@@ -86,7 +86,6 @@ export class FirstMenu {
         id: `lockNow_${account.userId}`,
         click: () => this.sendMessage("lockVault", { userId: account.userId }),
         enabled: !account.isLocked,
-        visible: account.isAuthenticated,
       });
     }
     return value;
