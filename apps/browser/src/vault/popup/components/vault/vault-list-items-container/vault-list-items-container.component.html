@@ -56,15 +56,17 @@
         {{ ciphers().length }}
       </span>
       <span class="tw-pr-1" *ngIf="collapsibleKey()">
-        <i
-          class="bwi tw-text-main"
+        <bit-icon
+          [name]="sectionOpenState() ? 'bwi-angle-up' : 'bwi-angle-down'"
+          class="tw-text-main"
           [ngClass]="{
-            'bwi-angle-down tw-inline-block': !sectionOpenState(),
-            'bwi-angle-up tw-hidden group-hover/vault-section-header:tw-inline-block group-focus-visible/vault-section-header:tw-inline-block':
+            'tw-inline-block': !sectionOpenState(),
+            'tw-hidden group-hover/vault-section-header:tw-inline-block group-focus-visible/vault-section-header:tw-inline-block':
               sectionOpenState(),
           }"
           aria-hidden="true"
-        ></i>
+        >
+        </bit-icon>
       </span>
     </span>
   </bit-section-header>
@@ -122,11 +124,13 @@
                 [size]="'small'"
                 [appA11yTitle]="orgIconTooltip(cipher)"
               ></i>
-              <i
-                *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
-                class="bwi bwi-paperclip bwi-sm"
-                [appA11yTitle]="'attachments' | i18n"
-              ></i>
+              @if (CipherViewLikeUtils.hasAttachments(cipher)) {
+                <bit-icon
+                  name="bwi-paperclip"
+                  class="bwi-sm"
+                  [appA11yTitle]="'attachments' | i18n"
+                ></bit-icon>
+              }
             </div>
             <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
           </button>
