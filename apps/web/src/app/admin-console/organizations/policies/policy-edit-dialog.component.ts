@@ -54,6 +54,9 @@ export type PolicyEditDialogResult = "saved";
   templateUrl: "policy-edit-dialog.component.html",
   imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    "[class.tw-h-full]": "dialogRef.isDrawer",
+  },
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
