@@ -58,22 +58,22 @@ export const AllVariations: Story = {
     template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-gap-6">
         <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="primary" href="#">Primary</a>
+          <a bitLink linkType="primary" href="#">Primary (Deprecated -- use Default instead)</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="secondary" href="#">Secondary</a>
+          <a bitLink linkType="default" href="#">Default</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="secondary" href="#">Secondary (Deprecated -- use Subtle instead)</a>
+        </div>
+        <div class="tw-flex tw-gap-4 tw-p-2">
+          <a bitLink linkType="subtle" href="#">Subtle</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
           <a bitLink linkType="contrast" href="#">Contrast</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-brand">
           <a bitLink linkType="light" href="#">Light</a>
-        </div>
-        <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="default" href="#">Default</a>
-        </div>
-        <div class="tw-flex tw-gap-4 tw-p-2">
-          <a bitLink linkType="subtle" href="#">Subtle</a>
         </div>
         <div class="tw-flex tw-gap-4 tw-p-2">
           <a bitLink linkType="success" href="#">Success</a>
@@ -100,16 +100,28 @@ export const InteractionStates: Story = {
     template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-gap-6">
         <div class="tw-flex tw-gap-4 tw-p-2">
-        <a bitLink linkType="primary" href="#">Primary</a>
+        <a bitLink linkType="primary" href="#">Primary (Deprecated -- use Default instead)</a>
         <a bitLink linkType="primary" href="#" class="tw-test-hover">Primary</a>
         <a bitLink linkType="primary" href="#" class="tw-test-focus-visible">Primary</a>
         <a bitLink linkType="primary" href="#" class="tw-test-hover tw-test-focus-visible">Primary</a>
       </div>
       <div class="tw-flex tw-gap-4 tw-p-2">
-        <a bitLink linkType="secondary" href="#">Secondary</a>
+        <a bitLink linkType="default" href="#">Default</a>
+        <a bitLink linkType="default" href="#" class="tw-test-hover">Default</a>
+        <a bitLink linkType="default" href="#" class="tw-test-focus-visible">Default</a>
+        <a bitLink linkType="default" href="#" class="tw-test-hover tw-test-focus-visible">Default</a>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-p-2">
+        <a bitLink linkType="secondary" href="#">Secondary (Deprecated -- use Subtle instead)</a>
         <a bitLink linkType="secondary" href="#" class="tw-test-hover">Secondary</a>
         <a bitLink linkType="secondary" href="#" class="tw-test-focus-visible">Secondary</a>
         <a bitLink linkType="secondary" href="#" class="tw-test-hover tw-test-focus-visible">Secondary</a>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-p-2">
+        <a bitLink linkType="subtle" href="#">Subtle</a>
+        <a bitLink linkType="subtle" href="#" class="tw-test-hover">Subtle</a>
+        <a bitLink linkType="subtle" href="#" class="tw-test-focus-visible">Subtle</a>
+        <a bitLink linkType="subtle" href="#" class="tw-test-hover tw-test-focus-visible">Subtle</a>
       </div>
       <div class="tw-flex tw-gap-4 tw-p-2 tw-bg-bg-contrast">
         <a bitLink linkType="contrast" href="#">Contrast</a>
@@ -122,18 +134,6 @@ export const InteractionStates: Story = {
         <a bitLink linkType="light" href="#" class="tw-test-hover">Light</a>
         <a bitLink linkType="light" href="#" class="tw-test-focus-visible">Light</a>
         <a bitLink linkType="light" href="#" class="tw-test-hover tw-test-focus-visible">Light</a>
-      </div>
-      <div class="tw-flex tw-gap-4 tw-p-2">
-        <a bitLink linkType="default" href="#">Default</a>
-        <a bitLink linkType="default" href="#" class="tw-test-hover">Default</a>
-        <a bitLink linkType="default" href="#" class="tw-test-focus-visible">Default</a>
-        <a bitLink linkType="default" href="#" class="tw-test-hover tw-test-focus-visible">Default</a>
-      </div>
-      <div class="tw-flex tw-gap-4 tw-p-2">
-        <a bitLink linkType="subtle" href="#">Subtle</a>
-        <a bitLink linkType="subtle" href="#" class="tw-test-hover">Subtle</a>
-        <a bitLink linkType="subtle" href="#" class="tw-test-focus-visible">Subtle</a>
-        <a bitLink linkType="subtle" href="#" class="tw-test-hover tw-test-focus-visible">Subtle</a>
       </div>
       <div class="tw-flex tw-gap-4 tw-p-2">
         <a bitLink linkType="success" href="#">Success</a>
@@ -160,6 +160,12 @@ export const InteractionStates: Story = {
     controls: {
       exclude: ["linkType"],
       hideNoControlsWarning: true,
+    },
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
     },
   },
 };

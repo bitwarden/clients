@@ -27,7 +27,7 @@
       bitLink
       [disabled]="disabled"
       type="button"
-      class="tw-flex tw-text-start tw-leading-snug tw-truncate"
+      class="tw-flex tw-text-start tw-leading-snug tw-max-w-56"
       linkType="secondary"
       title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
       [routerLink]="[]"
@@ -35,17 +35,18 @@
       queryParamsHandling="merge"
       appStopProp
     >
-      <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
+      <div class="tw-truncate tw-mr-1 tw-max-w-56">{{ collection.name }}</div>
     </button>
     @if (showAddAccess) {
-      <button
+      <span
         bitBadge
-        type="button"
+        role="button"
         (click)="addAccess(CollectionPermission.Manage)"
         variant="warning"
+        class="tw-cursor-pointer"
       >
         {{ "addAccess" | i18n }}
-      </button>
+      </span>
     }
   </div>
 </td>

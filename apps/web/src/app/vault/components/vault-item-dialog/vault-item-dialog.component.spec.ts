@@ -2,16 +2,16 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
-import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { mock, MockProxy } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,6 +24,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
@@ -78,14 +79,26 @@ describe("VaultItemDialogComponent", () => {
     restore: undefined,
   };
 
+  let cipherServiceMock: MockProxy<CipherService>;
+  let cipherAuthorizationServiceMock: MockProxy<CipherAuthorizationService>;
+  const canEditCipherReturnValue$ = new BehaviorSubject(false);
+  const canDeleteCipherReturnValue$ = new BehaviorSubject(false);
+
   beforeEach(async () => {
+    cipherServiceMock = mock<CipherService>({
+      get: jest.fn().mockReturnValue(of({ id: "new-cipher-id" } as any)),
+    });
+    cipherAuthorizationServiceMock = mock<CipherAuthorizationService>({
+      canEditCipher$: jest.fn().mockReturnValue(canEditCipherReturnValue$),
+      canDeleteCipher$: jest.fn().mockReturnValue(canDeleteCipherReturnValue$),
+    });
     await TestBed.configureTestingModule({
       imports: [TestVaultItemDialogComponent],
       providers: [
         provideNoopAnimations(),
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DIALOG_DATA, useValue: { ...baseParams } },
-        { provide: DialogRef, useValue: {} },
+        { provide: DialogRef, useValue: { close: jest.fn() } },
         {
           provide: ToastService,
           useValue: {
@@ -95,6 +108,12 @@ describe("VaultItemDialogComponent", () => {
         { provide: MessagingService, useValue: {} },
         { provide: LogService, useValue: {} },
         { provide: CipherService, useValue: {} },
+        {
+          provide: VaultSettingsService,
+          useValue: mock<VaultSettingsService>({
+            showAtRiskPasswordNotifications$: of(true),
+          }),
+        },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "UserId" }) } },
         {
           provide: ConfigService,
@@ -105,10 +124,6 @@ describe("VaultItemDialogComponent", () => {
         },
         { provide: Router, useValue: { navigate: jest.fn() } },
         { provide: ActivatedRoute, useValue: {} },
-        {
-          provide: BillingAccountProfileStateService,
-          useValue: { hasPremiumFromAnySource$: () => ({}) },
-        },
         { provide: PremiumUpgradePromptService, useValue: {} },
         { provide: CipherAuthorizationService, useValue: {} },
         { provide: ApiService, useValue: {} },
@@ -118,7 +133,6 @@ describe("VaultItemDialogComponent", () => {
           provide: CipherArchiveService,
           useValue: {
             userCanArchive$: jest.fn().mockReturnValue(of(true)),
-            hasArchiveFlagEnabled$: of(true),
             archiveWithServer: jest.fn().mockResolvedValue({}),
             unarchiveWithServer: jest.fn().mockResolvedValue({}),
           },
@@ -171,6 +185,14 @@ describe("VaultItemDialogComponent", () => {
         },
         { provide: SyncService, useValue: {} },
         { provide: CipherRiskService, useValue: {} },
+        {
+          provide: CipherAuthorizationService,
+          useValue: cipherAuthorizationServiceMock,
+        },
+        {
+          provide: CipherService,
+          useValue: cipherServiceMock,
+        },
       ],
     })
       .overrideProvider(DialogService, { useValue: {} })
@@ -404,7 +426,9 @@ describe("VaultItemDialogComponent", () => {
     });
 
     it("refocuses the dialog header", async () => {
-      const focusOnHeaderSpy = jest.spyOn(component["dialogComponent"](), "handleAutofocus");
+      const dialog = component["dialogComponent"]();
+      expect(dialog).toBeDefined();
+      const focusOnHeaderSpy = jest.spyOn(dialog!, "focusHeader");
 
       await component["changeMode"]("view");
 
@@ -467,6 +491,45 @@ describe("VaultItemDialogComponent", () => {
           replaceUrl: true,
         });
       });
+    });
+  });
+
+  describe("onCipherSaved", () => {
+    beforeEach(() => {
+      // Spy on changeMode to avoid needing DOM dependencies in these tests
+      jest.spyOn(component as any, "changeMode").mockResolvedValue(undefined);
+    });
+
+    it("updates canEdit based on the saved cipher after creating a new item", async () => {
+      (component as any)._originalFormMode = "add";
+
+      const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
+
+      canEditCipherReturnValue$.next(true);
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(component["canEdit"]).toBe(true);
+      expect(cipherAuthorizationServiceMock.canEditCipher$).toHaveBeenCalledWith(
+        savedCipherView,
+        component["params"].isAdminConsoleAction,
+      );
+    });
+
+    it("updates canDelete based on the saved cipher after creating a new item", async () => {
+      (component as any)._originalFormMode = "add";
+
+      const savedCipherView = { id: "new-cipher-id", collectionIds: [] } as any;
+
+      canDeleteCipherReturnValue$.next(true);
+
+      await component["onCipherSaved"](savedCipherView);
+
+      expect(component["canDelete"]).toBe(true);
+      expect(cipherAuthorizationServiceMock.canDeleteCipher$).toHaveBeenCalledWith(
+        savedCipherView,
+        component["params"].isAdminConsoleAction,
+      );
     });
   });
 });

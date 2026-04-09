@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -126,6 +126,8 @@ export class SendDetailsComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalSendView?: SendView;
 
+  readonly openPasswordGenerator = output<void>();
+
   FileSendType = SendType.File;
   TextSendType = SendType.Text;
   readonly AuthType = AuthType;
@@ -224,10 +226,7 @@ export class SendDetailsComponent implements OnInit {
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
-          emailsControl.setValidators([
-            this.emailsRequiredForEmailAuthValidator(),
-            this.emailListValidator(),
-          ]);
+          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
         } else {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
@@ -314,38 +313,28 @@ export class SendDetailsComponent implements OnInit {
         return null;
       }
       const emails = control.value.split(",").map((e: string) => e.trim());
+      const nonEmptyEmails = emails.filter((e: string) => e.length > 0);
+      if (nonEmptyEmails.length === 0) {
+        return { required: true };
+      }
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const invalidEmails = emails.filter((e: string) => e.length > 0 && !emailRegex.test(e));
+      const invalidEmails = nonEmptyEmails.filter((e: string) => !emailRegex.test(e));
       return invalidEmails.length > 0 ? { multipleEmails: true } : null;
     };
   }
 
-  emailsRequiredForEmailAuthValidator(): ValidatorFn {
-    return (control: FormControl): ValidationErrors | null => {
-      const authType = this.sendDetailsForm?.get("authType")?.value;
-      const emails = control.value;
-
-      if (authType === AuthType.Email && (!emails || emails.trim() === "")) {
-        return {
-          emailsRequiredForEmailAuth: {
-            message: this.i18nService.t("emailsRequiredChangeAccessType"),
-          },
-        };
-      }
-
-      return null;
-    };
-  }
-
-  generatePassword = async () => {
-    const generatedValue = await this.sendFormGenerationService.generatePassword();
-
-    if (generatedValue) {
-      this.sendDetailsForm.patchValue({
-        password: generatedValue,
-      });
-    }
+  generatePassword = () => {
+    this.openPasswordGenerator.emit();
   };
+
+  /**
+   * Sets the password field with a generated value from the inline generator.
+   */
+  setGeneratedPassword(value: string) {
+    this.sendDetailsForm.patchValue({
+      password: value,
+    });
+  }
 
   removePassword = async () => {
     if (!this.originalSendView?.password) {
