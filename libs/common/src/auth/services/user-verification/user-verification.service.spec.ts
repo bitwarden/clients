@@ -23,7 +23,6 @@ import { VaultTimeoutSettingsService } from "../../../key-management/vault-timeo
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
-import { MasterKey } from "../../../types/key";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
 import { VerificationType } from "../../enums/verification-type";
 import { MasterPasswordPolicyResponse } from "../../models/response/master-password-policy.response";
@@ -321,7 +320,6 @@ describe("UserVerificationService", () => {
       i18nService.t.calledWith("invalidMasterPassword").mockReturnValue("Invalid master password");
 
       kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
-      masterPasswordService.masterKey$.mockReturnValue(of("masterKey" as unknown as MasterKey));
     });
 
     describe("client-side verification", () => {
@@ -344,10 +342,8 @@ describe("UserVerificationService", () => {
           "password",
           mockUserId,
         );
-        expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith("masterKey", mockUserId);
         expect(result).toEqual({
           policyOptions: null,
-          masterKey: "masterKey",
           email: "email",
         });
       });
@@ -370,7 +366,6 @@ describe("UserVerificationService", () => {
           "password",
           mockUserId,
         );
-        expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
     });
 
@@ -380,9 +375,6 @@ describe("UserVerificationService", () => {
       });
 
       it("returns if verification is successful", async () => {
-        keyService.hashMasterKey
-          .calledWith("password", "masterKey" as unknown as MasterKey)
-          .mockResolvedValueOnce("serverHash");
         userVerificationApiService.postAccountVerifyPassword.mockResolvedValueOnce(
           "MasterPasswordPolicyOptions" as unknown as MasterPasswordPolicyResponse,
         );
@@ -397,18 +389,13 @@ describe("UserVerificationService", () => {
         );
 
         expect(masterPasswordUnlockService.proofOfDecryption).not.toHaveBeenCalled();
-        expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith("masterKey", mockUserId);
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
-          masterKey: "masterKey",
           email: "email",
         });
       });
 
       it("throws if verification fails", async () => {
-        keyService.hashMasterKey
-          .calledWith("password", "masterKey" as unknown as MasterKey)
-          .mockResolvedValueOnce("serverHash");
         userVerificationApiService.postAccountVerifyPassword.mockRejectedValueOnce(new Error());
 
         await expect(
@@ -423,7 +410,6 @@ describe("UserVerificationService", () => {
         ).rejects.toThrow("Invalid master password");
 
         expect(masterPasswordUnlockService.proofOfDecryption).not.toHaveBeenCalled();
-        expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
     });
 
@@ -478,23 +464,6 @@ describe("UserVerificationService", () => {
             "email",
           ),
         ).rejects.toThrow("KDF config is required. Cannot verify user by master password.");
-      });
-
-      it("throws if master key cannot be created", async () => {
-        kdfConfigService.getKdfConfig.mockResolvedValueOnce("kdfConfig" as unknown as KdfConfig);
-        masterPasswordService.masterKey$.mockReturnValueOnce(of(null));
-        keyService.makeMasterKey.mockResolvedValueOnce(null);
-
-        await expect(
-          sut.verifyUserByMasterPassword(
-            {
-              type: VerificationType.MasterPassword,
-              secret: "password",
-            } as MasterPasswordVerification,
-            mockUserId,
-            "email",
-          ),
-        ).rejects.toThrow("Master key could not be created to verify the master password.");
       });
     });
   });
