@@ -40,6 +40,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -182,6 +183,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestService: AuthRequestServiceAbstraction,
     private authRequestAnsweringService: AuthRequestAnsweringService,
+    private ssoLoginService: SsoLoginServiceAbstraction,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -333,6 +335,24 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "ssoCallback": {
+            const storedState = await this.ssoLoginService.getSsoState();
+            const storedVerifier = await this.ssoLoginService.getCodeVerifier();
+
+            if (!storedState || !storedVerifier) {
+              this.logService.warning(
+                "[App Component] SSO callback rejected: no active SSO flow in progress",
+              );
+              break;
+            }
+
+            const storedStatePrefix = storedState.split("_identifier=")[0];
+            const receivedStatePrefix = (message.state ?? "").split("_identifier=")[0];
+
+            if (storedStatePrefix !== receivedStatePrefix) {
+              this.logService.warning("[App Component] SSO callback rejected: state mismatch");
+              break;
+            }
+
             const queryParams = {
               code: message.code,
               state: message.state,
