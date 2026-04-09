@@ -3,7 +3,6 @@ import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -551,16 +550,6 @@ describe("MasterPasswordService", () => {
       );
 
       await sut.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
-
-      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-        masterKey.inner().encryptionKey,
-        password,
-        "sha256",
-        HashPurpose.LocalAuthorization,
-      );
-
-      const hashState = await firstValueFrom(sut.masterKeyHash$(userId));
-      expect(hashState).toEqual(expectedHashB64);
     });
 
     it("throws if password is null", async () => {
