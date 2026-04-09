@@ -325,6 +325,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "将应用程序标记为关键失败"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "将应用程序取消标记为关键失败"
+  },
   "application": {
     "message": "应用程序"
   },
@@ -2060,7 +2063,7 @@
     "message": "此导出包含未加密格式的机密数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
-    "message": "此导出使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
+    "message": "此导出将使用您的账户加密密钥来加密您的数据。如果您曾经轮换过您的账户加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
   },
   "encExportAccountWarningDesc": {
     "message": "每个 Bitwarden 用户账户的账户加密密钥都是唯一的，因此您无法将加密的导出导入到另一个账户。"
@@ -2095,7 +2098,7 @@
     "message": "确认文件密码"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的账户加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtectedOptionDescription": {
     "message": "设置一个文件密码以加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
@@ -2254,10 +2257,10 @@
     "message": "请求待处理"
   },
   "logBackInOthersToo": {
-    "message": "请重新登录。如果您还在使用其他 Bitwarden 应用程序，也请注销并重新登陆。"
+    "message": "请重新登录。如果您正在使用其他 Bitwarden 应用程序，也请注销然后重新登录。"
   },
   "changeMasterPassword": {
-    "message": "修改主密码"
+    "message": "更改主密码"
   },
   "masterPasswordChanged": {
     "message": "主密码已保存"
@@ -2413,7 +2416,7 @@
     "message": "导入数据"
   },
   "onboardingImportDataDetailsPartOne": {
-    "message": "如果您没有任何数据要导入，您可以创建一个 ",
+    "message": "如果您没有任何数据要导入，您可以创建一个",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
@@ -2647,13 +2650,13 @@
     "description": "Premium membership"
   },
   "premiumMembership": {
-    "message": "高级版成员"
+    "message": "高级版成员资格"
   },
   "premiumRequired": {
     "message": "需要高级版"
   },
   "premiumRequiredDesc": {
-    "message": "需要高级版成员才能使用此功能。"
+    "message": "需要高级版成员资格才能使用此功能。"
   },
   "youHavePremiumAccess": {
     "message": "您拥有高级版访问权限"
@@ -3166,7 +3169,7 @@
     "message": "您已升级为高级版。"
   },
   "premiumUpgradeUnlockFeatures": {
-    "message": "将您的账户升级为高级版成员，将解锁一些强大的附加功能。"
+    "message": "将您的账户升级为高级版成员资格，并解锁一些强大的附加功能。"
   },
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
@@ -3399,7 +3402,7 @@
     "message": "折扣"
   },
   "discountExpiredOnPurchase": {
-    "message": "Discount expired. Please review your cart total and try again."
+    "message": "折扣已过期。请检查您的购物车总金额，然后重试。"
   },
   "downloadLicense": {
     "message": "下载许可证"
@@ -3540,7 +3543,7 @@
     }
   },
   "uploadLicenseFilePremium": {
-    "message": "要将您的账户升级为高级版成员，您需要上传有效的许可证文件。"
+    "message": "要将您的账户升级为高级版成员资格，您需要上传有效的许可证文件。"
   },
   "uploadLicenseFileOrg": {
     "message": "要创建基于本地托管的组织，您需要上传有效的许可证文件。"
@@ -3809,13 +3812,13 @@
     "message": "策略"
   },
   "dataControls": {
-    "message": "Data controls"
+    "message": "数据控制"
   },
   "authentication": {
-    "message": "Authentication"
+    "message": "身份验证"
   },
   "vaultManagement": {
-    "message": "Vault management"
+    "message": "密码库管理"
   },
   "singleSignOn": {
     "message": "单点登录"
@@ -4300,6 +4303,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "一个或多个电子邮箱属于已被撤销的成员。恢复其访问权限以便重新邀请。"
   },
   "restoredUserId": {
     "message": "恢复了 $ID$ 的组织访问权限。",
@@ -5130,7 +5136,7 @@
     }
   },
   "updateEncryptionKeyWarning": {
-    "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
+    "message": "更新加密密钥后，您需要注销当前正在使用的所有 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销然后重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "所有您已保存的账户限制的导出文件将失效。"
@@ -5305,13 +5311,13 @@
     "message": "识别到弱密码。请使用一个强密码以保护您的账户。确定要使用弱密码吗？"
   },
   "rotateAccountEncKey": {
-    "message": "同时轮换账户的加密密钥"
+    "message": "同时轮换我的账户加密密钥"
   },
   "rotateEncKeyTitle": {
     "message": "轮换加密密钥"
   },
   "rotateEncKeyConfirmation": {
-    "message": "确定要轮换账户的加密密钥吗？"
+    "message": "确定要轮换您的账户加密密钥吗？"
   },
   "attachmentsNeedFix": {
     "message": "此项目有需要修复的旧文件附件。"
@@ -5333,7 +5339,7 @@
     "message": "附件已更新"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "需要先修复您的密码库中的旧文件附件，然后才能轮换您账户的加密密钥。"
+    "message": "需要先修复您的密码库中旧的文件附件，然后才能轮换您的账户加密密钥。"
   },
   "itemsTransferred": {
     "message": "项目已转移"
@@ -5752,7 +5758,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
-    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接的任何人都可以访问此 Send。",
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -5762,7 +5768,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接以及您设置的密码的任何人都可以访问此 Send。",
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有链接以及您设置的密码的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6097,11 +6103,11 @@
     "message": "强制组织数据所有权"
   },
   "organizationDataOwnershipDesc": {
-    "message": "要求所有项目归组织所有，禁用此选项以在账户级别存储项目。",
+    "message": "要求所有项目由组织拥有，禁用此选项以在账户级别存储项目。",
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "所有项目都将归组织所有并保存至组织中，从而实现组织范围的控制、可见性和报告。启用后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
+    "message": "所有项目都将由组织拥有并保存至组织中，从而实现组织范围的控制、可见性和报告。启用后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -6238,6 +6244,16 @@
     "message": "由于某个企业策略，您只能删除现有的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send 控制"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "设置用于创建和编辑 Send 的选项，包括禁用 Send 的功能。",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "可以管理组织策略的组织成员不受此策略的约束。"
+  },
   "sendOptions": {
     "message": "Send 选项",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6292,7 +6308,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customDescNonEnterpriseLink": {
-    "message": "企业功能",
+    "message": "企业版功能",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customDescNonEnterpriseEnd": {
@@ -6499,7 +6515,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "didNotReceiveCodeContactSenderOr": {
-    "message": "未收到验证码？请联系发送方确认您的电子邮箱地址或者",
+    "message": "没有收到验证码吗？请联系发送者确认您的电子邮箱地址或者",
     "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "codeResent": {
@@ -8012,7 +8028,7 @@
     "message": "转发的电子邮箱别名"
   },
   "forwardedEmailDesc": {
-    "message": "使用外部转发服务生成一个电子邮箱别名。"
+    "message": "使用外部转发服务生成电子邮箱别名。"
   },
   "forwarderDomainName": {
     "message": "电子邮箱域名",
@@ -8968,7 +8984,7 @@
     }
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "此操作需要验证。设置一个 PIN 码以继续。"
+    "message": "此操作需要验证。请设置一个 PIN 码以继续。"
   },
   "setPin": {
     "message": "设置 PIN 码"
@@ -12415,7 +12431,7 @@
     "message": "折叠购买详细信息"
   },
   "familiesMembership": {
-    "message": "家庭版成员"
+    "message": "家庭版成员资格"
   },
   "advancedOnlineSecurity": {
     "message": "高级在线安全防护"
@@ -12532,10 +12548,10 @@
     "message": "家庭版"
   },
   "upgradeToFamilies": {
-    "message": "升级为家庭版"
+    "message": "升级到家庭版"
   },
   "upgradeToPremium": {
-    "message": "升级为高级版"
+    "message": "升级到高级版"
   },
   "familiesUpdated": {
     "message": "您已升级为家庭版！"
@@ -12820,7 +12836,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "出于安全和合规要求，$ORGANIZATION$ 要求所有项目必须归组织所有。",
+    "message": "为确保安全性和合规性，$ORGANIZATION$ 要求所有项目由组织拥有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -13033,10 +13049,10 @@
     "message": "每用户"
   },
   "upgradeToTeams": {
-    "message": "升级为团队版"
+    "message": "升级到团队版"
   },
   "upgradeToEnterprise": {
-    "message": "升级为企业版"
+    "message": "升级到企业版"
   },
   "upgradeShareEvenMore": {
     "message": "使用家庭版共享更多内容，或使用团队版或企业版获得强大、可信赖的密码安全防护"
@@ -13064,10 +13080,10 @@
     "message": "高级版订阅信用额度"
   },
   "enterpriseMembership": {
-    "message": "企业版成员"
+    "message": "企业版成员资格"
   },
   "teamsMembership": {
-    "message": "团队版成员"
+    "message": "团队版成员资格"
   },
   "plansUpdated": {
     "message": "您已升级为 $PLAN$！",

@@ -224,6 +224,17 @@ export class AutofillComponent implements OnInit {
         this.browserClientVendor,
       );
 
+    if (await this.getPendingDefaultPasswordManagerApply()) {
+      if (await this.privacyPermissionGranted()) {
+        this.defaultBrowserAutofillDisabled =
+          await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+            this.browserClientVendor,
+          );
+      } else {
+        await this.setPendingDefaultPasswordManagerApply(false);
+      }
+    }
+
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
     );
@@ -500,20 +511,22 @@ export class AutofillComponent implements OnInit {
       return;
     }
 
-    if (
-      !privacyPermissionGranted &&
-      !(await BrowserApi.requestPermission({ permissions: ["privacy"] }))
-    ) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "privacyPermissionAdditionNotGrantedTitle" },
-        content: { key: "privacyPermissionAdditionNotGrantedDescription" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-      this.defaultBrowserAutofillDisabled = false;
+    if (!privacyPermissionGranted) {
+      await this.setPendingDefaultPasswordManagerApply(true);
+      const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
+      if (!granted) {
+        await this.setPendingDefaultPasswordManagerApply(false);
+        await this.dialogService.openSimpleDialog({
+          title: { key: "privacyPermissionAdditionNotGrantedTitle" },
+          content: { key: "privacyPermissionAdditionNotGrantedDescription" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "warning",
+        });
+        this.defaultBrowserAutofillDisabled = false;
 
-      return;
+        return;
+      }
     }
 
     await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
@@ -575,6 +588,33 @@ export class AutofillComponent implements OnInit {
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
+  }
+
+  /**
+   * Persists whether a default password manager apply is pending because the permission UI may close the popup.
+   */
+  private async setPendingDefaultPasswordManagerApply(pending: boolean): Promise<void> {
+    if (!chrome.storage?.session) {
+      return;
+    }
+
+    if (pending) {
+      await chrome.storage.session.set({ pendingDefaultPasswordManagerApply: true });
+    } else {
+      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+    }
+  }
+
+  /**
+   * Reads the pending apply flag used to resume the default password manager flow on popup or background restart.
+   */
+  private async getPendingDefaultPasswordManagerApply(): Promise<boolean> {
+    if (!chrome.storage?.session) {
+      return false;
+    }
+
+    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
+    return Boolean(result.pendingDefaultPasswordManagerApply);
   }
 
   async updateShowCardsCurrentTab() {
