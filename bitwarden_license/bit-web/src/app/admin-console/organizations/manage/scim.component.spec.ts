@@ -218,6 +218,71 @@ describe("ScimComponent", () => {
     }));
   });
 
+  describe("copyScimKey", () => {
+    beforeEach(fakeAsync(() => {
+      initComponent(mockConnection(true));
+      void component.load();
+      tick();
+    }));
+
+    it("opens dialog and copies key to clipboard when no cached key", fakeAsync(() => {
+      const mockDialogRef = {
+        closed: of({ apiKey: "revealed-key" }),
+      } as unknown as ReturnType<typeof dialogService.open>;
+      dialogService.open.mockReturnValue(mockDialogRef);
+
+      void component.copyScimKey();
+      tick();
+
+      expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
+        data: { organizationId: orgId, titleKey: "copyScimKey", isRotation: false },
+      });
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("revealed-key");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "valueCopied",
+        variant: "success",
+        title: null,
+      });
+    }));
+
+    it("uses cached key without opening dialog", fakeAsync(() => {
+      // First call to cache the key via loadApiKey
+      const mockDialogRef = {
+        closed: of({ apiKey: "cached-key" }),
+      } as unknown as ReturnType<typeof dialogService.open>;
+      dialogService.open.mockReturnValue(mockDialogRef);
+
+      void component.loadApiKey();
+      tick();
+      dialogService.open.mockClear();
+
+      // Second call should use cached key
+      void component.copyScimKey();
+      tick();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("cached-key");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "valueCopied",
+        variant: "success",
+        title: null,
+      });
+    }));
+
+    it("does not copy or show toast when dialog is dismissed", fakeAsync(() => {
+      const mockDialogRef = {
+        closed: of(undefined),
+      } as unknown as ReturnType<typeof dialogService.open>;
+      dialogService.open.mockReturnValue(mockDialogRef);
+
+      void component.copyScimKey();
+      tick();
+
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    }));
+  });
+
   describe("copyScimUrl", () => {
     beforeEach(fakeAsync(() => {
       initComponent(mockConnection(true));

@@ -32,7 +32,7 @@ export class ScimComponent implements OnInit {
   enabled = new FormControl(false);
   showScimSettings = false;
   showScimKey = false;
-  private cachedApiKey: string;
+  private cachedApiKey: string | undefined;
 
   formData = this.formBuilder.group({
     endpointUrl: new FormControl({ value: "", disabled: true }),
