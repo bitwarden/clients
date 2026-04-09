@@ -64,29 +64,29 @@ export class PhishingWarning implements OnInit {
   protected phishingHostname$ = this.phishingUrl$.pipe(map((url) => new URL(url).hostname));
 
   async ngOnInit() {
-    await this.recordEvents(EventType.PhishingBlocker_SiteAccessed, false);
+    await this.recordEvents(EventType.PhishingBlocker_SiteAccessed);
   }
 
   async closeTab() {
-    await this.recordEvents(EventType.PhishingBlocker_SiteExited, false);
+    await this.recordEvents(EventType.PhishingBlocker_SiteExited);
     const tabId = await this.getTabId();
     this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, { tabId });
   }
 
   async continueAnyway() {
-    await this.recordEvents(EventType.PhishingBlocker_Bypassed, false);
+    await this.recordEvents(EventType.PhishingBlocker_Bypassed);
     const url = await firstValueFrom(this.phishingUrl$);
     const tabId = await this.getTabId();
     this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, { tabId, url });
   }
 
-  private async recordEvents(eventType: EventType, uploadImmediately: boolean): Promise<void> {
+  private async recordEvents(eventType: EventType): Promise<void> {
     try {
       const orgs = await this.getOrgsWithEvents();
 
       // keep this sequential, using a Promise.all causes a race condition
       for (const org of orgs) {
-        await this.eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id);
+        await this.eventCollectionService.collect(eventType, undefined, false, org.id);
       }
     } catch {
       // Event collection failure should not block the user action

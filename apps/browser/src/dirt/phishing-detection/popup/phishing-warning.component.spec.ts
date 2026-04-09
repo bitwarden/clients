@@ -126,7 +126,7 @@ describe("PhishingWarning", () => {
   });
 
   describe("continueAnyway", () => {
-    it("collects PhishingBlocker_Bypassed with uploadImmediately for each org with useEvents", async () => {
+    it("collects PhishingBlocker_Bypassed for each org with useEvents", async () => {
       fixture.detectChanges();
       await fixture.whenStable();
       eventCollectionService.collect.mockClear();
@@ -136,13 +136,13 @@ describe("PhishingWarning", () => {
       expect(eventCollectionService.collect).toHaveBeenCalledWith(
         EventType.PhishingBlocker_Bypassed,
         undefined,
-        true,
+        false,
         "org-1",
       );
       expect(eventCollectionService.collect).not.toHaveBeenCalledWith(
         EventType.PhishingBlocker_Bypassed,
         undefined,
-        true,
+        false,
         "org-2",
       );
       expect(eventCollectionService.collect).toHaveBeenCalledTimes(1);
