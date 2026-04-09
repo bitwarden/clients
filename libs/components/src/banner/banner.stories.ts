@@ -76,7 +76,7 @@ export const TitleBannerBase: Story = {
           [variant]="variant"
           [showClose]="showClose"
         >
-          <span slot="title">Integration is the key</span>
+          <span bitBannerTitle>Integration is the key</span>
           Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
           <ng-container slot="actions">
             <button bitButton type="button" buttonType="secondary">Cancel</button>
@@ -130,7 +130,7 @@ export const AllVariantsWithTitle: Story = {
       <div class="tw-flex tw-flex-col tw-gap-4">
         @for (v of variants; track v) {
           <bit-banner [variant]="v" [showClose]="true">
-            <span slot="title">Integration is the key</span>
+            <span bitBannerTitle>Integration is the key</span>
             You can integrate Bitwarden with many tools. <a bitLink [linkType]="v">Learn more</a>
             <ng-container slot="actions">
               <button bitButton type="button" buttonType="secondary">Cancel</button>
@@ -152,7 +152,7 @@ export const AllVariantsCustomIcon: Story = {
       <div class="tw-flex tw-flex-col tw-gap-4">
         @for (v of variants; track v) {
           <bit-banner [variant]="v" [showClose]="true" icon="bwi-star">
-            <span slot="title">Custom icon example</span>
+            <span bitBannerTitle>Custom icon example</span>
             Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
             <ng-container slot="actions">
               <button bitButton type="button" buttonType="secondary">Cancel</button>
@@ -173,7 +173,7 @@ export const BadgeTitle: Story = {
     props: args,
     template: /*html*/ `
       <bit-banner [variant]="variant" [showClose]="showClose">
-        <span slot="title">
+        <span bitBannerTitle>
           <span bitBadge variant="primary">New</span>
           Integration updates
         </span>

@@ -7,12 +7,12 @@ import { Directive } from "@angular/core";
  * @example
  * ```html
  * <bit-banner>
- *   <span slot="title">Title text</span>
+ *   <span bitBannerTitle>Title text</span>
  * </bit-banner>
  * ```
  */
 @Directive({
-  selector: "[slot='title']",
+  selector: "[bitBannerTitle]",
   standalone: true,
 })
 export class BannerTitleDirective {}

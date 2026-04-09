@@ -12,6 +12,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile/icon-tile.component";
 import { BitwardenIcon } from "../shared/icon";
+import { TypographyDirective } from "../typography/typography.directive";
 
 import { BannerTitleDirective } from "./banner-title.directive";
 
@@ -43,7 +44,7 @@ const bannerColors: Record<BannerVariant, string> = {
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
-  imports: [IconButtonModule, IconTileComponent, I18nPipe],
+  imports: [IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
   host: {
     // Account for bit-layout's padding
     class:
