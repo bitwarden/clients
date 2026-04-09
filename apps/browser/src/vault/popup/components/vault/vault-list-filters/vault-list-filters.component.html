@@ -5,7 +5,7 @@
     *ngIf="allFilters$ | async as allFilters"
   >
     <ng-container *ngIf="allFilters.organizations as organizations">
-      <bit-chip-select
+      <bit-chip-filter
         *ngIf="organizations.length"
         fullWidth
         formControlName="organization"
@@ -13,10 +13,10 @@
         [placeholderText]="'vault' | i18n"
         [options]="organizations"
       >
-      </bit-chip-select>
+      </bit-chip-filter>
     </ng-container>
     <ng-container *ngIf="allFilters.collections as collections">
-      <bit-chip-select
+      <bit-chip-filter
         *ngIf="collections.length"
         fullWidth
         formControlName="collection"
@@ -24,10 +24,10 @@
         [placeholderText]="'collection' | i18n"
         [options]="collections"
       >
-      </bit-chip-select>
+      </bit-chip-filter>
     </ng-container>
     <ng-container *ngIf="allFilters.folders as folders">
-      <bit-chip-select
+      <bit-chip-filter
         *ngIf="folders.length"
         fullWidth
         placeholderIcon="bwi-folder"
@@ -35,15 +35,15 @@
         [placeholderText]="'folder' | i18n"
         [options]="folders"
       >
-      </bit-chip-select>
+      </bit-chip-filter>
     </ng-container>
-    <bit-chip-select
+    <bit-chip-filter
       formControlName="cipherType"
       fullWidth
       placeholderIcon="bwi-list"
       [placeholderText]="'type' | i18n"
       [options]="cipherTypes$ | async"
     >
-    </bit-chip-select>
+    </bit-chip-filter>
   </form>
 </div>

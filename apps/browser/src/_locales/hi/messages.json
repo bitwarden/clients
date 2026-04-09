@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Unlock options"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
-  },
   "unlockMethodNeeded": {
     "message": "Set up an unlock method in Settings"
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
-  },
-  "vaultTimeoutHeader": {
-    "message": "तिजोरी टाइमआउट"
   },
   "otherOptions": {
     "message": "Other options"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "आपके द्वारा चुना गया मास्टर पासवर्ड कमजोर है। आपको अपने बिटवर्डन खाते की ठीक से सुरक्षा के लिए एक मजबूत मास्टर पासवर्ड (या पासवाफ्रेज़) का उपयोग करना चाहिए।क्या आप सुनिश्चित हैं कि आप इस मास्टर पासवर्ड का उपयोग करना चाहते हैं?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "पिन",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "वॉल्ट मध्यांतर कार्रवाई"
   },
-  "vaultTimeoutAction1": {
-    "message": "टाइमआउट कार्रवाई"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "लॉक",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "मिनट"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "एंटरप्राइज़ नीति आवश्यकताएँ आपके टाइमआउट विकल्पों पर लागू की गई हैं"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "आपकी संगठन नीतियां आपके तिजोरी टाइमआउट को प्रभावित कर रही हैं। अधिकतम अनुमत तिजोरी टाइमआउट $HOURS$ घंटे और $MINUTES$ मिनट है",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "वॉल्ट डेटा निर्यात किया गया"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "उपयोगकर्ता सत्यापन विफल रहा।"
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }
