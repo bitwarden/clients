@@ -24,7 +24,12 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { MasterKey } from "@bitwarden/common/types/key";
-import { BiometricsService, BiometricStateService, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
+import {
+  BiometricsService,
+  BiometricStateService,
+  KdfConfig,
+  KdfConfigService,
+} from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import {
   Kdf,
@@ -53,7 +58,7 @@ export class DefaultUnlockService implements UnlockService {
     private biometricsService: BiometricsService,
     private platformUtilsService: PlatformUtilsService,
     private stateService: StateService,
-    private biometricStateService: BiometricStateService
+    private biometricStateService: BiometricStateService,
   ) {}
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {

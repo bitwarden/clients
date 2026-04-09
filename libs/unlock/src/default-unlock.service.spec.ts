@@ -18,7 +18,11 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricsService, BiometricStateService, KdfConfigService } from "@bitwarden/key-management";
+import {
+  BiometricsService,
+  BiometricStateService,
+  KdfConfigService,
+} from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 import { StateProvider, StateService } from "@bitwarden/state";
@@ -125,7 +129,7 @@ describe("DefaultUnlockService", () => {
       biometricsService,
       platformUtilsService,
       stateService,
-      biometricStateService
+      biometricStateService,
     );
 
     jest.spyOn(service as any, "setLegacyMasterKeyFromUnlockData").mockResolvedValue(undefined);

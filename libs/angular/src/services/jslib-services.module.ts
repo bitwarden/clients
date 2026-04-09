@@ -942,7 +942,7 @@ const safeProviders: SafeProvider[] = [
       BiometricsService,
       PlatformUtilsServiceAbstraction,
       StateServiceAbstraction,
-      BiometricStateService
+      BiometricStateService,
     ],
   }),
   safeProvider({
