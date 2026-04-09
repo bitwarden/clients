@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  contentChild,
-  input,
-  output,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -13,8 +6,6 @@ import { IconButtonModule } from "../icon-button";
 import { IconTileComponent } from "../icon-tile/icon-tile.component";
 import { BitwardenIcon } from "../shared/icon";
 import { TypographyDirective } from "../typography/typography.directive";
-
-import { BannerTitleDirective } from "./banner-title.directive";
 
 export type BannerVariant = "primary" | "success" | "warning" | "danger";
 
@@ -34,7 +25,7 @@ const bannerColors: Record<BannerVariant, string> = {
 
 /**
  * The banner component is used to communicate prominent messages or important system states to users.
- * It draws the user’s attention to information that requires awareness or action without interrupting their primary task.
+ * It draws the user's attention to information that requires awareness or action without interrupting their primary task.
  *
  * - Always be dismissible and never use a timeout. If a user dismisses a banner, it should not reappear during that same active session.
  * - Use sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
@@ -59,6 +50,12 @@ export class BannerComponent {
   readonly variant = input<BannerVariant>("primary");
 
   /**
+   * The title to display above the body text. When provided, the actions slot becomes visible
+   * and the layout shifts to its expanded form.
+   */
+  readonly title = input<string | null>();
+
+  /**
    * The icon to display. If not provided, a default icon based on variant will be used.
    * Explicitly passing null will remove the icon.
    */
@@ -79,12 +76,10 @@ export class BannerComponent {
    */
   readonly onClose = output();
 
-  protected readonly titleSlot = contentChild(BannerTitleDirective);
-
   /**
    * Actions slot only renders when a title is present.
    */
-  protected readonly showActions = computed(() => !!this.titleSlot());
+  protected readonly showActions = computed(() => !!this.title());
 
   /**
    * The computed icon to display, falling back to the default icon for the variant.

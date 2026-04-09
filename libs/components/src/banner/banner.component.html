@@ -8,12 +8,12 @@
     @if (displayIcon(); as icon) {
       <!-- Two icon tiles are needed here because `size` is a TypeScript input — it can't change in
            response to a CSS container query. We use two elements with opposing visibility classes
-           to swap between base and lg at the @5xl breakpoint. -->
+           to swap between sm and lg at the @3xl breakpoint. -->
       <bit-icon-tile
         [icon]="icon"
         [variant]="variant()"
-        size="base"
-        [class]="showActions() ? '@5xl:tw-hidden' : ''"
+        size="sm"
+        [class]="showActions() ? '@3xl:tw-hidden' : ''"
         aria-hidden="true"
       />
       @if (showActions()) {
@@ -21,28 +21,28 @@
           [icon]="icon"
           [variant]="variant()"
           size="lg"
-          class="tw-hidden @5xl:tw-block"
+          class="tw-hidden @3xl:tw-block"
           aria-hidden="true"
         />
       }
     }
     <div
-      class="tw-flex tw-flex-col @5xl:tw-flex-row @5xl:tw-items-center tw-gap-1 @5xl:tw-gap-3 tw-min-w-0"
-      [class]="showActions() ? '@5xl:tw-flex-1' : ''"
+      class="tw-flex tw-flex-col @3xl:tw-flex-row @3xl:tw-items-center tw-gap-1 @3xl:tw-gap-3 tw-min-w-0"
+      [class]="showActions() ? '@3xl:tw-flex-1' : ''"
     >
       <div
         class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0"
-        [class]="showActions() ? '@5xl:tw-flex-1' : ''"
+        [class]="showActions() ? '@3xl:tw-flex-1' : ''"
       >
-        <div bitTypography="h4" noMargin class="tw-leading-6">
-          <ng-content select="[bitBannerTitle]"></ng-content>
-        </div>
+        @if (title()) {
+          <div bitTypography="h4" noMargin class="tw-leading-6">{{ title() }}</div>
+        }
         <span bitTypography="body2">
           <ng-content></ng-content>
         </span>
       </div>
       @if (showActions()) {
-        <div class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-3 @5xl:tw-mt-0">
+        <div class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-3 @3xl:tw-mt-0">
           <ng-content select="[slot='actions']"></ng-content>
         </div>
       }
