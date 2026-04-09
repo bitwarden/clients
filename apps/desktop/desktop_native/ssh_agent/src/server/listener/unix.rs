@@ -180,6 +180,17 @@ mod tests {
         path
     }
 
+    #[tokio::test]
+    async fn test_get_peer_info_connected_stream_returns_some() {
+        // UnixStream::pair() creates a connected socketpair; peer_cred() on either end
+        // returns the credentials of the creating process (this test process).
+        let (stream, _peer) = tokio::net::UnixStream::pair().unwrap();
+
+        let peer_info = get_peer_info(&stream);
+
+        assert!(peer_info.is_some());
+    }
+
     #[test]
     fn test_remove_stale_socket_exists() {
         let path = rand_path_in_temp();
