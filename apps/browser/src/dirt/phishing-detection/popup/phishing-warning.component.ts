@@ -74,7 +74,7 @@ export class PhishingWarning implements OnInit {
   }
 
   async continueAnyway() {
-    await this.recordEvents(EventType.PhishingBlocker_Bypassed, true);
+    await this.recordEvents(EventType.PhishingBlocker_Bypassed, false);
     const url = await firstValueFrom(this.phishingUrl$);
     const tabId = await this.getTabId();
     this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, { tabId, url });
@@ -83,11 +83,11 @@ export class PhishingWarning implements OnInit {
   private async recordEvents(eventType: EventType, uploadImmediately: boolean): Promise<void> {
     try {
       const orgs = await this.getOrgsWithEvents();
-      await Promise.all(
-        orgs.map((org) =>
-          this.eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id),
-        ),
-      );
+
+      // keep this sequential, using a Promise.all causes a race condition
+      for (const org of orgs) {
+        await this.eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id);
+      }
     } catch {
       // Event collection failure should not block the user action
     }
