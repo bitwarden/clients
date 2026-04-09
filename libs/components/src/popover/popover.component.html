@@ -16,7 +16,7 @@
           <div
             class="tw-h-[160px] tw-mt-2 tw-mx-2 tw-overflow-hidden tw-rounded-lg tw-bg-bg-secondary tw-flex tw-items-center tw-justify-center"
           >
-            <ng-content select="[slot='header']"></ng-content>
+            <ng-content select="[bitPopoverHeader]"></ng-content>
           </div>
         }
         <div class="tw-p-6">
@@ -37,7 +37,7 @@
           </span>
           @if (footerSlot()) {
             <div class="tw-mt-6 tw-flex tw-items-center">
-              <ng-content select="[slot='footer']"></ng-content>
+              <ng-content select="[bitPopoverFooter]"></ng-content>
             </div>
           }
         </div>
