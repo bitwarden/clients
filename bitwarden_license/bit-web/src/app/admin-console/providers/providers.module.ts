@@ -10,6 +10,7 @@ import {
   IconModule,
   ScrollLayoutDirective,
   SearchModule,
+  IconModule,
 } from "@bitwarden/components";
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 import { MemberDialogManagerService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-dialog-manager/member-dialog-manager.service";
@@ -66,6 +67,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     BerryComponent,
+    IconModule,
   ],
   declarations: [
     AcceptProviderComponent,
