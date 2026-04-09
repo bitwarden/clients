@@ -1,33 +1,38 @@
-import { getQsParam, b64Decode, buildMobileDeeplinkUriFromParam } from "./common";
+import * as common from "./common";
+
+jest.mock("./common", () => {
+  const actual = jest.requireActual("./common") as typeof common;
+  return {
+    ...actual,
+    getLocationHref: jest.fn(),
+    getLocationHostname: jest.fn(),
+  };
+});
 
 describe("common connector utilities", () => {
   describe("getQsParam", () => {
-    function setHref(url: string) {
-      Object.defineProperty(window, "location", {
-        value: { href: url },
-        writable: true,
-        configurable: true,
-      });
-    }
-
-    it.skip("returns the value for an existing query parameter", () => {
-      setHref("https://example.com?foo=bar");
-      expect(getQsParam("foo")).toBe("bar");
+    beforeEach(() => {
+      jest.clearAllMocks();
     });
 
-    it.skip("returns null when the parameter does not exist", () => {
-      setHref("https://example.com?foo=bar");
-      expect(getQsParam("missing")).toBeNull();
+    it("returns the value for an existing query parameter", () => {
+      jest.mocked(common.getLocationHref).mockReturnValue("https://example.com?foo=bar");
+      expect(common.getQsParam("foo")).toBe("bar");
     });
 
-    it.skip("decodes URI-encoded values", () => {
-      setHref("https://example.com?msg=hello%20world");
-      expect(getQsParam("msg")).toBe("hello world");
+    it("returns null when the parameter does not exist", () => {
+      jest.mocked(common.getLocationHref).mockReturnValue("https://example.com?foo=bar");
+      expect(common.getQsParam("missing")).toBeNull();
     });
 
-    it.skip("returns empty string for a parameter with no value", () => {
-      setHref("https://example.com?flag&other=1");
-      expect(getQsParam("flag")).toBe("");
+    it("decodes URI-encoded values", () => {
+      jest.mocked(common.getLocationHref).mockReturnValue("https://example.com?msg=hello%20world");
+      expect(common.getQsParam("msg")).toBe("hello world");
+    });
+
+    it("returns empty string for a parameter with no value", () => {
+      jest.mocked(common.getLocationHref).mockReturnValue("https://example.com?flag&other=1");
+      expect(common.getQsParam("flag")).toBe("");
     });
   });
 
@@ -45,78 +50,83 @@ describe("common connector utilities", () => {
   });
 
   describe("buildMobileDeeplinkUriFromParam", () => {
-    function setLocation(href: string, hostname: string) {
-      Object.defineProperty(window, "location", {
-        value: { href, hostname },
-        writable: true,
-        configurable: true,
-      });
-    }
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
 
     describe("when deeplinkScheme=https", () => {
-      it.skip("returns https://bitwarden.com for .com vaults", () => {
-        setLocation(
-          "https://vault.bitwarden.com/connector?deeplinkScheme=https",
-          "vault.bitwarden.com",
-        );
-        expect(buildMobileDeeplinkUriFromParam("webauthn")).toBe(
+      it("returns https://bitwarden.com for .com vaults", () => {
+        jest
+          .mocked(common.getLocationHref)
+          .mockReturnValue("https://vault.bitwarden.com/connector?deeplinkScheme=https");
+        jest.mocked(common.getLocationHostname).mockReturnValue("vault.bitwarden.com");
+        expect(common.buildMobileDeeplinkUriFromParam("webauthn")).toBe(
           "https://bitwarden.com/webauthn-callback",
         );
       });
 
-      it.skip("returns https://bitwarden.eu for .eu vaults", () => {
-        setLocation(
-          "https://vault.bitwarden.eu/connector?deeplinkScheme=https",
-          "vault.bitwarden.eu",
-        );
-        expect(buildMobileDeeplinkUriFromParam("webauthn")).toBe(
+      it("returns https://bitwarden.eu for .eu vaults", () => {
+        jest
+          .mocked(common.getLocationHref)
+          .mockReturnValue("https://vault.bitwarden.eu/connector?deeplinkScheme=https");
+        jest.mocked(common.getLocationHostname).mockReturnValue("vault.bitwarden.eu");
+        expect(common.buildMobileDeeplinkUriFromParam("webauthn")).toBe(
           "https://bitwarden.eu/webauthn-callback",
         );
       });
 
-      it.skip("returns https://bitwarden.pw for .pw vaults", () => {
-        setLocation(
-          "https://vault.bitwarden.pw/connector?deeplinkScheme=https",
-          "vault.bitwarden.pw",
-        );
-        expect(buildMobileDeeplinkUriFromParam("webauthn")).toBe(
+      it("returns https://bitwarden.pw for .pw vaults", () => {
+        jest
+          .mocked(common.getLocationHref)
+          .mockReturnValue("https://vault.bitwarden.pw/connector?deeplinkScheme=https");
+        jest.mocked(common.getLocationHostname).mockReturnValue("vault.bitwarden.pw");
+        expect(common.buildMobileDeeplinkUriFromParam("webauthn")).toBe(
           "https://bitwarden.pw/webauthn-callback",
         );
       });
 
-      it.skip("defaults to bitwarden.com for unknown hostnames", () => {
-        setLocation(
-          "https://self-hosted.example.com/connector?deeplinkScheme=https",
-          "self-hosted.example.com",
-        );
-        expect(buildMobileDeeplinkUriFromParam("webauthn")).toBe(
+      it("defaults to bitwarden.com for unknown hostnames", () => {
+        jest
+          .mocked(common.getLocationHref)
+          .mockReturnValue("https://self-hosted.example.com/connector?deeplinkScheme=https");
+        jest.mocked(common.getLocationHostname).mockReturnValue("self-hosted.example.com");
+        expect(common.buildMobileDeeplinkUriFromParam("webauthn")).toBe(
           "https://bitwarden.com/webauthn-callback",
         );
       });
     });
 
     describe("when deeplinkScheme is not https", () => {
-      it.skip("returns bitwarden:// for bitwarden scheme", () => {
-        setLocation(
-          "https://vault.bitwarden.com/connector?deeplinkScheme=bitwarden",
-          "vault.bitwarden.com",
+      it("returns bitwarden:// for bitwarden scheme", () => {
+        jest
+          .mocked(common.getLocationHref)
+          .mockReturnValue("https://vault.bitwarden.com/connector?deeplinkScheme=bitwarden");
+        jest.mocked(common.getLocationHostname).mockReturnValue("vault.bitwarden.com");
+        expect(common.buildMobileDeeplinkUriFromParam("webauthn")).toBe(
+          "bitwarden://webauthn-callback",
         );
-        expect(buildMobileDeeplinkUriFromParam("webauthn")).toBe("bitwarden://webauthn-callback");
       });
 
-      it.skip("returns bitwarden:// when deeplinkScheme is absent", () => {
-        setLocation("https://vault.bitwarden.com/connector", "vault.bitwarden.com");
-        expect(buildMobileDeeplinkUriFromParam("webauthn")).toBe("bitwarden://webauthn-callback");
+      it("returns bitwarden:// when deeplinkScheme is absent", () => {
+        jest
+          .mocked(common.getLocationHref)
+          .mockReturnValue("https://vault.bitwarden.com/connector");
+        jest.mocked(common.getLocationHostname).mockReturnValue("vault.bitwarden.com");
+        expect(common.buildMobileDeeplinkUriFromParam("webauthn")).toBe(
+          "bitwarden://webauthn-callback",
+        );
       });
     });
 
     describe("duo kind", () => {
-      it.skip("builds correct path for duo callbacks", () => {
-        setLocation(
-          "https://vault.bitwarden.com/connector?deeplinkScheme=https",
-          "vault.bitwarden.com",
+      it("builds correct path for duo callbacks", () => {
+        jest
+          .mocked(common.getLocationHref)
+          .mockReturnValue("https://vault.bitwarden.com/connector?deeplinkScheme=https");
+        jest.mocked(common.getLocationHostname).mockReturnValue("vault.bitwarden.com");
+        expect(common.buildMobileDeeplinkUriFromParam("duo")).toBe(
+          "https://bitwarden.com/duo-callback",
         );
-        expect(buildMobileDeeplinkUriFromParam("duo")).toBe("https://bitwarden.com/duo-callback");
       });
     });
   });

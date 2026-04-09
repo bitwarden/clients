@@ -1,5 +1,5 @@
 export function getQsParam(name: string) {
-  const url = window.location.href;
+  const url = getLocationHref();
   // eslint-disable-next-line
   name = name.replace(/[\[\]]/g, "\\$&");
   const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");

@@ -2235,14 +2235,13 @@ describe("AutofillOverlayContentService", () => {
         document.body.innerHTML = `<iframe id="subframe" src="${iframeSource}"></iframe>`;
       });
 
-      // ❌ Skipped: jsdom does not allow redefining globalThis.location (causes TypeError in tests)
-      // This test requires globalThis.location to be mocked to test invalid URL parsing
-      it.skip("returns null if the sub frame URL cannot be parsed correctly", async () => {
-        // globalThis.location = { href: "invalid-base" } as Location;
+      it("returns null if the sub frame URL cannot be parsed correctly", async () => {
+        // Pass an invalid URL that cannot be parsed
+        const invalidUrl = "not a valid url at all";
         sendMockExtensionMessage(
           {
             command: "getSubFrameOffsets",
-            subFrameUrl: iframeSource,
+            subFrameUrl: invalidUrl,
           },
           mock<chrome.runtime.MessageSender>(),
           sendResponseSpy,

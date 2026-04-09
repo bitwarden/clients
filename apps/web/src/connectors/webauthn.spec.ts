@@ -15,6 +15,7 @@ jest.mock("./common", () => {
   return {
     ...actual,
     navigateToUrl: jest.fn(),
+    getLocationHref: jest.fn(),
   };
 });
 
@@ -52,10 +53,11 @@ describe("webauthn connector (main baseline)", () => {
   });
 
   function setWindowLocation(url: string) {
-    // Note: These tests will use this URL, but window.location cannot actually be modified in jsdom.
-    // getQsParam() reads window.location.href directly, so these tests may not work as expected.
-    // Tests that depend on query parameter mocking (like deeplinkScheme) should use .skip()
-    // until getQsParam is wrapped with a testable method.
+    // Mock wrapper functions so getQsParam can be tested
+    // Previously could not mock window.location in jsdom, now we mock getLocationHref()
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const commonModule = require("./common");
+    jest.mocked(commonModule.getLocationHref).mockReturnValue(url);
   }
 
   function mockCredentials(behavior: "reject" | "resolve") {
