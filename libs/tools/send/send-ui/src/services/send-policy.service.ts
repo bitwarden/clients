@@ -101,11 +101,12 @@ export class SendPolicyService {
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
             map((policies) => {
               const policy = policies?.find((p) => p.data?.allowedDomains);
-              const raw = policy?.data?.allowedDomains as string[];
+              const raw = policy?.data?.allowedDomains as string;
               if (!raw) {
                 return null;
               }
               return raw
+                .split(",")
                 .map((d: string) => d.trim().toLowerCase())
                 .filter((d: string) => d.length > 0);
             }),
