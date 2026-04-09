@@ -293,6 +293,20 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
+  putOrganizationUserRecoverAccount(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserResetPasswordRequest,
+  ): Promise<void> {
+    return this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/" + id + "/recover-account",
+      request,
+      true,
+      false,
+    );
+  }
+
   removeOrganizationUser(organizationId: string, id: string): Promise<any> {
     return this.apiService.send(
       "DELETE",
