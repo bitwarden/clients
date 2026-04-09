@@ -141,7 +141,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     for (const details of emergencyAccessV1Memberships) {
       const dialogRef = EmergencyAccessTrustComponent.open(this.dialogService, {
         name: details.name,
-        userId: details.id as string,
+        userId: details.grantee_id as string,
         publicKey: Utils.fromB64ToArray(details.public_key),
       });
       if (!(await firstValueFrom(dialogRef.closed))) {
