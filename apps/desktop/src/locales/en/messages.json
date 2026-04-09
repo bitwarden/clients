@@ -4767,7 +4767,7 @@
     "message": "One or more domains are invalid"
   },
   "domainNotAllowed": {
-    "message": "Due to an Enterpise policy you can only expose Sends to emails with domains $DOMAINS$",
+    "message": "Due to an Enterprise policy you can only expose Sends to emails with domains $DOMAINS$",
     "placeholders": {
       "domains": {
         "content": "$1"
