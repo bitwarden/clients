@@ -389,5 +389,73 @@ describe("AutofillOptionsComponent", () => {
         "assertive",
       );
     });
+
+    it("should reorder URI input via keyboard k (move up)", async () => {
+      // Clear and add exactly two URIs.
+      component.autofillOptionsForm.controls.uris.clear();
+      component.addUri({ uri: "https://first.com", matchDetection: null });
+      component.addUri({ uri: "https://second.com", matchDetection: null });
+      fixture.detectChanges();
+
+      // Simulate pressing k on the second URI (index 1)
+      const keyEvent = {
+        key: "k",
+        preventDefault: jest.fn(),
+        target: document.createElement("button"),
+      } as unknown as KeyboardEvent;
+
+      jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb: FrameRequestCallback) => {
+        cb(new Date().getTime());
+        return 0;
+      });
+      (liveAnnouncer.announce as jest.Mock).mockResolvedValue(null);
+
+      await component.onUriItemKeydown(keyEvent, 1);
+      fixture.detectChanges();
+
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        1,
+        0,
+      );
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+        "reorderFieldUp websiteUri 1 2",
+        "assertive",
+      );
+    });
+
+    it("should reorder URI input via keyboard j (move down)", async () => {
+      // Clear and add exactly three URIs.
+      component.autofillOptionsForm.controls.uris.clear();
+      component.addUri({ uri: "https://first.com", matchDetection: null });
+      component.addUri({ uri: "https://second.com", matchDetection: null });
+      component.addUri({ uri: "https://third.com", matchDetection: null });
+      fixture.detectChanges();
+
+      // Simulate pressing j on the second URI (index 1)
+      const keyEvent = {
+        key: "j",
+        preventDefault: jest.fn(),
+        target: document.createElement("button"),
+      } as unknown as KeyboardEvent;
+
+      jest.spyOn(window, "requestAnimationFrame").mockImplementation((cb: FrameRequestCallback) => {
+        cb(new Date().getTime());
+        return 0;
+      });
+      (liveAnnouncer.announce as jest.Mock).mockResolvedValue(null);
+
+      await component.onUriItemKeydown(keyEvent, 1);
+
+      expect(moveItemInArray).toHaveBeenCalledWith(
+        component.autofillOptionsForm.controls.uris.controls,
+        1,
+        2,
+      );
+      expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+        "reorderFieldDown websiteUri 3 3",
+        "assertive",
+      );
+    });
   });
 });
