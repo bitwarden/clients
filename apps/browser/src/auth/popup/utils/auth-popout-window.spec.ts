@@ -78,6 +78,29 @@ describe("AuthPopoutWindow", () => {
 
       expect(BrowserApi.removeWindow).toHaveBeenCalledWith(loginTab.windowId);
     });
+
+    it("queues the pending notification after the popout is created", async () => {
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValue([]);
+      const callOrder: string[] = [];
+      openPopoutSpy.mockImplementation(async (..._: any[]) => {
+        callOrder.push("openPopout");
+        return undefined as any;
+      });
+      sendMessageDataSpy.mockImplementation(async (_tab: any, command: string) => {
+        callOrder.push(`notification:${command}`);
+      });
+
+      await openUnlockPopout(senderTab, {
+        commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender: {} as any },
+        target: "overlay.background",
+      });
+
+      expect(callOrder).toEqual([
+        "openPopout",
+        "notification:addToLockedVaultPendingNotifications",
+        "notification:bgUnlockPopoutOpened",
+      ]);
+    });
   });
 
   describe("closeUnlockPopout", () => {
