@@ -476,12 +476,21 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
 
-    // Re-evaluate edit permissions now that we have a saved cipher (e.g. after creating a new one)
+    // Clear the back action to avoid going back to the new item dialog
+    this.backAction = undefined;
+
+    // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
     this.canEdit = await firstValueFrom(
       this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
     );
-    // Clear the back action to avoid going back to the new item dialog
-    this.backAction = undefined;
+
+    this.canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(
+        this.cipher,
+        this.params.isAdminConsoleAction,
+      ),
+    );
+
     await this.changeMode("view");
   }
 
