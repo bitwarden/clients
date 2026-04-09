@@ -13,6 +13,7 @@ export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
+export { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
 
 export * from "./cipher-view";
 export * from "./cipher-form";
