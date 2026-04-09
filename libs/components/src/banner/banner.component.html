@@ -6,6 +6,9 @@
 >
   <div class="tw-flex tw-flex-1 tw-gap-3" [class]="alignClass()">
     @if (displayIcon(); as icon) {
+      <!-- Two icon tiles are needed here because `size` is a TypeScript input — it can't change in
+           response to a CSS container query. We use two elements with opposing visibility classes
+           to swap between base and lg at the @5xl breakpoint. -->
       <bit-icon-tile
         [icon]="icon"
         [variant]="variant()"

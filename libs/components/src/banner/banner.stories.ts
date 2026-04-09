@@ -79,8 +79,8 @@ export const TitleBannerBase: Story = {
           <span bitBannerTitle>Integration is the key</span>
           Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
           <ng-container slot="actions">
-            <button bitButton type="button" buttonType="secondary">Cancel</button>
-            <button bitButton type="button" buttonType="primary">Continue</button>
+            <button bitButton type="button" [buttonType]="variant + 'Outline'" size="small">Cancel</button>
+            <button bitButton type="button" [buttonType]="variant" size="small">Continue</button>
           </ng-container>
         </bit-banner>
       `,
@@ -133,8 +133,8 @@ export const AllVariantsWithTitle: Story = {
             <span bitBannerTitle>Integration is the key</span>
             You can integrate Bitwarden with many tools. <a bitLink [linkType]="v">Learn more</a>
             <ng-container slot="actions">
-              <button bitButton type="button" buttonType="secondary">Cancel</button>
-              <button bitButton type="button" buttonType="primary">Continue</button>
+              <button bitButton type="button" [buttonType]="v + 'Outline'" size="small">Cancel</button>
+              <button bitButton type="button" [buttonType]="v" size="small">Continue</button>
             </ng-container>
           </bit-banner>
         }
@@ -155,8 +155,8 @@ export const AllVariantsCustomIcon: Story = {
             <span bitBannerTitle>Custom icon example</span>
             Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
             <ng-container slot="actions">
-              <button bitButton type="button" buttonType="secondary">Cancel</button>
-              <button bitButton type="button" buttonType="primary">Continue</button>
+              <button bitButton type="button" [buttonType]="v + 'Outline'" size="small">Cancel</button>
+              <button bitButton type="button" [buttonType]="v" size="small">Continue</button>
             </ng-container>
           </bit-banner>
         }
@@ -166,6 +166,21 @@ export const AllVariantsCustomIcon: Story = {
       variants: ["primary", "success", "warning", "danger"],
     },
   }),
+};
+
+export const NoIcon: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-banner [variant]="variant" [showClose]="showClose" [icon]="null">
+        Bitwarden is the most trusted password manager for individuals and teams.
+      </bit-banner>
+    `,
+  }),
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
 };
 
 export const BadgeTitle: Story = {
@@ -179,7 +194,8 @@ export const BadgeTitle: Story = {
         </span>
         Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
         <ng-container slot="actions">
-          This change affects all organization members. <a bitLink linkType="primary">Read the release notes</a>
+          <button bitButton type="button" [buttonType]="variant + 'Outline'" size="small">Cancel</button>
+          <button bitButton type="button" [buttonType]="variant" size="small">Continue</button>
         </ng-container>
       </bit-banner>
     `,
