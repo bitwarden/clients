@@ -619,7 +619,11 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
+    this.fileUploadService = new FileUploadService(
+      this.logService,
+      this.apiService,
+      this.configService,
+    );
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
@@ -636,6 +640,7 @@ export class ServiceContainer {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
+      this.configService,
     );
 
     this.sendApiService = this.sendApiService = new SendApiService(
