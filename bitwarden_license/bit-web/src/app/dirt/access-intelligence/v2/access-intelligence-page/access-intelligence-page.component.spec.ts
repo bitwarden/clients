@@ -16,6 +16,7 @@ import {
   createReport,
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -53,6 +54,7 @@ describe("AccessIntelligencePageComponent", () => {
   let mockI18nService: jest.Mocked<I18nService>;
   let mockDialogService: jest.Mocked<DialogService>;
   let mockLogService: jest.Mocked<LogService>;
+  let mockConfigService: jest.Mocked<ConfigService>;
   let mockRouter: jest.Mocked<Router>;
   let mockActivatedRoute: {
     paramMap: BehaviorSubject<any>;
@@ -112,6 +114,10 @@ describe("AccessIntelligencePageComponent", () => {
       debug: jest.fn(),
     } as any;
 
+    mockConfigService = {
+      getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+    } as any;
+
     mockRouter = {
       navigate: jest.fn().mockResolvedValue(true),
     } as any;
@@ -129,6 +135,7 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: DialogService, useValue: mockDialogService },
         { provide: LogService, useValue: mockLogService },
+        { provide: ConfigService, useValue: mockConfigService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
@@ -181,6 +188,32 @@ describe("AccessIntelligencePageComponent", () => {
         newOrgId,
       );
       expect(testAccess(component).organizationId()).toBe(newOrgId);
+    });
+
+    it("should start with initializing as true", () => {
+      expect(testAccess(component).initializing()).toBe(true);
+    });
+
+    it("should set initializing to false after initialization completes", async () => {
+      await component.ngOnInit();
+
+      expect(testAccess(component).initializing()).toBe(false);
+    });
+
+    it("should reset initializing to true when switching organizations", async () => {
+      const newOrgId = "org-456" as OrganizationId;
+      let initializingDuringSwitch: boolean | null = null;
+
+      mockAccessIntelligenceService.initializeForOrganization$.mockImplementation(() => {
+        initializingDuringSwitch = testAccess(component).initializing();
+        return of(undefined);
+      });
+
+      await component.ngOnInit();
+      mockActivatedRoute.paramMap.next(new Map([["organizationId", newOrgId]]) as any);
+
+      expect(initializingDuringSwitch).toBe(true);
+      expect(testAccess(component).initializing()).toBe(false);
     });
 
     it("should set default tab from query params", async () => {
