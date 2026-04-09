@@ -14,7 +14,7 @@ import {
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { FormsMapResource, TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
+import { TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -196,14 +196,31 @@ export class TargetingRulesDataService {
       throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
     }
 
-    const resource: FormsMapResource = await response.json();
-    const rules: TargetingRulesByDomain = resource?.hosts ?? {};
+    const resource = await response.json();
 
-    if (resource?.schemaVersion) {
-      this.logService.debug(
-        `[TargetingRulesDataService] Resource schema version: ${resource.schemaVersion}`,
-      );
+    if (resource == null || typeof resource !== "object") {
+      throw new Error("Invalid targeting rules resource: not an object");
     }
+
+    // Reject incompatible schema versions (current: v1.x)
+    const version = resource.schemaVersion;
+    if (typeof version === "string" && !version.startsWith("1.")) {
+      throw new Error(`Unsupported targeting rules schema version: ${version}`);
+    }
+
+    if (
+      typeof resource.hosts !== "object" ||
+      resource.hosts === null ||
+      Array.isArray(resource.hosts)
+    ) {
+      throw new Error("Invalid targeting rules resource: missing or malformed 'hosts'");
+    }
+
+    if (version) {
+      this.logService.debug(`[TargetingRulesDataService] Resource schema version: ${version}`);
+    }
+
+    const rules: TargetingRulesByDomain = resource.hosts;
 
     await this.domainSettingsService.setTargetingRules(rules);
     await this._metaState.update((existing) => ({
