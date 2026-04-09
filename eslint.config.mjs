@@ -128,6 +128,11 @@ export default tseslint.config(
               message: "Libs should not import app-specific code.",
             },
             {
+              target: ["libs/**/*"],
+              from: ["bitwarden_license/**/*"],
+              message: "Libs should not import licensed code from bitwarden_license/.",
+            },
+            {
               // avoid specific frameworks or large dependencies in common
               target: "./libs/common/**/*",
               from: [
