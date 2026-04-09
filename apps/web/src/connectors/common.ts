@@ -13,7 +13,6 @@ export function isKnownCloudOrigin(): boolean {
  * Determines the targetOrigin for postMessage calls from the connector.
  *
  * Desktop (file:// parent): preserves the provided parentUrl for Electron compatibility.
- * Other environments: preserves the provided parentUrl.
  */
 export function resolvePostMessageOrigin(parentUrl: string | null): string | null {
   if (parentUrl) {
