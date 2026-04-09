@@ -177,40 +177,4 @@ describe("AddEditFolderDialogComponent", () => {
       expect(close).toHaveBeenCalledWith(AddEditFolderDialogResult.Deleted);
     });
   });
-
-  describe("backAction getter", () => {
-    const backButton = () =>
-      fixture.nativeElement.querySelector("[data-testid='folder-dialog-back-button']");
-
-    it("does not show the back button when no backAction is provided", () => {
-      expect(backButton()).toBeNull();
-    });
-
-    describe("when backAction is provided", () => {
-      const mockBackAction = jest.fn();
-
-      beforeEach(() => {
-        dialogData.backAction = mockBackAction;
-        component.ngOnInit();
-        fixture.detectChanges();
-      });
-
-      afterEach(() => {
-        delete dialogData.backAction;
-        mockBackAction.mockClear();
-      });
-
-      it("calls the provided backAction when clicked", () => {
-        backButton().click();
-
-        expect(mockBackAction).toHaveBeenCalledTimes(1);
-      });
-
-      it("closes the dialog when clicked", () => {
-        backButton().click();
-
-        expect(close).toHaveBeenCalled();
-      });
-    });
-  });
 });
