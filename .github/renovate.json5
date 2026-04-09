@@ -13,12 +13,12 @@
     {
       groupName: "dockerfile minor",
       matchManagers: ["dockerfile"],
-      matchUpdateTypes: ["minor", "patch"],
+      matchUpdateTypes: ["minor"],
     },
     {
       groupName: "docker-compose minor",
       matchManagers: ["docker-compose"],
-      matchUpdateTypes: ["minor", "patch"],
+      matchUpdateTypes: ["minor"],
     },
     {
       // Enable support for Rust toolchain updates.
