@@ -107,7 +107,7 @@ describe("ContextMenuClickedHandler", () => {
   describe("run", () => {
     beforeEach(() => {
       authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
-      userVerificationService.hasMasterPasswordAndMasterKeyHash.mockResolvedValue(false);
+      userVerificationService.hasMasterPassword.mockResolvedValue(false);
     });
 
     const runWithUrl = (data: chrome.contextMenus.OnClickData) =>
