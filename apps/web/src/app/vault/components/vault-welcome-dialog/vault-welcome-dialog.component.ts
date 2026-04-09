@@ -15,6 +15,8 @@ import {
 } from "@bitwarden/components";
 import { StateProvider, UserKeyDefinition, VAULT_WELCOME_DIALOG_DISK } from "@bitwarden/state";
 
+import { CoachmarkService } from "../coachmark/coachmark.service";
+
 export const VaultWelcomeDialogResult = {
   Dismissed: "dismissed",
   GetStarted: "getStarted",
@@ -40,10 +42,11 @@ const VAULT_WELCOME_DIALOG_ACKNOWLEDGED_KEY = new UserKeyDefinition<boolean>(
   imports: [CommonModule, DialogModule, ButtonModule, TypographyModule, JslibModule],
 })
 export class VaultWelcomeDialogComponent {
-  private accountService = inject(AccountService);
-  private stateProvider = inject(StateProvider);
+  private readonly accountService = inject(AccountService);
+  private readonly stateProvider = inject(StateProvider);
+  private readonly coachmarkService = inject(CoachmarkService);
 
-  constructor(private dialogRef: DialogRef<VaultWelcomeDialogResult>) {}
+  constructor(private readonly dialogRef: DialogRef<VaultWelcomeDialogResult>) {}
 
   protected async onDismiss(): Promise<void> {
     await this.setAcknowledged();
@@ -53,6 +56,7 @@ export class VaultWelcomeDialogComponent {
   protected async onPrimaryCta(): Promise<void> {
     await this.setAcknowledged();
     this.dialogRef.close(VaultWelcomeDialogResult.GetStarted);
+    await this.coachmarkService.startTour();
   }
 
   private async setAcknowledged(): Promise<void> {

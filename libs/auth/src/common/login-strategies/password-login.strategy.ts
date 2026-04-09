@@ -13,13 +13,18 @@ import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/model
 import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import {
+  PasswordPreloginData,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+import { UnlockService } from "@bitwarden/unlock";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
@@ -36,6 +41,8 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   masterKey: MasterKey;
   /** The user's master password */
   masterPassword: string;
+  /** Whether unlock service should be used for this login flow. */
+  unlockServiceForPasswordLogin = false;
   /**
    * Tracks if the user needs to update their password due to
    * a password that does not meet an organization's master password policy.
@@ -65,7 +72,8 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data: PasswordLoginStrategyData,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
-    private loginStrategyService: LoginStrategyServiceAbstraction,
+    private passwordPreloginService: PasswordPreloginService,
+    private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -79,14 +87,21 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
-    const { email, masterPassword, twoFactor } = credentials;
+    const unlockServiceForPasswordLogin = await this.configService.getFeatureFlag(
+      FeatureFlag.UseUnlockServiceForPasswordLogin,
+    );
+
+    const { email, masterPassword, twoFactor, preFetchedPreloginData } = credentials;
 
     const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.loginStrategyService.makePasswordPreLoginMasterKey(
+    data.masterKey = await this.makePasswordPreloginMasterKey(
       masterPassword,
       email,
+      preFetchedPreloginData,
     );
+    this.passwordPreloginService.clearCache();
     data.masterPassword = masterPassword;
+    data.unlockServiceForPasswordLogin = unlockServiceForPasswordLogin;
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
@@ -120,31 +135,36 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    const { masterKey, localMasterKeyHash } = this.cache.value;
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+    if (!this.cache.value.unlockServiceForPasswordLogin) {
+      const { masterKey, localMasterKeyHash } = this.cache.value;
+      await this.masterPasswordService.setMasterKey(masterKey, userId);
+      await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+    }
   }
 
   protected override async setUserKey(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    // If migration is required, we won't have a user key to set yet.
-    if (this.encryptionKeyMigrationRequired(response)) {
-      return;
-    }
-
-    if (response.key) {
+    if (this.cache.value.unlockServiceForPasswordLogin) {
+      await this.unlockService.unlockWithMasterPassword(userId, this.cache.value.masterPassword);
+    } else {
+      // If migration is required, we won't have a user key to set yet.
+      if (this.encryptionKeyMigrationRequired(response)) {
+        return;
+      }
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-        masterKey,
-        userId,
-      );
-      await this.keyService.setUserKey(userKey, userId);
+      // Warning: State is accessed right after state is set. This could lead to a race condition
+      // in some cases where decryptUserKeyWithMasterKey will get a null encrypted user-key!!
+      // https://github.com/bitwarden/clients/tree/afc45ee0c8fc823301bb361b0dcac581eb0aff0c/libs/state#updating-state-with-update
+      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+      if (masterKey) {
+        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
+          masterKey,
+          userId,
+        );
+        await this.keyService.setUserKey(userKey, userId);
+      }
     }
   }
 
@@ -160,6 +180,26 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
     return !response.key;
+  }
+
+  private async makePasswordPreloginMasterKey(
+    masterPassword: string,
+    email: string,
+    preFetchedPreloginData?: PasswordPreloginData,
+  ): Promise<MasterKey> {
+    // if we have prefetched prelogin data, use it
+    if (preFetchedPreloginData) {
+      return this.keyService.makeMasterKey(masterPassword, email, preFetchedPreloginData.kdfConfig);
+    }
+
+    // No prefetched data — fetch now. PasswordPreloginData.fromResponse validates the KDF config.
+    const preloginData = await firstValueFrom(this.passwordPreloginService.getPreloginData$(email));
+
+    if (!preloginData) {
+      throw new Error("KDF config is required");
+    }
+
+    return this.keyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
   }
 
   private async evaluateMasterPasswordIfRequired(

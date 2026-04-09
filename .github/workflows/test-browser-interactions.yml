@@ -49,9 +49,7 @@ jobs:
       uses: bitwarden/gh-actions/azure-logout@main
 
     - name: Generate GH App token
-      # NOTE: versions of actions/create-github-app-token after 2.0.3 break this workflow
-      # Remediation is tracked in https://bitwarden.atlassian.net/browse/PM-28174
-      uses: actions/create-github-app-token@30bf6253fa41bdc8d1501d202ad15287582246b4 # v2.0.3
+      uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
       id: app-token
       with:
         app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
@@ -59,10 +57,11 @@ jobs:
         owner: bitwarden
         repositories: browser-interactions-testing
         permission-actions: write
+        permission-contents: write
 
     - name: Get changed files
       id: changed-files
-      uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+      uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
       with:
         list-files: shell
         ref: ${{ github.event.workflow_run.head_branch }}

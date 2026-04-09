@@ -5,7 +5,6 @@ import { program, Command, OptionValues } from "commander";
 import { firstValueFrom, of, switchMap } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { LockCommand } from "./auth/commands/lock.command";
 import { LoginCommand } from "./auth/commands/login.command";
@@ -27,10 +26,6 @@ const writeLn = CliUtils.writeLn;
 
 export class Program extends BaseProgram {
   async register() {
-    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
     program
       .option("--pretty", "Format output. JSON is tabbed with two spaces.")
       .option("--raw", "Return raw output instead of a descriptive message.")
@@ -99,9 +94,7 @@ export class Program extends BaseProgram {
         "    bw edit folder c7c7b60b-9c61-40f2-8ccd-36c49595ed72 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==",
       );
       writeLn("    bw delete item 99ee88d2-6046-4ea7-92c2-acac464b1412");
-      if (isArchivedEnabled) {
-        writeLn("    bw archive item 99ee88d2-6046-4ea7-92c2-acac464b1412");
-      }
+      writeLn("    bw archive item 99ee88d2-6046-4ea7-92c2-acac464b1412");
       writeLn("    bw generate -lusn --length 18");
       writeLn("    bw config server https://bitwarden.example.com");
       writeLn("    bw send -f ./file.ext");
@@ -176,22 +169,15 @@ export class Program extends BaseProgram {
             this.serviceContainer.loginStrategyService,
             this.serviceContainer.authService,
             this.serviceContainer.twoFactorApiService,
-            this.serviceContainer.masterPasswordApiService,
             this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.environmentService,
             this.serviceContainer.passwordGenerationService,
-            this.serviceContainer.passwordStrengthService,
             this.serviceContainer.platformUtilsService,
             this.serviceContainer.accountService,
-            this.serviceContainer.keyService,
-            this.serviceContainer.policyService,
             this.serviceContainer.twoFactorService,
             this.serviceContainer.syncService,
             this.serviceContainer.keyConnectorService,
-            this.serviceContainer.policyApiService,
-            this.serviceContainer.organizationService,
             async () => await this.serviceContainer.logout(),
-            this.serviceContainer.kdfConfigService,
             this.serviceContainer.ssoUrlService,
             this.serviceContainer.i18nService,
             this.serviceContainer.masterPasswordService,
@@ -313,6 +299,8 @@ export class Program extends BaseProgram {
             this.serviceContainer.i18nService,
             this.serviceContainer.encryptedMigrator,
             this.serviceContainer.masterPasswordUnlockService,
+            this.serviceContainer.unlockService,
+            this.serviceContainer.configService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);

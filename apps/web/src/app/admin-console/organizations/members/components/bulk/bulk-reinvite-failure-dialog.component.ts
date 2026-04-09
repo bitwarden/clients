@@ -25,13 +25,13 @@ export interface BulkReinviteFailureDialogParams {
   standalone: false,
 })
 export class BulkReinviteFailureDialogComponent {
-  private organization: Organization;
-  protected totalCount: string;
+  private readonly organization: Organization;
+  protected readonly totalCount: string;
   protected readonly dataSource: WritableSignal<MembersTableDataSource>;
 
   constructor(
-    public dialogRef: DialogRef,
-    private memberActionsService: MemberActionsService,
+    readonly dialogRef: DialogRef,
+    private readonly memberActionsService: MemberActionsService,
     @Inject(DIALOG_DATA) data: BulkReinviteFailureDialogParams,
     environmentService: EnvironmentService,
   ) {

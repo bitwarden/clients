@@ -1,3 +1,5 @@
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,12 +18,15 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 import { AutoConfirmPolicyDialogComponent } from "../policy-edit-dialogs/auto-confirm-edit-policy-dialog.component";
 
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   name = "automaticUserConfirmation";
   description = "autoConfirmDescription";
   type = PolicyType.AutoConfirm;
+  category = PolicyCategory.VaultManagement;
+  priority = 90;
   component = AutoConfirmPolicyEditComponent;
   showDescription = false;
   editDialogComponent = AutoConfirmPolicyDialogComponent;

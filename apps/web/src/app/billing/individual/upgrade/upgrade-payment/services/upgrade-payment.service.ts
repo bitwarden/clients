@@ -53,7 +53,7 @@ export type PaymentFormValues = {
 /**
  * Service for handling payment submission and sales tax calculation for upgrade payment component
  */
-@Injectable()
+@Injectable({ providedIn: "root" })
 export class UpgradePaymentService {
   constructor(
     private organizationBillingService: OrganizationBillingServiceAbstraction,
@@ -97,6 +97,7 @@ export class UpgradePaymentService {
   async calculateEstimatedTax(
     planDetails: PlanDetails,
     billingAddress: BillingAddress,
+    coupons?: string[],
   ): Promise<number> {
     const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
     const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
@@ -115,6 +116,7 @@ export class UpgradePaymentService {
         this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           request,
           billingAddress,
+          coupons,
         );
     }
 
@@ -122,6 +124,7 @@ export class UpgradePaymentService {
       previewInvoiceClientCall = this.previewInvoiceClient.previewTaxForPremiumSubscriptionPurchase(
         0,
         billingAddress,
+        coupons,
       );
     }
 
@@ -144,10 +147,11 @@ export class UpgradePaymentService {
   async upgradeToPremium(
     paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+    coupons?: string[],
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress);
+    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress, coupons);
 
     await this.refreshAndSync();
   }
@@ -160,6 +164,7 @@ export class UpgradePaymentService {
     planDetails: PlanDetails,
     paymentMethod: TokenizedPaymentMethod,
     formValues: PaymentFormValues,
+    coupons?: string[],
   ): Promise<OrganizationResponse> {
     const billingAddress = formValues.billingAddress;
 
@@ -193,6 +198,7 @@ export class UpgradePaymentService {
           postalCode: billingAddress.postalCode,
         },
       },
+      ...(coupons?.length ? { coupons } : {}),
     };
 
     const result = await this.organizationBillingService.purchaseSubscription(

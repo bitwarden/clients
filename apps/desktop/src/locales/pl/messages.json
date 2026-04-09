@@ -332,10 +332,26 @@
     "message": "Zapamiętaj aż sejf będzie zablokowany"
   },
   "premiumRequired": {
-    "message": "Konto premium jest wymagane"
+    "message": "Konto Premium jest wymagane"
   },
   "premiumRequiredDesc": {
-    "message": "Konto premium jest wymagane, aby skorzystać z tej funkcji."
+    "message": "Konto Premium jest wymagane, aby skorzystać z tej funkcji."
+  },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
   },
   "errorOccurred": {
     "message": "Wystąpił błąd."
@@ -590,10 +606,10 @@
     "message": "Element został zapisany"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Element został dodany do ulubionych"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Element został usunięty z ulubionych"
   },
   "deleteItem": {
     "message": "Usuń element"
@@ -782,7 +798,7 @@
     "message": "Dodaj załącznik"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Elementy zostały przeniesione"
   },
   "fixEncryption": {
     "message": "Fix encryption"
@@ -904,6 +920,9 @@
   },
   "masterPassHintLabel": {
     "message": "Podpowiedź do hasła głównego"
+  },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
   },
   "passwordStrengthScore": {
     "message": "Siła hasła wynosi $SCORE$",
@@ -1196,14 +1215,35 @@
   "updateEncryptionSettingsDesc": {
     "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Wpisz hasło główne"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Zaktualizuj ustawienia"
   },
   "featureUnavailable": {
     "message": "Funkcja jest niedostępna"
@@ -1275,10 +1315,13 @@
     "message": "Obserwuj nas"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Synchronizuj teraz"
   },
   "changeMasterPass": {
     "message": "Zmień hasło główne"
+  },
+  "changeMasterPassword": {
+    "message": "Change master password"
   },
   "continueToWebApp": {
     "message": "Kontynuować przejście do aplikacji internetowej?"
@@ -1358,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Logowanie dwustopniowe"
   },
-  "vaultTimeoutHeader": {
-    "message": "Blokowanie sejfu"
-  },
   "vaultTimeout": {
     "message": "Blokowanie sejfu"
   },
   "vaultTimeout1": {
     "message": "Blokada aplikacji"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Sposób blokady"
   },
   "vaultTimeoutDesc": {
     "message": "Wybierz, kiedy sejf zostanie zablokowany i wykonaj następującą akcję."
@@ -1565,16 +1602,16 @@
     "message": "Nieznane"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopiuj adres"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopiuj numer telefonu"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Kopiuj notatkę"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Kopiuj kod weryfikacyjny"
   },
   "copyUsername": {
     "message": "Kopiuj nazwę użytkownika"
@@ -1594,7 +1631,7 @@
     "message": "numer karty"
   },
   "premiumMembership": {
-    "message": "Konto premium"
+    "message": "Konto Premium"
   },
   "premiumManage": {
     "message": "Zarządzaj kontem premium"
@@ -1606,10 +1643,10 @@
     "message": "Odśwież konto premium"
   },
   "premiumNotCurrentMember": {
-    "message": "Nie masz konta premium."
+    "message": "Nie masz konta Premium."
   },
   "premiumSignUpAndGet": {
-    "message": "Ulepsz konto do wersji premium, aby otrzymać:"
+    "message": "Ulepsz konto do wersji Premium, aby otrzymać:"
   },
   "premiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
@@ -1636,16 +1673,16 @@
     "message": "Priorytetowe wsparcie klienta."
   },
   "premiumSignUpFuture": {
-    "message": "Wszystkie przyszłe funkcje premium. Więcej już wkrótce!"
+    "message": "Wszystkie przyszłe funkcje Premium. Więcej już wkrótce!"
   },
   "premiumPurchase": {
-    "message": "Kup konto premium"
+    "message": "Kup konto Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Możesz kupić konto premium w aplikacji internetowej Bitwarden."
+    "message": "Możesz kupić konto Premium w aplikacji internetowej Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "Masz konto premium!"
+    "message": "Masz konto Premium!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Dziękujemy za wspieranie Bitwarden."
@@ -1658,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "miesiąc"
+  },
+  "monthly": {
+    "message": "Miesięcznie"
+  },
+  "year": {
+    "message": "rok"
+  },
+  "annually": {
+    "message": "Rocznie"
+  },
+  "annual": {
+    "message": "Rocznie"
   },
   "refreshComplete": {
     "message": "Odświeżanie zostało zakończone"
@@ -2050,7 +2102,7 @@
     "message": "Musisz wybrać co najmniej jedną kolekcję."
   },
   "premiumUpdated": {
-    "message": "Konto premium zostało zaktualizowane."
+    "message": "Konto Premium zostało zaktualizowane."
   },
   "restore": {
     "message": "Przywróć"
@@ -2074,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Niezapisane zmiany"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Jeśli wyjdziesz teraz, zmiany nie zostaną zapisane. Zainstaluj aktualizację później, abyś mógł pozostać na stronie i zapisać zmiany."
+  },
+  "installLater": {
+    "message": "Zainstaluj później"
+  },
+  "continueWithInstall": {
+    "message": "Kontynuuj instalację"
+  },
   "clone": {
     "message": "Klonuj"
   },
@@ -2088,9 +2149,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Zaloguj się ponownie, aby uzyskać dostęp do sejfu."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Ustaw metodę odblokowania, aby zmienić sposób blokowania sejfu."
   },
   "lock": {
     "message": "Zablokuj",
@@ -2186,6 +2244,9 @@
   "copyTOTP": {
     "message": "Kopiuj klucz uwierzytelniający (TOTP)"
   },
+  "copyNotes": {
+    "message": "Kopiuj notatki"
+  },
   "totpHelperTitle": {
     "message": "Bezproblemowa weryfikacja dwustopniowa"
   },
@@ -2274,6 +2335,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Nowe hasło główne nie spełnia wymaganych zasad."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Otrzymuj porady, ogłoszenia i możliwości badawcze od Bitwarden na swoją skrzynkę odbiorczą."
@@ -2418,7 +2482,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Ja"
   },
   "myVault": {
     "message": "Sejf"
@@ -2709,9 +2773,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Czas blokowania aplikacji przekracza limit określony przez organizację."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zasady organizacji zostały zastosowane do opcji blokowania sejfu"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
@@ -3154,7 +3215,7 @@
     "message": "Klucz API"
   },
   "premiumSubcriptionRequired": {
-    "message": "Wymagana jest subskrypcja premium"
+    "message": "Wymagana jest subskrypcja Premium"
   },
   "organizationIsDisabled": {
     "message": "Organizacja została zawieszona"
@@ -3745,6 +3806,9 @@
   "exportSuccess": {
     "message": "Dane sejfu zostały wyeksportowane"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Logowanie dwustopniowe zostało anulowane"
   },
@@ -4093,7 +4157,7 @@
     "message": "This application does not support duplicates."
   },
   "closeThisWindow": {
-    "message": "Close this window"
+    "message": "Zamknij okno"
   },
   "allowScreenshots": {
     "message": "Zezwalaj na wykonywanie zrzutów ekranu"
@@ -4451,13 +4515,13 @@
     "message": "Unarchive and save"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Odnów subskrypcję Premium"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Subskrypcja Premium wygasła"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it’ll be moved back into your vault."
+    "message": "Aby odzyskać dostęp do archiwum, odnów subskrypcję Premium. Jeśli przed wznowieniem subskrypcji edytujesz szczegóły archiwizowanego elementu, zostanie on przeniesiony z powrotem do sejfu."
   },
   "itemRestored": {
     "message": "Item has been restored"
@@ -4478,7 +4542,7 @@
     "message": "Secure file storage"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Dostęp awaryjny"
   },
   "breachMonitoring": {
     "message": "Breach monitoring"
@@ -4490,7 +4554,7 @@
     "message": "Advanced online security"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Kup konto Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -4499,10 +4563,10 @@
     "message": "Continue with log in"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Nie kontynuuj"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Domena"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -4609,7 +4673,7 @@
     "message": "How do I manage my vault?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Przenieś elementy do organizacji $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4617,26 +4681,29 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "Organizacja $ORGANIZATION$ wymaga, aby wszystkie elementy były ich własnością.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
+  },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknij akceptuj, aby przenieść własność elementów."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otwórz artykuł pomocy dotyczący przenoszenia elementów"
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Akceptuj"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
   },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
-  },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organizacja została zawieszona"
   },
   "organizationIsSuspendedDesc": {
     "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
@@ -4663,7 +4730,7 @@
     "message": "No search results returned"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Wyczyść filtry lub użyj innej frazy"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -4676,25 +4743,22 @@
     "message": "Emails"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Każdy, kto ma link"
   },
   "anyOneWithPassword": {
     "message": "Anyone with a password set by you"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Kto może odczytać"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Konkretni użytkownicy"
   },
   "emailVerificationDesc": {
     "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
