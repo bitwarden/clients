@@ -28,7 +28,6 @@ import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 import { StateProvider, StateService } from "@bitwarden/state";
 
-
 import { DefaultUnlockService } from "./default-unlock.service";
 
 const mockUserId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
