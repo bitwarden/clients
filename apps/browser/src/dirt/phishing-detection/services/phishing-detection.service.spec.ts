@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { Observable, of, Subject } from "rxjs";
+import { BehaviorSubject, Observable, Subject } from "rxjs";
 
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -10,11 +10,17 @@ import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
 import { PhishingDataService } from "./phishing-data.service";
 import { PhishingDetectionService } from "./phishing-detection.service";
 
-// Mock fromChromeEvent to return a controllable Subject
-const mockBeforeNavigate$ = new Subject<[chrome.webNavigation.WebNavigationBaseCallbackDetails]>();
+// Mock fromChromeEvent to return controllable Subjects per call order.
+// The service calls fromChromeEvent twice: first for onCommitted, then for onErrorOccurred.
+const mockOnCommitted$ = new Subject<
+  [chrome.webNavigation.WebNavigationTransitionCallbackDetails]
+>();
+const mockOnErrorOccurred$ = new Subject<
+  [chrome.webNavigation.WebNavigationErrorCallbackDetails]
+>();
 
 jest.mock("../../../platform/browser/from-chrome-event", () => ({
-  fromChromeEvent: jest.fn(() => mockBeforeNavigate$),
+  fromChromeEvent: jest.fn(),
 }));
 
 describe("PhishingDetectionService", () => {
@@ -29,8 +35,11 @@ describe("PhishingDetectionService", () => {
     dispose = undefined;
     jest.clearAllMocks();
 
-    // Re-wire the mock since clearAllMocks resets the implementation
-    (fromChromeEvent as jest.Mock).mockReturnValue(mockBeforeNavigate$);
+    // Re-wire the mock since clearAllMocks resets the implementation.
+    // Call order: 1st = onCommitted, 2nd = onErrorOccurred (matches service code)
+    (fromChromeEvent as jest.Mock)
+      .mockReturnValueOnce(mockOnCommitted$)
+      .mockReturnValueOnce(mockOnErrorOccurred$);
 
     logService = {
       info: jest.fn(),
@@ -42,14 +51,12 @@ describe("PhishingDetectionService", () => {
     phishingDataService.update$ = new Subject().asObservable() as any;
     phishingDataService.isPhishingWebAddress.mockResolvedValue(false);
 
-    messageListener = mock<MessageListener>({
-      messages$(_commandDefinition) {
-        return new Observable();
-      },
-    });
-    phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>({
-      on$: of(true),
-    });
+    messageListener = {
+      messages$: jest.fn().mockReturnValue(new Observable()),
+    } as any;
+    phishingDetectionSettingsService = {
+      on$: new BehaviorSubject(true),
+    } as any;
   });
 
   afterEach(() => {
@@ -67,7 +74,7 @@ describe("PhishingDetectionService", () => {
   }
 
   function emitNavEvent(tabId: number, url: string, frameId = 0) {
-    mockBeforeNavigate$.next([
+    mockOnCommitted$.next([
       {
         tabId,
         url,
@@ -78,7 +85,26 @@ describe("PhishingDetectionService", () => {
         parentDocumentId: "",
         documentId: "",
         documentLifecycle: "active",
-      } as unknown as chrome.webNavigation.WebNavigationBaseCallbackDetails,
+        transitionType: "link",
+        transitionQualifiers: [],
+      } as unknown as chrome.webNavigation.WebNavigationTransitionCallbackDetails,
+    ]);
+  }
+
+  function emitErrorEvent(tabId: number, url: string, error: string, frameId = 0) {
+    mockOnErrorOccurred$.next([
+      {
+        tabId,
+        url,
+        frameId,
+        timeStamp: Date.now(),
+        parentFrameId: -1,
+        processId: 1,
+        parentDocumentId: "",
+        documentId: "",
+        documentLifecycle: "active",
+        error,
+      } as unknown as chrome.webNavigation.WebNavigationErrorCallbackDetails,
     ]);
   }
 
@@ -86,9 +112,9 @@ describe("PhishingDetectionService", () => {
     expect(() => initService()).not.toThrow();
   });
 
-  it("should use fromChromeEvent with webNavigation.onCommitted", () => {
+  it("should subscribe to both onCommitted and onErrorOccurred", () => {
     initService();
-    expect(fromChromeEvent).toHaveBeenCalledWith(chrome.webNavigation.onCommitted);
+    expect(fromChromeEvent).toHaveBeenCalledTimes(2);
   });
 
   it("should filter out iframe navigations (frameId !== 0)", () => {
@@ -105,6 +131,25 @@ describe("PhishingDetectionService", () => {
 
     emitNavEvent(1, "chrome-extension://fake-id/popup/index.html", 0);
     emitNavEvent(1, "moz-extension://fake-id/popup/index.html", 0);
+
+    expect(phishingDataService.isPhishingWebAddress).not.toHaveBeenCalled();
+  });
+
+  it("should check phishing via onErrorOccurred when onCommitted does not fire", () => {
+    initService();
+
+    // Chrome fires onErrorOccurred (not onCommitted) for HTTP errors like 4xx/5xx
+    emitErrorEvent(1, "http://akonaa.fr/", "net::ERR_HTTP_RESPONSE_CODE_FAILURE");
+
+    expect(phishingDataService.isPhishingWebAddress).toHaveBeenCalledWith(
+      expect.objectContaining({ hostname: "akonaa.fr" }),
+    );
+  });
+
+  it("should filter out iframe navigations from onErrorOccurred", () => {
+    initService();
+
+    emitErrorEvent(1, "http://akonaa.fr/", "net::ERR_HTTP_RESPONSE_CODE_FAILURE", 1);
 
     expect(phishingDataService.isPhishingWebAddress).not.toHaveBeenCalled();
   });

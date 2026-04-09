@@ -54,11 +54,19 @@ export class PhishingDetectionService {
       }),
     );
 
-    // onCommitted fires after navigation commits — tabs.update won't race with in-progress loads
-    const onTabUpdated$ = fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
-      filter(([details]) => details.frameId === 0), // main frame only
-      filter(([details]) => !!details.url && !this._isExtensionPage(details.url)),
-      map(([details]) => {
+    // onCommitted for successful navigations; onErrorOccurred for HTTP errors/DNS failures
+    // where Chrome skips onCommitted. Firefox fires both, deduplicated by distinctUntilChanged.
+    const onCommitted$ = fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
+      map(([details]) => details),
+    );
+    const onErrorOccurred$ = fromChromeEvent(chrome.webNavigation.onErrorOccurred).pipe(
+      map(([details]) => details),
+    );
+
+    const onTabUpdated$ = merge(onCommitted$, onErrorOccurred$).pipe(
+      filter((details) => details.frameId === 0), // main frame only
+      filter((details) => !!details.url && !this._isExtensionPage(details.url)),
+      map((details) => {
         const url = new URL(details.url);
         return { tabId: details.tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
       }),
