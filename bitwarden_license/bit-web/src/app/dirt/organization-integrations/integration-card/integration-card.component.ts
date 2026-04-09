@@ -155,6 +155,24 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    const [isUnique, conflictingIntegrationName] = this.isIntegrationUniqueForTypeAndOrganization();
+    if (!isUnique) {
+      const organizationIntegrationTypeName = this.getOrganizationIntegrationTypeName(
+        this.integrationSettings().integrationType,
+      );
+
+      this.toastService.showToast({
+        variant: "error",
+        title: "",
+        message: this.i18nService.t(
+          "onlyOneIntegrationOfTypeAllowed",
+          organizationIntegrationTypeName,
+          conflictingIntegrationName,
+        ),
+      });
+      return;
+    }
+
     if (this.integrationSettings()?.integrationType === OrganizationIntegrationType.Datadog) {
       const dialog = openDatadogConnectDialog(this.dialogService, {
         data: {
@@ -254,13 +272,23 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
+    if (response.anotherIntegrationWithSameTypeExists) {
+      const integrationTypeName = this.getOrganizationIntegrationTypeName(integrationType);
+      this.showAnotherIntegrationWithSameTypeExistsToast(integrationTypeName);
+      return;
+    }
+
+    // update local state with the new integration settings
     if (response.success && response.organizationIntegrationResult) {
       // update local state with the new integration settings
       this.state.updateIntegrationSettings(
         this.integrationSettings().name,
         response.organizationIntegrationResult,
       );
+    }
 
+    // show success toast
+    if (response.success) {
       this.toastService.showToast({
         variant: "success",
         title: "",
@@ -419,5 +447,44 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
       title: "",
       message: this.i18nService.t("mustBeOrgOwnerToPerformAction"),
     });
+  }
+
+  private showAnotherIntegrationWithSameTypeExistsToast(type: string) {
+    this.toastService.showToast({
+      variant: "error",
+      title: "",
+      message: this.i18nService.t("anotherIntegrationWithSameTypeExists", type),
+    });
+  }
+
+  private isIntegrationUniqueForTypeAndOrganization(): [boolean, string] {
+    const integrationType = this.integrationSettings().integrationType;
+    if (!integrationType) {
+      return [true, ""];
+    }
+
+    const otherIntegrationOfTheSameType = this.state
+      .integrations()
+      .filter(
+        (i) => i.name !== this.integrationSettings().name && i.integrationType === integrationType,
+      )
+      .find((integration) => integration.organizationIntegration?.configuration !== undefined);
+
+    const isSameOrganization = this.state.organization()?.id === this.organizationId;
+
+    const isUnique = !otherIntegrationOfTheSameType && isSameOrganization;
+    const conflictingName = otherIntegrationOfTheSameType?.name ?? "";
+
+    return [isUnique, conflictingName];
+  }
+
+  private getOrganizationIntegrationTypeName(
+    integrationType: OrganizationIntegrationType | null | undefined,
+  ): string {
+    const entry = Object.entries(OrganizationIntegrationType).find(
+      ([, value]) => value === integrationType,
+    )?.[0];
+
+    return entry ? entry : "";
   }
 }
