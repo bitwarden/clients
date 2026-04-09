@@ -21,7 +21,6 @@ import { PinLockType } from "../../../key-management/pin/pin-lock-type";
 import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "../../../key-management/vault-timeout";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { HashPurpose } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { MasterKey } from "../../../types/key";
@@ -323,9 +322,6 @@ describe("UserVerificationService", () => {
 
       kdfConfigService.getKdfConfig.mockResolvedValue("kdfConfig" as unknown as KdfConfig);
       masterPasswordService.masterKey$.mockReturnValue(of("masterKey" as unknown as MasterKey));
-      keyService.hashMasterKey
-        .calledWith("password", "masterKey" as unknown as MasterKey, HashPurpose.LocalAuthorization)
-        .mockResolvedValue("localHash");
     });
 
     describe("client-side verification", () => {
@@ -346,10 +342,6 @@ describe("UserVerificationService", () => {
 
         expect(masterPasswordUnlockService.proofOfDecryption).toHaveBeenCalledWith(
           "password",
-          mockUserId,
-        );
-        expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-          "localHash",
           mockUserId,
         );
         expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith("masterKey", mockUserId);
@@ -378,7 +370,6 @@ describe("UserVerificationService", () => {
           "password",
           mockUserId,
         );
-        expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
     });
@@ -390,11 +381,7 @@ describe("UserVerificationService", () => {
 
       it("returns if verification is successful", async () => {
         keyService.hashMasterKey
-          .calledWith(
-            "password",
-            "masterKey" as unknown as MasterKey,
-            HashPurpose.ServerAuthorization,
-          )
+          .calledWith("password", "masterKey" as unknown as MasterKey)
           .mockResolvedValueOnce("serverHash");
         userVerificationApiService.postAccountVerifyPassword.mockResolvedValueOnce(
           "MasterPasswordPolicyOptions" as unknown as MasterPasswordPolicyResponse,
@@ -410,10 +397,6 @@ describe("UserVerificationService", () => {
         );
 
         expect(masterPasswordUnlockService.proofOfDecryption).not.toHaveBeenCalled();
-        expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-          "localHash",
-          mockUserId,
-        );
         expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith("masterKey", mockUserId);
         expect(result).toEqual({
           policyOptions: "MasterPasswordPolicyOptions",
@@ -424,11 +407,7 @@ describe("UserVerificationService", () => {
 
       it("throws if verification fails", async () => {
         keyService.hashMasterKey
-          .calledWith(
-            "password",
-            "masterKey" as unknown as MasterKey,
-            HashPurpose.ServerAuthorization,
-          )
+          .calledWith("password", "masterKey" as unknown as MasterKey)
           .mockResolvedValueOnce("serverHash");
         userVerificationApiService.postAccountVerifyPassword.mockRejectedValueOnce(new Error());
 
@@ -444,7 +423,6 @@ describe("UserVerificationService", () => {
         ).rejects.toThrow("Invalid master password");
 
         expect(masterPasswordUnlockService.proofOfDecryption).not.toHaveBeenCalled();
-        expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalledWith();
         expect(masterPasswordService.setMasterKey).not.toHaveBeenCalledWith();
       });
     });
@@ -524,9 +502,6 @@ describe("UserVerificationService", () => {
   // Helpers
   function setMasterPasswordAvailability(hasMasterPassword: boolean) {
     userDecryptionOptionsService.hasMasterPasswordById$.mockReturnValue(of(hasMasterPassword));
-    masterPasswordService.masterKeyHash$.mockReturnValue(
-      of(hasMasterPassword ? "masterKeyHash" : null),
-    );
   }
 
   function setPinAvailability(type: PinLockType) {

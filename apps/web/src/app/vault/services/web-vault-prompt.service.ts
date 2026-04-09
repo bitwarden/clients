@@ -13,8 +13,8 @@ import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
-  AutoConfirmPolicyDialogComponent,
   AutoConfirmPolicy,
+  MultiStepPolicyEditDialogComponent,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
@@ -61,12 +61,11 @@ export class WebVaultPromptService {
     this.checkForAutoConfirm();
   }
 
-  private async openAutoConfirmFeatureDialog(organization: Organization) {
-    AutoConfirmPolicyDialogComponent.open(this.dialogService, {
+  private openAutoConfirmFeatureDialog(organization: Organization) {
+    MultiStepPolicyEditDialogComponent.open(this.dialogService, {
       data: {
-        policy: new AutoConfirmPolicy(),
+        policy: new AutoConfirmPolicy(true),
         organization: organization,
-        firstTimeDialog: true,
       },
     });
   }
@@ -102,7 +101,7 @@ export class WebVaultPromptService {
             organization.canEnableAutoConfirmPolicy;
 
           if (showDialog) {
-            await this.openAutoConfirmFeatureDialog(organization);
+            this.openAutoConfirmFeatureDialog(organization);
 
             await this.autoConfirmService.upsert(userId, {
               ...autoConfirmState,
