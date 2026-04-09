@@ -7,6 +7,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
+  Signal,
   signal,
   ChangeDetectionStrategy,
 } from "@angular/core";
@@ -27,6 +28,8 @@ import {
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -45,7 +48,9 @@ import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
+import { AllApplicationsTabComponent } from "../all-applications-tab/all-applications-tab.component";
 import { ApplicationsTabComponent } from "../applications-tab/applications-tab.component";
+import { CriticalApplicationsTabComponent } from "../critical-applications-tab/critical-applications-tab.component";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
@@ -66,7 +71,9 @@ type ProgressStep = ReportProgress | null;
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
     ActivityTabComponent,
+    AllApplicationsTabComponent,
     ApplicationsTabComponent,
+    CriticalApplicationsTabComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
@@ -130,6 +137,12 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     return report !== null && report !== undefined && report.reports.length > 0;
   });
 
+  protected readonly criticalAppsCount = computed(
+    () => this.report()?.getCriticalApplications().length ?? 0,
+  );
+
+  protected readonly milestone11Enabled!: Signal<boolean>;
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -138,7 +151,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     protected readonly i18nService: I18nService,
     private readonly dialogService: DialogService,
     private readonly logService: LogService,
+    private readonly configService: ConfigService,
   ) {
+    this.milestone11Enabled = toSignal(
+      this.configService.getFeatureFlag$(FeatureFlag.Milestone11AppPageImprovements),
+      { initialValue: false },
+    );
+
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex.set(
         !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,

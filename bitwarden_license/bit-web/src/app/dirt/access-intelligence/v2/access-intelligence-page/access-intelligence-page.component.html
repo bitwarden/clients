@@ -64,9 +64,26 @@
             <bit-tab label="{{ 'activity' | i18n }}">
               <app-activity-tab [organizationId]="organizationId()"></app-activity-tab>
             </bit-tab>
-            <bit-tab label="{{ 'applications' | i18n }}">
-              <dirt-applications-tab [organizationId]="organizationId()"></dirt-applications-tab>
-            </bit-tab>
+            @if (milestone11Enabled()) {
+              <bit-tab label="{{ 'applications' | i18n }}">
+                <dirt-applications-tab [organizationId]="organizationId()"></dirt-applications-tab>
+              </bit-tab>
+            } @else {
+              <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount() }}">
+                <dirt-all-applications-tab
+                  [organizationId]="organizationId()"
+                ></dirt-all-applications-tab>
+              </bit-tab>
+              <bit-tab>
+                <ng-template bitTabLabel>
+                  <bit-icon name="bwi-star"></bit-icon>
+                  {{ "criticalApplicationsWithCount" | i18n: criticalAppsCount() }}
+                </ng-template>
+                <dirt-critical-applications-tab
+                  [organizationId]="organizationId()"
+                ></dirt-critical-applications-tab>
+              </bit-tab>
+            }
           </bit-tab-group>
         </div>
       </div>

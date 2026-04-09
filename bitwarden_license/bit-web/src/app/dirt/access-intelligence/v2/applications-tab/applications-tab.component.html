@@ -86,6 +86,7 @@
       [dataSource]="dataSource"
       [selectedUrls]="selectedUrls()"
       [openApplication]="currentDrawerState?.invokerId || ''"
+      [showCriticalBadge]="true"
       (checkboxChange)="onCheckboxChange($event)"
       (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
       (selectAllChange)="onSelectAllChange($event)"
