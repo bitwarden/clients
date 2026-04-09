@@ -146,6 +146,7 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/locales-lint.yml @bitwarden/team-platform-dev
 .github/workflows/repository-management.yml @bitwarden/team-platform-dev
 .github/workflows/scan.yml @bitwarden/team-platform-dev
+.github/workflows/sdk-update.yml @bitwarden/team-platform-dev
 .github/workflows/stale-bot.yml @bitwarden/team-platform-dev
 .github/workflows/test.yml @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
