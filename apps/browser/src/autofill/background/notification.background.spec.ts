@@ -1944,6 +1944,24 @@ describe("NotificationBackground", () => {
           expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
           expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
+
+        it("and no ciphers are saved for the URL, trigger a new cipher notification", async () => {
+          activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+          getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
+
+          await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+          expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+          expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
+            mockFormattedURI,
+            {
+              username: formEntryData.username,
+              url: formEntryData.uri,
+              password: formEntryData.password,
+            },
+            sender.tab,
+          );
+        });
       });
 
       describe("when `username` and `password` fields are filled, ", () => {
@@ -2273,6 +2291,24 @@ describe("NotificationBackground", () => {
           expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
           expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         });
+
+        it("and no ciphers are saved for the URL, trigger a new cipher notification", async () => {
+          activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+          getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
+
+          await notificationBackground.triggerCipherNotification(formEntryData, tab);
+
+          expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+          expect(pushAddLoginToQueueSpy).toHaveBeenCalledWith(
+            mockFormattedURI,
+            {
+              username: formEntryData.username,
+              url: formEntryData.uri,
+              password: formEntryData.newPassword,
+            },
+            sender.tab,
+          );
+        });
       });
     });
 
@@ -2334,15 +2370,10 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage(message, sender);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
-          sender.tab,
-          "addToLockedVaultPendingNotifications",
-          {
-            commandToRetry: { message, sender },
-            target: "notification.background",
-          },
-        );
-        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab);
+        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, {
+          commandToRetry: { message, sender },
+          target: "notification.background",
+        });
       });
 
       describe("saveOrUpdateCredentials", () => {

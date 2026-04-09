@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Незбережені зміни"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Клонувати"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Скопіюйте ключ автентифікації (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "Спростіть двоетапну перевірку"
