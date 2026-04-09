@@ -13,11 +13,11 @@ import {
   IntegrationDialogResultStatusType,
 } from "../integration-dialog-result-status";
 
-export type HuntressConnectDialogParams = {
+export type ConnectViaHecTokenDialogParams = {
   settings: Integration;
 };
 
-export interface HuntressConnectDialogResult {
+export interface ConnectViaHecTokenDialogResult {
   integrationSettings: Integration;
   url: string;
   token: string;
@@ -27,12 +27,12 @@ export interface HuntressConnectDialogResult {
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: "./connect-dialog-huntress.component.html",
+  templateUrl: "./connect-via-hec-token-dialog.component.html",
   imports: [SharedModule],
 })
-export class ConnectHuntressDialogComponent implements OnInit {
+export class ConnectViaHecTokenDialogComponent implements OnInit {
   loading = false;
-  huntressConfig: HecConfiguration | null = null;
+  hecConfiguration: HecConfiguration | null = null;
   formGroup = this.formBuilder.group({
     url: ["", [Validators.required, Validators.minLength(7)]],
     token: ["", Validators.required],
@@ -40,30 +40,34 @@ export class ConnectHuntressDialogComponent implements OnInit {
   });
 
   constructor(
-    @Inject(DIALOG_DATA) protected connectInfo: HuntressConnectDialogParams,
+    @Inject(DIALOG_DATA) protected connectInfo: ConnectViaHecTokenDialogParams,
     protected formBuilder: FormBuilder,
-    private dialogRef: DialogRef<HuntressConnectDialogResult>,
+    private dialogRef: DialogRef<ConnectViaHecTokenDialogResult>,
     private dialogService: DialogService,
   ) {}
 
   ngOnInit(): void {
-    this.huntressConfig =
+    this.hecConfiguration =
       this.connectInfo.settings.organizationIntegration?.getConfiguration<HecConfiguration>() ??
       null;
 
     this.formGroup.patchValue({
-      url: this.huntressConfig?.uri || "",
-      token: this.huntressConfig?.token || "",
+      url: this.hecConfiguration?.uri || "",
+      token: this.hecConfiguration?.token || "",
       service: this.connectInfo.settings.name,
     });
   }
 
   get isUpdateAvailable(): boolean {
-    return !!this.huntressConfig;
+    return !!this.hecConfiguration;
   }
 
   get canDelete(): boolean {
-    return !!this.huntressConfig;
+    return !!this.hecConfiguration;
+  }
+
+  get urlHelperLinkText(): string {
+    return this.connectInfo.settings.urlHelperLinkText ?? "";
   }
 
   submit = async (): Promise<void> => {
@@ -71,7 +75,7 @@ export class ConnectHuntressDialogComponent implements OnInit {
       this.formGroup.markAllAsTouched();
       return;
     }
-    const result = this.getHuntressConnectDialogResult(IntegrationDialogResultStatus.Edited);
+    const result = this.getDialogResult(IntegrationDialogResultStatus.Edited);
 
     this.dialogRef.close(result);
 
@@ -88,14 +92,14 @@ export class ConnectHuntressDialogComponent implements OnInit {
     });
 
     if (confirmed) {
-      const result = this.getHuntressConnectDialogResult(IntegrationDialogResultStatus.Delete);
+      const result = this.getDialogResult(IntegrationDialogResultStatus.Delete);
       this.dialogRef.close(result);
     }
   };
 
-  private getHuntressConnectDialogResult(
+  private getDialogResult(
     status: IntegrationDialogResultStatusType,
-  ): HuntressConnectDialogResult {
+  ): ConnectViaHecTokenDialogResult {
     const formJson = this.formGroup.getRawValue();
 
     return {
@@ -108,9 +112,12 @@ export class ConnectHuntressDialogComponent implements OnInit {
   }
 }
 
-export function openHuntressConnectDialog(
+export function openConnectViaHecTokenDialog(
   dialogService: DialogService,
-  config: DialogConfig<HuntressConnectDialogParams, DialogRef<HuntressConnectDialogResult>>,
+  config: DialogConfig<ConnectViaHecTokenDialogParams, DialogRef<ConnectViaHecTokenDialogResult>>,
 ) {
-  return dialogService.open<HuntressConnectDialogResult>(ConnectHuntressDialogComponent, config);
+  return dialogService.open<ConnectViaHecTokenDialogResult>(
+    ConnectViaHecTokenDialogComponent,
+    config,
+  );
 }
