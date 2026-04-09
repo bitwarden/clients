@@ -18,6 +18,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NodeUtils } from "@bitwarden/node/node-utils";
+import { WhoCanAccessType } from "@bitwarden/send-ui";
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
@@ -189,9 +190,9 @@ export class SendCreateCommand {
       return null;
     }
 
-    const whoCanAccess = policy.data.whoCanAccess as string;
+    const whoCanAccess = policy.data.whoCanAccess as WhoCanAccessType;
 
-    if (whoCanAccess === "specificPeople") {
+    if (whoCanAccess === WhoCanAccessType.SpecificPeople) {
       if (authType !== AuthType.Email || !emails?.length) {
         return Response.error(
           "Organization policy requires Send access to be restricted to specific people. Use --emails to specify recipients.",
@@ -217,7 +218,7 @@ export class SendCreateCommand {
           }
         }
       }
-    } else if (whoCanAccess === "passwordProtected") {
+    } else if (whoCanAccess === WhoCanAccessType.PasswordProtected) {
       if (authType !== AuthType.Password) {
         return Response.error(
           "Organization policy requires Send access to be password protected. Use --password to set a password.",

@@ -45,10 +45,6 @@ export class BitErrorComponent {
         return this.i18nService.t("inputForbiddenCharacters", error[1]?.characters.join(", "));
       case "multipleEmails":
         return this.i18nService.t("multipleInputEmails");
-      case "multipleDomainsInvalid":
-        return this.i18nService.t("multipleInputDomainsInvalid");
-      case "domainNotAllowed":
-        return this.i18nService.t("domainNotAllowed", error[1]?.domains);
       case "trim":
         return this.i18nService.t("inputTrimValidator");
       default:

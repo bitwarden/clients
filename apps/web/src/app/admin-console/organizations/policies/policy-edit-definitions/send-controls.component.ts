@@ -15,6 +15,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { WhoCanAccessType } from "@bitwarden/send-ui";
 
 import { SharedModule } from "../../../../shared";
@@ -64,6 +65,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
+    private readonly i18nService: I18nService,
   ) {
     super();
   }
@@ -142,11 +144,15 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       const domains = control.value.split(",").map((d: string) => d.trim());
       const nonEmptyDomains = domains.filter((d: string) => d.length > 0);
       if (nonEmptyDomains.length === 0) {
-        return { multipleDomainsInvalid: true };
+        return {
+          multipleDomainsInvalid: { message: this.i18nService.t("multipleInputDomainsInvalid") },
+        };
       }
       const invalidDomains = nonEmptyDomains.filter((d: string) => !emailDomainRegex.test(d));
       if (invalidDomains.length > 0) {
-        return { multipleDomainsInvalid: true };
+        return {
+          multipleDomainsInvalid: { message: this.i18nService.t("multipleInputDomainsInvalid") },
+        };
       }
       return null;
     };

@@ -383,6 +383,7 @@ export class SendDetailsComponent implements OnInit {
             domainNotAllowed: {
               value: control.value,
               domains: this.policyAllowedDomains.join(", "),
+              message: this.i18nService.t("domainNotAllowed", this.policyAllowedDomains.join(", ")),
             },
           };
         }
