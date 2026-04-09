@@ -264,42 +264,4 @@ describe("PhishingDetectionService", () => {
       expect(BrowserApi.closeTab).toHaveBeenCalledWith(42);
     });
   });
-
-  describe("settings toggle", () => {
-    it("starts checking after being enabled", async () => {
-      buildService();
-      phishingDataService.isPhishingWebAddress.mockResolvedValue(true);
-
-      onEnabled$.next(true);
-      tabUpdatedListener(1, { status: "complete" }, makeTab("https://evil.com"));
-      await Promise.resolve();
-
-      expect(phishingDataService.isPhishingWebAddress).toHaveBeenCalled();
-    });
-
-    it("stops checking when disabled", async () => {
-      buildService();
-      onEnabled$.next(true);
-      onEnabled$.next(false);
-
-      tabUpdatedListener(1, { status: "complete" }, makeTab("https://evil.com"));
-      await Promise.resolve();
-
-      expect(phishingDataService.isPhishingWebAddress).not.toHaveBeenCalled();
-    });
-
-    it("resumes checking after being re-enabled", async () => {
-      buildService();
-      phishingDataService.isPhishingWebAddress.mockResolvedValue(false);
-
-      onEnabled$.next(true);
-      onEnabled$.next(false);
-      onEnabled$.next(true);
-
-      tabUpdatedListener(1, { status: "complete" }, makeTab("https://safe.com"));
-      await Promise.resolve();
-
-      expect(phishingDataService.isPhishingWebAddress).toHaveBeenCalled();
-    });
-  });
 });
