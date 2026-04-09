@@ -88,6 +88,9 @@ export enum FeatureFlag {
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
+  PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
+
+  /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
   /* Desktop */
@@ -187,6 +190,9 @@ export const DefaultFeatureFlagValue = {
   /* Platform */
   [FeatureFlag.ContentScriptIpcChannelFramework]: FALSE,
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
+  [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
+
+  /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
 
   /* Desktop */

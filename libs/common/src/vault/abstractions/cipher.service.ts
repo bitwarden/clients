@@ -1,5 +1,6 @@
 import { Observable } from "rxjs";
 
+import { UploadOptions } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { UserKeyRotationDataProvider } from "@bitwarden/key-management";
@@ -165,6 +166,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     unencryptedFile: any,
     userId: UserId,
     admin?: boolean,
+    options?: UploadOptions,
   ): Promise<Cipher>;
   abstract saveAttachmentRawWithServer(
     cipher: Cipher,
@@ -172,6 +174,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     data: Uint8Array,
     userId: UserId,
     admin?: boolean,
+    options?: UploadOptions,
   ): Promise<Cipher>;
   /**
    * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.

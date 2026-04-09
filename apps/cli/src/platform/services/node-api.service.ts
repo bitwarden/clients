@@ -54,4 +54,12 @@ export class NodeApiService extends ApiService {
     }
     return fetch(request);
   }
+
+  /** XMLHttpRequest is not supported in Node.js, fallback to fetch */
+  override nativeXMLHttpRequest(
+    request: Request,
+    _onProgress: (percentage: number) => void,
+  ): Promise<Response> {
+    return this.nativeFetch(request);
+  }
 }

@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { FileUploadService } from "../../../platform/abstractions/file-upload/file-upload.service";
@@ -16,13 +18,14 @@ import { CipherFileUploadService } from "./cipher-file-upload.service";
 describe("CipherFileUploadService", () => {
   const apiService = mock<ApiService>();
   const fileUploadService = mock<FileUploadService>();
+  const configService = mock<ConfigService>();
 
   let service: CipherFileUploadService;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    service = new CipherFileUploadService(apiService, fileUploadService);
+    service = new CipherFileUploadService(apiService, fileUploadService, configService);
   });
 
   describe("upload", () => {
