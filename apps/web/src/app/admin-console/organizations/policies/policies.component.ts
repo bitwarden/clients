@@ -11,6 +11,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -142,7 +143,7 @@ export class PoliciesComponent {
               if (orgPolicy.id === policyIdFromEvents) {
                 for (const policy of policies) {
                   if (policy.type === orgPolicy.type) {
-                    this.edit(policy, organization);
+                    void this.edit(policy, organization);
                     break;
                   }
                 }
@@ -156,15 +157,25 @@ export class PoliciesComponent {
       .subscribe();
   }
 
-  edit(policy: BasePolicyEditDefinition, organization: Organization) {
+  async edit(policy: BasePolicyEditDefinition, organization: Organization) {
+    const useDrawer = await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers);
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
-    dialogComponent.open(this.dialogService, {
-      data: {
-        policy: policy,
-        organization: organization,
-      },
-    });
+    if (useDrawer && dialogComponent.openDrawer) {
+      dialogComponent.openDrawer(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+    } else {
+      dialogComponent.open(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+    }
   }
 }

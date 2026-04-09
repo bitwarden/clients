@@ -14,6 +14,7 @@ export enum FeatureFlag {
   AutoConfirm = "pm-19934-auto-confirm-organization-users",
   AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
   GenerateInviteLink = "pm-32497-generate-invite-link",
+  PolicyDrawers = "pm-34804-policy-drawers",
 
   /* Auth */
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
@@ -113,6 +114,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AutoConfirm]: FALSE,
   [FeatureFlag.AdminResetTwoFactor]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
+  [FeatureFlag.PolicyDrawers]: FALSE,
 
   /* Autofill */
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
