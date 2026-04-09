@@ -323,16 +323,27 @@ export class Vault {
     }
 
     // 4. Walk up the parent chain to build full paths for every folder.
+    const visiting = new Set<string>();
     const getPath = (uid: string): string => {
       if (paths.has(uid)) {
         return paths.get(uid)!;
       }
+
       const name = sanitizeFolderName(folderNames.get(uid) ?? uid);
+
+      if (visiting.has(uid)) {
+        // Cycle detected, break it. This shouldn't not really happen with a valid vault. Something must be corrupted.
+        paths.set(uid, name);
+        return name;
+      }
+
+      visiting.add(uid);
       const parentUid = childToParent.get(uid);
       if (!parentUid) {
         paths.set(uid, name);
         return name;
       }
+
       const parentPath = getPath(parentUid);
       const path = joinPath(parentPath, name);
       paths.set(uid, path);
