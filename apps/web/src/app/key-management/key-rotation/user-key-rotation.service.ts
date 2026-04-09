@@ -23,7 +23,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -607,11 +607,7 @@ export class UserKeyRotationService {
       masterKeySalt,
       masterKeyKdfConfig,
     );
-    return this.keyService.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.ServerAuthorization,
-    );
+    return this.keyService.hashMasterKey(masterPassword, masterKey);
   }
 
   /**

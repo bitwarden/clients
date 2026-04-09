@@ -18,7 +18,6 @@ import { MasterPasswordUnlockService } from "../../../key-management/master-pass
 import { InternalMasterPasswordServiceAbstraction } from "../../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "../../../key-management/pin/pin.service.abstraction";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { HashPurpose } from "../../../platform/enums";
 import { UserId } from "../../../types/guid";
 import { AccountService } from "../../abstractions/account.service";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
@@ -65,7 +64,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     if (verificationType === "client") {
       const [userHasMasterPassword, isPinDecryptionAvailable, biometricsStatus] = await Promise.all(
         [
-          this.hasMasterPasswordAndMasterKeyHash(userId),
+          this.hasMasterPassword(userId),
           this.pinService.isPinDecryptionAvailable(userId),
           this.biometricsService.getBiometricsStatus(),
         ],
@@ -203,7 +202,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     let policyOptions: MasterPasswordPolicyResponse | null;
     // Client-side verification
-    if (await this.hasMasterPasswordAndMasterKeyHash(userId)) {
+    if (await this.hasMasterPassword(userId)) {
       const passwordValid = await this.masterPasswordUnlockService.proofOfDecryption(
         verification.secret,
         userId,
@@ -231,12 +230,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       }
     }
 
-    const localKeyHash = await this.keyService.hashMasterKey(
-      verification.secret,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-    await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     return { policyOptions, masterKey, email };
   }
@@ -272,14 +265,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
 
     return await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPasswordById$(resolvedUserId as UserId),
-    );
-  }
-
-  async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {
-    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
-    return (
-      (await this.hasMasterPassword(userId)) &&
-      (await firstValueFrom(this.masterPasswordService.masterKeyHash$(userId as UserId))) != null
     );
   }
 

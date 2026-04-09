@@ -8,7 +8,7 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
-import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -165,15 +165,10 @@ export abstract class KeyService {
    * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param password The user's master password
    * @param key The user's master key or active's user master key.
-   * @param hashPurpose The iterations to use for the hash. Defaults to {@link HashPurpose.ServerAuthorization}.
    * @throws Error when password is null/undefined or key is null/undefined.
    * @returns The user's master password hash
    */
-  abstract hashMasterKey(
-    password: string,
-    key: MasterKey,
-    hashPurpose?: HashPurpose,
-  ): Promise<string>;
+  abstract hashMasterKey(password: string, key: MasterKey): Promise<string>;
   /**
    * Stores the encrypted organization keys and clears any decrypted
    * organization keys currently in memory

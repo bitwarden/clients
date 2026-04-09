@@ -54,12 +54,6 @@ export abstract class UserVerificationService {
    */
   abstract hasMasterPassword(userId?: string): Promise<boolean>;
   /**
-   * Check if the user has a master password and has used it during their current session
-   * @param userId The user id to check. If not provided, the current user id used
-   * @returns True if the user has a master password and has used it in the current session
-   */
-  abstract hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean>;
-  /**
    * Verifies the user using the provided master password.
    * Attempts to verify client-side first, then server-side if necessary.
    * IMPORTANT: Will throw an error if the master password is invalid.

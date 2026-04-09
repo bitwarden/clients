@@ -633,9 +633,8 @@ export default class AutofillService implements AutofillServiceInterface {
     tab: chrome.tabs.Tab,
     action?: string,
   ): Promise<boolean> {
-    const userHasMasterPasswordAndKeyHash =
-      await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
-    if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
+    const userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
+    if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPassword) {
       if (!this.isDebouncingPasswordRepromptPopout()) {
         await this.openVaultItemPasswordRepromptPopout(tab, {
           cipherId: cipher.id,

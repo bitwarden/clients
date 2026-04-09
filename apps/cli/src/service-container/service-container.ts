@@ -699,7 +699,6 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountService,
       this.masterPasswordService,
-      this.cryptoFunctionService,
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),

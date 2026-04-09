@@ -18,7 +18,6 @@ import {
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -35,8 +34,6 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
 
   /** User's entered email obtained pre-login. Always present in MP login. */
   userEnteredEmail: string;
-  /** The local version of the user's master key hash */
-  localMasterKeyHash: string;
   /** The user's master key */
   masterKey: MasterKey;
   /** The user's master password */
@@ -63,8 +60,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
   email$: Observable<string>;
   /** The master key hash used for authentication */
   serverMasterKeyHash$: Observable<string>;
-  /** The local master key hash we store client side */
-  localMasterKeyHash$: Observable<string | null>;
 
   protected cache: BehaviorSubject<PasswordLoginStrategyData>;
 
@@ -83,7 +78,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.serverMasterKeyHash$ = this.cache.pipe(
       map((state) => state.tokenRequest.masterPasswordHash),
     );
-    this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
   override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
@@ -105,11 +99,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    data.localMasterKeyHash = await this.keyService.hashMasterKey(
-      masterPassword,
-      data.masterKey,
-      HashPurpose.LocalAuthorization,
-    );
     const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
 
     data.tokenRequest = new PasswordTokenRequest(
@@ -136,9 +125,8 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
     if (!this.cache.value.unlockServiceForPasswordLogin) {
-      const { masterKey, localMasterKeyHash } = this.cache.value;
+      const { masterKey } = this.cache.value;
       await this.masterPasswordService.setMasterKey(masterKey, userId);
-      await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
     }
   }
 

@@ -17,7 +17,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -422,24 +421,13 @@ export class InputPasswordComponent implements OnInit {
         this.kdfConfig,
       );
 
-      const newServerMasterKeyHash = await this.keyService.hashMasterKey(
-        newPassword,
-        newMasterKey,
-        HashPurpose.ServerAuthorization,
-      );
-
-      const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
-        newPassword,
-        newMasterKey,
-        HashPurpose.LocalAuthorization,
-      );
+      const newServerMasterKeyHash = await this.keyService.hashMasterKey(newPassword, newMasterKey);
 
       const passwordInputResult: PasswordInputResult = {
         newPassword,
         salt,
         newMasterKey,
         newServerMasterKeyHash,
-        newLocalMasterKeyHash,
         newPasswordHint,
         kdfConfig: this.kdfConfig,
       };
@@ -457,19 +445,11 @@ export class InputPasswordComponent implements OnInit {
         const currentServerMasterKeyHash = await this.keyService.hashMasterKey(
           currentPassword,
           currentMasterKey,
-          HashPurpose.ServerAuthorization,
-        );
-
-        const currentLocalMasterKeyHash = await this.keyService.hashMasterKey(
-          currentPassword,
-          currentMasterKey,
-          HashPurpose.LocalAuthorization,
         );
 
         passwordInputResult.currentPassword = currentPassword;
         passwordInputResult.currentMasterKey = currentMasterKey;
         passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
-        passwordInputResult.currentLocalMasterKeyHash = currentLocalMasterKeyHash;
       }
 
       if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {

@@ -102,7 +102,6 @@ describe("DefaultUnlockService", () => {
       kdfService,
       accountService,
       masterPasswordService,
-      cryptoFunctionService,
       stateProvider,
       logService,
       biometricsService,

@@ -29,7 +29,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -151,7 +150,7 @@ export class SetInitialPasswordComponent implements OnInit {
         if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
           /**
            * If the Auth flag is enabled, it means the InputPasswordComponent will not emit a newMasterKey,
-           * newServerMasterKeyHash, and newLocalMasterKeyHash. So we must create them here and add them late
+           * newServerMasterKeyHash. So we must create them here and add them late
            * to the PasswordInputResult before calling setInitialPassword().
            *
            * This is a temporary state. The end-goal will be to use KM's V2Encryption method above.
@@ -170,18 +169,10 @@ export class SetInitialPasswordComponent implements OnInit {
           const newServerMasterKeyHash = await this.keyService.hashMasterKey(
             passwordInputResult.newPassword,
             newMasterKey,
-            HashPurpose.ServerAuthorization,
-          );
-
-          const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
-            passwordInputResult.newPassword,
-            newMasterKey,
-            HashPurpose.LocalAuthorization,
           );
 
           passwordInputResult.newMasterKey = newMasterKey;
           passwordInputResult.newServerMasterKeyHash = newServerMasterKeyHash;
-          passwordInputResult.newLocalMasterKeyHash = newLocalMasterKeyHash;
 
           await this.setInitialPassword(passwordInputResult); // passwordInputResult masterKey properties generated on the SetInitialPasswordComponent (just above)
           return;
@@ -362,7 +353,6 @@ export class SetInitialPasswordComponent implements OnInit {
     const ctx = "Could not set initial password.";
     assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
     assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
-    assertTruthy(passwordInputResult.newLocalMasterKeyHash, "newLocalMasterKeyHash", ctx);
     assertTruthy(passwordInputResult.kdfConfig, "kdfConfig", ctx);
     assertTruthy(passwordInputResult.newPassword, "newPassword", ctx);
     assertTruthy(passwordInputResult.salt, "salt", ctx);
@@ -377,7 +367,6 @@ export class SetInitialPasswordComponent implements OnInit {
       const credentials: SetInitialPasswordCredentials = {
         newMasterKey: passwordInputResult.newMasterKey,
         newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-        newLocalMasterKeyHash: passwordInputResult.newLocalMasterKeyHash,
         newPasswordHint: passwordInputResult.newPasswordHint,
         kdfConfig: passwordInputResult.kdfConfig,
         orgSsoIdentifier: this.orgSsoIdentifier,

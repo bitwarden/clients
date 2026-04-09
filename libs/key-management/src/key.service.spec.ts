@@ -18,7 +18,7 @@ import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/se
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { HashPurpose, KeySuffixOptions } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
@@ -825,27 +825,6 @@ describe("keyService", () => {
       );
       expect(result).toBe(mockReturnedHashB64);
     });
-
-    test.each([
-      [2, HashPurpose.LocalAuthorization],
-      [1, HashPurpose.ServerAuthorization],
-    ])(
-      "hashes master key with %s iterations when hashPurpose is %s",
-      async (expectedIterations, hashPurpose) => {
-        const mockReturnedHashB64 = "bXlfaGFzaA==";
-        cryptoFunctionService.pbkdf2.mockResolvedValue(Utils.fromB64ToArray(mockReturnedHashB64));
-
-        const result = await keyService.hashMasterKey(password, masterKey, hashPurpose);
-
-        expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-          masterKey.inner().encryptionKey,
-          password,
-          "sha256",
-          expectedIterations,
-        );
-        expect(result).toBe(mockReturnedHashB64);
-      },
-    );
   });
 
   describe("makeOrgKey", () => {

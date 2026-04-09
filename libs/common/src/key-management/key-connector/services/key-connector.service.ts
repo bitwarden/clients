@@ -170,7 +170,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await this.setUsesKeyConnector(true, userId);
 
     // Clear master password unlock from state
-    await this.masterPasswordService.clearMasterKeyHash(userId);
     await this.masterPasswordService.clearMasterPasswordUnlockData(userId);
 
     const userDecryptionOptions = await firstValueFrom(
