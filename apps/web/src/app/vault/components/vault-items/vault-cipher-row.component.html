@@ -102,7 +102,7 @@
     @if (!decryptionFailure) {
       @if (showCopyAndLaunchActions$ | async) {
         <div
-          class="tw-flex tw-items-center tw-gap-2 tw-opacity-0 tw-transition-opacity group-hover/cipher-row:tw-opacity-100 group-hover/cipher-row:tw-pointer-events-auto [&:has([aria-expanded='true'])]:tw-opacity-100 [&:has([aria-expanded='true'])]:tw-pointer-events-auto"
+          class="tw-flex tw-items-center tw-gap-2 tw-opacity-0 tw-transition-opacity group-hover/cipher-row:tw-opacity-100 group-hover/cipher-row:tw-pointer-events-auto group-focus-within/cipher-row:tw-opacity-100 group-focus-within/cipher-row:tw-pointer-events-auto [&:has([aria-expanded='true'])]:tw-opacity-100 [&:has([aria-expanded='true'])]:tw-pointer-events-auto"
         >
           @if (canLaunch) {
             <button
