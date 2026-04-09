@@ -1090,7 +1090,6 @@ const safeProviders: SafeProvider[] = [
     provide: AutomaticUserConfirmationService,
     useClass: DefaultAutomaticUserConfirmationService,
     deps: [
-      ConfigService,
       ApiServiceAbstraction,
       OrganizationUserService,
       StateProvider,

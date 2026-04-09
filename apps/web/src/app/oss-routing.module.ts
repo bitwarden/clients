@@ -642,7 +642,7 @@ const routes: Routes = [
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
         canActivate: [
-          organizationPolicyGuard((userId, configService, policyService) =>
+          organizationPolicyGuard((userId, policyService, configService) =>
             configService
               .getFeatureFlag$(FeatureFlag.SendControls)
               .pipe(

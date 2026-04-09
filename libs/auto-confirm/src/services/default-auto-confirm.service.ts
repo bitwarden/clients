@@ -8,8 +8,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -21,7 +19,6 @@ import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-sta
 
 export class DefaultAutomaticUserConfirmationService implements AutomaticUserConfirmationService {
   constructor(
-    private configService: ConfigService,
     private apiService: ApiService,
     private organizationUserService: OrganizationUserService,
     private stateProvider: StateProvider,
@@ -50,7 +47,6 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
 
   canManageAutoConfirm$(userId: UserId): Observable<boolean> {
     return combineLatest([
-      this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
       this.organizationService
         .organizations$(userId)
         // auto-confirm does not allow the user to be part of any other organization (even if admin or owner)
@@ -59,8 +55,8 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
       this.policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
     ]).pipe(
       map(
-        ([enabled, organization, policyEnabled]) =>
-          enabled && policyEnabled && (organization?.canManageAutoConfirm ?? false),
+        ([organization, policyEnabled]) =>
+          policyEnabled && (organization?.canManageAutoConfirm ?? false),
       ),
     );
   }

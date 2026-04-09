@@ -849,7 +849,6 @@ export default class MainBackground {
     );
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
-      this.configService,
       this.apiService,
       this.organizationUserService,
       this.stateProvider,
