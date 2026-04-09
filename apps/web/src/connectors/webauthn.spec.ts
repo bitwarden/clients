@@ -481,6 +481,81 @@ describe("context-aware postMessage targetOrigin", () => {
         "https://vault.bitwarden.com",
       );
     });
+
+    it("sends info messages using the connector's own origin", async () => {
+      const data = buildV2DataParam({});
+      const parentUrl = encodeURIComponent("https://unrelated.example.com");
+      setWindowLocation(
+        `https://vault.bitwarden.com/webauthn-connector.html?v=2&data=${data}&parent=${parentUrl}`,
+      );
+      mockCredentials("resolve");
+      const postMessageSpy = jest.spyOn(window.parent, "postMessage");
+
+      await initFreshModule();
+
+      expect(postMessageSpy).toHaveBeenCalledWith("info|ready", "https://vault.bitwarden.com");
+    });
+  });
+
+  describe("on self-hosted / unmanaged domains", () => {
+    it("sends success postMessage to parentUrl", async () => {
+      const data = buildV2DataParam({});
+      const parentUrl = encodeURIComponent("https://vault.customer.com");
+      setWindowLocation(
+        `https://vault.customer.com/webauthn-connector.html?v=2&data=${data}&parent=${parentUrl}`,
+      );
+      mockCredentials("resolve");
+      const postMessageSpy = jest.spyOn(window.parent, "postMessage");
+
+      await initFreshModule();
+
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.stringContaining("success|"),
+        "https://vault.customer.com",
+      );
+    });
+
+    it("sends error postMessage to parentUrl", async () => {
+      const data = buildV2DataParam({});
+      const parentUrl = encodeURIComponent("https://vault.customer.com");
+      setWindowLocation(
+        `https://vault.customer.com/webauthn-connector.html?v=2&data=${data}&parent=${parentUrl}`,
+      );
+      mockCredentials("reject");
+      const postMessageSpy = jest.spyOn(window.parent, "postMessage");
+
+      await initFreshModule();
+
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.stringContaining("error|"),
+        "https://vault.customer.com",
+      );
+    });
+
+    it("accepts stop messages from the parent origin", async () => {
+      const data = buildV2DataParam({});
+      const parentUrl = encodeURIComponent("https://vault.customer.com");
+      setWindowLocation(
+        `https://vault.customer.com/webauthn-connector.html?v=2&data=${data}&parent=${parentUrl}`,
+      );
+      mockCredentials("resolve");
+
+      await initFreshModule();
+
+      window.dispatchEvent(
+        new MessageEvent("message", {
+          data: "stop",
+          origin: "https://vault.customer.com",
+        }),
+      );
+
+      const credGet = mockCredentials("resolve");
+      document.getElementById("webauthn-button")!.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // stopWebAuthn was set, button click returns early
+      expect(credGet).not.toHaveBeenCalled();
+    });
   });
 
   describe("desktop compatibility (file:// parent)", () => {
