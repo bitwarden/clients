@@ -136,13 +136,13 @@ describe("PhishingWarning", () => {
       expect(eventCollectionService.collect).toHaveBeenCalledWith(
         EventType.PhishingBlocker_Bypassed,
         undefined,
-        false,
+        true,
         "org-1",
       );
       expect(eventCollectionService.collect).not.toHaveBeenCalledWith(
         EventType.PhishingBlocker_Bypassed,
         undefined,
-        false,
+        true,
         "org-2",
       );
       expect(eventCollectionService.collect).toHaveBeenCalledTimes(1);
