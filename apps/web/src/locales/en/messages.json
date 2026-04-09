@@ -9475,13 +9475,13 @@
     }
   },
   "phishingBlockerSiteAccessed": {
-    "message": "Attempted to access blocked site"
+    "message": "User attempted to access known phishing site"
   },
   "phishingBlockerSiteExited": {
-    "message": "Exited blocked site"
+    "message": "User exited phishing warning page"
   },
   "phishingBlockerBypassed": {
-    "message": "Bypassed blocked site"
+    "message": "User bypassed phishing warning"
   },
   "sdk": {
     "message": "SDK",
