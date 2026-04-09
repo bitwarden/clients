@@ -1,13 +1,10 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog>
     <span bitDialogTitle>
-      {{
-        (mode === "rotate" ? "rotateScimKey" : mode === "copy" ? "copyScimKey" : "viewScimApiKey")
-          | i18n
-      }}
+      {{ data.titleKey | i18n }}
     </span>
     <div bitDialogContent>
-      @if (mode === "rotate") {
+      @if (isRotation) {
         <bit-callout type="warning">
           {{ "rotateScimKeyWarning" | i18n }}
         </bit-callout>
@@ -21,9 +18,9 @@
         type="submit"
         bitButton
         bitFormButton
-        [buttonType]="mode === 'rotate' ? 'danger' : 'primary'"
+        [buttonType]="isRotation ? 'danger' : 'primary'"
       >
-        {{ (mode === "rotate" ? "rotateKey" : "viewApiKey") | i18n }}
+        {{ (isRotation ? "rotateKey" : "viewApiKey") | i18n }}
       </button>
       <button bitButton type="button" (click)="close()">
         {{ "close" | i18n }}

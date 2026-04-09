@@ -74,7 +74,7 @@ export class ScimComponent implements OnInit {
       return;
     }
 
-    const apiKey = await this.getOrFetchApiKey("view");
+    const apiKey = await this.getOrFetchApiKey("viewScimApiKey");
     if (apiKey) {
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
@@ -94,7 +94,7 @@ export class ScimComponent implements OnInit {
   };
 
   copyScimKey = async () => {
-    const apiKey = await this.getOrFetchApiKey("copy");
+    const apiKey = await this.getOrFetchApiKey("copyScimKey");
     if (apiKey) {
       this.platformUtilsService.copyToClipboard(apiKey);
       this.toastService.showToast({
@@ -108,7 +108,8 @@ export class ScimComponent implements OnInit {
   rotateScimKey = async () => {
     const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
       organizationId: this.organizationId,
-      mode: "rotate",
+      titleKey: "rotateScimKey",
+      isRotation: true,
     });
 
     const result = await firstValueFrom(dialogRef.closed);
@@ -159,14 +160,15 @@ export class ScimComponent implements OnInit {
     return env.getScimUrl() + "/" + this.organizationId;
   }
 
-  private async getOrFetchApiKey(mode: "view" | "copy"): Promise<string | undefined> {
+  private async getOrFetchApiKey(titleKey: string): Promise<string | undefined> {
     if (this.cachedApiKey) {
       return this.cachedApiKey;
     }
 
     const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
       organizationId: this.organizationId,
-      mode,
+      titleKey,
+      isRotation: false,
     });
 
     const result = await firstValueFrom(dialogRef.closed);

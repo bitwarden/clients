@@ -15,15 +15,13 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
-  FormFieldModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type ScimApiKeyDialogMode = "view" | "copy" | "rotate";
-
 export interface ScimApiKeyDialogData {
   organizationId: string;
-  mode: ScimApiKeyDialogMode;
+  titleKey: string;
+  isRotation: boolean;
 }
 
 export interface ScimApiKeyDialogResult {
@@ -41,7 +39,6 @@ export interface ScimApiKeyDialogResult {
     DialogModule,
     AsyncActionsModule,
     CalloutModule,
-    FormFieldModule,
     UserVerificationFormInputComponent,
   ],
 })
@@ -56,8 +53,8 @@ export class ScimApiKeyDialogComponent {
     verification: [null as Verification | null, Validators.required],
   });
 
-  get mode(): ScimApiKeyDialogMode {
-    return this.data.mode;
+  get isRotation(): boolean {
+    return this.data.isRotation;
   }
 
   readonly submit = async () => {
@@ -77,10 +74,9 @@ export class ScimApiKeyDialogComponent {
     );
     request.type = OrganizationApiKeyType.Scim;
 
-    const response =
-      this.mode === "rotate"
-        ? await this.organizationApiService.rotateApiKey(this.data.organizationId, request)
-        : await this.organizationApiService.getOrCreateApiKey(this.data.organizationId, request);
+    const response = this.isRotation
+      ? await this.organizationApiService.rotateApiKey(this.data.organizationId, request)
+      : await this.organizationApiService.getOrCreateApiKey(this.data.organizationId, request);
 
     this.dialogRef.close({ apiKey: response.apiKey });
   };

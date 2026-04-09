@@ -52,15 +52,15 @@ describe("ScimApiKeyDialogComponent", () => {
   let component: ScimApiKeyDialogComponent;
   let fixture: ComponentFixture<ScimApiKeyDialogComponent>;
 
-  describe("view mode", () => {
+  describe("non-rotation mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, mode: "view" });
+      await setupTestBed({ organizationId: orgId, titleKey: "viewScimApiKey", isRotation: false });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
 
-    it("mode returns view", () => {
-      expect(component.mode).toBe("view");
+    it("isRotation returns false", () => {
+      expect(component.isRotation).toBe(false);
     });
 
     it("marks form as touched and returns when form is invalid", async () => {
@@ -98,13 +98,13 @@ describe("ScimApiKeyDialogComponent", () => {
 
   describe("rotation mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, mode: "rotate" });
+      await setupTestBed({ organizationId: orgId, titleKey: "rotateScimKey", isRotation: true });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
 
-    it("mode returns rotate", () => {
-      expect(component.mode).toBe("rotate");
+    it("isRotation returns true", () => {
+      expect(component.isRotation).toBe(true);
     });
 
     it("calls rotateApiKey and closes with apiKey", async () => {
@@ -124,7 +124,11 @@ describe("ScimApiKeyDialogComponent", () => {
   describe("open", () => {
     it("calls dialogService.open with correct arguments", () => {
       const service = mock<DialogService>();
-      const data: ScimApiKeyDialogData = { organizationId: orgId, mode: "rotate" };
+      const data: ScimApiKeyDialogData = {
+        organizationId: orgId,
+        titleKey: "rotateScimKey",
+        isRotation: true,
+      };
 
       ScimApiKeyDialogComponent.open(service, data);
 

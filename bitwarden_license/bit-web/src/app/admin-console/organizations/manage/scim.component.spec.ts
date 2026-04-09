@@ -148,7 +148,7 @@ describe("ScimComponent", () => {
       expect(dialogService.open).not.toHaveBeenCalled();
     }));
 
-    it("opens the dialog with mode view when showScimKey is false", fakeAsync(() => {
+    it("opens the dialog when showScimKey is false", fakeAsync(() => {
       const mockDialogRef = {
         closed: of({ apiKey: "revealed-key" }),
       } as unknown as ReturnType<typeof dialogService.open>;
@@ -158,7 +158,7 @@ describe("ScimComponent", () => {
       tick();
 
       expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
-        data: { organizationId: orgId, mode: "view" },
+        data: { organizationId: orgId, titleKey: "viewScimApiKey", isRotation: false },
       });
       expect(component.formData.get("clientSecret")!.value).toBe("revealed-key");
       expect(component.showScimKey).toBe(true);
@@ -185,7 +185,7 @@ describe("ScimComponent", () => {
       tick();
     }));
 
-    it("opens the dialog with mode rotate and updates form on success", fakeAsync(() => {
+    it("opens the dialog with isRotation true and updates form on success", fakeAsync(() => {
       const mockDialogRef = {
         closed: of({ apiKey: "rotated-key" }),
       } as ReturnType<typeof dialogService.open>;
@@ -195,7 +195,7 @@ describe("ScimComponent", () => {
       tick();
 
       expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
-        data: { organizationId: orgId, mode: "rotate" },
+        data: { organizationId: orgId, titleKey: "rotateScimKey", isRotation: true },
       });
       expect(component.formData.get("clientSecret")!.value).toBe("rotated-key");
       expect(toastService.showToast).toHaveBeenCalledWith({
