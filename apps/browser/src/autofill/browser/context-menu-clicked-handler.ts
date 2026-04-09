@@ -238,7 +238,7 @@ export class ContextMenuClickedHandler {
   private async isPasswordRepromptRequired(cipher: CipherView): Promise<boolean> {
     return (
       cipher.reprompt === CipherRepromptType.Password &&
-      (await this.userVerificationService.hasMasterPasswordAndMasterKeyHash())
+      (await this.userVerificationService.hasMasterPassword())
     );
   }
 
