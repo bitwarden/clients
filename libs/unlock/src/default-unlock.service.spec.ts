@@ -18,7 +18,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricsService, KdfConfigService } from "@bitwarden/key-management";
+import { BiometricsService, BiometricStateService, KdfConfigService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 import { StateProvider, StateService } from "@bitwarden/state";
@@ -49,6 +49,7 @@ describe("DefaultUnlockService", () => {
   const logService = mock<LogService>();
   const biometricsService = mock<BiometricsService>();
   const platformUtilsService = mock<PlatformUtilsService>();
+  const biometricStateService = mock<BiometricStateService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -94,6 +95,7 @@ describe("DefaultUnlockService", () => {
     stateProvider.getUserState$.mockReturnValue(of(VaultTimeoutStringType.Never));
     stateService.setUserKeyAutoUnlock.mockResolvedValue(undefined);
     biometricsService.setBiometricProtectedUnlockKeyForUser.mockResolvedValue(undefined);
+    biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
 
     Object.defineProperty(SdkLoadService, "Ready", {
@@ -123,6 +125,7 @@ describe("DefaultUnlockService", () => {
       biometricsService,
       platformUtilsService,
       stateService,
+      biometricStateService
     );
 
     jest.spyOn(service as any, "setLegacyMasterKeyFromUnlockData").mockResolvedValue(undefined);
@@ -295,3 +298,5 @@ describe("DefaultUnlockService", () => {
         mockUserId,
       );
     });
+  });
+});
