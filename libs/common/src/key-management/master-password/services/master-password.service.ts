@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, iif, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
@@ -107,11 +107,28 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
         iif(
           () => enabled,
           this.masterPasswordUnlockData$(userId).pipe(
-            map((unlockData) => {
-              if (unlockData == null) {
-                throw new Error("Master password unlock data not found for user.");
+            switchMap((unlockData) => {
+              if (unlockData != null) {
+                return of(unlockData.salt);
               }
-              return unlockData.salt;
+              // No unlock data. Determine whether this is a hydration failure
+              // or a user who legitimately has no master password yet
+              // (e.g., TDE offboarding).
+              return from(this.userHasMasterPassword(userId)).pipe(
+                switchMap((hasMp) => {
+                  if (hasMp) {
+                    throw new Error("Master password unlock data not found for user.");
+                  }
+                  // TODO: PM-32059 — Edge case: user does not have a master password (e.g., TDE offboarding).
+                  // When salt is disconnected from email (Stage 3), part of that should involve a "generateSalt"
+                  // function that TDE offboarding deliberately calls; it should not be a side-effect of retrieving
+                  // the user's salt.
+                  return this.accountService.accounts$.pipe(
+                    map((accounts) => accounts[userId].email),
+                    map((email) => this.emailToSalt(email)),
+                  );
+                }),
+              );
             }),
           ),
           this.accountService.accounts$.pipe(
