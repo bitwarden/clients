@@ -29,7 +29,8 @@
           bitIconButton="bwi-drag-and-drop"
           class="!tw-py-0 !tw-px-1"
           cdkDragHandle
-          [label]="'reorderToggleButtonWithVim' | i18n: uriLabel"
+          [label]="'reorderToggleButton' | i18n: uriLabel"
+          [attr.aria-description]="'reorderAriaDescription' | i18n"
           (keydown)="handleKeydown($event)"
           data-testid="reorder-toggle-button"
         ></button>
