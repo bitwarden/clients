@@ -39,13 +39,13 @@ describe("common connector utilities", () => {
   describe("b64Decode", () => {
     it.skip("decodes a base64 string", () => {
       const encoded = btoa("hello world");
-      expect(b64Decode(encoded)).toBe("hello world");
+      expect(common.b64Decode(encoded)).toBe("hello world");
     });
 
     it.skip("handles spaceAsPlus replacement", () => {
       const original = btoa("test");
       const withSpaces = original.replace(/\+/g, " ");
-      expect(b64Decode(withSpaces, true)).toBe("test");
+      expect(common.b64Decode(withSpaces, true)).toBe("test");
     });
   });
 
