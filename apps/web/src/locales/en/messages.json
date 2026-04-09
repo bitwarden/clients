@@ -8266,6 +8266,29 @@
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists":{
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
+
+  },
   "inputRequired": {
     "message": "Input is required."
   },

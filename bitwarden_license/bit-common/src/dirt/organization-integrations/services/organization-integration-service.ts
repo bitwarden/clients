@@ -29,6 +29,7 @@ import { OrganizationIntegrationConfigurationApiService } from "./organization-i
 export type IntegrationModificationResult = {
   mustBeOwner: boolean;
   success: boolean;
+  anotherIntegrationWithSameTypeExists?: boolean;
   organizationIntegrationResult?: OrganizationIntegration | undefined;
 };
 
@@ -121,7 +122,21 @@ export class OrganizationIntegrationService {
       };
     } catch (error) {
       if (error instanceof ErrorResponse && error.statusCode === 404) {
-        return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
+        return {
+          mustBeOwner: true,
+          success: false,
+          organizationIntegrationResult: undefined,
+          anotherIntegrationWithSameTypeExists: false,
+        };
+      }
+
+      if (error instanceof ErrorResponse && error.statusCode === 409) {
+        return {
+          mustBeOwner: false,
+          success: false,
+          organizationIntegrationResult: undefined,
+          anotherIntegrationWithSameTypeExists: true,
+        };
       }
       throw error;
     }
