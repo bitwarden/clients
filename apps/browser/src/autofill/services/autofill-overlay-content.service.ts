@@ -210,6 +210,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (this.isReadonlyOrDisabledElement(formFieldElement, autofillFieldData)) {
+      return;
+    }
+
     await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
   }
 
@@ -754,6 +758,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
+      if (this.isReadonlyOrDisabledElement(this.mostRecentlyFocusedField)) {
+        return;
+      }
       this.clearFocusInlineMenuListTimeout();
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       await this.sendExtensionMessage("openAutofillInlineMenu", { isOpeningFullInlineMenu: true });
@@ -788,6 +795,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (!elementIsFillableFormField(formFieldElement)) {
+      return;
+    }
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
       return;
     }
 
@@ -912,6 +922,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the click event.
    */
   private async triggerFormFieldClickedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+      return;
+    }
+
     if ((await this.isInlineMenuButtonVisible()) || (await this.isInlineMenuListVisible())) {
       return;
     }
@@ -940,6 +954,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async triggerFormFieldFocusedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (await this.isFieldCurrentlyFilling()) {
+      return;
+    }
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
       return;
     }
 
@@ -1301,7 +1318,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ) => {
     const autofillFieldData = this.hiddenFormFieldElements.get(formFieldElement);
     if (autofillFieldData) {
-      autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
+      autofillFieldData.readonly =
+        Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
+        getAttributeBoolean(formFieldElement, "aria-readonly", true);
       autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
 
@@ -1409,6 +1428,25 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
+  }
+
+  /**
+   * Checks if a form field element is currently readonly or disabled.
+   *
+   * @param formFieldElement - The form field element to evaluate.
+   * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
+   */
+  private isReadonlyOrDisabledElement(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData?: AutofillField,
+  ): boolean {
+    return (
+      getAttributeBoolean(formFieldElement, "disabled") ||
+      Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
+      getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
+      autofillFieldData?.readonly === true ||
+      autofillFieldData?.disabled === true
+    );
   }
 
   /**
