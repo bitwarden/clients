@@ -7,7 +7,6 @@ import { of } from "rxjs";
 import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
@@ -47,7 +46,6 @@ describe("DefaultUnlockService", () => {
   const kdfService = mock<KdfConfigService>();
   const accountService = mock<AccountService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
-  const cryptoFunctionService = mock<CryptoFunctionService>();
   const stateProvider = mock<StateProvider>();
   const stateService = mock<StateService>();
   const logService = mock<LogService>();
@@ -110,8 +108,6 @@ describe("DefaultUnlockService", () => {
     });
 
     jest.spyOn(PureCrypto, "derive_kdf_material").mockReturnValue(new Uint8Array(32));
-
-    cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
     const mockStateUpdate = jest.fn().mockResolvedValue(undefined);
     stateProvider.getUser.mockReturnValue({ update: mockStateUpdate } as any);
@@ -328,18 +324,13 @@ describe("DefaultUnlockService", () => {
   });
 
   describe("setLegacyMasterKeyFromUnlockData", () => {
-    it("derives legacy master key and stores key + hash", async () => {
+    it("derives legacy master key and stores key", async () => {
       setLegacyMasterKeyFromUnlockDataSpy.mockRestore();
       const derivedMasterKey = new Uint8Array(32);
-      const localAuthorizationHash = new Uint8Array(32);
       const updateMasterKey = jest.fn().mockResolvedValue(undefined);
-      const updateMasterKeyHash = jest.fn().mockResolvedValue(undefined);
 
       jest.spyOn(PureCrypto, "derive_kdf_material").mockReturnValue(derivedMasterKey);
-      cryptoFunctionService.pbkdf2.mockResolvedValue(localAuthorizationHash);
-      stateProvider.getUser
-        .mockReturnValueOnce({ update: updateMasterKey } as any)
-        .mockReturnValueOnce({ update: updateMasterKeyHash } as any);
+      stateProvider.getUser.mockReturnValueOnce({ update: updateMasterKey } as any);
 
       await (service as any).setLegacyMasterKeyFromUnlockData(
         mockMasterPassword,
@@ -352,15 +343,8 @@ describe("DefaultUnlockService", () => {
         new TextEncoder().encode(mockMasterPasswordUnlockData.salt),
         mockMasterPasswordUnlockData.kdf,
       );
-      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-        derivedMasterKey,
-        mockMasterPassword,
-        "sha256",
-        2,
-      );
-      expect(stateProvider.getUser).toHaveBeenNthCalledWith(1, mockUserId, MASTER_KEY);
+      expect(stateProvider.getUser).toHaveBeenCalledWith(mockUserId, MASTER_KEY);
       expect(updateMasterKey).toHaveBeenCalledTimes(1);
-      expect(updateMasterKeyHash).toHaveBeenCalledTimes(1);
     });
   });
 });
