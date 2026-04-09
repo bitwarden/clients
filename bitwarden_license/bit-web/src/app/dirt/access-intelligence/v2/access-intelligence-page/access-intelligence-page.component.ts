@@ -14,7 +14,7 @@ import {
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
-import { concatMap, delay, skip } from "rxjs/operators";
+import { concatMap, delay, finalize, skip } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -46,6 +46,7 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
 import { AllApplicationsTabComponent } from "../all-applications-tab/all-applications-tab.component";
@@ -81,6 +82,7 @@ type ProgressStep = ReportProgress | null;
     IconComponent,
     JslibModule,
     HeaderModule,
+    PageLoadingComponent,
     TabsModule,
     ReportLoadingComponent,
   ],
@@ -130,6 +132,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   // Prevents jarring quick transitions between progress steps
   private readonly STEP_DISPLAY_DELAY_MS = 250;
 
+  protected readonly initializing = signal(true);
   protected readonly currentProgressStep = signal<ProgressStep>(null);
 
   protected readonly hasReportData = computed(() => {
@@ -200,8 +203,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         map((params) => params.get("organizationId")),
         filter(Boolean),
         switchMap((orgId) => {
+          this.initializing.set(true);
           this.organizationId.set(orgId as OrganizationId);
-          return this.accessIntelligenceService.initializeForOrganization$(orgId as OrganizationId);
+          return this.accessIntelligenceService
+            .initializeForOrganization$(orgId as OrganizationId)
+            .pipe(finalize(() => this.initializing.set(false)));
         }),
       )
       .subscribe();
