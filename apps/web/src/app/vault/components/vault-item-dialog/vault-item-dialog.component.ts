@@ -102,12 +102,6 @@ export interface VaultItemDialogParams {
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherViewLike) => Promise<void>;
-
-  /**
-   * When provided, a "Back" button is shown when creating a new cipher (cipher == null),
-   * and the provided method will be invoked.
-   */
-  backAction?: () => void;
 }
 
 export const VaultItemDialogResult = {
@@ -335,8 +329,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected confirmedPremiumUpgrade = false;
 
-  protected backAction: (() => void) | undefined;
-
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
     private dialogRef: DialogRef<VaultItemDialogResult>,
@@ -417,12 +409,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
     this.showRestore = await this.canUserRestore();
     this.performingInitialLoad = false;
-    if (typeof this.params.backAction === "function") {
-      this.backAction = () => {
-        this.params.backAction();
-        this.dialogRef.close();
-      };
-    }
   }
 
   ngOnDestroy() {
@@ -475,9 +461,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
-
-    // Clear the back action to avoid going back to the new item dialog
-    this.backAction = undefined;
 
     // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
     this.canEdit = await firstValueFrom(

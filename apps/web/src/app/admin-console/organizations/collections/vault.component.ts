@@ -855,14 +855,14 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
     if (result.result === AddItemDialogResult.Cipher) {
-      await this.addCipher(result.cipherType, true);
+      await this.addCipher(result.cipherType);
     } else if (result.result === AddItemDialogResult.Collection) {
-      await this.addCollection(true);
+      await this.addCollection();
     }
   }
 
   /** Opens the Add/Edit Dialog */
-  async addCipher(cipherType?: CipherType, addItemDialogOnClose?: boolean) {
+  async addCipher(cipherType?: CipherType) {
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig(
       "add",
       undefined,
@@ -877,13 +877,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       collectionIds: collectionId ? [collectionId] : [],
     };
 
-    await this.openVaultItemDialog(
-      "form",
-      cipherFormConfig,
-      undefined,
-      undefined,
-      addItemDialogOnClose,
-    );
+    await this.openVaultItemDialog("form", cipherFormConfig);
   }
 
   /**
@@ -951,7 +945,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     formConfig: CipherFormConfig,
     cipher?: CipherView,
     activeCollectionId?: CollectionId,
-    addItemDialogOnClose?: boolean,
   ) {
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
@@ -959,7 +952,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       activeCollectionId,
       isAdminConsoleAction: true,
       restore: this.restore,
-      backAction: addItemDialogOnClose ? this.openAddItemDialog.bind(this) : undefined,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
@@ -1295,7 +1287,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  async addCollection(navigateBackToItemDialog?: boolean): Promise<void> {
+  async addCollection(): Promise<void> {
     const organization = await firstValueFrom(this.organization$);
     const selectedCollection = await firstValueFrom(this.selectedCollection$);
     const dialog = openCollectionDialog(this.dialogService, {
@@ -1304,7 +1296,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         parentCollectionId: selectedCollection?.node.id,
         limitNestedCollections: !organization.canEditAnyCollection,
         isAdminConsoleActive: true,
-        backAction: navigateBackToItemDialog ? this.openAddItemDialog.bind(this) : undefined,
       },
     });
 

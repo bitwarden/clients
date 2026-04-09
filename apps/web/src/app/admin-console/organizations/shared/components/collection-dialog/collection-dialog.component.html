@@ -1,18 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog [disablePadding]="!loading" dialogSize="large">
-    @if (backAction) {
-      <button
-        type="button"
-        bitIconButton="bwi-angle-left"
-        buttonType="primaryGhost"
-        size="default"
-        [label]="'back' | i18n"
-        (click)="backAction()"
-        class="-tw-ms-3"
-        data-testid="collection-dialog-back-button"
-        bitDialogHeaderStart
-      ></button>
-    }
     <span bitDialogTitle>
       <ng-container *ngIf="editMode">
         {{ (dialogReadonly ? "viewCollection" : "editCollection") | i18n }}

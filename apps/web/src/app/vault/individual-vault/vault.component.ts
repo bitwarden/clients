@@ -832,10 +832,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     await this.filterComponent()?.filters?.organizationFilter?.action(orgNode);
   }
 
-  addFolder = (navigateToAddItemDialog?: boolean): void => {
-    AddEditFolderDialogComponent.open(this.dialogService, {
-      backAction: navigateToAddItemDialog ? this.openAddItemDialog.bind(this) : undefined,
-    });
+  addFolder = (): void => {
+    AddEditFolderDialogComponent.open(this.dialogService);
   };
 
   editFolder = async (folder: FolderFilter): Promise<void> => {
@@ -927,14 +925,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     mode: VaultItemDialogMode,
     formConfig: CipherFormConfig,
     activeCollectionId?: CollectionId,
-    navigateBackToItemDialog?: boolean,
   ) {
     this.vaultItemDialogRef = VaultItemDialogComponent.open(this.dialogService, {
       mode,
       formConfig,
       activeCollectionId,
       restore: this.restore,
-      backAction: navigateBackToItemDialog ? this.openAddItemDialog.bind(this) : undefined,
     });
 
     const result = await lastValueFrom(this.vaultItemDialogRef.closed);
@@ -972,11 +968,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
     if (result.result === AddItemDialogResult.Cipher) {
-      await this.addCipher(result.cipherType, true);
+      await this.addCipher(result.cipherType);
     } else if (result.result === AddItemDialogResult.Folder) {
-      this.addFolder(true);
+      this.addFolder();
     } else {
-      await this.addCollection(true);
+      await this.addCollection();
     }
   }
 
@@ -984,7 +980,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    * Opens the add cipher dialog.
    * @param cipherType The type of cipher to add.
    */
-  async addCipher(cipherType?: CipherType, navigateBackToItemDialog?: boolean) {
+  async addCipher(cipherType?: CipherType) {
     const type = cipherType ?? this.activeFilter.cipherType;
     const cipherFormConfig = await this.cipherFormConfigService.buildConfig("add", undefined, type);
     const collectionId =
@@ -1010,7 +1006,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       folderId: this.activeFilter.folderId,
     };
 
-    await this.openVaultItemDialog("form", cipherFormConfig, undefined, navigateBackToItemDialog);
+    await this.openVaultItemDialog("form", cipherFormConfig);
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
@@ -1102,7 +1098,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     );
   }
 
-  async addCollection(navigateBackToItemDialog?: boolean): Promise<void> {
+  async addCollection(): Promise<void> {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.allOrganizations
@@ -1111,7 +1107,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         parentCollectionId: this.filter.collectionId,
         showOrgSelector: true,
         limitNestedCollections: true,
-        backAction: navigateBackToItemDialog ? this.openAddItemDialog.bind(this) : undefined,
       },
     });
     const result = await lastValueFrom(dialog.closed);

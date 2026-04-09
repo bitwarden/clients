@@ -45,8 +45,6 @@ export type AddEditFolderDialogResult = UnionOfValues<typeof AddEditFolderDialog
 export type AddEditFolderDialogData = {
   /** When provided, dialog will display edit folder variant */
   editFolderConfig?: { folder: FolderView };
-  /**  When provided, the dialog will show a back button that will trigger the provided callback. */
-  backAction?: () => void;
 };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -77,8 +75,6 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
 
   variant: "add" | "edit" = "add";
 
-  protected backAction: (() => void) | undefined;
-
   folderForm = this.formBuilder.group({
     name: ["", Validators.required],
   });
@@ -108,14 +104,6 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     } else {
       // Create a new folder view
       this.folder = new FolderView();
-    }
-
-    // Set up back action when provided
-    if (this.data?.backAction) {
-      this.backAction = () => {
-        this.data?.backAction?.();
-        this.dialogRef.close();
-      };
     }
   }
 

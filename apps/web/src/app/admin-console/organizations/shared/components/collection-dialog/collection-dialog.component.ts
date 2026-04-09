@@ -102,10 +102,6 @@ export interface CollectionDialogParams {
   readonly?: boolean;
   isAddAccessCollection?: boolean;
   isAdminConsoleActive?: boolean;
-  /**
-   * When provided, a "Back" button is shown and the provided method will be invoked.
-   */
-  backAction?: () => void;
 }
 
 export interface CollectionDialogResult {
@@ -152,7 +148,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   protected initialPermission: CollectionPermission;
-  protected backAction: (() => void) | undefined;
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -228,13 +223,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         this.organizationSelected.markAsTouched();
         this.formGroup.updateValueAndValidity();
       });
-
-    if (this.params.backAction) {
-      this.backAction = () => {
-        this.params.backAction();
-        this.close(CollectionDialogAction.Canceled);
-      };
-    }
   }
 
   async loadOrg(orgId: string) {

@@ -1,17 +1,4 @@
 <form [formGroup]="folderForm" [bitSubmit]="submit" bit-dialog id="add-edit-folder">
-  @if (backAction) {
-    <button
-      type="button"
-      bitIconButton="bwi-angle-left"
-      buttonType="primaryGhost"
-      size="default"
-      [label]="'back' | i18n"
-      (click)="backAction()"
-      class="-tw-ms-3"
-      data-testid="folder-dialog-back-button"
-      bitDialogHeaderStart
-    ></button>
-  }
   <span bitDialogTitle>
     {{ (variant === "add" ? "newFolder" : "editFolder") | i18n }}
   </span>
