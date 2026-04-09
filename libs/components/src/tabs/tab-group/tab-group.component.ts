@@ -97,7 +97,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     const allTabs = this.tabs().map((_, i) => i);
 
     if (!this.tabListRendered()) {
-      return { displayed: allTabs, overflow: [] };
+      return { displayed: allTabs, overflow: [] as number[] };
     }
 
     const tabWidths = this.tabWidths();
@@ -111,7 +111,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
     // If all tabs fit without the more button, no overflow needed
     if (totalTabsWidth <= containerWidth) {
-      return { displayed: allTabs, overflow: [] };
+      return { displayed: allTabs, overflow: [] as number[] };
     }
 
     const displayed: number[] = []; // Store indexes of tabs that are displayed
