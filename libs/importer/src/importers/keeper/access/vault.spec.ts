@@ -2,10 +2,13 @@
  * This is a magic line that tricks Jest into adding subtle.crypto to the test environment.
  * @jest-environment node
  */
+import { fromBinary } from "@bufbuild/protobuf";
+
 import { Vault } from "../../keeper/access";
 import * as fixture from "../../spec-data/keeper-direct/sync-down-fixture.json";
 
-import { SyncDownResponse } from "./generated/sync-down";
+
+import { SyncDownResponseSchema } from "./generated/sync-down_pb";
 import { VaultItem } from "./models";
 
 // Vault is a temporary data structure. It's only used to store the decoded vault data from the Keeper API response.
@@ -16,7 +19,7 @@ describe("Keeper Vault", () => {
   let vault: Vault;
 
   beforeAll(async () => {
-    const response = SyncDownResponse.fromBinary(Buffer.from(fixture.response, "base64"));
+    const response = fromBinary(SyncDownResponseSchema, Buffer.from(fixture.response, "base64"));
     const masterKey = new Uint8Array(Buffer.from(fixture.masterKey, "base64"));
     vault = await (Vault as any).processMergedSyncDownPages(response, masterKey);
   });

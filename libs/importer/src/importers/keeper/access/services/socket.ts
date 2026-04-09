@@ -1,5 +1,7 @@
-import { ApiRequest, ApiRequestPayload } from "../generated/api-request";
-import { WssClientResponse, WssConnectionRequest } from "../generated/push";
+import { create, fromBinary, toBinary } from "@bufbuild/protobuf";
+
+import { ApiRequestSchema, ApiRequestPayloadSchema } from "../generated/api-request_pb";
+import { WssClientResponseSchema, WssConnectionRequestSchema } from "../generated/push_pb";
 import { PendingMessage, PushMessage, SocketListener } from "../models";
 
 import { base64UrlEncode, decryptAesV2, encryptAesV2 } from "./crypto";
@@ -13,29 +15,29 @@ export async function connectPushSocket(
   serverKeyId: number = 7,
   locale: string = "en_US",
 ): Promise<SocketListener> {
-  const connectionRequest = WssConnectionRequest.create({
+  const connectionRequest = create(WssConnectionRequestSchema, {
     messageSessionUid,
     encryptedDeviceToken: deviceToken,
     deviceTimeStamp: BigInt(Date.now()),
   });
 
-  const connectionRequestBytes = WssConnectionRequest.toBinary(connectionRequest);
+  const connectionRequestBytes = toBinary(WssConnectionRequestSchema, connectionRequest);
 
-  const payload = ApiRequestPayload.create({
+  const payload = create(ApiRequestPayloadSchema, {
     payload: connectionRequestBytes,
   });
-  const payloadBytes = ApiRequestPayload.toBinary(payload);
+  const payloadBytes = toBinary(ApiRequestPayloadSchema, payload);
   const encryptedPayload = await encryptAesV2(new Uint8Array(payloadBytes), transmissionKey);
   const encryptedTransmissionKey = await encryptWithKeeperKey(transmissionKey, serverKeyId);
 
-  const apiRequest = ApiRequest.create({
+  const apiRequest = create(ApiRequestSchema, {
     encryptedTransmissionKey,
     publicKeyId: serverKeyId,
     locale,
     encryptedPayload,
   });
 
-  const apiRequestBytes = ApiRequest.toBinary(apiRequest);
+  const apiRequestBytes = toBinary(ApiRequestSchema, apiRequest);
   const encodedRequest = base64UrlEncode(new Uint8Array(apiRequestBytes));
 
   const host = server.replace("govcloud.", "");
@@ -88,7 +90,7 @@ export async function connectPushSocket(
       try {
         const messageData = new Uint8Array(event.data as ArrayBuffer);
         const decryptedData = await decryptAesV2(messageData, transmissionKey);
-        const response = WssClientResponse.fromBinary(decryptedData);
+        const response = fromBinary(WssClientResponseSchema, decryptedData);
 
         let parsedMessage: Record<string, unknown> = {};
         if (response.message) {

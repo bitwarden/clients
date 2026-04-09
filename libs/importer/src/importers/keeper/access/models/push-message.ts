@@ -1,4 +1,4 @@
-import { MessageType } from "../generated/push";
+import { MessageType } from "../generated/push_pb";
 
 export { MessageType };
 

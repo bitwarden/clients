@@ -1,27 +1,41 @@
+import {
+  create,
+  fromBinary,
+  toBinary,
+  type DescMessage,
+  type MessageShape,
+} from "@bufbuild/protobuf";
+
 import { DeviceApprovalChannel, DuoMethod, TwoFactorMethod } from "../enums";
 import {
-  ApiRequest,
-  ApiRequestPayload,
-  Device,
-  DeviceRegistrationRequest,
-  DeviceVerificationRequest,
+  ApiRequestSchema,
+  type ApiRequestPayload,
+  ApiRequestPayloadSchema,
+  DeviceSchema,
+  DeviceRegistrationRequestSchema,
+  DeviceVerificationRequestSchema,
   EncryptedDataKeyType,
   LoginMethod,
-  LoginResponse,
+  type LoginResponse,
+  LoginResponseSchema,
   LoginState,
-  RegisterDeviceInRegionRequest,
-  StartLoginRequest,
+  RegisterDeviceInRegionRequestSchema,
+  StartLoginRequestSchema,
   TwoFactorChannelType,
   TwoFactorExpiration,
   TwoFactorPushType,
-  TwoFactorSendPushRequest,
-  TwoFactorValidateRequest,
-  TwoFactorValidateResponse,
+  TwoFactorSendPushRequestSchema,
+  TwoFactorValidateRequestSchema,
+  TwoFactorValidateResponseSchema,
   TwoFactorValueType,
-  ValidateAuthHashRequest,
-  ValidateDeviceVerificationCodeRequest,
-} from "../generated/api-request";
-import { SyncDownRequest, SyncDownResponse } from "../generated/sync-down";
+  ValidateAuthHashRequestSchema,
+  ValidateDeviceVerificationCodeRequestSchema,
+} from "../generated/api-request_pb";
+import {
+  SyncDownRequestSchema,
+  type SyncDownResponse,
+  SyncDownResponseSchema,
+} from "../generated/sync-down_pb";
 import {
   ClientOptions,
   DeviceCredentials,
@@ -174,7 +188,7 @@ export class Client {
     const { privateKey, publicKey } = await generateEcKey();
     const publicKeyBytes = await unloadEcPublicKey(publicKey);
 
-    const request = DeviceRegistrationRequest.create({
+    const request = create(DeviceRegistrationRequestSchema, {
       deviceName: this.deviceName,
       clientVersion: this.clientVersion,
       devicePublicKey: publicKeyBytes,
@@ -183,9 +197,9 @@ export class Client {
     const response = await this.apiRequest(
       "authentication/register_device",
       request,
-      DeviceRegistrationRequest,
+      DeviceRegistrationRequestSchema,
     );
-    const device = Device.fromBinary(response);
+    const device = fromBinary(DeviceSchema, response);
 
     const deviceToken = new Uint8Array(device.encryptedDeviceToken);
 
@@ -201,7 +215,7 @@ export class Client {
   ): Promise<void> {
     const publicKeyBytes = await this.getPublicKeyFromPrivate(devicePrivateKey);
 
-    const request = RegisterDeviceInRegionRequest.create({
+    const request = create(RegisterDeviceInRegionRequestSchema, {
       encryptedDeviceToken: deviceToken,
       clientVersion: this.clientVersion,
       deviceName: this.deviceName,
@@ -212,7 +226,7 @@ export class Client {
       await this.apiRequest(
         "authentication/register_device_in_region",
         request,
-        RegisterDeviceInRegionRequest,
+        RegisterDeviceInRegionRequestSchema,
       );
     } catch (error: unknown) {
       // Ignore "already exists" errors - device may already be registered
@@ -383,7 +397,7 @@ export class Client {
     messageSessionUid: Uint8Array,
     resend: boolean = false,
   ): Promise<void> {
-    const request = DeviceVerificationRequest.create({
+    const request = create(DeviceVerificationRequestSchema, {
       username,
       encryptedDeviceToken: deviceToken,
       verificationChannel: resend ? "email_resend" : "email",
@@ -394,12 +408,12 @@ export class Client {
     await this.apiRequest(
       "authentication/request_device_verification",
       request,
-      DeviceVerificationRequest,
+      DeviceVerificationRequestSchema,
     );
   }
 
   private async validateDeviceVerificationCode(username: string, code: string): Promise<void> {
-    const request = ValidateDeviceVerificationCodeRequest.create({
+    const request = create(ValidateDeviceVerificationCodeRequestSchema, {
       username: username.toLowerCase(),
       clientVersion: this.clientVersion,
       verificationCode: code,
@@ -408,7 +422,7 @@ export class Client {
     await this.apiRequest(
       "authentication/validate_device_verification_code",
       request,
-      ValidateDeviceVerificationCodeRequest,
+      ValidateDeviceVerificationCodeRequestSchema,
     );
   }
 
@@ -416,12 +430,12 @@ export class Client {
     encryptedLoginToken: Uint8Array,
     pushType?: TwoFactorPushType,
   ): Promise<void> {
-    const request = TwoFactorSendPushRequest.create({
+    const request = create(TwoFactorSendPushRequestSchema, {
       encryptedLoginToken,
       pushType: pushType || TwoFactorPushType.TWO_FA_PUSH_NONE,
     });
 
-    await this.apiRequest("authentication/2fa_send_push", request, TwoFactorSendPushRequest);
+    await this.apiRequest("authentication/2fa_send_push", request, TwoFactorSendPushRequestSchema);
   }
 
   private twoFactorMethodToUi = new Map<TwoFactorChannelType, TwoFactorMethod>([
@@ -636,7 +650,7 @@ export class Client {
     channelUid: Uint8Array,
     valueType: TwoFactorValueType,
   ): Promise<Uint8Array> {
-    const request = TwoFactorValidateRequest.create({
+    const request = create(TwoFactorValidateRequestSchema, {
       encryptedLoginToken,
       value: code,
       valueType,
@@ -647,10 +661,10 @@ export class Client {
     const responseBytes = await this.apiRequest(
       "authentication/2fa_validate",
       request,
-      TwoFactorValidateRequest,
+      TwoFactorValidateRequestSchema,
     );
 
-    const validateResponse = TwoFactorValidateResponse.fromBinary(responseBytes);
+    const validateResponse = fromBinary(TwoFactorValidateResponseSchema, responseBytes);
 
     if (
       !validateResponse.encryptedLoginToken ||
@@ -667,7 +681,7 @@ export class Client {
     deviceToken: Uint8Array,
     messageSessionUid: Uint8Array,
   ): Promise<LoginResponse> {
-    const request = StartLoginRequest.create({
+    const request = create(StartLoginRequestSchema, {
       encryptedLoginToken,
       encryptedDeviceToken: deviceToken,
       loginMethod: LoginMethod.EXISTING_ACCOUNT,
@@ -678,9 +692,9 @@ export class Client {
     const responseBytes = await this.apiRequest(
       "authentication/start_login",
       request,
-      StartLoginRequest,
+      StartLoginRequestSchema,
     );
-    return LoginResponse.fromBinary(responseBytes);
+    return fromBinary(LoginResponseSchema, responseBytes);
   }
 
   private async startLogin(
@@ -688,7 +702,7 @@ export class Client {
     deviceToken: Uint8Array,
     messageSessionUid: Uint8Array,
   ): Promise<LoginResponse> {
-    const request = StartLoginRequest.create({
+    const request = create(StartLoginRequestSchema, {
       username,
       encryptedDeviceToken: deviceToken,
       loginMethod: LoginMethod.EXISTING_ACCOUNT,
@@ -699,16 +713,16 @@ export class Client {
     const responseBytes = await this.apiRequest(
       "authentication/start_login",
       request,
-      StartLoginRequest,
+      StartLoginRequestSchema,
     );
-    return LoginResponse.fromBinary(responseBytes);
+    return fromBinary(LoginResponseSchema, responseBytes);
   }
 
   private async validateAuthHash(
     authHash: Uint8Array,
     encryptedLoginToken: Uint8Array,
   ): Promise<LoginResponse> {
-    const request = ValidateAuthHashRequest.create({
+    const request = create(ValidateAuthHashRequestSchema, {
       authResponse: authHash,
       encryptedLoginToken,
     });
@@ -716,16 +730,16 @@ export class Client {
     const responseBytes = await this.apiRequest(
       "authentication/validate_auth_hash",
       request,
-      ValidateAuthHashRequest,
+      ValidateAuthHashRequestSchema,
     );
-    return LoginResponse.fromBinary(responseBytes);
+    return fromBinary(LoginResponseSchema, responseBytes);
   }
 
   private async syncDownRequest(
     sessionToken: Uint8Array,
     continuationToken?: Uint8Array,
   ): Promise<SyncDownResponse> {
-    const request = SyncDownRequest.create({
+    const request = create(SyncDownRequestSchema, {
       dataVersion: 0,
       continuationToken: continuationToken || new Uint8Array(),
     });
@@ -733,32 +747,32 @@ export class Client {
     const responseBytes = await this.apiRequestAuth(
       "vault/sync_down",
       request,
-      SyncDownRequest,
+      SyncDownRequestSchema,
       sessionToken,
     );
-    return SyncDownResponse.fromBinary(responseBytes);
+    return fromBinary(SyncDownResponseSchema, responseBytes);
   }
 
-  private async apiRequest<TReq>(
+  private async apiRequest<D extends DescMessage>(
     endpoint: string,
-    request: TReq,
-    requestType: { toBinary: (req: TReq) => Uint8Array },
+    request: MessageShape<D>,
+    requestSchema: D,
   ): Promise<Uint8Array> {
-    const payload = ApiRequestPayload.create({
-      payload: requestType.toBinary(request),
+    const payload = create(ApiRequestPayloadSchema, {
+      payload: toBinary(requestSchema, request),
     });
 
     return await this.executeRest(endpoint, payload);
   }
 
-  private async apiRequestAuth<TReq>(
+  private async apiRequestAuth<D extends DescMessage>(
     endpoint: string,
-    request: TReq,
-    requestType: { toBinary: (req: TReq) => Uint8Array },
+    request: MessageShape<D>,
+    requestSchema: D,
     sessionToken: Uint8Array,
   ): Promise<Uint8Array> {
-    const payload = ApiRequestPayload.create({
-      payload: requestType.toBinary(request),
+    const payload = create(ApiRequestPayloadSchema, {
+      payload: toBinary(requestSchema, request),
       encryptedSessionToken: sessionToken,
     });
 
@@ -776,18 +790,18 @@ export class Client {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         const transmissionKey = generateEncryptionKey();
-        const payloadBytes = ApiRequestPayload.toBinary(payload);
+        const payloadBytes = toBinary(ApiRequestPayloadSchema, payload);
         const encryptedPayload = await encryptAesV2(new Uint8Array(payloadBytes), transmissionKey);
         const encryptedKey = await encryptWithKeeperKey(transmissionKey, keyId);
 
-        const apiRequest = ApiRequest.create({
+        const apiRequest = create(ApiRequestSchema, {
           encryptedTransmissionKey: encryptedKey,
           publicKeyId: keyId,
           locale: this.locale,
           encryptedPayload: encryptedPayload,
         });
 
-        const requestBytes = ApiRequest.toBinary(apiRequest);
+        const requestBytes = toBinary(ApiRequestSchema, apiRequest);
         const response = await post(url, requestBytes.buffer as ArrayBuffer);
 
         if (keyId !== this.serverKeyId) {

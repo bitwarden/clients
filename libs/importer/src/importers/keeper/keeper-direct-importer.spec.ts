@@ -1,6 +1,8 @@
 /**
  * @jest-environment node
  */
+import { fromBinary } from "@bufbuild/protobuf";
+
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -10,7 +12,7 @@ import { ImportResult } from "../../models";
 import * as fixture from "../spec-data/keeper-direct/sync-down-fixture.json";
 
 import { Vault } from "./access";
-import { SyncDownResponse } from "./access/generated/sync-down";
+import { SyncDownResponseSchema } from "./access/generated/sync-down_pb";
 import { KeeperDirectImporter } from "./keeper-direct-importer";
 
 describe("Keeper Direct Importer", () => {
@@ -32,7 +34,7 @@ describe("Keeper Direct Importer", () => {
 
     jest.spyOn(console, "warn").mockImplementation();
 
-    const response = SyncDownResponse.fromBinary(Buffer.from(fixture.response, "base64"));
+    const response = fromBinary(SyncDownResponseSchema, Buffer.from(fixture.response, "base64"));
     vault = await (Vault as any).processMergedSyncDownPages(
       response,
       new Uint8Array(Buffer.from(fixture.masterKey, "base64")),
