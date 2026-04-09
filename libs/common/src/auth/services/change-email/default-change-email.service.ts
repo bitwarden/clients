@@ -91,6 +91,9 @@ export class DefaultChangeEmailService implements ChangeEmailService {
           existingSalt,
         );
 
+      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), the new salt
+      // will no longer be derived from the new email. This will need a userId-independent
+      // salt for the new email identity.
       const newSalt = this.masterPasswordService.emailToSalt(newEmail);
       const newAuthData = await this.masterPasswordService.makeMasterPasswordAuthenticationData(
         masterPassword,

@@ -341,8 +341,8 @@ export class InputPasswordComponent implements OnInit {
       // is handled by the parent caller's service, which supplies the target user's email to
       // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.resetMasterPassword).
       //
-      // If/when we shift to using random entropy for the salt, the place to do so would be
-      // replacing: this.masterPasswordService.emailToSalt(this.email).
+      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), replace
+      // this.masterPasswordService.emailToSalt(this.email) with a KM-originated salt.
       const salt =
         this.userId != null
           ? await firstValueFrom(this.masterPasswordService.saltForUser$(this.userId))
