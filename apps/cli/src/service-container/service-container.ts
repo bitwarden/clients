@@ -704,7 +704,6 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountService,
       this.masterPasswordService,
-      this.cryptoFunctionService,
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),
@@ -797,6 +796,7 @@ export class ServiceContainer {
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
+      this.unlockService,
       this.keyService,
       this.apiService,
       this.tokenService,
@@ -872,7 +872,6 @@ export class ServiceContainer {
       this.cipherService,
       this.apiService,
       this.billingAccountProfileStateService,
-      this.configService,
     );
 
     this.folderService = new FolderService(

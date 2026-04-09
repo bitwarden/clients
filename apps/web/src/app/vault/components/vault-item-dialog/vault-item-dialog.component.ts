@@ -225,11 +225,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-  private readonly archiveFlagEnabled = toSignal(this.archiveFlagEnabled$, {
-    initialValue: false,
-  });
-
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   /**
@@ -299,9 +294,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get showArchiveOptions(): boolean {
-    return (
-      this.archiveFlagEnabled() && !this.params.isAdminConsoleAction && this.params.mode === "view"
-    );
+    return !this.params.isAdminConsoleAction && this.params.mode === "view";
   }
 
   protected get showArchiveBtn(): boolean {
@@ -466,6 +459,19 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
+
+    // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
+    this.canEdit = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
+    );
+
+    this.canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(
+        this.cipher,
+        this.params.isAdminConsoleAction,
+      ),
+    );
+
     await this.changeMode("view");
   }
 

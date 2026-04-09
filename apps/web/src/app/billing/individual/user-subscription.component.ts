@@ -9,8 +9,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -47,10 +45,6 @@ export class UserSubscriptionComponent implements OnInit {
   cancelPromise: Promise<any>;
   reinstatePromise: Promise<any>;
 
-  protected enableDiscountDisplay$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM23341_Milestone_2,
-  );
-
   constructor(
     private apiService: ApiService,
     private platformUtilsService: PlatformUtilsService,
@@ -63,7 +57,6 @@ export class UserSubscriptionComponent implements OnInit {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private toastService: ToastService,
     private accountService: AccountService,
-    private configService: ConfigService,
   ) {
     this.selfHosted = this.platformUtilsService.isSelfHost();
   }

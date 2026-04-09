@@ -559,6 +559,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
+      UnlockService,
       KeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -935,7 +936,6 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      CryptoFunctionServiceAbstraction,
       StateProvider,
       LogService,
       BiometricsService,
@@ -1891,12 +1891,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherArchiveService,
     useClass: DefaultCipherArchiveService,
-    deps: [
-      CipherServiceAbstraction,
-      ApiServiceAbstraction,
-      BillingAccountProfileStateService,
-      ConfigService,
-    ],
+    deps: [CipherServiceAbstraction, ApiServiceAbstraction, BillingAccountProfileStateService],
   }),
   safeProvider({
     provide: RotateableKeySetService,
