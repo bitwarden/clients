@@ -67,6 +67,17 @@ rightmost tabs are measured and moved into the dropdown menu accordingly.
 
 <Canvas of={stories.OverflowTabs} />
 
+## Preserve Content Tabs
+
+Set `[preserveContent]="true"` to keep the content of offscreen tabs in the DOM. Useful for keeping
+audio or video elements from re-initializing after navigating between tabs.
+
+<Canvas of={stories.PreserveContentTabs} />
+
+## Keyboard Navigation
+
+<Canvas of={stories.KeyboardNavigation} />
+
 ## Guidelines
 
 - Tab labels should be short and scannable — aim for 1–2 words.

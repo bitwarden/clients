@@ -67,7 +67,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   /**
    * Keep the content of off-screen tabs in the DOM.
-   * Useful for keeping <audio> or <video> elements from re-initializing
+   * Useful for keeping `audio` or `video` elements from re-initializing
    * after navigating between tabs.
    */
   readonly preserveContent = input(false);
