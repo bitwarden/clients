@@ -1,5 +1,9 @@
-<ul class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4 tw-list-none tw-p-0 tw-m-0">
-  @for (item of items(); track item.labelKey) {
+@let allItems = items();
+<ul
+  class="tw-grid tw-grid-cols-1 tw-gap-x-4 tw-gap-y-0.5 tw-list-none tw-p-0 tw-m-0"
+  [ngClass]="{ 'md:tw-grid-cols-2': allItems.length >= 6 }"
+>
+  @for (item of allItems; track item.labelKey) {
     <li>
       <bit-item>
         <button
