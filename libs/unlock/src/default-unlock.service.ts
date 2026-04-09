@@ -4,12 +4,8 @@ import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import {
-  MASTER_KEY,
-  MASTER_KEY_HASH,
-} from "@bitwarden/common/key-management/master-password/services/master-password.service";
+import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import {
   VAULT_TIMEOUT,
@@ -20,7 +16,6 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { MasterKey } from "@bitwarden/common/types/key";
@@ -52,7 +47,6 @@ export class DefaultUnlockService implements UnlockService {
     private kdfService: KdfConfigService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private cryptoFunctionService: CryptoFunctionService,
     private stateProvider: StateProvider,
     private logService: LogService,
     private biometricsService: BiometricsService,
@@ -231,18 +225,9 @@ export class DefaultUnlockService implements UnlockService {
       saltBuffer,
       masterPasswordUnlockData.kdf,
     );
-    const hash = await this.cryptoFunctionService.pbkdf2(
-      masterKey,
-      password,
-      "sha256",
-      2, // HashPurpose.LocalAuthorization
-    );
     await this.stateProvider
       .getUser(userId, MASTER_KEY)
       .update((_) => new SymmetricCryptoKey(masterKey) as MasterKey);
-    await this.stateProvider
-      .getUser(userId, MASTER_KEY_HASH)
-      .update((_) => Utils.fromBufferToB64(hash));
   }
 
   // When unlocking, certain side-effects must be run, such as setting the never-lock key and the biometrics key.

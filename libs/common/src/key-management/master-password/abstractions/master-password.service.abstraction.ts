@@ -40,13 +40,6 @@ export abstract class MasterPasswordServiceAbstraction {
    */
   abstract masterKey$: (userId: UserId) => Observable<MasterKey>;
   /**
-   * An observable that emits the master key hash for the user.
-   * @deprecated Interacting with the master-key directly is deprecated. Please use {@link makeMasterPasswordAuthenticationData}.
-   * @param userId The user ID.
-   * @throws If the user ID is missing.
-   */
-  abstract masterKeyHash$: (userId: UserId) => Observable<string>;
-  /**
    * Returns the master key encrypted user key for the user.
    * @param userId The user ID.
    * @throws If the user ID is missing.
@@ -142,30 +135,6 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
    * @throws If the user ID or master key is missing.
    */
   abstract setMasterKey: (masterKey: MasterKey, userId: UserId) => Promise<void>;
-  /**
-   * Clear the master key for the user.
-   * @deprecated Interacting with the master-key directly is deprecated.
-   * @param userId The user ID.
-   * @throws If the user ID is missing.
-   */
-  abstract clearMasterKey: (userId: UserId) => Promise<void>;
-  /**
-   * Set the master key hash for the user.
-   * Note: Use {@link clearMasterKeyHash} to clear the master key hash.
-   * @deprecated Interacting with the master-key directly is deprecated.
-   * @param masterKeyHash The master key hash.
-   * @param userId The user ID.
-   * @throws If the user ID or master key hash is missing.
-   */
-  abstract setMasterKeyHash: (masterKeyHash: string, userId: UserId) => Promise<void>;
-  /**
-   * Clear the master key hash for the user.
-   * @deprecated Interacting with the master-key directly is deprecated.
-   * @param userId The user ID.
-   * @throws If the user ID is missing.
-   */
-  abstract clearMasterKeyHash: (userId: UserId) => Promise<void>;
-
   /**
    * Set the master key encrypted user key for the user.
    * @param encryptedKey The master key encrypted user key.
