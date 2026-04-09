@@ -285,6 +285,7 @@ export class IntegrationCardComponent implements AfterViewInit, OnDestroy {
         this.integrationSettings().name,
         response.organizationIntegrationResult,
       );
+    }
 
     // show success toast
     if (response.success) {
