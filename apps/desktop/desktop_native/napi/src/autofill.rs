@@ -10,9 +10,7 @@ pub mod autofill {
 
     #[napi]
     pub async fn run_command(value: String) -> napi::Result<String> {
-        desktop_core::autofill::run_command(value)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(desktop_core::autofill::run_command(value).await?)
     }
 
     #[derive(Debug, serde::Serialize, serde:: Deserialize)]
@@ -256,7 +254,7 @@ pub mod autofill {
 
             let server = desktop_core::ipc::server::Server::start(&path, send).map_err(|e| {
                 napi::Error::from_reason(format!(
-                    "Error listening to server - Path: {path:?} - Error: {e} - {e:?}"
+                    "Error listening to server - Path: {path:?} - Error: {e:?}"
                 ))
             })?;
 
@@ -322,9 +320,7 @@ pub mod autofill {
         fn send(&self, _client_id: u32, message: String) -> napi::Result<u32> {
             self.server
                 .send(message)
-                .map_err(|e| {
-                    napi::Error::from_reason(format!("Error sending message - Error: {e} - {e:?}"))
-                })
+                .map_err(|e| napi::Error::from_reason(format!("Error sending message: {e:?}")))
                 // NAPI doesn't support u64 or usize, so we need to convert to u32
                 .map(|u| u32::try_from(u).unwrap_or_default())
         }

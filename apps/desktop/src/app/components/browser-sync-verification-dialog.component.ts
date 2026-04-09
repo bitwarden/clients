@@ -1,6 +1,5 @@
 import { Component, Inject } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   DIALOG_DATA,
   ButtonModule,
@@ -8,6 +7,7 @@ import {
   DialogService,
   CenterPositionStrategy,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 export type BrowserSyncVerificationDialogParams = {
   fingerprint: string[];
@@ -17,7 +17,7 @@ export type BrowserSyncVerificationDialogParams = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "browser-sync-verification-dialog.component.html",
-  imports: [JslibModule, ButtonModule, DialogModule],
+  imports: [I18nPipe, ButtonModule, DialogModule],
 })
 export class BrowserSyncVerificationDialogComponent {
   constructor(@Inject(DIALOG_DATA) protected params: BrowserSyncVerificationDialogParams) {}

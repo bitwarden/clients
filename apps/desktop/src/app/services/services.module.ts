@@ -163,6 +163,12 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import {
+  DefaultServerCommunicationConfigService,
+  ServerCommunicationConfigPlatformApiService,
+  ServerCommunicationConfigRepository,
+} from "../../platform/services/server-communication-config";
+import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
@@ -556,7 +562,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: VAULT_FILTER_BASE_ROUTE,
-    useValue: "/new-vault",
+    useValue: "/vault",
   }),
   safeProvider({
     provide: RoutedVaultFilterService,
@@ -579,6 +585,38 @@ const safeProviders: SafeProvider[] = [
       PendingAuthRequestsStateService,
       I18nServiceAbstraction,
       LogService,
+    ],
+  }),
+  safeProvider({
+    provide: ServerCommunicationConfigService,
+    useFactory: (
+      stateProvider: StateProvider,
+      platformUtilsService: PlatformUtilsService,
+      messageListener: MessageListener,
+      logService: LogService,
+      configService: ConfigService,
+      apiService: ApiService,
+      dialogService: DialogService,
+    ) =>
+      new DefaultServerCommunicationConfigService(
+        new ServerCommunicationConfigRepository(stateProvider),
+        new ServerCommunicationConfigPlatformApiService(
+          platformUtilsService,
+          messageListener,
+          logService,
+          dialogService,
+        ),
+        configService,
+        apiService,
+      ),
+    deps: [
+      StateProvider,
+      PlatformUtilsService,
+      MessageListener,
+      LogService,
+      ConfigService,
+      ApiService,
+      DialogService,
     ],
   }),
 ];

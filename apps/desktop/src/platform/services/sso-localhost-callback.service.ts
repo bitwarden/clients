@@ -144,7 +144,7 @@ export class SSOLocalhostCallbackService {
         });
 
         // Attempt to listen on the port
-        callbackServer.listen(port, () => {
+        callbackServer.listen(port, "localhost", () => {
           // Success - remove error listener and launch SSO
           callbackServer.removeAllListeners("error");
 

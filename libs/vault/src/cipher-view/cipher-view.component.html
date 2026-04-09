@@ -13,16 +13,20 @@
 
   @if (showChangePasswordLink()) {
     <bit-callout type="warning" [title]="''">
-      <a
-        bitLink
-        href="#"
-        appStopClick
-        (click)="launchChangePassword()"
-        linkType="secondary"
-        endIcon="bwi-external-link"
-      >
+      @if (changePasswordLink()) {
+        <a
+          bitLink
+          [href]="changePasswordLink()"
+          appStopClick
+          (click)="launchChangePassword()"
+          linkType="secondary"
+          endIcon="bwi-external-link"
+        >
+          {{ "changeAtRiskPassword" | i18n }}
+        </a>
+      } @else {
         {{ "changeAtRiskPassword" | i18n }}
-      </a>
+      }
     </bit-callout>
   }
 
@@ -50,6 +54,7 @@
       [cipher]="cipher()"
       [activeUserId]="activeUserId$ | async"
       [showChangePasswordLink]="showChangePasswordLink()"
+      [changePasswordLink]="changePasswordLink()"
       (handleChangePassword)="launchChangePassword()"
     ></app-login-credentials-view>
   }

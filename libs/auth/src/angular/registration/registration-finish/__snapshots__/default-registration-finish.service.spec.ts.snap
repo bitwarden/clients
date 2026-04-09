@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DefaultRegistrationFinishService finishRegistration() when feature flag is OFF (old API) registers the user with KDF fields when given valid email verification input 1`] = `
+RegisterFinishRequest {
+  "acceptEmergencyAccessId": undefined,
+  "acceptEmergencyAccessInviteToken": undefined,
+  "email": "test@email.com",
+  "emailVerificationToken": "emailVerificationToken",
+  "kdf": 0,
+  "kdfIterations": 600000,
+  "kdfMemory": undefined,
+  "kdfParallelism": undefined,
+  "masterPasswordHash": "newServerMasterKeyHash",
+  "masterPasswordHint": "newPasswordHint",
+  "orgInviteToken": undefined,
+  "orgSponsoredFreeFamilyPlanToken": undefined,
+  "organizationUserId": undefined,
+  "providerInviteToken": undefined,
+  "providerUserId": undefined,
+  "userAsymmetricKeys": KeysRequest {
+    "encryptedPrivateKey": "privateKey",
+    "publicKey": "publicKey",
+  },
+  "userSymmetricKey": "userKeyEncrypted",
+}
+`;
+
+exports[`DefaultRegistrationFinishService finishRegistration() when feature flag is ON (new API) derives the master key and registers the user with new data types 1`] = `
+RegisterFinishRequestWithAuthUnlockDataTypes {
+  "acceptEmergencyAccessId": undefined,
+  "acceptEmergencyAccessInviteToken": undefined,
+  "email": "test@email.com",
+  "emailVerificationToken": "emailVerificationToken",
+  "masterPasswordAuthentication": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterPasswordAuthenticationHash": "authHash",
+    "salt": "test@email.com",
+  },
+  "masterPasswordHint": "newPasswordHint",
+  "masterPasswordUnlock": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterKeyWrappedUserKey": "wrappedUserKey",
+    "salt": "test@email.com",
+  },
+  "orgInviteToken": undefined,
+  "orgSponsoredFreeFamilyPlanToken": undefined,
+  "organizationUserId": undefined,
+  "providerInviteToken": undefined,
+  "providerUserId": undefined,
+  "userAsymmetricKeys": KeysRequest {
+    "encryptedPrivateKey": "privateKey",
+    "publicKey": "publicKey",
+  },
+}
+`;

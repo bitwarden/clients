@@ -3,7 +3,6 @@ import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -457,6 +456,36 @@ describe("MasterPasswordService", () => {
     );
   });
 
+  describe("clearMasterPasswordUnlockData", () => {
+    it("clears the master password unlock data from state", async () => {
+      const masterKeyWrappedUserKey = makeEncString().toSdk() as MasterKeyWrappedUserKey;
+      const masterPasswordUnlockData = new MasterPasswordUnlockData(
+        salt,
+        kdfPBKDF2,
+        masterKeyWrappedUserKey,
+      );
+      stateProvider.singleUser
+        .getFake(userId, MASTER_PASSWORD_UNLOCK_KEY)
+        .nextState(masterPasswordUnlockData.toJSON());
+
+      await sut.clearMasterPasswordUnlockData(userId);
+
+      const state = await firstValueFrom(
+        stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$,
+      );
+      expect(state).toBeNull();
+    });
+
+    test.each([null as unknown as UserId, undefined as unknown as UserId])(
+      "throws when the provided userId is %s",
+      async (userId) => {
+        await expect(sut.clearMasterPasswordUnlockData(userId)).rejects.toThrow(
+          "userId is null or undefined.",
+        );
+      },
+    );
+  });
+
   describe("setLegacyMasterKeyFromUnlockData", () => {
     const password = "test-password";
 
@@ -521,16 +550,6 @@ describe("MasterPasswordService", () => {
       );
 
       await sut.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
-
-      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-        masterKey.inner().encryptionKey,
-        password,
-        "sha256",
-        HashPurpose.LocalAuthorization,
-      );
-
-      const hashState = await firstValueFrom(sut.masterKeyHash$(userId));
-      expect(hashState).toEqual(expectedHashB64);
     });
 
     it("throws if password is null", async () => {

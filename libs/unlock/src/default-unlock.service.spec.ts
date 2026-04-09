@@ -102,11 +102,12 @@ describe("DefaultUnlockService", () => {
       kdfService,
       accountService,
       masterPasswordService,
-      cryptoFunctionService,
       stateProvider,
       logService,
       biometricsService,
     );
+
+    jest.spyOn(service as any, "setLegacyMasterKeyFromUnlockData").mockResolvedValue(undefined);
   });
 
   describe("unlockWithPin", () => {

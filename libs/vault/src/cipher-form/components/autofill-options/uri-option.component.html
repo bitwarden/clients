@@ -16,7 +16,7 @@
           <button
             type="button"
             bitIconButton="bwi-minus-circle"
-            buttonType="danger"
+            buttonType="dangerGhost"
             bitSuffix
             [label]="'deleteWebsite' | i18n"
             (click)="removeUri()"
@@ -50,10 +50,8 @@
           <bit-hint>
             {{ hints[0] | i18n }}
             @if (hints.length > 1) {
-              <ng-container>
-                <b>{{ "warningCapitalized" | i18n }}:</b>
-                {{ hints[1] | i18n }}
-              </ng-container>
+              <b>{{ "warningCapitalized" | i18n }}:</b>
+              {{ hints[1] | i18n }}
             }
           </bit-hint>
         }

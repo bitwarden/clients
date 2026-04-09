@@ -16,7 +16,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [ButtonModule, DialogModule, CommonModule, I18nPipe],
 })
 export class AutoConfirmWarningDialogComponent {
-  constructor(public dialogRef: DialogRef<boolean>) {}
+  constructor(readonly dialogRef: DialogRef<boolean>) {}
 
   static open(dialogService: DialogService) {
     return dialogService.open<boolean>(AutoConfirmWarningDialogComponent, {
