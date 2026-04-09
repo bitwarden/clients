@@ -177,7 +177,7 @@
     "@electron/fuses": "1.8.0",
     "@emotion/css": "11.13.5",
     "@koa/multer": "4.0.0",
-    "@koa/router": "15.3.0",
+    "@koa/router": "15.4.0",
     "@microsoft/signalr": "10.0.0",
     "@microsoft/signalr-protocol-msgpack": "10.0.0",
     "@ng-select/ng-select": "20.7.0",
