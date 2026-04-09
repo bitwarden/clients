@@ -1,25 +1,29 @@
 <app-header [title]="title" [icon]="icon">
-  <bit-breadcrumbs *ngIf="showBreadcrumbs" slot="breadcrumbs">
-    <bit-breadcrumb
-      *ngIf="activeOrganizationId"
-      [route]="[]"
-      [queryParams]="{ organizationId: activeOrganizationId, collectionId: All }"
-      queryParamsHandling="merge"
-    >
-      {{ activeOrganizationId | orgNameFromId: organizations }} {{ "vault" | i18n | lowercase }}
-    </bit-breadcrumb>
-    <ng-container>
-      <bit-breadcrumb
-        *ngFor="let collection of collections"
-        icon="bwi-collection-shared"
-        [route]="[]"
-        [queryParams]="{ collectionId: collection.id }"
-        queryParamsHandling="merge"
-      >
-        {{ collection.name }}
-      </bit-breadcrumb>
-    </ng-container>
-  </bit-breadcrumbs>
+  @if (showBreadcrumbs) {
+    <bit-breadcrumbs slot="breadcrumbs">
+      @if (activeOrganizationId) {
+        <bit-breadcrumb
+          [route]="[]"
+          [queryParams]="{ organizationId: activeOrganizationId, collectionId: All }"
+          queryParamsHandling="merge"
+        >
+          {{ activeOrganizationId | orgNameFromId: organizations }} {{ "vault" | i18n | lowercase }}
+        </bit-breadcrumb>
+      }
+      <ng-container>
+        @for (collection of collections; track collection.id) {
+          <bit-breadcrumb
+            icon="bwi-collection-shared"
+            [route]="[]"
+            [queryParams]="{ collectionId: collection.id }"
+            queryParamsHandling="merge"
+          >
+            {{ collection.name }}
+          </bit-breadcrumb>
+        }
+      </ng-container>
+    </bit-breadcrumbs>
+  }
 
   <ng-container slot="title-suffix">
     @if (collection != null && (canEditCollection || canDeleteCollection)) {
@@ -32,61 +36,62 @@
           [label]="'editCollection' | i18n"
         ></button>
         <bit-menu #editCollectionMenu>
-          <button
-            type="button"
-            *ngIf="canEditCollection"
-            bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Info)"
-          >
-            <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
-            {{ "editInfo" | i18n }}
-          </button>
-          <button
-            type="button"
-            *ngIf="canEditCollection"
-            bitMenuItem
-            (click)="editCollection(CollectionDialogTabType.Access)"
-          >
-            <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
-            {{ "access" | i18n }}
-          </button>
-          <button
-            type="button"
-            *ngIf="canDeleteCollection"
-            bitMenuItem
-            (click)="deleteCollection()"
-          >
-            <span class="tw-text-danger">
-              <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
-              {{ "delete" | i18n }}
-            </span>
-          </button>
+          @if (canEditCollection) {
+            <button
+              type="button"
+              bitMenuItem
+              (click)="editCollection(CollectionDialogTabType.Info)"
+            >
+              <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
+              {{ "editInfo" | i18n }}
+            </button>
+            <button
+              type="button"
+              bitMenuItem
+              (click)="editCollection(CollectionDialogTabType.Access)"
+            >
+              <i class="bwi bwi-fw bwi-users" aria-hidden="true"></i>
+              {{ "access" | i18n }}
+            </button>
+          }
+          @if (canDeleteCollection) {
+            <button type="button" bitMenuItem (click)="deleteCollection()">
+              <span class="tw-text-danger">
+                <i class="bwi bwi-fw bwi-trash" aria-hidden="true"></i>
+                {{ "delete" | i18n }}
+              </span>
+            </button>
+          }
         </bit-menu>
       </ng-container>
     }
-    <small *ngIf="loading">
-      <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="tw-sr-only">{{ "loading" | i18n }}</span>
-    </small>
+    @if (loading) {
+      <small>
+        <i
+          class="bwi bwi-spinner bwi-spin tw-text-muted"
+          title="{{ 'loading' | i18n }}"
+          aria-hidden="true"
+        ></i>
+        <span class="tw-sr-only">{{ "loading" | i18n }}</span>
+      </small>
+    }
   </ng-container>
 
-  <div *ngIf="filter.type !== 'trash'" class="tw-shrink-0">
-    <vault-new-cipher-menu
-      [canCreateCipher]="canCreateCipher"
-      [canCreateFolder]="true"
-      [canCreateSshKey]="true"
-      [canCreateCollection]="canCreateCollections"
-      [coachmarkPopover]="addItemCoachmark.popover()"
-      [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
-      [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"
-      (cipherAdded)="addCipher($event)"
-      (folderAdded)="addFolder()"
-      (collectionAdded)="addCollection()"
-    />
-    <app-coachmark #addItemCoachmark stepId="addItem" />
-  </div>
+  @if (filter.type !== "trash") {
+    <div class="tw-shrink-0">
+      <vault-new-cipher-menu
+        [canCreateCipher]="canCreateCipher"
+        [canCreateFolder]="true"
+        [canCreateSshKey]="true"
+        [canCreateCollection]="canCreateCollections"
+        [coachmarkPopover]="addItemCoachmark.popover()"
+        [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
+        [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"
+        (cipherAdded)="addCipher($event)"
+        (folderAdded)="addFolder()"
+        (collectionAdded)="addCollection()"
+      />
+      <app-coachmark #addItemCoachmark stepId="addItem" />
+    </div>
+  }
 </app-header>
