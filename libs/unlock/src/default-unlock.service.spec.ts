@@ -11,7 +11,6 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MASTER_KEY,
-  MASTER_KEY_HASH,
 } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
@@ -362,7 +361,6 @@ describe("DefaultUnlockService", () => {
         2,
       );
       expect(stateProvider.getUser).toHaveBeenNthCalledWith(1, mockUserId, MASTER_KEY);
-      expect(stateProvider.getUser).toHaveBeenNthCalledWith(2, mockUserId, MASTER_KEY_HASH);
       expect(updateMasterKey).toHaveBeenCalledTimes(1);
       expect(updateMasterKeyHash).toHaveBeenCalledTimes(1);
     });
