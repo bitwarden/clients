@@ -333,7 +333,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           false,
-          { onProgress: expect.any(Function) },
+          undefined,
         );
       });
 
@@ -348,7 +348,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           true,
-          { onProgress: expect.any(Function) },
+          undefined,
         );
       });
 

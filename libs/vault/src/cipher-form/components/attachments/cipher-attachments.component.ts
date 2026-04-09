@@ -247,13 +247,11 @@ export class CipherAttachmentsComponent {
         file,
         this.activeUserId,
         this.admin(),
-        {
-          onProgress: (progress) => {
-            if (progressEnabled) {
-              this.uploadProgress.set(progress);
+        progressEnabled
+          ? {
+              onProgress: (p) => this.uploadProgress.set(p),
             }
-          },
-        },
+          : undefined,
       );
 
       // re-decrypt the cipher to update the attachments
