@@ -10,9 +10,11 @@ import { RouterModule } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { IconModule } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { MenuModule } from "../menu";
+import { TypographyModule } from "../typography";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
 
@@ -24,14 +26,29 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
 @Component({
   selector: "bit-breadcrumbs",
   templateUrl: "./breadcrumbs.component.html",
-  imports: [I18nPipe, CommonModule, LinkModule, RouterModule, IconButtonModule, MenuModule],
+  imports: [
+    I18nPipe,
+    CommonModule,
+    LinkModule,
+    RouterModule,
+    IconModule,
+    IconButtonModule,
+    MenuModule,
+    TypographyModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "tw-flex tw-items-center" },
 })
 export class BreadcrumbsComponent {
   /**
    * The maximum number of breadcrumbs to show before overflow.
    */
-  readonly show = input(3);
+  readonly show = input(4);
+
+  /**
+   * The size of the breadcrumb text and icons. Defaults to "base" size.
+   */
+  readonly size = input<"small" | "base">("base");
 
   protected readonly breadcrumbs = contentChildren(BreadcrumbComponent);
 
@@ -56,4 +73,16 @@ export class BreadcrumbsComponent {
 
   /** The last breadcrumb, shown after the overflow menu */
   protected readonly afterOverflow = computed(() => this.breadcrumbs().slice(-1));
+
+  protected readonly breadcrumbStyles = [
+    "tw-inline-block",
+    "!tw-m-0",
+    "!tw-text-fg-body",
+    "hover:!tw-text-fg-brand",
+    "focus-visible:!tw-text-fg-brand",
+    "focus-visible:!tw-rounded",
+    "focus-visible:!tw-outline-none",
+    "focus-visible:!tw-ring-2",
+    "focus-visible:!tw-ring-border-focus",
+  ];
 }

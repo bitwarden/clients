@@ -59,12 +59,17 @@ export default {
   args: {
     items: [],
     show: 3,
+    size: "base",
   },
   argTypes: {
     breadcrumbs: {
       table: { disable: true },
     },
     click: { action: "clicked" },
+    size: {
+      table: { defaultValue: { summary: "base" } },
+      control: { type: "radio", options: ["small", "base"] },
+    },
   },
 } as Meta;
 
@@ -76,14 +81,14 @@ export const TopLevel: Story = {
     template: `
       <h3 class="tw-text-main">Router links</h3>
       <p>
-        <bit-breadcrumbs [show]="show">
+        <bit-breadcrumbs [show]="show" [size]="size">
           <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" [route]="[item.route]">{{item.name}}</bit-breadcrumb>
         </bit-breadcrumbs>
       </p>
   
       <h3 class="tw-text-main">Click emit</h3>
       <p>
-        <bit-breadcrumbs [show]="show">
+        <bit-breadcrumbs [show]="show" [size]="size">
           <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" (click)="click($event)">{{item.name}}</bit-breadcrumb>
         </bit-breadcrumbs>
       </p>
@@ -91,7 +96,10 @@ export const TopLevel: Story = {
   }),
 
   args: {
-    items: [{ icon: "bwi-star", name: "Top Level" }] as Breadcrumb[],
+    items: [
+      { icon: "bwi-folder", name: "Folder-1" },
+      { icon: "bwi-folder", name: "Folder-2" },
+    ] as Breadcrumb[],
   },
 };
 

@@ -8,6 +8,9 @@ import {
 } from "@angular/core";
 import { QueryParamsHandling } from "@angular/router";
 
+import { IconModule } from "../icon";
+import { BitwardenIcon } from "../shared/icon";
+
 /**
  * Individual breadcrumb item used within the `bit-breadcrumbs` component.
  * Represents a single navigation step in the breadcrumb trail.
@@ -18,13 +21,14 @@ import { QueryParamsHandling } from "@angular/router";
 @Component({
   selector: "bit-breadcrumb",
   templateUrl: "./breadcrumb.component.html",
+  imports: [IconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BreadcrumbComponent {
   /**
    * Optional icon to display before the breadcrumb text.
    */
-  readonly icon = input<string>();
+  readonly icon = input<BitwardenIcon>();
 
   /**
    * Router link for the breadcrumb. Can be a string or an array of route segments.
