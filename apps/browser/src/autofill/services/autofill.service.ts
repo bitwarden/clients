@@ -17,6 +17,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
   CardExpiryDateDelimiters,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -903,83 +904,96 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Maps a targeting rule field type to the corresponding cipher value
+   * Maps a targeting rule field type to the corresponding cipher value.
    */
   private getValueForTargetedFieldType(fieldType: string, cipher: CipherView): string | null {
     // Login fields
-    if (fieldType === "username") {
+    if (fieldType === AutofillTargetingRuleTypes.username) {
       return cipher.login?.username ?? null;
     }
-    if (fieldType === "password" || fieldType === "newPassword") {
+    if (
+      fieldType === AutofillTargetingRuleTypes.password ||
+      fieldType === AutofillTargetingRuleTypes.newPassword
+    ) {
       return cipher.login?.password ?? null;
     }
 
     // Card fields
-    if (fieldType === "cardholderName") {
+    if (fieldType === AutofillTargetingRuleTypes.cardholderName) {
       return cipher.card?.cardholderName ?? null;
     }
-    if (fieldType === "cardNumber") {
+    if (fieldType === AutofillTargetingRuleTypes.cardNumber) {
       return cipher.card?.number ?? null;
     }
-    if (fieldType === "cardExpirationMonth") {
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationMonth) {
       return cipher.card?.expMonth ?? null;
     }
-    if (fieldType === "cardExpirationYear") {
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationYear) {
       return cipher.card?.expYear ?? null;
     }
-    if (fieldType === "cardExpirationDate") {
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationDate) {
+      // FIXME combined expiry format is presumed and should be informed by
+      // the target format expectation
       return cipher.card?.expMonth && cipher.card?.expYear
         ? `${cipher.card.expMonth}/${cipher.card.expYear}`
         : null;
     }
-    if (fieldType === "cardCvv") {
+    if (fieldType === AutofillTargetingRuleTypes.cardCvv) {
       return cipher.card?.code ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardType) {
+      return cipher.card?.brand ?? null;
     }
 
     // Identity fields
-    if (fieldType === "honorificPrefix") {
+    if (fieldType === AutofillTargetingRuleTypes.honorificPrefix) {
       return cipher.identity?.title ?? null;
     }
-    if (fieldType === "firstName") {
+    if (fieldType === AutofillTargetingRuleTypes.firstName) {
       return cipher.identity?.firstName ?? null;
     }
-    if (fieldType === "middleName") {
+    if (fieldType === AutofillTargetingRuleTypes.middleName) {
       return cipher.identity?.middleName ?? null;
     }
-    if (fieldType === "lastName") {
+    if (fieldType === AutofillTargetingRuleTypes.lastName) {
       return cipher.identity?.lastName ?? null;
     }
-    if (fieldType === "fullName") {
+    if (fieldType === AutofillTargetingRuleTypes.fullName) {
       return cipher.identity?.fullName ?? null;
     }
-    if (fieldType === "addressLine1") {
+    if (fieldType === AutofillTargetingRuleTypes.streetAddress) {
+      return cipher.identity?.fullAddress ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLine1) {
       return cipher.identity?.address1 ?? null;
     }
-    if (fieldType === "addressLine2") {
+    if (fieldType === AutofillTargetingRuleTypes.addressLine2) {
       return cipher.identity?.address2 ?? null;
     }
-    if (fieldType === "addressLine3") {
+    if (fieldType === AutofillTargetingRuleTypes.addressLine3) {
       return cipher.identity?.address3 ?? null;
     }
-    if (fieldType === "addressLevel2") {
+    if (fieldType === AutofillTargetingRuleTypes.addressLevel2) {
       return cipher.identity?.city ?? null;
     }
-    if (fieldType === "addressLevel1") {
+    if (fieldType === AutofillTargetingRuleTypes.addressLevel1) {
       return cipher.identity?.state ?? null;
     }
-    if (fieldType === "postalCode") {
+    if (fieldType === AutofillTargetingRuleTypes.postalCode) {
       return cipher.identity?.postalCode ?? null;
     }
-    if (fieldType === "country") {
+    if (fieldType === AutofillTargetingRuleTypes.country) {
       return cipher.identity?.country ?? null;
     }
-    if (fieldType === "organization") {
+    if (fieldType === AutofillTargetingRuleTypes.organization) {
       return cipher.identity?.company ?? null;
     }
-    if (fieldType === "phone") {
+    if (fieldType === AutofillTargetingRuleTypes.phone) {
       return cipher.identity?.phone ?? null;
     }
-    if (fieldType === "email") {
+    // FIXME phone sub-parts (phoneCountryCode, phoneAreaCode, phoneLocal,
+    // phoneExtension) can be derived by parsing cipher.identity?.phone
+    if (fieldType === AutofillTargetingRuleTypes.email) {
       return cipher.identity?.email ?? null;
     }
 

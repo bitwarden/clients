@@ -1190,7 +1190,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    // Fallback for any unrecognized targeted qualifier
+    // Fallback: default to Login to avoid inline menu re-render churn that
+    // occurs when `inlineMenuFillType` is left undefined.
     autofillFieldData.inlineMenuFillType = CipherType.Login;
   }
 
