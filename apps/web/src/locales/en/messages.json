@@ -628,6 +628,9 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
   "hideMatchDetection": {
     "message": "Hide match detection $WEBSITE$",
     "placeholders": {
@@ -636,6 +639,9 @@
         "example": "https://example.com"
       }
     }
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
@@ -5097,6 +5103,15 @@
   },
   "reorderToggleButton": {
     "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
+  "reorderToggleButtonWithVim": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down. K and J can also be used to move item up or down.",
     "placeholders": {
       "label": {
         "content": "$1",
