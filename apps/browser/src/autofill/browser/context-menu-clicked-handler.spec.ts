@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -14,6 +13,7 @@ import {
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";

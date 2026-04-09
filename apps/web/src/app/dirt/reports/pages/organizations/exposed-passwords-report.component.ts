@@ -2,6 +2,7 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, takeUntil, tap } from "rxjs";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -10,9 +11,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { getById } from "@bitwarden/common/platform/misc";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ChipSelectComponent, DialogService } from "@bitwarden/components";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { BerryComponent, ChipFilterComponent, DialogService } from "@bitwarden/components";
 import {
   PasswordRepromptService,
   CipherFormConfigService,
@@ -41,13 +42,21 @@ import { ExposedPasswordsReportComponent as BaseExposedPasswordsReportComponent 
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
   ],
-  imports: [SharedModule, HeaderModule, OrganizationBadgeModule, PipesModule, ChipSelectComponent],
+  imports: [
+    SharedModule,
+    HeaderModule,
+    OrganizationBadgeModule,
+    PipesModule,
+    ChipFilterComponent,
+    BerryComponent,
+  ],
 })
 export class ExposedPasswordsReportComponent
   extends BaseExposedPasswordsReportComponent
   implements OnInit
 {
-  private manageableCiphers: Cipher[] = [];
+  private manageableCipherIds = new Set<string>();
+  private sharedCollectionIds = new Set<string>();
 
   constructor(
     cipherService: CipherService,
@@ -61,6 +70,7 @@ export class ExposedPasswordsReportComponent
     syncService: SyncService,
     cipherFormService: CipherFormConfigService,
     adminConsoleCipherFormConfigService: AdminConsoleCipherFormConfigService,
+    private collectionService: CollectionService,
   ) {
     super(
       cipherService,
@@ -85,7 +95,17 @@ export class ExposedPasswordsReportComponent
           this.organization = await firstValueFrom(
             this.organizationService.organizations$(userId).pipe(getById(params.organizationId)),
           );
-          this.manageableCiphers = await this.cipherService.getAll(userId);
+          const manageableCiphers = await this.cipherService.getAll(userId);
+          this.manageableCipherIds = new Set(manageableCiphers.map((c) => c.id));
+          const collections = await firstValueFrom(
+            this.collectionService.decryptedCollections$(userId),
+          );
+          this.sharedCollectionIds = new Set(
+            collections
+              .filter((c) => !c.isDefaultCollection && c.organizationId === this.organization?.id)
+              .map((c) => c.id as string),
+          );
+          await super.ngOnInit();
         }),
         takeUntil(this.destroyed$),
       )
@@ -100,12 +120,15 @@ export class ExposedPasswordsReportComponent
   }
 
   canManageCipher(c: CipherView): boolean {
-    if (c.collectionIds.length === 0) {
-      return true;
+    if (
+      CipherViewLikeUtils.isUnassigned(c) ||
+      !c.collectionIds?.some((id) => this.sharedCollectionIds.has(id))
+    ) {
+      return false;
     }
     if (this.organization?.allowAdminAccessToAllCollectionItems) {
       return true;
     }
-    return this.manageableCiphers.some((x) => x.id === c.id);
+    return this.manageableCipherIds.has(c.id);
   }
 }
