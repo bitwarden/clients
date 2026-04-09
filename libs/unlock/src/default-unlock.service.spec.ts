@@ -9,6 +9,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import {
+  MASTER_KEY,
+  MASTER_KEY_HASH,
+} from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -58,6 +62,7 @@ describe("DefaultUnlockService", () => {
   let mockSdkRef: any;
   let mockSdk: any;
   let mockCrypto: any;
+  let setLegacyMasterKeyFromUnlockDataSpy: jest.SpyInstance;
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -131,7 +136,9 @@ describe("DefaultUnlockService", () => {
       biometricStateService,
     );
 
-    jest.spyOn(service as any, "setLegacyMasterKeyFromUnlockData").mockResolvedValue(undefined);
+    setLegacyMasterKeyFromUnlockDataSpy = jest
+      .spyOn(service as any, "setLegacyMasterKeyFromUnlockData")
+      .mockResolvedValue(undefined);
   });
 
   describe("unlockWithPin", () => {
@@ -300,6 +307,65 @@ describe("DefaultUnlockService", () => {
         true,
         mockUserId,
       );
+    });
+  });
+
+  describe("shouldStoreUserKeyAutoUnlock", () => {
+    it("returns true for cli without checking vault timeout", async () => {
+      platformUtilsService.getClientType.mockReturnValue(ClientType.Cli);
+
+      const result = await (service as any).shouldStoreUserKeyAutoUnlock(mockUserId);
+
+      expect(result).toBe(true);
+      expect(stateProvider.getUserState$).not.toHaveBeenCalled();
+    });
+
+    it("returns true when vault timeout is Never", async () => {
+      platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
+      stateProvider.getUserState$.mockReturnValue(of(VaultTimeoutStringType.Never));
+
+      const result = await (service as any).shouldStoreUserKeyAutoUnlock(mockUserId);
+
+      expect(result).toBe(true);
+      expect(stateProvider.getUserState$).toHaveBeenCalledWith(expect.anything(), mockUserId);
+    });
+  });
+
+  describe("setLegacyMasterKeyFromUnlockData", () => {
+    it("derives legacy master key and stores key + hash", async () => {
+      setLegacyMasterKeyFromUnlockDataSpy.mockRestore();
+      const derivedMasterKey = new Uint8Array(32);
+      const localAuthorizationHash = new Uint8Array(32);
+      const updateMasterKey = jest.fn().mockResolvedValue(undefined);
+      const updateMasterKeyHash = jest.fn().mockResolvedValue(undefined);
+
+      jest.spyOn(PureCrypto, "derive_kdf_material").mockReturnValue(derivedMasterKey);
+      cryptoFunctionService.pbkdf2.mockResolvedValue(localAuthorizationHash);
+      stateProvider.getUser
+        .mockReturnValueOnce({ update: updateMasterKey } as any)
+        .mockReturnValueOnce({ update: updateMasterKeyHash } as any);
+
+      await (service as any).setLegacyMasterKeyFromUnlockData(
+        mockMasterPassword,
+        mockMasterPasswordUnlockData,
+        mockUserId,
+      );
+
+      expect(PureCrypto.derive_kdf_material).toHaveBeenCalledWith(
+        new TextEncoder().encode(mockMasterPassword),
+        new TextEncoder().encode(mockMasterPasswordUnlockData.salt),
+        mockMasterPasswordUnlockData.kdf,
+      );
+      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
+        derivedMasterKey,
+        mockMasterPassword,
+        "sha256",
+        2,
+      );
+      expect(stateProvider.getUser).toHaveBeenNthCalledWith(1, mockUserId, MASTER_KEY);
+      expect(stateProvider.getUser).toHaveBeenNthCalledWith(2, mockUserId, MASTER_KEY_HASH);
+      expect(updateMasterKey).toHaveBeenCalledTimes(1);
+      expect(updateMasterKeyHash).toHaveBeenCalledTimes(1);
     });
   });
 });
