@@ -1081,9 +1081,6 @@
   "chooseItemToAdd": {
     "message": "Choose item to add"
   },
-  "chooseItemToAddDesc": {
-    "message": "Select the item type you want to add to your vault."
-  },
   "editItem": {
     "message": "Edit item"
   },
