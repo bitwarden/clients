@@ -4,6 +4,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
+import { AccessReportSummaryApi } from "../../../../access-intelligence/models";
 import {
   UpdateRiskInsightsApplicationDataRequest,
   UpdateRiskInsightsApplicationDataResponse,
@@ -122,6 +123,34 @@ export class RiskInsightsApiService {
 
     return from(dbResponse).pipe(
       map((response) => new UpdateRiskInsightsApplicationDataResponse(response)),
+    );
+  }
+
+  getRiskOverTime$(
+    orgId: OrganizationId,
+    startDate: Date,
+    endDate: Date,
+  ): Observable<AccessReportSummaryApi[]> {
+    const startDateStr = startDate.toISOString().split("T")[0];
+    const endDateStr = endDate.toISOString().split("T")[0];
+    const dbResponse = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId.toString()}/data/summary?startDate=${startDateStr}&endDate=${endDateStr}`,
+      null,
+      true,
+      true,
+    );
+
+    return from(dbResponse).pipe(
+      map((response: any[]) =>
+        Array.isArray(response) ? response.map((r) => new AccessReportSummaryApi(r)) : [],
+      ),
+      catchError((error: unknown) => {
+        if (error instanceof ErrorResponse && error.statusCode === 404) {
+          return of([]);
+        }
+        return throwError(() => error);
+      }),
     );
   }
 }

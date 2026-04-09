@@ -78,7 +78,6 @@ import {
   specialCharacterToKeyMap,
 } from "../utils";
 
-import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
@@ -108,6 +107,7 @@ import {
 const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
 
 export class OverlayBackground implements OverlayBackgroundInterface {
+  // Assigned as members so jest.spyOn can intercept them in tests
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
@@ -2343,16 +2343,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
-    const retryMessage: LockedVaultPendingNotificationsData = {
+    await this.openUnlockPopout(sender.tab, {
       commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
       target: "overlay.background",
-    };
-    await BrowserApi.tabSendMessageData(
-      sender.tab,
-      "addToLockedVaultPendingNotifications",
-      retryMessage,
-    );
-    await this.openUnlockPopout(sender.tab);
+    });
   }
 
   /**
@@ -3250,6 +3244,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
       styleSheetUrl,
+      showAnimations: await firstValueFrom(this.autofillService.enableInlineMenuAnimation$),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getInlineMenuTranslations(),
       ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,

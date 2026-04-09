@@ -3007,13 +3007,12 @@ describe("CollectAutofillContentService", () => {
   describe("destroy", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
-      collectAutofillContentService["updateAfterMutationIdleCallback"] = setTimeout(jest.fn, 100);
+      const callbackId = setTimeout(jest.fn, 100);
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = callbackId;
 
       collectAutofillContentService.destroy();
 
-      expect(clearTimeout).toHaveBeenCalledWith(
-        collectAutofillContentService["updateAfterMutationIdleCallback"],
-      );
+      expect(clearTimeout).toHaveBeenCalledWith(callbackId);
     });
 
     it("clears all pending overlay setup timeouts", () => {
