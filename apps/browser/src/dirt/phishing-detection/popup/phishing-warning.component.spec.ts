@@ -31,8 +31,12 @@ describe("PhishingWarning", () => {
   let eventCollectionService: ReturnType<typeof mock<EventCollectionService>>;
   let messageSender: ReturnType<typeof mock<MessageSender>>;
 
-  const orgWithEvents = { id: "org-1", useEvents: true } as Organization;
-  const orgWithoutEvents = { id: "org-2", useEvents: false } as Organization;
+  const orgWithEvents = { id: "org-1", useEvents: true, usePhishingBlocker: true } as Organization;
+  const orgWithoutEvents = {
+    id: "org-2",
+    useEvents: false,
+    usePhishingBlocker: false,
+  } as Organization;
 
   beforeEach(async () => {
     accountService = mockAccountServiceWith(mockUserId);
@@ -150,6 +154,75 @@ describe("PhishingWarning", () => {
         tabId: 42,
         url: mockPhishingUrl,
       });
+    });
+  });
+  describe("getOrgsToNotify", () => {
+    it("filters organizations by useEvents and usePhishingBlocker", async () => {
+      const orgWithBoth = {
+        id: "org-1",
+        useEvents: true,
+        usePhishingBlocker: true,
+      } as Organization;
+      const orgWithoutEvents = {
+        id: "org-2",
+        useEvents: false,
+        usePhishingBlocker: true,
+      } as Organization;
+      const orgWithoutPhishingBlocker = {
+        id: "org-3",
+        useEvents: true,
+        usePhishingBlocker: false,
+      } as Organization;
+      const orgWithNeither = {
+        id: "org-4",
+        useEvents: false,
+        usePhishingBlocker: false,
+      } as Organization;
+
+      organizationService.organizations$.mockImplementation(() =>
+        of([orgWithBoth, orgWithoutEvents, orgWithoutPhishingBlocker, orgWithNeither]),
+      );
+
+      fixture.detectChanges();
+      const result = await fixture.componentInstance["getOrgsToNotify"]();
+
+      expect(result).toEqual([orgWithBoth]);
+    });
+
+    it("returns empty array when no orgs have both useEvents and usePhishingBlocker", async () => {
+      const orgWithOnlyEvents = {
+        id: "org-1",
+        useEvents: true,
+        usePhishingBlocker: false,
+      } as Organization;
+      const orgWithOnlyPhishingBlocker = {
+        id: "org-2",
+        useEvents: false,
+        usePhishingBlocker: true,
+      } as Organization;
+
+      organizationService.organizations$.mockImplementation(() =>
+        of([orgWithOnlyEvents, orgWithOnlyPhishingBlocker]),
+      );
+
+      fixture.detectChanges();
+      const result = await fixture.componentInstance["getOrgsToNotify"]();
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns all orgs when all have useEvents and usePhishingBlocker", async () => {
+      const orgs = [
+        { id: "org-1", useEvents: true, usePhishingBlocker: true } as Organization,
+        { id: "org-2", useEvents: true, usePhishingBlocker: true } as Organization,
+      ];
+
+      organizationService.organizations$.mockImplementation(() => of(orgs));
+
+      fixture.detectChanges();
+      const result = await fixture.componentInstance["getOrgsToNotify"]();
+
+      expect(result).toEqual(orgs);
     });
   });
 });

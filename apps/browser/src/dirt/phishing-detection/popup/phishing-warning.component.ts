@@ -82,7 +82,7 @@ export class PhishingWarning implements OnInit {
 
   private async recordEvents(eventType: EventType, uploadImmediately: boolean): Promise<void> {
     try {
-      const orgs = await this.getOrgsWithEvents();
+      const orgs = await this.getOrgsToNotify();
 
       // keep this sequential, using a Promise.all causes a race condition
       for (const org of orgs) {
@@ -93,10 +93,10 @@ export class PhishingWarning implements OnInit {
     }
   }
 
-  private async getOrgsWithEvents(): Promise<Organization[]> {
+  private async getOrgsToNotify(): Promise<Organization[]> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
-    return orgs.filter((o) => o.useEvents);
+    return orgs.filter((o) => o.useEvents && o.usePhishingBlocker);
   }
 
   private async getTabId() {
