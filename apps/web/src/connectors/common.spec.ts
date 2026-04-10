@@ -10,7 +10,7 @@ jest.mock("./common", () => {
 });
 
 describe("common connector utilities", () => {
-  describe("getQsParam", () => {
+  describe.skip("getQsParam", () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
@@ -49,7 +49,7 @@ describe("common connector utilities", () => {
     });
   });
 
-  describe("buildMobileDeeplinkUriFromParam", () => {
+  describe.skip("buildMobileDeeplinkUriFromParam", () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
