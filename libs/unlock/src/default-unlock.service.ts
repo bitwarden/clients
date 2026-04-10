@@ -239,9 +239,7 @@ export class DefaultUnlockService implements UnlockService {
     const userKey = SymmetricCryptoKey.fromString(
       await client.value.crypto().get_user_encryption_key(),
     );
-    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
-      await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
-    }
+    await this.biometricsService.provideUserKey(userId, userKey);
     if (await this.shouldStoreUserKeyAutoUnlock(userId)) {
       await this.stateService.setUserKeyAutoUnlock(userKey.toBase64(), { userId: userId });
     }

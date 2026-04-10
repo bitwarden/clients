@@ -1,4 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -308,7 +309,9 @@ describe("MainBiometricsService", function () {
     });
 
     it("calls the platform specific setBiometricKey method", async () => {
-      await sut.setBiometricProtectedUnlockKeyForUser(userId, unlockKey);
+      biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+
+      await sut.provideUserKey(userId, unlockKey);
 
       expect(osBiometricsService.setBiometricKey).toHaveBeenCalledWith(userId, unlockKey);
     });

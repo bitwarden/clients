@@ -534,7 +534,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       // Require master password or PIN on app restart
       const userKey = await firstValueFrom(this.keyService.userKey$(userId));
       await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
-      await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
+      await this.biometricsService.provideUserKey(userId, userKey);
     } else {
       // Allow biometric unlock on app restart
       await this.enrollPersistentBiometricIfNeeded(userId);

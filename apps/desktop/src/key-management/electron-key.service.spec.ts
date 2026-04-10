@@ -61,7 +61,6 @@ describe("ElectronKeyService", () => {
       stateService,
       accountService,
       stateProvider,
-      biometricStateService,
       kdfConfigService,
       biometricService,
       accountCryptographicStateService,
@@ -76,27 +75,14 @@ describe("ElectronKeyService", () => {
     const userKey = makeSymmetricCryptoKey() as UserKey;
 
     describe("store biometric key", () => {
-      it("does not set any biometric keys when biometric unlock disabled", async () => {
-        biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(false);
-
-        await keyService.setUserKey(userKey, mockUserId);
-
-        expect(biometricService.setBiometricProtectedUnlockKeyForUser).not.toHaveBeenCalled();
-        expect(biometricStateService.setEncryptedClientKeyHalf).not.toHaveBeenCalled();
-        expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(mockUserId);
-      });
-
       it("sets biometric key when biometric unlock enabled", async () => {
-        biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
-
         await keyService.setUserKey(userKey, mockUserId);
 
-        expect(biometricService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+        expect(biometricService.provideUserKey).toHaveBeenCalledWith(
           mockUserId,
           userKey,
         );
         expect(biometricStateService.setEncryptedClientKeyHalf).not.toHaveBeenCalled();
-        expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(mockUserId);
       });
     });
   });

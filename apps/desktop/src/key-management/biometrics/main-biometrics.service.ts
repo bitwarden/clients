@@ -12,6 +12,7 @@ import { WindowMain } from "../../main/window.main";
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
+import { firstValueFrom } from "rxjs";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
@@ -110,11 +111,13 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return (await this.osBiometricsService.getBiometricKey(userId)) as UserKey;
   }
 
-  async setBiometricProtectedUnlockKeyForUser(
+  async provideUserKey(
     userId: UserId,
     key: SymmetricCryptoKey,
   ): Promise<void> {
-    return await this.osBiometricsService.setBiometricKey(userId, key);
+    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
+      return await this.osBiometricsService.setBiometricKey(userId, key);
+    }
   }
 
   async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {

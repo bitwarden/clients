@@ -97,7 +97,7 @@ describe("DefaultUnlockService", () => {
     );
     stateProvider.getUserState$.mockReturnValue(of(VaultTimeoutStringType.Never));
     stateService.setUserKeyAutoUnlock.mockResolvedValue(undefined);
-    biometricsService.setBiometricProtectedUnlockKeyForUser.mockResolvedValue(undefined);
+    biometricsService.provideUserKey.mockResolvedValue(undefined);
     biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
     platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
 
@@ -181,7 +181,7 @@ describe("DefaultUnlockService", () => {
 
       await service.unlockWithPin(mockUserId, mockPin);
 
-      expect(biometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+      expect(biometricsService.provideUserKey).toHaveBeenCalledWith(
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );
@@ -228,7 +228,7 @@ describe("DefaultUnlockService", () => {
 
       await service.unlockWithMasterPassword(mockUserId, mockMasterPassword);
 
-      expect(biometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+      expect(biometricsService.provideUserKey).toHaveBeenCalledWith(
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );
@@ -287,7 +287,7 @@ describe("DefaultUnlockService", () => {
 
       await service.unlockWithBiometrics(mockUserId);
 
-      expect(biometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+      expect(biometricsService.provideUserKey).toHaveBeenCalledWith(
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );

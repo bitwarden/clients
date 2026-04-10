@@ -44,7 +44,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
     return await ipc.keyManagement.biometric.getBiometricsStatusForUser(id);
   }
 
-  async setBiometricProtectedUnlockKeyForUser(
+  async provideUserKey(
     userId: UserId,
     value: SymmetricCryptoKey,
   ): Promise<void> {

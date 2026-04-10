@@ -28,7 +28,7 @@ export class CliBiometricsService extends BiometricsService {
   async canEnableBiometricUnlock(): Promise<boolean> {
     return false;
   }
-  async setBiometricProtectedUnlockKeyForUser(
+  async provideUserKey(
     userId: UserId,
     value: SymmetricCryptoKey,
   ): Promise<void> {}

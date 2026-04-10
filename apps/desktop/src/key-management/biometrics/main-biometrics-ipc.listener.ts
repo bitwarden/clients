@@ -36,7 +36,7 @@ export class MainBiometricsIPCListener {
             if (message.key == null) {
               return;
             }
-            return await this.biometricService.setBiometricProtectedUnlockKeyForUser(
+            return await this.biometricService.provideUserKey(
               message.userId as UserId,
               SymmetricCryptoKey.fromString(message.key),
             );

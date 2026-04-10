@@ -14,7 +14,6 @@ import { UserKey } from "@bitwarden/common/types/key";
 import {
   KdfConfigService,
   DefaultKeyService,
-  BiometricStateService,
 } from "@bitwarden/key-management";
 
 import { DesktopBiometricsService } from "./biometrics/desktop.biometrics.service";
@@ -31,7 +30,6 @@ export class ElectronKeyService extends DefaultKeyService {
     stateService: StateService,
     accountService: AccountService,
     stateProvider: StateProvider,
-    private biometricStateService: BiometricStateService,
     kdfConfigService: KdfConfigService,
     private biometricService: DesktopBiometricsService,
     accountCryptographicStateService: AccountCryptographicStateService,
@@ -53,10 +51,7 @@ export class ElectronKeyService extends DefaultKeyService {
 
   protected override async storeAdditionalKeys(key: UserKey, userId: UserId) {
     await super.storeAdditionalKeys(key, userId);
-
-    if (await this.biometricStateService.getBiometricUnlockEnabled(userId)) {
-      await this.storeBiometricsProtectedUserKey(key, userId);
-    }
+    await this.storeBiometricsProtectedUserKey(key, userId);
   }
 
   protected override async getKeyFromStorage(
@@ -67,7 +62,7 @@ export class ElectronKeyService extends DefaultKeyService {
   }
 
   private async storeBiometricsProtectedUserKey(userKey: UserKey, userId: UserId): Promise<void> {
-    await this.biometricService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
+    await this.biometricService.provideUserKey(userId, userKey);
   }
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId: UserId): Promise<boolean> {

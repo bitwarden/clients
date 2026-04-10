@@ -360,7 +360,6 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       AccountServiceAbstraction,
       StateProvider,
-      BiometricStateService,
       KdfConfigService,
       DesktopBiometricsService,
       AccountCryptographicStateService,

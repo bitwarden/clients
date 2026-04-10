@@ -41,7 +41,11 @@ export abstract class BiometricsService {
   abstract getShouldAutopromptNow(): Promise<boolean>;
   abstract setShouldAutopromptNow(value: boolean): Promise<void>;
   abstract canEnableBiometricUnlock(): Promise<boolean>;
-  abstract setBiometricProtectedUnlockKeyForUser(
+  /**
+   * Provide the user-key to the biometrics subsystem. It may store it in memory to unlock.
+   * If biometrics is disabled, this will do nothing.
+   */
+  abstract provideUserKey(
     userId: UserId,
     value: SymmetricCryptoKey,
   ): Promise<void>;

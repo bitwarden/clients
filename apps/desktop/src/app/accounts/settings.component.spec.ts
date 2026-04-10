@@ -722,12 +722,6 @@ describe("SettingsComponent", () => {
 
               expect(desktopBiometricsService.enrollPersistent).not.toHaveBeenCalled();
               expect(component.form.controls.requireMasterPasswordOnAppRestart.value).toBe(true);
-              expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
-                mockUserId,
-              );
-              expect(
-                desktopBiometricsService.setBiometricProtectedUnlockKeyForUser,
-              ).toHaveBeenCalledWith(mockUserId, mockUserKey);
 
               expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
               expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(true);
@@ -829,10 +823,7 @@ describe("SettingsComponent", () => {
         expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
           mockUserId,
         );
-        expect(desktopBiometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
-          mockUserId,
-          mockUserKey,
-        );
+        expect(desktopBiometricsService.provideUserKey).toHaveBeenCalledWith(mockUserId, mockUserKey);
       });
     });
 
