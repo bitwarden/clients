@@ -1,5 +1,6 @@
 import { Jsonify } from "type-fest";
 
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { RangeWithDefault } from "@bitwarden/common/platform/misc/range-with-default";
 import { Kdf } from "@bitwarden/sdk-internal";
 
@@ -18,7 +19,9 @@ export class PBKDF2KdfConfig {
   static PRELOGIN_ITERATIONS_MIN = 5000;
   kdfType: KdfType.PBKDF2_SHA256 = KdfType.PBKDF2_SHA256;
 
-  constructor(readonly iterations: number) {}
+  constructor(readonly iterations: number) {
+    assertNonNullish(iterations, "iterations");
+  }
 
   static createDefault(): PBKDF2KdfConfig {
     return new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue);
@@ -79,7 +82,11 @@ export class Argon2KdfConfig {
     readonly iterations: number,
     readonly memory: number,
     readonly parallelism: number,
-  ) {}
+  ) {
+    assertNonNullish(iterations, "iterations");
+    assertNonNullish(memory, "memory");
+    assertNonNullish(parallelism, "parallelism");
+  }
 
   static createDefault(): Argon2KdfConfig {
     return new Argon2KdfConfig(

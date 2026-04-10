@@ -23,6 +23,58 @@ describe("KdfConfig", () => {
     });
   });
 
+  describe("PBKDF2KdfConfig constructor", () => {
+    it("should throw when iterations is null", () => {
+      expect(() => new PBKDF2KdfConfig(null as unknown as number)).toThrow(
+        "iterations is null or undefined.",
+      );
+    });
+
+    it("should throw when iterations is undefined", () => {
+      expect(() => new PBKDF2KdfConfig(undefined as unknown as number)).toThrow(
+        "iterations is null or undefined.",
+      );
+    });
+  });
+
+  describe("Argon2KdfConfig constructor", () => {
+    it("should throw when iterations is null", () => {
+      expect(() => new Argon2KdfConfig(null as unknown as number, 64, 4)).toThrow(
+        "iterations is null or undefined.",
+      );
+    });
+
+    it("should throw when iterations is undefined", () => {
+      expect(() => new Argon2KdfConfig(undefined as unknown as number, 64, 4)).toThrow(
+        "iterations is null or undefined.",
+      );
+    });
+
+    it("should throw when memory is null", () => {
+      expect(() => new Argon2KdfConfig(3, null as unknown as number, 4)).toThrow(
+        "memory is null or undefined.",
+      );
+    });
+
+    it("should throw when memory is undefined", () => {
+      expect(() => new Argon2KdfConfig(3, undefined as unknown as number, 4)).toThrow(
+        "memory is null or undefined.",
+      );
+    });
+
+    it("should throw when parallelism is null", () => {
+      expect(() => new Argon2KdfConfig(3, 64, null as unknown as number)).toThrow(
+        "parallelism is null or undefined.",
+      );
+    });
+
+    it("should throw when parallelism is undefined", () => {
+      expect(() => new Argon2KdfConfig(3, 64, undefined as unknown as number)).toThrow(
+        "parallelism is null or undefined.",
+      );
+    });
+  });
+
   it("validateKdfConfigForSetting(): should validate the PBKDF2 KDF config", () => {
     const kdfConfig: PBKDF2KdfConfig = new PBKDF2KdfConfig(600_000);
     expect(() => kdfConfig.validateKdfConfigForSetting()).not.toThrow();
