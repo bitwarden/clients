@@ -116,9 +116,6 @@ export class AutofillConfirmationDialogComponent {
     return this.i18nService.t("loginMultipleSitesDesc");
   });
 
-  /** Scenario 3: 1 saved URI + no edit access → single-button layout */
-  readonly isSingleSiteViewOnly = computed(() => this.viewOnly() && this.savedUrls().length === 1);
-
   readonly savedUrlsListClass = computed(() =>
     this.savedUrlsExpanded()
       ? ""

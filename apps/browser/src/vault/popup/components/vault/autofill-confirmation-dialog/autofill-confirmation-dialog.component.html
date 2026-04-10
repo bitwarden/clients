@@ -67,17 +67,15 @@
       <button type="button" bitButton buttonType="secondary" (click)="autofillOnly()">
         {{ (viewOnly() ? "autoFill" : "autofillOnly") | i18n }}
       </button>
-      @if (!isSingleSiteViewOnly()) {
-        <button
-          type="button"
-          bitLink
-          linkType="secondary"
-          (click)="close()"
-          class="tw-mt-2 tw-font-medium tw-text-sm tw-justify-center tw-text-center"
-        >
-          {{ "cancel" | i18n }}
-        </button>
-      }
+      <button
+        type="button"
+        bitLink
+        linkType="secondary"
+        (click)="close()"
+        class="tw-mt-2 tw-font-medium tw-text-sm tw-self-center"
+      >
+        {{ "cancel" | i18n }}
+      </button>
     </div>
   </div>
 </bit-dialog>
