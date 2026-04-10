@@ -5186,6 +5186,12 @@
   "atAnyTime": {
     "message": "at any time."
   },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
+  },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
   },
@@ -6612,6 +6618,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Master password reset for user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Two-step login reset for user $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8222,6 +8237,10 @@
     "message": "Copy the SCIM API key to your clipboard",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "View the SCIM API key",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Rotate the SCIM API key",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8252,6 +8271,29 @@
   "scimSettingsSaved": {
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists":{
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
+
   },
   "inputRequired": {
     "message": "Input is required."
@@ -9718,6 +9760,30 @@
   },
   "recoverAccount": {
     "message": "Recover account"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Reset master password"
+  },
+  "resetTwoStepLogin": {
+    "message": "Reset two-step login"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Account recovery success!"
   },
   "updatedTempPassword": {
     "message": "User updated a password issued through account recovery."
@@ -13190,5 +13256,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

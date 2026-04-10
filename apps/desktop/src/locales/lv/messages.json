@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Ievietot starpliktuvē autentificētāja atslēgu (TOTP)"
   },
-  "copyNotes": {
-    "message": "Copy notes"
-  },
   "totpHelperTitle": {
     "message": "Padarīt divpakāpju apliecināšanu plūdenu"
   },

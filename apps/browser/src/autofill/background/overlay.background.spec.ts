@@ -2884,15 +2884,10 @@ describe("OverlayBackground", () => {
           { command: "closeAutofillInlineMenu", overlayElement: undefined },
           { frameId: 0 },
         );
-        expect(tabSendMessageDataSpy).toBeCalledWith(
-          sender.tab,
-          "addToLockedVaultPendingNotifications",
-          {
-            commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
-            target: "overlay.background",
-          },
-        );
-        expect(openUnlockPopoutSpy).toHaveBeenCalled();
+        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, {
+          commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
+          target: "overlay.background",
+        });
       });
 
       it("opens the inline menu if the user auth status is unlocked", async () => {
