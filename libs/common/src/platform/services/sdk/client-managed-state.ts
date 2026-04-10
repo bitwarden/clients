@@ -1,4 +1,4 @@
-import { firstValueFrom, map } from "rxjs";
+import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRecordMapper } from "@bitwarden/common/vault/models/domain/cipher-sdk-mapper";
@@ -15,7 +15,7 @@ export async function initializeClientManagedState(
   stateProvider: StateProvider,
 ): Promise<void> {
   stateClient.register_client_managed_repositories({
-    cipher: new RepositoryRecord(userId, stateProvider, new CipherRecordMapper()),
+    cipher: new RepositoryRecord(userId, stateProvider, new CipherRecordMapper(), true),
     folder: null,
     user_key_state: new RepositoryRecord(userId, stateProvider, new UserKeyRecordMapper()),
     local_user_data_key_state: new RepositoryRecord(
@@ -42,6 +42,7 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
     private userId: UserId,
     private stateProvider: StateProvider,
     private mapper: SdkRecordMapper<ClientType, SdkType>,
+    private optimisticWrite: boolean = false,
   ) {}
 
   async get(id: string): Promise<SdkType | null> {
@@ -56,10 +57,12 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   }
 
   async set(id: string, value: SdkType): Promise<void> {
+    const newValue = this.mapper.fromSdk(value);
     await this.getUserState().update((state) => ({
       ...(state ?? {}),
-      [id]: this.mapper.fromSdk(value),
+      [id]: newValue,
     }));
+    await this.waitUntilChanged(id, newValue);
   }
 
   async setBulk(values: [string, SdkType][]): Promise<void> {
@@ -70,6 +73,9 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
       ...(state ?? {}),
       ...mapped,
     }));
+    for (const id in mapped) {
+      await this.waitUntilChanged(id, mapped[id]);
+    }
   }
 
   async remove(id: string): Promise<void> {
@@ -82,20 +88,37 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
       const { [id]: _unused, ...rest } = state;
       return rest;
     });
+    await this.waitUntilChanged(id, null);
   }
 
   async removeBulk(keys: string[]): Promise<void> {
+    const keysToRemove = new Set<string>();
     await this.getUserState().update((state) => {
       if (!state || !keys.some((key) => key in state)) {
         return state;
       }
-      const keysToRemove = new Set(keys);
+      for (const key of keys) {
+        keysToRemove.add(key);
+      }
       return Object.fromEntries(Object.entries(state).filter(([key]) => !keysToRemove.has(key)));
     });
+    for (const id of keysToRemove) {
+      await this.waitUntilChanged(id, null);
+    }
   }
 
   async removeAll(): Promise<void> {
     await this.getUserState().update(() => ({}));
+    if (!this.optimisticWrite) {
+      await firstValueFrom(
+        race(
+          this.getUserState().state$.pipe(
+            filter((state) => state == null || Object.keys(state).length == 0),
+          ),
+          timer(1000),
+        ),
+      );
+    }
   }
 
   private getUserState() {
@@ -104,5 +127,25 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
 
   private async getRecord(): Promise<Record<string, ClientType>> {
     return await firstValueFrom(this.getUserState().state$.pipe(map((state) => state ?? {})));
+  }
+
+  /**
+   * Waits until the underlying state observable reflects the change, for up to 1000ms.
+   * @param id the id of the key
+   * @param expectedValue the expected value after the change, or null if the key was removed.
+   */
+  private async waitUntilChanged(id: string, expectedValue: unknown): Promise<void> {
+    if (this.optimisticWrite) {
+      return;
+    }
+    await firstValueFrom(
+      race(
+        this.getUserState().state$.pipe(
+          map((state) => state ?? {}),
+          filter((state) => state[id] == expectedValue),
+        ),
+        timer(1000),
+      ),
+    );
   }
 }
