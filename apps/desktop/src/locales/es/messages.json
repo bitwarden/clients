@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Hay cambios sin guardar"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Clonar"
   },
@@ -2234,6 +2243,9 @@
   },
   "copyTOTP": {
     "message": "Copiar clave de Autenticador (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "Haz que la verificación en 2 pasos sea fluida"

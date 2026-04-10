@@ -296,7 +296,7 @@ export class DefaultSdkService implements SdkService {
         .map(([key, value]) => [key, value] as [string, boolean]),
     );
 
-    client.platform().load_flags(featureFlagMap);
+    await client.platform().load_flags(featureFlagMap);
   }
 
   private async toSettings(env: Environment): Promise<ClientSettings> {
