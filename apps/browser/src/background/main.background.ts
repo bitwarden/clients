@@ -808,7 +808,7 @@ export default class MainBackground {
       this.apiService,
       this.fileUploadService,
     );
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.collectionService = new DefaultCollectionService(
       this.keyService,
@@ -1009,7 +1009,6 @@ export default class MainBackground {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
