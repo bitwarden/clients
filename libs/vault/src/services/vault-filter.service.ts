@@ -367,9 +367,6 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
       },
     ];
 
-    return this.buildTypeTree(
-      { id: "AllItems", name: "allItems", type: "all", icon: "" },
-      allTypeFilters,
-    );
+    return this.buildTypeTree({ id: "AllItems", name: "allItems", type: "all" }, allTypeFilters);
   }
 }

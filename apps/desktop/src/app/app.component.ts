@@ -23,7 +23,6 @@ import {
   timeout,
 } from "rxjs";
 
-import { CollectionService } from "@bitwarden/admin-console/common";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -37,25 +36,23 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
   VaultTimeout,
   VaultTimeoutAction,
-  VaultTimeoutService,
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
 } from "@bitwarden/common/key-management/vault-timeout";
@@ -74,7 +71,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
@@ -83,9 +79,10 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
-import { DesktopAutotypeDefaultSettingPolicy } from "../autofill/services/desktop-autotype-policy.service";
+import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
@@ -104,15 +101,12 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   template: `
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
-    <ng-template #passwordHistory></ng-template>
-    <ng-template #exportVault></ng-template>
-    <ng-template #appGenerator></ng-template>
     <ng-template #loginApproval></ng-template>
     <app-header *ngIf="showHeader$ | async"></app-header>
 
     <div id="container">
       <div class="loading" *ngIf="loading">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+        <bit-spinner></bit-spinner>
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
@@ -128,18 +122,6 @@ export class AppComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("passwordHistory", { read: ViewContainerRef, static: true })
-  passwordHistoryRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("exportVault", { read: ViewContainerRef, static: true })
-  exportVaultModalRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("appGenerator", { read: ViewContainerRef, static: true })
-  generatorModalRef: ViewContainerRef;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
@@ -162,7 +144,6 @@ export class AppComponent implements OnInit, OnDestroy {
   private accountCleanUpInProgress: { [userId: string]: boolean } = {};
 
   constructor(
-    private masterPasswordService: MasterPasswordServiceAbstraction,
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
     private syncService: SyncService,
@@ -172,22 +153,17 @@ export class AppComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private i18nService: I18nService,
     private ngZone: NgZone,
-    private vaultTimeoutService: VaultTimeoutService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private keyService: KeyService,
     private logService: LogService,
     private messagingService: MessagingService,
-    private collectionService: CollectionService,
-    private searchService: SearchService,
     private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsService,
     private systemService: SystemService,
     private processReloadService: ProcessReloadServiceAbstraction,
     private stateService: StateService,
     private eventUploadService: EventUploadService,
-    private policyService: InternalPolicyService,
     private modalService: ModalService,
-    private keyConnectorService: KeyConnectorService,
     private userVerificationService: UserVerificationService,
     private configService: ConfigService,
     private dialogService: DialogService,
@@ -202,12 +178,12 @@ export class AppComponent implements OnInit, OnDestroy {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private pinService: PinServiceAbstraction,
     private readonly tokenService: TokenService,
-    private desktopAutotypeDefaultSettingPolicy: DesktopAutotypeDefaultSettingPolicy,
     private readonly lockService: LockService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestService: AuthRequestServiceAbstraction,
     private authRequestAnsweringService: AuthRequestAnsweringService,
+    private ssoLoginService: SsoLoginServiceAbstraction,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -319,6 +295,9 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openPremium":
             await this.premiumUpgradePromptService.promptForPremium();
             break;
+          case "openChangePasswordDialog":
+            this.dialogService.open(ChangePasswordDialogComponent);
+            break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
               getUserId(this.accountService.activeAccount$),
@@ -356,6 +335,24 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "ssoCallback": {
+            const storedState = await this.ssoLoginService.getSsoState();
+            const storedVerifier = await this.ssoLoginService.getCodeVerifier();
+
+            if (!storedState || !storedVerifier) {
+              this.logService.warning(
+                "[App Component] SSO callback rejected: no active SSO flow in progress",
+              );
+              break;
+            }
+
+            const storedStatePrefix = storedState.split("_identifier=")[0];
+            const receivedStatePrefix = (message.state ?? "").split("_identifier=")[0];
+
+            if (storedStatePrefix !== receivedStatePrefix) {
+              this.logService.warning("[App Component] SSO callback rejected: state mismatch");
+              break;
+            }
+
             const queryParams = {
               code: message.code,
               state: message.state,
@@ -491,9 +488,10 @@ export class AppComponent implements OnInit, OnDestroy {
               this.messagingService.send("unlocked");
               this.loading = true;
               await this.syncService.fullSync(false);
-              this.loading = false;
               // Force reload to ensure route guards are activated
               await this.router.navigate(["vault"], { onSameUrlNavigation: "reload" });
+              // Clear loading after navigating to avoid flickering the previous route
+              this.loading = false;
             }
             this.messagingService.send("finishSwitchAccount");
             break;
@@ -605,6 +603,10 @@ export class AppComponent implements OnInit, OnDestroy {
             email: stateAccounts[userId].email,
             userId: userId,
             hasMasterPassword: await this.userVerificationService.hasMasterPassword(userId),
+            // TODO: PM-32419 - remove multiClientPasswordManagement flag and logic once the feature is fully rolled out
+            multiClientPasswordManagement: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
+            ),
           };
         }
       }
@@ -867,6 +869,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
   // Process the sso callback links
   private processDeepLink(urlString: string) {
+    // Handle SSO cookie vendor callback
+    if (urlString.indexOf("bitwarden://sso-cookie-vendor") === 0) {
+      this.messagingService.send(SSO_COOKIE_VENDOR_CALLBACK_COMMAND, { urlString });
+      return;
+    }
+
     const url = new URL(urlString);
     const code = url.searchParams.get("code");
     const receivedState = url.searchParams.get("state");

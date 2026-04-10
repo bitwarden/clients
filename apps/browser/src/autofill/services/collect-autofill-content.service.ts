@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
 
 import AutofillField from "../models/autofill-field";
@@ -36,6 +34,7 @@ import {
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
+import { AutoFillConstants } from "./autofill-constants";
 
 export class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
@@ -45,14 +44,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private domRecentlyMutated = true;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
+  private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
   private currentLocationHref = "";
-  private intersectionObserver: IntersectionObserver;
+  private intersectionObserver: IntersectionObserver | null = null;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
-  private mutationObserver: MutationObserver;
+  private mutationObserver: MutationObserver | null = null;
   private mutationsQueue: MutationRecord[][] = [];
-  private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
+  private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
+  private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
+  private readonly overlaySetupDelayMs = 100;
+  private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
+  private pendingShadowDomCheck = false;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
+  private readonly shadowDomCheckTimeoutMs = 500;
+  private readonly shadowDomCheckDebounceMs = 300;
+  private lastMutationTimestamp = 0;
+  private mutationBurstCount = 0;
+  private readonly mutationCooldownMs = 500;
+  private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
   private readonly debouncedProcessMutations = debounce(() => this.processMutations(), 100);
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
@@ -103,11 +113,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.setupInitialTopLayerListeners();
     }
 
-    if (!this.mutationObserver) {
+    if (this.mutationObserver === null) {
       this.setupMutationObserver();
     }
 
-    if (!this.intersectionObserver) {
+    if (this.intersectionObserver === null) {
       this.setupIntersectionObserver();
     }
 
@@ -127,9 +137,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
-    const autofillFieldsData: AutofillField[] = (
-      await this.buildAutofillFieldsData(formFieldElements as FormFieldElement[])
-    ).filter((field) => !!field);
+    const autofillFieldsData: AutofillField[] = await this.buildAutofillFieldsData(
+      formFieldElements as FormFieldElement[],
+    );
     this.sortAutofillFieldElementsMap();
 
     if (!autofillFieldsData.length) {
@@ -151,6 +161,19 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @returns {FormFieldElement | null}
    */
   getAutofillFieldElementByOpid(opid: string): FormFieldElement | null {
+    // O(1): Try dual-index lookup first
+    const cachedElement = this.autofillFieldsByOpid.get(opid);
+    if (cachedElement) {
+      // Validate element is still in DOM (not stale)
+      if (cachedElement.isConnected) {
+        return cachedElement;
+      }
+      // Stale entry - clean it up
+      this.autofillFieldElements.delete(cachedElement as ElementWithOpId<typeof cachedElement>);
+      this.autofillFieldsByOpid.delete(opid);
+    }
+
+    // Fallback: No cached element or it was stale, query DOM
     const cachedFormFieldElements = Array.from(this.autofillFieldElements.keys());
     const formFieldElements = cachedFormFieldElements?.length
       ? cachedFormFieldElements
@@ -249,7 +272,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS),
         htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
         htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
-      });
+      } as AutofillForm);
     }
 
     return this.getFormattedAutofillFormsData();
@@ -259,14 +282,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Returns the action attribute of the form element. If the action attribute
    * is a relative path, it will be converted to an absolute path.
    * @param {ElementWithOpId<HTMLFormElement>} element
-   * @returns {string}
+   * @returns {string | null}
    * @private
    */
-  private getFormActionAttribute(element: ElementWithOpId<HTMLFormElement>): string {
-    return new URL(
-      this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ACTION),
-      globalThis.location.href,
-    ).href;
+  private getFormActionAttribute(element: ElementWithOpId<HTMLFormElement>): string | null {
+    const action = this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ACTION);
+    if (action === null) {
+      return null;
+    }
+    return new URL(action, globalThis.location.href).href;
   }
 
   /**
@@ -301,9 +325,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       autofillFieldsLimit,
       formFieldElements,
     );
-    const autofillFieldDataPromises = autofillFieldElements.map(this.buildAutofillFieldItem);
+    const autofillFieldDataPromises = autofillFieldElements.map(
+      (element: FormFieldElement, i: number) =>
+        this.buildAutofillFieldItem(element as ElementWithOpId<FormFieldElement>, i),
+    );
 
-    return Promise.all(autofillFieldDataPromises);
+    const candidates = await Promise.all(autofillFieldDataPromises);
+    const autofillFields: AutofillField[] = candidates.filter(
+      (field): field is AutofillField => field !== null,
+    );
+    return autofillFields;
   }
 
   /**
@@ -325,7 +356,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         globalThis.document.documentElement,
         this.formFieldQueryString,
         (node: Node) => this.isNodeFormFieldElement(node),
-        this.mutationObserver,
+        this.mutationObserver ?? undefined,
       );
     }
 
@@ -345,7 +376,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         element,
         AUTOFILL_ATTRIBUTES.TYPE,
       )?.toLowerCase();
-      if (unimportantFieldTypesSet.has(fieldType)) {
+      if (fieldType !== undefined && unimportantFieldTypesSet.has(fieldType)) {
         unimportantFormFields.push(element);
         continue;
       }
@@ -388,7 +419,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return existingAutofillField;
     }
 
-    const autofillFieldBase = {
+    const autofillFieldBase: AutofillField = {
       opid: element.opid,
       elementNumber: index,
       maxLength: this.getAutofillFieldMaxLength(element),
@@ -404,7 +435,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     if (!autofillFieldBase.viewable) {
       this.elementInitializingIntersectionObserver.add(element);
-      this.intersectionObserver?.observe(element);
+      if (this.intersectionObserver !== null) {
+        this.intersectionObserver.observe(element);
+      }
     }
 
     if (elementIsSpanElement(element)) {
@@ -427,7 +460,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     const fieldFormElement = (element as ElementWithOpId<FillableFormFieldElement>).form;
-    const autofillField = {
+    const autofillField: AutofillField = {
       ...autofillFieldBase,
       ...autofillFieldLabels,
       rel: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.REL),
@@ -463,18 +496,27 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     element: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
+    const opid = autofillFieldData.opid;
+
+    // Remove old element with same opid if it exists
+    const oldElement = this.autofillFieldsByOpid.get(opid);
+    if (oldElement && oldElement !== element) {
+      this.autofillFieldElements.delete(oldElement as ElementWithOpId<typeof oldElement>);
+    }
+
     // Always cache the element, even if index is -1 (for dynamically added fields)
     this.autofillFieldElements.set(element, autofillFieldData);
+    this.autofillFieldsByOpid.set(opid, element);
   }
 
   /**
    * Identifies the autocomplete attribute associated with an element and returns
    * the value of the attribute if it is not set to "off".
    * @param {ElementWithOpId<FormFieldElement>} element
-   * @returns {string}
+   * @returns {string | null}
    * @private
    */
-  private getAutoCompleteAttribute(element: ElementWithOpId<FormFieldElement>): string {
+  private getAutoCompleteAttribute(element: ElementWithOpId<FormFieldElement>): string | null {
     return (
       this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.AUTOCOMPLETE) ||
       this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.X_AUTOCOMPLETE_TYPE) ||
@@ -486,13 +528,13 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Returns the attribute of an element as a lowercase value.
    * @param {ElementWithOpId<FormFieldElement>} element
    * @param {string} attributeName
-   * @returns {string}
+   * @returns {string | undefined}
    * @private
    */
   private getAttributeLowerCase(
     element: ElementWithOpId<FormFieldElement>,
     attributeName: string,
-  ): string {
+  ): string | undefined {
     return this.getPropertyOrAttribute(element, attributeName)?.toLowerCase();
   }
 
@@ -521,26 +563,31 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return this.createLabelElementsTag(labelElementsSet);
     }
 
-    const labelElements: NodeListOf<HTMLLabelElement> | null = this.queryElementLabels(element);
-    for (let labelIndex = 0; labelIndex < labelElements?.length; labelIndex++) {
-      labelElementsSet.add(labelElements[labelIndex]);
+    const labelElements = this.queryElementLabels(element);
+    if (labelElements?.length) {
+      for (const label of labelElements) {
+        labelElementsSet.add(label);
+      }
     }
 
     let currentElement: HTMLElement | null = element;
-    while (currentElement && currentElement !== document.documentElement) {
+    while (currentElement !== null && currentElement !== document.documentElement) {
       if (elementIsLabelElement(currentElement)) {
         labelElementsSet.add(currentElement);
       }
-
-      currentElement = currentElement.parentElement?.closest("label");
+      currentElement = currentElement.parentElement?.closest("label") ?? null;
     }
 
+    const parentElement = element.parentElement;
     if (
       !labelElementsSet.size &&
-      elementIsDescriptionDetailsElement(element.parentElement) &&
-      elementIsDescriptionTermElement(element.parentElement.previousElementSibling)
+      parentElement !== null &&
+      elementIsDescriptionDetailsElement(parentElement)
     ) {
-      labelElementsSet.add(element.parentElement.previousElementSibling);
+      const prevSibling = parentElement.previousElementSibling;
+      if (prevSibling instanceof HTMLElement && elementIsDescriptionTermElement(prevSibling)) {
+        labelElementsSet.add(prevSibling);
+      }
     }
 
     return this.createLabelElementsTag(labelElementsSet);
@@ -629,6 +676,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         break;
       }
 
+      if (this.containsChildField(currentElement)) {
+        break;
+      }
+
       const textContent = this.getTextContentFromElement(currentElement);
       if (textContent) {
         labelTextContent.push(textContent);
@@ -680,6 +731,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
+   * Checks whether any of an element's descendants are form fields.
+   */
+  private containsChildField(element: Node): boolean {
+    if (nodeIsElement(element)) {
+      const fields = AutoFillConstants.FieldElements.join(", ");
+      return !!element.querySelector(fields);
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * Check if the element's tag indicates that a transition to a new section of the
    * page is occurring. If so, we should not use the element or its children in order
    * to get autofill context for the previous element.
@@ -719,14 +782,20 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @returns {string}
    * @private
    */
-  private getTextContentFromElement(element: Node | HTMLElement): string {
+  private getTextContentFromElement(element: Node | HTMLElement): string | null {
     if (element.nodeType === Node.TEXT_NODE) {
-      return this.trimAndRemoveNonPrintableText(element.nodeValue);
+      const nodeValue = element.nodeValue;
+      if (nodeValue === null) {
+        return null;
+      }
+      return this.trimAndRemoveNonPrintableText(nodeValue);
     }
 
-    return this.trimAndRemoveNonPrintableText(
-      element.textContent || (element as HTMLElement).innerText,
-    );
+    const textContentOrInnerText = element.textContent || (element as HTMLElement).innerText;
+    if (textContentOrInnerText === null) {
+      return null;
+    }
+    return this.trimAndRemoveNonPrintableText(textContentOrInnerText);
   }
 
   /**
@@ -752,12 +821,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    */
   private recursivelyGetTextFromPreviousSiblings(element: Node | HTMLElement): string[] {
     const textContentItems: string[] = [];
-    let currentElement = element;
-    while (currentElement && currentElement.previousSibling) {
+    let currentElement: Node | HTMLElement | null = element;
+    while (currentElement !== null && currentElement.previousSibling !== null) {
       // Ensure we are capturing text content from nodes and elements.
       currentElement = currentElement.previousSibling;
 
       if (this.isNewSectionElement(currentElement)) {
+        return textContentItems;
+      }
+
+      if (this.containsChildField(currentElement)) {
         return textContentItems;
       }
 
@@ -767,30 +840,43 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
 
-    if (!currentElement || textContentItems.length) {
+    if (currentElement === null || textContentItems.length > 0) {
       return textContentItems;
     }
 
     // Prioritize capturing text content from elements rather than nodes.
-    currentElement = currentElement.parentElement || currentElement.parentNode;
-    if (!currentElement) {
+    const parent =
+      currentElement.parentElement !== null
+        ? currentElement.parentElement
+        : currentElement.parentNode;
+    if (parent === null) {
       return textContentItems;
     }
+    currentElement = parent;
 
-    let siblingElement = nodeIsElement(currentElement)
+    let siblingElement: ChildNode | Element | null = nodeIsElement(currentElement)
       ? currentElement.previousElementSibling
       : currentElement.previousSibling;
-    while (siblingElement?.lastChild && !this.isNewSectionElement(siblingElement)) {
+    while (
+      siblingElement !== null &&
+      siblingElement.lastChild !== null &&
+      !this.isNewSectionElement(siblingElement as Node) &&
+      !this.containsChildField(siblingElement)
+    ) {
       siblingElement = siblingElement.lastChild;
     }
 
-    if (this.isNewSectionElement(siblingElement)) {
+    if (
+      siblingElement === null ||
+      this.isNewSectionElement(siblingElement) ||
+      this.containsChildField(siblingElement)
+    ) {
       return textContentItems;
     }
 
-    const textContent = this.getTextContentFromElement(siblingElement);
-    if (textContent) {
-      textContentItems.push(textContent);
+    const siblingTextContent = this.getTextContentFromElement(siblingElement);
+    if (siblingTextContent) {
+      textContentItems.push(siblingTextContent);
       return textContentItems;
     }
 
@@ -893,7 +979,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
         return false;
       },
-      this.mutationObserver,
+      this.mutationObserver ?? undefined,
     );
 
     if (formElements.length || formFieldElements.length) {
@@ -986,6 +1072,25 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return;
     }
 
+    const hasMutationsInShadowRoot = this.domQueryService.checkMutationsInShadowRoots(mutations);
+
+    if (hasMutationsInShadowRoot) {
+      this.debouncedRequirePageDetailsUpdate();
+    }
+
+    if (!this.pendingShadowDomCheck) {
+      this.pendingShadowDomCheck = true;
+
+      if (this.shadowDomCheckTimeout) {
+        clearTimeout(this.shadowDomCheckTimeout);
+      }
+
+      this.shadowDomCheckTimeout = setTimeout(() => {
+        this.handleNewShadowRoots();
+        this.pendingShadowDomCheck = false;
+      }, this.shadowDomCheckTimeoutMs);
+    }
+
     if (!this.mutationsQueue.length) {
       requestIdleCallbackPolyfill(this.debouncedProcessMutations, { timeout: 500 });
     }
@@ -1010,6 +1115,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     this._autofillFormElements.clear();
     this.autofillFieldElements.clear();
+    this.autofillFieldsByOpid.clear();
+
+    // Reset shadow root tracking on navigation
+    this.domQueryService.resetObservedShadowRoots();
 
     this.updateAutofillElementsAfterMutation();
   }
@@ -1041,14 +1150,34 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Triggers several flags that indicate that a collection of page details should
    * occur again on a subsequent call after a mutation has been observed in the DOM.
    */
-  private flagPageDetailsUpdateIsRequired() {
+  private requirePageDetailsUpdate() {
     this.domRecentlyMutated = true;
     if (this.autofillOverlayContentService) {
       this.autofillOverlayContentService.pageDetailsUpdateRequired = true;
     }
     this.noFieldsFound = false;
+    this.updateAutofillElementsAfterMutation();
   }
 
+  /**
+   * Debounced version of requirePageDetailsUpdate to prevent excessive updates
+   */
+  private debouncedRequirePageDetailsUpdate = debounce(() => {
+    this.requirePageDetailsUpdate();
+  }, this.shadowDomCheckDebounceMs);
+
+  /**
+   * Detects new shadow roots and schedules a page details update if any are found.
+   * This is called periodically to catch shadow roots added after initial page load.
+   * The update is debounced to prevent excessive collection triggers.
+   * @private
+   */
+  private handleNewShadowRoots = () => {
+    const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots();
+    if (hasNewShadowRoots) {
+      this.debouncedRequirePageDetailsUpdate();
+    }
+  };
   /**
    * Processes all mutation records encountered by the mutation observer.
    *
@@ -1075,7 +1204,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       (this.isAutofillElementNodeMutated(mutation.removedNodes, true) ||
         this.isAutofillElementNodeMutated(mutation.addedNodes))
     ) {
-      this.flagPageDetailsUpdateIsRequired();
+      this.requirePageDetailsUpdate();
       return;
     }
 
@@ -1085,20 +1214,24 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   private setupTopLayerCandidateListener = (element: Element) => {
-    if (this.autofillOverlayContentService) {
-      const ownedTags = this.autofillOverlayContentService.getOwnedInlineMenuTagNames() || [];
+    const overlayService = this.autofillOverlayContentService;
+    if (overlayService !== undefined) {
+      const ownedTags = overlayService.getOwnedInlineMenuTagNames() || [];
       this.ownedExperienceTagNames = ownedTags;
 
       if (!ownedTags.includes(element.tagName)) {
-        element.addEventListener("toggle", (event: ToggleEvent) => {
-          if (event.newState === "open") {
+        const toggleListener = (event: Event) => {
+          if ((event as ToggleEvent).newState === "open") {
             // Add a slight delay (but faster than a user's reaction), to ensure the layer
             // positioning happens after any triggered toggle has completed.
-            setTimeout(this.autofillOverlayContentService.refreshMenuLayerPosition, 100);
+            setTimeout(() => {
+              overlayService.refreshMenuLayerPosition();
+            }, 100);
           }
-        });
+        };
+        element.addEventListener("toggle", toggleListener);
 
-        this.autofillOverlayContentService.refreshMenuLayerPosition();
+        overlayService.refreshMenuLayerPosition();
       }
     }
   };
@@ -1174,7 +1307,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         `form, ${this.formFieldQueryString}`,
         (walkerNode: Node) =>
           nodeIsFormElement(walkerNode) || this.isNodeFormFieldElement(walkerNode),
-        this.mutationObserver,
+        this.mutationObserver ?? undefined,
         true,
       );
 
@@ -1253,23 +1386,60 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (this.autofillFieldElements.has(element)) {
+      const autofillFieldData = this.autofillFieldElements.get(element);
       this.autofillFieldElements.delete(element);
+      // Also remove from opid reverse index
+      if (autofillFieldData?.opid) {
+        this.autofillFieldsByOpid.delete(autofillFieldData.opid);
+      }
+    }
+
+    // Clear pending overlay setup timeout to prevent memory leak
+    const pendingTimeout = this.pendingOverlaySetup.get(element);
+    if (pendingTimeout) {
+      globalThis.clearTimeout(pendingTimeout);
+      this.pendingOverlaySetup.delete(element);
     }
   }
 
   /**
    * Updates the autofill elements after a DOM mutation has occurred.
-   * Is debounced to prevent excessive updates.
+   * Uses adaptive debouncing - extends timeout if DOM is "hot" (rapid mutations).
+   * This prevents premature collection during loading spinners or SPA transitions.
    * @private
    */
   private updateAutofillElementsAfterMutation() {
-    if (this.updateAfterMutationIdleCallback) {
+    if (this.updateAfterMutationIdleCallback !== null) {
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+      this.updateAfterMutationIdleCallback = null;
+    }
+
+    const now = Date.now();
+    const timeSinceLastMutation = now - this.lastMutationTimestamp;
+    this.lastMutationTimestamp = now;
+
+    // Check if mutations are occurring rapidly (DOM is still "hot")
+    if (timeSinceLastMutation < this.mutationCooldownMs) {
+      this.mutationBurstCount++;
+    } else {
+      this.mutationBurstCount = 0;
+    }
+
+    // Calculate adaptive timeout based on mutation frequency
+    // If DOM is "hot" (mutations occurring rapidly), extend the wait time
+    let adaptiveTimeout = this.updateAfterMutationTimeout;
+    if (this.mutationBurstCount > 0) {
+      // Extend timeout proportionally to mutation frequency, up to max wait time
+      const extensionMs = Math.min(
+        this.mutationBurstCount * this.mutationCooldownMs,
+        this.maxMutationWaitMs - this.updateAfterMutationTimeout,
+      );
+      adaptiveTimeout = this.updateAfterMutationTimeout + extensionMs;
     }
 
     this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
-      { timeout: this.updateAfterMutationTimeout },
+      { timeout: adaptiveTimeout },
     );
   }
 
@@ -1285,6 +1455,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     const attributeName = mutation.attributeName?.toLowerCase();
+    if (attributeName === undefined) {
+      return;
+    }
     const autofillForm = this._autofillFormElements.get(
       targetElement as ElementWithOpId<HTMLFormElement>,
     );
@@ -1329,7 +1502,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.updateAutofillDataAttribute({ element, attributeName, dataTarget, dataTargetKey });
     };
     const updateActions: Record<string, CallableFunction> = {
-      action: () => (dataTarget.htmlAction = this.getFormActionAttribute(element)),
+      action: () => {
+        const actionUrl = this.getFormActionAttribute(element);
+        if (actionUrl !== null) {
+          dataTarget.htmlAction = actionUrl;
+        }
+      },
       name: () => updateAttribute("htmlName"),
       id: () => updateAttribute("htmlID"),
       class: () => updateAttribute("htmlClass"),
@@ -1469,7 +1647,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
       const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
       if (!cachedAutofillFieldElement) {
-        this.intersectionObserver.unobserve(entry.target);
+        if (this.intersectionObserver !== null) {
+          this.intersectionObserver.unobserve(entry.target);
+        }
         continue;
       }
 
@@ -1481,7 +1661,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cachedAutofillFieldElement.viewable = true;
       this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement);
 
-      this.intersectionObserver?.unobserve(entry.target);
+      if (this.intersectionObserver !== null) {
+        this.intersectionObserver.unobserve(entry.target);
+      }
     }
   };
 
@@ -1500,6 +1682,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Sets up the inline menu listener on the passed field element.
+   * Debounced per-element to prevent excessive setup/teardown during rapid DOM changes.
    *
    * @param formFieldElement - The form field element to set up the inline menu listener on
    * @param autofillField - The metadata for the form field
@@ -1510,20 +1693,66 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
   ) {
-    if (this.autofillOverlayContentService) {
-      const autofillPageDetails =
-        pageDetails ||
-        this.getFormattedPageDetails(
-          this.getFormattedAutofillFormsData(),
-          this.getFormattedAutofillFieldsData(),
-        );
-
-      void this.autofillOverlayContentService.setupOverlayListeners(
-        formFieldElement,
-        autofillField,
-        autofillPageDetails,
-      );
+    if (!this.autofillOverlayContentService) {
+      return;
     }
+
+    // Check if there's already a pending debounce for this element
+    const existingTimeout = this.pendingOverlaySetup.get(formFieldElement);
+    const shouldExecuteImmediately = !existingTimeout;
+
+    // Cancel any pending setup for this element
+    if (existingTimeout) {
+      globalThis.clearTimeout(existingTimeout);
+    }
+
+    // Execute immediately on first call (leading edge), then debounce subsequent calls
+    if (shouldExecuteImmediately) {
+      this.executeOverlaySetup(formFieldElement, autofillField, pageDetails);
+    }
+
+    // Set up debounce timeout that clears the tracking after the delay
+    // This allows the next call after the delay to execute immediately again
+    const timeoutId = globalThis.setTimeout(() => {
+      this.pendingOverlaySetup.delete(formFieldElement);
+    }, this.overlaySetupDelayMs);
+
+    this.pendingOverlaySetup.set(formFieldElement, timeoutId);
+  }
+
+  /**
+   * Executes the overlay setup for a form field element.
+   *
+   * @param formFieldElement - The form field element to set up the inline menu listener on
+   * @param autofillField - The metadata for the form field
+   * @param pageDetails - The page details to use for the inline menu listeners
+   */
+  private executeOverlaySetup(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillField: AutofillField,
+    pageDetails?: AutofillPageDetails,
+  ) {
+    // Verify the field is still in the DOM and cached before setup
+    if (
+      !formFieldElement.isConnected ||
+      !this.autofillFieldElements.has(formFieldElement) ||
+      !this.autofillOverlayContentService
+    ) {
+      return;
+    }
+
+    const autofillPageDetails =
+      pageDetails ||
+      this.getFormattedPageDetails(
+        this.getFormattedAutofillFormsData(),
+        this.getFormattedAutofillFieldsData(),
+      );
+
+    void this.autofillOverlayContentService.setupOverlayListeners(
+      formFieldElement,
+      autofillField,
+      autofillPageDetails,
+    );
   }
 
   /**
@@ -1544,10 +1773,22 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * timeouts and disconnects the mutation observer.
    */
   destroy() {
-    if (this.updateAfterMutationIdleCallback) {
+    if (this.updateAfterMutationIdleCallback !== null) {
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
+      this.updateAfterMutationIdleCallback = null;
     }
-    this.mutationObserver?.disconnect();
-    this.intersectionObserver?.disconnect();
+    if (this.shadowDomCheckTimeout) {
+      clearTimeout(this.shadowDomCheckTimeout);
+    }
+    this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
+    this.pendingOverlaySetup.clear();
+    if (this.mutationObserver !== null) {
+      this.mutationObserver.disconnect();
+      this.mutationObserver = null;
+    }
+    if (this.intersectionObserver !== null) {
+      this.intersectionObserver.disconnect();
+      this.intersectionObserver = null;
+    }
   }
 }

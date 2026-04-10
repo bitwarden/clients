@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoris"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Types"
   },
@@ -334,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Une adhésion Premium est requise pour utiliser cette fonctionnalité."
   },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
+  },
   "errorOccurred": {
     "message": "Une erreur est survenue."
   },
@@ -585,6 +604,12 @@
   },
   "editedItem": {
     "message": "Élément enregistré"
+  },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
   },
   "deleteItem": {
     "message": "Supprimer l'élément"
@@ -896,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Indice du mot de passe principal"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "passwordStrengthScore": {
     "message": "Score de force du mot de passe $SCORE$",
     "placeholders": {
@@ -1187,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
   },
@@ -1271,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Changer le mot de passe principal"
   },
+  "changeMasterPassword": {
+    "message": "Change master password"
+  },
   "continueToWebApp": {
     "message": "Poursuivre vers l'application web ?"
   },
@@ -1349,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Authentification à deux facteurs"
   },
-  "vaultTimeoutHeader": {
-    "message": "Délai d'expiration du coffre"
-  },
   "vaultTimeout": {
     "message": "Délai d'expiration du coffre"
   },
   "vaultTimeout1": {
     "message": "Délai dépassé"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Expiration de l'action"
   },
   "vaultTimeoutDesc": {
     "message": "Choisissez quand votre coffre réalisera l'action d'expiration."
@@ -1555,6 +1601,18 @@
   "unknown": {
     "message": "Inconnu"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Copier le nom d'utilisateur"
   },
@@ -1637,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Actualisation terminée"
@@ -2053,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Modifications non enregistrées"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Cloner"
   },
@@ -2068,9 +2150,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Une nouvelle authentification est requise pour accéder à nouveau à votre coffre."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configurez une méthode de déverrouillage pour changer le délai d'attente de votre coffre."
-  },
   "lock": {
     "message": "Verrouiller",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2081,6 +2160,24 @@
   },
   "searchTrash": {
     "message": "Rechercher dans la corbeille"
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
   },
   "permanentlyDeleteItem": {
     "message": "Supprimer définitivement l'élément"
@@ -2236,6 +2333,9 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Votre nouveau mot de passe principal ne répond pas aux exigences de politique de sécurité."
   },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "receiveMarketingEmailsV2": {
     "message": "Obtenez des conseils, des annonces et des opportunités de recherche de la part de Bitwarden dans votre boîte de réception."
   },
@@ -2377,6 +2477,9 @@
   "editSend": {
     "message": "Modifier le Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "Mon Coffre"
@@ -2667,9 +2770,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Le délai d'expiration de votre coffre dépasse les restrictions définies par votre organisation."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Les exigences de la politique de sécurité d'Entreprise ont été appliquées à vos options de délai d'expiration"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Les politiques de sécurité de votre organisation ont défini le délai d'expiration de votre coffre à $HOURS$ heure(s) et $MINUTES$ minute(s) maximum.",
@@ -3703,6 +3803,9 @@
   "exportSuccess": {
     "message": "Données du coffre exportées"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
   },
@@ -4085,6 +4188,9 @@
   },
   "missingWebsite": {
     "message": "Site Web manquant"
+  },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Vous ne pouvez pas supprimer des collections avec les autorisations d'affichage uniquement : $COLLECTIONS$",
@@ -4572,8 +4678,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4581,14 +4687,47 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
   },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -4617,9 +4756,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"

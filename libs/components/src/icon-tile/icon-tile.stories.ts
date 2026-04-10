@@ -10,20 +10,16 @@ export default {
   args: {
     icon: "bwi-star",
     variant: "primary",
-    size: "default",
-    shape: "square",
+    size: "base",
+    borderRadius: "base",
   },
   argTypes: {
     variant: {
-      options: ["primary", "success", "warning", "danger", "muted"],
+      options: ["primary", "success", "warning", "danger", "subtle", "dark", "contrast"],
       control: { type: "select" },
     },
     size: {
-      options: ["small", "default", "large"],
-      control: { type: "select" },
-    },
-    shape: {
-      options: ["square", "circle"],
+      options: ["xs", "sm", "base", "lg", "xl"],
       control: { type: "select" },
     },
     icon: {
@@ -51,24 +47,32 @@ export const AllVariants: Story = {
     template: `
       <div class="tw-flex tw-gap-4 tw-items-center tw-flex-wrap">
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-collection" variant="primary"></bit-icon-tile>
+          <bit-icon-tile icon="bwi-clock" variant="primary"></bit-icon-tile>
           <span class="tw-text-sm tw-text-muted">Primary</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-check-circle" variant="success"></bit-icon-tile>
+          <bit-icon-tile icon="bwi-clock" variant="success"></bit-icon-tile>
           <span class="tw-text-sm tw-text-muted">Success</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-exclamation-triangle" variant="warning"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Warning</span>
-        </div>
-        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-error" variant="danger"></bit-icon-tile>
+          <bit-icon-tile icon="bwi-clock" variant="danger"></bit-icon-tile>
           <span class="tw-text-sm tw-text-muted">Danger</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-question-circle" variant="muted"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Muted</span>
+          <bit-icon-tile icon="bwi-clock" variant="warning"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">Warning</span>
+        </div>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+          <bit-icon-tile icon="bwi-clock" variant="subtle"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">Subtle</span>
+        </div>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+          <bit-icon-tile icon="bwi-clock" variant="dark"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">Dark</span>
+        </div>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+          <bit-icon-tile icon="bwi-clock" variant="contrast"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">Contrast</span>
         </div>
       </div>
     `,
@@ -78,35 +82,111 @@ export const AllVariants: Story = {
 export const AllSizes: Story = {
   render: () => ({
     template: `
-      <div class="tw-flex tw-gap-4 tw-items-center">
+      <div class="tw-flex tw-gap-4 tw-items-end">
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-star" variant="primary" size="small"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Small</span>
+          <bit-icon-tile icon="bwi-star" variant="primary" size="xs"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">XS (16px)</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-star" variant="primary" size="default"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Default</span>
+          <bit-icon-tile icon="bwi-star" variant="primary" size="sm"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">SM (24px)</span>
         </div>
         <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-star" variant="primary" size="large"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Large</span>
+          <bit-icon-tile icon="bwi-star" variant="primary" size="base"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">Base (36px)</span>
+        </div>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+          <bit-icon-tile icon="bwi-star" variant="primary" size="lg"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">LG (48px)</span>
+        </div>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+          <bit-icon-tile icon="bwi-star" variant="primary" size="xl"></bit-icon-tile>
+          <span class="tw-text-sm tw-text-muted">XL (64px)</span>
         </div>
       </div>
     `,
   }),
 };
 
-export const AllShapes: Story = {
+export const AllCombinations: Story = {
   render: () => ({
     template: `
-      <div class="tw-flex tw-gap-4 tw-items-center">
-        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-user" variant="primary" shape="square"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Square</span>
+      <div class="tw-flex tw-flex-col tw-gap-8">
+        <div>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Primary Variant - All Sizes</h3>
+          <div class="tw-flex tw-gap-4 tw-items-end">
+            <bit-icon-tile icon="bwi-collection" variant="primary" size="xs"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-collection" variant="primary" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-collection" variant="primary" size="base"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-collection" variant="primary" size="lg"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-collection" variant="primary" size="xl"></bit-icon-tile>
+          </div>
         </div>
-        <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
-          <bit-icon-tile icon="bwi-user" variant="primary" shape="circle"></bit-icon-tile>
-          <span class="tw-text-sm tw-text-muted">Circle</span>
+
+        <div>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Success Variant - All Sizes</h3>
+          <div class="tw-flex tw-gap-4 tw-items-end">
+            <bit-icon-tile icon="bwi-check-circle" variant="success" size="xs"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-check-circle" variant="success" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-check-circle" variant="success" size="base"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-check-circle" variant="success" size="lg"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-check-circle" variant="success" size="xl"></bit-icon-tile>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Danger Variant - All Sizes</h3>
+          <div class="tw-flex tw-gap-4 tw-items-end">
+            <bit-icon-tile icon="bwi-error" variant="danger" size="xs"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-error" variant="danger" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-error" variant="danger" size="base"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-error" variant="danger" size="lg"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-error" variant="danger" size="xl"></bit-icon-tile>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Warning Variant - All Sizes</h3>
+          <div class="tw-flex tw-gap-4 tw-items-end">
+            <bit-icon-tile icon="bwi-exclamation-triangle" variant="warning" size="xs"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-exclamation-triangle" variant="warning" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-exclamation-triangle" variant="warning" size="base"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-exclamation-triangle" variant="warning" size="lg"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-exclamation-triangle" variant="warning" size="xl"></bit-icon-tile>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Subtle Variant - All Sizes</h3>
+          <div class="tw-flex tw-gap-4 tw-items-end">
+            <bit-icon-tile icon="bwi-question-circle" variant="subtle" size="xs"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-question-circle" variant="subtle" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-question-circle" variant="subtle" size="base"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-question-circle" variant="subtle" size="lg"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-question-circle" variant="subtle" size="xl"></bit-icon-tile>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Dark Variant - All Sizes</h3>
+          <div class="tw-flex tw-gap-4 tw-items-end">
+            <bit-icon-tile icon="bwi-lock" variant="dark" size="xs"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-lock" variant="dark" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-lock" variant="dark" size="base"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-lock" variant="dark" size="lg"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-lock" variant="dark" size="xl"></bit-icon-tile>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="tw-text-lg tw-font-semibold tw-mb-4">Contrast Variant - All Sizes</h3>
+          <div class="tw-flex tw-gap-4 tw-items-end">
+            <bit-icon-tile icon="bwi-star" variant="contrast" size="xs"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-star" variant="contrast" size="sm"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-star" variant="contrast" size="base"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-star" variant="contrast" size="lg"></bit-icon-tile>
+            <bit-icon-tile icon="bwi-star" variant="contrast" size="xl"></bit-icon-tile>
+          </div>
         </div>
       </div>
     `,

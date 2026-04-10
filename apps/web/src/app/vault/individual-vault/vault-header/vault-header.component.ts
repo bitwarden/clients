@@ -1,5 +1,13 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -30,6 +38,7 @@ import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
+import { CoachmarkComponent, CoachmarkService } from "../../components/coachmark";
 import { PipesModule } from "../pipes/pipes.module";
 
 @Component({
@@ -44,14 +53,22 @@ import { PipesModule } from "../pipes/pipes.module";
     PipesModule,
     JslibModule,
     NewCipherMenuComponent,
+    CoachmarkComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
-  protected Unassigned = Unassigned;
-  protected All = All;
-  protected CollectionDialogTabType = CollectionDialogTabType;
-  protected CipherType = CipherType;
+  protected readonly Unassigned = Unassigned;
+  protected readonly All = All;
+  protected readonly CollectionDialogTabType = CollectionDialogTabType;
+  protected readonly CipherType = CipherType;
+
+  protected readonly coachmarkService = inject(CoachmarkService);
+
+  /** Computed signal for add item coachmark open state */
+  protected readonly addItemCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "addItem",
+  );
 
   /**
    * Boolean to determine the loading state of the header.
@@ -109,12 +126,12 @@ export class VaultHeaderComponent {
   canCreateBankAccount$ = this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes);
 
   constructor(
-    private i18nService: I18nService,
-    private collectionAdminService: CollectionAdminService,
-    private dialogService: DialogService,
-    private router: Router,
-    private configService: ConfigService,
-    private accountService: AccountService,
+    private readonly i18nService: I18nService,
+    private readonly collectionAdminService: CollectionAdminService,
+    private readonly dialogService: DialogService,
+    private readonly router: Router,
+    private readonly configService: ConfigService,
+    private readonly accountService: AccountService,
   ) {}
 
   /**

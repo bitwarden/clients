@@ -2,8 +2,17 @@
   "allApplications": {
     "message": "Alle Anwendungen"
   },
+  "allMembers": {
+    "message": "Alle Mitglieder"
+  },
+  "allPasswords": {
+    "message": "Alle Passwörter"
+  },
   "activity": {
     "message": "Aktivität"
+  },
+  "applicationsAtRisk": {
+    "message": "Gefährdete Anwendungen"
   },
   "appLogoLabel": {
     "message": "Bitwarden-Logo"
@@ -44,11 +53,20 @@
   "passwordRisk": {
     "message": "Passwort-Risiko"
   },
+  "passwords": {
+    "message": "Passwörter"
+  },
+  "riskOverTime": {
+    "message": "Gefährdung im Zeitverlauf"
+  },
+  "passwordsAtRisk": {
+    "message": "Gefährdete Passwörter"
+  },
   "noEditPermissions": {
     "message": "Du bist nicht berechtigt, diesen Eintrag zu bearbeiten"
   },
   "reviewAccessIntelligence": {
-    "message": "Review security reports to find and fix credential risks before they escalate."
+    "message": "Überprüfe Sicherheitsberichte, um Risiken im Zusammenhang mit Zugangsdaten zu erkennen und zu beheben, bevor sie eskalieren."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Gefährdete Zugangsdaten überprüfen"
@@ -287,7 +305,7 @@
     }
   },
   "markAppCountAsCritical": {
-    "message": "Mark $COUNT$ as critical",
+    "message": "$COUNT$ als kritisch markieren",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -296,7 +314,7 @@
     }
   },
   "markAppCountAsNotCritical": {
-    "message": "Mark $COUNT$ as not critical",
+    "message": "$COUNT$ als nicht kritisch markieren",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -306,6 +324,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Anwendungen konnten nicht als kritisch markiert werden"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Das Aufheben der Markierung als kritisch ist fehlgeschlagen"
   },
   "application": {
     "message": "Anwendung"
@@ -2103,6 +2124,9 @@
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
   },
+  "exportError": {
+    "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
+  },
   "passwordGenerator": {
     "message": "Passwort-Generator"
   },
@@ -3047,16 +3071,16 @@
   "breachDesc": {
     "message": "Kompromittierte Konten können deine persönlichen Daten preisgeben. Sichere kompromittierte Konten, indem du 2FA aktivierst oder ein sicheres Passwort erstellst."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Prüfen Sie alle Benutzernamen und E-Mail-Adressen, die Sie verwenden."
+  "breachCheckEmail": {
+    "message": "Überprüfe alle von dir verwendeten E-Mail-Adressen."
   },
   "checkBreaches": {
     "message": "Auf Datendiebstähle prüfen"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ wurde in keinem der bekannten Datendiebstahlvorfällen gefunden.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ wurde in keinem bekannten Datendiebstahlvorfall gefunden.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3090,10 @@
     "message": "Gute Neuigkeiten",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ wurde in $COUNT$ Datendiebstahlvorfällen gefunden.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ wurde in $COUNT$ Datendiebstahlvorfällen gefunden.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3339,13 +3363,13 @@
     "message": "Das Abo wurde wieder aufgenommen."
   },
   "resubscribe": {
-    "message": "Resubscribe"
+    "message": "Erneut abonnieren"
   },
   "yourSubscriptionIsExpired": {
-    "message": "Your subscription is expired"
+    "message": "Dein Abonnement ist abgelaufen"
   },
   "yourSubscriptionIsCanceled": {
-    "message": "Your subscription is canceled"
+    "message": "Dein Abonnement wurde gekündigt"
   },
   "cancelConfirmation": {
     "message": "Sind Sie sicher, dass Sie kündigen wollen? Am Ende dieses Abrechnungszyklus verlieren Sie den Zugriff auf alle Funktionen dieses Abos."
@@ -3376,6 +3400,9 @@
   },
   "discount": {
     "message": "Rabatt"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Rabatt abgelaufen. Bitte überprüfe den Warenkorb und versuche es erneut."
   },
   "downloadLicense": {
     "message": "Lizenz herunterladen"
@@ -3783,6 +3810,15 @@
   },
   "policies": {
     "message": "Richtlinien"
+  },
+  "dataControls": {
+    "message": "Dateneinstellungen"
+  },
+  "authentication": {
+    "message": "Authentifizierung"
+  },
+  "vaultManagement": {
+    "message": "Tresor-Verwaltung"
   },
   "singleSignOn": {
     "message": "Single Sign-On"
@@ -4268,6 +4304,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "Eine oder mehrere E-Mail-Adressen gehören zu widerrufenen Mitgliedern. Stelle ihren Zugriff wieder her, um sie erneut einzuladen."
+  },
   "restoredUserId": {
     "message": "Zugriff auf die Organisation für $ID$ wiederhergestellt.",
     "placeholders": {
@@ -4338,7 +4377,7 @@
     }
   },
   "automaticallyConfirmedUserId": {
-    "message": "Automatically confirmed user $ID$.",
+    "message": "Benutzer $ID$ automatisch bestätigt.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4609,19 +4648,19 @@
     "message": "Ladefortschritt"
   },
   "reviewingMemberData": {
-    "message": "Reviewing member data..."
+    "message": "Mitgliedsdaten werden überprüft..."
   },
   "analyzingPasswords": {
     "message": "Passwörter werden analysiert..."
   },
   "calculatingRisks": {
-    "message": "Calculating risks..."
+    "message": "Risiken werden berechnet..."
   },
   "generatingReports": {
-    "message": "Berichte werden erstellt ..."
+    "message": "Berichte werden erstellt..."
   },
   "compilingInsightsProgress": {
-    "message": "Compiling insights..."
+    "message": "Analyse wird zusammengestellt..."
   },
   "reportGenerationDone": {
     "message": "Fertig!"
@@ -5445,7 +5484,7 @@
   "minimumNumberOfWords": {
     "message": "Mindestanzahl an Wörtern"
   },
-  "passwordTypePolicyOverride": {
+  "overridePasswordTypePolicy": {
     "message": "Passworttyp",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
@@ -6054,6 +6093,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Erfahre mehr über die Übertragung"
   },
+  "promptUsersToMoveItems": {
+    "message": "Benutzer auffordern, einzelne Tresoreinträge in die Organisation zu verschieben"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Mitglieder werden aufgefordert, ihre Einträge entweder an die Organisation zu übertragen oder sie zu verlassen. Wenn sie gehen, wird ihr Zugang deaktiviert, kann aber jederzeit wiederhergestellt werden."
+  },
   "organizationDataOwnership": {
     "message": "Eigentumsrechte an Unternehmensdaten erzwingen"
   },
@@ -6091,8 +6136,8 @@
   "availableNow": {
     "message": "Jetzt verfügbar"
   },
-  "autoConfirm": {
-    "message": "Automatische Bestätigung neuer Benutzer"
+  "automaticUserConfirmation": {
+    "message": "Automatische Benutzerbestätigung"
   },
   "autoConfirmDescription": {
     "message": "Neue Benutzer, die in die Organisation eingeladen werden, werden automatisch bestätigt, wenn das Gerät eines Administrators entsperrt wird.",
@@ -6148,16 +6193,16 @@
     "message": "Ich akzeptiere diese Risiken und Richtlinien-Aktualisierungen"
   },
   "autoConfirmEnabledByAdmin": {
-    "message": "Turned on Automatic user confirmation setting"
+    "message": "Einstellung „Automatische Benutzerbestätigung“ aktiviert"
   },
   "autoConfirmDisabledByAdmin": {
-    "message": "Turned off Automatic user confirmation setting"
+    "message": "Einstellung „Automatische Benutzerbestätigung“ deaktiviert"
   },
   "autoConfirmEnabledByPortal": {
-    "message": "Added Automatic user confirmation policy"
+    "message": "Richtlinie „Automatische Benutzerbestätigung“ hinzugefügt"
   },
   "autoConfirmDisabledByPortal": {
-    "message": "Removed Automatic user confirmation policy"
+    "message": "Richtlinie „Automatische Benutzerbestätigung“ entfernt"
   },
   "system": {
     "message": "System"
@@ -6198,6 +6243,16 @@
   "sendDisabledWarning": {
     "message": "Aufgrund einer Unternehmensrichtlinie kannst du ein bestehendes Send nur löschen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Send-Einstellungen"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Lege Optionen für das Erstellen und Bearbeiten von Sends fest, einschließlich der Möglichkeit, Sends zu entfernen.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organisationsmitglieder, die die Richtlinien der Organisation verwalten können, sind von der Durchsetzung dieser Richtlinie ausgenommen."
   },
   "sendOptions": {
     "message": "Send Einstellungen",
@@ -6456,8 +6511,16 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "verifyYourEmailToViewThisSend": {
-    "message": "Verifiziere deine E-Mail, um dieses Send anzuzeigen",
+    "message": "Verifiziere deine E-Mail-Adresse, um dieses Send anzuzeigen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Kein Code erhalten? Kontaktiere den Absender, um deine E-Mail-Adresse zu bestätigen oder ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Verifizierungscode erneut senden",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "Der Bitwarden Benutzer, der dieses Send erstellt hat, hat sich entschieden, seine E-Mail-Adresse zu verstecken. Du solltest sicherstellen, dass du der Quelle dieses Links vertraust, bevor du dessen Inhalt verwendest oder herunterlädst.",
@@ -6707,7 +6770,7 @@
     "message": "1 Einladung gesendet"
   },
   "bulkReinviteSentToast": {
-    "message": "$COUNT$ invitations sent",
+    "message": "$COUNT$ Einladungen gesendet",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6733,7 +6796,7 @@
     }
   },
   "bulkReinviteProgressTitle": {
-    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "message": "$COUNT$ von $TOTAL$ Einladungen gesendet …",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6746,10 +6809,10 @@
     }
   },
   "bulkReinviteProgressSubtitle": {
-    "message": "Keep this page open until all are sent."
+    "message": "Lass diese Seite geöffnet, bis alle gesendet wurden."
   },
   "bulkReinviteFailuresTitle": {
-    "message": "$COUNT$ invitations didn't send",
+    "message": "$COUNT$ Einladungen konnten nicht gesendet werden",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6758,10 +6821,10 @@
     }
   },
   "bulkReinviteFailureTitle": {
-    "message": "1 invitation didn't send"
+    "message": "1 Einladung wurde nicht versendet"
   },
   "bulkReinviteFailureDescription": {
-    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "message": "Beim Senden von Einladungen an $COUNT$ von $TOTAL$ Mitgliedern ist ein Fehler aufgetreten. Versuche es erneut, und falls das Problem weiterhin besteht,",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6774,7 +6837,7 @@
     }
   },
   "bulkResendInvitations": {
-    "message": "Try sending again"
+    "message": "Erneut senden"
   },
   "bulkRemovedMessage": {
     "message": "Erfolgreich entfernt"
@@ -7418,7 +7481,7 @@
     "message": "Ungültiger Verifizierungscode"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "E-Mail oder Verifizierungscode ungültig"
+    "message": "Ungültige E-Mail-Adresse oder Verifizierungscode"
   },
   "keyConnectorDomain": {
     "message": "Key Connector-Domain"
@@ -8304,6 +8367,9 @@
   "members": {
     "message": "Mitglieder"
   },
+  "membersAtRisk": {
+    "message": "Gefährdete Mitglieder"
+  },
   "reporting": {
     "message": "Berichte"
   },
@@ -8574,6 +8640,14 @@
   "newProject": {
     "message": "Neues Projekt",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Klicke auf dieses Projekt, um es umzubenennen",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Der Projektname kann nicht entschlüsselt werden - zum Umbenennen auf das Projekt klicken",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Das Löschen von Geheimnissen kann bestehende Integrationen beeinflussen.",
@@ -10218,7 +10292,7 @@
     "message": "Aufgaben zuweisen"
   },
   "allTasksAssigned": {
-    "message": "All tasks have been assigned"
+    "message": "Alle Aufgaben wurden zugewiesen"
   },
   "assignSecurityTasksToMembers": {
     "message": "Benachrichtigungen zum Ändern von Passwörtern senden"
@@ -10624,6 +10698,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Sende Ereignisdaten an deine Huntress SIEM-Instanz"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ erfolgreich verbunden.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Fehler beim Speichern der Integration. Bitte versuche es später erneut."
   },
@@ -10977,6 +11060,9 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Aus"
   },
+  "memberAccessReportLoadError": {
+    "message": "Der Mitgliederzugriffsbericht konnte nicht geladen werden. Dies kann an einer großen Organisationsgröße oder einem Netzwerkproblem liegen. Bitte versuche es erneut oder wende dich an den Support, wenn das Problem weiterhin besteht."
+  },
   "kdfIterationRecommends": {
     "message": "Wir empfehlen 600.000 oder mehr"
   },
@@ -11027,6 +11113,9 @@
   },
   "clientDetails": {
     "message": "Kundendetails"
+  },
+  "downloadChart": {
+    "message": "Diagramm herunterladen"
   },
   "downloadCSV": {
     "message": "CSV-Datei herunterladen"
@@ -11480,6 +11569,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Benutzer $ID$ hat sich selbst aus Organisation widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Widerrufen wegen Ablehnung der Übertragung an die Organisation."
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ ist gesperrt",
     "placeholders": {
@@ -11863,6 +11964,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Nicht vertrauenswürdige Verschlüsselungsschlüssel"
+  },
+  "atRiskPassword": {
+    "message": "Gefährdetes Passwort"
   },
   "changeAtRiskPassword": {
     "message": "Gefährdetes Passwort ändern"
@@ -12533,12 +12637,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Vor der Aktivierung dieser Richtlinie muss eine Domain beansprucht werden."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Tresor-Timeout zu ändern."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
@@ -12737,8 +12835,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12746,14 +12844,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
+  },
   "acceptTransfer": {
     "message": "Übertragung annehmen"
   },
   "declineAndLeave": {
     "message": "Ablehnen und verlassen"
-  },
-  "whyAmISeeingThis": {
-    "message": "Warum wird mir das angezeigt?"
   },
   "youHaveBitwardenPremium": {
     "message": "Du hast Bitwarden Premium"
@@ -12878,19 +12979,19 @@
     "message": "Du hast die gesamten $GB$ GB deines verschlüsselten Speichers verwendet. Um mit dem Speichern von Dateien fortzufahren, füge mehr Speicher hinzu."
   },
   "extensionPromptHeading": {
-    "message": "Get the extension for easy vault access"
+    "message": "Lade dir die Erweiterung für einfachen Zugriff auf den Tresor herunter"
   },
   "extensionPromptBody": {
-    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+    "message": "Mit der installierten Browser-Erweiterung kannst du Bitwarden überall online nutzen. Es füllt Passwörter aus, sodass du dich mit einem einzigen Klick bei deinen Konten anmelden kannst."
   },
   "extensionPromptImageAlt": {
-    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+    "message": "Ein Web-Browser, der die Bitwarden-Erweiterung mit Einträgen zum Auto-Ausfüllen für die aktuelle Website anzeigt."
   },
   "skip": {
-    "message": "Skip"
+    "message": "Überspringen"
   },
   "downloadExtension": {
-    "message": "Download extension"
+    "message": "Erweiterung herunterladen"
   },
   "whoCanView": {
     "message": "Wer kann das sehen"
@@ -12903,9 +13004,6 @@
   },
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-Mail-Verifizierung erfordert mindestens eine E-Mail-Adresse. Ändere den Zugriffstyp oben, um alle E-Mails zu entfernen."
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
@@ -12932,16 +13030,16 @@
     "message": "Ungültiges Send-Passwort"
   },
   "vaultWelcomeDialogTitle": {
-    "message": "You're in! Welcome to Bitwarden"
+    "message": "Du bist dabei! Willkommen bei Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
-    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+    "message": "Speichere alle deine Passwörter und persönlichen Daten in deinem Bitwarden-Tresor. Wir zeigen dir alles."
   },
   "vaultWelcomeDialogPrimaryCta": {
-    "message": "Start tour"
+    "message": "Tour starten"
   },
   "vaultWelcomeDialogDismissCta": {
-    "message": "Skip"
+    "message": "Überspringen"
   },
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
@@ -13004,7 +13102,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendExpiresOn": {
-    "message": "This Send expires at $TIME$ on $DATE$",
+    "message": "Dieser Send läuft am $DATE$ um $TIME$ ab",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -13014,6 +13112,70 @@
       "date": {
         "content": "$2",
         "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Keine Suchergebnisse gefunden"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
+  },
+  "pastMonth": {
+    "message": "Letzter Monat"
+  },
+  "past3Months": {
+    "message": "Letzte 3 Monate"
+  },
+  "past6Months": {
+    "message": "Letzte 6 Monate"
+  },
+  "pastYear": {
+    "message": "Letztes Jahr"
+  },
+  "allTime": {
+    "message": "Gesamte Zeit"
+  },
+  "timePeriod": {
+    "message": "Zeitraum"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "Importiere schnell deine Passwörter"
+  },
+  "coachmarkImportDescription": {
+    "message": "Hattest du schon einmal einen Passwortmanager? Du kannst eine CSV-Datei mit bestehenden Zugangsdaten und anderen Daten in deinen Tresor importieren."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Eintrag hinzufügen"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Füge neue Passwörter, Notizen und andere Informationen zu deinem Tresor hinzu. Alles ist mit Ende-zu-Ende-Verschlüsselung geschützt."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Einträge sicher mit anderen teilen"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Wenn du einen Eintrag in eine Sammlung verschiebst, kannst du ihn sicher mit anderen Personen in deiner Organisation teilen."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Überwache deine Passwort-Sicherheit"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Sorge für die Sicherheit deiner Tresor-Einträge, indem du Berichte auf Schwachstellen überprüfst."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Schritt $CURRENT$ von $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
       }
     }
   }

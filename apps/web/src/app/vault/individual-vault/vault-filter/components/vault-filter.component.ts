@@ -21,6 +21,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -28,6 +29,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
@@ -264,10 +266,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const [userId, showArchive, showBankAccount] = await firstValueFrom(
+    const [userId, showBankAccount] = await firstValueFrom(
       combineLatest([
         this.accountService.activeAccount$.pipe(getUserId),
-        this.cipherArchiveService.hasArchiveFlagEnabled$,
         this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
       ]),
     );
@@ -282,9 +283,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     builderFilter.typeFilter = await this.addTypeFilter(excludeTypes);
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
-    if (showArchive) {
-      builderFilter.archiveFilter = await this.addArchiveFilter(userId);
-    }
+    builderFilter.archiveFilter = await this.addArchiveFilter(userId);
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
   }
@@ -331,7 +330,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     excludeTypes: CipherStatus[] = [],
     organizationId?: string,
   ): Promise<VaultFilterSection> {
-    const allFilter: CipherTypeFilter = { id: "AllItems", name: "allItems", type: "all", icon: "" };
+    const allFilter: CipherTypeFilter = {
+      id: "AllItems",
+      name: "allItems",
+      type: "all",
+    };
 
     const userId = await firstValueFrom(this.activeUserId$);
 
@@ -349,20 +352,17 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
             // - Admin console: user has no ciphers of that type in the selected org
             // - Individual vault view: user has no ciphers of that type in any allowed org
             return !ciphers?.some((c) => {
-              if (c.deletedDate || c.type !== r.cipherType) {
+              if (c.deletedDate || CipherViewLikeUtils.getType(c) !== r.cipherType) {
                 return false;
               }
               // If the cipher doesn't belong to an org it is automatically restricted
               if (!c.organizationId) {
                 return false;
               }
-              if (organizationId) {
-                return (
-                  c.organizationId === organizationId &&
-                  r.allowViewOrgIds.includes(c.organizationId)
-                );
+              if (organizationId && c.organizationId !== organizationId) {
+                return false;
               }
-              return r.allowViewOrgIds.includes(c.organizationId);
+              return r.allowViewOrgIds.includes(uuidAsString(c.organizationId));
             });
           })
           .map((r) => r.cipherType);

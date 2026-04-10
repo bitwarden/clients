@@ -1,7 +1,8 @@
 import { ConditionalExcept, ConditionalKeys } from "type-fest";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
+import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
@@ -69,22 +70,38 @@ export default class Domain {
     }
   }
 
+  /** @deprecated - Domain encryption must be implemented in the SDK */
   protected async decryptObj<D extends Domain, V extends View>(
     domain: DomainEncryptableKeys<D>,
     viewModel: ViewEncryptableKeys<V>,
     props: EncryptableKeys<D, V>[],
-    key: SymmetricCryptoKey | null = null,
+    key: SymmetricCryptoKey,
     objectContext: string = "No Domain Context",
   ): Promise<V> {
+    const encryptService = Utils.getContainerService().getEncryptService();
     for (const prop of props) {
-      viewModel[prop] =
-        (await domain[prop]?.decrypt(
-          null,
-          key,
-          `Property: ${prop as string}; ObjectContext: ${objectContext}`,
-        )) ?? null;
-    }
+      if (domain[prop] == null) {
+        viewModel[prop] = null;
+        continue;
+      }
+      try {
+        viewModel[prop] = await encryptService.decryptString(domain[prop]!, key);
+      } catch (e) {
+        // In case the SDK maps to a non-Error type, this is defensive
+        const errorMsg =
+          typeof e === "object" && e !== null && "message" in e
+            ? (e as { message: string }).message
+            : String(e);
 
+        // eslint-disable-next-line no-console
+        console.error(
+          `Failed to decrypt property '${String(
+            prop,
+          )}' of domain. Context: ${objectContext}. Error: ${errorMsg}`,
+        );
+        viewModel[prop] = DECRYPT_ERROR;
+      }
+    }
     return viewModel as V;
   }
 }

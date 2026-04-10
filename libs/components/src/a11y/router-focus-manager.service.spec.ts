@@ -10,10 +10,7 @@ import {
 import { TestBed } from "@angular/core/testing";
 import { Event, Navigation, NavigationEnd, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, Subject } from "rxjs";
-
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { Subject } from "rxjs";
 
 import { RouterFocusManagerService } from "./router-focus-manager.service";
 
@@ -55,26 +52,13 @@ describe("RouterFocusManagerService", () => {
   }
 
   let service: RouterFocusManagerService;
-  let featureFlagSubject: BehaviorSubject<boolean>;
   let mockRouter: MockRouter;
-  let mockConfigService: Partial<ConfigService>;
   let mockNgZoneRef: MockNgZone;
 
   let querySelectorSpy: jest.SpyInstance;
   let consoleWarnSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    // Mock ConfigService
-    featureFlagSubject = new BehaviorSubject<boolean>(true);
-    mockConfigService = {
-      getFeatureFlag$: jest.fn((flag: FeatureFlag) => {
-        if (flag === FeatureFlag.RouterFocusManagement) {
-          return featureFlagSubject.asObservable();
-        }
-        return new BehaviorSubject(false).asObservable();
-      }) as ConfigService["getFeatureFlag$"],
-    };
-
     // Spy on document.querySelector and console.warn
     querySelectorSpy = jest.spyOn(document, "querySelector");
     consoleWarnSpy = jest.spyOn(console, "warn").mockImplementation();
@@ -83,7 +67,6 @@ describe("RouterFocusManagerService", () => {
       providers: [
         RouterFocusManagerService,
         { provide: Router, useClass: MockRouter },
-        { provide: ConfigService, useValue: mockConfigService },
         { provide: NgZone, useClass: MockNgZone },
         { provide: DestroyRef, useValue: { onDestroy: jest.fn() } },
       ],
@@ -183,51 +166,6 @@ describe("RouterFocusManagerService", () => {
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         'RouterFocusManager: Could not find element with selector "#non-existent"',
       );
-    });
-  });
-
-  // Remove describe block when FeatureFlag.RouterFocusManagement is removed
-  describe("feature flag", () => {
-    it("should not activate when RouterFocusManagement flag is disabled", () => {
-      const mainElement = document.createElement("main");
-      mainElement.focus = jest.fn();
-      querySelectorSpy.mockReturnValue(mainElement);
-
-      // Disable feature flag
-      featureFlagSubject.next(false);
-
-      // Subscribe to start the service
-      service.start$.subscribe();
-
-      // Emit first navigation (should be skipped)
-      mockRouter.routerEventsSubject.next(new NavigationEnd(1, "/first", "/first"));
-
-      // Emit second navigation with flag disabled
-      mockRouter.routerEventsSubject.next(new NavigationEnd(2, "/test", "/test"));
-
-      expect(querySelectorSpy).not.toHaveBeenCalled();
-      expect(mainElement.focus).not.toHaveBeenCalled();
-    });
-
-    it("should activate when RouterFocusManagement flag is enabled", () => {
-      const mainElement = document.createElement("main");
-      mainElement.focus = jest.fn();
-      querySelectorSpy.mockReturnValue(mainElement);
-
-      // Ensure feature flag is enabled
-      featureFlagSubject.next(true);
-
-      // Subscribe to start the service
-      service.start$.subscribe();
-
-      // Emit first navigation (should be skipped)
-      mockRouter.routerEventsSubject.next(new NavigationEnd(1, "/first", "/first"));
-
-      // Emit second navigation with flag enabled
-      mockRouter.routerEventsSubject.next(new NavigationEnd(2, "/test", "/test"));
-
-      expect(querySelectorSpy).toHaveBeenCalledWith("main");
-      expect(mainElement.focus).toHaveBeenCalled();
     });
   });
 

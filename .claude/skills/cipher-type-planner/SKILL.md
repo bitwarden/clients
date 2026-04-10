@@ -1,55 +1,45 @@
 ---
 name: cipher-type-planner
-description: Plans the creation or modification of a cipher type (vault item type) across the Bitwarden clients monorepo. Use this skill when a user wants to add a new cipher type (e.g., BankAccount, Passport), modify an existing cipher type, or asks about what is needed to implement a cipher type. DO NOT invoke for general vault or cipher questions unrelated to adding or changing a cipher type.
-user-invokable: true
-argument-hint: "<cipher-type-name> - e.g., BankAccount, Passport"
+description: Plans the creation or modification of a cipher type (vault item type) across the Bitwarden clients monorepo. Use this skill when a user wants to add a new cipher type, modify an existing cipher type, or asks about what is needed to implement a cipher type. DO NOT invoke for general vault or cipher questions unrelated to adding or changing a cipher type.
+user-invocable: true
+argument-hint: "target-client"
 ---
 
 # Cipher Type Planner
-
-Plans the full implementation of a new or modified cipher type across all layers of the Bitwarden
-clients monorepo, the server repository, and the SDK repository.
-
-**Reference documentation:** `docs/cipher-types.md` in the repo root.
 
 ## Workflow
 
 ### Step 1: Gather Requirements
 
-Read the reference documentation at `docs/cipher-types.md` to refresh context on the five-layer
-model stack, container classes, UI components, and cross-repo dependencies.
-
-Then ask the user the following questions (use `AskUserQuestion`). Adapt questions based on what
+Ask the user the following questions (use `AskUserQuestion`). Adapt questions based on what
 the user has already provided.
 
 **Required questions:**
 
-1. **Type name and value** - What is the cipher type name (e.g., `BankAccount`) and integer value
-   (next available after 5 for SshKey)? If the user hasn't specified a value, suggest the next
-   available integer.
-2. **Fields** - What fields/properties does this cipher type have? List each field with:
-   - Field name (e.g., `routingNumber`)
-   - Data type (string, number, boolean)
-   - Whether it is encrypted (most vault data fields should be)
-   - Whether it is required
-3. **Autofill** - Should this type participate in browser autofill? (Currently only Login, Card,
-   and Identity support autofill.)
-4. **Linked fields** - Should this type support linked custom fields? If yes, which properties
-   should be linkable?
-5. **Import/Export** - Should this type support import and export? Yes/No.
-6. **Feature flag** - What is the feature flag name? (e.g., `vault-bank-account`.)
-7. **Cross-repo status** - Has the server and/or SDK work already been completed, or does it need
-   to be planned as well?
+1.  **Type name and value** - What is the cipher type name and integer value? If the user hasn't specified a value, determine the next available integer by reading the `CipherType` enum definition.
+2.  **Fields** - What are the cipher's properties? Each property must contain:
+    - Field name
+    - Data type (string, number, boolean)
+    - Encryption required?
+    - Required
+3.  **Target client** (`$0`) - Which client should this plan focus on? (`web`, `desktop`, `browser`, `cli`, or `all`). Shared library changes (`libs/common`, `libs/vault`) are always included; `$0` controls which `apps/*` files appear. **Skip if already provided as an argument.** Default: `all`.
+4.  **Autofill** - Should this type participate in browser autofill? (Currently only Login, Card,
+    and Identity support autofill.) Only ask if `$0` is `browser` or `all`.
+5.  **Linked fields** - Should this type support linked custom fields? If yes, which properties
+    should be linkable?
+6.  **Feature flag** - What is the feature flag name?
+7.  **Prerequisites** - Have all server and SDK prerequisites been completed? **Do not proceed
+    with the plan until the user confirms these are done.**
 
-**Optional questions (ask if relevant):**
+**Additional questions:**
 
-- **UI details** - Any specific UI requirements for the form or view sections? (e.g., dropdowns,
-  masked fields, copy buttons)
-- **Subtitle** - What should the `subTitle` getter on the view model return? (This appears in
-  vault list items.)
-- **Icon** - What icon should represent this type in the vault? (Bitwarden uses `bwi-` icon
-  classes.)
-- **Organization policy** - Should this type appear in the restricted item types policy UI?
+Ask each of the following. If the engineer does not have an answer, accept "N/A" or "not yet decided" and note it as a gap in the plan.
+
+- **Import/export** - Should import/export support be included in this plan?
+- **UI details** - Are there specific UI requirements for the form or view sections (e.g., dropdowns, masked fields, copy buttons)?
+- **Subtitle** - What value should the `subTitle` getter on the view model return? This appears in vault list items.
+- **Icon** - What icon represents this type in the vault? Bitwarden uses `bwi-` icon classes.
+- **Organization policy** - Does this type appear in the restricted item types policy UI?
 
 ### Step 2: Enter Plan Mode
 
@@ -79,42 +69,15 @@ Write a comprehensive plan to the plan file. The plan MUST include all sections 
 
 ### 1. Overview
 
-- **Cipher type name:** (e.g., `BankAccount`)
-- **Integer value:** (e.g., `6`)
-- **Feature flag:** (e.g., `pm-32009-new-item-types`)
-- **Minimum client version:** (e.g., `2026.3.0`)
+- **Cipher type name:**
+- **Integer value:**
+- **Feature flag:**
+- **Minimum client version:**
 - **Fields:** Table of all fields with name, type, encrypted (yes/no), required (yes/no)
 - **Supports autofill:** Yes/No
 - **Supports linked fields:** Yes/No
-- **Supports import/export:** Yes/No
 
-### 2. Cross-Repository Prerequisites
-
-#### SDK (`bitwarden/sdk-internal`)
-
-- [ ] Rust enum variant in `CipherType`
-- [ ] Type-specific encrypted struct (e.g., `BankAccount`)
-- [ ] Type-specific decrypted struct (e.g., `BankAccountView`)
-- [ ] `Encryptable`/`Decryptable` trait implementations
-- [ ] Serde (de)serialization
-- [ ] WASM bindings for TypeScript type generation
-- [ ] Version bump
-
-#### Server (`bitwarden/server`)
-
-- [ ] Enum value in `src/Core/Vault/Enums/CipherType.cs`
-- [ ] `Cipher<Type>Data.cs` core data model
-- [ ] `Cipher<Type>Model.cs` API model with `[EncryptedString]` validation
-- [ ] Request model update (`CipherRequestModel.cs`) with `[Obsolete]` typed property
-- [ ] Response model update (`CipherResponseModel.cs`) with `[Obsolete]` typed property
-- [ ] `CipherService.cs` serialize/deserialize cases
-- [ ] `Constants.cs` - minimum version constant and feature flag key
-- [ ] `SyncController.cs` - `FilterUnsupportedCipherTypes()` dual gate
-- [ ] Seeder factory and DTOs
-- [ ] Unit tests for API model and sync controller
-- [ ] Database migration (if schema changes are needed)
-
-### 3. Clients - New Files to Create
+### 2. Clients - New Files to Create
 
 List every file that needs to be created, with the full path and a brief description. Organize by
 layer:
@@ -126,14 +89,17 @@ layer:
 - `libs/common/src/vault/models/domain/<type>.ts` - Encrypted business object
 - `libs/common/src/vault/models/domain/<type>.spec.ts` - Domain model tests
 - `libs/common/src/vault/models/view/<type>.view.ts` - Decrypted view for UI
-- `libs/common/src/models/export/<type>.export.ts` - Import/export serialization
+
+**Export (if import/export is included):**
+
+- `libs/common/src/models/export/<type>.export.ts` - Export model
 
 **UI components:**
 
 - `libs/vault/src/cipher-form/components/<type>-section/` - Form section component (TS, HTML, spec)
 - `libs/vault/src/cipher-view/<type>-sections/` - View section component (TS, HTML)
 
-### 4. Clients - Existing Files to Modify
+### 3. Clients - Existing Files to Modify
 
 List every file that needs modification, organized by concern. For each file, describe the specific
 change needed.
@@ -152,8 +118,11 @@ change needed.
   `fromSdkCipherView()`, `getSdkCipherViewType()`, `toSdkCipherView()`
 - `libs/common/src/vault/models/request/cipher.request.ts` - Constructor
 - `libs/common/src/vault/models/response/cipher.response.ts` - Constructor
-- `libs/common/src/models/export/cipher.export.ts` - `toView()`, `toDomain()`, `build()`
 - `libs/common/src/vault/services/cipher.service.ts` - `encryptCipherData()`
+
+**Export (if import/export is included):**
+
+- `libs/common/src/models/export/cipher.export.ts` - `toView()`, `toDomain()`, `build()`
 
 **SDK integration:**
 
@@ -168,42 +137,95 @@ change needed.
 - `libs/vault/src/cipher-view/cipher-view.component.html` - Add section template
 - `libs/common/src/vault/icon/build-cipher-icon.ts` - Add icon case
 
-**Vault filters:**
+**Vault filters (CRITICAL — without these, ciphers won't appear in the vault list):**
 
-- `libs/vault/src/models/vault-filter.model.ts`
-- `libs/vault/src/models/filter-function.ts`
-- `apps/web/src/app/vault/individual-vault/vault-filter/` (type filter)
-- `apps/desktop/src/vault/app/vault/vault-filter/filters/type-filter.component.ts`
-- `libs/angular/src/vault/vault-filter/components/type-filter.component.ts`
+All vault filter files must be feature-flag-gated so the new type only appears when the flag is
+enabled. Use `ConfigService.getFeatureFlag$()` with `combineLatest` to filter the type out of
+arrays when the flag is off.
+
+_Always included (shared):_
+
+- `libs/vault/src/services/vault-filter.service.ts` - **CRITICAL**: Add type to `buildCipherTypeTree()` `allTypeFilters` array. Without this, ciphers of the new type will not appear in the vault sidebar or list.
+- `libs/vault/src/models/filter-function.ts` - Add filter case for the new type
+- `libs/angular/src/vault/components/vault-items.component.ts` - Feature-flag-gate empty state type buttons
+
+_Include if `$0` is `web` or `all`:_
+
+- `apps/web/src/app/vault/individual-vault/vault-filter/components/vault-filter.component.ts` - Add to `allTypeFilters`, `searchPlaceholder`, and feature-flag-gate in `buildAllFilters()`
+- `apps/web/src/app/admin-console/organizations/collections/vault-filter/vault-filter.component.ts` - Feature-flag-gate in `buildAllFilters()`
+
+_Include if `$0` is `desktop` or `all`:_
+
+- `apps/desktop/src/vault/app/vault-v3/vault-filter/filters/type-filter.component.ts` - Add `ConfigService`, `combineLatest` with feature flag
+
+_Include if `$0` is `browser` or `all`:_
+
+- `apps/browser/src/vault/popup/services/vault-popup-list-filters.service.ts` - Add `ConfigService`, feature-flag-gate `cipherTypes`
+
+**New item menus (feature-flag-gated):**
+
+_Always included (shared):_
+
+- `libs/common/src/vault/types/cipher-menu-items.ts` - Add menu item entry for new type
+- `libs/vault/src/components/new-cipher-menu/new-cipher-menu.component.ts` - Add `canCreate<Type> = input(false)` signal, gate in `cipherMenuItems` observable
+
+_Include if `$0` is `web` or `all`:_
+
+- `apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.ts` - Add `canCreate<Type>$` observable from feature flag
+- `apps/web/src/app/vault/individual-vault/vault-header/vault-header.component.html` - Bind `[canCreate<Type>]` to `<vault-new-cipher-menu>`
+
+_Include if `$0` is `browser` or `all`:_
+
+- `apps/browser/src/vault/popup/components/vault/new-item-dropdown/new-item-dropdown.component.ts` - Add `ConfigService`, `combineLatest` with feature flag
 
 **Localization (add i18n keys):**
 
-- `apps/web/src/locales/en/messages.json`
-- `apps/desktop/src/locales/en/messages.json`
-- `apps/browser/src/_locales/en/messages.json`
+_Include only locale files for `$0`. If `$0` is `all`, include all three:_
+
+- `apps/web/src/locales/en/messages.json` _(web)_
+- `apps/desktop/src/locales/en/messages.json` _(desktop)_
+- `apps/browser/src/_locales/en/messages.json` _(browser)_
 
 **Linked fields (if applicable):**
 
 - `libs/common/src/vault/enums/linked-id-type.enum.ts`
 
-**Autofill (if applicable):**
+**Autofill (if applicable — only if `$0` is `browser` or `all`):**
 
 - List relevant autofill files from `apps/browser/src/autofill/` only if the type supports
   autofill
 
 **Restricted item types (if applicable):**
 
-- `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.ts`
+Restricted item type enforcement is used across all clients. Include files for `$0`:
+
+_Always included (shared):_
+
+- `libs/common/src/vault/services/vault-settings/vault-settings.service.ts` - Restricted types service
+
+_Include if `$0` is `web` or `all`:_
+
+- `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.ts` - Policy configuration UI
 - `apps/web/src/app/admin-console/organizations/policies/policy-edit-definitions/restricted-item-types.component.html`
 
-### 5. Localization Keys
+_Include if `$0` is `browser` or `all`:_
+
+- `apps/browser/src/vault/popup/components/vault/item-more-options/item-more-options.component.ts` - Restricted type checks
+
+_Include if `$0` is `cli` or `all`:_
+
+- `apps/cli/src/vault/create.command.ts` - Restricted type checks
+- `apps/cli/src/commands/list.command.ts` - Restricted type checks
+- `apps/cli/src/commands/get.command.ts` - Restricted type checks
+
+### 4. Localization Keys
 
 List all i18n keys that need to be added. At minimum:
 
-- Type label (e.g., `typeBankAccount`)
-- Field labels for each type-specific field (e.g., `bankAccountRoutingNumber`)
+- Type label
+- Field labels for each type-specific field
 
-### 6. Tests
+### 5. Tests
 
 List all test files that need to be created or updated:
 
@@ -219,42 +241,27 @@ List all test files that need to be created or updated:
 - `libs/vault/src/cipher-view/cipher-view.component.spec.ts`
 - Form section component spec (new)
 
-### 7. Recommended Implementation Order
+### 6. Recommended Implementation Order
 
-Follow the order from `docs/cipher-types.md` Section 14, customized for this specific type:
+Recommended implementation order, customized for this specific type. Only include steps relevant
+to `$0` (shared steps are always included):
 
-1. Server prerequisites (enum, models, DTOs, feature flag, version gate)
-2. SDK prerequisites (Rust types, WASM bindings)
-3. Core enum addition
-4. Model stack (5 layers)
-5. Container switch updates (7 files)
-6. SDK bindings (`toSdk*`/`fromSdk*`)
-7. Localization keys
-8. Shared UI (icon, filters)
-9. Per-app UI (form section, view section)
-10. Context menu / copy actions (see Section 10)
-11. Import/Export and importer migration
-12. CLI
-13. Autofill (if applicable)
-14. Tests
-15. Feature flag gating
+1. Core enum addition _(shared)_
+2. Feature flag registration _(shared)_
+3. Model stack (API, Data, Domain, View, Export if applicable) _(shared)_
+4. Container switch updates _(shared)_
+5. SDK bindings (`toSdk*`/`fromSdk*`) _(shared)_
+6. Localization keys _(`$0`)_
+7. Shared UI (icon, menu items) _(shared)_
+8. Vault filters with feature flag gating — CRITICAL for ciphers to appear _(shared + `$0`)_
+9. New item menus with feature flag gating _(shared + `$0`)_
+10. Per-app UI (form section, view section) _(shared)_
+11. Context menu / copy actions — see Section 8 _(shared + `$0`)_
+12. CLI _(only if `$0` is `cli` or `all`)_
+13. Autofill _(only if `$0` is `browser` or `all`)_
+14. Tests _(shared + `$0`)_
 
-### 8. Importer Migration
-
-Check whether any existing importers map external data into a different cipher type that should now
-use the new type. For example, the 1Password 1PUX importer
-(`libs/importer/src/importers/onepassword/onepassword-1pux-importer.ts`) maps `Category.BankAccount`
-to `CipherType.Card`. If a dedicated BankAccount cipher type is added, this mapping should be updated.
-
-List all importer files that need changes, with the current mapping and the new mapping.
-
-Key importer files to check:
-
-- `libs/importer/src/importers/onepassword/onepassword-1pux-importer.ts`
-- `libs/importer/src/importers/base-importer.ts`
-- `libs/importer/src/services/import.service.ts`
-
-### 9. Risks and Considerations
+### 7. Risks and Considerations
 
 - Cross-repo coordination requirements
 - Feature flag rollout strategy
@@ -265,33 +272,33 @@ Key importer files to check:
   desired display value. If an existing key has the same message text, reuse it instead of creating
   a duplicate. Only create new keys when no existing key matches.
 
-### 10. Context Menu / Copy Actions
+### 8. Context Menu / Copy Actions
 
 Each cipher type can expose copiable fields in the vault list item context menus (right-click / more
-menu). This requires changes across **7 files** spanning core infrastructure and all 3 clients.
+menu). Include only the sections relevant to `$0`.
 
-#### Core Infrastructure (2 files)
+#### Core Infrastructure (always included)
 
 | File                                                    | What to add                                                                                                                                                                                                                                     |
 | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `libs/vault/src/services/copy-cipher-field.service.ts`  | Add field names to the `CopyAction` type union. Add entries to the `CopyActions` record with `typeI18nKey` (i18n key for the toast message), `protected` (whether it requires password re-prompt), and optional `event` (for event collection). |
-| `libs/common/src/vault/utils/cipher-view-like-utils.ts` | Add cases to `hasCopyableValue()` that check whether the cipher has a non-empty value for each copiable field (e.g., `case "accountNumber": return !!cipher.bankAccount?.accountNumber;`).                                                      |
+| `libs/common/src/vault/utils/cipher-view-like-utils.ts` | Add cases to `hasCopyableValue()` that check whether the cipher has a non-empty value for each copiable field.                                                                                                                                  |
 
-#### Browser (2 files)
+#### Browser (include if `$0` is `browser` or `all`)
 
 | File                                                                                              | What to add                                                                                                                                                              |
 | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `apps/browser/src/vault/popup/components/vault/item-copy-action/item-copy-actions.component.ts`   | Add a `singleCopyable<Type>` getter (for single-field quick copy button), a `has<Type>Values` getter, and a `getNumberOf<Type>Values()` method. Follow the Card pattern. |
 | `apps/browser/src/vault/popup/components/vault/item-copy-action/item-copy-actions.component.html` | Add a section using `@if` syntax (NOT `*ngIf`) with the single/multi field pattern.                                                                                      |
 
-#### Web (2 files)
+#### Web (include if `$0` is `web` or `all`)
 
 | File                                                                            | What to add                                                                                                               |
 | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.ts`   | Add `is<Type>Cipher` and `hasVisible<Type>Options` getters. Add `hasVisible<Type>Options` to the `showMenuDivider` check. |
 | `apps/web/src/app/vault/components/vault-items/vault-cipher-row.component.html` | Add copy buttons using `@if` syntax with `appCopyField` directive.                                                        |
 
-#### Desktop (1 file)
+#### Desktop (include if `$0` is `desktop` or `all`)
 
 | File                                                                            | What to add                                                                                                                                                                              |
 | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -302,24 +309,3 @@ menu). This requires changes across **7 files** spanning core infrastructure and
 - **CLI has no copy menu UI** — do not add copy-related i18n keys to the CLI locale.
 - **Only expose fields that should be copiable** — not every cipher field needs a copy action. Check
   with product requirements for which fields get copy buttons.
-
----
-
-## Key Rules
-
-- **No new encryption logic** in the clients repo (CLAUDE.md critical rule)
-- **No TypeScript enums** - use const objects with type aliases (ADR-0025)
-- **No code regions** - refactor for readability instead
-- **Tailwind `tw-` prefix** required for all CSS classes
-- **Never log or expose decrypted vault data**
-- Follow the SshKey implementation as the canonical template
-- Use `@linkedFieldOption` decorators if linked fields are supported
-- View models must extend `ItemView` and implement the `subTitle` getter
-
-## References
-
-- `docs/cipher-types.md` - Complete cipher type reference documentation
-- SshKey commits: `b18fa68acc` (model stack), `081fe83d83` (UI components)
-- [ADR-0025: Const Objects vs Enums](https://contributing.bitwarden.com/architecture/adr/0025-const-objects-vs-enums/)
-- [ADR-0003: Observable Data Services](https://contributing.bitwarden.com/architecture/adr/observable-data-services)
-- [ADR-0027: Angular Signals](https://contributing.bitwarden.com/architecture/adr/angular-signals)

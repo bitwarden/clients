@@ -5,6 +5,7 @@
     <!-- Search Bar - hidden when no Sends exist -->
     <tools-send-search></tools-send-search>
   }
+  <ng-content select="[slot='filters']" />
   <tools-send-table
     [dataSource]="dataSource"
     [disableSend]="disableSend()"

@@ -10,8 +10,6 @@ import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
-import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import {
   DialogModule,
@@ -29,6 +27,7 @@ import { AccountSecurityComponent } from "../auth/popup/settings/account-securit
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PopOutComponent } from "../platform/popup/components/pop-out.component";
+import { PopupFocusWrapDirective } from "../platform/popup/components/popup-focus-wrap.directive";
 import { PopupFooterComponent } from "../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
@@ -71,6 +70,7 @@ import "../platform/popup/locales";
     ButtonModule,
     NotificationsSettingsComponent,
     PopOutComponent,
+    PopupFocusWrapDirective,
     PopupPageComponent,
     PopupTabNavigationComponent,
     PopupFooterComponent,
@@ -82,7 +82,7 @@ import "../platform/popup/locales";
     CalloutModule,
     LinkModule,
   ],
-  declarations: [AppComponent, ColorPasswordPipe, ColorPasswordCountPipe, TabsV2Component],
+  declarations: [AppComponent, TabsV2Component],
   exports: [CalloutModule],
   providers: [CurrencyPipe, DatePipe],
   bootstrap: [AppComponent],

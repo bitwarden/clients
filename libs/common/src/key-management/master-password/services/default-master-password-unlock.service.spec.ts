@@ -8,7 +8,6 @@ import { LogService } from "@bitwarden/logging";
 import { CryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
-import { HashPurpose } from "../../../platform/enums";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { MasterKey, UserKey } from "../../../types/key";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
@@ -123,12 +122,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData.salt,
         mockMasterPasswordUnlockData.kdf,
       );
-      expect(keyService.hashMasterKey).toHaveBeenCalledWith(
-        mockMasterPassword,
-        mockMasterKey,
-        HashPurpose.LocalAuthorization,
-      );
-      expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(mockKeyHash, mockUserId);
       expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
     });
 
@@ -151,7 +144,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData.kdf,
       );
       expect(keyService.hashMasterKey).not.toHaveBeenCalled();
-      expect(masterPasswordService.setMasterKeyHash).not.toHaveBeenCalled();
       expect(masterPasswordService.setMasterKey).not.toHaveBeenCalled();
     });
   });

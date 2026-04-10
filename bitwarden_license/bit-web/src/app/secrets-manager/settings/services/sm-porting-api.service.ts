@@ -7,7 +7,10 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import {
+  DECRYPT_ERROR,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -147,7 +150,11 @@ export class SecretsManagerPortingApiService {
       exportData.projects.map(async (p) => {
         const project = new SecretsManagerExportProject();
         project.id = p.id;
-        project.name = await this.encryptService.decryptString(new EncString(p.name), orgKey);
+        try {
+          project.name = await this.encryptService.decryptString(new EncString(p.name), orgKey);
+        } catch {
+          project.name = DECRYPT_ERROR;
+        }
         return project;
       }),
     );

@@ -173,10 +173,7 @@ describe("ConfigService", () => {
 
               const result = await firstValueFrom(sut.serverCommunicationConfig$);
 
-              expect(result).toEqual({
-                hostname: activeApiUrl,
-                config: { bootstrap: { type: "direct" } },
-              });
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
             });
 
             it("emits ssoCookieVendor config when response includes ssoCookieVendor bootstrap", async () => {
@@ -193,17 +190,33 @@ describe("ConfigService", () => {
               const result = await firstValueFrom(sut.serverCommunicationConfig$);
 
               expect(result).toEqual({
-                hostname: activeApiUrl,
-                config: {
-                  bootstrap: {
-                    type: "ssoCookieVendor",
-                    idpLoginUrl: "https://idp.example.com",
-                    cookieName: "auth_token",
-                    cookieDomain: ".example.com",
-                    cookieValue: undefined,
-                  },
+                bootstrap: {
+                  type: "ssoCookieVendor",
+                  idpLoginUrl: "https://idp.example.com",
+                  cookieName: "auth_token",
+                  cookieDomain: ".example.com",
+                  vaultUrl: "vault.example.com",
+                  cookieValue: undefined,
                 },
               });
+            });
+
+            it("emits direct bootstrap config when ssoCookieVendor bootstrap has no vault URL", async () => {
+              const ssoResponse = serverConfigResponseFactory("hash", {
+                type: "ssoCookieVendor",
+                idpLoginUrl: "https://idp.example.com",
+                cookieName: "auth_token",
+                cookieDomain: ".example.com",
+              });
+              // Remove the environment field so vaultUrl will be undefined
+              ssoResponse.environment = undefined as any;
+              configApiService.get.mockResolvedValue(ssoResponse);
+
+              await firstValueFrom(sut.serverConfig$);
+
+              const result = await firstValueFrom(sut.serverCommunicationConfig$);
+
+              expect(result).toEqual({ bootstrap: { type: "direct" } });
             });
           });
         });
