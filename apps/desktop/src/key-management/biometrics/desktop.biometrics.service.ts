@@ -7,10 +7,6 @@ import { BiometricsService } from "@bitwarden/key-management";
  * specifically for the main process.
  */
 export abstract class DesktopBiometricsService extends BiometricsService {
-  abstract setBiometricProtectedUnlockKeyForUser(
-    userId: UserId,
-    value: SymmetricCryptoKey,
-  ): Promise<void>;
   abstract deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void>;
   abstract setupBiometrics(): Promise<void>;
   abstract enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
