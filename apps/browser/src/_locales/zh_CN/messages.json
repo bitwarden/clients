@@ -6,7 +6,7 @@
     "message": "Bitwarden logo"
   },
   "extName": {
-    "message": "Bitwarden 密码管理器",
+    "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
@@ -312,7 +312,7 @@
     "message": "前往浏览器扩展商店吗？"
   },
   "continueToBrowserExtensionStoreDesc": {
-    "message": "帮助别人了解 Bitwarden 是否适合他们。立即访问浏览器扩展商店并留下评分。"
+    "message": "帮助他人了解 Bitwarden 是否适合他们。立即访问浏览器扩展商店并留下评分。"
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "您可以在 Bitwarden 网页 App 上更改您的主密码。"
@@ -353,10 +353,10 @@
     "message": "Bitwarden Authenticator 允许您存储验证器密钥以及为两步验证流程生成 TOTP 代码。访问 bitwarden.com 网站了解更多信息"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden 机密管理器"
+    "message": "Bitwarden Secrets Manager"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "使用 Bitwarden 机密管理器安全地存储、管理以及共享开发人员的机密。访问 bitwarden.com 网站了解更多信息。"
+    "message": "使用 Bitwarden Secrets Manager 安全地存储、管理以及共享开发人员的机密。访问 bitwarden.com 网站了解更多信息。"
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
@@ -1074,7 +1074,7 @@
     }
   },
   "deleteItemConfirmation": {
-    "message": "您确定要将其发送到回收站吗？"
+    "message": "确定要将其发送到回收站吗？"
   },
   "deletedItem": {
     "message": "项目已发送到回收站"
@@ -1621,7 +1621,7 @@
     "message": "身份验证会话超时。请重新开始登录过程。"
   },
   "verificationCodeEmailSent": {
-    "message": "验证邮件已发送到 $EMAIL$。",
+    "message": "验证电子邮件已发送到 $EMAIL$。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1929,7 +1929,7 @@
     "description": "This describes a value that is 'linked' (tied) to another value."
   },
   "popup2faCloseMessage": {
-    "message": "如果您点击弹窗外的区域以检查您的验证码电子邮件，将导致弹窗关闭。您想在新窗口中打开此弹窗，以便它不会关闭吗？"
+    "message": "点击弹窗外的区域检查您的验证码电子邮件，将导致弹窗关闭。要在新窗口中打开此弹窗，以便它不会关闭吗？"
   },
   "showIconsChangePasswordUrls": {
     "message": "显示网站图标并获取更改密码的 URL"
@@ -2404,7 +2404,7 @@
     "message": "设置 PIN 码"
   },
   "setYourPinCode": {
-    "message": "设定您用来解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销此应用程序时被重置。"
+    "message": "设置用于解锁 Bitwarden 的 PIN 码。您的 PIN 设置将在您完全注销应用程序时被重置。"
   },
   "setPinCode": {
     "message": "您可以使用此 PIN 码解锁 Bitwarden。您的 PIN 码将在您完全注销此应用程序时被重置。"
@@ -2413,7 +2413,7 @@
     "message": "必须填写 PIN 码。"
   },
   "invalidPin": {
-    "message": "无效 PIN 码。"
+    "message": "无效的 PIN 码。"
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
     "message": "无效的 PIN 输入尝试次数过多。正在注销。"
@@ -4304,7 +4304,7 @@
     "message": "您尝试导入的数据有问题。请解决如下列出的源文件中的错误，然后重试。"
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "解决下面的错误，然后重试。"
+    "message": "请解决下面的错误，然后重试。"
   },
   "description": {
     "message": "描述"
@@ -5521,7 +5521,7 @@
     "message": "您没有编辑此项目的权限"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "生物识别解锁不可用，因为需要先使用 PIN 或密码解锁。"
+    "message": "生物识别解锁不可用，因为需要先使用 PIN 码或密码解锁。"
   },
   "biometricsStatusHelptextHardwareUnavailable": {
     "message": "生物识别解锁当前不可用。"
