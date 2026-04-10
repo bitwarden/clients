@@ -12,7 +12,7 @@
   ></span>
 </ng-template>
 
-<li class="tw-list-none">
+<span>
   <a bitLink *ngIf="route" [routerLink]="route">
     <ng-container *ngTemplateOutlet="content"></ng-container>
   </a>
@@ -26,4 +26,4 @@
   >
     <ng-content></ng-content>
   </div>
-</li>
+</span>
