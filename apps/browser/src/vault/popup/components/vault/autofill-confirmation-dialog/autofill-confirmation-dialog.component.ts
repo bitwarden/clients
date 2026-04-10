@@ -107,8 +107,12 @@ export class AutofillConfirmationDialogComponent {
 
   readonly dialogBody = computed(() => {
     const count = this.savedUrls().length;
-    if (count === 0) {return this.i18nService.t("loginNoSiteDesc");}
-    if (count === 1) {return this.i18nService.t("loginSingleSiteDesc");}
+    if (count === 0) {
+      return this.i18nService.t("loginNoSiteDesc");
+    }
+    if (count === 1) {
+      return this.i18nService.t("loginSingleSiteDesc");
+    }
     return this.i18nService.t("loginMultipleSitesDesc");
   });
 
