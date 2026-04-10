@@ -220,28 +220,17 @@ export class InviteMembersDialogComponent {
     emailsControl?.updateValueAndValidity();
   }
 
-  private setRequestPermissions(p: PermissionsApi, clearPermissions: boolean): PermissionsApi {
+  private setRequestPermissions(clearPermissions: boolean): PermissionsApi {
     if (clearPermissions) {
       return new PermissionsApi();
     }
-    const partialPermissions: Partial<PermissionsApi> = {
-      accessEventLogs: this.permissionsGroup.value.accessEventLogs ?? undefined,
-      accessImportExport: this.permissionsGroup.value.accessImportExport ?? undefined,
-      accessReports: this.permissionsGroup.value.accessReports ?? undefined,
-      manageGroups: this.permissionsGroup.value.manageGroups ?? undefined,
-      manageSso: this.permissionsGroup.value.manageSso ?? undefined,
-      managePolicies: this.permissionsGroup.value.managePolicies ?? undefined,
-      manageUsers: this.permissionsGroup.value.manageUsers ?? undefined,
-      manageResetPassword: this.permissionsGroup.value.manageResetPassword ?? undefined,
-      createNewCollections:
-        this.permissionsGroup.value.manageAllCollectionsGroup?.createNewCollections ?? undefined,
-      editAnyCollection:
-        this.permissionsGroup.value.manageAllCollectionsGroup?.editAnyCollection ?? undefined,
-      deleteAnyCollection:
-        this.permissionsGroup.value.manageAllCollectionsGroup?.deleteAnyCollection ?? undefined,
-    };
-
-    return Object.assign(p, partialPermissions);
+    const { manageAllCollectionsGroup, ...permissionFields } = this.permissionsGroup.value;
+    return Object.assign(new PermissionsApi(), {
+      ...permissionFields,
+      createNewCollections: manageAllCollectionsGroup?.createNewCollections,
+      editAnyCollection: manageAllCollectionsGroup?.editAnyCollection,
+      deleteAnyCollection: manageAllCollectionsGroup?.deleteAnyCollection,
+    });
   }
 
   private async getUserView(): Promise<OrganizationUserAdminView> {
@@ -250,7 +239,6 @@ export class InviteMembersDialogComponent {
     userView.type = this.formGroup.value.type ?? OrganizationUserType.User;
 
     userView.permissions = this.setRequestPermissions(
-      userView.permissions ?? new PermissionsApi(),
       userView.type !== OrganizationUserType.Custom,
     );
 

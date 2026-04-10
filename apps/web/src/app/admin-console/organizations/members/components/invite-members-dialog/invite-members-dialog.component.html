@@ -58,14 +58,16 @@
                 <bit-hint>
                   @if (!organization.useCustomPermissions) {
                     <p>
-                      {{ "customDescNonEnterpriseStart" | i18n
-                      }}<a
+                      {{ "customDescNonEnterpriseStart" | i18n }}
+                      <a
                         bitLink
                         href="https://bitwarden.com/contact/"
                         target="_blank"
                         rel="noreferrer"
-                        >{{ "customDescNonEnterpriseLink" | i18n }}</a
-                      >{{ "customDescNonEnterpriseEnd" | i18n }}
+                      >
+                        {{ "customDescNonEnterpriseLink" | i18n }}
+                      </a>
+                      {{ "customDescNonEnterpriseEnd" | i18n }}
                     </p>
                   } @else {
                     <p>{{ "customDesc" | i18n }}</p>
