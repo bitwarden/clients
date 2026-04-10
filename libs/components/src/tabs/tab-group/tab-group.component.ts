@@ -28,7 +28,7 @@ import { MenuModule } from "../../menu";
 import { TabHeaderComponent } from "../shared/tab-header.component";
 import {
   TabListContainerDirective,
-  tabListContainerGap,
+  TAB_LIST_CONTAINER_GAP,
 } from "../shared/tab-list-container.directive";
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
 
@@ -105,7 +105,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
     // Total width of all tabs including gaps
     const totalTabsWidth = tabWidths.reduce(
-      (sum, w, i) => sum + w + (i > 0 ? tabListContainerGap : 0),
+      (sum, w, i) => sum + w + (i > 0 ? TAB_LIST_CONTAINER_GAP : 0),
       0,
     );
 
@@ -128,7 +128,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       if (i === selectedIndex) {
         continue;
       }
-      const tabWidth = tabWidths[i] + tabListContainerGap;
+      const tabWidth = tabWidths[i] + TAB_LIST_CONTAINER_GAP;
       if (totalWidth + tabWidth > availableWidth) {
         overflow.push(...allTabs.slice(i));
         break;
@@ -324,7 +324,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
     if (entries != null) {
       // Called by ResizeObserver — button is visible, read directly from entries
-      this.moreButtonWidth.set(entries[0].contentBoxSize[0].inlineSize + tabListContainerGap);
+      this.moreButtonWidth.set(entries[0].contentBoxSize[0].inlineSize + TAB_LIST_CONTAINER_GAP);
       return;
     }
 
@@ -337,7 +337,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       void window.getComputedStyle(moreButtonEl).width;
     }
 
-    this.moreButtonWidth.set(moreButtonEl.getBoundingClientRect().width + tabListContainerGap);
+    this.moreButtonWidth.set(moreButtonEl.getBoundingClientRect().width + TAB_LIST_CONTAINER_GAP);
 
     // Hide the more button again if it was originally hidden
     if (wasHidden) {
