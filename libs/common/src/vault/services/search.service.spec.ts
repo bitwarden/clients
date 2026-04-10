@@ -5,8 +5,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { FakeStateProvider, mockAccountServiceWith } from "../../../spec";
-
 import { SearchService } from "./search.service";
 
 function createCipherView(id: string, name: string): CipherView {
@@ -17,7 +15,6 @@ function createCipherView(id: string, name: string): CipherView {
 }
 
 describe("SearchService", () => {
-  let fakeStateProvider: FakeStateProvider;
   let service: SearchService;
 
   const userId = "user-id" as UserId;
@@ -33,12 +30,9 @@ describe("SearchService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     service = new SearchService(
       mockLogService as unknown as LogService,
       mockI18nService as unknown as I18nService,
-      fakeStateProvider,
     );
   });
 
@@ -71,7 +65,7 @@ describe("SearchService", () => {
       const basicSearchSpy = jest.spyOn(service, "searchCiphersBasic");
       const ciphers = [createCipherView("cipher-1", "Personal Login")];
 
-      const result = await service.searchCiphers(userId, "personal", ciphers);
+      const result = await service.searchCiphers(userId, null, "personal", ciphers);
 
       expect(basicSearchSpy).toHaveBeenCalled();
       expect(result).toHaveLength(1);
@@ -80,7 +74,7 @@ describe("SearchService", () => {
     it("returns original ciphers for non-searchable queries", async () => {
       const ciphers = [createCipherView("cipher-1", "Personal Login")];
 
-      const result = await service.searchCiphers(userId, "", ciphers);
+      const result = await service.searchCiphers(userId, null, "", ciphers);
 
       expect(result).toEqual(ciphers);
     });
