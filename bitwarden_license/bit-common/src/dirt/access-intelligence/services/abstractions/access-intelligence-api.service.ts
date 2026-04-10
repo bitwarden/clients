@@ -10,11 +10,20 @@ import {
 } from "../../models";
 
 export interface AccessReportCreateRequest {
+  reportData?: string;
   contentEncryptionKey?: string;
   summaryData?: string;
   applicationData?: string;
   metrics?: AccessReportMetricsApi;
   fileSize?: number;
+}
+
+export interface AccessReportUpdateRequest {
+  reportData?: string;
+  contentEncryptionKey?: string;
+  summaryData?: string;
+  applicationData?: string;
+  metrics?: AccessReportMetricsApi;
 }
 
 /**
@@ -42,7 +51,7 @@ export abstract class AccessIntelligenceApiService {
   ): Observable<AccessReportFileApi>;
 
   /**
-   * Used for self-hosted setups only. Uploads a file containing the Access Intelligence report data directly to a Bitwarden self-hosted server.
+   * Self-hosted only. Uploads a file containing the Access Intelligence report data directly to a Bitwarden self-hosted server.
    * @param orgId - the ID of the Organization the report belongs to
    * @param reportId - the ID of the report to upload the file for
    * @param file - the file containing the Access Intelligence report data
@@ -115,4 +124,28 @@ export abstract class AccessIntelligenceApiService {
    * @returns observable that completes when the report has been deleted
    */
   abstract deleteReport$(orgId: OrganizationId, reportId: OrganizationReportId): Observable<void>;
+
+  /**
+   * Self-hosted only. Downloads the file for an Access Intelligence report.
+   * @param orgId - the ID of the Organization the report belongs to
+   * @param reportId - the ID of the report whose file to download
+   * @returns observable emitting the file blob and its filename
+   */
+  abstract downloadReportFile$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<{ blob: Blob; fileName: string }>;
+
+  /**
+   * Updates an existing Access Intelligence report.
+   * @param orgId - the ID of the Organization the report belongs to
+   * @param reportId - the ID of the report to update
+   * @param request - the data to update on the report
+   * @returns observable emitting the updated Access Intelligence report
+   */
+  abstract updateReport$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+    request: AccessReportUpdateRequest,
+  ): Observable<AccessReportApi>;
 }

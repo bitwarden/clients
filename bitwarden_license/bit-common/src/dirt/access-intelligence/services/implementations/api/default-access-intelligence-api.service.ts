@@ -8,6 +8,7 @@ import { AccessReportApi, AccessReportFileApi, AccessReportSummaryApi } from "..
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
+  AccessReportUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 
 export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiService {
@@ -144,5 +145,36 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     );
 
     return from(response);
+  }
+
+  downloadReportFile$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<{ blob: Blob; fileName: string }> {
+    const response = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId}/${reportId}/file/download`,
+      null,
+      true,
+      true,
+    );
+
+    return from(response);
+  }
+
+  updateReport$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+    request: AccessReportUpdateRequest,
+  ): Observable<AccessReportApi> {
+    const response = this.apiService.send(
+      "PATCH",
+      `/reports/organizations/${orgId}/${reportId}`,
+      request,
+      true,
+      true,
+    );
+
+    return from(response).pipe(map((response) => new AccessReportApi(response)));
   }
 }
