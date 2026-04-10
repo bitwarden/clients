@@ -53,6 +53,12 @@ export type AccountRecoveryDialogData = {
    * The organization user's role type, used to determine policy exemption
    */
   organizationUserType: OrganizationUserType;
+
+  /**
+   * Whether the organization user currently has two-step login enabled.
+   * Used to disable the reset two-step login option when not applicable.
+   */
+  twoFactorEnabled: boolean;
 };
 
 export const AccountRecoveryDialogResultType = {
