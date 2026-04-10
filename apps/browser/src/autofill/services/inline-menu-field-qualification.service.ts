@@ -18,6 +18,7 @@ import {
   SubmitChangePasswordButtonNames,
   SubmitLoginButtonNames,
 } from "./autofill-constants";
+import AutofillService from "./autofill.service";
 
 export class InlineMenuFieldQualificationService implements InlineMenuFieldQualificationServiceInterface {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);

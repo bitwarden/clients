@@ -2393,7 +2393,7 @@ export default class AutofillService implements AutofillServiceInterface {
     return valueIsOnExclusionList;
   }
 
-  private static collectExcludedPasswordFieldOpids(pageDetails: AutofillPageDetails): Set<string> {
+  private static collectExcludedPasswordFieldIds(pageDetails: AutofillPageDetails): Set<string> {
     const passwordFieldsByForm = new Map<string | null, AutofillField[]>();
     for (const field of pageDetails.fields) {
       if (field.type !== "password" || field.disabled) {
@@ -2451,7 +2451,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const excludedPasswordFieldOpids =
       fillNewPassword && inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration
         ? new Set<string>()
-        : AutofillService.collectExcludedPasswordFieldOpids(pageDetails);
+        : AutofillService.collectExcludedPasswordFieldIds(pageDetails);
 
     pageDetails.fields.forEach((f) => {
       const isPassword = f.type === "password";
