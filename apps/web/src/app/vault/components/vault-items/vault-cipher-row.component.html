@@ -88,10 +88,7 @@
 }
 @if (viewingOrgVault) {
   <td bitCell [ngClass]="RowHeightClass" class="tw-hidden sm:tw-table-cell">
-    <p
-      class="tw-mb-0 tw-truncate tw-text-muted md:tw-overflow-visible md:tw-whitespace-normal"
-      [title]="permissionText"
-    >
+    <p class="tw-mb-0 tw-truncate tw-text-muted" [title]="permissionText">
       {{ permissionText }}
     </p>
   </td>
