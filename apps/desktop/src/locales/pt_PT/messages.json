@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Copiar Chave de autenticação (TOTP)"
   },
-  "copyNotes": {
-    "message": "Copiar notas"
-  },
   "totpHelperTitle": {
     "message": "Torne a verificação de dois passos simples"
   },

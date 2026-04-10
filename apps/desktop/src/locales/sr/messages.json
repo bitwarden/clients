@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Копирати једнократни кôд (TOTP)"
   },
-  "copyNotes": {
-    "message": "Copy notes"
-  },
   "totpHelperTitle": {
     "message": "Учините верификацију у 2 корака беспрекорном"
   },

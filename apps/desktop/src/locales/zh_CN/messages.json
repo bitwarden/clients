@@ -621,7 +621,7 @@
     "message": "删除附件"
   },
   "deleteItemConfirmation": {
-    "message": "您确定要将其发送到回收站吗？"
+    "message": "确定要将其发送到回收站吗？"
   },
   "deletedItem": {
     "message": "项目已发送到回收站"
@@ -1058,7 +1058,7 @@
     "message": "继续"
   },
   "verificationCodeEmailSent": {
-    "message": "验证邮件已发送到 $EMAIL$。",
+    "message": "验证电子邮件已发送到 $EMAIL$。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1572,7 +1572,7 @@
     "message": "重启以更新"
   },
   "restartToUpdateDesc": {
-    "message": "版本 $VERSION_NUM$ 已准备好安装。您必须重新启动本应用程序才能完成安装。是否立即重新启动并更新？",
+    "message": "版本 $VERSION_NUM$ 已准备好安装。您必须重启应用程序以完成安装。要立即重启并更新吗？",
     "placeholders": {
       "version_num": {
         "content": "$1",
@@ -1700,7 +1700,7 @@
     "message": "月"
   },
   "monthly": {
-    "message": "每月"
+    "message": "月"
   },
   "year": {
     "message": "年"
@@ -2127,7 +2127,7 @@
     "message": "更改未保存"
   },
   "unsavedChangesUpdateBody": {
-    "message": "如果您现在离开，您的更改不会被保存。可以稍后安装更新，这样您就可以继续操作并保存更改。"
+    "message": "如果您现在离开，您的更改将不会被保存。稍后安装更新，以便您可以继续操作并保存您的更改。"
   },
   "installLater": {
     "message": "稍后安装"
@@ -2243,9 +2243,6 @@
   },
   "copyTOTP": {
     "message": "复制验证器密钥 (TOTP)"
-  },
-  "copyNotes": {
-    "message": "复制备注"
   },
   "totpHelperTitle": {
     "message": "无缝两步验证"
@@ -3465,7 +3462,7 @@
     }
   },
   "windowsBiometricUpdateWarning": {
-    "message": "Bitwarden 建议更新您的生物识别设置，以在首次解锁时要求输入您的主密码（或 PIN 码）。现在要更新您的设置吗？"
+    "message": "Bitwarden 建议更新您的生物识别设置，以在首次解锁时要求输入您的主密码（或 PIN 码）。您想现在更新您的设置吗？"
   },
   "windowsBiometricUpdateWarningTitle": {
     "message": "推荐的设置更新"
@@ -3689,7 +3686,7 @@
     "message": "您尝试导入的数据有问题。请解决如下列出的源文件中的错误，然后重试。"
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "解决下面的错误，然后重试。"
+    "message": "请解决下面的错误，然后重试。"
   },
   "description": {
     "message": "描述"
@@ -3998,7 +3995,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include the generator icon. The full sentence will read 'Use the generator [GENERATOR_ICON] to create a strong unique password'"
   },
   "biometricsStatusHelptextUnlockNeeded": {
-    "message": "生物识别解锁不可用，因为需要先使用 PIN 或密码解锁。"
+    "message": "生物识别解锁不可用，因为需要先使用 PIN 码或密码解锁。"
   },
   "biometricsStatusHelptextHardwareUnavailable": {
     "message": "生物识别解锁当前不可用。"
@@ -4740,7 +4737,7 @@
     "message": "电子邮箱保护"
   },
   "emails": {
-    "message": "电子邮件"
+    "message": "电子邮箱"
   },
   "noAuth": {
     "message": "拥有链接的任何人"

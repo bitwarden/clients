@@ -2127,13 +2127,13 @@
     "message": "Saxlanılmamış dəyişikliklər"
   },
   "unsavedChangesUpdateBody": {
-    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+    "message": "İndi tərk etsəniz, dəyişiklikləriniz saxlanılmayacaq. Dəyişikliklərinizi saxlamaq üçün güncəlləməni daha sonra quraşdırın."
   },
   "installLater": {
-    "message": "Install later"
+    "message": "Daha sonra quraşdır"
   },
   "continueWithInstall": {
-    "message": "Continue with install"
+    "message": "Quraşdırmağa davam"
   },
   "clone": {
     "message": "Klonla"
@@ -2243,9 +2243,6 @@
   },
   "copyTOTP": {
     "message": "Kimlik doğrulayıcı açarını kopyala (TOTP)"
-  },
-  "copyNotes": {
-    "message": "Notları kopyala"
   },
   "totpHelperTitle": {
     "message": "2 addımlı doğrulamanı problemsiz edin"

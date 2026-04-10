@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Kopier autentiseringsnøkkel (TOTP)"
   },
-  "copyNotes": {
-    "message": "Copy notes"
-  },
   "totpHelperTitle": {
     "message": "Gjør 2-trinnsbekreftelse sømløs"
   },

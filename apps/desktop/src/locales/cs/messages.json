@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Kopírovat autentizační klíč (TOTP)"
   },
-  "copyNotes": {
-    "message": "Kopírovat poznámky"
-  },
   "totpHelperTitle": {
     "message": "Bezproblémové dvoufázové ověřování"
   },

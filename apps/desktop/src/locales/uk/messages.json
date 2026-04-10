@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Скопіюйте ключ автентифікації (TOTP)"
   },
-  "copyNotes": {
-    "message": "Copy notes"
-  },
   "totpHelperTitle": {
     "message": "Спростіть двоетапну перевірку"
   },
