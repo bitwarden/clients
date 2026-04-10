@@ -889,11 +889,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     return "searchVault";
   }
 
-  async addFolder(navigateBackToAddItem?: boolean) {
+  async addFolder() {
     if (await this.configService.getFeatureFlag(FeatureFlag.PM32009NewItemTypes)) {
-      const folderRef = AddEditFolderDialogComponent.open(this.dialogService, {
-        backAction: navigateBackToAddItem ? this.openAddItemDialog.bind(this) : undefined,
-      });
+      const folderRef = AddEditFolderDialogComponent.open(this.dialogService);
       const folderResult = await firstValueFrom(folderRef.closed);
       if (folderResult === AddEditFolderDialogResult.Created) {
         await this.syncService.fullSync(false);
@@ -918,7 +916,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     if (result.result === AddItemDialogResult.Cipher) {
       await this.addCipher(result.cipherType);
     } else if (result.result === AddItemDialogResult.Folder) {
-      await this.addFolder(true);
+      await this.addFolder();
     }
   }
 
