@@ -4,13 +4,11 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
+import { AccessReportApi, AccessReportFileApi, AccessReportSummaryApi } from "../../../models";
 import {
-  AccessReportApi,
-  AccessReportFileApi,
-  AccessReportSummaryApi,
-  AccessReportCreateApi,
-} from "../../../models";
-import { AccessIntelligenceApiService } from "../../abstractions/access-intelligence-api.service";
+  AccessIntelligenceApiService,
+  AccessReportCreateRequest,
+} from "../../abstractions/access-intelligence-api.service";
 
 export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiService {
   constructor(private apiService: ApiService) {
@@ -30,7 +28,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
   createReport$(
     orgId: OrganizationId,
-    request: AccessReportCreateApi,
+    request: AccessReportCreateRequest,
   ): Observable<AccessReportFileApi> {
     const response = this.apiService.send(
       "POST",
@@ -139,7 +137,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
     const response = this.apiService.send(
       "POST",
-      `/reports/organizations/${orgId}/${reportId}/file/report-data?reportFileId=${reportFileId}`,
+      `/reports/organizations/${orgId}/${reportId}/file?reportFileId=${reportFileId}`,
       formData,
       true,
       false,
