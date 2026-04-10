@@ -82,6 +82,7 @@ describe("MemberDialogManagerService", () => {
       hasMasterPassword: true,
       accessSecretsManager: false,
       managedByOrganization: false,
+      twoFactorEnabled: false,
     } as OrganizationUserView;
 
     mockBillingMetadata = {
@@ -213,6 +214,7 @@ describe("MemberDialogManagerService", () => {
       organizationId: "org-id",
       organizationUserId: "user-id",
       organizationUserType: OrganizationUserType.User,
+      twoFactorEnabled: false,
     };
 
     it("should open the v1 dialog when AdminResetTwoFactor flag is off", async () => {

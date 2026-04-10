@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Learn more about authenticators"
@@ -5186,6 +5195,12 @@
   "atAnyTime": {
     "message": "at any time."
   },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
+  },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
   },
@@ -8265,6 +8280,29 @@
   "scimSettingsSaved": {
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists":{
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
+
   },
   "inputRequired": {
     "message": "Input is required."
@@ -13227,5 +13265,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

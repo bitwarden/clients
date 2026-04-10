@@ -36,7 +36,7 @@ import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/se
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { KeySuffixOptions, HashPurpose, EncryptionType } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions, EncryptionType } from "@bitwarden/common/platform/enums";
 import { convertValues } from "@bitwarden/common/platform/misc/convert-values";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -285,11 +285,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   /**
    * @deprecated Please use `makeMasterPasswordAuthenticationData` in {@link MasterPasswordService} instead.
    */
-  async hashMasterKey(
-    password: string,
-    key: MasterKey,
-    hashPurpose?: HashPurpose,
-  ): Promise<string> {
+  async hashMasterKey(password: string, key: MasterKey): Promise<string> {
     if (password == null) {
       throw new Error("password is required.");
     }
@@ -297,7 +293,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("key is required.");
     }
 
-    const iterations = hashPurpose === HashPurpose.LocalAuthorization ? 2 : 1;
+    // Server authorization always uses one iteration
+    const iterations = 1;
     const hash = await this.cryptoFunctionService.pbkdf2(
       key.inner().encryptionKey,
       password,
@@ -450,7 +447,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("UserId is required");
     }
 
-    await this.masterPasswordService.clearMasterKeyHash(userId);
     await this.clearUserKey(userId);
     await this.clearOrgKeys(userId);
     await this.clearProviderKeys(userId);
