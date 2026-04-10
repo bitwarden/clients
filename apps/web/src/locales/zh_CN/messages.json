@@ -11,8 +11,11 @@
   "activity": {
     "message": "活动"
   },
-  "applicationsAtRisk": {
-    "message": "应用程序存在风险"
+  "criticalAppsAtRisk": {
+    "message": "关键 App 存在风险"
+  },
+  "allCriticalApps": {
+    "message": "所有关键 App"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -1381,7 +1384,7 @@
     "message": "删除附件"
   },
   "deleteItemConfirmation": {
-    "message": "您确定要将其发送到回收站吗？"
+    "message": "确定要将其发送到回收站吗？"
   },
   "deletedItem": {
     "message": "项目已发送到回收站"
@@ -1552,7 +1555,7 @@
     "message": "设置加密"
   },
   "usedForEncryption": {
-    "message": "已用于加密"
+    "message": "用于加密"
   },
   "loginWithPasskeyEnabled": {
     "message": "通行密钥登录已启用"
@@ -1900,7 +1903,7 @@
     }
   },
   "verificationCodeEmailSent": {
-    "message": "验证邮件已发送到 $EMAIL$。",
+    "message": "验证电子邮件已发送到 $EMAIL$。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -3740,7 +3743,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "感谢您注册 $PLAN$ Bitwarden 机密管理器！",
+    "message": "感谢您注册 $PLAN$ Bitwarden Secrets Manager！",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -3761,7 +3764,7 @@
     "message": "我们已经发送了一封确认电子邮件到您团队的计费电子邮箱 "
   },
   "monthly": {
-    "message": "每月"
+    "message": "月"
   },
   "annually": {
     "message": "每年"
@@ -4016,7 +4019,7 @@
     "message": "Bitwarden 网页密码库"
   },
   "bitSecretsManager": {
-    "message": "Bitwarden 机密管理器"
+    "message": "Bitwarden Secrets Manager"
   },
   "loggedIn": {
     "message": "登录了"
@@ -4943,7 +4946,7 @@
     "message": "为您的订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
   },
   "limitSmSubscriptionDesc": {
-    "message": "为您的机密管理器订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
+    "message": "为您的 Secrets Manager 订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
   },
   "maxSeatLimit": {
     "message": "席位限制（可选）",
@@ -4982,7 +4985,7 @@
     "message": "订阅已更新"
   },
   "subscribedToSecretsManager": {
-    "message": "订阅已更新。您现在可以访问机密管理器了。"
+    "message": "订阅已更新。您现在可以访问 Secrets Manager 了。"
   },
   "additionalOptions": {
     "message": "附加选项"
@@ -5045,7 +5048,7 @@
     }
   },
   "subscriptionMaxReached": {
-    "message": "调整订阅将导致按比例调整您的计费总金额。如果不增加订阅席位，您将不能邀请超过 $COUNT$ 位成员。",
+    "message": "调整订阅将导致按比例调整您的计费总金额。如果不增加订阅席位，您最多只能邀请 $COUNT$ 位成员。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5054,7 +5057,7 @@
     }
   },
   "subscriptionSeatMaxReached": {
-    "message": "如果不增加订阅席位，您将不能邀请超过 $COUNT$ 位成员。",
+    "message": "如果不增加订阅席位，您最多只能邀请 $COUNT$ 位成员。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6088,7 +6091,7 @@
     "message": "提示成员转移他们的项目"
   },
   "centralizeDataOwnershipWarningDesc": {
-    "message": "如果成员的个人密码库中有项目，将提示他们选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
+    "message": "如果成员的个人密码库中存在项目，将提示他们选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "进一步了解转移"
@@ -6413,7 +6416,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "开发、DevOps 和 IT 团队选择 Bitwarden 机密管理器来安全地管理和部署他们的基础设施和机器机密。"
+    "message": "开发、DevOps 和 IT 团队选择 Bitwarden Secrets Manager 来安全地管理和部署他们的基础设施和机器机密。"
   },
   "centralizeSecretsManagement": {
     "message": "集中管理机密。"
@@ -6449,28 +6452,28 @@
     "message": "添加笔记"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden 机密管理器"
+    "message": "Bitwarden Secrets Manager"
   },
   "moreProductsFromBitwarden": {
     "message": "更多来自 Bitwarden 的产品"
   },
   "requestAccessToSecretsManager": {
-    "message": "请求访问机密管理器"
+    "message": "请求访问 Secrets Manager"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
-    "message": "您需要管理员的批准才能试用机密管理器。"
+    "message": "您需要管理员的批准才能试用 Secrets Manager。"
   },
   "smAccessRequestEmailSent": {
-    "message": "对机密管理器的访问请求电子邮件已发送给管理员。"
+    "message": "对 Secrets Manager 的访问请求电子邮件已发送给管理员。"
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "您好，\n\n我请求为我们的团队订阅 Bitwarden Secrets Manager。您的支持对我们来说意义重大！\n\nBitwarden Secrets Manager 是一个端到端加密的机密管理解决方案，用于安全地存储、共享和部署机器凭证，如 API 密钥、数据库密码和身份验证证书。\n\nSecrets Manager 将帮助我们：\n\n- 提高安全性\n- 精简操作\n- 防止昂贵的机密遭泄漏\n\n要为我们的团队申请免费试用，请联系 Bitwarden。\n\n感谢您的帮助！"
+    "message": "您好，\n\n我请求为我们的团队订阅 Bitwarden Secrets Manager。您的支持对我们来说意义重大！\n\nBitwarden Secrets Manager 是一个端到端加密的机密管理解决方案，用于安全地存储、共享和部署机器凭证，如 API 密钥、数据库密码和身份验证证书等。\n\nSecrets Manager 将帮助我们：\n\n- 提高安全性\n- 简化操作\n- 防止重要的机密遭泄漏\n\n请联系 Bitwarden 为我们的团队申请免费试用。\n\n感谢您的帮助！"
   },
   "giveMembersAccess": {
     "message": "授予成员访问权限："
   },
   "viewAndSelectTheMembers": {
-    "message": "查看并选择您想要授予机密管理器访问权限的成员。"
+    "message": "查看并选择您想要授予 Secrets Manager 访问权限的成员。"
   },
   "openYourOrganizations": {
     "message": "打开您的组织的"
@@ -6609,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "重置了用户 $ID$ 的主密码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "重置了用户 $ID$ 的两步登录。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7963,7 +7975,7 @@
     "message": "服务"
   },
   "unknownCipher": {
-    "message": "未知项目，您可能需要申请权限才能访问这个项目。"
+    "message": "未知的项目，您可能需要请求权限才能访问此项目。"
   },
   "unknownSecret": {
     "message": "未知的机密，您可能需要请求权限才能访问此机密。"
@@ -8219,6 +8231,10 @@
     "message": "复制 SCIM API 密钥到剪贴板",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "查看 SCIM API 密钥",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "轮换 SCIM API 密钥",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM 设置已保存",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "必须输入内容。"
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "粉红色"
+  },
+  "coral": {
+    "message": "珊瑚色"
+  },
+  "purple": {
+    "message": "紫色"
+  },
+  "blue": {
+    "message": "蓝色"
   },
   "customColor": {
     "message": "自定义颜色"
@@ -9119,7 +9166,7 @@
     "message": "正在导出组织机密数据"
   },
   "exportingOrganizationSecretDataDescription": {
-    "message": "仅会导出与 $ORGANIZATION$ 关联的机密管理器数据。不包括其他产品中的项目和来自其他组织的项目。",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的 Secrets Manager 数据。不包括其他产品中的项目和来自其他组织的项目。",
     "placeholders": {
       "ORGANIZATION": {
         "content": "$1",
@@ -9230,13 +9277,13 @@
     "message": "继续操作将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
   },
   "secretsManager": {
-    "message": "机密管理器"
+    "message": "Secrets Manager"
   },
   "secretsManagerAccessDescription": {
-    "message": "激活用户对机密管理器的访问权限。"
+    "message": "激活用户对 Secrets Manager 的访问权限。"
   },
   "userAccessSecretsManagerGA": {
-    "message": "此用户可以访问机密管理器"
+    "message": "此用户可以 Secrets Manager"
   },
   "important": {
     "message": "重要："
@@ -9258,7 +9305,7 @@
     }
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "解决下面的错误，然后重试。"
+    "message": "请解决下面的错误，然后重试。"
   },
   "description": {
     "message": "描述"
@@ -9483,7 +9530,7 @@
     "description": "Link to a downloadable resource. This will be used as part of a larger phrase. Example: Download the Secrets Manager CLI"
   },
   "smCLI": {
-    "message": "机密管理器 CLI"
+    "message": "Secrets Manager CLI"
   },
   "importSecrets": {
     "message": "导入机密"
@@ -9601,7 +9648,7 @@
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
   },
   "smProjectsDeleteBulkConfirmation": {
-    "message": "以下工程无法删除。是否继续？",
+    "message": "以下工程无法删除。您想要继续吗？",
     "description": "The message shown to the user when bulk deleting projects and the user doesn't have access to some projects."
   },
   "updateKdfSettings": {
@@ -9707,22 +9754,46 @@
   "recoverAccount": {
     "message": "恢复账户"
   },
+  "recoverAccountWarning": {
+    "message": "当您重置此成员的密码或两步登录时，他们将收到关于此更改的通知并被注销。"
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "当主密码、两步登录或受信任设备被遗忘或丢失时恢复账户。"
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。"
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "在恢复账户中自动注册新成员"
+  },
+  "resetMasterPassword": {
+    "message": "重置主密码"
+  },
+  "resetTwoStepLogin": {
+    "message": "重置两步登录"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "成员的访问权限将被撤销，直到他们设置两步登录"
+  },
+  "recoverAccountSuccess": {
+    "message": "账户恢复成功！"
+  },
   "updatedTempPassword": {
     "message": "用户更新了通过账户恢复颁发的密码。"
   },
   "activatedAccessToSecretsManager": {
-    "message": "激活了对机密管理器的访问权限",
+    "message": "激活了对 Secrets Manager 的访问权限",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
     "message": "激活访问权限"
   },
   "bulkEnableSecretsManagerDescription": {
-    "message": "允许以下成员访问机密管理器。密码管理器中授予的角色将适用于机密管理器。",
+    "message": "允许以下成员访问 Secrets Manager。Password Manager 中授予的角色将适用于 Secrets Manager。",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "激活机密管理器"
+    "message": "激活 Secrets Manager"
   },
   "yourOrganizationsFingerprint": {
     "message": "您组织的指纹短语",
@@ -9828,7 +9899,7 @@
     }
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "开始 $ORG$ 的 Bitwarden 机密管理器 7 天免费试用",
+    "message": "开始 $ORG$ 的 Bitwarden Secrets Manager 7 天免费试用",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -9876,7 +9947,7 @@
     "message": "邀请用户"
   },
   "secretsManagerForPlan": {
-    "message": "$PLAN$ 机密管理器",
+    "message": "$PLAN$ Secrets Manager",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -9924,10 +9995,10 @@
     }
   },
   "subscribeToSecretsManager": {
-    "message": "订阅机密管理器"
+    "message": "订阅 Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
-    "message": "将机密管理器添加到升级后的方案中，以保留对使用之前的方案创建的所有机密的访问权限。"
+    "message": "将 Secrets Manager 添加到升级后的方案中，以保留对使用之前的方案创建的所有机密的访问权限。"
   },
   "additionalServiceAccounts": {
     "message": "附加服务账户"
@@ -9977,13 +10048,13 @@
     "message": "更新了集合管理设置"
   },
   "passwordManagerPlanPrice": {
-    "message": "密码管理器方案价格"
+    "message": "Password Manager 方案价格"
   },
   "secretsManagerPlanPrice": {
-    "message": "机密管理器方案价格"
+    "message": "Secrets Manager 方案价格"
   },
   "passwordManager": {
-    "message": "密码管理器"
+    "message": "Password Manager"
   },
   "freeOrganization": {
     "message": "免费组织"
@@ -10216,7 +10287,7 @@
     "message": "确认详细信息"
   },
   "smFreeTrialThankYou": {
-    "message": "感谢您注册 Bitwarden 机密管理器！"
+    "message": "感谢您注册 Bitwarden Secrets Manager！"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "我们已经发送了一封确认电子邮件到 "
@@ -10641,13 +10712,13 @@
     "message": "集成"
   },
   "integrationsDesc": {
-    "message": "自动将机密从 Bitwarden 机密管理器同步到第三方服务。"
+    "message": "自动将机密从 Bitwarden Secrets Manager 同步到第三方服务。"
   },
   "sdks": {
     "message": "SDK"
   },
   "sdksDesc": {
-    "message": "在以下编程语言中使用 Bitwarden 机密管理器 SDK 来构建您自己的应用程序。"
+    "message": "在以下编程语言中使用 Bitwarden Secrets Manager SDK 来构建您自己的应用程序。"
   },
   "ssoDescStart": {
     "message": "使用适合您的身份提供程序的实施指南为 Bitwarden 配置",
@@ -10873,16 +10944,16 @@
     "message": "继续设置您的免费试用版 Bitwarden"
   },
   "continueSettingUpPasswordManager": {
-    "message": "继续设置 Bitwarden 密码管理器"
+    "message": "继续设置 Bitwarden Password Manager"
   },
   "continueSettingUpFreeTrialPasswordManager": {
-    "message": "继续设置您的免费试用版 Bitwarden 密码管理器"
+    "message": "继续设置您的免费试用版 Bitwarden Password Manager"
   },
   "continueSettingUpSecretsManager": {
-    "message": "继续设置 Bitwarden 机密管理器"
+    "message": "继续设置 Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
-    "message": "继续设置您的免费试用版 Bitwarden 机密管理器"
+    "message": "继续设置您的免费试用版 Bitwarden Secrets Manager"
   },
   "enterTeamsOrgInfo": {
     "message": "输入您的团队组织信息"
@@ -11423,13 +11494,13 @@
     "message": "当前"
   },
   "secretsManagerSubscriptionInfo": {
-    "message": "您的机密管理器订阅将基于选择的方案升级"
+    "message": "您的 Secrets Manager 订阅将基于选择的方案升级"
   },
   "bitwardenPasswordManager": {
-    "message": "Bitwarden 密码管理器"
+    "message": "Bitwarden Password Manager"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "您的一年免费密码管理器订阅将升级到所选方案。在免费期结束前，我们不会向您收取费用。"
+    "message": "您的一年免费 Password Manager 订阅将升级到所选方案。在免费期结束前，我们不会向您收取费用。"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -11927,7 +11998,7 @@
     "message": "您的提供商订阅将获得此组织订阅剩余时间内的信用额度。"
   },
   "doYouWantToAddThisOrg": {
-    "message": "您想将该组织添加到 $PROVIDER$ 吗？",
+    "message": "要将该组织添加到 $PROVIDER$ 吗？",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -12419,7 +12490,7 @@
     "message": "附加机器账户"
   },
   "secretsManagerSeats": {
-    "message": "机密管理器席位"
+    "message": "Secrets Manager 席位"
   },
   "additionalStorage": {
     "message": "附加存储"
@@ -13064,7 +13135,7 @@
     "message": "生成账单预览时遇到错误。"
   },
   "planProratedMembershipInMonths": {
-    "message": "按比例分配的 $PLAN$ 成员（$NUMOFMONTHS$）",
+    "message": "按比例分配的 $PLAN$ 成员资格（$NUMOFMONTHS$）",
     "placeholders": {
       "plan": {
         "content": "$1",

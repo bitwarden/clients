@@ -11,8 +11,11 @@
   "activity": {
     "message": "Atividade"
   },
-  "applicationsAtRisk": {
-    "message": "Aplicações em risco"
+  "criticalAppsAtRisk": {
+    "message": "Apps críticas em risco"
+  },
+  "allCriticalApps": {
+    "message": "Todas as apps críticas"
   },
   "appLogoLabel": {
     "message": "Logótipo do Bitwarden"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "Reposição da verificação de dois passos para o utilizador $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "Redefinir a ligação SSO do utilizador $ID$",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "Copiar a chave da API SCIM para a área de transferência",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Ver a chave da API SCIM",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Regenerar a chave da API SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "Definições SCIM guardadas",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Apenas é permitida uma integração deste tipo ($TYPE$). A integração em conflito é: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Já existe outra integração do mesmo tipo ($TYPE$). Atualize o navegador e tente novamente.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Campo obrigatório."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Coral"
+  },
+  "purple": {
+    "message": "Roxo"
+  },
+  "blue": {
+    "message": "Azul"
   },
   "customColor": {
     "message": "Cor personalizada"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Recuperar conta"
+  },
+  "recoverAccountWarning": {
+    "message": "Ao redefinir a palavra-passe ou a verificação de dois passos deste membro, este será notificado da alteração e a sessão será terminada."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recupere contas quando a palavra-passe mestra, a verificação de dois passos ou os dispositivos fidedignos forem esquecidos ou perdidos."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "As contas existentes com palavras-passe mestras exigirão que os membros se inscrevam antes de os administradores poderem recuperar as suas contas."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Inscrever automaticamente novos membros na recuperação de conta"
+  },
+  "resetMasterPassword": {
+    "message": "Redefinir a palavra-passe mestra"
+  },
+  "resetTwoStepLogin": {
+    "message": "Redefinir a verificação de dois passos"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "O acesso do membro será revogado até que configure a verificação de dois passos"
+  },
+  "recoverAccountSuccess": {
+    "message": "Recuperação de conta bem-sucedida!"
   },
   "updatedTempPassword": {
     "message": "O utilizador atualizou uma palavra-passe emitida através da recuperação de conta."

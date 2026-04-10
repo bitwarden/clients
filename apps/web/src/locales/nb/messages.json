@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivitet"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden-logo"
@@ -105,7 +108,7 @@
     }
   },
   "createNewLoginItem": {
-    "message": "Create new login item"
+    "message": "Opprett nytt påloggingselement"
   },
   "percentageCompleted": {
     "message": "$PERCENT$% complete",
@@ -350,7 +353,7 @@
     "message": "At-risk members"
   },
   "membersWithAccessToAtRiskItemsForCriticalApplications": {
-    "message": "These members have access to vulnerable items for critical applications."
+    "message": "Disse medlemmene har tilgang til sårbare elementer knyttet til kritiske applikasjoner."
   },
   "membersWithAtRiskPasswords": {
     "message": "Members with at-risk passwords"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "Two-step login reset for user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "Tilbakestill kobling for brukeren $ID$",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "Kopier SCIM API nøkkelen til utklippstavlen",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "View the SCIM API key",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Skift SCIM API nøkkelen",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM innstillinger lagret",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Inndata er påkrevd."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Coral"
+  },
+  "purple": {
+    "message": "Purple"
+  },
+  "blue": {
+    "message": "Blue"
   },
   "customColor": {
     "message": "Egendefinert farge"
@@ -9707,6 +9754,30 @@
   "recoverAccount": {
     "message": "Recover account"
   },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Reset master password"
+  },
+  "resetTwoStepLogin": {
+    "message": "Reset two-step login"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Account recovery success!"
+  },
   "updatedTempPassword": {
     "message": "User updated a password issued through account recovery."
   },
@@ -9888,7 +9959,7 @@
     "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
   },
   "free2PersonOrganization": {
-    "message": "Free 2-person Organizations"
+    "message": "Gratis for organisasjoner med 2 personer"
   },
   "unlimitedSecrets": {
     "message": "Unlimited secrets"
@@ -11155,10 +11226,10 @@
     "message": "Velg mappe"
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 element vil bli permanent overført til den valgte organisasjonen. Du vil ikke lenger eie dette elementet."
   },
   "personalItemsTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elementer vil bli permanent overført til den valgte organisasjonen. Du vil ikke lenger eie disse elementene.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -11167,7 +11238,7 @@
     }
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 element vil bli permanent overført til $ORG$. Du vil ikke lenger eie dette elementet.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -11176,7 +11247,7 @@
     }
   },
   "personalItemsWithOrgTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ elementer vil bli permanent overført til $ORG$. Du vil ikke lenger eie disse elementene.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -11621,7 +11692,7 @@
     "message": "Descriptor code"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
+    "message": "Du kan ikke fjerne samlinger med bare visningstillatelser: $COLLECTIONS$",
     "placeholders": {
       "collections": {
         "content": "$1",
@@ -12809,7 +12880,7 @@
     "message": "Are you sure you want to leave?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Ved å avslå vil dine personlige elementer forbli i kontoen din, men du vil miste tilgangen til delte elementer og organisasjonsfunksjoner."
   },
   "leaveConfirmationDialogContentTwo": {
     "message": "Contact your admin to regain access."
@@ -13033,7 +13104,7 @@
     "message": "You're in! Welcome to Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
-    "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
+    "message": "Lagre alle passordene dine og personlig informasjon i Bitwarden-hvelvet ditt. Vi viser deg rundt."
   },
   "vaultWelcomeDialogPrimaryCta": {
     "message": "Start tour"

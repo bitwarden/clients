@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivite"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden logosu"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "$ID$ adlı kullanıcı için iki aşamalı giriş sıfırlandı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "$ID$ kullanıcısı için SSO bağlantısını sıfırla",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "SCIM API anahtarını panoya kopyala",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "SCIM API anahtarını göster",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "SCIM API anahtarını yenile",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM ayarları kaydedildi",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Girdi gerekli."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Pembe"
+  },
+  "coral": {
+    "message": "Mercan"
+  },
+  "purple": {
+    "message": "Mor"
+  },
+  "blue": {
+    "message": "Mavi"
   },
   "customColor": {
     "message": "Özel renk"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Hesabı kurtar"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Ana parolayı sıfırla"
+  },
+  "resetTwoStepLogin": {
+    "message": "İki adımlı girişi sıfırla"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Hesap kurtarma başarılı!"
   },
   "updatedTempPassword": {
     "message": "Kullanıcı, hesap kurtarma yoluyla verilen bir parolayı güncelledi."

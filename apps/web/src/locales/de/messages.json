@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivität"
   },
-  "applicationsAtRisk": {
-    "message": "Gefährdete Anwendungen"
+  "criticalAppsAtRisk": {
+    "message": "Gefährdete kritische Apps"
+  },
+  "allCriticalApps": {
+    "message": "Alle kritischen Apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden-Logo"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "Zwei-Faktor-Authentifizierung für Benutzer $ID$ zurückgesetzt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "SSO Link für Benutzer $ID$ zurücksetzen",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "Den SCIM API-Schlüssel in deine Zwischenablage kopieren",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "SCIM API-Schlüssel anzeigen",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Den SCIM API-Schlüssel erneuern",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM Einstellungen gespeichert",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Eingabe ist erforderlich."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Korallenrot"
+  },
+  "purple": {
+    "message": "Lila"
+  },
+  "blue": {
+    "message": "Blau"
   },
   "customColor": {
     "message": "Eigene Farbe"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Konto wiederherstellen"
+  },
+  "recoverAccountWarning": {
+    "message": "Wenn du das Passwort oder die Zwei-Faktor-Authentifizierung für dieses Mitglied zurücksetzt, wird es über die Änderung benachrichtigt und abgemeldet."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Konten wiederherstellen, wenn das Master-Passwort, die Zwei-Faktor-Authentifizierung oder vertrauenswürdige Geräte vergessen wurden oder verloren gegangen sind."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Bei bestehenden Konten mit Master-Passwörtern müssen sich die Mitglieder selbst registrieren, bevor Administratoren ihre Konten wiederherstellen können."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Neue Mitglieder automatisch für die Kontowiederherstellung registrieren"
+  },
+  "resetMasterPassword": {
+    "message": "Master-Passwort zurücksetzen"
+  },
+  "resetTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung zurücksetzen"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Der Zugriff des Mitglieds wird widerrufen, bis es die Zwei-Faktor-Authentifizierung eingerichtet hat"
+  },
+  "recoverAccountSuccess": {
+    "message": "Konto erfolgreich wiederhergestellt!"
   },
   "updatedTempPassword": {
     "message": "Der Benutzer hat ein Passwort aktualisiert, das durch die Kontowiederherstellung ausgestellt wurde."

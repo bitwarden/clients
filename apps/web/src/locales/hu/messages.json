@@ -11,8 +11,11 @@
   "activity": {
     "message": "Tevékenység"
   },
-  "applicationsAtRisk": {
-    "message": "Kockázatos alkalmazások"
+  "criticalAppsAtRisk": {
+    "message": "Kockázatos kritikus alkalmazások"
+  },
+  "allCriticalApps": {
+    "message": "Összes kritikus alkalmazás"
   },
   "appLogoLabel": {
     "message": "Bitwarden logó"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "A kétlépéses bejelentkezés alaphelyzetbe állítása $ID$ felhasználó számára.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "Sso hivatkozás visszaállítása $ID$ felhasználónál",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "A SCIM API kulcs másolása a vágólapra",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "A SCIM API kulcs megtekintése",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "A SCIM API kulcs forgatása",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "A SCIM beállítások sikeresen mentésre kerültek.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Csak egy ilyen típusú integráció ($TYPE$) engedélyezett. Az ütköző integráció: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Már létezik egy másik, azonos típusú integráció ($TYPE$). Frissítsük a böngészőt és próbáljuk újra.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Az adatbevitel kötelező."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Rózsaszín"
+  },
+  "coral": {
+    "message": "Korall"
+  },
+  "purple": {
+    "message": "Lila"
+  },
+  "blue": {
+    "message": "Kék"
   },
   "customColor": {
     "message": "Egyedi szín"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Fiók helyreállítás"
+  },
+  "recoverAccountWarning": {
+    "message": "Amikor visszaállítjuk ennek a tagnak a jelszavát vagy kétlépcsős bejelentkezését, értesítést kap a változásról, és kijelentkezik."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "A fiókok helyreállítása a mesterjelszó, a kétlépcsős bejelentkezés vagy a megbízható eszközök elfelejtésekor vagy elvesztésekor."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "A mesterjelszavakkal rendelkező meglévő fiókokhoz a tagoknak regisztrálniuk kell magukat, mielőtt az adminisztrátorok helyreállíthatnák fiókjukat."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Új tagok automatikus felvétele a fiók helyreállításába"
+  },
+  "resetMasterPassword": {
+    "message": "Mesterjelszó alaphelyzetbe"
+  },
+  "resetTwoStepLogin": {
+    "message": "Kétlépéses bejelentkezés alaphelyzetbe"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "A tag hozzáférése visszavonásra kerül, amíg be nem állítja a kétlépcsős bejelentkezést."
+  },
+  "recoverAccountSuccess": {
+    "message": "A fiók helyreállítása sikeres volt."
   },
   "updatedTempPassword": {
     "message": "A felhasználó frissítette a fiók helyreállítás során kiadott jelszót."
