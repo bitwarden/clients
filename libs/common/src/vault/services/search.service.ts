@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { BehaviorSubject, Observable } from "rxjs";
 
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -43,12 +41,11 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   async isSearchable(query: string | null): Promise<boolean> {
-    query = normalizeSearchQuery(query);
-
-    // Nothing to search if the query is null
-    if (query == null || query === "") {
+    if (query == null || query.trim() === "") {
       return false;
     }
+
+    query = normalizeSearchQuery(query);
 
     // Regular queries only require a minimum length
     return query.length >= this.searchableMinLength;
@@ -64,13 +61,14 @@ export class SearchService implements SearchServiceAbstraction {
     query: string,
     ciphers: C[],
   ): Promise<C[]> {
+    // Callers may still pass in null even thogh they are not supposed to per the parameter type
+    if (query == null || query.trim() === "") {
+      return ciphers;
+    }
+
     this._isCipherSearching$.next(true);
     const searchStartTime = performance.now();
     query = normalizeSearchQuery(query.trim().toLowerCase());
-    if (query === "") {
-      query = null;
-    }
-
     if (!(await this.isSearchable(query))) {
       this._isCipherSearching$.next(false);
       return ciphers;
