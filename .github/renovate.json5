@@ -285,6 +285,7 @@
         "jest-mock-extended",
         "jest-preset-angular",
         "jest-diff",
+        "jest-environment-jsdom",
         "ts-jest",
       ],
       description: "Secrets Manager owned dependencies",
