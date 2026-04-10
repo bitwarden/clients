@@ -62,7 +62,10 @@
             {{ "permission" | i18n }}
           </th>
         }
-        <th bitCell class="tw-w-12 tw-text-right">
+        <th
+          bitCell
+          [class]="((showCopyAndLaunchActions$ | async) ? 'tw-w-28' : 'tw-w-12') + ' tw-text-right'"
+        >
           @let menuDisabled = disableMenu$ | async;
           <button
             [disabled]="disabled || isEmpty || menuDisabled"
