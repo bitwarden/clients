@@ -34,9 +34,30 @@ export function navigateToUrl(uri: string) {
   document.location.replace(uri);
 }
 
-/** Get current page URL href for testability. */
+/**
+ * Get current page URL href for testability.
+ *
+ * ⚠️ SECURITY: This returns user-controllable data from window.location.href.
+ *
+ * SAFE uses: parsing query parameters, checking hostname/protocol
+ * UNSAFE uses: rendering to DOM innerHTML, template interpolation without sanitization
+ *
+ * Never pass the raw value to innerHTML, ng-bind, or any DOM rendering context.
+ */
 export function getLocationHref(): string {
-  return window.location.href;
+  const href = window.location.href;
+
+  // Validate format and protocol
+  try {
+    const url = new URL(href);
+    if (!["http:", "https:", "about:"].includes(url.protocol)) {
+      return "";
+    }
+  } catch {
+    return "";
+  }
+
+  return href;
 }
 
 /** Set location href (navigation) for testability. */
@@ -44,14 +65,38 @@ export function setLocationHref(url: string): void {
   window.location.href = url;
 }
 
-/** Get current origin for testability. */
+/**
+ * Get current origin for testability.
+ *
+ * ⚠️ SECURITY: Origin (scheme + host + port) is generally safe but comes from location.
+ * Use carefully when constructing URLs or security-sensitive comparisons.
+ */
 export function getLocationOrigin(): string {
-  return window.location.origin;
+  try {
+    return window.location.origin;
+  } catch {
+    return "";
+  }
 }
 
-/** Get current hostname for testability. */
+/**
+ * Get current hostname for testability.
+ *
+ * ⚠️ SECURITY: Hostname comes from location and should not be trusted for rendering.
+ * Safe for: domain whitelisting, feature flag routing (bitwarden.com vs .eu vs .pw)
+ * Unsafe for: rendering to DOM without validation
+ */
 export function getLocationHostname(): string {
-  return window.location.hostname || "";
+  try {
+    const hostname = window.location.hostname;
+    // Validate basic hostname format
+    if (!hostname || !/^[a-z0-9.-]+$/i.test(hostname)) {
+      return "";
+    }
+    return hostname;
+  } catch {
+    return "";
+  }
 }
 
 function appLinkHost(): string {
