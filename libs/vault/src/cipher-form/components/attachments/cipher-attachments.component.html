@@ -119,9 +119,13 @@
           </p>
         </div>
       </div>
-      <p id="fileHelp" bitTypography="helper" class="tw-text-muted tw-px-1 tw-pt-1 tw-mb-0">
-        {{ "maxFileSizeSansPunctuation" | i18n }}
-      </p>
+      @if (uploadProgress() === null) {
+        <p id="fileHelp" bitTypography="helper" class="tw-text-muted tw-px-1 tw-pt-1 tw-mb-0">
+          {{ "maxFileSizeSansPunctuation" | i18n }}
+        </p>
+      } @else {
+        <bit-progress [barWidth]="uploadProgress()" class="tw-block tw-mt-2" />
+      }
     </bit-card>
   }
 </form>
