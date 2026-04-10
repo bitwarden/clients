@@ -2367,28 +2367,28 @@
     "message": "Le mot de passe principal que vous avez choisi est faible. Vous devriez utiliser un mot de passe principal fort (ou une phrase de passe) pour protéger correctement votre compte Bitwarden. Êtes-vous sûr de vouloir utiliser ce mot de passe principal ?"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Régénérer également la clé de chiffrement de mon compte"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Régénérer la clé de chiffrement"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Êtes-vous sûr de vouloir régénérer la clé de chiffrement de votre compte ?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "Il y a d'anciennes pièces jointes dans votre coffre qui doivent être réparées avant que vous ne puissiez régénérer la clé de chiffrement de votre compte."
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Impact de la régénération de votre clé de chiffrement"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
   },
   "pin": {
     "message": "Code PIN",
@@ -2481,7 +2481,7 @@
     "message": "Action après délai d'expiration du coffre"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "Afficher les notifications de mot de passe à risque"
   },
   "lock": {
     "message": "Verrouiller",
@@ -4452,7 +4452,7 @@
     "message": "Données du coffre exportées"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Une erreur s'est produite lors de l'exportation des données de votre coffre"
   },
   "typePasskey": {
     "message": "Clé d'accès"
@@ -4884,7 +4884,7 @@
     "message": "Copier l'adresse"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Mes éléments"
   },
   "adminConsole": {
     "message": "Console Admin"
@@ -6149,7 +6149,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "$ORGANIZATION$ exige que tous les éléments soient la propriété de l'organisation pour la sécurité et la conformité.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6158,10 +6158,10 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "Cliquez sur accepter pour transférer la propriété de vos éléments."
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "Ouvrir un article d'aide sur le transfert d'éléments"
   },
   "acceptTransfer": {
     "message": "Accepter le transfert"
@@ -6216,6 +6216,6 @@
     "message": "Échec de la vérification d'utilisateur."
   },
   "downloadFailed": {
-    "message": "Failed to download."
+    "message": "Échec du téléchargement."
   }
 }

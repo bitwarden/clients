@@ -128,10 +128,13 @@ export class BadgeComponent {
   readonly truncate = input(true);
 
   /**
-   * Tailwind max-width class to apply to constrain badge width.
+   * Tailwind max-width class to apply to constrain badge content width.
    * Must be a valid Tailwind max-width utility class (e.g., "tw-max-w-40", "tw-max-w-xs").
+   *
+   * @default `tw-max-w-[calc(25ch_-_theme(spacing.2))]`
+   * shows ~30ch when showing truncated text. Accounts for space taken up by ellipsis
    */
-  readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-40");
+  readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-[calc(25ch_-_theme(spacing.2))]");
 
   readonly startIcon = input<BitwardenIcon | null | undefined>(undefined);
 
@@ -148,12 +151,16 @@ export class BadgeComponent {
   });
 
   protected readonly classList = computed(() => {
-    return [
-      ...commonStyles,
-      ...sizeStyles[this.size()].label,
-      ...variantStyles[this.variant()],
-    ].concat(this.truncate() ? this.maxWidthClass() : "");
+    return [...commonStyles, ...sizeStyles[this.size()].label, ...variantStyles[this.variant()]];
   });
+
+  protected readonly contentClasses = computed(() => [
+    "tw-px-1",
+    "tw-text-start",
+    "tw-min-w-0",
+    "tw-flex-1",
+    ...(this.truncate() ? ["tw-truncate", this.maxWidthClass()] : []),
+  ]);
 
   /**
    * Computed title content - only shows when content is overflowing

@@ -49,6 +49,7 @@ import {
   KeyService,
   PBKDF2KdfConfig,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   AuthRequestServiceAbstraction,
@@ -67,6 +68,7 @@ describe("LoginStrategyService", () => {
 
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
+  let unlockService: MockProxy<UnlockService>;
   let keyService: MockProxy<KeyService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -101,6 +103,7 @@ describe("LoginStrategyService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    unlockService = mock<UnlockService>();
     keyService = mock<KeyService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -136,6 +139,7 @@ describe("LoginStrategyService", () => {
     sut = new LoginStrategyService(
       accountService,
       masterPasswordService,
+      unlockService,
       keyService,
       apiService,
       tokenService,
@@ -279,7 +283,7 @@ describe("LoginStrategyService", () => {
     expect(result).toBeInstanceOf(AuthResult);
   });
 
-  it("should clear the cache if more than 2 mins have passed since expiration date", async () => {
+  it("should clear the cache if the session has expired (expiration date is in the past)", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     apiService.postIdentityToken.mockResolvedValue(
       new IdentityTwoFactorResponse({

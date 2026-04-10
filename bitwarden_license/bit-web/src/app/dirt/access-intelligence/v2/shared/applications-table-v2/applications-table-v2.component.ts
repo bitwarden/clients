@@ -29,7 +29,7 @@ export type ApplicationTableRowV2 = {
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-applications-table-v2",
+  selector: "dirt-applications-table-v2",
   standalone: true,
   imports: [
     CommonModule,
