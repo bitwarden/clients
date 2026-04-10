@@ -159,6 +159,7 @@ export class PoliciesComponent {
   edit(policy: BasePolicyEditDefinition, organization: Organization) {
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
+
     dialogComponent.open(this.dialogService, {
       data: {
         policy: policy,

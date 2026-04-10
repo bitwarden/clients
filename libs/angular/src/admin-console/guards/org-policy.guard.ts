@@ -20,8 +20,8 @@ import { UserId } from "@bitwarden/user-core";
 export function organizationPolicyGuard(
   featureCallback: (
     userId: UserId,
-    configService: ConfigService,
     policyService: PolicyService,
+    configService: ConfigService,
   ) => Observable<boolean>,
 ): CanActivateFn {
   return async () => {
@@ -47,7 +47,7 @@ export function organizationPolicyGuard(
     const compliant = await firstValueFrom(
       accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) => featureCallback(userId, configService, policyService)),
+        switchMap((userId) => featureCallback(userId, policyService, configService)),
         tap((compliant) => {
           if (typeof compliant !== "boolean") {
             throw new Error("Feature callback must return a boolean.");
