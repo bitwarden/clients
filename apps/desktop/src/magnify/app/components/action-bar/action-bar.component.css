@@ -1,0 +1,47 @@
+.action-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 30px;
+  padding: 0 16px;
+  border-top: 1px solid var(--border-color);
+}
+
+.action-bar-logo {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 9px;
+  height: 11px;
+  color: var(--icon-color);
+  opacity: 0.4;
+  display: block;
+}
+
+.action-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.action-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--preview-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  letter-spacing: 0.2px;
+}
+
+.action-label {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-tertiary);
+  letter-spacing: 0.1px;
+}

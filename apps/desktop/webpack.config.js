@@ -20,6 +20,11 @@ module.exports = (webpackConfig, context) => {
         entry: path.resolve(__dirname, "src/preload.ts"),
         tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.preload.json"),
       },
+      magnify: {
+        entry: path.resolve(__dirname, "src/magnify/main.ts"),
+        tsConfig: path.resolve(context.context.root, "apps/desktop/tsconfig.magnify.json"),
+        htmlTemplate: path.resolve(__dirname, "src/magnify/index.html"),
+      },
       outputPath: path.resolve(context.context.root, context.options.outputPath),
     });
   } else {
@@ -37,6 +42,11 @@ module.exports = (webpackConfig, context) => {
       preload: {
         entry: path.resolve(__dirname, "src/preload.ts"),
         tsConfig: path.resolve(__dirname, "tsconfig.preload.json"),
+      },
+      magnify: {
+        entry: path.resolve(__dirname, "src/magnify/main.ts"),
+        tsConfig: path.resolve(__dirname, "tsconfig.magnify.json"),
+        htmlTemplate: path.resolve(__dirname, "src/magnify/index.html"),
       },
     });
   }

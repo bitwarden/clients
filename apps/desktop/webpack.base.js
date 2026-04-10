@@ -41,6 +41,11 @@ const DEFAULT_PARAMS = {
  *    entry: string;
  *    tsConfig: string;
  *  };
+ *  magnify: {
+ *    entry: string;
+ *    tsConfig: string;
+ *    htmlTemplate: string;
+ *  };
  *  outputPath?: string;
  * }} params
  */
@@ -336,5 +341,224 @@ module.exports.buildConfig = function buildConfig(params) {
     ],
   };
 
-  return [mainConfig, rendererConfig, preloadConfig];
+  return [
+    mainConfig,
+    rendererConfig,
+    preloadConfig,
+    ...module.exports.buildMagnifyConfig({
+      entry: params.magnify.entry,
+      tsConfig: params.magnify.tsConfig,
+      htmlTemplate: params.magnify.htmlTemplate,
+      outputPath: path.join(params.outputPath, "magnify"),
+    }),
+  ];
+};
+
+/**
+ * @param {{
+ *  entry: string;
+ *  tsConfig: string;
+ *  htmlTemplate: string;
+ *  outputPath: string;
+ * }} params
+ */
+module.exports.buildMagnifyConfig = function buildMagnifyConfig(params) {
+  const { NODE_ENV, ENV } = module.exports.getEnv();
+  const envConfig = configurator.load(NODE_ENV);
+
+  /** @type {import('webpack').Configuration} */
+  const magnifyConfig = {
+    name: "magnify",
+    mode: NODE_ENV,
+    devtool: "source-map",
+    target: "web",
+    node: {
+      __dirname: false,
+    },
+    entry: {
+      "app/main": params.entry,
+    },
+    output: {
+      filename: "[name].js",
+      path: params.outputPath,
+    },
+    optimization: {
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              global_defs: {
+                ngDevMode: false,
+                ngI18nClosureMode: false,
+              },
+            },
+          },
+        }),
+      ],
+      splitChunks: {
+        cacheGroups: {
+          commons: {
+            test: /[\\/]node_modules[\\/]/,
+            name: "app/vendor",
+            chunks: (chunk) => chunk.name === "app/main",
+          },
+        },
+      },
+    },
+    module: {
+      rules: [
+        {
+          test: /\.[cm]?js$/,
+          exclude: /\.wasm\.js$/,
+          use: [
+            {
+              loader: "babel-loader",
+              options: {
+                configFile: path.resolve(__dirname, "../../babel.config.json"),
+              },
+            },
+          ],
+        },
+        {
+          test: /\.[jt]sx?$/,
+          loader: "@ngtools/webpack",
+        },
+        // Angular requests component templates as `foo.html?ngResource` — hand back
+        // the raw source string so the Angular compiler receives what it expects.
+        {
+          test: /\.(html)$/,
+          resourceQuery: /ngResource/,
+          type: "asset/source",
+        },
+        // All other HTML files (e.g. index.html processed by HtmlWebpackPlugin) go
+        // through html-loader as normal.
+        {
+          test: /\.(html)$/,
+          resourceQuery: { not: [/ngResource/] },
+          loader: "html-loader",
+        },
+        {
+          test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+          exclude: /loading.svg/,
+          generator: { filename: "fonts/[name].[contenthash][ext]" },
+          type: "asset/resource",
+        },
+        {
+          test: /\.(jpe?g|png|gif|svg)$/i,
+          exclude: /.*(bwi-font)\.svg/,
+          generator: { filename: "images/[name][ext]" },
+          type: "asset/resource",
+        },
+        {
+          test: /\.css$/,
+          resourceQuery: /ngResource/,
+          use: [{ loader: "css-loader", options: { exportType: "string" } }],
+        },
+        {
+          test: /\.css$/,
+          resourceQuery: { not: [/ngResource/] },
+          use: [
+            "style-loader",
+            "css-loader",
+            "resolve-url-loader",
+            { loader: "postcss-loader", options: { sourceMap: true } },
+          ],
+        },
+        {
+          test: /\.scss$/,
+          use: [
+            "style-loader",
+            "css-loader",
+            "resolve-url-loader",
+            { loader: "sass-loader", options: { sourceMap: true } },
+          ],
+        },
+        {
+          test: /[\/\\]@angular[\/\\].+\.js$/,
+          parser: { system: true },
+        },
+      ],
+    },
+    experiments: {
+      asyncWebAssembly: true,
+    },
+    resolve: {
+      extensions: [".tsx", ".ts", ".js"],
+      symlinks: false,
+      modules: [
+        path.resolve(__dirname, "../../node_modules"),
+        path.resolve(process.cwd(), "node_modules"),
+      ],
+      fallback: {
+        path: require.resolve("path-browserify"),
+        fs: false,
+      },
+    },
+    plugins: [
+      new AngularWebpackPlugin({
+        tsconfig: params.tsConfig,
+        sourceMap: true,
+      }),
+      new HtmlWebpackPlugin({
+        template: params.htmlTemplate,
+        filename: "index.html",
+        chunks: ["app/vendor", "app/main"],
+      }),
+      new webpack.SourceMapDevToolPlugin({
+        include: ["app/main.js"],
+      }),
+      new webpack.DefinePlugin({
+        BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+      }),
+      new webpack.EnvironmentPlugin({
+        ENV: ENV,
+        FLAGS: envConfig.flags,
+        DEV_FLAGS: NODE_ENV === "development" ? envConfig.devFlags : {},
+        ADDITIONAL_REGIONS: envConfig.additionalRegions ?? [],
+      }),
+    ],
+  };
+
+  const magnifyPreloadConfig = {
+    name: "magnify-preload",
+    mode: NODE_ENV,
+    target: "electron-preload",
+    node: { __dirname: false, __filename: false },
+    entry: {
+      preload: path.resolve(__dirname, "src/magnify/preload.ts"),
+    },
+    output: {
+      filename: "[name].js",
+      path: params.outputPath,
+    },
+    optimization: { minimize: false },
+    devtool: NODE_ENV === "development" ? "cheap-source-map" : false,
+    module: {
+      rules: [
+        {
+          test: /\.tsx?$/,
+          use: {
+            loader: "ts-loader",
+            options: { configFile: path.resolve(__dirname, "tsconfig.magnify.preload.json") },
+          },
+          exclude: /node_modules\/(?!(@bitwarden)\/).*/,
+        },
+      ],
+    },
+    resolve: {
+      extensions: [".tsx", ".ts", ".js"],
+      symlinks: false,
+      modules: [
+        path.resolve(__dirname, "../../node_modules"),
+        path.resolve(process.cwd(), "node_modules"),
+      ],
+    },
+    plugins: [
+      new webpack.DefinePlugin({
+        BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+      }),
+    ],
+  };
+
+  return [magnifyConfig, magnifyPreloadConfig];
 };
