@@ -7,3 +7,19 @@ export const AUTOTYPE_IPC_CHANNELS = {
   EXECUTION_ERROR: "autofill.autotypeExecutionError",
   EXECUTE: "autofill.executeAutotype",
 } as const;
+
+export const MAGNIFY_IPC_CHANNELS = {
+  TOGGLE: "autofill.toggleMagnify",
+  // Magnify render process -> Main process
+  MAGNIFY_COMMAND: "autofill.magnifyCommand",
+  // Magnify render process -> Main process: request a window resize
+  MAGNIFY_RESIZE: "autofill.magnifyResize",
+  // Main process -> BW render process
+  MAGNIFY_COMMAND_RELAY: "autofill.magnifyCommandRelay",
+  // BW render process -> Main process (for errors)
+  MAGNIFY_COMMAND_RELAY_ERROR: "autofill.magnifyCommandRelayError",
+  // BW render process -> Main process
+  MAGNIFY_COMMAND_RESPONSE: "autofill.magnifyCommandResponse",
+  // Magnify render process -> Main process: focus the main BW window and close Magnify
+  MAGNIFY_FOCUS_BITWARDEN: "autofill.magnifyFocusBitwarden",
+} as const;

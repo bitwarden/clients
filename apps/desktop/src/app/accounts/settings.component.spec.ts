@@ -37,6 +37,7 @@ import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopMagnifyService } from "../../autofill/services/desktop-magnify.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
@@ -78,6 +79,7 @@ describe("SettingsComponent", () => {
   const keyService = mock<KeyService>();
   const dialogService = mock<DialogService>();
   const desktopAutotypeService = mock<DesktopAutotypeService>();
+  const desktopMagnifyService = mock<DesktopMagnifyService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
@@ -141,6 +143,7 @@ describe("SettingsComponent", () => {
         { provide: MessagingService, useValue: messagingService },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeService, useValue: desktopAutotypeService },
+        { provide: DesktopMagnifyService, useValue: desktopMagnifyService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -191,6 +194,7 @@ describe("SettingsComponent", () => {
     policyService.policiesByType$.mockReturnValue(of([null]));
     desktopAutotypeService.autotypeEnabledUserSetting$ = of(false);
     desktopAutotypeService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
+    desktopMagnifyService.magnifyEnabledUserSetting$ = of(false);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
   });

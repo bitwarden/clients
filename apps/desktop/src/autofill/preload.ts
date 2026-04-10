@@ -8,7 +8,8 @@ import { RunCommandParams, RunCommandResult } from "../platform/main/autofill/na
 import { AutotypeConfig } from "./models/autotype-config";
 import { AutotypeMatchError } from "./models/autotype-errors";
 import { AutotypeVaultData } from "./models/autotype-vault-data";
-import { AUTOTYPE_IPC_CHANNELS } from "./models/ipc-channels";
+import { AUTOTYPE_IPC_CHANNELS, MAGNIFY_IPC_CHANNELS } from "./models/ipc-channels";
+import { MagnifyCommandRequest, MagnifyCommandResponse } from "./models/magnify-commands";
 
 export default {
   runCommand: <C extends Command>(params: RunCommandParams<C>): Promise<RunCommandResult<C>> =>
@@ -186,6 +187,31 @@ export default {
 
           if (vaultData !== null) {
             ipcRenderer.send(AUTOTYPE_IPC_CHANNELS.EXECUTE, vaultData);
+          }
+        });
+      },
+    );
+  },
+  toggleMagnify: (enable: boolean) => {
+    ipcRenderer.send(MAGNIFY_IPC_CHANNELS.TOGGLE, enable);
+  },
+  listenMagnifyCommand: (
+    fn: (
+      request: MagnifyCommandRequest,
+      completeCallback: (error: Error | null, response: MagnifyCommandResponse | null) => void,
+    ) => void,
+  ) => {
+    ipcRenderer.on(
+      MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY,
+      (_event, request: MagnifyCommandRequest) => {
+        fn(request, (error, response) => {
+          if (error) {
+            ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RELAY_ERROR, error.message);
+            return;
+          }
+
+          if (response !== null) {
+            ipcRenderer.send(MAGNIFY_IPC_CHANNELS.MAGNIFY_COMMAND_RESPONSE, response);
           }
         });
       },

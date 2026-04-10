@@ -10,6 +10,8 @@
 
 ---
 
+🔍 THIS IS THE MAIN BRANCH FOR IS '26 TEAM MAGNIFY 🔍
+
 # Bitwarden Client Applications
 
 This repository houses all Bitwarden client applications except the mobile applications ([iOS](https://github.com/bitwarden/ios) | [android](https://github.com/bitwarden/android)).

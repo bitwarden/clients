@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig",
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  },
+  "include": ["src/magnify/**/*.ts"]
+}

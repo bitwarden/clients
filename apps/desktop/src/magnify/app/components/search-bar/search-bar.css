@@ -1,0 +1,86 @@
+.search-bar-container {
+  --bg-spotlight: rgba(255, 255, 255, 0.95);
+  --text-primary: #000000;
+  --text-secondary: rgba(0, 0, 0, 0.65);
+  --text-tertiary: rgba(0, 0, 0, 0.45);
+  --border-color: rgba(0, 0, 0, 0.15);
+  --selection-bg: rgba(0, 122, 255, 0.65);
+  --icon-color: rgba(0, 0, 0, 0.6);
+  --preview-bg: rgba(0, 0, 0, 0.04);
+  --scrollbar-color: rgba(0, 0, 0, 0.2);
+
+  width: 100%;
+  border-radius: 12px;
+  background: var(--bg-spotlight);
+  overflow: hidden;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-color-scheme: dark) {
+  .search-bar-container {
+    --bg-spotlight: rgba(40, 40, 40, 0.97);
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.65);
+    --text-tertiary: rgba(255, 255, 255, 0.4);
+    --border-color: rgba(255, 255, 255, 0.15);
+    --selection-bg: rgba(10, 132, 255, 0.65);
+    --icon-color: rgba(255, 255, 255, 0.6);
+    --preview-bg: rgba(255, 255, 255, 0.06);
+    --scrollbar-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  height: 54px;
+  flex-shrink: 0;
+}
+
+.search-icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--icon-color);
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 22px;
+  font-weight: 400;
+  font-family: inherit;
+  color: var(--text-primary);
+  caret-color: var(--selection-bg);
+}
+.search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.search-esc {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--preview-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 2px 6px;
+  letter-spacing: 0.3px;
+}
+
+.search-bar-logo {
+  flex-shrink: 0;
+  display: block;
+  width: 14px;
+  height: 18px;
+  color: var(--icon-color);
+  opacity: 0.5;
+}
