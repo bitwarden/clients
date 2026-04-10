@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { UserVerificationFormInputComponent } from "@bitwarden/auth/angular";
@@ -15,12 +15,12 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
-  FormFieldModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface ScimApiKeyDialogData {
   organizationId: string;
+  titleKey: string;
   isRotation: boolean;
 }
 
@@ -39,7 +39,6 @@ export interface ScimApiKeyDialogResult {
     DialogModule,
     AsyncActionsModule,
     CalloutModule,
-    FormFieldModule,
     UserVerificationFormInputComponent,
   ],
 })
@@ -49,8 +48,6 @@ export class ScimApiKeyDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly userVerificationService = inject(UserVerificationService);
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
-
-  protected readonly clientSecret = signal<string | undefined>(undefined);
 
   readonly formGroup = this.formBuilder.group({
     verification: [null as Verification | null, Validators.required],
@@ -81,12 +78,11 @@ export class ScimApiKeyDialogComponent {
       ? await this.organizationApiService.rotateApiKey(this.data.organizationId, request)
       : await this.organizationApiService.getOrCreateApiKey(this.data.organizationId, request);
 
-    this.clientSecret.set(response.apiKey);
+    this.dialogRef.close({ apiKey: response.apiKey });
   };
 
   close() {
-    const secret = this.clientSecret();
-    this.dialogRef.close(secret ? { apiKey: secret } : undefined);
+    this.dialogRef.close(undefined);
   }
 
   static open(dialogService: DialogService, data: ScimApiKeyDialogData) {
