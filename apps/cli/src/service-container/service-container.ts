@@ -707,6 +707,9 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),
+      this.platformUtilsService,
+      this.stateService,
+      this.biometricStateService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
