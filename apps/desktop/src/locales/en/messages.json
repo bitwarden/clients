@@ -4776,7 +4776,7 @@
     }
   },
   "reorderAriaDescription":{
-    "message": "Make sure your screen reader is in focus mode to ensure the arrow keys are passed to the application"
+    "message": "Make sure your screen reader is in focus mode so you can use your arrow keys to move items."
   },
   "userVerificationFailed": {
     "message": "User verification failed."
