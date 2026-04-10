@@ -4239,7 +4239,7 @@
     "message": "Discard edits"
   },
   "discardEditsConfirmation": {
-    "message": "Are you sure you want to discard your unsaved edits?"
+    "message": "If you close this view, your unsaved edits will be discarded."
   },
   "discardEdits": {
     "message": "Discard edits"
