@@ -8,11 +8,9 @@ $ErrorActionPreference = "Stop"
 #
 # NOTE: The cargo tools installed in this script, are installed to the default location
 # (user's $HOME dir). If you prefer another location, please install the versions
-# specified below, and ensure they are in your $PATH.
+# specified in apps/desktop/desktop_native/cargo-tool-versions, and ensure they are in your $PATH.
 
-$CARGO_DENY_VERSION  = "0.18.6"
-$CARGO_SORT_VERSION  = "2.0.2"
-$CARGO_UDEPS_VERSION = "0.1.57"
+$versionsFile = Join-Path $PSScriptRoot "..\apps\desktop\desktop_native\cargo-tool-versions"
 
 function Install-RustToolchain {
     if (-not (Get-Command rustup -ErrorAction SilentlyContinue)) {
@@ -98,6 +96,8 @@ function Install-CargoToolIfNeeded {
 
 Install-RustToolchain
 
-Install-CargoToolIfNeeded "cargo-deny"  $CARGO_DENY_VERSION
-Install-CargoToolIfNeeded "cargo-sort"  $CARGO_SORT_VERSION
-Install-CargoToolIfNeeded "cargo-udeps" $CARGO_UDEPS_VERSION
+Get-Content $versionsFile | ForEach-Object {
+    if ($_ -match "^([^=]+)=(.+)$") {
+        Install-CargoToolIfNeeded $Matches[1] $Matches[2]
+    }
+}
