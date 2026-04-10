@@ -4236,7 +4236,7 @@
     }
   },
   "discardEditsTitle": {
-    "message": "Discard edits?"
+    "message": "Discard edits"
   },
   "discardEditsConfirmation": {
     "message": "Are you sure you want to discard your unsaved edits?"
@@ -4246,6 +4246,9 @@
   },
   "keepEditing": {
     "message": "Keep editing"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
   },
   "editedPolicyId": {
     "message": "Edited policy $ID$.",

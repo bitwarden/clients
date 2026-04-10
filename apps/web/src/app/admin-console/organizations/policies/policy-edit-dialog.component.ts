@@ -127,8 +127,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         title: { key: "discardEditsTitle" },
         content: { key: "discardEditsConfirmation" },
         acceptButtonText: { key: "discardEdits" },
-        cancelButtonText: { key: "keepEditing" },
-        type: "warning",
+        cancelButtonText: { key: "backToEditing" },
+        type: "danger",
+        hideIcon: true,
       });
     };
 

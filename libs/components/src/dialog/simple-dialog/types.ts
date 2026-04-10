@@ -48,6 +48,11 @@ export type SimpleDialogOptions = {
    * If not localized, pass in a `Translation` */
   cancelButtonText?: string | Translation | null;
 
+  /**
+   * Whether to hide the center icon. Defaults to false.
+   */
+  hideIcon?: boolean;
+
   /** Whether or not the user can use escape or clicking the backdrop to close the dialog */
   disableClose?: boolean;
 
