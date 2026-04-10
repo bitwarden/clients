@@ -498,7 +498,6 @@ export class CipherService implements CipherServiceAbstraction {
 
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
-      await this.reindexCiphers(userId);
       return decCiphers;
     }
 
@@ -625,10 +624,6 @@ export class CipherService implements CipherServiceAbstraction {
       const encKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
       return await cipher.decrypt(encKey);
     }
-  }
-
-  private async reindexCiphers(userId: UserId) {
-    await this.searchService.ciphersUpdated(userId);
   }
 
   async getAllDecryptedForGrouping(

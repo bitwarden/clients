@@ -175,6 +175,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
 
             const searchFilteredCiphers = await this.searchService.searchCiphers(
               userId,
+              null,
               searchText,
               allCiphers,
             );

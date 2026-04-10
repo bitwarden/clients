@@ -1,10 +1,9 @@
 // Lunr search is used for advanced querys which most users do not use. It is preformance heavy and should only be built when needed.
 
 import * as lunr from "lunr";
-import { filter, firstValueFrom, map, Observable } from "rxjs";
-import { Jsonify } from "type-fest";
+import { Opaque } from "type-fest";
 
-import { StateProvider, UserKeyDefinition, VAULT_SEARCH_MEMORY } from "@bitwarden/state";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { UserId } from "@bitwarden/user-core";
 
 import { UriMatchStrategy } from "../../models/domain/domain-service";
@@ -13,51 +12,23 @@ import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { CipherType } from "../enums/cipher-type";
 import { FieldType } from "../enums/field-type.enum";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
-import { perUserCache$ } from "../utils/observable-utilities";
 
 import { normalizeSearchQuery } from "./search.service";
 
-export type SerializedLunrIndex = {
-  version: string;
-  fields: string[];
-  fieldVectors: [string, number[]];
-  invertedIndex: unknown[];
-  pipeline: string[];
+export type IndexId = Opaque<string, "IndexId">;
+
+type IndexState = {
+  lunrIndex: lunr.Index;
+  numberOfCiphers: number;
+  revisionDate: Date;
 };
-
-/**
- * The `KeyDefinition` for accessing the search index in application state.
- * The key definition is configured to clear the index when the user locks the vault.
- */
-export const LUNR_SEARCH_INDEX = new UserKeyDefinition<SerializedLunrIndex>(
-  VAULT_SEARCH_MEMORY,
-  "searchIndex",
-  {
-    deserializer: (obj: Jsonify<SerializedLunrIndex>) => obj,
-    clearOn: ["lock", "logout"],
-  },
-);
-
-/**
- * The `KeyDefinition` for accessing the state of Lunr search indexing, indicating whether the Lunr search index is currently being built or updating.
- * The key definition is configured to clear the indexing state when the user locks the vault.
- */
-export const LUNR_SEARCH_INDEXING = new UserKeyDefinition<boolean>(
-  VAULT_SEARCH_MEMORY,
-  "isIndexing",
-  {
-    deserializer: (obj: Jsonify<boolean>) => obj,
-    clearOn: ["lock", "logout"],
-  },
-);
 
 export class LunrSearchService {
   private static registeredPipeline = false;
+  private isIndexing = false;
+  private lunrIndices: Map<IndexId, IndexState> = new Map();
 
-  constructor(
-    private stateProvider: StateProvider,
-    private logService: LogService,
-  ) {
+  constructor(private logService: LogService) {
     // Currently have to ensure this is only done a single time. Lunr allows you to register a function
     // multiple times but they will add a warning message to the console. The way they do that breaks when ran on a service worker.
     if (!LunrSearchService.registeredPipeline) {
@@ -67,61 +38,15 @@ export class LunrSearchService {
     }
   }
 
-  async ciphersUpdated(userId: UserId): Promise<void> {
-    await this.stateProvider.getUser(userId, LUNR_SEARCH_INDEX).update(() => null);
-    await this.stateProvider.getUser(userId, LUNR_SEARCH_INDEXING).update(() => false);
-  }
-
-  private searchIndexState(userId: UserId) {
-    return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEX);
-  }
-
-  private index$ = perUserCache$((userId: UserId) => {
-    return this.searchIndexState(userId).state$.pipe(
-      map((searchIndex) => {
-        let index: lunr.Index | null = null;
-        if (searchIndex) {
-          const loadTime = performance.now();
-          index = lunr.Index.load(searchIndex);
-          this.logService.measure(loadTime, "Vault", "SearchService", "index load");
-        }
-        return index;
-      }),
-    );
-  });
-
-  private searchIsIndexingState(userId: UserId) {
-    return this.stateProvider.getUser(userId, LUNR_SEARCH_INDEXING);
-  }
-
-  private searchIsIndexing$(userId: UserId): Observable<boolean> {
-    return this.searchIsIndexingState(userId).state$.pipe(map((indexing) => indexing ?? false));
-  }
-
-  async getIndexForSearch(userId: UserId): Promise<lunr.Index | null> {
-    return await firstValueFrom(this.index$(userId));
-  }
-
-  private async setIndexForSearch(userId: UserId, index: SerializedLunrIndex): Promise<void> {
-    await this.searchIndexState(userId).update(() => index);
-  }
-
-  private async setIsIndexing(userId: UserId, indexing: boolean): Promise<void> {
-    await this.searchIsIndexingState(userId).update(() => indexing);
-  }
-
-  private async getIsIndexing(userId: UserId): Promise<boolean> {
-    return await firstValueFrom(this.searchIsIndexing$(userId));
-  }
-
   async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
+    organizationId: OrganizationId | null,
     query: string,
     ciphers: C[],
   ): Promise<C[]> {
     const results: C[] = [];
     const searchStartTime = performance.now();
-    const index = await this.updateIndexForUser(userId, ciphers);
+    const index = await this.getOrCreateIndex(makeIndexId(userId, organizationId), ciphers);
 
     // Convert to map that can be looked up in
     const ciphersMap = new Map<string, C>();
@@ -144,26 +69,74 @@ export class LunrSearchService {
     return results;
   }
 
-  private async updateIndexForUser(userId: UserId, ciphers: CipherViewLike[]): Promise<lunr.Index> {
-    // If another indexing operation is in progress for this user, wait for it then return.
-    if (await this.getIsIndexing(userId)) {
-      await firstValueFrom(this.searchIsIndexing$(userId).pipe(filter((indexing) => !indexing)));
-      return (await this.getIndexForSearch(userId))!;
-    }
+  private async getOrCreateIndex(indexId: IndexId, ciphers: CipherViewLike[]): Promise<lunr.Index> {
+    if (!this.isIndexUpToDate(indexId, ciphers)) {
+      const start = performance.now();
+      this.logService.info("Starting Lunr index build");
 
-    // If there is no index in progress, build an index for the user and set it to state.
-    await this.setIsIndexing(userId, true);
-    const start = performance.now();
-    this.logService.info("Starting Lunr index build");
-    const index = await buildCipherIndex(ciphers);
-    this.logService.info("Lunr index build complete");
-    this.logService.measure(start, "Vault", "LunrSearchService", "index build complete", [
-      ["Items Indexed", ciphers.length],
-    ]);
-    await this.setIndexForSearch(userId, index.toJSON() as SerializedLunrIndex);
-    await this.setIsIndexing(userId, false);
-    return index;
+      // Only build one index concurrently
+      await this.aquireIndexLock();
+      const index = await buildCipherIndex(ciphers);
+      this.lunrIndices.set(indexId, {
+        lunrIndex: index,
+        numberOfCiphers: ciphers.length,
+        revisionDate: new Date(),
+      });
+      await this.releaseIndexLock();
+
+      this.logService.info("Lunr index build complete");
+      this.logService.measure(start, "Vault", "LunrSearchService", "index build complete", [
+        ["Items Indexed", ciphers.length],
+      ]);
+
+      return index;
+    } else {
+      return this.lunrIndices.get(indexId)!.lunrIndex;
+    }
   }
+
+  /**
+   * The ciphers belonging to an index can be modified in the following ways:
+   * - Cipher deletion: Will decrease cipher count
+   * - Cipher addition: Will increase cipher count *and* update revision date
+   * - Cipher modification: Will update revision date
+   * any combination of these operations is captured by the combination of cipher count
+   * and latest revision date. This means that given a list of ciphers, we can simply determine
+   * whether the index is up-to-date or not, without having to externally invalidate it.
+   */
+  private isIndexUpToDate(indexId: IndexId, ciphers: CipherViewLike[]): boolean {
+    const indexState = this.lunrIndices.get(indexId);
+    if (!indexState) {
+      return false;
+    }
+    if (indexState.numberOfCiphers !== ciphers.length) {
+      return false;
+    }
+    const latestCipherDate = ciphers.reduce((latest, c) => {
+      const modified = c.revisionDate ? new Date(c.revisionDate) : new Date(0);
+      if (modified > latest) {
+        return modified;
+      }
+      return latest;
+    }, new Date(0));
+    return indexState.revisionDate >= latestCipherDate;
+  }
+
+  private async aquireIndexLock(): Promise<boolean> {
+    while (this.isIndexing) {
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    }
+    this.isIndexing = true;
+    return true;
+  }
+
+  private async releaseIndexLock(): Promise<void> {
+    this.isIndexing = false;
+  }
+}
+
+function makeIndexId(userId: UserId, organizationId: OrganizationId | null): IndexId {
+  return `${userId}${organizationId ? `-${organizationId}` : ""}` as IndexId;
 }
 
 /// Helper functions and extractors

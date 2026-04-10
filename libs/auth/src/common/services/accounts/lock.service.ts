@@ -121,7 +121,6 @@ export class DefaultLockService implements LockService {
 
   private async wipeDecryptedState(userId: UserId) {
     // Manually clear state
-    await this.searchService.ciphersUpdated(userId);
     //! DO NOT REMOVE folderService.clearDecryptedFolderState ! For more information see PM-25660
     await this.folderService.clearDecryptedFolderState(userId);
     await this.masterPasswordService.clearMasterKey(userId);

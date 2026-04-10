@@ -5,16 +5,15 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
-import { StateProvider } from "../../platform/state";
 import { SendView } from "../../tools/send/models/view/send.view";
-import { UserId } from "../../types/guid";
+import { OrganizationId, UserId } from "../../types/guid";
 import { SearchService as SearchServiceAbstraction } from "../abstractions/search.service";
 import { CipherViewLike, CipherViewLikeUtils } from "../utils/cipher-view-like-utils";
 
 import { LunrSearchService } from "./lunr-search.service";
 
 // Time to wait before performing a search after the user stops typing.
-export const SearchTextDebounceInterval = 200; // milliseconds
+export const SearchTextDebounceInterval = 100; // milliseconds
 
 export class SearchService implements SearchServiceAbstraction {
   private readonly immediateSearchLocales: string[] = ["zh-CN", "zh-TW", "ja", "ko", "vi"];
@@ -32,9 +31,8 @@ export class SearchService implements SearchServiceAbstraction {
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
-    private stateProvider: StateProvider,
   ) {
-    this.lunrSearchService = new LunrSearchService(this.stateProvider, this.logService);
+    this.lunrSearchService = new LunrSearchService(this.logService);
     this.i18nService.locale$.subscribe((locale) => {
       if (this.immediateSearchLocales.indexOf(locale) !== -1) {
         this.searchableMinLength = 1;
@@ -42,10 +40,6 @@ export class SearchService implements SearchServiceAbstraction {
         this.searchableMinLength = this.defaultSearchableMinLength;
       }
     });
-  }
-
-  async ciphersUpdated(userId: UserId): Promise<void> {
-    await this.lunrSearchService.ciphersUpdated(userId);
   }
 
   async isSearchable(query: string | null): Promise<boolean> {
@@ -66,10 +60,10 @@ export class SearchService implements SearchServiceAbstraction {
 
   async searchCiphers<C extends CipherViewLike>(
     userId: UserId,
+    organizationId: OrganizationId | null,
     query: string,
     ciphers: C[],
   ): Promise<C[]> {
-    this.logService.info("Starting cipher search", { query });
     this._isCipherSearching$.next(true);
     const searchStartTime = performance.now();
     query = normalizeSearchQuery(query.trim().toLowerCase());
@@ -85,7 +79,12 @@ export class SearchService implements SearchServiceAbstraction {
     // Important: Only ever route to the lunr service when this is actually a lunr query.
     // Lunr is very performance heavy, and querying it will invoke an index build.
     if (this.isLunrQuery(query)) {
-      const lunrResults = await this.lunrSearchService.searchCiphers(userId, query, ciphers);
+      const lunrResults = await this.lunrSearchService.searchCiphers(
+        userId,
+        organizationId,
+        query,
+        ciphers,
+      );
       this._isCipherSearching$.next(false);
       return lunrResults;
     } else {
