@@ -105,6 +105,7 @@ export class MemberDialogManagerService {
             organizationId: organization.id as OrganizationId,
             organizationUserId: user.id,
             organizationUserType: user.type,
+            twoFactorEnabled: user.twoFactorEnabled,
           },
         })
       : AccountRecoveryDialogComponent.open(this.dialogService, {
@@ -114,6 +115,7 @@ export class MemberDialogManagerService {
             organizationId: organization.id as OrganizationId,
             organizationUserId: user.id,
             organizationUserType: user.type,
+            twoFactorEnabled: user.twoFactorEnabled,
           },
         });
 
