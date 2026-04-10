@@ -119,8 +119,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     // Do not auto-populate if:
     // 1. The policy has no organizationId (so can't fetch claimed domains)
     // 2. The policy already exists and has domains specified by the user associated with it
-    const orgId = this.policyResponse?.organizationId;
-    const hasExistingDomains = this.policyResponse?.data?.allowedDomains != null;
+    const orgId = this.policyResponse()?.organizationId;
+    const hasExistingDomains = this.policyResponse()?.data?.allowedDomains != null;
     if (!orgId || hasExistingDomains) {
       return;
     }
