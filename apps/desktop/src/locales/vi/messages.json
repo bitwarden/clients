@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Sao chép khóa xác thực (TOTP)"
   },
-  "copyNotes": {
-    "message": "Copy notes"
-  },
   "totpHelperTitle": {
     "message": "Giúp quá trình xác minh 2 bước diễn ra liền mạch"
   },
