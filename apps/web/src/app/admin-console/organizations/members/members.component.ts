@@ -16,7 +16,6 @@ import {
   shareReplay,
   switchMap,
   take,
-  startWith,
 } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -197,9 +196,9 @@ export class MembersComponent {
       ),
     );
 
-    this.adminResetTwoFactorEnabled$ = from(
-      this.configService.getFeatureFlag(FeatureFlag.AdminResetTwoFactor),
-    ).pipe(startWith(false));
+    this.adminResetTwoFactorEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AdminResetTwoFactor,
+    );
 
     combineLatest([this.route.queryParams, organization$])
       .pipe(
