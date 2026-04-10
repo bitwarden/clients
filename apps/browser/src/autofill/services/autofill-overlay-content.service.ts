@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
@@ -70,7 +68,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private submitElements: Set<HTMLElement> = new Set();
   private fieldsWithSubmitElements: WeakMap<FillableFormFieldElement, HTMLElement> = new WeakMap();
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
-  private userFilledFields: Record<string, FillableFormFieldElement> = {};
+  private userFilledFields: Record<string, FillableFormFieldElement> | null = {};
   private focusableElements: FocusableElement[] = [];
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement> | null = null;
   private focusedFieldData: FocusedFieldData | null = null;
@@ -212,6 +210,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (this.isReadonlyOrDisabledElement(formFieldElement, autofillFieldData)) {
+      return;
+    }
+
     await this.setupOverlayListenersOnQualifiedField(formFieldElement, autofillFieldData);
   }
 
@@ -237,11 +239,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Clears all cached user filled fields.
    */
   clearUserFilledFields() {
-    Object.keys(this.userFilledFields).forEach((key) => {
-      if (this.userFilledFields[key]) {
-        delete this.userFilledFields[key];
-      }
-    });
+    if (!this.userFilledFields) {
+      return;
+    }
+    this.userFilledFields = {};
   }
 
   /**
@@ -258,11 +259,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async addNewVaultItem({ addNewCipherType }: AutofillExtensionMessage) {
     const command = "autofillOverlayAddNewVaultItem";
     const password =
-      this.userFilledFields["newPassword"]?.value || this.userFilledFields["password"]?.value;
+      this.userFilledFields?.["newPassword"]?.value || this.userFilledFields?.["password"]?.value;
 
     if (addNewCipherType === CipherType.Login) {
       const login: NewLoginCipherData = {
-        username: this.userFilledFields["username"]?.value || "",
+        username: this.userFilledFields?.["username"]?.value || "",
         password: password || "",
         uri: globalThis.document.URL,
         hostname: globalThis.document.location.hostname,
@@ -275,12 +276,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (addNewCipherType === CipherType.Card) {
       const card: NewCardCipherData = {
-        cardholderName: this.userFilledFields["cardholderName"]?.value || "",
-        number: this.userFilledFields["cardNumber"]?.value || "",
-        expirationMonth: this.userFilledFields["cardExpirationMonth"]?.value || "",
-        expirationYear: this.userFilledFields["cardExpirationYear"]?.value || "",
-        expirationDate: this.userFilledFields["cardExpirationDate"]?.value || "",
-        cvv: this.userFilledFields["cardCvv"]?.value || "",
+        cardholderName: this.userFilledFields?.["cardholderName"]?.value || "",
+        number: this.userFilledFields?.["cardNumber"]?.value || "",
+        expirationMonth: this.userFilledFields?.["cardExpirationMonth"]?.value || "",
+        expirationYear: this.userFilledFields?.["cardExpirationYear"]?.value || "",
+        expirationDate: this.userFilledFields?.["cardExpirationDate"]?.value || "",
+        cvv: this.userFilledFields?.["cardCvv"]?.value || "",
       };
 
       await this.sendExtensionMessage(command, { addNewCipherType, card });
@@ -290,22 +291,22 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (addNewCipherType === CipherType.Identity) {
       const identity: NewIdentityCipherData = {
-        title: this.userFilledFields["identityTitle"]?.value || "",
-        firstName: this.userFilledFields["identityFirstName"]?.value || "",
-        middleName: this.userFilledFields["identityMiddleName"]?.value || "",
-        lastName: this.userFilledFields["identityLastName"]?.value || "",
-        fullName: this.userFilledFields["identityFullName"]?.value || "",
-        address1: this.userFilledFields["identityAddress1"]?.value || "",
-        address2: this.userFilledFields["identityAddress2"]?.value || "",
-        address3: this.userFilledFields["identityAddress3"]?.value || "",
-        city: this.userFilledFields["identityCity"]?.value || "",
-        state: this.userFilledFields["identityState"]?.value || "",
-        postalCode: this.userFilledFields["identityPostalCode"]?.value || "",
-        country: this.userFilledFields["identityCountry"]?.value || "",
-        company: this.userFilledFields["identityCompany"]?.value || "",
-        phone: this.userFilledFields["identityPhone"]?.value || "",
-        email: this.userFilledFields["identityEmail"]?.value || "",
-        username: this.userFilledFields["identityUsername"]?.value || "",
+        title: this.userFilledFields?.["identityTitle"]?.value || "",
+        firstName: this.userFilledFields?.["identityFirstName"]?.value || "",
+        middleName: this.userFilledFields?.["identityMiddleName"]?.value || "",
+        lastName: this.userFilledFields?.["identityLastName"]?.value || "",
+        fullName: this.userFilledFields?.["identityFullName"]?.value || "",
+        address1: this.userFilledFields?.["identityAddress1"]?.value || "",
+        address2: this.userFilledFields?.["identityAddress2"]?.value || "",
+        address3: this.userFilledFields?.["identityAddress3"]?.value || "",
+        city: this.userFilledFields?.["identityCity"]?.value || "",
+        state: this.userFilledFields?.["identityState"]?.value || "",
+        postalCode: this.userFilledFields?.["identityPostalCode"]?.value || "",
+        country: this.userFilledFields?.["identityCountry"]?.value || "",
+        company: this.userFilledFields?.["identityCompany"]?.value || "",
+        phone: this.userFilledFields?.["identityPhone"]?.value || "",
+        email: this.userFilledFields?.["identityEmail"]?.value || "",
+        username: this.userFilledFields?.["identityUsername"]?.value || "",
       };
 
       await this.sendExtensionMessage(command, { addNewCipherType, identity });
@@ -389,7 +390,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     formFieldElement.addEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
-    formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
+    formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEventAsListener);
     formFieldElement.addEventListener(
       EVENTS.CLICK,
       this.handleFormFieldClickEvent(formFieldElement),
@@ -479,7 +480,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (formFieldElement && !this.fieldsWithSubmitElements.has(formFieldElement)) {
       const closestSubmitButton = await this.findClosestFormlessSubmitButton(formFieldElement);
 
-      this.setupSubmitButtonEventListeners(closestSubmitButton);
+      if (closestSubmitButton) {
+        this.setupSubmitButtonEventListeners(closestSubmitButton);
+      }
     }
     return;
   }
@@ -492,26 +495,29 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async findClosestFormlessSubmitButton(
     formFieldElement: FillableFormFieldElement,
   ): Promise<HTMLElement | null> {
-    let currentElement: HTMLElement = formFieldElement;
+    let currentElement: HTMLElement | null = formFieldElement;
 
     while (currentElement && currentElement.tagName !== "HTML") {
-      const submitButton = await this.findSubmitButton(currentElement);
+      const element: HTMLElement = currentElement;
+      const submitButton = await this.findSubmitButton(element);
       if (submitButton) {
-        this.formFieldElements.forEach((_, element) => {
-          if (currentElement.contains(element)) {
-            this.fieldsWithSubmitElements.set(element as FillableFormFieldElement, submitButton);
+        this.formFieldElements.forEach((_, fieldElement) => {
+          if (element.contains(fieldElement)) {
+            this.fieldsWithSubmitElements.set(
+              fieldElement as FillableFormFieldElement,
+              submitButton,
+            );
           }
         });
-
         return submitButton;
       }
 
-      if (!currentElement.parentElement && currentElement.getRootNode() instanceof ShadowRoot) {
-        currentElement = (currentElement.getRootNode() as ShadowRoot).host as any;
+      if (!element.parentElement && element.getRootNode() instanceof ShadowRoot) {
+        currentElement = (element.getRootNode() as ShadowRoot).host as HTMLElement;
         continue;
       }
 
-      currentElement = currentElement.parentElement;
+      currentElement = element.parentElement;
     }
 
     return null;
@@ -549,6 +555,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (submitAnchorElement) {
       return submitAnchorElement;
     }
+
+    return null;
   }
 
   /**
@@ -604,7 +612,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.submitElements.add(submitButton);
 
     const handler = this.useEventHandlersMemo(
-      throttle(this.handleSubmitButtonInteraction, 150),
+      throttle(
+        this.handleSubmitButtonInteraction as (...args: unknown[]) => unknown,
+        150,
+      ) as EventListener,
       AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
     );
     submitButton.addEventListener(EVENTS.KEYUP, handler);
@@ -660,9 +671,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private getFormFieldData = (): ModifyLoginCipherFormData => {
     return {
       uri: globalThis.document.URL,
-      username: this.userFilledFields["username"]?.value || "",
-      password: this.userFilledFields["password"]?.value || "",
-      newPassword: this.userFilledFields["newPassword"]?.value || "",
+      username: this.userFilledFields?.["username"]?.value || "",
+      password: this.userFilledFields?.["password"]?.value || "",
+      newPassword: this.userFilledFields?.["newPassword"]?.value || "",
     };
   };
 
@@ -697,6 +708,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private handleFormFieldBlurEvent = () => {
     void this.updateIsFieldCurrentlyFocused(false);
     void this.sendExtensionMessage("checkAutofillInlineMenuFocused");
+  };
+
+  private handleFormFieldKeyupEventAsListener: EventListener = (e) => {
+    void this.handleFormFieldKeyupEvent(e as globalThis.KeyboardEvent);
   };
 
   /**
@@ -743,6 +758,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
+      if (this.isReadonlyOrDisabledElement(this.mostRecentlyFocusedField)) {
+        return;
+      }
       this.clearFocusInlineMenuListTimeout();
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       await this.sendExtensionMessage("openAutofillInlineMenu", { isOpeningFullInlineMenu: true });
@@ -777,6 +795,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (!elementIsFillableFormField(formFieldElement)) {
+      return;
+    }
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
       return;
     }
 
@@ -872,6 +893,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
     ];
+    if (!this.userFilledFields) {
+      return;
+    }
     if (identityLoginFields.includes(autofillFieldData.fieldQualifier)) {
       this.userFilledFields[AutofillFieldQualifier.username] = clonedNode;
     }
@@ -898,6 +922,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the click event.
    */
   private async triggerFormFieldClickedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+      return;
+    }
+
     if ((await this.isInlineMenuButtonVisible()) || (await this.isInlineMenuListVisible())) {
       return;
     }
@@ -926,6 +954,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async triggerFormFieldFocusedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (await this.isFieldCurrentlyFilling()) {
+      return;
+    }
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
       return;
     }
 
@@ -964,7 +995,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the focus event.
    */
   private async updateMostRecentlyFocusedField(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
+    formFieldElement: ElementWithOpId<FormFieldElement> | null,
   ) {
     if (
       !formFieldElement ||
@@ -986,7 +1017,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       inlineMenuFillType: autofillFieldData?.inlineMenuFillType,
       showPasskeys: !!autofillFieldData?.showPasskeys,
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
-      focusedFieldForm: autofillFieldData?.form,
+      focusedFieldForm: autofillFieldData?.form ?? undefined,
       focusedFieldOpid: autofillFieldData?.opid,
     };
 
@@ -1040,8 +1071,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return new Promise((resolve) => {
       const intersectionObserver = new IntersectionObserver(
         (entries) => {
-          let fieldBoundingClientRects = entries[0]?.boundingClientRect;
-          if (!fieldBoundingClientRects?.width || !fieldBoundingClientRects.height) {
+          let fieldBoundingClientRects: DOMRectReadOnly | null =
+            entries[0]?.boundingClientRect ?? null;
+          if (
+            fieldBoundingClientRects &&
+            (!fieldBoundingClientRects.width || !fieldBoundingClientRects.height)
+          ) {
             fieldBoundingClientRects = null;
           }
 
@@ -1070,7 +1105,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
-    if (this.ignoredFieldTypes.has(autofillFieldData.type)) {
+    if (autofillFieldData.type != null && this.ignoredFieldTypes.has(autofillFieldData.type)) {
       return true;
     }
 
@@ -1220,8 +1255,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
   ) {
     this.hiddenFormFieldElements.set(formFieldElement, autofillFieldData);
-    formFieldElement.addEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEvent);
-    formFieldElement.addEventListener(EVENTS.INPUT, this.handleHiddenFieldInputEvent);
+    formFieldElement.addEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEventAsListener);
+    formFieldElement.addEventListener(EVENTS.INPUT, this.handleHiddenFieldInputEventAsListener);
   }
 
   /**
@@ -1231,10 +1266,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the focus event.
    */
   private removeHiddenFieldFallbackListener(formFieldElement: ElementWithOpId<FormFieldElement>) {
-    formFieldElement.removeEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEvent);
-    formFieldElement.removeEventListener(EVENTS.INPUT, this.handleHiddenFieldInputEvent);
+    formFieldElement.removeEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEventAsListener);
+    formFieldElement.removeEventListener(EVENTS.INPUT, this.handleHiddenFieldInputEventAsListener);
     this.hiddenFormFieldElements.delete(formFieldElement);
   }
+
+  private handleHiddenFieldFocusEventAsListener: EventListener = (e) =>
+    this.handleHiddenFieldFocusEvent(e as globalThis.FocusEvent);
 
   /**
    * Handles the focus event on a hidden field. When
@@ -1242,9 +1280,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param event - The focus event.
    */
-  private handleHiddenFieldFocusEvent = (event: FocusEvent) => {
+  private handleHiddenFieldFocusEvent = (event: globalThis.FocusEvent) => {
     const formFieldElement = event.target as ElementWithOpId<FormFieldElement>;
+    if (!(formFieldElement instanceof Element)) {
+      return;
+    }
     this.handleHiddenElementFallbackEvent(formFieldElement);
+  };
+
+  private handleHiddenFieldInputEventAsListener: EventListener = (e) => {
+    void this.handleHiddenFieldInputEvent(e as globalThis.InputEvent);
   };
 
   /**
@@ -1254,8 +1299,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param event - The input event.
    */
-  private handleHiddenFieldInputEvent = async (event: InputEvent) => {
+  private handleHiddenFieldInputEvent = async (event: globalThis.InputEvent) => {
     const formFieldElement = event.target as ElementWithOpId<FormFieldElement>;
+    if (!(formFieldElement instanceof Element)) {
+      return;
+    }
     this.handleHiddenElementFallbackEvent(formFieldElement);
     await this.triggerFormFieldInput(formFieldElement);
   };
@@ -1270,7 +1318,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ) => {
     const autofillFieldData = this.hiddenFormFieldElements.get(formFieldElement);
     if (autofillFieldData) {
-      autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
+      autofillFieldData.readonly =
+        Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
+        getAttributeBoolean(formFieldElement, "aria-readonly", true);
       autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
 
@@ -1378,6 +1428,25 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
+  }
+
+  /**
+   * Checks if a form field element is currently readonly or disabled.
+   *
+   * @param formFieldElement - The form field element to evaluate.
+   * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
+   */
+  private isReadonlyOrDisabledElement(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData?: AutofillField,
+  ): boolean {
+    return (
+      getAttributeBoolean(formFieldElement, "disabled") ||
+      Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
+      getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
+      autofillFieldData?.readonly === true ||
+      autofillFieldData?.disabled === true
+    );
   }
 
   /**
@@ -1664,21 +1733,24 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
       return false;
     };
+    const onScroll = (...args: unknown[]) => {
+      const event = args[0];
+      const scrollY = globalThis.scrollY;
+      const scrollX = globalThis.scrollX;
+      if (
+        currentScrollY !== scrollY ||
+        currentScrollX !== scrollX ||
+        (event instanceof Event &&
+          event.target instanceof Element &&
+          eventTargetContainsFocusedField(event.target))
+      ) {
+        repositionHandler(event as Event);
+      }
+      currentScrollY = scrollY;
+      currentScrollX = scrollX;
+    };
     const scrollHandler = this.useEventHandlersMemo(
-      throttle(async (event: Event) => {
-        const scrollY = globalThis.scrollY;
-        const scrollX = globalThis.scrollX;
-        if (
-          currentScrollY !== scrollY ||
-          currentScrollX !== scrollX ||
-          (event.target instanceof Element && eventTargetContainsFocusedField(event.target))
-        ) {
-          repositionHandler(event);
-        }
-
-        currentScrollY = scrollY;
-        currentScrollX = scrollX;
-      }, 50),
+      throttle(onScroll, 50) as EventListener,
       AUTOFILL_OVERLAY_HANDLE_SCROLL,
     );
 
@@ -1788,7 +1860,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
     const focusedFieldRectsHeight = this.focusedFieldData?.focusedFieldRects?.height;
-    if (!focusedFieldRectsTop || !focusedFieldRectsHeight) {
+    if (focusedFieldRectsTop == null || focusedFieldRectsHeight == null) {
       return false;
     }
     const focusedFieldRectsBottom = focusedFieldRectsTop + focusedFieldRectsHeight;
@@ -1829,7 +1901,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.formFieldElements.forEach((_autofillField, formFieldElement) => {
       this.removeCachedFormFieldEventListeners(formFieldElement);
       formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
-      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
+      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEventAsListener);
       this.formFieldElements.delete(formFieldElement);
     });
     this.clearUserFilledFields();
