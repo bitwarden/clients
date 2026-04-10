@@ -25,7 +25,13 @@ type IndexState = {
 
 export class LunrSearchService {
   private static registeredPipeline = false;
+
   private isIndexing = false;
+  // Index caching lives in memory of the service, not as a state provider.
+  // Moving to a state provider would both make some cases slower (since restoring from a serialized state provider takes some time),
+  // would require more complex caching, and also eats significantly more memory.
+  // There is no functional difference except on browser extension, where closing the extension window will now
+  // clear the index. The first time an extension window is opened, and a lunr query is run, the index has to be re-built instead of being re-loaded.
   private lunrIndices: Map<IndexId, IndexState> = new Map();
 
   constructor(private logService: LogService) {
