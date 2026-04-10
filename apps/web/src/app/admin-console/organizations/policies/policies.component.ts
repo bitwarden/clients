@@ -15,7 +15,12 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ItemModule, SectionHeaderComponent } from "@bitwarden/components";
+import {
+  DialogRef,
+  DialogService,
+  ItemModule,
+  SectionHeaderComponent,
+} from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -38,6 +43,8 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
+  private readonly drawerRef: DialogRef | undefined;
+
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
@@ -129,6 +136,7 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
+    this.destroyRef.onDestroy(() => this.drawerRef?.close());
   }
 
   // Handle policies component launch from Event message
@@ -163,7 +171,7 @@ export class PoliciesComponent {
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
     if (useDrawer && dialogComponent.openDrawer) {
-      dialogComponent.openDrawer(this.dialogService, {
+      this.drawerRef = dialogComponent.openDrawer(this.dialogService, {
         data: {
           policy: policy,
           organization: organization,
