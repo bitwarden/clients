@@ -1,24 +1,28 @@
 /* eslint-disable */
+const path = require("path");
+
 const config = require("./libs/components/tailwind.config.base");
+const webConfig = require("./apps/web/tailwind.config");
+const browserConfig = require("./apps/browser/tailwind.config");
+const desktopConfig = require("./apps/desktop/tailwind.config");
 
 config.content = [
-  "./libs/components/src/**/*.{html,ts,mdx}",
-  "./libs/admin-console/src/**/*.{html,ts,mdx}",
-  "./libs/auth/src/**/*.{html,ts,mdx}",
-  "./libs/billing/src/**/*.{html,ts,mdx}",
-  "./libs/assets/src/**/*.{html,ts}",
-  "./libs/platform/src/**/*.{html,ts,mdx}",
-  "./libs/pricing/src/**/*.{html,ts,mdx}",
-  "./libs/tools/send/send-ui/src/*.{html,ts,mdx}",
-  "./libs/vault/src/**/*.{html,ts,mdx}",
-  "./apps/web/src/**/*.{html,ts,mdx}",
-  "./bitwarden_license/bit-web/src/**/*.{html,ts,mdx}",
-  "./.storybook/preview.js",
+  ...config.libContent,
+  ...webConfig.webContent,
+  ...browserConfig.browserContent,
+  ...desktopConfig.desktopContent,
+  path.resolve(__dirname, ".storybook/preview.tsx"),
 ];
+
+// Safelist is required for dynamic color classes in Storybook color documentation (colors.mdx).
+// Tailwind's JIT compiler cannot detect dynamically constructed class names like `tw-bg-${name}`,
+// so we must explicitly safelist these patterns to ensure all color utilities are generated.
 config.safelist = [
   {
     pattern: /tw-bg-(.*)/,
   },
 ];
+
+config.corePlugins.preflight = true;
 
 module.exports = config;

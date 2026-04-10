@@ -1,20 +1,34 @@
 /* eslint-disable */
 const colors = require("tailwindcss/colors");
 const plugin = require("tailwindcss/plugin");
+const path = require("path");
 
 function rgba(color) {
   return "rgb(var(" + color + ") / <alpha-value>)";
 }
 
+const libContent = [
+  // shared lib paths; add app-specific paths to the app's tailwind.config.js, not here
+  path.resolve(__dirname, "./src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/admin-console/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/angular/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/assets/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/auth/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/billing/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/dirt/card/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/key-management-ui/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/platform/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/pricing/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/subscription/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}"),
+  path.resolve(__dirname, "../../libs/vault/src/**/*.{html,ts,mdx}"),
+];
+
 module.exports = {
   prefix: "tw-",
-  content: [
-    "./src/**/*.{html,ts,mdx}",
-    "../../libs/assets/src/**/*.{html,ts}",
-    "../../libs/components/src/**/*.{html,ts,mdx}",
-    "../../libs/key-management-ui/src/**/*.{html,ts}",
-    "../../libs/auth/src/**/*.{html,ts}",
-  ],
+  content: libContent,
+  libContent,
   safelist: [],
   corePlugins: { preflight: false },
   theme: {
