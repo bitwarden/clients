@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { map, Observable, startWith, switchMap } from "rxjs";
+import { combineLatest, map, Observable, startWith, switchMap } from "rxjs";
 
 import { NudgesService } from "@bitwarden/angular/vault";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 
 import { NavButton } from "../platform/popup/layout/popup-tab-navigation.component";
 
@@ -28,9 +29,15 @@ export class TabsV2Component {
   private hasActiveBadges$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.nudgesService.hasActiveBadges$(userId)));
-  protected navButtons$: Observable<NavButton[]> = this.hasActiveBadges$.pipe(
+
+  private showSettingsBerry$ = combineLatest([
+    this.hasActiveBadges$,
+    this.autofillSettingsService.showClipboardSettingUpdateNotification$,
+  ]).pipe(map(([hasBadges, showClipboard]) => hasBadges || showClipboard));
+
+  protected navButtons$: Observable<NavButton[]> = this.showSettingsBerry$.pipe(
     startWith(false),
-    map((hasBadges) => {
+    map((showBerry) => {
       return [
         {
           label: "vault",
@@ -55,7 +62,7 @@ export class TabsV2Component {
           page: "/tabs/settings",
           icon: SettingsInactive,
           iconActive: SettingsActive,
-          showBerry: hasBadges,
+          showBerry,
         },
       ];
     }),
@@ -63,5 +70,6 @@ export class TabsV2Component {
   constructor(
     private nudgesService: NudgesService,
     private accountService: AccountService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {}
 }

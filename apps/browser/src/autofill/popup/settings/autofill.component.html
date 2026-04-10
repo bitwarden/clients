@@ -27,6 +27,21 @@
         </bit-callout>
       </div>
     }
+    @if (showClipboardNotificationThisSession) {
+      <div class="tw-mb-4">
+        <bit-callout type="info" [title]="'clipboardSettingUpdated' | i18n">
+          <p>{{ "clipboardSettingUpdatedMessage" | i18n }}</p>
+          <button
+            bitButton
+            buttonType="primary"
+            type="button"
+            (click)="dismissClipboardNotification()"
+          >
+            {{ "jumpToSetting" | i18n }}
+          </button>
+        </bit-callout>
+      </div>
+    }
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h6">{{ "autofillSuggestionsSectionTitle" | i18n }}</h2>
@@ -243,7 +258,10 @@
             <input formControlName="enableAutoTotpCopy" bitCheckbox id="totp" type="checkbox" />
             <bit-label for="totp">{{ "enableAutoTotpCopy" | i18n }}</bit-label>
           </bit-form-control>
-          <bit-form-field [disableMargin]="isDefaultUriMatchDisabledByPolicy">
+          <bit-form-field
+            id="clearClipboardField"
+            [disableMargin]="isDefaultUriMatchDisabledByPolicy"
+          >
             <bit-label for="clearClipboard">{{ "clearClipboard" | i18n }}</bit-label>
             <bit-select
               formControlName="clearClipboard"

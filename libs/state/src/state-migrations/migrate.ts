@@ -73,12 +73,13 @@ import { AddMasterPasswordUnlockData } from "./migrations/73-add-master-password
 import { RemoveLegacyPin } from "./migrations/74-remove-legacy-pin";
 import { RemoveUserEncryptedPrivateKey } from "./migrations/75-remove-user-encrypted-private-key";
 import { MigratePopupWidthOptions } from "./migrations/76-migrate-popup-width-options";
+import { ClearClipboardDelayToStringMigrator } from "./migrations/77-clear-clipboard-delay-to-string";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 76;
+export const CURRENT_VERSION = 77;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -156,7 +157,8 @@ export function createMigrationBuilder() {
     .with(AddMasterPasswordUnlockData, 72, 73)
     .with(RemoveLegacyPin, 73, 74)
     .with(RemoveUserEncryptedPrivateKey, 74, 75)
-    .with(MigratePopupWidthOptions, 75, CURRENT_VERSION);
+    .with(MigratePopupWidthOptions, 75, 76)
+    .with(ClearClipboardDelayToStringMigrator, 76, CURRENT_VERSION);
 }
 
 export async function currentVersion(
