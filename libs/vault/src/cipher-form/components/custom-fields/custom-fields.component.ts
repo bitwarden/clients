@@ -340,13 +340,6 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
         this.i18nService.t("reorderFieldDown", label, currentIndex + 1, this.fields.length),
         "assertive",
       );
-
-      // Refocus the button after the reorder
-      // Angular re-renders the list when moving an item down which causes the focus to be lost
-      // Wait for the next tick to ensure the button is rendered before focusing
-      setTimeout(() => {
-        (event.target as HTMLButtonElement).focus();
-      });
     }
   }
 
