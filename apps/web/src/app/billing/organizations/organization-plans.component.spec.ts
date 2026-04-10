@@ -502,6 +502,12 @@ describe("OrganizationPlansComponent", () => {
         postalCode: "12345",
       }),
       updatePaymentMethod: jest.fn().mockResolvedValue(undefined),
+      getPaymentMethod: jest.fn().mockResolvedValue({
+        type: "card",
+        brand: "visa",
+        last4: "4242",
+        expiration: "12/2025",
+      }),
     } as any;
 
     mockPreviewInvoiceClient = {
@@ -552,6 +558,7 @@ describe("OrganizationPlansComponent", () => {
         }
         throw new Error(`Unsupported product tier: ${productTier}`);
       }),
+      isBankAccountNotSupportedError: jest.fn().mockReturnValue(false),
     } as any;
 
     mockDiscountSubject = new Subject<SubscriptionDiscount[]>();
@@ -2316,10 +2323,16 @@ describe("OrganizationPlansComponent", () => {
       });
 
       it("should call premiumOrgUpgradeService.upgradeToOrganization() instead of create()", async () => {
+        setupMockPaymentMethodComponent(component, "mock_token", "card");
         organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
 
         await component.submit();
 
+        expect(mockSubscriberBillingClient.updatePaymentMethod).toHaveBeenCalledWith(
+          expect.objectContaining({ type: "account" }),
+          { token: "mock_token", type: "card" },
+          expect.objectContaining({ country: "US", postalCode: "12345" }),
+        );
         expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
           expect.objectContaining({ id: "user-id" }),
           newOrgName,
@@ -2334,7 +2347,36 @@ describe("OrganizationPlansComponent", () => {
         });
       });
 
+      it("should not call upgradeToOrganization when tokenization fails", async () => {
+        setupMockPaymentMethodComponent(component); // Simulates tokenization failure (returns null)
+
+        await component.submit();
+
+        expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+      });
+
+      it("should show an error toast when the service rejects an unverified bank account payment method", async () => {
+        setupMockPaymentMethodComponent(component, "mock_token", "card");
+        organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
+        const bankAccountError = new Error(
+          "Unverified bank account payment method is not supported for this upgrade",
+        );
+        mockPremiumOrgUpgradeService.upgradeToOrganization.mockRejectedValue(bankAccountError);
+        mockPremiumOrgUpgradeService.isBankAccountNotSupportedError.mockReturnValue(true);
+
+        await component.submit();
+
+        expect(mockPremiumOrgUpgradeService.isBankAccountNotSupportedError).toHaveBeenCalledWith(
+          bankAccountError,
+        );
+        expect(mockToastService.showToast).toHaveBeenCalledWith({
+          variant: "error",
+          message: "unverifiedBankAccountNotSupportedForUpgrade",
+        });
+      });
+
       it("should navigate to the new org and show success toast after premium upgrade", async () => {
+        setupMockPaymentMethodComponent(component, "mock_token", "card");
         organizationsSubject.next([{ id: newOrgId, name: newOrgName, isOwner: true } as any]);
 
         await component.submit();

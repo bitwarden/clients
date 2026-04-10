@@ -397,6 +397,7 @@
           <app-enter-payment-method
             #enterPaymentMethodComponent
             [group]="billingFormGroup.controls.paymentMethod"
+            [showBankAccount]="!upgradingFromPremium"
           ></app-enter-payment-method>
         }
         <app-enter-billing-address

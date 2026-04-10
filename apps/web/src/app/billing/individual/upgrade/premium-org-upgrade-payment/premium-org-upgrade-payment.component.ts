@@ -273,12 +273,45 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       return;
     }
 
+    const paymentMethodComponent = this.paymentMethodComponent();
+    const isChangingPayment = paymentMethodComponent?.isChangingPayment();
+    const paymentMethod = this.paymentMethod();
+
+    if (
+      !isChangingPayment &&
+      this.premiumOrgUpgradeService.isUnverifiedBankAccount(paymentMethod)
+    ) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("unverifiedBankAccountNotSupportedForUpgrade"),
+      });
+      return;
+    }
+
     if (!this.selectedPlan()) {
       throw new Error("No plan selected");
     }
 
+    const organizationName = this.formGroup.value?.organizationName;
+    if (!organizationName) {
+      throw new Error("Organization name is required");
+    }
+
+    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
+    if (!billingAddress.country || !billingAddress.postalCode) {
+      throw new Error("Billing address is incomplete");
+    }
+
+    if (isChangingPayment) {
+      await this.updatePaymentMethod(billingAddress);
+    } else {
+      if (!paymentMethod) {
+        throw new Error("Payment method is required");
+      }
+    }
+
     try {
-      const result = await this.processUpgrade();
+      const result = await this.processUpgrade(organizationName, billingAddress);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t("plansUpdated", this.selectedPlan()?.details.name),
@@ -286,6 +319,13 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
       this.complete.emit(result);
     } catch (error: unknown) {
       this.logService.error("Upgrade failed:", error);
+      if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("unverifiedBankAccountNotSupportedForUpgrade"),
+        });
+        return;
+      }
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("upgradeErrorMessage"),
@@ -293,31 +333,10 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
     }
   };
 
-  private async processUpgrade(): Promise<PremiumOrgUpgradePaymentResult> {
-    const billingAddress = getBillingAddressFromForm(this.formGroup.controls.billingAddress);
-    const organizationName = this.formGroup.value?.organizationName;
-    if (!billingAddress.country || !billingAddress.postalCode) {
-      throw new Error("Billing address is incomplete");
-    }
-
-    const paymentMethodComponent = this.paymentMethodComponent();
-    // If the user is changing their payment method, process that first
-    if (paymentMethodComponent && paymentMethodComponent.isChangingPayment()) {
-      const newPaymentMethod = await paymentMethodComponent.getTokenizedPaymentMethod();
-      await this.subscriberBillingClient.updatePaymentMethod(
-        this.subscriber()!,
-        newPaymentMethod,
-        billingAddress,
-      );
-    } else if (!this.paymentMethod()) {
-      // If user is not changing payment method but has no payment method on file
-      throw new Error("Payment method is required");
-    }
-
-    if (!organizationName) {
-      throw new Error("Organization name is required");
-    }
-
+  private async processUpgrade(
+    organizationName: string,
+    billingAddress: ReturnType<typeof getBillingAddressFromForm>,
+  ): Promise<PremiumOrgUpgradePaymentResult> {
     const organizationId = await this.premiumOrgUpgradeService.upgradeToOrganization(
       this.account()!,
       organizationName,
@@ -333,6 +352,21 @@ export class PremiumOrgUpgradePaymentComponent implements OnInit, AfterViewInit 
 
   private getUpgradeStatus(planId: string): PremiumOrgUpgradePaymentStatus {
     return this.UPGRADE_STATUS_MAP[planId] ?? PremiumOrgUpgradePaymentStatus.Closed;
+  }
+
+  /**
+   * Updates the payment method with the new tokenized payment from the payment method component.
+   */
+  private async updatePaymentMethod(
+    billingAddress: ReturnType<typeof getBillingAddressFromForm>,
+  ): Promise<void> {
+    const paymentMethodComponent = this.paymentMethodComponent();
+    const newPaymentMethod = await paymentMethodComponent.getTokenizedPaymentMethod();
+    await this.subscriberBillingClient.updatePaymentMethod(
+      this.subscriber()!,
+      newPaymentMethod,
+      billingAddress,
+    );
   }
 
   /**

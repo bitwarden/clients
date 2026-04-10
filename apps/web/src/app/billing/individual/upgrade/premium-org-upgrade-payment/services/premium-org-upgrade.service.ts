@@ -20,8 +20,19 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
-import { AccountBillingClient, PreviewInvoiceClient } from "../../../../clients";
-import { BillingAddress } from "../../../../payment/types";
+import {
+  AccountBillingClient,
+  PreviewInvoiceClient,
+  SubscriberBillingClient,
+} from "../../../../clients";
+import {
+  BillingAddress,
+  MaskedPaymentMethod,
+  TokenizablePaymentMethods,
+} from "../../../../payment/types";
+
+export const UNVERIFIED_BANK_ACCOUNT_MESSAGE =
+  "Unverified bank account payment method is not supported for this upgrade";
 
 export type PremiumOrgUpgradePlanDetails = {
   tier: PersonalSubscriptionPricingTierId | BusinessSubscriptionPricingTierId;
@@ -51,6 +62,7 @@ export class PremiumOrgUpgradeService {
   constructor(
     private accountBillingClient: AccountBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
+    private subscriberBillingClient: SubscriberBillingClient,
     private keyService: KeyService,
     private i18nService: I18nService,
     private encryptService: EncryptService,
@@ -89,6 +101,15 @@ export class PremiumOrgUpgradeService {
       throw new Error("Billing address information is incomplete");
     }
 
+    const paymentMethod = await this.subscriberBillingClient.getPaymentMethod({
+      type: "account",
+      data: account,
+    });
+
+    if (this.isUnverifiedBankAccount(paymentMethod)) {
+      throw new Error(UNVERIFIED_BANK_ACCOUNT_MESSAGE);
+    }
+
     const productTier: ProductTierType = this.ProductTierTypeFromSubscriptionTierId(tier);
     const encryptionData = await this.generateOrganizationEncryptionData(account.id);
 
@@ -106,6 +127,17 @@ export class PremiumOrgUpgradeService {
     await this.syncService.fullSync(true);
 
     return orgId;
+  }
+
+  isUnverifiedBankAccount(paymentMethod: MaskedPaymentMethod | null): boolean {
+    return (
+      paymentMethod?.type === TokenizablePaymentMethods.bankAccount &&
+      !!paymentMethod.hostedVerificationUrl
+    );
+  }
+
+  isBankAccountNotSupportedError(error: unknown): boolean {
+    return error instanceof Error && error.message === UNVERIFIED_BANK_ACCOUNT_MESSAGE;
   }
 
   private ProductTierTypeFromSubscriptionTierId(

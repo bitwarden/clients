@@ -837,6 +837,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (error instanceof Error && error.message === "Payment method validation failed") {
         return;
       }
+      if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("unverifiedBankAccountNotSupportedForUpgrade"),
+        });
+        return;
+      }
       if (this.subscriptionDiscountService.isDiscountExpiredError(error)) {
         this.subscriptionDiscountService.refresh();
         this.toastService.showToast({
@@ -1316,6 +1323,21 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const tier = this.premiumOrgUpgradeService.SubscriptionTierIdFromProductTier(
       this.formGroup.controls.productTier.value!,
     );
+
+    const paymentMethod = await this.enterPaymentMethodComponent()?.tokenize();
+    if (!paymentMethod) {
+      throw new Error("Payment method validation failed");
+    }
+
+    await this.subscriberBillingClient.updatePaymentMethod(
+      { type: "account", data: account },
+      paymentMethod,
+      {
+        country: this.billingFormGroup.value.billingAddress?.country ?? "",
+        postalCode: this.billingFormGroup.value.billingAddress?.postalCode ?? "",
+      },
+    );
+
     return await this.premiumOrgUpgradeService.upgradeToOrganization(
       account!,
       organizationName,
