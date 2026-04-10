@@ -4235,6 +4235,18 @@
       }
     }
   },
+  "discardEditsTitle": {
+    "message": "Discard edits?"
+  },
+  "discardEditsConfirmation": {
+    "message": "Are you sure you want to discard your unsaved edits?"
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "keepEditing": {
+    "message": "Keep editing"
+  },
   "editedPolicyId": {
     "message": "Edited policy $ID$.",
     "placeholders": {

@@ -171,6 +171,14 @@ export class PoliciesComponent {
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
     if (useDrawer && dialogComponent.openDrawer) {
+      // If a drawer is already open, check for unsaved changes before switching policies.
+      if (this.drawerRef) {
+        const closed = await this.drawerRef.tryClose();
+        if (!closed) {
+          return; // User chose to keep editing the current policy.
+        }
+      }
+
       this.drawerRef = dialogComponent.openDrawer(this.dialogService, {
         data: {
           policy: policy,
@@ -185,5 +193,17 @@ export class PoliciesComponent {
         },
       });
     }
+  }
+
+  /**
+   * Called by the `PoliciesDeactivateGuard` before navigating away from this page.
+   * Returns `true` if navigation may proceed, `false` if the user chose to stay.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.drawerRef) {
+      return true;
+    }
+    const closed = await this.drawerRef.tryClose();
+    return closed;
   }
 }

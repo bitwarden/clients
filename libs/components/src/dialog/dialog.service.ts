@@ -67,6 +67,23 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
    * Does not work with drawer dialogs.
    **/
   abstract componentInstance: C | null;
+
+  /**
+   * An optional predicate that runs before closing. Return `true` to allow the close,
+   * `false` to prevent it (e.g. to ask the user to discard unsaved changes).
+   * Only supported by drawer dialogs.
+   */
+  closePredicate?: (result?: R) => Promise<boolean>;
+
+  /**
+   * Attempts to close the dialog, executing `closePredicate` first if set.
+   * Returns `true` if the dialog was closed, `false` if the predicate prevented closure.
+   * For non-drawer dialogs the default implementation always closes and returns `true`.
+   */
+  tryClose(result?: R, options?: DialogCloseOptions): Promise<boolean> {
+    this.close(result, options);
+    return Promise.resolve(true);
+  }
 }
 
 export type DialogConfig<D = unknown, R = unknown> = Pick<
@@ -149,6 +166,9 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   private _closed = new Subject<R | undefined>();
   closed = this._closed.asObservable();
   disableClose = false;
+  closePredicate?: (result?: R) => Promise<boolean>;
+
+  private _isClosed = false;
 
   /** The portal containing the drawer */
   portal?: Portal<unknown>;
@@ -159,13 +179,38 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     readonly closeOnNavigation = false,
   ) {}
 
-  close(result?: R, _options?: DialogCloseOptions): void {
-    if (this.disableClose) {
-      return;
+  /**
+   * Attempts to close the drawer, running `closePredicate` first if set.
+   * Returns `true` if the drawer was closed (or was already closed), `false` if the
+   * predicate or `disableClose` prevented closure.
+   */
+  async tryClose(result?: R, _options?: DialogCloseOptions): Promise<boolean> {
+    if (this._isClosed) {
+      return true; // Already closed — callers can proceed.
     }
+    if (this.disableClose) {
+      return false;
+    }
+    if (this.closePredicate) {
+      // Temporarily clear the predicate to prevent re-entrancy if tryClose is
+      // called again while the async predicate (e.g. a dialog) is still open.
+      const predicate = this.closePredicate;
+      this.closePredicate = undefined;
+      const shouldClose = await predicate(result);
+      if (!shouldClose) {
+        this.closePredicate = predicate; // Restore — the drawer is staying open
+        return false;
+      }
+    }
+    this._isClosed = true;
     this.drawerService.close(this.portal!);
     this._closed.next(result);
     this._closed.complete();
+    return true;
+  }
+
+  close(result?: R, _options?: DialogCloseOptions): void {
+    void this.tryClose(result, _options);
   }
 
   componentInstance: C | null = null;
@@ -184,6 +229,11 @@ export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 
   close(result?: R, options?: DialogCloseOptions): void {
     this.cdkDialogRefBase.close(result, options);
+  }
+
+  tryClose(result?: R, options?: DialogCloseOptions): Promise<boolean> {
+    this.close(result, options);
+    return Promise.resolve(true);
   }
 
   get closed(): Observable<R | undefined> {

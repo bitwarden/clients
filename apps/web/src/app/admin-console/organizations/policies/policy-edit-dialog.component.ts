@@ -60,7 +60,8 @@ export type PolicyEditDialogResult = "saved";
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
-  private readonly destroyRef = inject(DestroyRef);
+  protected readonly destroyRef = inject(DestroyRef);
+  private readonly dialogService = inject(DialogService);
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -72,6 +73,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
+
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
     protected readonly accountService: AccountService,
@@ -97,6 +99,49 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     buildVNextRequest: (orgKey: OrgKey) => Promise<VNextSavePolicyRequest>;
   } {
     return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
+  }
+
+  /**
+   * Returns true if the policy form has unsaved changes.
+   */
+  protected isFormDirty(): boolean {
+    const policyComp = this.policyComponent();
+    return (
+      this.formGroup.dirty ||
+      (policyComp?.enabled?.dirty ?? false) ||
+      (policyComp?.data?.dirty ?? false)
+    );
+  }
+
+  /**
+   * Installs the discard-edits guard on the dialog ref (for the Cancel/X-button flows)
+   * and a `beforeunload` listener (for browser close/refresh).
+   * Call this after the child policy form has been initialised.
+   */
+  protected setupDiscardGuard(): void {
+    this.dialogRef.closePredicate = async () => {
+      if (!this.isFormDirty()) {
+        return true;
+      }
+      return this.dialogService.openSimpleDialog({
+        title: { key: "discardEditsTitle" },
+        content: { key: "discardEditsConfirmation" },
+        acceptButtonText: { key: "discardEdits" },
+        cancelButtonText: { key: "keepEditing" },
+        type: "warning",
+      });
+    };
+
+    const beforeunloadHandler = (event: BeforeUnloadEvent) => {
+      if (this.isFormDirty()) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", beforeunloadHandler);
+    this.destroyRef.onDestroy(() =>
+      window.removeEventListener("beforeunload", beforeunloadHandler),
+    );
   }
 
   /**
@@ -127,6 +172,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     this.cdr.detectChanges();
+    this.setupDiscardGuard();
   }
 
   async load() {
@@ -163,6 +209,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         variant: "success",
         message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
       });
+      // Clear the predicate so the drawer closes immediately after a successful save.
+      this.dialogRef.closePredicate = undefined;
       this.dialogRef.close("saved");
     } catch (error: any) {
       this.toastService.showToast({

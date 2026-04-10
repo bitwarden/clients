@@ -123,6 +123,8 @@ export class MultiStepPolicyEditDialogComponent
     // Read step configuration from child component.
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
+
+    this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {
@@ -143,6 +145,8 @@ export class MultiStepPolicyEditDialogComponent
           variant: "success",
           message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
         });
+        // Clear the predicate so the drawer closes immediately after a successful save.
+        this.dialogRef.closePredicate = undefined;
         this.dialogRef.close("saved");
         return;
       }
