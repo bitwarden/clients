@@ -102,7 +102,9 @@ describe("VaultPopupItemsService", () => {
       failedToDecryptCiphersSubject.asObservable(),
     );
 
-    searchService.searchCiphers.mockImplementation(async (userId, _, ciphers) => ciphers!);
+    searchService.searchCiphers.mockImplementation(
+      async (userId, _organizationId, _query, ciphers) => ciphers!,
+    );
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(uuidAsString(c.id))),
     );
@@ -297,11 +299,13 @@ describe("VaultPopupItemsService", () => {
     it("should filter autoFillCiphers$ down to search term", (done) => {
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async (userId, q, ciphers) => {
-        return ciphers!.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
-      });
+      searchService.searchCiphers.mockImplementation(
+        async (userId, _organizationId, q, ciphers) => {
+          return ciphers!.filter((cipher) => {
+            return cipher.name.includes(searchText);
+          });
+        },
+      );
 
       // there is only 1 Login returned for filteredCiphers.
       service.autoFillCiphers$.subscribe((ciphers) => {
@@ -488,7 +492,7 @@ describe("VaultPopupItemsService", () => {
 
       await firstValueFrom(service.favoriteCiphers$.pipe(take(1)));
 
-      expect(searchServiceSpy).toHaveBeenCalledWith("UserId", searchText, expect.anything());
+      expect(searchServiceSpy).toHaveBeenCalledWith("UserId", null, searchText, expect.anything());
     });
   });
 

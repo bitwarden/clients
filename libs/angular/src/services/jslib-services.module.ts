@@ -614,7 +614,6 @@ const safeProviders: SafeProvider[] = [
       domainSettingsService: DomainSettingsService,
       apiService: ApiServiceAbstraction,
       i18nService: I18nServiceAbstraction,
-      searchService: SearchServiceAbstraction,
       autofillSettingsService: AutofillSettingsServiceAbstraction,
       encryptService: EncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
@@ -631,7 +630,6 @@ const safeProviders: SafeProvider[] = [
         domainSettingsService,
         apiService,
         i18nService,
-        searchService,
         autofillSettingsService,
         encryptService,
         fileUploadService,
@@ -648,7 +646,6 @@ const safeProviders: SafeProvider[] = [
       DomainSettingsService,
       ApiServiceAbstraction,
       I18nServiceAbstraction,
-      SearchServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
       CipherFileUploadServiceAbstraction,
@@ -1038,7 +1035,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SearchServiceAbstraction,
     useClass: SearchService,
-    deps: [LogService, I18nServiceAbstraction, StateProvider],
+    deps: [LogService, I18nServiceAbstraction],
   }),
   safeProvider({
     provide: WebPushNotificationsApiService,

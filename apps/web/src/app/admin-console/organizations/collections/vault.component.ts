@@ -410,15 +410,14 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           const filterFunction = createFilterFunction(filter);
 
-          if (await this.searchService.isSearchable(userId, searchText)) {
+          if (await this.searchService.isSearchable(searchText)) {
             const searchFilteredCiphers = await this.searchService.searchCiphers<CipherView>(
               userId,
+              organizationId,
               searchText,
               ciphers,
             );
-            return searchFilteredCiphers
-              .filter(filterFunction)
-              .filter((c) => c.organizationId === organizationId);
+            return searchFilteredCiphers.filter(filterFunction);
           }
 
           return ciphers.filter(filterFunction);
@@ -487,7 +486,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           let collectionsToReturn: CollectionAdminView[] = [];
 
-          if (await this.searchService.isSearchable(userId, searchText)) {
+          if (await this.searchService.isSearchable(searchText)) {
             // Flatten the tree for searching through all levels
             const flatCollectionTree: CollectionAdminView[] =
               getFlatCollectionTree(searchableCollectionNodes);

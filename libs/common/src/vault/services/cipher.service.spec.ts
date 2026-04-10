@@ -31,7 +31,6 @@ import { CipherEncryptionService } from "../abstractions/cipher-encryption.servi
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
-import { SearchService } from "../abstractions/search.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
@@ -102,7 +101,6 @@ describe("Cipher Service", () => {
   const apiService = mock<ApiService>();
   const cipherFileUploadService = mock<CipherFileUploadService>();
   const i18nService = mock<I18nService>();
-  const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
@@ -143,7 +141,6 @@ describe("Cipher Service", () => {
       domainSettingsService,
       apiService,
       i18nService,
-      searchService,
       autofillSettingsService,
       encryptService,
       cipherFileUploadService,

@@ -427,9 +427,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+        if (await this.searchService.isSearchable(searchText)) {
           const results = await this.searchService.searchCiphers<C>(
             activeUserId,
+            null,
             searchText,
             allCiphers as C[],
           );
@@ -462,7 +463,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           searchableCollectionNodes = selectedCollection?.children ?? [];
         }
 
-        if (await this.searchService.isSearchable(activeUserId, searchText)) {
+        if (await this.searchService.isSearchable(searchText)) {
           // Flatten the tree for searching through all levels
           const flatCollectionTree: CollectionView[] =
             getFlatCollectionTree(searchableCollectionNodes);
