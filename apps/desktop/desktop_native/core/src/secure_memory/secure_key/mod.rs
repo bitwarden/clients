@@ -140,7 +140,9 @@ impl SecureKeyContainer for CrossPlatformSecureKeyContainer {
 }
 
 fn get_env_forced_container() -> Option<CrossPlatformSecureKeyContainer> {
-    let env_var = std::env::var("SECURE_KEY_CONTAINER_BACKEND");
+    const ENV_VAR_SECURE_KEY_CONTAINER_BACKEND: &str = "SECURE_KEY_CONTAINER_BACKEND";
+    let env_var = std::env::var(ENV_VAR_SECURE_KEY_CONTAINER_BACKEND);
+
     match env_var.as_deref() {
         #[cfg(target_os = "windows")]
         Ok("dpapi") => {
@@ -171,10 +173,18 @@ fn get_env_forced_container() -> Option<CrossPlatformSecureKeyContainer> {
                 mlock::MlockSecureKeyContainer::from_key(crypto::MemoryEncryptionKey::new()),
             ))
         }
-        _ => {
+        Ok(env_var) => {
             info!(
-                "{} is not a valid secure key container backend, using automatic selection",
-                env_var.unwrap_or_default()
+                env_var,
+                "is not a valid secure key container backend, using automatic selection"
+            );
+            None
+        }
+        Err(error) => {
+            info!(
+                %error,
+                env_var = ENV_VAR_SECURE_KEY_CONTAINER_BACKEND,
+                "failed to read environment variable, using automatic selection"
             );
             None
         }
