@@ -80,7 +80,8 @@ describe("NotificationsService", () => {
     autoConfirmService = mock<AutomaticUserConfirmationService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
-    // configService.getFeatureFlag$.mockImplementation(() => of(true)); // ❌ Type error skipped
+    // @ts-expect-error - jest-mock-extended v4 has stricter generic type checking
+    configService.getFeatureFlag$.mockImplementation(() => of(true));
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();
