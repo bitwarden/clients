@@ -313,7 +313,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
 
   /** Move a custom field up or down in the list order */
   async handleKeyDown(event: KeyboardEvent, label: string, index: number) {
-    if ((event.key === "ArrowUp" || event.key === "k") && index !== 0) {
+    if (event.key === "ArrowUp" && index !== 0) {
       event.preventDefault();
 
       const currentIndex = index - 1;
@@ -331,7 +331,7 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
       });
     }
 
-    if ((event.key === "ArrowDown" || event.key === "j") && index !== this.fields.length - 1) {
+    if (event.key === "ArrowDown" && index !== this.fields.length - 1) {
       event.preventDefault();
 
       const currentIndex = index + 1;

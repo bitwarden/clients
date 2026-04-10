@@ -419,46 +419,9 @@ describe("CustomFieldsComponent", () => {
       ]);
     });
 
-    it("moves an item down in order via j key", () => {
-      // Move 3rd item (boolean label) down to 4th
-      toggleItems[2].triggerEventHandler("keydown", {
-        key: "j",
-        preventDefault: jest.fn(),
-      });
-
-      expect(patchCipher).toHaveBeenCalled();
-      const patchFn = patchCipher.mock.lastCall[0];
-
-      const updatedCipher = patchFn(new CipherView());
-
-      expect(updatedCipher.fields.map((f: FieldView) => f.name)).toEqual([
-        "text label",
-        "hidden label",
-        "linked label",
-        "boolean label",
-      ]);
-    });
-
     it("moves an item up in order via up arrow key", () => {
       // Move 2nd item (hidden label) up to 1st
       toggleItems[1].triggerEventHandler("keydown", { key: "ArrowUp", preventDefault: jest.fn() });
-
-      expect(patchCipher).toHaveBeenCalled();
-      const patchFn = patchCipher.mock.lastCall[0];
-
-      const updatedCipher = patchFn(new CipherView());
-
-      expect(updatedCipher.fields.map((f: FieldView) => f.name)).toEqual([
-        "hidden label",
-        "text label",
-        "boolean label",
-        "linked label",
-      ]);
-    });
-
-    it("moves an item up in order via k key", () => {
-      // Move 2nd item (hidden label) up to 1st
-      toggleItems[1].triggerEventHandler("keydown", { key: "k", preventDefault: jest.fn() });
 
       expect(patchCipher).toHaveBeenCalled();
       const patchFn = patchCipher.mock.lastCall[0];
@@ -481,30 +444,11 @@ describe("CustomFieldsComponent", () => {
       expect(patchCipher).not.toHaveBeenCalled();
     });
 
-    it("does not move the first item up via k key", () => {
-      patchCipher.mockClear();
-
-      toggleItems[0].triggerEventHandler("keydown", { key: "k", preventDefault: jest.fn() });
-
-      expect(patchCipher).not.toHaveBeenCalled();
-    });
-
     it("does not move the last item down via down arrow key", () => {
       patchCipher.mockClear();
 
       toggleItems[toggleItems.length - 1].triggerEventHandler("keydown", {
         key: "ArrowDown",
-        preventDefault: jest.fn(),
-      });
-
-      expect(patchCipher).not.toHaveBeenCalled();
-    });
-
-    it("does not move the last item down via j key", () => {
-      patchCipher.mockClear();
-
-      toggleItems[toggleItems.length - 1].triggerEventHandler("keydown", {
-        key: "j",
         preventDefault: jest.fn(),
       });
 
@@ -519,29 +463,10 @@ describe("CustomFieldsComponent", () => {
       expect(announce).toHaveBeenCalledWith("reorderFieldUp hidden label 1 4", "assertive");
     });
 
-    it("announces the reorder up via k key", () => {
-      // Move 2nd item up to 1st
-      toggleItems[1].triggerEventHandler("keydown", { key: "k", preventDefault: jest.fn() });
-
-      // "reorder hidden label to position 1 of 4"
-      expect(announce).toHaveBeenCalledWith("reorderFieldUp hidden label 1 4", "assertive");
-    });
-
     it("announces the reorder down via down arrow key", () => {
       // Move 3rd item down to 4th
       toggleItems[2].triggerEventHandler("keydown", {
         key: "ArrowDown",
-        preventDefault: jest.fn(),
-      });
-
-      // "reorder boolean label to position 4 of 4"
-      expect(announce).toHaveBeenCalledWith("reorderFieldDown boolean label 4 4", "assertive");
-    });
-
-    it("announces the reorder down via j key", () => {
-      // Move 3rd item down to 4th
-      toggleItems[2].triggerEventHandler("keydown", {
-        key: "j",
         preventDefault: jest.fn(),
       });
 

@@ -273,11 +273,11 @@ export class AutofillOptionsComponent implements OnInit {
 
   /** Handles a uri item keyboard up or down event */
   async onUriItemKeydown(event: KeyboardEvent, index: number) {
-    if ((event.key === "ArrowUp" || event.key === "k") && index !== 0) {
+    if (event.key === "ArrowUp" && index !== 0) {
       await this.reorderUriItems(event, index, "Up");
     }
 
-    if ((event.key === "ArrowDown" || event.key === "j") && index !== this.uriControls.length - 1) {
+    if (event.key === "ArrowDown" && index !== this.uriControls.length - 1) {
       await this.reorderUriItems(event, index, "Down");
     }
   }
