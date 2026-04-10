@@ -11,6 +11,7 @@ import { BitwardenIcon } from "@bitwarden/components";
   templateUrl: "./onboarding-task.component.html",
   host: {
     class: "tw-max-w-max",
+    role: "listitem",
   },
   standalone: false,
 })
