@@ -5186,6 +5186,12 @@
   "atAnyTime": {
     "message": "at any time."
   },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
+  },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
   },
