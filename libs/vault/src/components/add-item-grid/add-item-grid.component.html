@@ -18,10 +18,8 @@
             [variant]="'primary'"
             [size]="'base'"
           ></bit-icon-tile>
-          <div bitTypography="h6" class="!tw-mb-0.5">
-            {{ item.labelKey | i18n }}
-          </div>
-          <div class="tw-text-sm tw-text-muted">{{ item.subtitleKey | i18n }}</div>
+          {{ item.labelKey | i18n }}
+          <div slot="secondary">{{ item.subtitleKey | i18n }}</div>
           <bit-icon slot="end" name="bwi-angle-right" class="tw-text-main bwi-lg" />
         </button>
       </bit-item>
