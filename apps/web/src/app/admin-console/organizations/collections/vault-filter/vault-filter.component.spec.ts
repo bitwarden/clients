@@ -120,7 +120,6 @@ describe("OrganizationVaultFilterComponent", () => {
       setCiphers(of([]));
       restrictedSubject.next([]);
 
-       
       await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
 
       expect(cipherService.cipherListViews$).not.toHaveBeenCalled();
@@ -131,7 +130,6 @@ describe("OrganizationVaultFilterComponent", () => {
         setCiphers(of([]));
         restrictedSubject.next([]);
 
-         
         const section = await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
         const ids = await getTypeFilterIds(section);
 
@@ -150,7 +148,6 @@ describe("OrganizationVaultFilterComponent", () => {
       it("hides the restricted type regardless of ciphers$ content", async () => {
         setCiphers(of([cipherViewStub({ type: CipherType.Card, organizationId: ORG_ID })]));
 
-         
         const section = await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
         const ids = await getTypeFilterIds(section);
 
@@ -169,7 +166,6 @@ describe("OrganizationVaultFilterComponent", () => {
       it("shows the type when ciphers$ emits a matching org cipher", async () => {
         setCiphers(of([cipherViewStub({ type: CipherType.Card, organizationId: ORG_ID })]));
 
-         
         const section = await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
         const ids = await getTypeFilterIds(section);
 
@@ -186,7 +182,6 @@ describe("OrganizationVaultFilterComponent", () => {
           ]),
         );
 
-         
         const section = await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
         const ids = await getTypeFilterIds(section);
 
@@ -204,7 +199,6 @@ describe("OrganizationVaultFilterComponent", () => {
           ]),
         );
 
-         
         const section = await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
         const ids = await getTypeFilterIds(section);
 
@@ -214,7 +208,6 @@ describe("OrganizationVaultFilterComponent", () => {
       it("hides the type when ciphers$ emits a cipher with no organizationId", async () => {
         setCiphers(of([cipherViewStub({ type: CipherType.Card })]));
 
-         
         const section = await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
         const ids = await getTypeFilterIds(section);
 
@@ -225,7 +218,6 @@ describe("OrganizationVaultFilterComponent", () => {
         const ciphersSubject = new BehaviorSubject<CipherView[]>([]);
         setCiphers(ciphersSubject.asObservable());
 
-         
         const section: VaultFilterSection = await (component as any).addTypeFilter(
           ["favorites"],
           ORG_ID as string,
@@ -248,7 +240,6 @@ describe("OrganizationVaultFilterComponent", () => {
         // No setCiphers() call — relies on the input() default of of([])
         restrictedSubject.next([]);
 
-         
         const section = await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
         const ids = await getTypeFilterIds(section);
 
@@ -265,23 +256,18 @@ describe("OrganizationVaultFilterComponent", () => {
         setCiphers(of([]));
         restrictedSubject.next([]);
 
-        jest
-           
-          .spyOn(component as any, "addTypeFilter")
-          .mockResolvedValue({
-            data$: of(new TreeNode({ id: "AllItems", name: "allItems", type: "all" }, null)),
-            header: { showHeader: true, isSelectable: true },
-            action: jest.fn(),
-          });
+        jest.spyOn(component as any, "addTypeFilter").mockResolvedValue({
+          data$: of(new TreeNode({ id: "AllItems", name: "allItems", type: "all" }, null)),
+          header: { showHeader: true, isSelectable: true },
+          action: jest.fn(),
+        });
 
-         
         (component as any).addCollectionFilter = jest.fn().mockResolvedValue({});
-         
+
         (component as any).addTrashFilter = jest.fn().mockResolvedValue({});
 
         await component.buildAllFilters();
 
-         
         expect((component as any).addTypeFilter).toHaveBeenCalledWith(["favorites"], ORG_ID);
       });
     });
