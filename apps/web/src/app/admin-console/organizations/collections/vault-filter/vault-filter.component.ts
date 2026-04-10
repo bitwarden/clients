@@ -15,7 +15,6 @@ import {
   Observable,
   of,
   shareReplay,
-  Subject,
   switchMap,
 } from "rxjs";
 
@@ -66,13 +65,11 @@ export class VaultFilterComponent
       this.vaultFilterService.setOrganizationFilter(this._organization);
     }
   }
-  _organization: Organization;
+  _organization!: Organization;
 
   /** Org-scoped ciphers provided by the parent vault component. Used to build type filter badges
    * without triggering a personal vault decrypt. */
   readonly ciphers$ = input<Observable<CipherView[]>>(of([]));
-
-  protected destroy$: Subject<void>;
 
   constructor(
     protected vaultFilterService: VaultFilterServiceAbstraction,
@@ -160,7 +157,9 @@ export class VaultFilterComponent
         showHeader: false,
         isSelectable: true,
       },
-      action: this.applyCollectionFilter,
+      action: this.applyCollectionFilter as (
+        filterNode: TreeNode<VaultFilterType>,
+      ) => Promise<void>,
     };
     return collectionFilterSection;
   }
@@ -228,6 +227,6 @@ export class VaultFilterComponent
   }
 
   async getDefaultFilter(): Promise<TreeNode<VaultFilterType>> {
-    return await firstValueFrom(this.filters?.collectionFilter.data$);
+    return await firstValueFrom(this.filters!.collectionFilter!.data$);
   }
 }
