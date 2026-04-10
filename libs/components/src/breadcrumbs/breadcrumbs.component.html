@@ -14,6 +14,7 @@
     [queryParams]="breadcrumb.queryParams()"
     [queryParamsHandling]="breadcrumb.queryParamsHandling()"
     [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+    [attr.aria-current]="active ? 'page' : null"
   >
     <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
   </a>
@@ -26,6 +27,7 @@
     [class.!tw-text-fg-heading]="active"
     (click)="breadcrumb.onClick($event)"
     [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+    [attr.aria-current]="active ? 'page' : null"
   >
     <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
   </button>

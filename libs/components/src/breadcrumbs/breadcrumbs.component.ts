@@ -4,10 +4,12 @@ import {
   Component,
   computed,
   contentChildren,
+  inject,
   input,
 } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconModule } from "../icon";
@@ -37,9 +39,15 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
     TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: "tw-flex tw-items-center" },
+  host: {
+    class: "tw-flex tw-items-center",
+    role: "navigation",
+    "[attr.aria-label]": "ariaLabel",
+  },
 })
 export class BreadcrumbsComponent {
+  private readonly i18nService = inject(I18nService);
+  protected readonly ariaLabel = this.i18nService.t("breadcrumbs");
   /**
    * The maximum number of breadcrumbs to show before overflow.
    */
