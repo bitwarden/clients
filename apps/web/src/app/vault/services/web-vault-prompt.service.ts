@@ -8,8 +8,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
@@ -31,7 +29,6 @@ export class WebVaultPromptService {
   private accountService = inject(AccountService);
   private autoConfirmService = inject(AutomaticUserConfirmationService);
   private organizationService = inject(OrganizationService);
-  private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
   private logService = inject(LogService);
   private webVaultExtensionPromptService = inject(WebVaultExtensionPromptService);
@@ -77,8 +74,6 @@ export class WebVaultPromptService {
     // if the policy is enabled, then the user may only belong to one organization at most.
     const organization$ = this.organizations$.pipe(map((organizations) => organizations[0]));
 
-    const featureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.AutoConfirm);
-
     const autoConfirmState$ = this.userId$.pipe(
       switchMap((userId) => this.autoConfirmService.configuration$(userId)),
     );
@@ -95,12 +90,11 @@ export class WebVaultPromptService {
       ),
     );
 
-    zip([organization$, featureFlag$, autoConfirmState$, policyEnabled$, this.userId$])
+    zip([organization$, autoConfirmState$, policyEnabled$, this.userId$])
       .pipe(
         first(),
-        switchMap(async ([organization, flagEnabled, autoConfirmState, policyEnabled, userId]) => {
+        switchMap(async ([organization, autoConfirmState, policyEnabled, userId]) => {
           const showDialog =
-            flagEnabled &&
             !policyEnabled &&
             autoConfirmState.showSetupDialog &&
             !!organization &&
