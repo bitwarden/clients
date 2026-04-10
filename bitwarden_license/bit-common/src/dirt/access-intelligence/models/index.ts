@@ -4,7 +4,6 @@ export * from "./api/application-health.api";
 export * from "./api/access-report-settings.api";
 export * from "./api/access-report-summary.api";
 export * from "./api/access-report-metrics.api";
-export * from "./api/access-report-create.api";
 export * from "./api/access-report-file.api";
 
 // Data layer

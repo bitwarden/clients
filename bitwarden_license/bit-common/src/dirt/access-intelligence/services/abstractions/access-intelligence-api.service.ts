@@ -4,26 +4,50 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 import {
   AccessReportApi,
-  AccessReportCreateApi,
   AccessReportFileApi,
+  AccessReportMetricsApi,
   AccessReportSummaryApi,
 } from "../../models";
 
+export interface AccessReportCreateRequest {
+  contentEncryptionKey?: string;
+  summaryData?: string;
+  applicationData?: string;
+  metrics?: AccessReportMetricsApi;
+  fileSize?: number;
+}
+
+/**
+ * Service handling server communication/API calls for Access Intelligence endpoints.
+ *
+ * Handles making HTTP requests to the Bitwarden server and transforms all responses into Api models. Source of truth for retrieving and updating Access Intelligence report data using the Bitwarden API.
+ */
 export abstract class AccessIntelligenceApiService {
-  /** GET /reports/organizations/{orgId}/latest */
+  /**
+   * Retrieves the latest Access Intelligence report for an Organization.
+   * @param orgId - the ID of the Organization to retrieve the report for
+   * @returns the latest Access Intelligence report
+   */
   abstract getLatestReport$(orgId: OrganizationId): Observable<AccessReportApi>;
 
   /**
-   * POST /reports/organizations/{orgId}
+   * Creates an Access Intelligence report on the server.
+   * @param orgId - the ID of the Organization to create the report for
+   * @param request - contains data used to create the report
+   * @returns observable emitting the server's response, which includes the created Access Intelligence report
    */
   abstract createReport$(
     orgId: OrganizationId,
-    request: AccessReportCreateApi,
+    request: AccessReportCreateRequest,
   ): Observable<AccessReportFileApi>;
 
   /**
-   * POST /reports/organizations/{orgId}/{reportId}/file/report-data
-   * Self-hosted only. Uploads report data file via multipart form data.
+   * Used for self-hosted setups only. Uploads a file containing the Access Intelligence report data directly to a Bitwarden self-hosted server.
+   * @param orgId - the ID of the Organization the report belongs to
+   * @param reportId - the ID of the report to upload the file for
+   * @param file - the file containing the Access Intelligence report data
+   * @param reportFileId - the ID of the report file returned from the server upon report creation
+   * @returns observable that completes when the upload is successful
    */
   abstract uploadReportFile$(
     orgId: OrganizationId,
@@ -32,14 +56,27 @@ export abstract class AccessIntelligenceApiService {
     reportFileId: string,
   ): Observable<void>;
 
-  /** GET /reports/organizations/{orgId}/data/summary?startDate=&endDate= */
+  /**
+   * Retrieves Access Intelligence summary data for an Organization within a date range.
+   * @param orgId - the ID of the Organization to retrieve summary data for
+   * @param startDate - the start of the date range (inclusive)
+   * @param endDate - the end of the date range (inclusive)
+   * @returns observable emitting an array of summary data records within the given date range
+   */
   abstract getSummaryDataByDateRange$(
     orgId: OrganizationId,
     startDate: Date,
     endDate: Date,
   ): Observable<AccessReportSummaryApi[]>;
 
-  /** PATCH /reports/organizations/{orgId}/data/summary/{reportId} */
+  /**
+   * Updates the summary data for an existing Access Intelligence report.
+   * @param orgId - the ID of the Organization the report belongs to
+   * @param reportId - the ID of the report to update
+   * @param summaryData - the encrypted summary data to store on the report
+   * @param metrics - optional map of metric names to their values
+   * @returns observable emitting the updated Access Intelligence report
+   */
   abstract updateSummaryData$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
@@ -47,19 +84,35 @@ export abstract class AccessIntelligenceApiService {
     metrics?: Record<string, number>,
   ): Observable<AccessReportApi>;
 
-  /** PATCH /reports/organizations/{orgId}/data/application/{reportId} */
+  /**
+   * Updates the application data for an existing Access Intelligence report.
+   * @param orgId - the ID of the Organization the report belongs to
+   * @param reportId - the ID of the report to update
+   * @param applicationData - the encrypted application data to store on the report
+   * @returns observable emitting the updated Access Intelligence report
+   */
   abstract updateApplicationData$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
     applicationData: string,
   ): Observable<AccessReportApi>;
 
-  /** GET /reports/organizations/{orgId}/{reportId}/file/renew */
+  /**
+   * Renews the upload link for an Access Intelligence report file. Used when a prior upload attempt failed or expired.
+   * @param orgId - the ID of the Organization the report belongs to
+   * @param reportId - the ID of the report whose upload link should be renewed
+   * @returns observable emitting the renewed report file metadata, including a fresh upload URL
+   */
   abstract renewReportFileUploadLink$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
   ): Observable<AccessReportFileApi>;
 
-  /** DELETE /reports/organizations/{orgId}/{reportId} */
+  /**
+   * Deletes an Access Intelligence report from the server.
+   * @param orgId - the ID of the Organization the report belongs to
+   * @param reportId - the ID of the report to delete
+   * @returns observable that completes when the report has been deleted
+   */
   abstract deleteReport$(orgId: OrganizationId, reportId: OrganizationReportId): Observable<void>;
 }
