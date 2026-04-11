@@ -6,43 +6,52 @@
   />
 </ng-template>
 
-<ng-template #breadcrumbLink let-breadcrumb="breadcrumb" let-active="active">
+<ng-template #breadcrumbLink let-breadcrumb="breadcrumb">
   <a
     [class]="breadcrumbStyles"
-    [class.!tw-text-fg-heading]="active"
     [routerLink]="breadcrumb.route()"
     [queryParams]="breadcrumb.queryParams()"
     [queryParamsHandling]="breadcrumb.queryParamsHandling()"
     [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
-    [attr.aria-current]="active ? 'page' : null"
   >
     <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
   </a>
 </ng-template>
 
-<ng-template #breadcrumbButton let-breadcrumb="breadcrumb" let-active="active">
+<ng-template #breadcrumbButton let-breadcrumb="breadcrumb">
   <button
     type="button"
     [class]="breadcrumbStyles"
-    [class.!tw-text-fg-heading]="active"
     (click)="breadcrumb.onClick($event)"
     [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
-    [attr.aria-current]="active ? 'page' : null"
   >
     <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
   </button>
 </ng-template>
 
+<ng-template #activeBreadcrumb let-breadcrumb="breadcrumb">
+  <span
+    class="!tw-text-fg-heading"
+    [class]="activeBreadcrumbStyles"
+    [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
+    attr.aria-current="page"
+  >
+    <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
+  </span>
+</ng-template>
+
 @for (breadcrumb of beforeOverflow(); track breadcrumb; let last = $last) {
-  @if (breadcrumb.route(); as route) {
+  @if (last && !hasOverflow()) {
     <ng-container
-      [ngTemplateOutlet]="breadcrumbLink"
-      [ngTemplateOutletContext]="{ breadcrumb, active: last && !hasOverflow() }"
+      [ngTemplateOutlet]="activeBreadcrumb"
+      [ngTemplateOutletContext]="{ breadcrumb }"
     />
+  } @else if (breadcrumb.route(); as route) {
+    <ng-container [ngTemplateOutlet]="breadcrumbLink" [ngTemplateOutletContext]="{ breadcrumb }" />
   } @else {
     <ng-container
       [ngTemplateOutlet]="breadcrumbButton"
-      [ngTemplateOutletContext]="{ breadcrumb, active: last && !hasOverflow() }"
+      [ngTemplateOutletContext]="{ breadcrumb }"
     />
   }
   @if (!last) {
@@ -80,20 +89,10 @@
     }
   </bit-menu>
   <ng-container [ngTemplateOutlet]="arrow" />
-  @for (breadcrumb of afterOverflow(); track breadcrumb; let last = $last) {
-    @if (breadcrumb.route(); as route) {
-      <ng-container
-        [ngTemplateOutlet]="breadcrumbLink"
-        [ngTemplateOutletContext]="{ breadcrumb, active: last }"
-      />
-    } @else {
-      <ng-container
-        [ngTemplateOutlet]="breadcrumbButton"
-        [ngTemplateOutletContext]="{ breadcrumb, active: last }"
-      />
-    }
-    @if (!last) {
-      <ng-container [ngTemplateOutlet]="arrow" />
-    }
+  @if (afterOverflow(); as breadcrumb) {
+    <ng-container
+      [ngTemplateOutlet]="activeBreadcrumb"
+      [ngTemplateOutletContext]="{ breadcrumb }"
+    />
   }
 }

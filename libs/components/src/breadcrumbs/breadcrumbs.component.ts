@@ -80,17 +80,23 @@ export class BreadcrumbsComponent {
   });
 
   /** The last breadcrumb, shown after the overflow menu */
-  protected readonly afterOverflow = computed(() => this.breadcrumbs().slice(-1));
+  protected readonly afterOverflow = computed(() => this.breadcrumbs().at(-1));
 
-  protected readonly breadcrumbStyles = [
+  protected readonly baseStyles = [
     "tw-inline-block",
     "!tw-m-0",
-    "!tw-text-fg-body",
-    "hover:!tw-text-fg-brand",
     "focus-visible:!tw-text-fg-brand",
     "focus-visible:!tw-rounded",
     "focus-visible:!tw-outline-none",
     "focus-visible:!tw-ring-2",
     "focus-visible:!tw-ring-border-focus",
   ];
+
+  protected readonly breadcrumbStyles = [
+    ...this.baseStyles,
+    "!tw-text-fg-body",
+    "hover:!tw-text-fg-brand",
+  ];
+
+  protected readonly activeBreadcrumbStyles = [...this.baseStyles, "!tw-text-fg-heading"];
 }

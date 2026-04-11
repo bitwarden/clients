@@ -16,13 +16,21 @@ import { BreadcrumbsModule } from "@bitwarden/components";
 
 ## Display
 
-Breadcrumbs display above the page title. The current page should not appear as a breadcrumb link.
-See [Header with Breadcrumbs](?path=/story/web-header--with-breadcrumbs).
+Breadcrumbs are typically paired with page content to help users understand where they are within a
+site or application and navigate back to parent pages. The current page should not appear as a
+breadcrumb link.
+
+### Sizes
+
+Size should be chosen based on available space. Use the base size on large screen layouts where
+there is ample horizontal space. Use the sm size in space-constrained contexts, such as smaller
+screen widths and the extension.
+
+<Canvas of={stories.Sizes} />
 
 ### Top Level
 
-When a user is 1 level deep into a tree, the top level is displayed as a single link above the page
-title.
+When a user is 1 level deep into a tree, the top level is displayed as plain text
 
 <Canvas of={stories.TopLevel} />
 
@@ -45,7 +53,7 @@ the pages between the top level and the previous page.
 
 <Canvas of={stories.Overflow} />
 
-### Small screens
+## Small screens
 
 If a screen's width is not large enough to display the full breadcrumb path, display a link to the
 previous page and an <i class="bwi bwi-angle-right"></i> icon to take the user back to the previous
@@ -53,3 +61,7 @@ page.
 
 `TODO:` [Jira add stories](https://bitwarden.atlassian.net/browse/CL-102) for responsive screen
 width/small screens
+
+## Guidelines
+
+- Breadcrumb labels should reflect the exact page or section name for clarity and consistency.

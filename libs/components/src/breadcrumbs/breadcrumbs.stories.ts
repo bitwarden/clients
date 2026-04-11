@@ -12,12 +12,6 @@ import { I18nMockService } from "../utils";
 import { BreadcrumbComponent } from "./breadcrumb.component";
 import { BreadcrumbsComponent } from "./breadcrumbs.component";
 
-interface Breadcrumb {
-  icon?: string;
-  name: string;
-  route: string;
-}
-
 @Component({
   template: "",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,8 +52,6 @@ export default {
     },
   },
   args: {
-    items: [],
-    show: 3,
     size: "base",
   },
   argTypes: {
@@ -74,7 +66,48 @@ export default {
   },
 } as Meta;
 
-type Story = StoryObj<BreadcrumbsComponent & { items: Breadcrumb[] }>;
+type Story = StoryObj<BreadcrumbsComponent>;
+
+export const Default: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-breadcrumbs [size]="size">
+        <bit-breadcrumb icon="bwi-vault" route="/vault">Vault</bit-breadcrumb>
+        <bit-breadcrumb route="/acme-corp">ACME Corp</bit-breadcrumb>
+        <bit-breadcrumb route="/groups">Groups</bit-breadcrumb>
+        <bit-breadcrumb>Members</bit-breadcrumb>
+      </bit-breadcrumbs>
+    `,
+  }),
+};
+
+export const Sizes: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <h3 class="tw-text-main">Base (default)</h3>
+      <p>
+        <bit-breadcrumbs>
+          <bit-breadcrumb icon="bwi-vault" route="/vault">Vault</bit-breadcrumb>
+          <bit-breadcrumb route="/acme-corp">ACME Corp</bit-breadcrumb>
+          <bit-breadcrumb route="/groups">Groups</bit-breadcrumb>
+          <bit-breadcrumb>Members</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </p>
+
+      <h3 class="tw-text-main">Small</h3>
+      <p>
+        <bit-breadcrumbs size="small">
+          <bit-breadcrumb icon="bwi-vault" route="/vault">Vault</bit-breadcrumb>
+          <bit-breadcrumb route="/acme-corp">ACME Corp</bit-breadcrumb>
+          <bit-breadcrumb route="/groups">Groups</bit-breadcrumb>
+          <bit-breadcrumb>Members</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </p>
+    `,
+  }),
+};
 
 export const TopLevel: Story = {
   render: (args) => ({
@@ -82,49 +115,73 @@ export const TopLevel: Story = {
     template: `
       <h3 class="tw-text-main">Router links</h3>
       <p>
-        <bit-breadcrumbs [show]="show" [size]="size">
-          <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" [route]="[item.route]">{{item.name}}</bit-breadcrumb>
+        <bit-breadcrumbs>
+          <bit-breadcrumb icon="bwi-star" route="/top-level">Top Level</bit-breadcrumb>
         </bit-breadcrumbs>
       </p>
   
       <h3 class="tw-text-main">Click emit</h3>
       <p>
-        <bit-breadcrumbs [show]="show" [size]="size">
-          <bit-breadcrumb *ngFor="let item of items" [icon]="item.icon" (click)="click($event)">{{item.name}}</bit-breadcrumb>
+        <bit-breadcrumbs>
+          <bit-breadcrumb icon="bwi-star">Top Level</bit-breadcrumb>
         </bit-breadcrumbs>
       </p>
     `,
   }),
-
-  args: {
-    items: [
-      { icon: "bwi-folder", name: "Folder-1" },
-      { icon: "bwi-folder", name: "Folder-2" },
-    ] as Breadcrumb[],
-  },
 };
 
 export const SecondLevel: Story = {
-  ...TopLevel,
-  args: {
-    items: [
-      { name: "Acme Vault", route: "/" },
-      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
-    ] as Breadcrumb[],
-  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <h3 class="tw-text-main">Router links</h3>
+      <p>
+        <bit-breadcrumbs>
+          <bit-breadcrumb icon="bwi-folder" route="/folder1">Folder 1</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-folder" route="/folder2">Folder 2</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </p>
+  
+      <h3 class="tw-text-main">Click emit</h3>
+      <p>
+        <bit-breadcrumbs>
+          <bit-breadcrumb icon="bwi-folder">Folder 1</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-folder">Folder 2</bit-breadcrumb>        
+        </bit-breadcrumbs>
+      </p>
+    `,
+  }),
 };
 
 export const Overflow: Story = {
-  ...TopLevel,
-  args: {
-    items: [
-      { name: "Acme Vault", route: "" },
-      { icon: "bwi-collection-shared", name: "Collection", route: "collection" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 1", route: "middle-collection-1" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 2", route: "middle-collection-2" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 3", route: "middle-collection-3" },
-      { icon: "bwi-collection-shared", name: "Middle-Collection 4", route: "middle-collection-4" },
-      { icon: "bwi-collection-shared", name: "End Collection", route: "end-collection" },
-    ] as Breadcrumb[],
-  },
+  render: (args) => ({
+    props: args,
+    template: `
+      <h3 class="tw-text-main">Router links</h3>
+      <p>
+        <bit-breadcrumbs>
+          <bit-breadcrumb route="">Acme Vault</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared" route="collection">Collection</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-1">Middle-Collection 1</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-2">Middle-Collection 2</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-3">Middle-Collection 3</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-4">Middle-Collection 4</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared" route="end-collection">End Collection</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </p>
+  
+      <h3 class="tw-text-main">Click emit</h3>
+      <p>
+        <bit-breadcrumbs>
+          <bit-breadcrumb route="">Acme Vault</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">Collection</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 1</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 2</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 3</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 4</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">End Collection</bit-breadcrumb>
+        </bit-breadcrumbs>
+      </p>
+    `,
+  }),
 };
