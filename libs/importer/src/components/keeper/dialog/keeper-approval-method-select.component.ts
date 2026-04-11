@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -17,22 +16,18 @@ type KeeperApprovalMethodSelectData = {
   methods: DeviceApprovalChannel[];
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "keeper-approval-method-select.component.html",
-  imports: [CommonModule, JslibModule, DialogModule, ButtonModule, TypographyModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [JslibModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class KeeperApprovalMethodSelectComponent {
-  protected methods = this.data.methods;
-  protected DeviceApprovalChannel = DeviceApprovalChannel;
+  private readonly dialogRef = inject(DialogRef);
+  private readonly data = inject<KeeperApprovalMethodSelectData>(DIALOG_DATA);
 
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) protected data: KeeperApprovalMethodSelectData,
-  ) {}
+  protected readonly methods = this.data.methods;
 
-  select(method: DeviceApprovalChannel) {
+  protected select(method: DeviceApprovalChannel) {
     this.dialogRef.close(method);
   }
 

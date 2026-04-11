@@ -7,23 +7,21 @@
     <div bitDialogContent>
       <p>{{ descriptionI18nKey | i18n }}</p>
 
-      <bit-form-field *ngIf="variant === 'email'" class="tw-mt-4">
-        <bit-label>{{ "keeperVerificationCode" | i18n }}</bit-label>
-        <input bitInput type="text" formControlName="code" />
-        <bit-hint>{{ "keeperVerificationCodeHint" | i18n }}</bit-hint>
-      </bit-form-field>
+      @if (variant === "email") {
+        <bit-form-field class="tw-mt-4">
+          <bit-label>{{ "keeperVerificationCode" | i18n }}</bit-label>
+          <input bitInput type="text" formControlName="code" />
+          <bit-hint>{{ "keeperVerificationCodeHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      }
     </div>
 
     <ng-container bitDialogFooter>
-      <button
-        *ngIf="variant === 'email'"
-        bitButton
-        buttonType="primary"
-        type="submit"
-        bitFormButton
-      >
-        <span>{{ "submit" | i18n }}</span>
-      </button>
+      @if (variant === "email") {
+        <button bitButton buttonType="primary" type="submit" bitFormButton>
+          <span>{{ "submit" | i18n }}</span>
+        </button>
+      }
       <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button">
         <span>{{ "cancel" | i18n }}</span>
       </button>

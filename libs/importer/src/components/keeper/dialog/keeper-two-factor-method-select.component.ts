@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -17,21 +16,18 @@ type KeeperTwoFactorMethodSelectData = {
   methods: TwoFactorMethod[];
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "keeper-two-factor-method-select.component.html",
-  imports: [CommonModule, JslibModule, DialogModule, ButtonModule, TypographyModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [JslibModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class KeeperTwoFactorMethodSelectComponent {
-  protected methods = this.data.methods;
+  private readonly dialogRef = inject(DialogRef);
+  private readonly data = inject<KeeperTwoFactorMethodSelectData>(DIALOG_DATA);
 
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) protected data: KeeperTwoFactorMethodSelectData,
-  ) {}
+  protected readonly methods = this.data.methods;
 
-  select(method: TwoFactorMethod) {
+  protected select(method: TwoFactorMethod) {
     this.dialogRef.close(method);
   }
 

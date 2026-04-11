@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 
 import { DialogService } from "@bitwarden/components";
 
@@ -13,10 +13,8 @@ import { KeeperDirectImportUIService } from "./keeper-direct-import-ui.service";
   providedIn: "root",
 })
 export class KeeperDirectImportService {
-  constructor(
-    private keeperDirectImportUIService: KeeperDirectImportUIService,
-    private dialogService: DialogService,
-  ) {}
+  private readonly keeperDirectImportUIService = inject(KeeperDirectImportUIService);
+  private readonly dialogService = inject(DialogService);
 
   async handleImport(email: string, region: KeeperRegion): Promise<ImportResult> {
     const password = await KeeperPasswordPromptComponent.open(this.dialogService);

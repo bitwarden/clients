@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -15,12 +14,10 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "keeper-password-prompt.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     JslibModule,
     ReactiveFormsModule,
     DialogModule,
@@ -32,16 +29,16 @@ import {
   ],
 })
 export class KeeperPasswordPromptComponent {
-  protected formGroup = new FormGroup({
+  private readonly dialogRef = inject(DialogRef);
+
+  protected readonly formGroup = new FormGroup({
     password: new FormControl("", {
       validators: Validators.required,
       updateOn: "submit",
     }),
   });
 
-  constructor(public dialogRef: DialogRef) {}
-
-  submit = () => {
+  protected readonly submit = () => {
     this.formGroup.markAsTouched();
     if (!this.formGroup.valid) {
       return;

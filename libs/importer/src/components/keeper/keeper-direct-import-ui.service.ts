@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { DialogRef, DialogService } from "@bitwarden/components";
@@ -24,9 +24,9 @@ import { KeeperTwoFactorMethodSelectComponent } from "./dialog/keeper-two-factor
   providedIn: "root",
 })
 export class KeeperDirectImportUIService implements Ui {
-  private dialogRef!: DialogRef;
+  private readonly dialogService = inject(DialogService);
 
-  constructor(private dialogService: DialogService) {}
+  private dialogRef!: DialogRef;
 
   //
   // Device approval flow
