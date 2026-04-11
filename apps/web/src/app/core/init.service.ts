@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { LoginStrategySessionTimeoutServiceAbstraction } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
@@ -40,6 +41,7 @@ export class InitService {
     private sdkLoadService: SdkLoadService,
     private taskService: TaskService,
     private readonly migrationRunner: MigrationRunner,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutServiceAbstraction,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -66,6 +68,7 @@ export class InitService {
       this.versionService.applyVersionToWindow();
       void this.ipcService.init();
       this.taskService.listenForTaskNotifications();
+      this.loginStrategySessionTimeoutService.registerSessionTimeoutTask();
 
       const containerService = new ContainerService(this.keyService, this.encryptService);
       containerService.attachToGlobal(this.win);

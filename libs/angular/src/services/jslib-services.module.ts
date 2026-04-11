@@ -48,8 +48,12 @@ import {
   LockService,
   LoginEmailService,
   LoginEmailServiceAbstraction,
+  LoginStrategyCacheService,
+  LoginStrategyCacheServiceAbstraction,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
+  LoginStrategySessionTimeoutService,
+  LoginStrategySessionTimeoutServiceAbstraction,
   LoginSuccessHandlerService,
   LogoutReason,
   LogoutService,
@@ -554,6 +558,22 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: LoginStrategyCacheServiceAbstraction,
+    useClass: LoginStrategyCacheService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: LoginStrategySessionTimeoutServiceAbstraction,
+    useClass: LoginStrategySessionTimeoutService,
+    deps: [
+      TaskSchedulerService,
+      LoginStrategyCacheServiceAbstraction,
+      LogService,
+      MessageSender,
+      MessageListener,
+    ],
+  }),
+  safeProvider({
     provide: LoginStrategyServiceAbstraction,
     useClass: LoginStrategyService,
     deps: [
@@ -582,10 +602,11 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       VaultTimeoutSettingsService,
       KdfConfigService,
-      TaskSchedulerService,
       ConfigService,
       AccountCryptographicStateService,
       PasswordPreloginService,
+      LoginStrategyCacheServiceAbstraction,
+      LoginStrategySessionTimeoutServiceAbstraction,
     ],
   }),
   safeProvider({
