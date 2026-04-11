@@ -23,6 +23,7 @@ import {
   timeout,
 } from "rxjs";
 
+import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -78,7 +79,6 @@ import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
-import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
@@ -920,7 +920,8 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    DeleteAccountComponent.open(this.dialogService);
+    const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
+    await lastValueFrom(dialogRef.closed);
   }
 
   private async processPendingAuthRequests() {
