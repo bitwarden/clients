@@ -31,8 +31,8 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LockService,
   LoginEmailServiceAbstraction,
-  LoginStrategyCacheService,
-  LoginStrategySessionTimeoutService,
+  DefaultLoginStrategyCacheService,
+  DefaultLoginStrategySessionTimeoutService,
   LogoutReason,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
@@ -965,9 +965,11 @@ export default class MainBackground {
       this.accountService,
     );
 
-    const loginStrategyCacheService = new LoginStrategyCacheService(this.globalStateProvider);
+    const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
+      this.globalStateProvider,
+    );
 
-    const loginStrategySessionTimeoutService = new LoginStrategySessionTimeoutService(
+    const loginStrategySessionTimeoutService = new DefaultLoginStrategySessionTimeoutService(
       this.taskSchedulerService,
       loginStrategyCacheService,
       this.logService,

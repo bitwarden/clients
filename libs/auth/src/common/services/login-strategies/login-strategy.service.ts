@@ -38,8 +38,8 @@ import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
-import { LoginStrategyCacheServiceAbstraction } from "../../abstractions/login-strategy-cache.service";
-import { LoginStrategySessionTimeoutServiceAbstraction } from "../../abstractions/login-strategy-session-timeout.service";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
 import {
   AuthRequestLoginStrategy,
@@ -112,8 +112,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private passwordPreloginService: PasswordPreloginService,
-    private loginStrategyCacheService: LoginStrategyCacheServiceAbstraction,
-    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutServiceAbstraction,
+    private loginStrategyCacheService: LoginStrategyCacheService,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,

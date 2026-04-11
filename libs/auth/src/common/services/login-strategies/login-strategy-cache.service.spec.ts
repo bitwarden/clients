@@ -3,20 +3,20 @@ import { firstValueFrom } from "rxjs";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 
-import { LoginStrategyCacheService } from "./login-strategy-cache.service";
+import { DefaultLoginStrategyCacheService } from "./login-strategy-cache.service";
 import {
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
   CURRENT_LOGIN_STRATEGY_KEY,
 } from "./login-strategy.state";
 
-describe("LoginStrategyCacheService", () => {
-  let sut: LoginStrategyCacheService;
+describe("DefaultLoginStrategyCacheService", () => {
+  let sut: DefaultLoginStrategyCacheService;
   let stateProvider: FakeGlobalStateProvider;
 
   beforeEach(() => {
     stateProvider = new FakeGlobalStateProvider();
-    sut = new LoginStrategyCacheService(stateProvider);
+    sut = new DefaultLoginStrategyCacheService(stateProvider);
   });
 
   describe("setCurrentAuthType", () => {

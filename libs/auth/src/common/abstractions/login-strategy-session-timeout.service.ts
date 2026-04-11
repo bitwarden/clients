@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-export abstract class LoginStrategySessionTimeoutServiceAbstraction {
+export abstract class LoginStrategySessionTimeoutService {
   /**
    * Registers the session timeout task handler with the task scheduler.
    * Must be called once at startup in each client context where the alarm can fire

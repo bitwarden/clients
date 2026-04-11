@@ -4,7 +4,7 @@ import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-
 
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-export abstract class LoginStrategyCacheServiceAbstraction {
+export abstract class LoginStrategyCacheService {
   abstract currentAuthType$: Observable<AuthenticationType | null>;
   abstract cacheData$: Observable<CacheData | null>;
   abstract cacheExpiration$: Observable<Date | null>;

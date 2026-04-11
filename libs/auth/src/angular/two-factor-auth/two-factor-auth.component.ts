@@ -24,7 +24,7 @@ import {
 } from "@bitwarden/assets/svg";
 import {
   LoginStrategyServiceAbstraction,
-  LoginStrategySessionTimeoutServiceAbstraction,
+  LoginStrategySessionTimeoutService,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
@@ -177,7 +177,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
     private authService: AuthService,
     private keyConnectorService: KeyConnectorService,
-    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutServiceAbstraction,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {}
 
   async ngOnInit() {

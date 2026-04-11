@@ -14,10 +14,10 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   AuthRequestService,
-  LoginStrategyCacheService,
+  DefaultLoginStrategyCacheService,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
-  LoginStrategySessionTimeoutService,
+  DefaultLoginStrategySessionTimeoutService,
   UserDecryptionOptionsService,
   SsoUrlService,
   AuthRequestApiServiceAbstraction,
@@ -791,9 +791,11 @@ export class ServiceContainer {
     );
     this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
 
-    const loginStrategyCacheService = new LoginStrategyCacheService(this.globalStateProvider);
+    const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
+      this.globalStateProvider,
+    );
 
-    const loginStrategySessionTimeoutService = new LoginStrategySessionTimeoutService(
+    const loginStrategySessionTimeoutService = new DefaultLoginStrategySessionTimeoutService(
       this.taskSchedulerService,
       loginStrategyCacheService,
       this.logService,

@@ -5,18 +5,18 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 
-import { LoginStrategyCacheServiceAbstraction } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 
 import {
   LOGIN_SESSION_EXPIRED,
-  LoginStrategySessionTimeoutService,
+  DefaultLoginStrategySessionTimeoutService,
 } from "./login-strategy-session-timeout.service";
 
-describe("LoginStrategySessionTimeoutService", () => {
-  let sut: LoginStrategySessionTimeoutService;
+describe("DefaultLoginStrategySessionTimeoutService", () => {
+  let sut: DefaultLoginStrategySessionTimeoutService;
 
   let taskSchedulerService: MockProxy<TaskSchedulerService>;
-  let loginStrategyCacheService: MockProxy<LoginStrategyCacheServiceAbstraction>;
+  let loginStrategyCacheService: MockProxy<LoginStrategyCacheService>;
   let logService: MockProxy<LogService>;
   let messageSender: MockProxy<MessageSender>;
   let messageListener: MessageListener;
@@ -24,13 +24,13 @@ describe("LoginStrategySessionTimeoutService", () => {
 
   beforeEach(() => {
     taskSchedulerService = mock<TaskSchedulerService>();
-    loginStrategyCacheService = mock<LoginStrategyCacheServiceAbstraction>();
+    loginStrategyCacheService = mock<LoginStrategyCacheService>();
     logService = mock<LogService>();
     messageSender = mock<MessageSender>();
     messageSubject = new Subject();
     messageListener = new MessageListener(messageSubject.asObservable());
 
-    sut = new LoginStrategySessionTimeoutService(
+    sut = new DefaultLoginStrategySessionTimeoutService(
       taskSchedulerService,
       loginStrategyCacheService,
       logService,

@@ -3,7 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { LoginStrategySessionTimeoutServiceAbstraction } from "@bitwarden/auth/common";
+import { LoginStrategySessionTimeoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
@@ -61,7 +61,7 @@ export class InitService {
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
-    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutServiceAbstraction,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {}
 
   init() {

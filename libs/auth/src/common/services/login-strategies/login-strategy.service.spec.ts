@@ -54,8 +54,8 @@ import {
   AuthRequestServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "../../abstractions";
-import { LoginStrategyCacheServiceAbstraction } from "../../abstractions/login-strategy-cache.service";
-import { LoginStrategySessionTimeoutServiceAbstraction } from "../../abstractions/login-strategy-session-timeout.service";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 import { PasswordLoginCredentials } from "../../models";
 import { UserDecryptionOptionsService } from "../user-decryption-options/user-decryption-options.service";
 
@@ -94,8 +94,8 @@ describe("LoginStrategyService", () => {
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
-  let loginStrategyCacheService: MockProxy<LoginStrategyCacheServiceAbstraction>;
-  let loginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutServiceAbstraction>;
+  let loginStrategyCacheService: MockProxy<LoginStrategyCacheService>;
+  let loginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutService>;
 
   let stateProvider: FakeGlobalStateProvider;
 
@@ -130,8 +130,8 @@ describe("LoginStrategyService", () => {
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
     passwordPreloginService = mock<PasswordPreloginService>();
-    loginStrategyCacheService = mock<LoginStrategyCacheServiceAbstraction>();
-    loginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutServiceAbstraction>();
+    loginStrategyCacheService = mock<LoginStrategyCacheService>();
+    loginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutService>();
 
     const currentAuthTypeSubject = new BehaviorSubject<AuthenticationType | null>(null);
     const cacheDataSubject = new BehaviorSubject<CacheData | null>(null);

@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 
-import { LoginStrategyCacheServiceAbstraction } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 
 import {
   CACHE_EXPIRATION_KEY,
@@ -12,7 +12,7 @@ import {
   CURRENT_LOGIN_STRATEGY_KEY,
 } from "./login-strategy.state";
 
-export class LoginStrategyCacheService implements LoginStrategyCacheServiceAbstraction {
+export class DefaultLoginStrategyCacheService implements LoginStrategyCacheService {
   private currentAuthnTypeState: GlobalState<AuthenticationType | null>;
   private loginStrategyCacheState: GlobalState<CacheData | null>;
   private loginStrategyCacheExpirationState: GlobalState<Date | null>;

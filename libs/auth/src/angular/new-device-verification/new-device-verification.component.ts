@@ -7,7 +7,7 @@ import { firstValueFrom, Subject, takeUntil } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   LoginSuccessHandlerService,
-  LoginStrategySessionTimeoutServiceAbstraction,
+  LoginStrategySessionTimeoutService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -77,7 +77,7 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     private masterPasswordService: MasterPasswordServiceAbstraction,
     private newDeviceVerificationComponentService: NewDeviceVerificationComponentService,
     private location: Location,
-    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutServiceAbstraction,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {}
 
   async ngOnInit() {

@@ -8,21 +8,21 @@ import {
 } from "@bitwarden/common/platform/messaging";
 import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 
-import { LoginStrategyCacheServiceAbstraction } from "../../abstractions/login-strategy-cache.service";
-import { LoginStrategySessionTimeoutServiceAbstraction } from "../../abstractions/login-strategy-session-timeout.service";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 
 const SESSION_TIMEOUT_LENGTH = 5 * 60 * 1000; // 5 minutes
 
 export const LOGIN_SESSION_EXPIRED = new CommandDefinition("loginSessionExpired");
 
-export class LoginStrategySessionTimeoutService implements LoginStrategySessionTimeoutServiceAbstraction {
+export class DefaultLoginStrategySessionTimeoutService implements LoginStrategySessionTimeoutService {
   private sessionTimeoutSubscription: Subscription | undefined;
 
   loginSessionTimeout$: Observable<void>;
 
   constructor(
     private taskSchedulerService: TaskSchedulerService,
-    private loginStrategyCacheService: LoginStrategyCacheServiceAbstraction,
+    private loginStrategyCacheService: LoginStrategyCacheService,
     private logService: LogService,
     private messageSender: MessageSender,
     private messageListener: MessageListener,
