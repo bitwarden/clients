@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -33,10 +34,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { TaskSchedulerService } from "@bitwarden/common/platform/scheduling";
 import {
   FakeAccountService,
-  FakeGlobalState,
   FakeGlobalStateProvider,
   mockAccountServiceWith,
 } from "@bitwarden/common/spec";
@@ -55,11 +54,13 @@ import {
   AuthRequestServiceAbstraction,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "../../abstractions";
+import { LoginStrategyCacheServiceAbstraction } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategySessionTimeoutServiceAbstraction } from "../../abstractions/login-strategy-session-timeout.service";
 import { PasswordLoginCredentials } from "../../models";
 import { UserDecryptionOptionsService } from "../user-decryption-options/user-decryption-options.service";
 
 import { LoginStrategyService } from "./login-strategy.service";
-import { CACHE_EXPIRATION_KEY } from "./login-strategy.state";
+import { CacheData } from "./login-strategy.state";
 
 const argon2PreloginData = new PasswordPreloginData(new Argon2KdfConfig(2, 16, 1));
 
@@ -90,13 +91,13 @@ describe("LoginStrategyService", () => {
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
-  let taskSchedulerService: MockProxy<TaskSchedulerService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<DefaultAccountCryptographicStateService>;
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
+  let loginStrategyCacheService: MockProxy<LoginStrategyCacheServiceAbstraction>;
+  let loginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutServiceAbstraction>;
 
   let stateProvider: FakeGlobalStateProvider;
-  let loginStrategyCacheExpirationState: FakeGlobalState<Date | null>;
 
   const userId = "USER_ID" as UserId;
 
@@ -126,10 +127,34 @@ describe("LoginStrategyService", () => {
     stateProvider = new FakeGlobalStateProvider();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
-    taskSchedulerService = mock<TaskSchedulerService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<DefaultAccountCryptographicStateService>();
     passwordPreloginService = mock<PasswordPreloginService>();
+    loginStrategyCacheService = mock<LoginStrategyCacheServiceAbstraction>();
+    loginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutServiceAbstraction>();
+
+    const currentAuthTypeSubject = new BehaviorSubject<AuthenticationType | null>(null);
+    const cacheDataSubject = new BehaviorSubject<CacheData | null>(null);
+    const cacheExpirationSubject = new BehaviorSubject<Date | null>(null);
+
+    loginStrategyCacheService.currentAuthType$ = currentAuthTypeSubject.asObservable();
+    loginStrategyCacheService.cacheData$ = cacheDataSubject.asObservable();
+    loginStrategyCacheService.cacheExpiration$ = cacheExpirationSubject.asObservable();
+
+    loginStrategyCacheService.setCurrentAuthType.mockImplementation(async (type) => {
+      currentAuthTypeSubject.next(type);
+    });
+    loginStrategyCacheService.setCacheData.mockImplementation(async (data) => {
+      cacheDataSubject.next(data);
+    });
+    loginStrategyCacheService.setCacheExpiration.mockImplementation(async (date) => {
+      cacheExpirationSubject.next(date);
+    });
+    loginStrategyCacheService.clearCache.mockImplementation(async () => {
+      currentAuthTypeSubject.next(null);
+      cacheDataSubject.next(null);
+      cacheExpirationSubject.next(null);
+    });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
       of(new PasswordPreloginData(new PBKDF2KdfConfig())),
@@ -162,13 +187,12 @@ describe("LoginStrategyService", () => {
       billingAccountProfileStateService,
       vaultTimeoutSettingsService,
       kdfConfigService,
-      taskSchedulerService,
       configService,
       accountCryptographicStateService,
       passwordPreloginService,
+      loginStrategyCacheService,
+      loginStrategySessionTimeoutService,
     );
-
-    loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
 
     const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
     const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
@@ -300,7 +324,43 @@ describe("LoginStrategyService", () => {
 
     await sut.logIn(credentials);
 
-    loginStrategyCacheExpirationState.stateSubject.next(new Date(Date.now() - 1000 * 60 * 5));
+    // Override cacheExpiration$ to return an expired date and cacheData$ to return non-null
+    loginStrategyCacheService.cacheExpiration$ = of(new Date(Date.now() - 1000 * 60 * 5));
+    loginStrategyCacheService.cacheData$ = of({ password: {} as any });
+
+    // Re-create sut so the expired observables take effect in isSessionValid
+    sut = new LoginStrategyService(
+      accountService,
+      masterPasswordService,
+      unlockService,
+      keyService,
+      apiService,
+      tokenService,
+      appIdService,
+      platformUtilsService,
+      messagingService,
+      logService,
+      keyConnectorService,
+      environmentService,
+      stateService,
+      twoFactorService,
+      i18nService,
+      encryptService,
+      passwordStrengthService,
+      policyService,
+      deviceTrustService,
+      authRequestService,
+      userDecryptionOptionsService,
+      stateProvider,
+      billingAccountProfileStateService,
+      vaultTimeoutSettingsService,
+      kdfConfigService,
+      configService,
+      accountCryptographicStateService,
+      passwordPreloginService,
+      loginStrategyCacheService,
+      loginStrategySessionTimeoutService,
+    );
 
     const twoFactorToken = new TokenTwoFactorRequest(
       TwoFactorProviderType.Authenticator,
@@ -371,5 +431,65 @@ describe("LoginStrategyService", () => {
         newDeviceOtp: deviceVerificationOtp,
       }),
     );
+  });
+
+  it("should start session timeout when logIn returns a 2FA challenge", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    apiService.postIdentityToken.mockResolvedValue(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["0"],
+        TwoFactorProviders2: { 0: null },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: undefined,
+        ssoEmail2faSessionToken: undefined,
+      }),
+    );
+
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+
+    await sut.logIn(credentials);
+
+    expect(loginStrategySessionTimeoutService.startSessionTimeout).toHaveBeenCalled();
+  });
+
+  it("should cancel session timeout when logIn succeeds without 2FA", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    apiService.postIdentityToken.mockResolvedValue(
+      new IdentityTokenResponse({
+        ForcePasswordReset: false,
+        Kdf: KdfType.Argon2id,
+        KdfIterations: 2,
+        KdfMemory: 16,
+        KdfParallelism: 1,
+        Key: "KEY",
+        PrivateKey: "PRIVATE_KEY",
+        AccountKeys: {
+          publicKeyEncryptionKeyPair: {
+            wrappedPrivateKey: "PRIVATE_KEY",
+            publicKey: "PUBLIC_KEY",
+          },
+        },
+        access_token: "ACCESS_TOKEN",
+        expires_in: 3600,
+        refresh_token: "REFRESH_TOKEN",
+        scope: "api offline_access",
+        token_type: "Bearer",
+        userDecryptionOptions: new UserDecryptionOptionsResponse({ HasMasterPassword: true }),
+      }),
+    );
+
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+
+    tokenService.decodeAccessToken.calledWith("ACCESS_TOKEN").mockResolvedValue({
+      sub: "USER_ID",
+      name: "NAME",
+      email: "EMAIL",
+      premium: false,
+    });
+
+    await sut.logIn(credentials);
+
+    expect(loginStrategySessionTimeoutService.cancelSessionTimeout).toHaveBeenCalled();
   });
 });
