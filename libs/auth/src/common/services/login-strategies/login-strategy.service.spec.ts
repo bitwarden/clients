@@ -492,6 +492,11 @@ describe("LoginStrategyService", () => {
     expect(loginStrategyCacheService.clearCache).toHaveBeenCalled();
   });
 
+  it("should throw sessionTimeout when logInNewDeviceVerification is called with no cached session", async () => {
+    // cacheData$ is null by default — no prior logIn call
+    await expect(sut.logInNewDeviceVerification("123456")).rejects.toThrow();
+  });
+
   it("should clear cache when logInNewDeviceVerification throws a non-API error", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
