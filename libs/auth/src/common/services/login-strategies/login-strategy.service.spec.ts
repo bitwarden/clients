@@ -453,6 +453,67 @@ describe("LoginStrategyService", () => {
     expect(loginStrategySessionTimeoutService.startSessionTimeout).toHaveBeenCalled();
   });
 
+  it("should throw sessionTimeout when logInTwoFactor is called with no cached session", async () => {
+    // cacheData$ is null by default — no prior logIn call
+    const twoFactorToken = new TokenTwoFactorRequest(
+      TwoFactorProviderType.Authenticator,
+      "TWO_FACTOR_TOKEN",
+      true,
+    );
+
+    await expect(sut.logInTwoFactor(twoFactorToken)).rejects.toThrow();
+  });
+
+  it("should clear cache when logInTwoFactor throws a non-API error", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    apiService.postIdentityToken.mockResolvedValueOnce(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["0"],
+        TwoFactorProviders2: { 0: null },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: undefined,
+        ssoEmail2faSessionToken: undefined,
+      }),
+    );
+
+    await sut.logIn(credentials);
+
+    apiService.postIdentityToken.mockRejectedValueOnce(new Error("Network error"));
+
+    const twoFactorToken = new TokenTwoFactorRequest(
+      TwoFactorProviderType.Authenticator,
+      "TWO_FACTOR_TOKEN",
+      true,
+    );
+
+    await expect(sut.logInTwoFactor(twoFactorToken)).rejects.toThrow("Network error");
+    expect(loginStrategyCacheService.clearCache).toHaveBeenCalled();
+  });
+
+  it("should clear cache when logInNewDeviceVerification throws a non-API error", async () => {
+    const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
+    passwordPreloginService.getPreloginData$.mockReturnValue(of(argon2PreloginData));
+    apiService.postIdentityToken.mockResolvedValueOnce(
+      new IdentityTwoFactorResponse({
+        TwoFactorProviders: ["0"],
+        TwoFactorProviders2: { 0: null },
+        error: "invalid_grant",
+        error_description: "Two factor required.",
+        email: undefined,
+        ssoEmail2faSessionToken: undefined,
+      }),
+    );
+
+    await sut.logIn(credentials);
+
+    apiService.postIdentityToken.mockRejectedValueOnce(new Error("Network error"));
+
+    await expect(sut.logInNewDeviceVerification("123456")).rejects.toThrow("Network error");
+    expect(loginStrategyCacheService.clearCache).toHaveBeenCalled();
+  });
+
   it("should cancel session timeout when logIn succeeds without 2FA", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     apiService.postIdentityToken.mockResolvedValue(
