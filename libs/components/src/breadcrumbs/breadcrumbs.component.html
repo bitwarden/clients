@@ -35,6 +35,7 @@
     [class]="activeBreadcrumbStyles"
     [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
     attr.aria-current="page"
+    tabindex="0"
   >
     <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
   </span>
