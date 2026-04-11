@@ -94,7 +94,10 @@ describe("DefaultLoginStrategySessionTimeoutService", () => {
     });
 
     it("should set cache expiration with a future date", async () => {
-      const before = Date.now();
+      const frozenNow = 1_000_000;
+      jest.useFakeTimers();
+      jest.setSystemTime(frozenNow);
+
       await sut.startSessionTimeout();
 
       const setCall = loginStrategyCacheService.setCacheExpiration.mock.calls.find(
@@ -102,8 +105,9 @@ describe("DefaultLoginStrategySessionTimeoutService", () => {
       );
       expect(setCall).toBeDefined();
       const expirationDate = setCall![0] as Date;
-      expect(expirationDate.getTime()).toBeGreaterThanOrEqual(before + 5 * 60 * 1000 - 100);
-      expect(expirationDate.getTime()).toBeLessThanOrEqual(Date.now() + 5 * 60 * 1000 + 100);
+      expect(expirationDate.getTime()).toBe(frozenNow + 5 * 60 * 1000);
+
+      jest.useRealTimers();
     });
 
     it("should call taskSchedulerService.setTimeout", async () => {
