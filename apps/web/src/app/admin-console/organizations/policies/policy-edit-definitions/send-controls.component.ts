@@ -16,7 +16,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { WhoCanAccessType } from "@bitwarden/send-ui";
+import { DatePreset, WhoCanAccessType } from "@bitwarden/send-ui";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -51,7 +51,10 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     disableHideEmail: false,
     whoCanAccess: WhoCanAccessType.Any as WhoCanAccessType,
     allowedDomains: null as string | null,
+    deletionDays: null as DatePreset | null,
   });
+
+  readonly deletionDaysOptions: { name: string; value: DatePreset | null }[] = [];
 
   readonly sendFeatureEnabled = signal(true);
   /** Whether the allowed domains text area should be displayed */
@@ -68,6 +71,16 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     private readonly i18nService: I18nService,
   ) {
     super();
+    this.deletionDaysOptions = [
+      { name: this.i18nService.t("sendDeletionDaysNoRestriction"), value: null },
+      { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
+      { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
+      { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
+      { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
+      { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
+      { name: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
+      { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
+    ];
   }
 
   async ngOnInit() {
@@ -99,6 +112,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       .subscribe((value: boolean) => {
         this.data.get("whoCanAccess")?.patchValue(WhoCanAccessType.Any);
         this.data.get("disableHideEmail")?.patchValue(false);
+        this.data.get("deletionDays")?.patchValue(null);
         this.sendFeatureEnabled.set(!value);
       });
     this.data.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
@@ -107,7 +121,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         !(
           !value.disableSend &&
           value.whoCanAccess === WhoCanAccessType.Any &&
-          !value.disableHideEmail
+          !value.disableHideEmail &&
+          value.deletionDays == null
         ),
       );
     });

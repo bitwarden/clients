@@ -53,6 +53,19 @@
       }
     </bit-radio-group>
     <hr class="tw-border-secondary-100" />
+    <h3 bitTypography="h3" class="tw-mt-4">{{ "sendDeletionDays" | i18n }}</h3>
+    <div bitTypography="body1" class="tw-text-muted tw-mb-2">
+      {{ "sendDeletionDaysDescription" | i18n }}
+    </div>
+    <bit-form-field>
+      <bit-label>{{ "sendDeletionDays" | i18n }}</bit-label>
+      <bit-select formControlName="deletionDays">
+        @for (option of deletionDaysOptions; track option.value) {
+          <bit-option [value]="option.value" [label]="option.name"></bit-option>
+        }
+      </bit-select>
+    </bit-form-field>
+    <hr class="tw-border-secondary-100" />
     <h3 bitTypography="h3" class="tw-mt-4">{{ "additionalOptions" | i18n }}</h3>
     <bit-form-control>
       <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />

@@ -34,7 +34,11 @@
           [label]="o.name"
         ></bit-option>
       </bit-select>
-      <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
+      @if (policyDeletionDays != null && policyDeletionDaysOrgName) {
+        <bit-hint>{{ "sendDeletionDaysPolicyHint" | i18n: policyDeletionDaysOrgName }}</bit-hint>
+      } @else {
+        <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
+      }
     </bit-form-field>
 
     <bit-form-field [disableMargin]="!sendDetailsForm.get('authType').value">

@@ -4816,5 +4816,23 @@
   },
   "allowedDomainsAutopopulateAlert": {
     "message": "Domains have been auto populated based off of claimed domains. You can edit these at any time"
+  },
+  "sendDeletionDays": {
+    "message": "Deletion date"
+  },
+  "sendDeletionDaysDescription": {
+    "message": "Set the maximum time a Send can exist before it is automatically deleted."
+  },
+  "sendDeletionDaysNoRestriction": {
+    "message": "No restriction"
+  },
+  "sendDeletionDaysPolicyHint": {
+    "message": "$ORG_NAME$ has set this deletion date",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My Organization"
+      }
+    }
   }
 }

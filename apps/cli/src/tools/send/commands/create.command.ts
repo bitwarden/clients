@@ -18,7 +18,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NodeUtils } from "@bitwarden/node/node-utils";
-import { WhoCanAccessType } from "@bitwarden/send-ui";
+import { DatePreset, WhoCanAccessType } from "@bitwarden/send-ui";
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
@@ -107,7 +107,7 @@ export class SendCreateCommand {
       req.authType = AuthType.None;
     }
 
-    const policyError = await this.enforceSendPolicy(req.authType, emails);
+    const policyError = await this.enforceSendPolicy(req);
     if (policyError) {
       return policyError;
     }
@@ -172,10 +172,7 @@ export class SendCreateCommand {
     }
   }
 
-  private async enforceSendPolicy(
-    authType: AuthType,
-    emails: string[] | undefined,
-  ): Promise<Response | null> {
+  private async enforceSendPolicy(req: any): Promise<Response | null> {
     const sendControlsEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendControls);
     if (!sendControlsEnabled) {
       return null;
@@ -185,45 +182,55 @@ export class SendCreateCommand {
     const policies = await firstValueFrom(
       this.policyService.policiesByType$(PolicyType.SendControls, userId),
     );
-    const policy = policies?.find((p) => p.data?.whoCanAccess);
-    if (!policy) {
-      return null;
-    }
 
-    const whoCanAccess = policy.data.whoCanAccess as WhoCanAccessType;
+    // Enforce "who can access" policy
+    const accessPolicy = policies?.find((p) => p.data?.whoCanAccess);
+    if (accessPolicy) {
+      const whoCanAccess = accessPolicy.data.whoCanAccess as WhoCanAccessType;
 
-    if (whoCanAccess === WhoCanAccessType.SpecificPeople) {
-      if (authType !== AuthType.Email || !emails?.length) {
-        return Response.error(
-          "Organization policy requires Send access to be restricted to specific people. Use --emails to specify recipients.",
-        );
-      }
+      if (whoCanAccess === WhoCanAccessType.SpecificPeople) {
+        if (req.authType !== AuthType.Email || !req.emails?.length) {
+          return Response.error(
+            "Organization policy requires Send access to be restricted to specific people. Use --emails to specify recipients.",
+          );
+        }
 
-      const rawDomains = policy.data.allowedDomains as string;
-      if (rawDomains) {
-        const allowedDomains = rawDomains
-          .split(",")
-          .map((d: string) => d.trim().toLowerCase())
-          .filter((d: string) => d.length > 0);
+        const rawDomains = accessPolicy.data.allowedDomains as string;
+        if (rawDomains) {
+          const allowedDomains = rawDomains
+            .split(",")
+            .map((d: string) => d.trim().toLowerCase())
+            .filter((d: string) => d.length > 0);
 
-        if (allowedDomains.length > 0) {
-          const disallowed = emails.filter((email) => {
-            const domain = email.split("@")[1]?.toLowerCase();
-            return !allowedDomains.includes(domain);
-          });
-          if (disallowed.length > 0) {
-            return Response.error(
-              `Organization policy restricts email domains. The following emails are not allowed: ${disallowed.join(", ")}. Allowed domains: ${allowedDomains.join(", ")}.`,
-            );
+          if (allowedDomains.length > 0) {
+            const disallowed = req.emails.filter((email: string) => {
+              const domain = email.split("@")[1]?.toLowerCase();
+              return !allowedDomains.includes(domain);
+            });
+            if (disallowed.length > 0) {
+              return Response.error(
+                `Organization policy restricts email domains. The following emails are not allowed: ${disallowed.join(", ")}. Allowed domains: ${allowedDomains.join(", ")}.`,
+              );
+            }
           }
         }
+      } else if (whoCanAccess === WhoCanAccessType.PasswordProtected) {
+        if (req.authType !== AuthType.Password) {
+          return Response.error(
+            "Organization policy requires Send access to be password protected. Use --password to set a password.",
+          );
+        }
       }
-    } else if (whoCanAccess === WhoCanAccessType.PasswordProtected) {
-      if (authType !== AuthType.Password) {
-        return Response.error(
-          "Organization policy requires Send access to be password protected. Use --password to set a password.",
-        );
-      }
+    }
+
+    // Enforce "deletion days" policy
+    const deletionPolicy = policies?.find((p) => p.data?.deletionDays != null);
+    if (deletionPolicy) {
+      const deletionDays = deletionPolicy.data.deletionDays as DatePreset;
+      const now = new Date();
+      const policyDeletionDate = new Date(now.getTime() + deletionDays * 60 * 60 * 1000);
+      req.deletionDate = policyDeletionDate;
+      req.expirationDate = policyDeletionDate;
     }
 
     return null;

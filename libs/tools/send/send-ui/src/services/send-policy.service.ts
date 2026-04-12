@@ -1,12 +1,15 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+
+import { DatePreset } from "../models/date-preset";
 
 export const WhoCanAccessType = Object.freeze({
   Any: 0,
@@ -25,6 +28,7 @@ export class SendPolicyService {
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
   private configService = inject(ConfigService);
+  private organizationService = inject(OrganizationService);
 
   private readonly flagAndUser$ = combineLatest([
     this.configService.getFeatureFlag$(FeatureFlag.SendControls),
@@ -109,6 +113,48 @@ export class SendPolicyService {
                 .split(",")
                 .map((d: string) => d.trim().toLowerCase())
                 .filter((d: string) => d.length > 0);
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Emits the policy-enforced deletion days preset (in hours), or `null` if no policy applies.
+   */
+  readonly deletionDays$: Observable<DatePreset | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            map((policies) => {
+              const policy = policies?.find((p) => p.data?.deletionDays != null);
+              return (policy?.data?.deletionDays as DatePreset) ?? null;
+            }),
+          )
+        : of(null),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Emits the name of the organization enforcing the deletion days policy, or `null` if none.
+   */
+  readonly deletionDaysOrgName$: Observable<string | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) =>
+      sendControlsEnabled
+        ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+            switchMap((policies) => {
+              const policy = policies?.find((p) => p.data?.deletionDays != null);
+              if (!policy) {
+                return of(null);
+              }
+              return this.organizationService.organizations$(userId).pipe(
+                map((orgs) => {
+                  const org = orgs?.find((o) => o.id === policy.organizationId);
+                  return org?.name ?? null;
+                }),
+              );
             }),
           )
         : of(null),

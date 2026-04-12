@@ -13339,5 +13339,23 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "sendDeletionDays": {
+    "message": "Deletion date"
+  },
+  "sendDeletionDaysDescription": {
+    "message": "Set the maximum time a Send can exist before it is automatically deleted."
+  },
+  "sendDeletionDaysNoRestriction": {
+    "message": "No restriction"
+  },
+  "sendDeletionDaysPolicyHint": {
+    "message": "$ORG_NAME$ has set this deletion date",
+    "placeholders": {
+      "org_name": {
+        "content": "$1",
+        "example": "My Organization"
+      }
+    }
   }
 }
