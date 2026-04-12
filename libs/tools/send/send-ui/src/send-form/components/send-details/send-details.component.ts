@@ -46,13 +46,17 @@ import {
   WhoCanAccessType,
 } from "@bitwarden/send-ui";
 
-import { DatePreset } from "../../../models/date-preset";
+import {
+  DatePreset,
+  DatePresetSelectOption,
+  isDatePreset,
+  asDatePreset,
+} from "../../../models/date-preset";
 import { SendFormContainer } from "../../send-form-container";
 import { SendOptionsComponent } from "../options/send-options.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
-
 
 export {
   DatePreset,
@@ -262,7 +266,7 @@ export class SendDetailsComponent implements OnInit {
         this.policyDeletionDaysOrgName = orgName;
         const deletionControl = this.sendDetailsForm.get("selectedDeletionDatePreset");
         if (deletionDays != null) {
-          deletionControl.setValue(deletionDays);
+          deletionControl.setValue(deletionDays as any);
           deletionControl.disable();
         }
       });
