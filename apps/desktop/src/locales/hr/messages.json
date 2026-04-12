@@ -12,7 +12,7 @@
     "message": "Favoriti"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Ukloni iz favorita"
   },
   "types": {
     "message": "Vrste"
@@ -338,10 +338,10 @@
     "message": "Za korištenje ove značajke potrebno je Premium članstvo."
   },
   "syncWithBrowser": {
-    "message": "Sync with browser"
+    "message": "Sinkrozniziraj s preglednikom"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "message": "Za povezivanje s $VAULTURL$, moraš sinkronizirati svoj zadani preglednik s aplikacijom Bitwarden. Bit ćeš preusmjeren/a natrag na ovu aplikaciju nakon što se tvoj preglednik sinkronizira.",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -351,7 +351,7 @@
     }
   },
   "launchBrowser": {
-    "message": "Launch browser"
+    "message": "Pokreni preglednik"
   },
   "errorOccurred": {
     "message": "Došlo je do pogreške."
@@ -606,10 +606,10 @@
     "message": "Stavka spremljena"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Stavka dodana u omiljene"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Stavka uklonjenja iz omiljenih"
   },
   "deleteItem": {
     "message": "Izbriši stavku"
@@ -798,13 +798,13 @@
     "message": "Dodaj privitak"
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Stavke prenesene"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Popravi šifriranje"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Ova datoteka koristi zastarjelu metodu šifriranja."
   },
   "attachmentUpdated": {
     "message": "Privitak ažuriran"
@@ -922,7 +922,7 @@
     "message": "Podsjetnik glavne lozinke"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "Glavna lozinka promijenjena"
   },
   "passwordStrengthScore": {
     "message": "Ocjena jačine lozinke: $SCORE$",
@@ -1016,7 +1016,7 @@
     "message": "Neočekivana greška"
   },
   "closeThisBitwardenWindow": {
-    "message": "Close this Bitwarden window and try again."
+    "message": "Zatvori Bitwarden prozor i pokušaj ponovno."
   },
   "itemInformation": {
     "message": "Informacije o stavci"
@@ -1052,7 +1052,7 @@
     "message": "Nevažeći kôd za provjeru"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Nevažeća e-pošta ili kôd za provjeru"
   },
   "continue": {
     "message": "Nastavi"
@@ -1216,25 +1216,25 @@
     "message": "Nove preporučene postavke šifriranja poboljšat će sigurnost tvojeg računa. Za ažuriranje, unesi svoju glavnu lozinku."
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Dodatno rotiraj ključ za šifriranje mojeg računa"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Utjecaj rotiranja tvojeg ključa za šifriranje"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "Postoje stari privitci u tvom trezoru koje je potrebno popraviti prije rotacije ključa za šifriranje."
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Rotiraj ključ za šifriranje"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Sigurno želiš rotirati ključ za šifriranje svojeg računa?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Nakon ažuriranja svojeg ključa za šifriranje, obavezno se trebaš odjaviti i ponovno prijaviti u sve Bitwarden aplikacije koje trenutno koristiš (npr. mobilna aplikacija, proširenje preglednika, ...). Ako se ne odjaviš i ponovno prijaviš (čime se preuzima tvoj novi ključ za šifriranje) može doći do oštećenja spremljenih podataka. Pokušati ćemo te automatski odjaviti, no, to bi možda moglo potrajati."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Svi prethodni izvozi ograničeni ovim računom postati će nevažeći."
   },
   "confirmIdentityToContinue": {
     "message": "Za nastavak, potvrdi svoj identitet"
@@ -1321,7 +1321,7 @@
     "message": "Promjeni glavnu lozinku"
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Promjeni glavnu lozinku"
   },
   "continueToWebApp": {
     "message": "Nastavi na web aplikaciju?"
@@ -1602,16 +1602,16 @@
     "message": "Nepoznato"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Kopiraj adresu"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Kopiraj telefon"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Kopiraj bilješku"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Kopiraj kôd za provjeru"
   },
   "copyUsername": {
     "message": "Kopiraj korisničko ime"
@@ -1697,19 +1697,19 @@
     }
   },
   "month": {
-    "message": "month"
+    "message": "mjesečno"
   },
   "monthly": {
-    "message": "Monthly"
+    "message": "mjesečno"
   },
   "year": {
-    "message": "year"
+    "message": "godišnje"
   },
   "annually": {
-    "message": "Annually"
+    "message": "godišnje"
   },
   "annual": {
-    "message": "Annual"
+    "message": "godišnje"
   },
   "refreshComplete": {
     "message": "Osvježavanje završeno"
@@ -2127,13 +2127,13 @@
     "message": "Nespremljene promjene"
   },
   "unsavedChangesUpdateBody": {
-    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+    "message": "Odeš li sada, tvoje promjene neće biti spremljene. Za ostanak i spremanje promjena, instaliraj ažuriranje kasnije."
   },
   "installLater": {
-    "message": "Install later"
+    "message": "Instaliraj kasnije"
   },
   "continueWithInstall": {
-    "message": "Continue with install"
+    "message": "Nastavi s instalacijom"
   },
   "clone": {
     "message": "Kloniraj"
@@ -2162,22 +2162,22 @@
     "message": "Pretraži smeće"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Pretraži arhivu"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Pretraži prijave"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Pretraži kartice"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Pretraži identitete"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Pretraži sigurne bilješke"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Pretraži SSH ključeve"
   },
   "permanentlyDeleteItem": {
     "message": "Trajno izbriši stavku"
@@ -2189,7 +2189,7 @@
     "message": "Stavka trajno izbrisana"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Arhivirana stavka vraćena"
   },
   "restoredItem": {
     "message": "Stavka vraćena"
@@ -2243,9 +2243,6 @@
   },
   "copyTOTP": {
     "message": "Kopiraj ključ autentifikatora (TOTP)"
-  },
-  "copyNotes": {
-    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "Učini dvostruku autentifikaciju besprijekornom"
@@ -2337,7 +2334,7 @@
     "message": "Tvoja nova glavna lozinka ne ispunjava zahtjeve."
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Jedno ili više organizacijskih pravila zahtijeva da glavna lozinka ispunjava sljedeće uvjete:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Primaj e-poštom od Bitwardena savjete, najave i mogućnosti istraživanja."
@@ -2482,7 +2479,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Ja"
   },
   "myVault": {
     "message": "Moj trezor"
@@ -3807,7 +3804,7 @@
     "message": "Podaci iz trezora su izvezeni"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Došlo je do greške kod izvoza tvojih podataka trezora"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktorska autentifikacija otkazana"
@@ -4145,7 +4142,7 @@
     "message": "Prebriši pristupni ključ?"
   },
   "unableToSavePasskey": {
-    "message": "Unable to save passkey"
+    "message": "Nije moguće spremiti pristupni ključ"
   },
   "alreadyContainsPasskey": {
     "message": "Ova stavka već sadrži pristupni ključ. Sigurno želiš prebrisati trenutni pristupni ključ?"
@@ -4154,7 +4151,7 @@
     "message": "Za ovu aplikaciju već postoji pristupni ključ."
   },
   "applicationDoesNotSupportDuplicates": {
-    "message": "This application does not support duplicates."
+    "message": "Ova aplikacija ne podržava duplikate."
   },
   "closeThisWindow": {
     "message": "Zatvori ovaj prozor"
@@ -4193,7 +4190,7 @@
     "message": "Nedostaje web-stranica"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Nedostaju ti potrebna dopuštenja za izvođenje ove radnje."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "S dopuštenjima samo za prikaz ne možeš ukloniti zbirke: $COLLECTIONS$",
@@ -4500,19 +4497,19 @@
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Stavka arhivirana"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Vrati iz arhive i spremi"
   },
   "restartPremium": {
     "message": "Ponovno Pokreni Premium"
@@ -4551,67 +4548,67 @@
     "message": "I više!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Napredna online sigurnost"
   },
   "upgradeToPremium": {
     "message": " Nadogradi na Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Tvoja organizacija više ne koristi glavne lozinke za prijavu u Bitwarden. Za nastavak, potvrdi orgnaizaciju i domenu."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Nastavi s prijavom"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Nemoj nastaviti"
   },
   "domain": {
     "message": "Domena"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Ova će domena spremiti tvoj ključ šifriranja, pa joj moraš vjerovati. Ako nisi siguran/a provjeri sa svojim adminom."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Potvrdi svoju organizaciju za prijavu"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organizacija potvrđena"
   },
   "domainVerified": {
     "message": "Domena potvrđena"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Ako ne potvrdiš svoju organizaciju, tvoj pristup organizaciji biti će opozvan."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Napusti sada"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Za prijavu, potvrdi domenu"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Za nastavak prijave, potvrdi domenu."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Na nastavak s prijavom, potvrdi organizaciju i domenu."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Radnja nakon isteka"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Greška: ne mogu dešifrirati"
   },
   "sessionTimeoutHeader": {
     "message": "Istek sesije"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Promjeni veličinu bočne navigacije"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Ovom postavkom upravlja tvoja organizacija."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Tvoja organizacija je postavila najveće dozvoljeno vrijeme isteka trezora na $HOURS$:$MINUTES$ h.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4624,13 +4621,13 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "Tvoja organizacaija je postavila zadani istek sesije na zaključavanje sustava."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On restart."
+    "message": "Tvoja organizacaija je postavila zadani istek sesije na ponovno pokretanje."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "Najveće vrijeme ne može biti veće od $HOURS$:$MINUTES$ h",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4655,13 +4652,13 @@
     "message": "Sigurno želiš napustiti?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Odbijanjem, tvoje osobne stavke ostat će na tvojem računu, ali ćeš izgubiti pristup dijeljenim stavkama i značajkama organizacije."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Za ponovni pristup kontaktiraj svog administratora."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Napusti $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4670,10 +4667,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Kako upravljam svojim trezorom?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Prenesi stavke u $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4682,7 +4679,7 @@
     }
   },
   "transferItemsToOrganizationDescription": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
+    "message": "Zbog sigurnosti i usklađenosti $ORGANIZATION$ zahtijeva da su sve stavke u vlasništvu organizacije.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4691,79 +4688,79 @@
     }
   },
   "transferItemsToOrganizationAction": {
-    "message": "Click accept to transfer ownership of your items."
+    "message": "Pristani na prijenos vlasništva svih tvojih stavki."
   },
   "openTransferItemsHelpArticle": {
-    "message": "Open help article on transferring items"
+    "message": "Otvori pomoć vezano za prijenos stavki"
   },
   "acceptTransfer": {
     "message": "Prihvati prijenos"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Odbij i napusti"
   },
   "organizationIsSuspended": {
-    "message": "Organization is suspended"
+    "message": "Organizacija je suspendirana"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Nema stavki u smeću"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Stavke koje obrišeš biti će premještene ovdje, a nakon 30 dana biti će trajno izbrisane"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Nema stavaka u trezoru"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Trezor štiti više od lozinki. Sigurno spremi prijave, identitete, kartice i bilješke."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Niti jedna stavka nije dodana u favorite"
   },
   "emptyFavoritesDesc": {
-    "message": "Add frequently used items to favorites for quick access."
+    "message": "Za brzi pristup često korištenim stavkama dodaj ih u favorite."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Nema rezultata pretrage"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Očisti filtre ili pokušaj s drugačijom pretragom"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Za pregled ovog Senda biti će potrebno unijeti lozinku",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Zaštičeno e-poštom"
   },
   "emails": {
-    "message": "Emails"
+    "message": "e-pošte"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Svatko s poveznicom"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Svatko s lozinkom"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Tko može pogledati"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Određene osobe"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Nakon dijeljenja Send poveznice, osobe će za prikaz Senda morati potvrditi svoju adresu e-pošte pomoću kôda."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Unesi više adresa, odvojenih zarezom."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "korisnik@bitwarden.com , korisnik@primjer.hr"
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Nije uspjela provjera korisnika."
   }
 }
