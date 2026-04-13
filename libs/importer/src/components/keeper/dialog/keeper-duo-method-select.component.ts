@@ -44,7 +44,7 @@ export class KeeperDuoMethodSelectComponent {
       case DuoMethod.Passcode:
         return "keeperDuoPasscode";
       default:
-        return "keeperDuoUnknown";
+        return "unknownMethod";
     }
   }
 

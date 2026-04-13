@@ -52,7 +52,7 @@ export class KeeperTwoFactorMethodSelectComponent {
       case TwoFactorMethod.KeeperDna:
         return "keeperTwoFactorKeeperDna";
       default:
-        return "keeperTwoFactorUnknown";
+        return "unknownMethod";
     }
   }
 

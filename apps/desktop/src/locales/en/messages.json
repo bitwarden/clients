@@ -3963,7 +3963,7 @@
   "keeperTwoFactorKeeperDna": {
     "message": "Keeper DNA"
   },
-  "keeperTwoFactorUnknown": {
+  "unknownMethod": {
     "message": "Unknown method"
   },
   "keeperSelectDuoMethod": {
@@ -3980,9 +3980,6 @@
   },
   "keeperDuoPasscode": {
     "message": "Passcode"
-  },
-  "keeperDuoUnknown": {
-    "message": "Unknown method"
   },
   "duoVerification": {
     "message": "Duo verification"
