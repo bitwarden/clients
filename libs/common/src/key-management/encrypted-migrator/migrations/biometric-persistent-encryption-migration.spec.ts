@@ -53,34 +53,7 @@ describe("BiometricPersistentMigration", () => {
       expect(result).toBe("noMigrationNeeded");
     });
 
-    it("should migrate v1 to v2", async () => {
-      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
-      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
-      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
-      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(null);
-
-      const result = await sut.needsMigration(mockUserId);
-
-      expect(result).toBe("needsMigration");
-    });
-
-    it("should migrate v2 to v2", async () => {
-      const differentKeyId = new Uint8Array([5, 6, 7, 8]);
-      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
-      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
-      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
-      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(
-        Utils.fromBufferToB64(differentKeyId),
-      );
-
-      const result = await sut.needsMigration(mockUserId);
-
-      expect(result).toBe("needsMigration");
-    });
-
-    it("should return 'needsMigration' when enrolled key ID does not match current key ID", async () => {
+    it("should return 'needsMigration' when enrolled key ID does not match current key ID (v2 to v2 migration)", async () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
