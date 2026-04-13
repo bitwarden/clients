@@ -141,7 +141,7 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get orgExportDescription(): string {
     if (!this._showExcludeMyItems) {
-      return "exportingOrganizationVaultDesc";
+      return "exportingOrganizationVaultScopeDescription";
     }
     return this.isAdminConsoleContext
       ? "exportingOrganizationVaultFromAdminConsoleWithDataOwnershipDesc"
