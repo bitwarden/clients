@@ -479,7 +479,6 @@ export class Client {
     TwoFactorMethod.Totp,
     TwoFactorMethod.Sms,
     TwoFactorMethod.Duo,
-    TwoFactorMethod.KeeperPush,
   ]);
 
   private async handle2FA(

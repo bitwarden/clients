@@ -29,3 +29,5 @@
 - [ ] Test custom fields with names ending in `Ref`. See if they get ignored. Explore record links.
 - [x] When the import is done and successful, there's still an error message popping up.
 - [x] What if there's 2FA but only the unsupported kind? Test.
+- [ ] Verify that the error strings exist and map to the actual errors in
+      `getValidationErrorI18nKey` in `libs/importer/src/components/keeper/import-keeper.component.ts`.
