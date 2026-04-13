@@ -41,7 +41,6 @@ import {
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
-  CipherStatus,
   CollectionFilter,
   CipherStatus,
   CipherTypeFilter,
