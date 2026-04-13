@@ -8,6 +8,7 @@ export const ScheduledTaskNames = {
   eventUploadsInterval: "eventUploadsInterval",
   vaultTimeoutCheckInterval: "vaultTimeoutCheckInterval",
   clearPopupViewCache: "clearPopupViewCache",
+  targetingRulesUpdate: "targetingRulesUpdate",
   phishingDomainUpdate: "phishingDomainUpdate",
 } as const;
 

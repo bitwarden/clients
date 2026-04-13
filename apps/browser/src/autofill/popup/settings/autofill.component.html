@@ -245,6 +245,17 @@
           <h2 bitTypography="h6">{{ "additionalOptions" | i18n }}</h2>
         </bit-section-header>
         <bit-card>
+          @if (fillAssistFeatureEnabled$ | async) {
+            <bit-form-control>
+              <input
+                formControlName="enableFillAssist"
+                bitCheckbox
+                id="fill-assist"
+                type="checkbox"
+              />
+              <bit-label for="fill-assist">{{ "enableFillAssist" | i18n }}</bit-label>
+            </bit-form-control>
+          }
           <bit-form-control>
             <input
               formControlName="enableContextMenuItem"

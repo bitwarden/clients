@@ -18,6 +18,7 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
+  Environment,
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -164,10 +165,21 @@ describe("OverlayBackground", () => {
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
     neverDomainsMock$ = new BehaviorSubject({});
+    const mockEnvironment = mock<Environment>();
+    mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
+    const environmentServiceForDomain = mock<EnvironmentService>();
+    environmentServiceForDomain.environment$ = new BehaviorSubject(mockEnvironment);
+
+    const authServiceForDomain = mock<AuthService>();
+    authServiceForDomain.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
+      environmentServiceForDomain,
+      authServiceForDomain,
     );
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;

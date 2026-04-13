@@ -337,6 +337,7 @@ import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
@@ -550,6 +551,8 @@ export default class MainBackground {
 
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
+
+  private targetingRulesDataService: TargetingRulesDataService;
 
   // DIRT
   private phishingDataService: PhishingDataService;
@@ -1019,6 +1022,19 @@ export default class MainBackground {
       this.stateProvider,
       this.policyService,
       this.accountService,
+      this.configService,
+      this.environmentService,
+      this.authService,
+    );
+
+    this.targetingRulesDataService = new TargetingRulesDataService(
+      this.apiService,
+      this.domainSettingsService,
+      this.configService,
+      this.environmentService,
+      this.taskSchedulerService,
+      this.globalStateProvider,
+      this.logService,
     );
 
     this.themeStateService = new DefaultThemeStateService(this.globalStateProvider);
@@ -1655,6 +1671,7 @@ export default class MainBackground {
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
+    await this.targetingRulesDataService.init();
 
     // If the user is logged out, switch to the next account
     const active = await firstValueFrom(this.accountService.activeAccount$);

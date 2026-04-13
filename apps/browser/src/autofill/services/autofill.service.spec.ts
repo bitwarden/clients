@@ -20,6 +20,10 @@ import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum"
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
@@ -112,11 +116,22 @@ describe("AutofillService", () => {
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockImplementation(() => of(false));
 
+    const mockEnvironment = mock<Environment>();
+    mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
+    const environmentService = mock<EnvironmentService>();
+    environmentService.environment$ = new BehaviorSubject(mockEnvironment);
+
+    authService = mock<AuthService>();
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
     // Initialize domainSettingsService BEFORE it's used
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
+      environmentService,
+      authService,
     );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
 

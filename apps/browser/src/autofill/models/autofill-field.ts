@@ -124,6 +124,11 @@ export default class AutofillField {
 
   fieldQualifier?: AutofillFieldQualifierType;
 
+  /**
+   * Indicates this field was qualified by targeting rules rather than heuristics
+   */
+  targeted?: boolean;
+
   accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
 
   /**
