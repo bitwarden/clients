@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,12 +20,10 @@ type KeeperMultifactorPromptData = {
   variant: KeeperMultifactorPromptVariant;
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "keeper-multifactor-prompt.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     JslibModule,
     ReactiveFormsModule,
     DialogModule,
@@ -38,7 +35,17 @@ type KeeperMultifactorPromptData = {
   ],
 })
 export class KeeperMultifactorPromptComponent {
-  private variant = this.data.variant;
+  private readonly dialogRef = inject(DialogRef);
+  private readonly data = inject<KeeperMultifactorPromptData>(DIALOG_DATA);
+
+  private readonly variant = this.data.variant;
+
+  protected readonly formGroup = new FormGroup({
+    passcode: new FormControl("", {
+      validators: this.variant === "totp" ? Validators.required : [],
+      updateOn: "submit",
+    }),
+  });
 
   protected get descriptionI18nKey(): string {
     switch (this.variant) {
@@ -54,19 +61,7 @@ export class KeeperMultifactorPromptComponent {
     return this.variant === "totp";
   }
 
-  protected formGroup = new FormGroup({
-    passcode: new FormControl("", {
-      validators: this.data.variant === "totp" ? Validators.required : [],
-      updateOn: "submit",
-    }),
-  });
-
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) protected data: KeeperMultifactorPromptData,
-  ) {}
-
-  submit = () => {
+  protected readonly submit = () => {
     if (this.variant === "totp") {
       this.formGroup.markAsTouched();
       if (!this.formGroup.valid) {

@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -10,16 +10,15 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "keeper-error.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [JslibModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class KeeperErrorComponent {
-  protected messageKey = this.data.messageKey;
+  private readonly data = inject<{ messageKey: string }>(DIALOG_DATA);
 
-  constructor(@Inject(DIALOG_DATA) protected data: { messageKey: string }) {}
+  protected readonly messageKey = this.data.messageKey;
 
   static open(dialogService: DialogService, messageKey: string): Promise<void> {
     const dialogRef = dialogService.open(KeeperErrorComponent, {

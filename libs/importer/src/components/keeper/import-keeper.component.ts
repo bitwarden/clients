@@ -1,5 +1,13 @@
-import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  inject,
+  output,
+  signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
   AsyncValidatorFn,
   ControlContainer,
@@ -26,13 +34,11 @@ import { ImportResult } from "../../models";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "import-keeper",
   templateUrl: "import-keeper.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     JslibModule,
     CalloutModule,
     TypographyModule,
@@ -43,7 +49,13 @@ import { KeeperDirectImportService } from "./keeper-direct-import.service";
   ],
 })
 export class ImportKeeperComponent implements OnInit, OnDestroy {
-  private _parentFormGroup!: FormGroup;
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly controlContainer = inject(ControlContainer);
+  private readonly logService = inject(LogService);
+  private readonly keeperDirectImportService = inject(KeeperDirectImportService);
+  private readonly i18nService = inject(I18nService);
+
+  private readonly _parentFormGroup = signal<FormGroup | null>(null);
 
   protected readonly regions = [
     { value: KeeperRegion.Us, label: "US" },
@@ -54,7 +66,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     { value: KeeperRegion.UsGov, label: "US (GOV)" },
   ];
 
-  protected formGroup = this.formBuilder.group({
+  protected readonly formGroup = this.formBuilder.group({
     email: [
       "",
       {
@@ -65,33 +77,27 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     ],
     region: [KeeperRegion.Us],
   });
-  protected emailHint$ = this.formGroup.controls.email.statusChanges.pipe(
-    map((status) => {
-      if (status === "PENDING") {
-        return this.i18nService.t("importingYourAccount");
-      }
-    }),
+
+  protected readonly emailHint = toSignal(
+    this.formGroup.controls.email.statusChanges.pipe(
+      map((status) => {
+        if (status === "PENDING") {
+          return this.i18nService.t("importingYourAccount");
+        }
+        return undefined;
+      }),
+    ),
   );
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() importCompleted = new EventEmitter<ImportResult>();
-
-  constructor(
-    private formBuilder: FormBuilder,
-    private controlContainer: ControlContainer,
-    private logService: LogService,
-    private keeperDirectImportService: KeeperDirectImportService,
-    private i18nService: I18nService,
-  ) {}
+  readonly importCompleted = output<ImportResult>();
 
   ngOnInit(): void {
-    this._parentFormGroup = this.controlContainer.control as FormGroup;
-    this._parentFormGroup.addControl("keeperOptions", this.formGroup);
+    this._parentFormGroup.set(this.controlContainer.control as FormGroup);
+    this._parentFormGroup()!.addControl("keeperOptions", this.formGroup);
   }
 
   ngOnDestroy(): void {
-    this._parentFormGroup.removeControl("keeperOptions");
+    this._parentFormGroup()?.removeControl("keeperOptions");
   }
 
   /**
@@ -99,7 +105,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
    * Will return a validation error if unable to login or fetch.
    * Emits account contents to `importCompleted`
    */
-  validateAndEmitData(): AsyncValidatorFn {
+  private validateAndEmitData(): AsyncValidatorFn {
     return async () => {
       try {
         const importResult = await this.keeperDirectImportService.handleImport(
@@ -119,7 +125,6 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     };
   }
 
-  // TODO: Review these error messages!
   private getValidationErrorI18nKey(error: unknown): string {
     const message = typeof error === "string" ? error : (error as Error)?.message;
     switch (message) {

@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -18,22 +17,19 @@ type KeeperDuoMethodSelectData = {
   phoneNumber: string;
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "keeper-duo-method-select.component.html",
-  imports: [CommonModule, JslibModule, DialogModule, ButtonModule, TypographyModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [JslibModule, DialogModule, ButtonModule, TypographyModule],
 })
 export class KeeperDuoMethodSelectComponent {
-  protected methods = this.data.methods;
-  protected phoneNumber = this.data.phoneNumber;
+  private readonly dialogRef = inject(DialogRef);
+  private readonly data = inject<KeeperDuoMethodSelectData>(DIALOG_DATA);
 
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) protected data: KeeperDuoMethodSelectData,
-  ) {}
+  protected readonly methods = this.data.methods;
+  protected readonly phoneNumber = this.data.phoneNumber;
 
-  select(method: DuoMethod) {
+  protected select(method: DuoMethod) {
     this.dialogRef.close(method);
   }
 

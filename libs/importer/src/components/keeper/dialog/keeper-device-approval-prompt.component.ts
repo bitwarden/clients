@@ -1,5 +1,4 @@
-import { CommonModule } from "@angular/common";
-import { Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -21,12 +20,10 @@ type KeeperDeviceApprovalPromptData = {
   variant: KeeperDeviceApprovalVariant;
 };
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "keeper-device-approval-prompt.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     JslibModule,
     ReactiveFormsModule,
     DialogModule,
@@ -38,9 +35,12 @@ type KeeperDeviceApprovalPromptData = {
   ],
 })
 export class KeeperDeviceApprovalPromptComponent {
-  protected variant = this.data.variant;
+  private readonly dialogRef = inject(DialogRef);
+  private readonly data = inject<KeeperDeviceApprovalPromptData>(DIALOG_DATA);
 
-  protected formGroup = new FormGroup({
+  protected readonly variant = this.data.variant;
+
+  protected readonly formGroup = new FormGroup({
     code: new FormControl(""),
   });
 
@@ -54,12 +54,7 @@ export class KeeperDeviceApprovalPromptComponent {
     }
   }
 
-  constructor(
-    public dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) protected data: KeeperDeviceApprovalPromptData,
-  ) {}
-
-  submit = () => {
+  protected readonly submit = () => {
     const code = this.formGroup.controls.code.value?.trim();
     if (code) {
       this.dialogRef.close(code);
