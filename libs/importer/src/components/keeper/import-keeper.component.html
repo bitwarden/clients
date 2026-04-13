@@ -5,7 +5,7 @@
     <bit-hint>{{ emailHint() }}</bit-hint>
   </bit-form-field>
   <bit-form-field>
-    <bit-label>{{ "keeperRegion" | i18n }}</bit-label>
+    <bit-label>{{ "dataCenterLocation" | i18n }}</bit-label>
     <bit-select formControlName="region">
       @for (r of regions; track r) {
         <bit-option [value]="r.value" [label]="r.label" />

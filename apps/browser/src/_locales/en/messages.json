@@ -4596,7 +4596,7 @@
   "keeperEmail": {
     "message": "Keeper Email"
   },
-  "keeperRegion": {
+  "dataCenterLocation": {
     "message": "Data Center Location"
   },
   "keeperMasterPassword": {
