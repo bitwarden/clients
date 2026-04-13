@@ -4635,10 +4635,10 @@
   "keeperMFAPushDesc": {
     "message": "Approve the login request in your authentication app. This dialog will close automatically."
   },
-  "keeperSelectTwoFactorMethod": {
+  "selectTwoFactorMethod": {
     "message": "Select two-factor method"
   },
-  "keeperSelectTwoFactorMethodDesc": {
+  "selectTwoFactorMethodDesc": {
     "message": "Choose how you want to verify your identity."
   },
   "authenticatorAppTotp": {
@@ -4671,10 +4671,10 @@
   "unknownMethod": {
     "message": "Unknown method"
   },
-  "keeperSelectDuoMethod": {
+  "selectDuoMethod": {
     "message": "Select Duo method"
   },
-  "keeperSelectDuoMethodDesc": {
+  "selectDuoMethodDesc": {
     "message": "Choose how you want to verify with Duo Security."
   },
   "duoPush": {
