@@ -33,8 +33,8 @@ export class DropzoneComponent {
   /** Allow multiple file selection */
   readonly multiple = input(false, { transform: booleanAttribute });
 
-  /** Error state — shows danger border */
-  readonly hasError = input(false, { transform: booleanAttribute });
+  /** Error state — shows danger border and message */
+  readonly errorMessage = input<string>(undefined);
 
   /** Emits when files are selected or dropped */
   readonly filesSelected = output<File[]>();
@@ -61,12 +61,14 @@ export class DropzoneComponent {
       "tw-rounded-xl",
       "tw-cursor-pointer",
       "tw-transition-colors",
+      "peer-focus-visible/dropzone-input:tw-border-solid",
+      "peer-focus-visible/dropzone-input:tw-border-border-focus",
       "peer-focus-visible/dropzone-input:tw-ring",
-      "peer-focus-visible/dropzone-input:tw-ring-offset-2",
-      "peer-focus-visible/dropzone-input:tw-ring-primary-600",
+      "peer-focus-visible/dropzone-input:tw-ring-offset-0",
+      "peer-focus-visible/dropzone-input:tw-ring-border-focus",
     ];
 
-    if (this.hasError()) {
+    if (this.errorMessage()) {
       base.push("tw-bg-bg-secondary", "tw-border-border-danger");
     } else if (this.isDragOver()) {
       base.push("tw-bg-bg-quaternary", "tw-border-border-strong");

@@ -9,7 +9,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { FileUploadComponent } from "./file-upload.component";
 
 export default {
-  title: "Component Library/File Upload/File Upload",
+  title: "Component Library/Form/File Upload",
   component: FileUploadComponent,
   decorators: [
     moduleMetadata({
@@ -21,7 +21,9 @@ export default {
             new I18nMockService({
               maxFileSizeParam: "Max. File Size: __$1__MB",
               chooseFiles: "Choose files",
+              chooseFile: "Choose File",
               clickToUploadOrDragAndDrop: "Click to upload or drag and drop",
+              noFileChosen: "No file chosen",
               delete: "Delete",
               loading: "Loading",
             }),
@@ -46,6 +48,30 @@ type Story = StoryObj<FileUploadComponent>;
 
 export const Default: Story = {
   render: (args) => ({
+    props: { ...args, files: [] as File[] },
+    template: /*html*/ `
+      <bit-file-upload variant="button" [accept]="accept" [errorMessage]="errorMessage" [(files)]="files">
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-upload>
+    `,
+  }),
+  args: {
+    variant: "default",
+    accept: ".png,.jpg,.gif,.svg",
+  },
+};
+
+export const DefaultWithError: Story = {
+  ...Default,
+  args: {
+    ...Default.args,
+    errorMessage: "File is too large",
+  },
+};
+
+export const Dropzone: Story = {
+  render: (args) => ({
     props: {
       ...args,
       files: [] as File[],
@@ -55,27 +81,32 @@ export const Default: Story = {
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [hasError]="hasError"
+        [errorMessage]="errorMessage"
         [(files)]="files"
+        [variant]="variant"
       >
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>
     `,
   }),
+  args: {
+    variant: "dropzone",
+  },
 };
 
 export const MultipleFiles: Story = {
-  ...Default,
+  ...Dropzone,
   args: {
     multiple: true,
   },
 };
 
 export const Error: Story = {
-  ...Default,
+  ...Dropzone,
   args: {
-    hasError: true,
+    errorMessage: "File is too large",
+    variant: "dropzone",
   },
 };
 
