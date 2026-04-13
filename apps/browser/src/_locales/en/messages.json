@@ -4608,10 +4608,10 @@
   "keeperDeviceApprovalRequired": {
     "message": "Keeper device approval required"
   },
-  "keeperSelectApprovalMethod": {
+  "selectApprovalMethod": {
     "message": "Select approval method"
   },
-  "keeperSelectApprovalMethodDesc": {
+  "selectApprovalMethodDesc": {
     "message": "Choose how you want to approve this device."
   },
   "keeperApprovalMethodPush": {
