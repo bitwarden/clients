@@ -12,6 +12,7 @@
   @let showHeaderBorder = bodyHasScrolledFrom().top;
   <header
     class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid tw-py-3 tw-ps-6 tw-pe-4"
+    #dialogHeader
     [ngClass]="{
       'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
       'tw-px-6 tw-py-4 has-[[biticonbutton]]:tw-pe-4': isDrawer,
@@ -26,7 +27,6 @@
         noMargin
         class="tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
         tabindex="-1"
-        #dialogHeader
       >
         {{ titleText }}
         @if (subtitle(); as subtitleText) {
