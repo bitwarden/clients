@@ -25,7 +25,7 @@ fi
 
 # GitHub renders org/repo#123 as a link to a PR, removing the commit message when a PR ID is found
 # including the raw changelog in a collapsible section in case the pattern matching fails
-CLEANED_CHANGELOG=$(echo "$CHANGELOG" | sed -E "s|.*\(#([0-9]+)\).*|- $REPO#\1|")
+CLEANED_CHANGELOG=$(echo "$CHANGELOG" | sed -E "s|.*\(#([0-9]+)\).*|- ${REPO}#\1|")
 
 echo "$CLEANED_CHANGELOG"
 echo
