@@ -18,7 +18,7 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -507,7 +507,7 @@ describe("NotificationBackground", () => {
 
       it("does nothing when no task references any matched cipher", async () => {
         const cipher = createMockCipher({ id: "cipher-1" });
-        const task = createMockSecurityTask({ cipherId: "cipher-999" });
+        const task = createMockSecurityTask({ cipherId: "cipher-999" as CipherId });
         const sender = mock<chrome.runtime.MessageSender>({
           tab: { id: 1, url: tabUrl },
         });
