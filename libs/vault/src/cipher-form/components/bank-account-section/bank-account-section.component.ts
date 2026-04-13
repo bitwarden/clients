@@ -44,7 +44,7 @@ export class BankAccountSectionComponent implements OnInit {
   readonly originalCipherView = input<CipherView | null>(null);
   readonly disabled = input(false);
 
-  bankAccountForm = this.formBuilder.group({
+  readonly bankAccountForm = this.formBuilder.group({
     bankName: [""],
     nameOnAccount: [""],
     accountType: [""],
@@ -59,12 +59,12 @@ export class BankAccountSectionComponent implements OnInit {
 
   readonly accountTypeOptions: { label: string; value: string }[];
 
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   constructor(
-    private cipherFormContainer: CipherFormContainer,
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
+    private readonly cipherFormContainer: CipherFormContainer,
+    private readonly formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
   ) {
     this.accountTypeOptions = [
       { label: "-- " + this.i18nService.t("bankAccountType") + " --", value: "" },
