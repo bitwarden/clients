@@ -48,9 +48,9 @@ export class KeeperTwoFactorMethodSelectComponent {
       case TwoFactorMethod.WebAuthn:
         return "securityKeyWebAuthn";
       case TwoFactorMethod.KeeperPush:
-        return "keeperTwoFactorKeeperPush";
+        return "keeperPush";
       case TwoFactorMethod.KeeperDna:
-        return "keeperTwoFactorKeeperDna";
+        return "keeperDna";
       default:
         return "unknownMethod";
     }

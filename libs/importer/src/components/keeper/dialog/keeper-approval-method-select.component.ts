@@ -36,7 +36,7 @@ export class KeeperApprovalMethodSelectComponent {
       case DeviceApprovalChannel.Email:
         return "email";
       case DeviceApprovalChannel.KeeperPush:
-        return "keeperApprovalMethodPush";
+        return "keeperPush";
       default:
         return "email";
     }

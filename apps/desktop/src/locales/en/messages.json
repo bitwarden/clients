@@ -3909,16 +3909,16 @@
   "selectApprovalMethodDesc": {
     "message": "Choose how you want to approve this device."
   },
-  "keeperApprovalMethodPush": {
+  "keeperPush": {
     "message": "Keeper Push"
   },
   "approvalEmailDesc": {
     "message": "Check your email and click the approval link, or enter the verification code below."
   },
-  "keeperVerificationCodeHint": {
+  "emailVerificationCodeHint": {
     "message": "Enter the 6-digit code from the email, or click the link and this dialog will close automatically."
   },
-  "keeperDeviceApprovalPushDesc": {
+  "otherDeviceApprovalPushDesc": {
     "message": "Approve the device request on your other Keeper device. This dialog will close automatically."
   },
   "keeperMFARequired": {
@@ -3927,7 +3927,7 @@
   "mfaTotpDesc": {
     "message": "Enter your one-time passcode from your authentication app"
   },
-  "keeperMFAPushDesc": {
+  "mfaPushDesc": {
     "message": "Approve the login request in your authentication app. This dialog will close automatically."
   },
   "selectTwoFactorMethod": {
@@ -3957,10 +3957,7 @@
   "securityKeyWebAuthn": {
     "message": "Security key (WebAuthn)"
   },
-  "keeperTwoFactorKeeperPush": {
-    "message": "Keeper Push"
-  },
-  "keeperTwoFactorKeeperDna": {
+  "keeperDna": {
     "message": "Keeper DNA"
   },
   "unknownMethod": {

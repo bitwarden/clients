@@ -50,7 +50,7 @@ export class KeeperMultifactorPromptComponent {
   protected get descriptionI18nKey(): string {
     switch (this.variant) {
       case "push":
-        return "keeperMFAPushDesc";
+        return "mfaPushDesc";
       case "totp":
       default:
         return "mfaTotpDesc";

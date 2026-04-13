@@ -47,7 +47,7 @@ export class KeeperDeviceApprovalPromptComponent {
   protected get descriptionI18nKey(): string {
     switch (this.variant) {
       case "push":
-        return "keeperDeviceApprovalPushDesc";
+        return "otherDeviceApprovalPushDesc";
       case "email":
       default:
         return "approvalEmailDesc";
