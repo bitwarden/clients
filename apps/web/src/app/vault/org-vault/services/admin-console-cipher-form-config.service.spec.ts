@@ -175,6 +175,37 @@ describe("AdminConsoleCipherFormConfigService", () => {
       expect(result.organizations).toEqual([testOrg, testOrg2]);
     });
 
+    it("includes disabled organizations when cloning", async () => {
+      const disabledOrg = {
+        ...testOrg2,
+        id: "disabled-org-id",
+        name: "Disabled Org",
+        enabled: false,
+      };
+      orgs$.next([testOrg, testOrg2, disabledOrg] as Organization[]);
+
+      const result = await adminConsoleConfigService.buildConfig("clone", cipherId);
+
+      expect(result.organizations).toEqual(
+        expect.arrayContaining([expect.objectContaining({ id: "disabled-org-id" })]),
+      );
+    });
+
+    it("includes disabled organization as current org for non-clone modes", async () => {
+      const disabledOrg = {
+        ...testOrg,
+        enabled: false,
+      };
+      orgs$.next([disabledOrg] as Organization[]);
+
+      const result = await adminConsoleConfigService.buildConfig("edit", cipherId);
+
+      expect(result.organizations).toEqual([expect.objectContaining({ enabled: false })]);
+
+      // Reset orgs$ to avoid side effects on subsequent tests
+      orgs$.next([testOrg, testOrg2] as Organization[]);
+    });
+
     it("retrieves the cipher from the admin service when canEditAllCiphers is true", async () => {
       getCipherAdmin.mockResolvedValue({ id: cipherId, name: "Test Cipher - (admin)" });
       testOrg.canEditAllCiphers = true;
