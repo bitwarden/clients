@@ -26,7 +26,6 @@ import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
 import { DialogRef } from "../dialog-ref";
-import { DialogService } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 import { DrawerService } from "../drawer.service";
@@ -77,7 +76,6 @@ export const drawerSizeToWidthRem: Record<string, number> = {
 })
 export class DialogComponent implements AfterViewInit {
   private readonly drawerService = inject(DrawerService);
-  private readonly dialogService = inject(DialogService, { optional: true });
   private readonly autofocusFallback = inject(AutofocusFallbackDirective, { host: true });
 
   constructor() {
