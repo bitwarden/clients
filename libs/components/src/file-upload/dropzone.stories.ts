@@ -56,7 +56,7 @@ export const Default: Story = {
         [maxFileSize]="maxFileSize"
         [multiple]="multiple"
         [accept]="accept"
-        [hasError]="hasError"
+        [errorMessage]="errorMessage"
         (filesSelected)="onFilesSelected($event)"
       >
         <bit-label>Upload file</bit-label>
@@ -69,7 +69,7 @@ export const Default: Story = {
 export const Error: Story = {
   ...Default,
   args: {
-    hasError: true,
+    errorMessage: "Error message goes here",
   },
 };
 

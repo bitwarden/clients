@@ -1,0 +1,163 @@
+import { Meta, Canvas, Primary, Controls, Title } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./file-upload.stories";
+
+<Meta of={stories} />
+
+```ts
+import { FileUploadComponent } from "@bitwarden/components";
+```
+
+<Title />
+
+<Primary />
+
+<Controls />
+
+## Variants
+
+### Default
+
+The default variant renders a styled file-input button alongside a filename readout. Use this for
+single-file selection where a minimal footprint is preferred.
+
+```html
+<bit-file-upload variant="default" accept=".png,.jpg,.gif,.svg" [(files)]="files">
+  <bit-label>Upload file</bit-label>
+  <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+</bit-file-upload>
+```
+
+<Canvas of={stories.Default} />
+
+### Default with error
+
+<Canvas of={stories.DefaultWithError} />
+
+### Dropzone
+
+The dropzone variant renders a drag-and-drop area. Users can either click the area to open the file
+picker or drag files directly onto it.
+
+```html
+<bit-file-upload variant="dropzone" [maxFileSize]="30" [(files)]="files">
+  <bit-label>Upload file</bit-label>
+  <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+</bit-file-upload>
+```
+
+<Canvas of={stories.Dropzone} />
+
+### Multiple files
+
+Setting `multiple="true"` automatically switches to the dropzone variant regardless of the `variant`
+input. A file list showing each file's name, size, and a delete button renders below the dropzone.
+
+```html
+<bit-file-upload variant="dropzone" [maxFileSize]="30" multiple [(files)]="files">
+  <bit-label>Upload files</bit-label>
+  <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+</bit-file-upload>
+```
+
+<Canvas of={stories.MultipleFiles} />
+
+### Dropzone with error
+
+<Canvas of={stories.Error} />
+
+### Pre-populated file list
+
+<Canvas of={stories.WithFiles} />
+
+## Guidelines
+
+### Choosing a variant
+
+Use the **default** (button) variant for single-file fields where space is limited, such as an
+avatar upload or an inline attachment field.
+
+Use the **dropzone** variant when:
+
+- The user may select multiple files (`multiple="true"`)
+- You want to encourage drag-and-drop as a primary interaction
+- The field deserves visual prominence on the page
+
+### `accept` — file type hint
+
+Pass a comma-separated list of MIME types and/or file extensions to guide the browser's file picker.
+
+| Example value            | Allows                 |
+| ------------------------ | ---------------------- |
+| `"image/*"`              | Any image              |
+| `".pdf,.doc,.docx"`      | PDF and Word documents |
+| `"audio/mpeg,audio/wav"` | Specific audio formats |
+| `"image/*,.pdf"`         | Images and PDFs        |
+
+> **Important:** `accept` is a browser hint only — it filters the file picker but does not prevent
+> users from selecting other file types. Always validate file types on the server before processing.
+
+See
+[MDN: accept attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Attributes/accept)
+for a full list of valid specifiers.
+
+### `maxFileSize` — size display hint
+
+`maxFileSize` (in MB) is shown to the user inside the dropzone as "Max. File Size: X MB". It is
+**not** enforced client-side. Validate file sizes in your component or on the server before
+submitting the form.
+
+### Two-way binding with `[(files)]`
+
+Use Angular's two-way binding syntax to keep the parent component in sync with the selected files:
+
+```html
+<bit-file-upload variant="dropzone" [maxFileSize]="30" [(files)]="myFiles">
+  <bit-label>Upload file</bit-label>
+</bit-file-upload>
+```
+
+```ts
+myFiles: File[] = [];
+
+onSubmit() {
+  // myFiles is kept up to date as the user selects or removes files
+  console.log(this.myFiles);
+}
+```
+
+You can also pre-populate the list by assigning to the bound property before the component renders.
+
+### Error state
+
+Bind a string to `errorMessage` to show the danger border and an error message below the input. Set
+it back to `undefined` to clear the error.
+
+```html
+<bit-file-upload
+  variant="dropzone"
+  [maxFileSize]="30"
+  [(files)]="files"
+  [errorMessage]="fileSizeError"
+>
+  <bit-label>Upload file</bit-label>
+</bit-file-upload>
+```
+
+```ts
+fileSizeError: string | undefined;
+
+onFilesChange(files: File[]) {
+  const oversized = files.some((f) => f.size > 30 * 1024 * 1024);
+  this.fileSizeError = oversized ? "File exceeds the 30 MB limit." : undefined;
+}
+```
+
+## Accessibility
+
+- The default variant announces the selected filename via `aria-live="polite"` so screen readers
+  notify the user after selection without interrupting the current reading position.
+- Always provide a meaningful `<bit-label>` — it serves as the accessible label for the hidden file
+  input inside both variants.
+- Delete buttons in the file list are icon-only. The component supplies accessible labels through
+  the i18n system (`delete` key), so no extra markup is needed.

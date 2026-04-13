@@ -1,8 +1,8 @@
 @if (files().length > 0) {
-  <ul class="tw-mt-2 tw-list-none tw-p-0 tw-m-0">
+  <ul class="tw-list-none tw-p-0 tw-m-0">
     @for (file of files(); track $index) {
       <li class="tw-flex tw-items-center tw-gap-3 tw-py-2 tw-border-b tw-border-border-light">
-        <bit-icon-tile icon="bwi-file" variant="muted" size="small" />
+        <bit-icon-tile icon="bwi-file" variant="subtle" size="sm" />
         <div class="tw-flex tw-flex-col tw-flex-1">
           <span class="tw-text-sm tw-font-semibold tw-truncate">{{ file.name }}</span>
           <span class="tw-text-xs tw-text-muted">{{ formatFileSize(file.size) }}</span>
@@ -10,7 +10,7 @@
         <button
           type="button"
           bitIconButton="bwi-trash"
-          buttonType="danger"
+          buttonType="dangerGhost"
           size="small"
           [label]="'delete' | i18n"
           (click)="fileRemoved.emit(file)"
