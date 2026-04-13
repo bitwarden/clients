@@ -60,7 +60,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
   protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
   protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
 
-  protected get fieldContainerClasses(): string {
+  protected get labelAndFieldContainerClasses(): string {
     return [
       "tw-flex",
       "tw-flex-col",
