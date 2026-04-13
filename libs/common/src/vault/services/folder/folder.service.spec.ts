@@ -114,7 +114,7 @@ describe("Folder Service", () => {
 
     encryptService.encryptString.mockResolvedValue(new EncString("ENC"));
 
-    const result = await folderService.encrypt(model, null);
+    const result = await folderService.encrypt(model, null as unknown as SymmetricCryptoKey);
 
     expect(result).toEqual({
       id: "2",
@@ -181,9 +181,9 @@ describe("Folder Service", () => {
 
   describe("clearDecryptedFolderState", () => {
     it("null userId", async () => {
-      await expect(folderService.clearDecryptedFolderState(null)).rejects.toThrow(
-        "User ID is required.",
-      );
+      await expect(
+        folderService.clearDecryptedFolderState(null as unknown as UserId),
+      ).rejects.toThrow("User ID is required.");
     });
 
     it("userId provided", async () => {
@@ -223,17 +223,27 @@ describe("Folder Service", () => {
       expect(result[0]).toMatchObject({ id: "1", name: "Re-encrypted Folder" });
     });
 
+    it("filters out 'No Folder' entries with null/empty id", async () => {
+      const result = await folderService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      // folderViews$ includes the "No Folder" entry (with empty id) appended by decryptFolders,
+      // but getRotatedData should filter it out
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("1");
+      expect(result.find((f) => f.id === "" || f.id == null)).toBeUndefined();
+    });
+
     it("throws if the new user key is null", async () => {
-      await expect(folderService.getRotatedData(originalUserKey, null, mockUserId)).rejects.toThrow(
-        "New user key is required for rotation.",
-      );
+      await expect(
+        folderService.getRotatedData(originalUserKey, null as unknown as UserKey, mockUserId),
+      ).rejects.toThrow("New user key is required for rotation.");
     });
   });
 
   function folderData(id: string) {
     const data = new FolderData({} as any);
     data.id = id;
-    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString;
+    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString!;
 
     return data;
   }
