@@ -173,8 +173,8 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   /**
    * Add an entry to a cache list of users who must authenticate via SSO.
    */
-  private async addToSsoRequiredCache(email: string, webVaultUrl: string): Promise<void> {
-    const newEntry: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };
+  private async addToSsoRequiredCache(email: string, userId: UserId): Promise<void> {
+    const newEntry = await this.makeEntry(email, userId);
 
     await this.ssoRequiredCacheState.update(
       (cache) => (cache == null ? [newEntry] : [...cache, newEntry]),
@@ -192,8 +192,8 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     );
   }
 
-  async removeFromSsoRequiredCacheIfPresent(email: string, webVaultUrl: string): Promise<void> {
-    const entryToRemove: SsoRequiredCacheEntry = { email: email.toLowerCase(), webVaultUrl };
+  async removeFromSsoRequiredCacheIfPresent(email: string, userId: UserId): Promise<void> {
+    const entryToRemove = await this.makeEntry(email, userId);
 
     await this.ssoRequiredCacheState.update(
       (cache) => cache?.filter((e) => !this.entriesMatch(e, entryToRemove)) ?? cache,
@@ -216,20 +216,27 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
       this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
     );
 
-    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
-    const webVaultUrl = env.getWebVaultUrl();
-
     if (ssoRequired) {
-      await this.addToSsoRequiredCache(email, webVaultUrl);
+      await this.addToSsoRequiredCache(email, userId);
     } else {
       /**
        * If user is not required to authenticate via SSO, remove their entry from the cache
        * list (if it was on the list). This is necessary because the user may have been
        * required to authenticate via SSO at some point in the past, but now their org
-       * no longer requires SSO authenticaiton.
+       * no longer requires SSO authentication.
        */
-      await this.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
+      await this.removeFromSsoRequiredCacheIfPresent(email, userId);
     }
+  }
+
+  /**
+   * Makes an `SsoRequiredCacheEntry` object based on the user's email and resolved webVaultUrl
+   */
+  private async makeEntry(email: string, userId: UserId): Promise<SsoRequiredCacheEntry> {
+    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const webVaultUrl = env.getWebVaultUrl();
+
+    return { email: email.toLowerCase(), webVaultUrl };
   }
 
   /**

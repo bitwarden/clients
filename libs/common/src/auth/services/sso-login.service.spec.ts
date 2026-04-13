@@ -129,7 +129,9 @@ describe("SSOLoginService ", () => {
 
       it("should create the cache and add an entry to the cache upon successful SSO login", async () => {
         // Arrange
-        mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next(null);
+        mockStateProvider.global
+          .getFake(SSO_REQUIRED_CACHE)
+          .stateSubject.next(null as unknown as SsoRequiredCacheEntry[]);
 
         // Act
         await sut.updateSsoRequiredCache(email, userId);
@@ -266,7 +268,7 @@ describe("SSOLoginService ", () => {
         .stateSubject.next([entry(email, webVaultUrl), otherEntry]);
 
       // Act
-      await sut.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
+      await sut.removeFromSsoRequiredCacheIfPresent(email, userId);
 
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
@@ -279,7 +281,7 @@ describe("SSOLoginService ", () => {
       mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([otherEntry]);
 
       // Act
-      await sut.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
+      await sut.removeFromSsoRequiredCacheIfPresent(email, userId);
 
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
@@ -288,10 +290,12 @@ describe("SSOLoginService ", () => {
 
     it("should NOT remove from the cache (i.e. should not run update()) when the cache is null", async () => {
       // Arrange
-      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next(null);
+      mockStateProvider.global
+        .getFake(SSO_REQUIRED_CACHE)
+        .stateSubject.next(null as unknown as SsoRequiredCacheEntry[]);
 
       // Act
-      await sut.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
+      await sut.removeFromSsoRequiredCacheIfPresent(email, userId);
 
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
@@ -305,7 +309,7 @@ describe("SSOLoginService ", () => {
         .stateSubject.next([entry(email, webVaultUrl)]);
 
       // Act
-      await sut.removeFromSsoRequiredCacheIfPresent(email, webVaultUrl);
+      await sut.removeFromSsoRequiredCacheIfPresent(email, userId);
 
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
@@ -319,22 +323,25 @@ describe("SSOLoginService ", () => {
         .stateSubject.next([entry(email, webVaultUrl)]);
 
       // Act
-      await sut.removeFromSsoRequiredCacheIfPresent("User1@Example.COM", webVaultUrl);
+      await sut.removeFromSsoRequiredCacheIfPresent("User1@Example.COM", userId);
 
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cache.nextMock).toHaveBeenCalledWith([]);
     });
 
-    it("should NOT remove an entry when the email matches but the webVaultUrl differs", async () => {
+    it("should NOT remove an entry when the email matches but the resolved webVaultUrl differs", async () => {
       // Arrange
       const euUrl = "https://vault.bitwarden.eu";
+      mockEnvironmentService.getEnvironment$.mockReturnValue(
+        of({ getWebVaultUrl: () => euUrl } as Environment),
+      );
       mockStateProvider.global
         .getFake(SSO_REQUIRED_CACHE)
         .stateSubject.next([entry(email, webVaultUrl)]);
 
       // Act
-      await sut.removeFromSsoRequiredCacheIfPresent(email, euUrl);
+      await sut.removeFromSsoRequiredCacheIfPresent(email, userId);
 
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);

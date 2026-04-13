@@ -26,7 +26,6 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -78,7 +77,6 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private linkSsoService: LinkSsoService,
     private ssoLoginService: SsoLoginServiceAbstraction,
-    private environmentService: EnvironmentService,
   ) {}
 
   async ngOnInit() {
@@ -229,12 +227,9 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const env = await firstValueFrom(this.environmentService.getEnvironment$(activeAccount.id));
-    const webVaultUrl = env.getWebVaultUrl();
-
     await this.ssoLoginService.removeFromSsoRequiredCacheIfPresent(
       activeAccount.email,
-      webVaultUrl,
+      activeAccount.id,
     );
   }
 
