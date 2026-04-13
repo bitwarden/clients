@@ -10,13 +10,9 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { DatePreset } from "../models/date-preset";
+import { WhoCanAccessType } from "../models/who-can-access-type";
 
-export const WhoCanAccessType = Object.freeze({
-  Any: 0,
-  PasswordProtected: 1,
-  SpecificPeople: 2,
-} as const);
-export type WhoCanAccessType = (typeof WhoCanAccessType)[keyof typeof WhoCanAccessType];
+export { WhoCanAccessType } from "../models/who-can-access-type";
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.

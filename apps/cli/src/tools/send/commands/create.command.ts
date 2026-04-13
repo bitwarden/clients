@@ -18,7 +18,14 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NodeUtils } from "@bitwarden/node/node-utils";
-import { WhoCanAccessType } from "@bitwarden/send-ui";
+
+// Inline from @bitwarden/send-ui to avoid Angular barrel import in CLI context
+const WhoCanAccessType = Object.freeze({
+  Any: 0,
+  PasswordProtected: 1,
+  SpecificPeople: 2,
+} as const);
+type WhoCanAccessType = (typeof WhoCanAccessType)[keyof typeof WhoCanAccessType];
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
