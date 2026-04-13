@@ -101,7 +101,7 @@ export class AccountRecoveryDialogV2Component {
 
   protected readonly form = this.formBuilder.group({
     resetMasterPassword: [true],
-    resetTwoFactor: [false],
+    resetTwoFactor: [{ value: false, disabled: !this.dialogData.twoFactorEnabled }],
   });
 
   constructor(
