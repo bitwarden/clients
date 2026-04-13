@@ -3978,9 +3978,6 @@
   "keeperDuoVoice": {
     "message": "Phone call"
   },
-  "keeperDuoPasscode": {
-    "message": "Passcode"
-  },
   "duoVerification": {
     "message": "Duo verification"
   },
