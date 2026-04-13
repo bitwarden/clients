@@ -162,6 +162,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
+  protected otherAccountResults$ = this.vaultPopupItemsService.otherAccountSearchResults$;
+  protected activeAccountSearchLabel$ = this.vaultPopupItemsService.activeAccountSearchLabel$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
 

@@ -28,7 +28,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -344,6 +344,12 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   );
 
   /**
+   * When set, indicates these ciphers belong to a different account.
+   * Clicking a cipher will switch to that account instead of viewing/autofilling.
+   */
+  readonly ownerAccountId = input<UserId | undefined>(undefined);
+
+  /**
    * Remove the bottom margin from the bit-section in this component
    * (used for containers at the end of the page where bottom margin is not needed)
    */
@@ -391,7 +397,15 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
     }
   }
 
-  onCipherSelect(cipher: PopupCipherViewLike) {
+  async onCipherSelect(cipher: PopupCipherViewLike) {
+    const ownerId = this.ownerAccountId();
+    if (ownerId) {
+      await this.accountService.switchAccount(ownerId);
+      // After switching accounts, navigate to the cipher view rather than attempting
+      // autofill. Reactive signals (autofillAllowed$, currentUriIsBlocked) may not
+      // have settled to reflect the new account context yet.
+      return this.onViewCipher(cipher);
+    }
     return this.canAutofill() ? this.doAutofill(cipher) : this.onViewCipher(cipher);
   }
 

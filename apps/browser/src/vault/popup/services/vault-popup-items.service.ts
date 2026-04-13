@@ -2,9 +2,11 @@ import { inject, Injectable, NgZone } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
+  debounceTime,
   distinctUntilChanged,
   distinctUntilKeyChanged,
   filter,
+  from,
   map,
   merge,
   MonoTypeOperatorFunction,
@@ -20,15 +22,25 @@ import {
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -41,6 +53,14 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { MY_VAULT_ID, VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
+
+export interface CrossAccountSearchResult {
+  userId: UserId;
+  email: string;
+  hostname: string;
+  label: string;
+  ciphers: PopupCipherViewLike[];
+}
 
 /**
  * Service for managing the various item lists on the new Vault tab in the browser popup.
@@ -239,11 +259,134 @@ export class VaultPopupItemsService {
     this.favoriteCiphers$.pipe(map(() => false)),
   ).pipe(startWith(true), distinctUntilChanged(), shareReplay({ refCount: false, bufferSize: 1 }));
 
+  /**
+   * Label for the active account's search results section, showing instance hostname and email.
+   */
+  activeAccountSearchLabel$: Observable<string | null> = combineLatest([
+    this.activeUserId$,
+    this.accountService.accounts$,
+    this.authService.authStatuses$,
+  ]).pipe(
+    switchMap(([userId, accounts, statuses]) => {
+      const hasOtherUnlocked = Object.keys(accounts).some(
+        (id) => id !== userId && statuses[id as UserId] === AuthenticationStatus.Unlocked,
+      );
+      if (!hasOtherUnlocked) {
+        return of(null);
+      }
+      return this.environmentService.getEnvironment$(userId).pipe(
+        map((env) => {
+          const hostname = env.getHostname();
+          const email = accounts[userId]?.email ?? "";
+          return `${hostname} (${email})`;
+        }),
+      );
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
   /** Observable that indicates whether there is search text present.
    */
   hasSearchText$: Observable<boolean> = this._hasSearchText.pipe(
     distinctUntilChanged(),
     shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Search results from other unlocked accounts.
+   * Emits an empty array when there is no search text or no other unlocked accounts.
+   * While loading, emits placeholder entries with empty cipher arrays so that
+   * combineLatest does not block.
+   */
+  otherAccountSearchResults$: Observable<CrossAccountSearchResult[]> = combineLatest([
+    this._hasSearchText,
+    this.searchText$.pipe(debounceTime(150)),
+    this.accountService.accounts$,
+    this.authService.authStatuses$,
+    this.activeUserId$,
+  ]).pipe(
+    switchMap(([hasSearchText, searchText, accounts, statuses, activeUserId]) => {
+      if (!hasSearchText) {
+        return of([]);
+      }
+
+      const otherUnlockedIds = Object.keys(accounts)
+        .map((id) => id as UserId)
+        .filter((id) => id !== activeUserId && statuses[id] === AuthenticationStatus.Unlocked);
+
+      if (!otherUnlockedIds.length) {
+        return of([]);
+      }
+
+      const searches$ = otherUnlockedIds.map((userId) =>
+        combineLatest([
+          this.cipherService.cipherListViews$(userId).pipe(filter((ciphers) => ciphers != null)),
+          this.cipherService.failedToDecryptCiphers$(userId).pipe(startWith([])),
+          this.environmentService.getEnvironment$(userId),
+          this.organizationService.organizations$(userId),
+          this.collectionService.decryptedCollections$(userId),
+          this.policyService.policiesByType$(PolicyType.RestrictedItemTypes, userId),
+        ]).pipe(
+          switchMap(
+            ([ciphers, failedToDecryptCiphers, env, organizations, collections, policies]) => {
+              const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
+              const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
+
+              // Build per-account restrictions from that account's policies
+              const perAccountRestrictions = buildRestrictedTypes(organizations, policies);
+
+              const allCiphers = [
+                ...(failedToDecryptCiphers || []),
+                ...(ciphers as CipherViewLike[]),
+              ];
+              const filtered = allCiphers
+                .filter(
+                  (c) =>
+                    !CipherViewLikeUtils.isDeleted(c) &&
+                    !CipherViewLikeUtils.isArchived(c) &&
+                    !this.restrictedItemTypesService.isCipherRestricted(c, perAccountRestrictions),
+                )
+                .map(
+                  (cipher) =>
+                    ({
+                      ...cipher,
+                      organization: orgMap[cipher.organizationId as OrganizationId],
+                      collections: cipher.collectionIds?.map(
+                        (colId: string) => collectionMap[colId as CollectionId],
+                      ),
+                    }) as PopupCipherViewLike,
+                );
+              const hostname = env.getHostname();
+              const email = accounts[userId]?.email ?? "";
+              return from(
+                this.searchService.searchCiphers(userId, searchText, undefined, filtered),
+              ).pipe(
+                map(
+                  (results): CrossAccountSearchResult => ({
+                    userId,
+                    email,
+                    hostname,
+                    label: `${hostname} (${email})`,
+                    ciphers: results as PopupCipherViewLike[],
+                  }),
+                ),
+              );
+            },
+          ),
+          // Emit placeholder while search loads so combineLatest doesn't block
+          startWith({
+            userId,
+            email: accounts[userId]?.email ?? "",
+            hostname: "",
+            label: accounts[userId]?.email ?? "",
+            ciphers: [] as PopupCipherViewLike[],
+          } as CrossAccountSearchResult),
+        ),
+      );
+
+      return combineLatest(searches$);
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
@@ -330,8 +473,11 @@ export class VaultPopupItemsService {
     private vaultPopupAutofillService: VaultPopupAutofillService,
     private syncService: SyncService,
     private accountService: AccountService,
+    private authService: AuthService,
+    private environmentService: EnvironmentService,
     private ngZone: NgZone,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private policyService: PolicyService,
   ) {}
 
   applyFilter(newSearchText: string) {
@@ -365,6 +511,31 @@ export class VaultPopupItemsService {
     // If types are the same, then sort by last used then name
     return this.cipherService.sortCiphersByLastUsedThenName(a, b);
   }
+}
+
+/**
+ * Build per-account restricted cipher types from that account's organizations and policies.
+ * Mirrors the logic in RestrictedItemTypesService.restricted$ but for an arbitrary account.
+ */
+function buildRestrictedTypes(
+  orgs: Organization[],
+  enabledPolicies: Policy[],
+): RestrictedCipherType[] {
+  const restrictedTypes = (p: Policy) => (p.data as CipherType[]) ?? [CipherType.Card];
+  const allRestrictedTypes = Array.from(new Set(enabledPolicies.flatMap(restrictedTypes)));
+
+  return allRestrictedTypes.map((cipherType) => {
+    const allowViewOrgIds = orgs
+      .filter((org) => {
+        const orgPolicy = enabledPolicies.find((p) => p.organizationId === org.id);
+        if (!orgPolicy) {
+          return true;
+        }
+        return !restrictedTypes(orgPolicy).includes(cipherType);
+      })
+      .map((org) => org.id);
+    return { cipherType, allowViewOrgIds };
+  });
 }
 
 /**
