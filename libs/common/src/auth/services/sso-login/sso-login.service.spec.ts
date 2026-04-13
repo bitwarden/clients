@@ -3,15 +3,15 @@ import { of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import {
   CODE_VERIFIER,
   GLOBAL_ORGANIZATION_SSO_IDENTIFIER,
   SSO_EMAIL,
   SSO_REQUIRED_CACHE,
   SSO_STATE,
-  SsoLoginService,
   USER_ORGANIZATION_SSO_IDENTIFIER,
-} from "@bitwarden/common/auth/services/sso-login/sso-login.service";
+} from "@bitwarden/common/auth/services/sso-login/sso-login.state";
 import {
   Environment,
   EnvironmentService,
