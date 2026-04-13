@@ -210,6 +210,17 @@ describe("SSOLoginService ", () => {
           entry(email, webVaultUrl),
         ]);
       });
+
+      it("should get the environment using the correct userId", async () => {
+        // Arrange
+        mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+
+        // Act
+        await sut.updateSsoRequiredCache(email, userId);
+
+        // Assert
+        expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
+      });
     });
 
     describe("given SSO is not required", () => {
@@ -244,6 +255,17 @@ describe("SSOLoginService ", () => {
         const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
         expect(cache.nextMock).not.toHaveBeenCalled();
       });
+
+      it("should get the environment using the correct userId", async () => {
+        // Arrange
+        mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+
+        // Act
+        await sut.updateSsoRequiredCache(email, userId);
+
+        // Assert
+        expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
+      });
     });
 
     it("should check policy for correct PolicyType and userId", async () => {
@@ -256,17 +278,6 @@ describe("SSOLoginService ", () => {
         PolicyType.RequireSso,
         userId,
       );
-    });
-
-    it("should get the environment using the correct userId", async () => {
-      // Arrange
-      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
-
-      // Act
-      await sut.updateSsoRequiredCache(email, userId);
-
-      // Assert
-      expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
     });
   });
 
