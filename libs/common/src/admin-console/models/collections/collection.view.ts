@@ -4,9 +4,11 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { View } from "@bitwarden/common/models/view/view";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
+import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
 
 import { Collection, CollectionType, CollectionTypes } from "./collection";
 import { CollectionAccessDetailsResponse } from "./collection.response";
@@ -169,6 +171,37 @@ export class CollectionView implements View, ITreeNodeObject {
 
   static fromJSON(obj: Jsonify<CollectionView>) {
     return Object.assign(new CollectionView({ ...obj }), obj);
+  }
+
+  /**
+   * Creates a CollectionView from the SDK CollectionView returned by SDK decrypt operations.
+   *
+   * @param sdkView - The decrypted SDK CollectionView
+   * @param originalCollection - The original encrypted Collection, used to restore fields not
+   *   present on the SDK view (e.g. defaultUserCollectionEmail)
+   */
+  static fromSdkCollectionView(
+    sdkView: SdkCollectionView,
+    originalCollection?: Collection,
+  ): CollectionView {
+    const view = new CollectionView({
+      id: sdkView.id ? (uuidAsString(sdkView.id) as CollectionId) : ("" as CollectionId),
+      organizationId: uuidAsString(sdkView.organizationId) as OrganizationId,
+      name: sdkView.name,
+    });
+
+    view.externalId = sdkView.externalId;
+    view.hidePasswords = sdkView.hidePasswords;
+    view.readOnly = sdkView.readOnly;
+    view.manage = sdkView.manage;
+    view.assigned = true;
+    view.type =
+      sdkView.type === "DefaultUserCollection"
+        ? CollectionTypes.DefaultUserCollection
+        : CollectionTypes.SharedCollection;
+    view.defaultUserCollectionEmail = originalCollection?.defaultUserCollectionEmail;
+
+    return view;
   }
 
   encrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<Collection> {

@@ -6,8 +6,10 @@ import {
   CollectionTypes,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -23,6 +25,8 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
+
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 import { DefaultCollectionService } from "./default-collection.service";
 
@@ -31,6 +35,8 @@ describe("DefaultCollectionService", () => {
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let stateProvider: FakeStateProvider;
+  let configService: MockProxy<ConfigService>;
+  let collectionEncryptionService: MockProxy<CollectionEncryptionService>;
 
   let userId: UserId;
 
@@ -45,9 +51,19 @@ describe("DefaultCollectionService", () => {
     encryptService = mock();
     i18nService = mock();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
+    configService = mock();
+    collectionEncryptionService = mock();
 
     cryptoKeys = new ReplaySubject(1);
     keyService.orgKeys$.mockReturnValue(cryptoKeys);
+
+    // Default: feature flag disabled so tests exercise the legacy path
+    configService.getFeatureFlag$
+      .calledWith(FeatureFlag.PM34918CollectionEncryptionService)
+      .mockReturnValue(of(false));
+    configService.getFeatureFlag
+      .calledWith(FeatureFlag.PM34918CollectionEncryptionService)
+      .mockResolvedValue(false);
 
     // Set up mock decryption
     encryptService.decryptString
@@ -66,6 +82,8 @@ describe("DefaultCollectionService", () => {
       encryptService,
       i18nService,
       stateProvider,
+      configService,
+      collectionEncryptionService,
     );
   });
 

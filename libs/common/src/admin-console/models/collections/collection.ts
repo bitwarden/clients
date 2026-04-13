@@ -1,9 +1,11 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import { Collection as SdkCollection } from "@bitwarden/sdk-internal";
 
 import { CollectionData } from "./collection.data";
 
@@ -74,6 +76,26 @@ export class Collection extends Domain {
 
   decrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<CollectionView> {
     return CollectionView.fromCollection(this, encryptService, orgKey);
+  }
+
+  /**
+   * Maps Collection to SDK format for use with the SDK crypto operations.
+   */
+  toSdkCollection(): SdkCollection {
+    return {
+      id: this.id ? asUuid(this.id) : undefined,
+      organizationId: asUuid(this.organizationId),
+      name: this.name.toSdk(),
+      externalId: this.externalId,
+      hidePasswords: this.hidePasswords,
+      readOnly: this.readOnly,
+      manage: this.manage,
+      defaultUserCollectionEmail: this.defaultUserCollectionEmail,
+      type:
+        this.type === CollectionTypes.DefaultUserCollection
+          ? "DefaultUserCollection"
+          : "SharedCollection",
+    };
   }
 
   // @TODO: This would be better off in Collection.Utils. Move this there when
