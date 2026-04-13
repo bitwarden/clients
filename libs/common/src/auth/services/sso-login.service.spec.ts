@@ -257,6 +257,17 @@ describe("SSOLoginService ", () => {
         userId,
       );
     });
+
+    it("should get the environment using the correct userId", async () => {
+      // Arrange
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+
+      // Act
+      await sut.updateSsoRequiredCache(email, userId);
+
+      // Assert
+      expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
+    });
   });
 
   describe("removeFromSsoRequiredCacheIfPresent()", () => {
@@ -328,6 +339,17 @@ describe("SSOLoginService ", () => {
       // Assert
       const cache = mockStateProvider.global.getFake(SSO_REQUIRED_CACHE);
       expect(cache.nextMock).toHaveBeenCalledWith([]);
+    });
+
+    it("should get the environment using the correct userId", async () => {
+      // Arrange
+      mockStateProvider.global.getFake(SSO_REQUIRED_CACHE).stateSubject.next([]);
+
+      // Act
+      await sut.removeFromSsoRequiredCacheIfPresent(email, userId);
+
+      // Assert
+      expect(mockEnvironmentService.getEnvironment$).toHaveBeenCalledWith(userId);
     });
 
     it("should NOT remove an entry when the email matches but the resolved webVaultUrl differs", async () => {
