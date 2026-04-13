@@ -536,6 +536,7 @@ describe("AutofillService", () => {
         true,
         false,
         true,
+        undefined,
       );
       expect(formData).toStrictEqual([]);
     });
@@ -1977,6 +1978,7 @@ describe("AutofillService", () => {
           false,
           options.onlyEmptyFields,
           options.fillNewPassword,
+          options.inlineMenuFillType,
         );
       });
 
@@ -2643,6 +2645,7 @@ describe("AutofillService", () => {
           false,
           options.onlyEmptyFields,
           options.fillNewPassword,
+          options.inlineMenuFillType,
         );
         expect(autofillService["findUsernameField"]).toHaveBeenCalledWith(
           pageDetails,
@@ -4297,6 +4300,35 @@ describe("AutofillService", () => {
       jest.spyOn(AutofillService, "forCustomFieldsOnly");
     });
 
+    describe("AutofillService.autoCompleteTypeIncludesToken", () => {
+      it("returns true when the token appears among space-separated autocomplete tokens", () => {
+        expect(
+          AutofillService.autoCompleteTypeIncludesToken(
+            "section-login current-password",
+            AutoFillConstants.AutocompleteCurrentPassword,
+          ),
+        ).toBe(true);
+      });
+
+      it("is case-insensitive and trims whitespace", () => {
+        expect(
+          AutofillService.autoCompleteTypeIncludesToken(
+            "  Section-Login CURRENT-PASSWORD ",
+            AutoFillConstants.AutocompleteCurrentPassword,
+          ),
+        ).toBe(true);
+      });
+
+      it("does not treat a substring inside one token as a match", () => {
+        expect(
+          AutofillService.autoCompleteTypeIncludesToken(
+            "not-new-password-token",
+            AutoFillConstants.AutocompleteNewPassword,
+          ),
+        ).toBe(false);
+      });
+    });
+
     it("returns an empty array if passed a field that is a `span` element", () => {
       const customField = createAutofillFieldMock({ tagName: "span" });
       pageDetails.fields = [customField];
@@ -4491,12 +4523,141 @@ describe("AutofillService", () => {
       });
     });
 
+    describe("change password sibling exclusion, current-password token in same form", () => {
+      const formId = "changePasswordForm";
+
+      const passwordTriple = (
+        opts: {
+          currentAc?: string | null;
+          middleAc?: string | null;
+          newAc?: string | null;
+        } = {},
+      ) => {
+        const currentAc = opts.currentAc ?? "current-password";
+        const middleAc = opts.middleAc !== undefined ? opts.middleAc : "off";
+        const newAc = opts.newAc ?? "new-password";
+        return [
+          createAutofillFieldMock({
+            opid: "current-password-field",
+            type: "password",
+            form: formId,
+            autoCompleteType: currentAc,
+            elementNumber: 0,
+          }),
+          createAutofillFieldMock({
+            opid: "ambiguous-password",
+            type: "password",
+            form: formId,
+            autoCompleteType: middleAc,
+            elementNumber: 1,
+          }),
+          createAutofillFieldMock({
+            opid: "new-password-field",
+            type: "password",
+            form: formId,
+            autoCompleteType: newAc,
+            elementNumber: 2,
+          }),
+        ] as const;
+      };
+
+      it.each([
+        ["current-password", "off"],
+        ["section-login current-password", "off"],
+      ] as const)(
+        "returns only the current field when it has %s and the middle field autocomplete is %s",
+        (currentAc, middleAc) => {
+          const triple = passwordTriple({ currentAc, middleAc });
+          pageDetails.fields = [...triple];
+
+          const result = AutofillService.loadPasswordFields(
+            pageDetails,
+            false,
+            false,
+            false,
+            false,
+          );
+
+          expect(result).toStrictEqual([triple[0]]);
+        },
+      );
+
+      it("returns every password field when none expose current-password", () => {
+        pageDetails.fields = [0, 1, 2].map((i) =>
+          createAutofillFieldMock({
+            opid: `pw-${i}`,
+            type: "password",
+            form: formId,
+            autoCompleteType: null,
+            elementNumber: i,
+          }),
+        );
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual(pageDetails.fields);
+      });
+
+      it.each([
+        {
+          label: "password generation",
+          fillNewPassword: true,
+          inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
+          wantAll: true,
+        },
+        {
+          label: "fillNewPassword without generation",
+          fillNewPassword: true,
+          inlineMenuFillType: undefined,
+          wantAll: false,
+        },
+      ])("$label", ({ fillNewPassword, inlineMenuFillType, wantAll }) => {
+        const triple = passwordTriple();
+        pageDetails.fields = [...triple];
+
+        const result = AutofillService.loadPasswordFields(
+          pageDetails,
+          false,
+          false,
+          false,
+          fillNewPassword,
+          inlineMenuFillType,
+        );
+
+        expect(result).toStrictEqual(wantAll ? [...triple] : [triple[0]]);
+      });
+    });
+
+    it("includes a lone password field with autocomplete off", () => {
+      pageDetails.fields = [
+        createAutofillFieldMock({
+          opid: "lone-password-field",
+          type: "password",
+          form: "loginForm",
+          autoCompleteType: "off",
+        }),
+      ];
+
+      expect(
+        AutofillService.loadPasswordFields(pageDetails, false, false, false, false),
+      ).toStrictEqual(pageDetails.fields);
+    });
+
     describe("given a field with a new password", () => {
       beforeEach(() => {
         passwordField.autoCompleteType = "new-password";
       });
 
       it("returns an empty array if not filling a new password and the autoCompleteType is `new-password`", () => {
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it("returns an empty array if not filling a new password when compound autocomplete includes new-password", () => {
+        passwordField.autoCompleteType = "section-account shipping new-password";
         pageDetails.fields = [passwordField];
 
         const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);

@@ -150,9 +150,12 @@ export class AutoFillConstants {
   /** HTML elements for form fields */
   static readonly FieldElements: string[] = ["input", "select", "textarea"];
 
+  static readonly AutocompleteCurrentPassword = "current-password";
+  static readonly AutocompleteNewPassword = "new-password";
+
   static readonly ExcludedIdentityAutocompleteTypes: Set<string> = new Set([
-    "current-password",
-    "new-password",
+    AutoFillConstants.AutocompleteCurrentPassword,
+    AutoFillConstants.AutocompleteNewPassword,
   ]);
 }
 

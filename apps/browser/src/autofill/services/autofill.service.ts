@@ -50,7 +50,7 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
-import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
+import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -328,7 +328,14 @@ export default class AutofillService implements AutofillServiceInterface {
   getFormsWithPasswordFields(pageDetails: AutofillPageDetails): FormData[] {
     const formData: FormData[] = [];
 
-    const passwordFields = AutofillService.loadPasswordFields(pageDetails, true, true, false, true);
+    const passwordFields = AutofillService.loadPasswordFields(
+      pageDetails,
+      true,
+      true,
+      false,
+      true,
+      undefined,
+    );
 
     // TODO: this logic prevents multi-step account creation forms (that just start with email)
     // from being passed on to the notification bar content script - even if autofill-init.js found the form and email field.
@@ -890,6 +897,7 @@ export default class AutofillService implements AutofillServiceInterface {
       false,
       options.onlyEmptyFields,
       options.fillNewPassword,
+      options.inlineMenuFillType,
     );
 
     const loginPasswordFields: AutofillField[] = [];
@@ -978,38 +986,34 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     }
 
-    for (const formKey in pageDetails.forms) {
-      // eslint-disable-next-line
-      if (!pageDetails.forms.hasOwnProperty(formKey)) {
-        continue;
+    const pageHasNoFormMetadata =
+      pageDetails.forms == null || Object.keys(pageDetails.forms).length === 0;
+
+    prioritizedPasswordFields.forEach((passField) => {
+      if (focusedField && !passwordMatchesFocused(passField)) {
+        return;
       }
 
-      prioritizedPasswordFields.forEach((passField) => {
-        if (focusedField && !passwordMatchesFocused(passField)) {
-          return;
-        }
+      pf = passField;
+      passwords.push(pf);
 
-        pf = passField;
-        passwords.push(pf);
-
-        if (login.username) {
-          username = getUsernameForPassword(pf, false);
-          if (username?.opid != null) {
-            usernames.set(username.opid, username);
-          }
+      if (login.username) {
+        username = getUsernameForPassword(pf, pageHasNoFormMetadata);
+        if (username?.opid != null) {
+          usernames.set(username.opid, username);
         }
+      }
 
-        if (options.allowTotpAutofill && login.totp) {
-          totp =
-            isFocusedTotpField && passwordMatchesFocused(passField)
-              ? focusedField
-              : this.findTotpField(pageDetails, pf, false, false, false);
-          if (totp) {
-            totps.push(totp);
-          }
+      if (options.allowTotpAutofill && login.totp) {
+        totp =
+          isFocusedTotpField && passwordMatchesFocused(passField)
+            ? focusedField
+            : this.findTotpField(pageDetails, pf, false, false, pageHasNoFormMetadata);
+        if (totp) {
+          totps.push(totp);
         }
-      });
-    }
+      }
+    });
 
     if (passwordFields.length && !passwords.length) {
       // in the event that password fields exist but weren't processed within form elements.
@@ -1729,7 +1733,9 @@ export default class AutofillService implements AutofillServiceInterface {
         ...AutoFillConstants.ExcludedAutofillTypes,
       ]) ||
       (field.autoCompleteType != null &&
-        AutoFillConstants.ExcludedIdentityAutocompleteTypes.has(field.autoCompleteType)) ||
+        [...AutoFillConstants.ExcludedIdentityAutocompleteTypes].some((excludedToken) =>
+          AutofillService.autoCompleteTypeIncludesToken(field.autoCompleteType, excludedToken),
+        )) ||
       !field.viewable
     );
   }
@@ -2387,6 +2393,40 @@ export default class AutofillService implements AutofillServiceInterface {
     return valueIsOnExclusionList;
   }
 
+  private static collectExcludedPasswordFieldIds(pageDetails: AutofillPageDetails): Set<string> {
+    const passwordFieldsByForm = new Map<string | null, AutofillField[]>();
+    for (const field of pageDetails.fields) {
+      if (field.type !== "password" || field.disabled) {
+        continue;
+      }
+      const formKey = field.form ?? null;
+      const fieldsForForm = passwordFieldsByForm.get(formKey);
+      if (fieldsForForm) {
+        fieldsForForm.push(field);
+      } else {
+        passwordFieldsByForm.set(formKey, [field]);
+      }
+    }
+
+    const isCurrentPassword = (f: AutofillField) =>
+      AutofillService.autoCompleteTypeIncludesToken(
+        f.autoCompleteType,
+        AutoFillConstants.AutocompleteCurrentPassword,
+      );
+
+    const excluded = new Set<string>();
+    for (const [, passwordFields] of passwordFieldsByForm) {
+      if (passwordFields.length >= 2 && passwordFields.some(isCurrentPassword)) {
+        for (const field of passwordFields) {
+          if (!isCurrentPassword(field)) {
+            excluded.add(field.opid);
+          }
+        }
+      }
+    }
+    return excluded;
+  }
+
   /**
    * Accepts a pageDetails object with a list of fields and returns a list of
    * fields that are likely to be password fields.
@@ -2395,6 +2435,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param {boolean} canBeReadOnly
    * @param {boolean} mustBeEmpty
    * @param {boolean} fillNewPassword
+   * @param {InlineMenuFillType} inlineMenuFillType
    * @returns {AutofillField[]}
    */
   static loadPasswordFields(
@@ -2403,8 +2444,14 @@ export default class AutofillService implements AutofillServiceInterface {
     canBeReadOnly: boolean,
     mustBeEmpty: boolean,
     fillNewPassword: boolean,
+    inlineMenuFillType?: InlineMenuFillType,
   ) {
     const arr: AutofillField[] = [];
+
+    const excludedPasswordFieldOpids =
+      fillNewPassword && inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration
+        ? new Set<string>()
+        : AutofillService.collectExcludedPasswordFieldIds(pageDetails);
 
     pageDetails.fields.forEach((f) => {
       const isPassword = f.type === "password";
@@ -2447,7 +2494,12 @@ export default class AutofillService implements AutofillServiceInterface {
         (isPassword || isLikePassword()) &&
         (canBeHidden || f.viewable) &&
         (!mustBeEmpty || f.value == null || f.value.trim() === "") &&
-        (fillNewPassword || f.autoCompleteType !== "new-password")
+        (fillNewPassword ||
+          !AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteNewPassword,
+          )) &&
+        !excludedPasswordFieldOpids.has(f.opid)
       ) {
         arr.push(f);
       }
@@ -2756,6 +2808,27 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return fieldVal.toLowerCase() === name;
+  }
+
+  /**
+   * True if `autoCompleteType` includes `token` as a space-separated autocomplete token.
+   * Handles compound tokens such as `section-login current-password`.
+   */
+  static autoCompleteTypeIncludesToken(
+    autoCompleteType: string | null | undefined,
+    token: string,
+  ): boolean {
+    if (autoCompleteType == null || typeof autoCompleteType !== "string") {
+      return false;
+    }
+
+    const normalizedToken = token.trim().toLowerCase();
+    if (!normalizedToken) {
+      return false;
+    }
+
+    const parts = autoCompleteType.trim().toLowerCase().split(/\s+/);
+    return parts.includes(normalizedToken);
   }
 
   /**
