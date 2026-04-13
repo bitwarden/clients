@@ -6221,6 +6221,12 @@
   "conditions": {
     "message": "Conditions"
   },
+  "triageReportExportTitle": {
+    "message": "Export Report Data"
+  },
+  "triageReportExportDesc": {
+    "message": "Carefully review all data before copying. The report may contain form field details, labels, and partial field values — ensure no sensitive information is included before sharing."
+  },
   "copyReport": {
     "message": "Copy Report"
   },

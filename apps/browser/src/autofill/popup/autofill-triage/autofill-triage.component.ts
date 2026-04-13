@@ -17,6 +17,7 @@ import {
   BadgeModule,
   ButtonModule,
   CalloutModule,
+  DialogService,
   IconButtonModule,
   IconModule,
   ItemModule,
@@ -47,6 +48,7 @@ import { formatAutofillTriageReport } from "../utils/format-autofill-triage-repo
     BadgeModule,
     ButtonModule,
     CalloutModule,
+    DialogService,
     IconButtonModule,
     IconModule,
     ItemModule,
@@ -106,6 +108,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
     private readonly platformUtilsService: PlatformUtilsService,
     private readonly i18nService: I18nService,
     private readonly toastService: ToastService,
+    private readonly dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -137,6 +140,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     void BrowserApi.sendMessageWithResponse<AutofillTriagePageResult | null>(
       "getAutofillTriageResult",
+      { tabId: this.currentTabId() },
     ).then((response) => {
       if (response) {
         this.triageResult.set(response);
@@ -183,6 +187,11 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const confirmed = await this.confirmExport();
+    if (!confirmed) {
+      return;
+    }
+
     const report = formatAutofillTriageReport(result);
     await this.platformUtilsService.copyToClipboard(report);
 
@@ -202,12 +211,25 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const confirmed = await this.confirmExport();
+    if (!confirmed) {
+      return;
+    }
+
     await this.platformUtilsService.copyToClipboard(JSON.stringify(result, null, 2));
 
     this.toastService.showToast({
       variant: "success",
       title: this.i18nService.t("copiedToClipboard"),
       message: this.i18nService.t("triageJsonReportCopied"),
+    });
+  }
+
+  private async confirmExport(): Promise<boolean> {
+    return this.dialogService.openSimpleDialog({
+      title: { key: "triageReportExportTitle" },
+      content: { key: "triageReportExportDesc" },
+      type: "warning",
     });
   }
 }

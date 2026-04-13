@@ -6,7 +6,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
@@ -20,6 +20,7 @@ describe("AutofillTriageComponent", () => {
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
+  let dialogService: MockProxy<DialogService>;
 
   const mockTab = { id: 42 } as chrome.tabs.Tab;
 
@@ -71,6 +72,8 @@ describe("AutofillTriageComponent", () => {
     platformUtilsService = mock<PlatformUtilsService>();
     i18nService = mock<I18nService>();
     toastService = mock<ToastService>();
+    dialogService = mock<DialogService>();
+    dialogService.openSimpleDialog.mockResolvedValue(true);
 
     i18nService.t.mockImplementation((key: string) => key);
 
@@ -97,6 +100,7 @@ describe("AutofillTriageComponent", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
+        { provide: DialogService, useValue: dialogService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -140,7 +144,7 @@ describe("AutofillTriageComponent", () => {
 
       await component.ngOnInit();
 
-      expect(sendMessageSpy).toHaveBeenCalledWith("getAutofillTriageResult");
+      expect(sendMessageSpy).toHaveBeenCalledWith("getAutofillTriageResult", { tabId: mockTab.id });
     });
 
     it("should set triageResult and clear loading when background responds with data", fakeAsync(() => {
@@ -359,10 +363,20 @@ describe("AutofillTriageComponent", () => {
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
 
-    it("should copy formatted report to clipboard", async () => {
+    it("should not copy when user cancels the export dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      component.triageResult.set(mockTriageResult);
+      await component.copyReport();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+    });
+
+    it("should copy formatted report to clipboard after confirming export dialog", async () => {
       component.triageResult.set(mockTriageResult);
       await component.copyReport();
 
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "warning" }),
+      );
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(expect.any(String));
       const copiedText = platformUtilsService.copyToClipboard.mock.calls[0][0];
       expect(copiedText).toContain("AutoFill Triage Report");
@@ -378,6 +392,44 @@ describe("AutofillTriageComponent", () => {
         variant: "success",
         title: "copiedToClipboard",
         message: "triageReportCopied",
+      });
+    });
+  });
+
+  describe("copyJsonReport", () => {
+    it("should not copy when triageResult is null", async () => {
+      component.triageResult.set(null);
+      await component.copyJsonReport();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+    });
+
+    it("should not copy when user cancels the export dialog", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      component.triageResult.set(mockTriageResult);
+      await component.copyJsonReport();
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+    });
+
+    it("should copy JSON report to clipboard after confirming export dialog", async () => {
+      component.triageResult.set(mockTriageResult);
+      await component.copyJsonReport();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ type: "warning" }),
+      );
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(expect.any(String));
+      const copiedText = platformUtilsService.copyToClipboard.mock.calls[0][0];
+      expect(JSON.parse(copiedText)).toMatchObject({ pageUrl: "https://example.com/login" });
+    });
+
+    it("should show success toast after copying", async () => {
+      component.triageResult.set(mockTriageResult);
+      await component.copyJsonReport();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        title: "copiedToClipboard",
+        message: "triageJsonReportCopied",
       });
     });
   });
