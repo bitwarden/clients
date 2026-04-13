@@ -554,6 +554,7 @@ const safeProviders: SafeProvider[] = [
       KeyService,
       BiometricsService,
       BiometricStateService,
+      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({

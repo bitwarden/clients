@@ -9,19 +9,21 @@ import {
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
+import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { DefaultEncryptedMigrator } from "./default-encrypted-migrator";
-import { BiometricPersistentMigration } from "./migrations/biometric-v2-encryption-migration";
+import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
 
 jest.mock("./migrations/minimum-kdf-migration");
-jest.mock("./migrations/biometric-v2-encryption-migration");
+jest.mock("./migrations/biometric-persistent-encryption-migration");
 
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
@@ -33,6 +35,7 @@ describe("EncryptedMigrator", () => {
   const mockKeyService = mock<KeyService>();
   const mockBiometricsService = mock<BiometricsService>();
   const mockBiometricStateService = mock<BiometricStateService>();
+  const mockPlatformUtilsService = mock<PlatformUtilsService>();
 
   let sut: DefaultEncryptedMigrator;
   const mockMigration = mock<MinimumKdfMigration>();
@@ -55,6 +58,9 @@ describe("EncryptedMigrator", () => {
     // Default biometric migration to no-op so it doesn't interfere with KDF migration tests
     mockBiometricMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
 
+    // Biometric migration is only registered on desktop
+    mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+
     sut = new DefaultEncryptedMigrator(
       mockKdfConfigService,
       mockChangeKdfService,
@@ -65,6 +71,7 @@ describe("EncryptedMigrator", () => {
       mockKeyService,
       mockBiometricsService,
       mockBiometricStateService,
+      mockPlatformUtilsService,
     );
   });
 

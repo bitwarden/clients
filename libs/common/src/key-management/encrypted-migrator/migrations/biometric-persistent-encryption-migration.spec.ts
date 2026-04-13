@@ -45,14 +45,8 @@ describe("BiometricPersistentMigration", () => {
   });
 
   describe("needsMigration", () => {
-    it("should return 'noMigrationNeeded' when feature flag is disabled", async () => {
-      const result = await sut.needsMigration(mockUserId);
-
-      expect(result).toBe("noMigrationNeeded");
-    });
-
     it("should return 'noMigrationNeeded' when biometric unlock is not enabled", async () => {
-      mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(false);
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
 
       const result = await sut.needsMigration(mockUserId);
 
@@ -60,7 +54,7 @@ describe("BiometricPersistentMigration", () => {
     });
 
     it("should return 'noMigrationNeeded' when user key is null (locked)", async () => {
-      mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockKeyService.userKey$.mockReturnValue(of(null));
 
       const result = await sut.needsMigration(mockUserId);
@@ -69,7 +63,7 @@ describe("BiometricPersistentMigration", () => {
     });
 
     it("should return 'noMigrationNeeded' when key has no key ID", async () => {
-      mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(undefined);
 
@@ -79,7 +73,7 @@ describe("BiometricPersistentMigration", () => {
     });
 
     it("should return 'noMigrationNeeded' when enrolled key ID matches current key ID", async () => {
-      mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
       mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdB64);
@@ -90,7 +84,8 @@ describe("BiometricPersistentMigration", () => {
     });
 
     it("should return 'needsMigration' when enrolled key ID does not match current key ID", async () => {
-      mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
       mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue("differentKeyId");
@@ -101,7 +96,8 @@ describe("BiometricPersistentMigration", () => {
     });
 
     it("should return 'needsMigration' when no enrolled key ID exists", async () => {
-      mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
       mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(null);
@@ -138,13 +134,13 @@ describe("BiometricPersistentMigration", () => {
       expect(mockBiometricsService.enrollPersistent).toHaveBeenCalledWith(mockUserId, mockUserKey);
     });
 
-    it("should not re-enroll persistent key when none exists", async () => {
+    it("should re-enroll persistent key on every migration", async () => {
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(false);
 
       await sut.runMigrations(mockUserId, null);
 
-      expect(mockBiometricsService.enrollPersistent).not.toHaveBeenCalled();
+      expect(mockBiometricsService.enrollPersistent).toHaveBeenCalledWith(mockUserId, mockUserKey);
     });
 
     it("should store the current key ID", async () => {

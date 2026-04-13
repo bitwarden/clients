@@ -25,35 +25,25 @@ export class BiometricPersistentMigration implements EncryptedMigration {
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {
     if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId)))) {
-      this.logService.info(
-        `[BiometricPersistentMigration] Biometric unlock not enabled for user ${userId}, skipping migration check`,
-      );
+      return "noMigrationNeeded";
+    }
+
+    if (!(await this.biometricsService.hasPersistentKey(userId))) {
       return "noMigrationNeeded";
     }
 
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
     if (userKey == null) {
-      this.logService.info(
-        `[BiometricPersistentMigration] User key not available for user ${userId}, skipping migration check`,
-      );
       return "noMigrationNeeded";
     }
 
     const currentKeyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
     if (currentKeyId == null) {
-      this.logService.info(
-        `[BiometricPersistentMigration] Unable to derive key ID from user key for user ${userId}, skipping migration check`,
-      );
       return "noMigrationNeeded";
     }
 
     const enrolledKeyId = await this.biometricStateService.getBiometricEnrolledKeyId(userId);
-    this.logService.info("enrolledKeyId", enrolledKeyId);
-    this.logService.info("currentKeyId", Utils.fromBufferToB64(currentKeyId));
     if (enrolledKeyId === Utils.fromBufferToB64(currentKeyId)) {
-      this.logService.info(
-        `[BiometricPersistentMigration] Biometric key is up to date for user ${userId}, skipping migration`,
-      );
       return "noMigrationNeeded";
     }
 
@@ -70,11 +60,8 @@ export class BiometricPersistentMigration implements EncryptedMigration {
       `[BiometricPersistentMigration] Re-enrolling biometric keys for user ${userId}`,
     );
 
-    // Re-enroll persistent biometric key if one exists
-    if (await this.biometricsService.hasPersistentKey(userId)) {
-      await this.biometricsService.enrollPersistent(userId, userKey);
-      await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
-    }
+    await this.biometricsService.enrollPersistent(userId, userKey);
+    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
 
     const keyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
     if (keyId != null) {

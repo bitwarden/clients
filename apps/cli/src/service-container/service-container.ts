@@ -1084,6 +1084,7 @@ export class ServiceContainer {
       this.keyService,
       new CliBiometricsService(),
       this.biometricStateService,
+      this.platformUtilsService,
     );
   }
 
