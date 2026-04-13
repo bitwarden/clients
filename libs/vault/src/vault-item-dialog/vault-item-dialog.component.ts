@@ -723,7 +723,9 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Delete the cipher as an admin when:
     // - The organization allows for owners/admins to manage all collections/items
     // - The cipher is unassigned
-    const asAdmin = this.organization?.canEditAllCiphers || cipherIsUnassigned;
+    const asAdmin =
+      this.params.isAdminConsoleAction &&
+      (this.organization?.canEditAllCiphers || cipherIsUnassigned);
 
     const activeUserId = await firstValueFrom(
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
