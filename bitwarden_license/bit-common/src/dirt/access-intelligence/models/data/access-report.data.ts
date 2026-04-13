@@ -31,9 +31,9 @@ export class AccessReportData {
 
     this.id = response.id;
     this.organizationId = response.organizationId;
-    this.reports = response.reports;
-    this.applications = response.applications;
-    this.summary = response.summary;
+    this.reports = response.reportData;
+    this.applications = response.applicationData;
+    this.summary = response.summaryData;
     this.creationDate = response.creationDate;
     this.contentEncryptionKey = response.contentEncryptionKey;
 

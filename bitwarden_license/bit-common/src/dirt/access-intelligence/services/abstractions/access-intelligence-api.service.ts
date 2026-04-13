@@ -148,4 +148,7 @@ export abstract class AccessIntelligenceApiService {
     reportId: OrganizationReportId,
     request: AccessReportUpdateRequest,
   ): Observable<AccessReportApi>;
+
+  // TODO: add jsdoc
+  abstract downloadReportFileAzure$(url: string): Observable<{ blob: Blob; fileName: string }>;
 }
