@@ -70,7 +70,6 @@ export enum FeatureFlag {
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
 
   /* Vault */
-  PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
@@ -142,7 +141,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Vault */
   [FeatureFlag.CipherKeyEncryption]: FALSE,
-  [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
