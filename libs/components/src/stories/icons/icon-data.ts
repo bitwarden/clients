@@ -33,6 +33,10 @@ const statusIndicators = [
 
 const bitwardenObjects = [
   {
+    id: "bwi-bank",
+    usage: "Indicates a bank account item type.",
+  },
+  {
     id: "bwi-business",
     usage:
       "Indicates actions or elements that are related to organizations, Teams plan, Enterprise plan.",
@@ -342,10 +346,6 @@ const miscObjects = [
   {
     id: "bwi-desktop",
     usage: "Indicates the desktop client.",
-  },
-  {
-    id: "bwi-bank",
-    usage: "bank account cipher type",
   },
   {
     id: "bwi-dollar",
