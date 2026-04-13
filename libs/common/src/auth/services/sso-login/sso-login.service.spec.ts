@@ -11,7 +11,7 @@ import {
   SSO_STATE,
   SsoLoginService,
   USER_ORGANIZATION_SSO_IDENTIFIER,
-} from "@bitwarden/common/auth/services/sso-login.service";
+} from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import {
   Environment,
   EnvironmentService,
@@ -21,8 +21,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 
-import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../spec";
-import { SsoRequiredCacheEntry } from "../abstractions/sso-login.service.abstraction";
+import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
+import { SsoRequiredCacheEntry } from "../../abstractions/sso-login.service.abstraction";
 
 const email = "user1@example.com";
 const webVaultUrl = "https://vault.bitwarden.com";
