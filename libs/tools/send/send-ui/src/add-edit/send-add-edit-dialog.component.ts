@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject, signal, viewChild } from "@angular/core";
+import { Component, Inject, inject, signal, viewChild } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,6 +25,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { SendFormComponent, SendFormConfig, SendFormMode, SendFormModule } from "../send-form";
+import { SendPolicyService } from "../services/send-policy.service";
 
 export interface SendItemDialogParams {
   /**
@@ -106,6 +108,11 @@ export class SendAddEditDialogComponent {
    * The label for the "Use this password" button.
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
+
+  private readonly sendPolicyService = inject(SendPolicyService);
+  private readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
+    initialValue: null,
+  });
 
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
@@ -233,6 +240,11 @@ export class SendAddEditDialogComponent {
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
     const isEditMode = mode === "edit" || mode === "partial-edit";
+
+    if (this.restrictedSendType() != null) {
+      return this.i18nService.t(isEditMode ? "editSend" : "createSend");
+    }
+
     const translation = {
       [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
       [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",

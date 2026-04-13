@@ -10,6 +10,8 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { ButtonModule, ButtonType, MenuModule } from "@bitwarden/components";
 
+import { SendPolicyService } from "../services/send-policy.service";
+
 // Desktop-specific version of NewSendDropdownComponent.
 // Unlike the shared library version, this component emits events instead of using Angular Router,
 // which aligns with Desktop's modal-based architecture.
@@ -29,7 +31,12 @@ export class NewSendDropdownV2Component {
 
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly accountService = inject(AccountService);
+  private readonly sendPolicyService = inject(SendPolicyService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
+
+  protected readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
+    initialValue: null,
+  });
 
   protected readonly hasNoPremium = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -54,6 +61,18 @@ export class NewSendDropdownV2Component {
       await this.premiumUpgradePromptService.promptForPremium();
     } else {
       this.addSend.emit(SendType.File);
+    }
+  }
+
+  /**
+   * Called when the type is restricted — directly creates the allowed type.
+   */
+  protected async onRestrictedClick(): Promise<void> {
+    const type = this.restrictedSendType();
+    if (type === SendType.File) {
+      await this.onFileSendClick();
+    } else {
+      this.onTextSendClick();
     }
   }
 }

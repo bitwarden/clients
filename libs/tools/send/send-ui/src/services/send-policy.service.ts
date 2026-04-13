@@ -8,6 +8,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.
@@ -107,6 +108,31 @@ export class SendPolicyService {
           )
         : of(null),
     ),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
+  /**
+   * Emits the only allowed `SendType` when a "restrict send type" policy is active,
+   * or `null` when no restriction is in effect.
+   *   - `SendType.Text` → user may only create Text sends.
+   *   - `SendType.File` → user may only create File sends.
+   *   - `null` → no restriction (both types allowed).
+   */
+  readonly restrictedSendType$: Observable<SendType | null> = this.flagAndUser$.pipe(
+    switchMap(([sendControlsEnabled, userId]) => {
+      if (!sendControlsEnabled) {
+        return of(null);
+      }
+      return this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
+        map((policies) => {
+          const policy = policies?.find((p) => p.data?.restrictSendType != null);
+          if (!policy) {
+            return null;
+          }
+          return policy.data.restrictSendType as SendType;
+        }),
+      );
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 }

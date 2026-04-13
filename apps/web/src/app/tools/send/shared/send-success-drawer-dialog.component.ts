@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, Inject, signal } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Inject, inject, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom } from "rxjs";
 
 import { ActiveSendIcon } from "@bitwarden/assets/svg";
@@ -9,6 +10,7 @@ import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DIALOG_DATA, DialogModule, ToastService, TypographyModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 @Component({
@@ -21,7 +23,15 @@ export class SendSuccessDrawerDialogComponent {
   readonly sendLink = signal<string>("");
   readonly activeSendIcon = ActiveSendIcon;
 
+  private readonly sendPolicyService = inject(SendPolicyService);
+  private readonly restrictedSendType = toSignal(this.sendPolicyService.restrictedSendType$, {
+    initialValue: null,
+  });
+
   get dialogTitle(): string {
+    if (this.restrictedSendType() != null) {
+      return "createSend";
+    }
     return this.send.type === SendType.Text ? "newTextSend" : "newFileSend";
   }
 

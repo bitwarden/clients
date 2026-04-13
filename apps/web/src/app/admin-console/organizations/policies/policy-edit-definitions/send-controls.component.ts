@@ -26,6 +26,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
@@ -53,6 +54,7 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 })
 export class SendControlsPolicyComponent extends BasePolicyEditComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  readonly restrictSendTypeOptions = signal<{ label: string; value: SendType | null }[]>([]);
 
   readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group(
     new SendControlsPolicyData(),
@@ -87,8 +89,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
-    private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
     private readonly i18nService: I18nService,
+    private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
   ) {
     super();
   }
@@ -120,6 +122,11 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         this.data.enable();
       }
     });
+    this.restrictSendTypeOptions.set([
+      { label: this.i18nService.t("sendRestrictSendTypeNoRestriction"), value: null },
+      { label: this.i18nService.t("sendRestrictSendTypeTextOnly"), value: SendType.Text },
+      { label: this.i18nService.t("sendRestrictSendTypeFileOnly"), value: SendType.File },
+    ]);
     super.ngOnInit();
   }
 
