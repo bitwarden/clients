@@ -28,13 +28,13 @@ export class KeeperDuoPushPromptComponent {
   protected get descriptionI18nKey(): string {
     switch (this.method) {
       case DuoMethod.Push:
-        return "keeperDuoPushWaiting";
+        return "duoPushWaiting";
       case DuoMethod.Sms:
-        return "keeperDuoSmsWaiting";
+        return "duoSmsWaiting";
       case DuoMethod.Voice:
-        return "keeperDuoVoiceWaiting";
+        return "duoVoiceWaiting";
       default:
-        return "keeperDuoPushWaiting";
+        return "duoPushWaiting";
     }
   }
 

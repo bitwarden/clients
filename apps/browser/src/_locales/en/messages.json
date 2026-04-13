@@ -4689,16 +4689,16 @@
   "keeperDuoUnknown": {
     "message": "Unknown method"
   },
-  "keeperDuoApprovalRequired": {
+  "duoVerification": {
     "message": "Duo verification"
   },
-  "keeperDuoPushWaiting": {
+  "duoPushWaiting": {
     "message": "Approve the Duo push notification on your device."
   },
-  "keeperDuoSmsWaiting": {
+  "duoSmsWaiting": {
     "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
   },
-  "keeperDuoVoiceWaiting": {
+  "duoVoiceWaiting": {
     "message": "Answer the phone call from Duo and follow the instructions."
   },
   "keeperUnsupported2faMethod": {
