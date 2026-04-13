@@ -126,6 +126,8 @@ export class ItemCopyActionsComponent {
     const bankAccountItems: CipherItem[] = [
       { key: "copyAccountNumber", field: "accountNumber" },
       { key: "copyRoutingNumber", field: "routingNumber" },
+      { key: "copyPin", field: "pin" },
+      { key: "copyIban", field: "iban" },
     ];
     return this.findSingleCopyableItem(bankAccountItems);
   }
@@ -198,6 +200,8 @@ export class ItemCopyActionsComponent {
     return [
       CipherViewLikeUtils.hasCopyableValue(this.cipher, "accountNumber"),
       CipherViewLikeUtils.hasCopyableValue(this.cipher, "routingNumber"),
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "pin"),
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "iban"),
     ].filter(Boolean).length;
   }
 
