@@ -18,6 +18,12 @@ import { AtRiskNotificationBody } from "./body";
 import { AtRiskNotificationFooter } from "./footer";
 
 export type AtRiskNotificationProps = NotificationBarIframeInitData & {
+  /**
+   * Click handler for the "Change password" button. When omitted, the button
+   * is not rendered and the notification body instructs the user to navigate
+   * to the site manually.
+   */
+  handleChangePasswordClick?: (e: Event) => void;
   handleCloseNotification: (e: Event) => void;
   i18n: I18n;
   notificationTestId: string;
@@ -25,15 +31,16 @@ export type AtRiskNotificationProps = NotificationBarIframeInitData & {
 };
 
 export function AtRiskNotification({
+  handleChangePasswordClick,
   handleCloseNotification,
   i18n,
   notificationTestId,
   theme = ThemeTypes.Light,
   params,
 }: AtRiskNotificationProps) {
-  const { passwordChangeUri, organizationName } = params;
+  const { hasPasswordChangeUri, organizationName } = params;
   const riskMessage = chrome.i18n.getMessage(
-    passwordChangeUri ? "atRiskChangePrompt" : "atRiskNavigatePromptV2",
+    hasPasswordChangeUri ? "atRiskChangePrompt" : "atRiskNavigatePromptV2",
     organizationName,
   );
 
@@ -49,11 +56,11 @@ export function AtRiskNotification({
         theme,
         riskMessage,
       })}
-      ${passwordChangeUri
+      ${handleChangePasswordClick
         ? AtRiskNotificationFooter({
             i18n,
             theme,
-            passwordChangeUri,
+            handleChangePasswordClick,
           })
         : nothing}
     </div>

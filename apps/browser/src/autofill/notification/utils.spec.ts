@@ -64,55 +64,52 @@ describe("isAtRiskPasswordNotification", () => {
       expect(
         isAtRiskPasswordNotification({
           type: NotificationTypes.AtRiskPassword,
-          params: { organizationName: "" },
+          params: { organizationName: "", hasPasswordChangeUri: false },
         }),
       ).toBe(true);
     });
 
-    it("returns true when organizationName is present and passwordChangeUri is absent", () => {
+    it("returns false when hasPasswordChangeUri is absent", () => {
       expect(
         isAtRiskPasswordNotification({
           type: NotificationTypes.AtRiskPassword,
           params: { organizationName: "Acme" },
         }),
-      ).toBe(true);
+      ).toBe(false);
     });
 
-    it("returns true when both organizationName and passwordChangeUri are present strings", () => {
+    it("returns true when hasPasswordChangeUri is true", () => {
       expect(
         isAtRiskPasswordNotification({
           type: NotificationTypes.AtRiskPassword,
-          params: {
-            organizationName: "Acme",
-            passwordChangeUri: "https://example.com/.well-known/change-password",
-          },
+          params: { organizationName: "Acme", hasPasswordChangeUri: true },
         }),
       ).toBe(true);
     });
 
-    it("returns true when passwordChangeUri is an empty string", () => {
+    it("returns true when hasPasswordChangeUri is false", () => {
       expect(
         isAtRiskPasswordNotification({
           type: NotificationTypes.AtRiskPassword,
-          params: { organizationName: "Acme", passwordChangeUri: "" },
+          params: { organizationName: "Acme", hasPasswordChangeUri: false },
         }),
       ).toBe(true);
     });
 
-    it("returns false when passwordChangeUri is present but not a string", () => {
+    it("returns false when hasPasswordChangeUri is not a boolean", () => {
       expect(
         isAtRiskPasswordNotification({
           type: NotificationTypes.AtRiskPassword,
-          params: { organizationName: "Acme", passwordChangeUri: 123 },
+          params: { organizationName: "Acme", hasPasswordChangeUri: "true" },
         }),
       ).toBe(false);
     });
 
-    it("returns false when passwordChangeUri is null", () => {
+    it("returns false when hasPasswordChangeUri is null", () => {
       expect(
         isAtRiskPasswordNotification({
           type: NotificationTypes.AtRiskPassword,
-          params: { organizationName: "Acme", passwordChangeUri: null },
+          params: { organizationName: "Acme", hasPasswordChangeUri: null },
         }),
       ).toBe(false);
     });

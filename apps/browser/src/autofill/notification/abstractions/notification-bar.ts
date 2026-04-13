@@ -81,12 +81,13 @@ type NotificationBarWindowMessageHandlers = {
  * `organizationName` is always present — it is resolved from the organization record before the
  * notification is queued.
  *
- * `passwordChangeUri` is genuinely optional. It is present only when the organization's identity
- * provider advertises a `.well-known/change-password` endpoint. When absent, the notification
- * body instructs the user to navigate to the site manually rather than offering a direct link.
+ * `hasPasswordChangeUri` indicates whether the site advertises a `.well-known/change-password`
+ * endpoint. When `true`, the notification renders a "Change password" button whose click is
+ * handled by the background service (which re-derives the trusted URL). When `false`, the
+ * notification body instructs the user to navigate to the site manually.
  */
 type AtRiskPasswordNotificationParams = {
-  passwordChangeUri?: string;
+  hasPasswordChangeUri: boolean;
   organizationName: string;
 };
 

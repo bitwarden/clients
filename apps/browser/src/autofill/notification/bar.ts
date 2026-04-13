@@ -238,6 +238,9 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
         notificationTestId,
         params: notificationBarIframeInitData.params,
         handleCloseNotification,
+        handleChangePasswordClick: notificationBarIframeInitData.params.hasPasswordChangeUri
+          ? handleChangePasswordClick
+          : undefined,
       }),
       document.body,
     );
@@ -288,6 +291,13 @@ async function initNotificationBar(message: NotificationBarWindowMessage) {
     e.preventDefault();
     sendSaveCipherMessage(selectedCipherSignal.get(), notificationType === NotificationTypes.Add);
   }
+}
+
+function handleChangePasswordClick(e: Event) {
+  // Guard against any default browser action (e.g., form submission) so only
+  // the background service worker message triggers navigation.
+  e.preventDefault();
+  sendPlatformMessage({ command: "bgOpenChangePasswordUrl" });
 }
 
 function handleCloseNotification(e: Event) {

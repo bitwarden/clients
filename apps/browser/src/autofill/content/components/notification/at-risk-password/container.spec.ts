@@ -44,23 +44,24 @@ describe("AtRiskNotification", () => {
   });
 
   describe("i18n message selection", () => {
-    it("uses atRiskChangePrompt when passwordChangeUri is present in params", () => {
+    it("uses atRiskChangePrompt when hasPasswordChangeUri is true", () => {
       AtRiskNotification({
         ...baseProps,
         params: {
           organizationName: "Acme Co.",
-          passwordChangeUri: "https://example.com/.well-known/change-password",
+          hasPasswordChangeUri: true,
         },
       });
 
       expect(chrome.i18n.getMessage).toHaveBeenCalledWith("atRiskChangePrompt", "Acme Co.");
     });
 
-    it("uses atRiskNavigatePrompt when passwordChangeUri is absent from params", () => {
+    it("uses atRiskNavigatePrompt when hasPasswordChangeUri is false", () => {
       AtRiskNotification({
         ...baseProps,
         params: {
           organizationName: "Acme Co.",
+          hasPasswordChangeUri: false,
         },
       });
 
@@ -74,7 +75,7 @@ describe("AtRiskNotification", () => {
 
       AtRiskNotification({
         ...baseProps,
-        params: { organizationName: "Acme Co." },
+        params: { organizationName: "Acme Co.", hasPasswordChangeUri: false },
       });
 
       expect(AtRiskNotificationBody).toHaveBeenCalledWith(
@@ -89,34 +90,58 @@ describe("AtRiskNotification", () => {
     // [3] AtRiskNotificationBody, [4] footer conditional (AtRiskNotificationFooter | nothing)
     const FOOTER_SLOT = 4;
 
-    it("renders the footer when passwordChangeUri is present in params", () => {
+    it("renders the footer when handleChangePasswordClick is provided", () => {
       const footerResult = Symbol("footer");
       (AtRiskNotificationFooter as jest.Mock).mockReturnValueOnce(footerResult);
+      const handleChangePasswordClick = jest.fn();
 
       const values = AtRiskNotification({
         ...baseProps,
+        handleChangePasswordClick,
         params: {
           organizationName: "Acme Co.",
-          passwordChangeUri: "https://example.com/.well-known/change-password",
+          hasPasswordChangeUri: true,
         },
       }) as unknown as any[];
 
       expect(AtRiskNotificationFooter).toHaveBeenCalledWith(
         expect.objectContaining({
-          passwordChangeUri: "https://example.com/.well-known/change-password",
+          handleChangePasswordClick,
         }),
       );
       expect(values[FOOTER_SLOT]).toBe(footerResult);
     });
 
-    it("renders nothing in the footer slot when passwordChangeUri is absent from params", () => {
+    it("renders nothing in the footer slot when handleChangePasswordClick is not provided", () => {
       const values = AtRiskNotification({
         ...baseProps,
-        params: { organizationName: "Acme Co." },
+        params: { organizationName: "Acme Co.", hasPasswordChangeUri: true },
       }) as unknown as any[];
 
       expect(AtRiskNotificationFooter).not.toHaveBeenCalled();
       expect(values[FOOTER_SLOT]).toBe(nothing);
+    });
+
+    it("renders the footer when handleChangePasswordClick is provided even if hasPasswordChangeUri is false", () => {
+      const footerResult = Symbol("footer");
+      (AtRiskNotificationFooter as jest.Mock).mockReturnValueOnce(footerResult);
+      const handleChangePasswordClick = jest.fn();
+
+      const values = AtRiskNotification({
+        ...baseProps,
+        handleChangePasswordClick,
+        params: {
+          organizationName: "Acme Co.",
+          hasPasswordChangeUri: false,
+        },
+      }) as unknown as any[];
+
+      expect(AtRiskNotificationFooter).toHaveBeenCalledWith(
+        expect.objectContaining({
+          handleChangePasswordClick,
+        }),
+      );
+      expect(values[FOOTER_SLOT]).toBe(footerResult);
     });
   });
 });

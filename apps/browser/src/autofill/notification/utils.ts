@@ -30,7 +30,6 @@ export function isAtRiskPasswordNotification<T extends NotificationBarIframeInit
   }
   const p = params as Record<string, unknown>;
   return (
-    typeof p["organizationName"] === "string" &&
-    (!("passwordChangeUri" in p) || typeof p["passwordChangeUri"] === "string")
+    typeof p["organizationName"] === "string" && typeof p["hasPasswordChangeUri"] === "boolean"
   );
 }
