@@ -16,7 +16,7 @@ const mockOnCommitted$ = new Subject<
   [chrome.webNavigation.WebNavigationTransitionCallbackDetails]
 >();
 const mockOnErrorOccurred$ = new Subject<
-  [chrome.webNavigation.WebNavigationErrorCallbackDetails]
+  [chrome.webNavigation.WebNavigationFramedErrorCallbackDetails]
 >();
 
 jest.mock("../../../platform/browser/from-chrome-event", () => ({
@@ -104,7 +104,7 @@ describe("PhishingDetectionService", () => {
         documentId: "",
         documentLifecycle: "active",
         error,
-      } as unknown as chrome.webNavigation.WebNavigationErrorCallbackDetails,
+      } as unknown as chrome.webNavigation.WebNavigationFramedErrorCallbackDetails,
     ]);
   }
 
