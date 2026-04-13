@@ -59,16 +59,16 @@
           bitIconButton
           bitPasswordInputToggle
           data-testid="toggle-account-number"
-          [(toggled)]="revealAccountNumber"
+          [toggled]="revealAccountNumber()"
+          (toggledChange)="toggleAccountNumberVisible($event)"
         ></button>
         <button
           bitIconButton="bwi-clone"
           bitSuffix
           type="button"
           [label]="'copyAccountNumber' | i18n"
-          [appCopyClick]="bankAccount().accountNumber"
-          showToast
-          [valueLabel]="'accountNumber' | i18n"
+          appCopyField="accountNumber"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }
@@ -125,7 +125,16 @@
           bitIconButton
           bitPasswordInputToggle
           data-testid="toggle-pin"
-          [(toggled)]="revealPin"
+          [toggled]="revealPin()"
+          (toggledChange)="togglePinVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyPin' | i18n"
+          appCopyField="pin"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }

@@ -82,9 +82,13 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   privateKey: { typeI18nKey: "sshPrivateKey", protected: true },
   publicKey: { typeI18nKey: "sshPublicKey", protected: true },
   keyFingerprint: { typeI18nKey: "sshFingerprint", protected: true },
-  accountNumber: { typeI18nKey: "accountNumber", protected: true },
+  accountNumber: {
+    typeI18nKey: "accountNumber",
+    protected: true,
+    event: EventType.Cipher_ClientCopiedBankAccountNumber,
+  },
   routingNumber: { typeI18nKey: "bankRoutingNumber", protected: false },
-  pin: { typeI18nKey: "pin", protected: true },
+  pin: { typeI18nKey: "pin", protected: true, event: EventType.Cipher_ClientCopiedBankAccountPin },
   iban: { typeI18nKey: "iban", protected: true },
   hiddenField: {
     typeI18nKey: "value",
