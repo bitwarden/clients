@@ -47,8 +47,8 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
 
   readonly size = signal<"base" | "large">("base");
 
-  readonly ariaLabelledBy = signal<string>(undefined);
-  readonly ariaDescribedBy = signal<string>(undefined);
+  readonly ariaLabelledBy = signal<string | undefined>(undefined);
+  readonly ariaDescribedBy = signal<string | undefined>(undefined);
 
   /**
    * Model signal for selected state binding when used outside of a form
