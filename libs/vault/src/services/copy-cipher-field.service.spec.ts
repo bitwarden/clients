@@ -210,9 +210,18 @@ describe("CopyCipherFieldService", () => {
         expect(platformUtilsService.copyToClipboard).toHaveBeenCalled();
       });
 
-      it("does not collect events for any bank account field copy", async () => {
+      it.each(["accountNumber", "pin"] as CopyAction[])(
+        "collects an event for %s",
+        async (action) => {
+          skipReprompt = true;
+          await service.copy(valueToCopy, action, cipher, skipReprompt);
+          expect(eventCollectionService.collect).toHaveBeenCalled();
+        },
+      );
+
+      it("does not collect events for routingNumber or iban", async () => {
         skipReprompt = true;
-        for (const action of ["accountNumber", "routingNumber", "pin", "iban"] as CopyAction[]) {
+        for (const action of ["routingNumber", "iban"] as CopyAction[]) {
           await service.copy(valueToCopy, action, cipher, skipReprompt);
         }
         expect(eventCollectionService.collect).not.toHaveBeenCalled();

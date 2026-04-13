@@ -7,6 +7,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -103,6 +104,10 @@ describe("OrganizationVaultFilterComponent", () => {
         { provide: CipherArchiveService, useValue: mock<CipherArchiveService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(true)) },
+        },
       ],
     }).compileComponents();
 

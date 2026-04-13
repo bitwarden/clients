@@ -6,6 +6,7 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -28,7 +29,7 @@ import {
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import { VaultFilterComponent, VaultFilterComponent } from "./vault-filter.component";
+import { VaultFilterComponent } from "./vault-filter.component";
 
 const USER_ID = "user-1" as UserId;
 const ORG_ID_1 = "org-1" as OrganizationId;
@@ -97,6 +98,7 @@ describe("VaultFilterComponent", () => {
         { provide: CipherArchiveService, useValue: mock<CipherArchiveService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
+        { provide: ConfigService, useValue: mock<ConfigService>() },
       ],
     }).compileComponents();
 
