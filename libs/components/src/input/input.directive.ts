@@ -144,7 +144,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
   }
 
   get error(): [string, any] {
-    const errors = this.ngControl.errors ?? {};
+    const errors = this.ngControl?.errors ?? {};
     const key = Object.keys(errors)[0];
     return [key, errors[key]];
   }
