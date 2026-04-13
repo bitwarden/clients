@@ -3,13 +3,18 @@
 import "core-js/proposals/explicit-resource-management";
 
 import {
+  EMPTY,
+  NEVER,
+  Observable,
+  Subject,
+  concatMap,
+  concat,
   filter,
   firstValueFrom,
   from,
   map,
   merge,
-  Observable,
-  Subject,
+  of,
   switchMap,
   timeout,
 } from "rxjs";
@@ -241,6 +246,16 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import { DefaultTaskService, TaskService } from "@bitwarden/common/vault/tasks";
 import {
+  createCredentialGeneratorService,
+  createRandomizer,
+  CredentialGeneratorService,
+  Type,
+} from "@bitwarden/generator-core";
+import {
+  GeneratorHistoryService,
+  LocalGeneratorHistoryService,
+} from "@bitwarden/generator-history";
+import {
   legacyPasswordGenerationServiceFactory,
   legacyUsernameGenerationServiceFactory,
   PasswordGenerationServiceAbstraction,
@@ -297,7 +312,10 @@ import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-requ
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { ExtensionLockService } from "../auth/services/extension-lock.service";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
-import { OverlayBackground as OverlayBackgroundInterface } from "../autofill/background/abstractions/overlay.background";
+import {
+  OverlayBackground as OverlayBackgroundInterface,
+  PasswordGenerateRequestSource,
+} from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
@@ -319,6 +337,7 @@ import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
 import { PhishingDetectionService } from "../dirt/phishing-detection/services/phishing-detection.service";
@@ -397,6 +416,8 @@ export default class MainBackground {
   vaultTimeoutService?: VaultTimeoutService;
   vaultTimeoutSettingsService: VaultTimeoutSettingsService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
+  credentialGeneratorService: CredentialGeneratorService;
+  generatorHistoryService: GeneratorHistoryService;
   syncService: SyncService;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
@@ -1452,12 +1473,7 @@ export default class MainBackground {
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
       (options) => this.platformUtilsService.copyToClipboard(options.text),
       async (_tab) => {
-        const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-        const password = await this.passwordGenerationService.generatePassword(options);
-        this.platformUtilsService.copyToClipboard(password);
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.passwordGenerationService.addHistory(password);
+        await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
       },
       async (tab, cipher) => {
         this.loginToAutoFill = cipher;
@@ -2038,6 +2054,32 @@ export default class MainBackground {
       return;
     }
 
+    this.credentialGeneratorService = await createCredentialGeneratorService(
+      createSystemServiceProvider(
+        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        this.stateProvider,
+        this.policyService,
+        buildExtensionRegistry(),
+        this.logService,
+        this.platformUtilsService,
+        this.configService,
+      ),
+      createRandomizer(),
+      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+      this.stateProvider,
+      this.i18nService,
+      this.apiService,
+    );
+
+    // LocalGeneratorHistoryService is always the correct implementation for the
+    // browser extension background — there is no feature-flag branching here unlike
+    // createCredentialGeneratorService.
+    this.generatorHistoryService = new LocalGeneratorHistoryService(
+      this.encryptService,
+      this.keyService,
+      this.stateProvider,
+    );
+
     this.overlayBackground = new OverlayBackground(
       this.logService,
       this.cipherService,
@@ -2054,8 +2096,8 @@ export default class MainBackground {
       this.themeStateService,
       this.totpService,
       this.accountService,
-      () => this.generatePassword(),
-      (password) => this.addPasswordToHistory(password),
+      this.generatorHistoryService,
+      this.credentialGeneratorService,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(
@@ -2092,18 +2134,38 @@ export default class MainBackground {
     await this.atRiskCipherUpdaterService.init();
   }
 
-  generatePassword = async (): Promise<string> => {
-    const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
-    return await this.passwordGenerationService.generatePassword(options);
-  };
+  generatePasswordToClipboard = () => {
+    // FIXME: `credentialGeneratorService` and `generatorHistoryService` are initialized in
+    // `initOverlayAndTabsBackground()`, which only runs for authenticated users. Returning EMPTY
+    // here preserves the pre-migration behavior (unauthenticated users could not generate passwords
+    // to clipboard), but this needs intentional assessment: should clipboard generation be allowed
+    // without authentication?
+    if (!this.credentialGeneratorService || !this.generatorHistoryService) {
+      return EMPTY;
+    }
 
-  generatePasswordToClipboard = async () => {
-    const password = await this.generatePassword();
-    this.platformUtilsService.copyToClipboard(password);
-    await this.addPasswordToHistory(password);
-  };
-
-  addPasswordToHistory = async (password: string) => {
-    await this.passwordGenerationService.addHistory(password);
+    return this.credentialGeneratorService
+      .generate$({
+        on$: concat(
+          of({ source: PasswordGenerateRequestSource.Clipboard, type: Type.password }),
+          NEVER,
+        ),
+        account$: this.accountService.activeAccount$,
+      })
+      .pipe(
+        concatMap(async (generated) => {
+          this.platformUtilsService.copyToClipboard(generated.credential);
+          try {
+            await trackGeneratedCredential(
+              this.generatorHistoryService,
+              this.accountService.activeAccount$,
+              generated,
+            );
+          } catch (e) {
+            this.logService.error(e);
+          }
+          return generated.credential;
+        }),
+      );
   };
 }
