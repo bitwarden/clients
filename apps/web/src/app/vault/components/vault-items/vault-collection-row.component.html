@@ -65,7 +65,11 @@
   <td bitCell [ngClass]="RowHeightClass"></td>
 }
 @if (showGroups) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 lg:tw-table-cell">
+  <td
+    bitCell
+    [ngClass]="RowHeightClass"
+    class="tw-hidden tw-overflow-hidden tw-pr-7 xl:tw-table-cell"
+  >
     @if (collectionGroups) {
       <app-group-badge [selectedGroups]="collectionGroups" [allGroups]="groups"></app-group-badge>
     }
