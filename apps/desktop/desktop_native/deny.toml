@@ -5,6 +5,9 @@ unmaintained = "workspace"
 ignore = [
   # Vulnerability in `rsa` crate: https://rustsec.org/advisories/RUSTSEC-2023-0071.html
   { id = "RUSTSEC-2023-0071", reason = "There is no fix available yet." },
+  # rand 0.8.5 pulled transitively by num-bigint-dig (via rsa, ssh-key, oo7). No updated version available.
+  # Not affected: no custom log::Log logger uses rand in this codebase.
+  { id = "RUSTSEC-2026-0097", reason = "Transitive dep via num-bigint-dig; no fix available. Not exploitable: no custom logger uses rand." },
 ]
 
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
