@@ -1,10 +1,13 @@
+/// <reference types="chrome"/>
+import { LogService } from "@bitwarden/logging";
+
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ContextMenuClickedHandler } from "../browser/context-menu-clicked-handler";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
-
 export default class ContextMenusBackground {
   private contextMenus: typeof chrome.contextMenus;
+  private logService: LogService;
 
   constructor(private contextMenuClickedHandler: ContextMenuClickedHandler) {
     this.contextMenus = chrome.contextMenus;
@@ -21,32 +24,44 @@ export default class ContextMenusBackground {
       }
     });
 
-    BrowserApi.messageListener(
-      "contextmenus.background",
-      (
-        msg: { command: string; data: LockedVaultPendingNotificationsData },
-        sender: chrome.runtime.MessageSender,
-        sendResponse: (response: unknown) => void,
-      ) => {
-        if (msg.command === "unlockCompleted" && msg.data.target === "contextmenus.background") {
-          const onClickData = msg.data.commandToRetry.message.contextMenuOnClickData;
-          const senderTab = msg.data.commandToRetry.sender.tab;
-
-          if (onClickData && senderTab) {
-            void this.contextMenuClickedHandler.cipherAction(onClickData, senderTab).then(() => {
-              if (sender.tab) {
-                void BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
-              }
-            });
-          }
-        }
-
-        // the autofill triage popout component calls this to fetch the triage result
-        if (msg.command === "getAutofillTriageResult") {
-          sendResponse(this.contextMenuClickedHandler.latestTriageResult ?? null);
-          return true;
-        }
-      },
-    );
+    BrowserApi.messageListener("contextmenus.background", this.handleContextMenusBackground);
   }
+
+  private handleContextMenusBackground = (
+    msg: { command: string; data?: LockedVaultPendingNotificationsData; tabId?: number },
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response: unknown) => void,
+  ): true | void => {
+    if (msg.command === "unlockCompleted" && msg.data?.target === "contextmenus.background") {
+      const { contextMenuOnClickData: onClickData } = msg.data.commandToRetry.message;
+      const { tab: senderTab } = msg.data.commandToRetry.sender;
+
+      if (onClickData && senderTab) {
+        void this.contextMenuClickedHandler.cipherAction(onClickData, senderTab).then(() => {
+          if (sender.tab) {
+            void BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
+          }
+        });
+      }
+      return;
+    }
+
+    if (msg.command === "getAutofillTriageResult") {
+      const isOwnExtension = sender.id === chrome.runtime.id;
+      const isExtensionPage = sender.tab === undefined;
+      const tabMatches =
+        msg.tabId !== undefined &&
+        msg.tabId === this.contextMenuClickedHandler.latestTriageResult?.tabId;
+
+      if (!isOwnExtension || !isExtensionPage || !tabMatches) {
+        sendResponse(null);
+        return true;
+      }
+
+      sendResponse(this.contextMenuClickedHandler.latestTriageResult);
+      return true;
+    }
+
+    this.logService.warning("Unrecognized message command.");
+  };
 }
