@@ -24,6 +24,8 @@ import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
   tokenRequest: SsoTokenRequest;
+  /** Whether unlock service should be used for Key Connector in this login flow. */
+  unlockServiceForKeyConnectorLogin = false;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
    */
@@ -85,6 +87,9 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   async logIn(credentials: SsoLoginCredentials): Promise<AuthResult> {
     const data = new SsoLoginStrategyData();
+    data.unlockServiceForKeyConnectorLogin = await this.configService.getFeatureFlag(
+      FeatureFlag.UnlockKeyConnectorWithSdk,
+    );
     data.orgId = credentials.orgId;
 
     data.userEnteredEmail = credentials.email;
@@ -137,7 +142,7 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       } else {
         const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-        if (!(await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk))) {
+        if (!this.cache.value.unlockServiceForKeyConnectorLogin) {
           await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
         }
       }
@@ -192,7 +197,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (
       tokenResponse.canUnlockWithKeyConnector() &&
-      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk))
+      this.cache.value.unlockServiceForKeyConnectorLogin
     ) {
       await this.unlockService.unlockWithKeyConnector(
         userId,
@@ -220,7 +225,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     } else if (
       masterKeyEncryptedUserKey != null &&
       this.getKeyConnectorUrl(tokenResponse) != null &&
-      !(await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk))
+      !this.cache.value.unlockServiceForKeyConnectorLogin
     ) {
       // Key connector enabled for user
       await this.trySetUserKeyWithMasterKey(userId);
