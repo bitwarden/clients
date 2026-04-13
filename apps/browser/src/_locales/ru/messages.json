@@ -2481,7 +2481,7 @@
     "message": "Действие по тайм-ауту хранилища"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "Показывать уведомления о паролях подверженных риску"
   },
   "lock": {
     "message": "Блокировка",
