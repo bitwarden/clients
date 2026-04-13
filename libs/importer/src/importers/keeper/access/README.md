@@ -18,6 +18,7 @@
 - [-] WebAuthn
 - [ ] Keeper DNA
 - [ ] RSA?
+- [ ] Backup code
 
 ### TODO
 

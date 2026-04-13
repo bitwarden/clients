@@ -38,11 +38,11 @@ export class KeeperTwoFactorMethodSelectComponent {
       case TwoFactorMethod.Sms:
         return "textMessageSms";
       case TwoFactorMethod.Duo:
-        return "keeperTwoFactorDuo";
+        return "duoSecurity";
       case TwoFactorMethod.Rsa:
         return "keeperTwoFactorRsa";
       case TwoFactorMethod.Backup:
-        return "keeperTwoFactorBackup";
+        return "backupCodes";
       case TwoFactorMethod.U2f:
         return "keeperTwoFactorU2f";
       case TwoFactorMethod.WebAuthn:

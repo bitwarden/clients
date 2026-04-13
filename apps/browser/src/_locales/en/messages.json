@@ -4647,13 +4647,13 @@
   "textMessageSms": {
     "message": "Text message (SMS)"
   },
-  "keeperTwoFactorDuo": {
+  "duoSecurity": {
     "message": "Duo Security"
   },
   "keeperTwoFactorRsa": {
     "message": "RSA SecurID"
   },
-  "keeperTwoFactorBackup": {
+  "backupCodes": {
     "message": "Backup codes"
   },
   "keeperTwoFactorU2f": {
