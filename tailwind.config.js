@@ -13,7 +13,7 @@ const desktopConfig = require("./apps/desktop/tailwind.config");
  * app-specific paths to their respective tailwind.config.js file
  */
 config.content = [
-  ...config.libContent,
+  ...config.content,
   ...webConfig.webContent,
   ...browserConfig.browserContent,
   ...desktopConfig.desktopContent,

@@ -28,7 +28,6 @@ const libContent = [
 module.exports = {
   prefix: "tw-",
   content: libContent,
-  libContent,
   safelist: [],
   corePlugins: { preflight: false },
   theme: {
