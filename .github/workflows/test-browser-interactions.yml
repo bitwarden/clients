@@ -82,5 +82,5 @@ jobs:
         client-payload: |-
           {
             "origin_issue": ${{ github.event.workflow_run.pull_requests[0].number }},
-            "origin_branch": "${{ github.event.workflow_run.pull_requests[0].head.ref }}"
+            "origin_branch": ${{ toJSON(github.event.workflow_run.pull_requests[0].head.ref) }}
           }
