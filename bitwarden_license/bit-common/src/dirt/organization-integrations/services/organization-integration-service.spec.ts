@@ -252,7 +252,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-404 errors", async () => {
+    it("should rethrow non-403 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationApiService.createOrganizationIntegration.mockRejectedValue(error);
 
@@ -420,7 +420,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-404 errors", async () => {
+    it("should rethrow non-403 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationApiService.updateOrganizationIntegration.mockRejectedValue(error);
 
@@ -571,7 +571,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-404 errors", async () => {
+    it("should rethrow non-403 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration.mockRejectedValue(
         error,
