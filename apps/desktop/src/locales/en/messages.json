@@ -3936,7 +3936,7 @@
   "keeperSelectTwoFactorMethodDesc": {
     "message": "Choose how you want to verify your identity."
   },
-  "keeperTwoFactorTotp": {
+  "authenticatorAppTotp": {
     "message": "Authenticator app (TOTP)"
   },
   "textMessageSms": {
@@ -3945,16 +3945,16 @@
   "duoSecurity": {
     "message": "Duo Security"
   },
-  "keeperTwoFactorRsa": {
+  "rsaSecurId": {
     "message": "RSA SecurID"
   },
   "backupCodes": {
     "message": "Backup codes"
   },
-  "keeperTwoFactorU2f": {
+  "securityKeyU2f": {
     "message": "Security key (U2F)"
   },
-  "keeperTwoFactorWebAuthn": {
+  "securityKeyWebAuthn": {
     "message": "Security key (WebAuthn)"
   },
   "keeperTwoFactorKeeperPush": {
@@ -3972,10 +3972,10 @@
   "keeperSelectDuoMethodDesc": {
     "message": "Choose how you want to verify with Duo Security."
   },
-  "keeperDuoPush": {
+  "duoPush": {
     "message": "Duo Push"
   },
-  "keeperDuoVoice": {
+  "phoneCall": {
     "message": "Phone call"
   },
   "duoVerification": {

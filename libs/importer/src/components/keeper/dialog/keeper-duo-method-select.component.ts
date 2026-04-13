@@ -36,11 +36,11 @@ export class KeeperDuoMethodSelectComponent {
   protected getMethodLabel(method: DuoMethod): string {
     switch (method) {
       case DuoMethod.Push:
-        return "keeperDuoPush";
+        return "duoPush";
       case DuoMethod.Sms:
         return "textMessageSms";
       case DuoMethod.Voice:
-        return "keeperDuoVoice";
+        return "phoneCall";
       case DuoMethod.Passcode:
         return "passcode";
       default:

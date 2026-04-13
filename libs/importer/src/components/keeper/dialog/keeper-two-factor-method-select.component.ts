@@ -34,19 +34,19 @@ export class KeeperTwoFactorMethodSelectComponent {
   protected getMethodLabel(method: TwoFactorMethod): string {
     switch (method) {
       case TwoFactorMethod.Totp:
-        return "keeperTwoFactorTotp";
+        return "authenticatorAppTotp";
       case TwoFactorMethod.Sms:
         return "textMessageSms";
       case TwoFactorMethod.Duo:
         return "duoSecurity";
       case TwoFactorMethod.Rsa:
-        return "keeperTwoFactorRsa";
+        return "rsaSecurId";
       case TwoFactorMethod.Backup:
         return "backupCodes";
       case TwoFactorMethod.U2f:
-        return "keeperTwoFactorU2f";
+        return "securityKeyU2f";
       case TwoFactorMethod.WebAuthn:
-        return "keeperTwoFactorWebAuthn";
+        return "securityKeyWebAuthn";
       case TwoFactorMethod.KeeperPush:
         return "keeperTwoFactorKeeperPush";
       case TwoFactorMethod.KeeperDna:
