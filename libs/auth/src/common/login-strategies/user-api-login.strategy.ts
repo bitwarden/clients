@@ -79,8 +79,14 @@ export class UserApiLoginStrategy extends LoginStrategy {
         userId,
         response.intoKeyConnectorUnlockData(),
       );
-    } else if (response.apiUseKeyConnector) {
+      return;
+    }
+
+    if (response.key) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
+    }
+
+    if (response.apiUseKeyConnector) {
       const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (masterKey) {
         const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
@@ -89,8 +95,6 @@ export class UserApiLoginStrategy extends LoginStrategy {
         );
         await this.keyService.setUserKey(userKey, userId);
       }
-    } else {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
     }
   }
 
