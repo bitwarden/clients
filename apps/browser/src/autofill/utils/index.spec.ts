@@ -5,12 +5,12 @@ import { logoIcon, logoLockedIcon } from "./svg-icons";
 
 import {
   buildSvgDomElement,
+  debounce,
   generateRandomCustomElementName,
   sendExtensionMessage,
   setElementStyles,
-  setupExtensionDisconnectAction,
   setupAutofillInitDisconnectAction,
-  debounce,
+  setupExtensionDisconnectAction,
 } from "./index";
 
 describe("buildSvgDomElement", () => {

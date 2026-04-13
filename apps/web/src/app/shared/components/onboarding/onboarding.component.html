@@ -9,9 +9,9 @@
       <bit-icon [name]="open ? 'bwi-angle-down' : 'bwi-angle-up'" class="tw-my-auto"></bit-icon>
     </div>
   </summary>
-  <ul class="tw-mb-0 tw-ml-6 tw-flex tw-flex-col tw-gap-4">
+  <div class="tw-mb-0 tw-ml-6 tw-flex tw-flex-col tw-gap-4 tw-ps-10" role="list">
     <ng-content></ng-content>
-  </ul>
+  </div>
   <div class="tw-p-4 tw-pt-0">
     <button bitLink type="button" class="tw-ml-auto tw-block" (click)="dismiss.emit()">
       {{ "dismiss" | i18n }}

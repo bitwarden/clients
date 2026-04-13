@@ -292,7 +292,7 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
-    path: AuthExtensionRoute.ChangePassword,
+    path: AuthExtensionRoute.SettingsPassword,
     component: ChangePasswordPageComponent,
     canActivate: [
       // TODO: PM-32419 - remove feature flag check
