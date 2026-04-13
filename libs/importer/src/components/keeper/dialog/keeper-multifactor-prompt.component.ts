@@ -53,7 +53,7 @@ export class KeeperMultifactorPromptComponent {
         return "keeperMFAPushDesc";
       case "totp":
       default:
-        return "keeperMFADesc";
+        return "mfaTotpDesc";
     }
   }
 

@@ -3924,7 +3924,7 @@
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"
   },
-  "keeperMFADesc": {
+  "mfaTotpDesc": {
     "message": "Enter your one-time passcode from your authentication app"
   },
   "keeperMFAPushDesc": {
