@@ -55,7 +55,7 @@ export type AutofillAction = (tab: chrome.tabs.Tab, cipher: CipherView) => Promi
 export type GeneratePasswordToClipboardAction = (tab: chrome.tabs.Tab) => Promise<void>;
 
 export class ContextMenuClickedHandler {
-  latestTriageResult: AutofillTriagePageResult | undefined;
+  triageResult: AutofillTriagePageResult | undefined;
 
   constructor(
     private copyToClipboard: CopyToClipboardAction,
@@ -291,7 +291,7 @@ export class ContextMenuClickedHandler {
       this.triageService.triageField(field, response.pageDetails),
     );
 
-    this.latestTriageResult = {
+    this.triageResult = {
       tabId: tab.id,
       pageUrl: tab.url ?? "",
       analyzedAt: new Date().toISOString(),

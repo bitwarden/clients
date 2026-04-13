@@ -50,15 +50,14 @@ export default class ContextMenusBackground {
       const isOwnExtension = sender.id === chrome.runtime.id;
       const isExtensionPage = sender.tab === undefined;
       const tabMatches =
-        msg.tabId !== undefined &&
-        msg.tabId === this.contextMenuClickedHandler.latestTriageResult?.tabId;
+        msg.tabId !== undefined && msg.tabId === this.contextMenuClickedHandler.triageResult?.tabId;
 
       if (!isOwnExtension || !isExtensionPage || !tabMatches) {
         sendResponse(null);
         return true;
       }
 
-      sendResponse(this.contextMenuClickedHandler.latestTriageResult);
+      sendResponse(this.contextMenuClickedHandler.triageResult);
       return true;
     }
 
