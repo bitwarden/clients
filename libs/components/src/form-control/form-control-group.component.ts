@@ -12,7 +12,8 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ControlValueAccessor, NgControl, Validators } from "@angular/forms";
+import { ControlValueAccessor, NgControl, TouchedChangeEvent, Validators } from "@angular/forms";
+import { filter } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -148,6 +149,12 @@ export class FormControlGroupComponent<T = unknown>
     this.ngControl.statusChanges
       ?.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((status) => this._status.set(status));
+    this.ngControl.control?.events
+      .pipe(
+        filter((e): e is TouchedChangeEvent => e instanceof TouchedChangeEvent),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((e) => this._touched.set(e.touched));
   }
 
   // ── ControlValueAccessor ──────────────────────────────────────────────────
