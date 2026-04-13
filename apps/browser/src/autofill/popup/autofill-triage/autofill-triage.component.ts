@@ -187,7 +187,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const confirmed = await this.confirmExport();
+    const confirmed = await this.promptExportWarning();
     if (!confirmed) {
       return;
     }
@@ -211,7 +211,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const confirmed = await this.confirmExport();
+    const confirmed = await this.promptExportWarning();
     if (!confirmed) {
       return;
     }
@@ -225,7 +225,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
     });
   }
 
-  private async confirmExport(): Promise<boolean> {
+  private async promptExportWarning(): Promise<boolean> {
     return this.dialogService.openSimpleDialog({
       title: { key: "triageReportExportTitle" },
       content: { key: "triageReportExportDesc" },
