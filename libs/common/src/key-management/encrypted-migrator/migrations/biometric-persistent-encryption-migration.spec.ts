@@ -119,34 +119,17 @@ describe("BiometricPersistentMigration", () => {
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
     });
 
-    it("should re-enroll ephemeral key with current user key", async () => {
+    it("should re-enroll persistent and ephemeral key on every migration", async () => {
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(false);
 
       await sut.runMigrations(mockUserId, null);
 
+      expect(mockBiometricsService.enrollPersistent).toHaveBeenCalledWith(mockUserId, mockUserKey);
       expect(mockBiometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
         mockUserId,
         mockUserKey,
       );
-    });
-
-    it("should re-enroll persistent key when one exists", async () => {
-      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
-
-      await sut.runMigrations(mockUserId, null);
-
-      expect(mockBiometricsService.enrollPersistent).toHaveBeenCalledWith(mockUserId, mockUserKey);
-    });
-
-    it("should re-enroll persistent key on every migration", async () => {
-      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      mockBiometricsService.hasPersistentKey.mockResolvedValue(false);
-
-      await sut.runMigrations(mockUserId, null);
-
-      expect(mockBiometricsService.enrollPersistent).toHaveBeenCalledWith(mockUserId, mockUserKey);
     });
 
     it("should store the current key ID", async () => {
