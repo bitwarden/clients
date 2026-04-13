@@ -29,13 +29,13 @@
       </bit-form-field>
     }
 
-    @if (bankAccount().accountType) {
+    @if (localizedAccountType()) {
       <bit-form-field>
         <bit-label>{{ "bankAccountType" | i18n }}</bit-label>
         <input
           readonly
           bitInput
-          [value]="bankAccount().accountType"
+          [value]="localizedAccountType()"
           aria-readonly="true"
           data-testid="account-type"
         />
