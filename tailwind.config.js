@@ -6,6 +6,12 @@ const webConfig = require("./apps/web/tailwind.config");
 const browserConfig = require("./apps/browser/tailwind.config");
 const desktopConfig = require("./apps/desktop/tailwind.config");
 
+/**
+ * Pull together all the tailwind configs for the shared libs and clients for use in Storybook.
+ *
+ * Do not add new paths here directly. Add shared libs to tailwind.config.base.js, and add
+ * app-specific paths to their respective tailwind.config.js file
+ */
 config.content = [
   ...config.libContent,
   ...webConfig.webContent,
