@@ -4617,7 +4617,7 @@
   "keeperApprovalMethodPush": {
     "message": "Keeper Push"
   },
-  "keeperDeviceApprovalEmailDesc": {
+  "approvalEmailDesc": {
     "message": "Check your email and click the approval link, or enter the verification code below."
   },
   "keeperVerificationCodeHint": {

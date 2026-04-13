@@ -50,7 +50,7 @@ export class KeeperDeviceApprovalPromptComponent {
         return "keeperDeviceApprovalPushDesc";
       case "email":
       default:
-        return "keeperDeviceApprovalEmailDesc";
+        return "approvalEmailDesc";
     }
   }
 
