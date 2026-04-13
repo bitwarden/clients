@@ -258,10 +258,6 @@ import { Message, MessageListener, MessageSender } from "@bitwarden/common/platf
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { devFlagEnabled } from "@bitwarden/common/platform/misc/flags";
-import {
-  DefaultTaskSchedulerService,
-  TaskSchedulerService,
-} from "@bitwarden/common/platform/scheduling";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 // eslint-disable-next-line no-restricted-imports -- Needed for service creation
 import {
@@ -375,6 +371,7 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import { DefaultTaskSchedulerService, TaskSchedulerService } from "@bitwarden/scheduling";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -562,6 +559,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
+      UnlockService,
       KeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -593,12 +591,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: FileUploadServiceAbstraction,
     useClass: FileUploadService,
-    deps: [LogService, ApiServiceAbstraction],
+    deps: [LogService, ApiServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: CipherFileUploadServiceAbstraction,
     useClass: CipherFileUploadService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction],
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: DomainSettingsService,
@@ -938,10 +936,12 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      CryptoFunctionServiceAbstraction,
       StateProvider,
       LogService,
       BiometricsService,
+      PlatformUtilsServiceAbstraction,
+      StateServiceAbstraction,
+      BiometricStateService,
     ],
   }),
   safeProvider({
@@ -1093,7 +1093,6 @@ const safeProviders: SafeProvider[] = [
     provide: AutomaticUserConfirmationService,
     useClass: DefaultAutomaticUserConfirmationService,
     deps: [
-      ConfigService,
       ApiServiceAbstraction,
       OrganizationUserService,
       StateProvider,
@@ -1894,12 +1893,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherArchiveService,
     useClass: DefaultCipherArchiveService,
-    deps: [
-      CipherServiceAbstraction,
-      ApiServiceAbstraction,
-      BillingAccountProfileStateService,
-      ConfigService,
-    ],
+    deps: [CipherServiceAbstraction, ApiServiceAbstraction, BillingAccountProfileStateService],
   }),
   safeProvider({
     provide: RotateableKeySetService,

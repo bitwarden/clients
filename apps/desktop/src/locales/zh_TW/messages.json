@@ -338,10 +338,10 @@
     "message": "進階會員才可使用此功能。"
   },
   "syncWithBrowser": {
-    "message": "Sync with browser"
+    "message": "與瀏覽器同步"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "message": "若要連線至 $VAULTURL$，您需要將預設瀏覽器與 Bitwarden 應用程式同步。瀏覽器同步完成後，您將被重新導向回此應用程式。",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -351,7 +351,7 @@
     }
   },
   "launchBrowser": {
-    "message": "Launch browser"
+    "message": "開啟瀏覽器"
   },
   "errorOccurred": {
     "message": "發生錯誤。"
@@ -921,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "主密碼提示"
   },
+  "masterPasswordChanged": {
+    "message": "主密碼已儲存"
+  },
   "passwordStrengthScore": {
     "message": "密碼強度分數 $SCORE$",
     "placeholders": {
@@ -1212,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
   },
+  "rotateAccountEncKey": {
+    "message": "同時輪換帳戶的加密金鑰"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "輪換加密金鑰的影響"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
+  },
+  "rotateEncKeyTitle": {
+    "message": "輪換加密金鑰"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "確定要輪換帳戶的加密金鑰嗎？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您保存的任何受限制匯出帳號將失效。"
+  },
   "confirmIdentityToContinue": {
     "message": "請先確認身分後再繼續"
   },
@@ -1296,8 +1320,8 @@
   "changeMasterPass": {
     "message": "變更主密碼"
   },
-  "masterPasswordChanged": {
-    "message": "Master password saved"
+  "changeMasterPassword": {
+    "message": "變更主密碼"
   },
   "continueToWebApp": {
     "message": "前往網頁應用程式嗎？"
@@ -2102,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "有尚未儲存的變更"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "如果您現在離開，變更將不會被儲存。請稍後安裝更新，以便您可以留下並儲存變更。"
+  },
+  "installLater": {
+    "message": "稍後安裝"
+  },
+  "continueWithInstall": {
+    "message": "繼續安裝"
+  },
   "clone": {
     "message": "克隆"
   },
@@ -2299,6 +2332,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新的主密碼不符合原則要求。"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "一個或多個組織原則要求主密碼須符合下列條件："
   },
   "receiveMarketingEmailsV2": {
     "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
@@ -3768,7 +3804,7 @@
     "message": "密碼庫資料已匯出"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "匯出密碼庫資料時發生錯誤"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多因素驗證已取消"
