@@ -2827,7 +2827,7 @@
       }
     }
   },
-  "atRiskChangePromptV2": {
+  "atRiskChangePrompt": {
     "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you change it.",
     "placeholders": {
       "organization": {
