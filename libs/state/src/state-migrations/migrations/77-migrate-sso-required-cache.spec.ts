@@ -4,7 +4,7 @@ import { IRREVERSIBLE } from "../migrator";
 import { MigrateSsoRequiredCache } from "./77-migrate-sso-required-cache";
 
 describe("MigrateSsoRequiredCache", () => {
-  const sut = new MigrateSsoRequiredCache(76, 77);
+  const sut = new MigrateSsoRequiredCache(77, 78);
 
   describe("migrate", () => {
     it("sets the cache to null when it contains the old string[] format", async () => {

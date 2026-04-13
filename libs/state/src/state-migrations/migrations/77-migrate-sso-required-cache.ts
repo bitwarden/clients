@@ -11,7 +11,7 @@ export const SSO_REQUIRED_CACHE_KEY: KeyDefinitionLike = {
  * clearing stale entries that cannot be migrated since the environment (webVaultUrl) cannot
  * be inferred from an email alone. The cache will be repopulated on the user's next SSO login.
  */
-export class MigrateSsoRequiredCache extends Migrator<76, 77> {
+export class MigrateSsoRequiredCache extends Migrator<77, 78> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const cache = await helper.getFromGlobal<unknown[]>(SSO_REQUIRED_CACHE_KEY);
 
