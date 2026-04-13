@@ -166,10 +166,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
       "tw-px-3",
       "tw-py-2",
       "tw-rounded-lg",
-      // Hover
       this.hasError ? "hover:tw-border-border-danger" : "hover:tw-border-border-brand",
-      // Focus
-      // "focus:hover:tw-border-primary-600",
       "disabled:tw-bg-bg-secondary",
       "disabled:hover:tw-border-border-base",
       "focus:tw-border-border-brand",
