@@ -369,6 +369,7 @@ const routes: Routes = [
   {
     path: "autofill-triage",
     component: AutofillTriageComponent,
+    canActivate: [authGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
