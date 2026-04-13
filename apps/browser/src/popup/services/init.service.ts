@@ -1,7 +1,6 @@
 import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
-import { LoginStrategySessionTimeoutService } from "@bitwarden/auth/common";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
@@ -28,7 +27,6 @@ export class InitService {
     private sdkLoadService: SdkLoadService,
     private viewCacheService: PopupViewCacheService,
     private readonly migrationRunner: MigrationRunner,
-    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
     @Inject(DOCUMENT) private document: Document,
   ) {}
 
@@ -36,7 +34,6 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
-      this.loginStrategySessionTimeoutService.registerSessionTimeoutTask();
       await this.i18nService.init();
       this.twoFactorService.init();
       await this.viewCacheService.init();

@@ -965,19 +965,15 @@ export default class MainBackground {
       this.accountService,
     );
 
-    const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
-      this.globalStateProvider,
-    );
-
-    const loginStrategySessionTimeoutService = new DefaultLoginStrategySessionTimeoutService(
+    // Instantiated for its constructor side-effect: registers the login session timeout
+    // task handler with the task scheduler in the background
+    new DefaultLoginStrategySessionTimeoutService(
       this.taskSchedulerService,
-      loginStrategyCacheService,
+      new DefaultLoginStrategyCacheService(this.globalStateProvider),
       this.logService,
       this.messagingService,
       messageListener,
     );
-    loginStrategySessionTimeoutService.registerSessionTimeoutTask();
-
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
     );

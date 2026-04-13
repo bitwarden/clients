@@ -39,10 +39,8 @@ describe("DefaultLoginStrategySessionTimeoutService", () => {
     );
   });
 
-  describe("registerSessionTimeoutTask", () => {
+  describe("constructor", () => {
     it("should register a task handler with the correct task name", () => {
-      sut.registerSessionTimeoutTask();
-
       expect(taskSchedulerService.registerTaskHandler).toHaveBeenCalledWith(
         ScheduledTaskNames.loginStrategySessionTimeout,
         expect.any(Function),
@@ -50,8 +48,6 @@ describe("DefaultLoginStrategySessionTimeoutService", () => {
     });
 
     it("should send LOGIN_SESSION_EXPIRED and clear cache when handler fires", async () => {
-      sut.registerSessionTimeoutTask();
-
       const handler = taskSchedulerService.registerTaskHandler.mock.calls[0][1];
       await handler();
 
@@ -62,8 +58,6 @@ describe("DefaultLoginStrategySessionTimeoutService", () => {
     it("should log error if handler throws", async () => {
       const error = new Error("test error");
       loginStrategyCacheService.clearCache.mockRejectedValue(error);
-
-      sut.registerSessionTimeoutTask();
 
       const handler = taskSchedulerService.registerTaskHandler.mock.calls[0][1];
       await handler();

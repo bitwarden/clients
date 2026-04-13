@@ -802,8 +802,6 @@ export class ServiceContainer {
       this.messagingService,
       MessageListener.EMPTY,
     );
-    loginStrategySessionTimeoutService.registerSessionTimeoutTask();
-
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,

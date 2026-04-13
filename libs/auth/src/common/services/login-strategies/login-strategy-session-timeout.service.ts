@@ -30,9 +30,7 @@ export class DefaultLoginStrategySessionTimeoutService implements LoginStrategyS
     this.loginSessionTimeout$ = this.messageListener
       .messages$(LOGIN_SESSION_EXPIRED)
       .pipe(map((): void => undefined));
-  }
 
-  registerSessionTimeoutTask(): void {
     this.taskSchedulerService.registerTaskHandler(
       ScheduledTaskNames.loginStrategySessionTimeout,
       async () => {
