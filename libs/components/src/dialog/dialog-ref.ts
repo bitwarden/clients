@@ -87,7 +87,7 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 
   /** Pop this drawer off the stack, firing the closed observable with the given result. */
   close(result?: R, _options?: DialogCloseOptions): void {
-    if (this.disableClose || this._isClosed) {
+    if (this._isClosed) {
       return;
     }
     this._isClosed = true;
