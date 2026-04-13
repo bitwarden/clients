@@ -148,10 +148,16 @@ export class UpgradePaymentService {
     paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
     coupons?: string[],
+    fromMarketing?: string | null,
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress, coupons);
+    await this.accountBillingClient.purchaseSubscription(
+      paymentMethod,
+      billingAddress,
+      coupons,
+      fromMarketing,
+    );
 
     await this.refreshAndSync();
   }
