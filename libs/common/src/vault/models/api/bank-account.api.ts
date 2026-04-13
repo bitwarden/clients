@@ -1,16 +1,16 @@
 import { BaseResponse } from "../../../models/response/base.response";
 
 export class BankAccountApi extends BaseResponse {
-  bankName: string;
-  nameOnAccount: string;
-  accountType: string;
-  accountNumber: string;
-  routingNumber: string;
-  branchNumber: string;
-  pin: string;
-  swiftCode: string;
-  iban: string;
-  bankContactPhone: string;
+  bankName: string | undefined = undefined;
+  nameOnAccount: string | undefined = undefined;
+  accountType: string | undefined = undefined;
+  accountNumber: string | undefined = undefined;
+  routingNumber: string | undefined = undefined;
+  branchNumber: string | undefined = undefined;
+  pin: string | undefined = undefined;
+  swiftCode: string | undefined = undefined;
+  iban: string | undefined = undefined;
+  bankContactPhone: string | undefined = undefined;
 
   constructor(data: any = null) {
     super(data);

@@ -42,29 +42,29 @@ export class BankAccountExport {
   }
 
   static toDomain(req: BankAccountExport, domain = new BankAccountDomain()) {
-    domain.bankName = new EncString(req.bankName);
-    domain.nameOnAccount = new EncString(req.nameOnAccount);
-    domain.accountType = new EncString(req.accountType);
-    domain.accountNumber = new EncString(req.accountNumber);
-    domain.routingNumber = new EncString(req.routingNumber);
-    domain.branchNumber = new EncString(req.branchNumber);
-    domain.pin = new EncString(req.pin);
-    domain.swiftCode = new EncString(req.swiftCode);
-    domain.iban = new EncString(req.iban);
-    domain.bankContactPhone = new EncString(req.bankContactPhone);
+    domain.bankName = req.bankName ? new EncString(req.bankName) : undefined;
+    domain.nameOnAccount = req.nameOnAccount ? new EncString(req.nameOnAccount) : undefined;
+    domain.accountType = req.accountType ? new EncString(req.accountType) : undefined;
+    domain.accountNumber = req.accountNumber ? new EncString(req.accountNumber) : undefined;
+    domain.routingNumber = req.routingNumber ? new EncString(req.routingNumber) : undefined;
+    domain.branchNumber = req.branchNumber ? new EncString(req.branchNumber) : undefined;
+    domain.pin = req.pin ? new EncString(req.pin) : undefined;
+    domain.swiftCode = req.swiftCode ? new EncString(req.swiftCode) : undefined;
+    domain.iban = req.iban ? new EncString(req.iban) : undefined;
+    domain.bankContactPhone = req.bankContactPhone ? new EncString(req.bankContactPhone) : undefined;
     return domain;
   }
 
-  bankName: string;
-  nameOnAccount: string;
-  accountType: string;
-  accountNumber: string;
-  routingNumber: string;
-  branchNumber: string;
-  pin: string;
-  swiftCode: string;
-  iban: string;
-  bankContactPhone: string;
+  bankName: string | undefined = undefined;
+  nameOnAccount: string | undefined = undefined;
+  accountType: string | undefined = undefined;
+  accountNumber: string | undefined = undefined;
+  routingNumber: string | undefined = undefined;
+  branchNumber: string | undefined = undefined;
+  pin: string | undefined = undefined;
+  swiftCode: string | undefined = undefined;
+  iban: string | undefined = undefined;
+  bankContactPhone: string | undefined = undefined;
 
   constructor(o?: BankAccountView | BankAccountDomain) {
     if (o == null) {
