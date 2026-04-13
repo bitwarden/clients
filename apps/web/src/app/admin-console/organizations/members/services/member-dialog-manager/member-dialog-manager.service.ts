@@ -28,6 +28,7 @@ import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-r
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
+import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
 import {
   MemberDialogResult,
   MemberDialogTab,
@@ -52,6 +53,23 @@ export class MemberDialogManagerService {
     billingMetadata: OrganizationBillingMetadataResponse,
     allUsers: OrganizationUserView[],
   ): Promise<MemberDialogResult> {
+    const generateInviteLink = await this.configService.getFeatureFlag(
+      FeatureFlag.GenerateInviteLink,
+    );
+
+    if (generateInviteLink) {
+      const dialog = InviteMembersDialogComponent.open(this.dialogService, {
+        data: {
+          organizationId: organization.id,
+          allOrganizationUsers: allUsers,
+          occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
+          isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
+        },
+      });
+      const result = await lastValueFrom(dialog.closed);
+      return result ?? MemberDialogResult.Canceled;
+    }
+
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         kind: "Add",
@@ -105,6 +123,7 @@ export class MemberDialogManagerService {
             organizationId: organization.id as OrganizationId,
             organizationUserId: user.id,
             organizationUserType: user.type,
+            twoFactorEnabled: user.twoFactorEnabled,
           },
         })
       : AccountRecoveryDialogComponent.open(this.dialogService, {
@@ -114,6 +133,7 @@ export class MemberDialogManagerService {
             organizationId: organization.id as OrganizationId,
             organizationUserId: user.id,
             organizationUserType: user.type,
+            twoFactorEnabled: user.twoFactorEnabled,
           },
         });
 
