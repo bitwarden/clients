@@ -84,11 +84,11 @@
   </td>
 }
 @if (showGroups) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell"></td>
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell tw-text-sm"></td>
 }
 @if (viewingOrgVault) {
   <td bitCell [ngClass]="RowHeightClass" class="tw-hidden sm:tw-table-cell">
-    <p class="tw-mb-0 tw-truncate tw-text-muted" [title]="permissionText">
+    <p class="tw-mb-0 tw-truncate tw-text-sm tw-text-muted" [title]="permissionText">
       {{ permissionText }}
     </p>
   </td>
