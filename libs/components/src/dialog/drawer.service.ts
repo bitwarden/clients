@@ -37,7 +37,7 @@ export class DrawerService {
   readonly isPushMode = signal(false);
 
   constructor() {
-    if (this.router) {
+    if (this.router?.events) {
       this.router.events
         .pipe(
           filter((event): event is NavigationEnd => event instanceof NavigationEnd),
