@@ -2,10 +2,13 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
+import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { WindowMain } from "../../main/window.main";
 
@@ -118,6 +121,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {
+    await this.biometricStateService.setBiometricEnrolledKeyId(userId, null);
     return await this.osBiometricsService.deleteBiometricKey(userId);
   }
 
@@ -143,7 +147,15 @@ export class MainBiometricsService extends DesktopBiometricsService {
   }
 
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
-    return await this.osBiometricsService.enrollPersistent(userId, key);
+    await this.osBiometricsService.enrollPersistent(userId, key);
+    await SdkLoadService.Ready;
+    const keyId = CryptoClient.get_key_id_for_symmetric_key(key.toEncoded());
+    if (keyId != null) {
+      await this.biometricStateService.setBiometricEnrolledKeyId(
+        userId,
+        Utils.fromBufferToB64(keyId),
+      );
+    }
   }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {

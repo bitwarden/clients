@@ -1,5 +1,10 @@
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService } from "@bitwarden/key-management";
+import {
+  BiometricStateService,
+  BiometricsService,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { assertNonNullish } from "../../auth/utils";
@@ -10,6 +15,7 @@ import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
+import { BiometricV2EncryptionMigration } from "./migrations/biometric-v2-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
 
@@ -24,6 +30,9 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     readonly configService: ConfigService,
     readonly masterPasswordService: MasterPasswordServiceAbstraction,
     readonly syncService: SyncService,
+    readonly keyService: KeyService,
+    readonly biometricsService: BiometricsService,
+    readonly biometricStateService: BiometricStateService,
   ) {
     // Register migrations here
     this.migrations.push({
@@ -34,6 +43,15 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
         logService,
         configService,
         masterPasswordService,
+      ),
+    });
+    this.migrations.push({
+      name: "Biometric V2 Encryption Migration",
+      migration: new BiometricV2EncryptionMigration(
+        keyService,
+        biometricsService,
+        biometricStateService,
+        logService,
       ),
     });
   }

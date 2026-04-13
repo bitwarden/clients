@@ -1,7 +1,12 @@
 import { mock } from "jest-mock-extended";
 
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService } from "@bitwarden/key-management";
+import {
+  BiometricStateService,
+  BiometricsService,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { ConfigService } from "../../platform/abstractions/config/config.service";
@@ -11,10 +16,12 @@ import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { DefaultEncryptedMigrator } from "./default-encrypted-migrator";
+import { BiometricV2EncryptionMigration } from "./migrations/biometric-v2-encryption-migration";
 import { EncryptedMigration } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
 
 jest.mock("./migrations/minimum-kdf-migration");
+jest.mock("./migrations/biometric-v2-encryption-migration");
 
 describe("EncryptedMigrator", () => {
   const mockKdfConfigService = mock<KdfConfigService>();
@@ -23,9 +30,13 @@ describe("EncryptedMigrator", () => {
   const configService = mock<ConfigService>();
   const masterPasswordService = mock<MasterPasswordServiceAbstraction>();
   const syncService = mock<SyncService>();
+  const mockKeyService = mock<KeyService>();
+  const mockBiometricsService = mock<BiometricsService>();
+  const mockBiometricStateService = mock<BiometricStateService>();
 
   let sut: DefaultEncryptedMigrator;
   const mockMigration = mock<MinimumKdfMigration>();
+  const mockBiometricMigration = mock<BiometricV2EncryptionMigration>();
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const mockMasterPassword = "masterPassword123";
@@ -37,6 +48,12 @@ describe("EncryptedMigrator", () => {
     (MinimumKdfMigration as jest.MockedClass<typeof MinimumKdfMigration>).mockImplementation(
       () => mockMigration,
     );
+    (
+      BiometricV2EncryptionMigration as jest.MockedClass<typeof BiometricV2EncryptionMigration>
+    ).mockImplementation(() => mockBiometricMigration);
+
+    // Default biometric migration to no-op so it doesn't interfere with KDF migration tests
+    mockBiometricMigration.needsMigration.mockResolvedValue("noMigrationNeeded");
 
     sut = new DefaultEncryptedMigrator(
       mockKdfConfigService,
@@ -45,6 +62,9 @@ describe("EncryptedMigrator", () => {
       configService,
       masterPasswordService,
       syncService,
+      mockKeyService,
+      mockBiometricsService,
+      mockBiometricStateService,
     );
   });
 
