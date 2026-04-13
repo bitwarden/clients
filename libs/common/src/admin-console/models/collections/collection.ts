@@ -1,7 +1,7 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
@@ -76,6 +76,29 @@ export class Collection extends Domain {
 
   decrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<CollectionView> {
     return CollectionView.fromCollection(this, encryptService, orgKey);
+  }
+
+  /**
+   * Creates a Collection domain model from the SDK Collection returned by SDK encrypt operations.
+   */
+  static fromSdkCollection(sdkCollection: SdkCollection): Collection {
+    const collection = new Collection({
+      id: sdkCollection.id
+        ? (uuidAsString(sdkCollection.id) as CollectionId)
+        : ("" as CollectionId),
+      organizationId: uuidAsString(sdkCollection.organizationId) as OrganizationId,
+      name: new EncString(sdkCollection.name as unknown as string),
+    });
+    collection.externalId = sdkCollection.externalId;
+    collection.hidePasswords = sdkCollection.hidePasswords;
+    collection.readOnly = sdkCollection.readOnly;
+    collection.manage = sdkCollection.manage;
+    collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
+    collection.type =
+      sdkCollection.type === "DefaultUserCollection"
+        ? CollectionTypes.DefaultUserCollection
+        : CollectionTypes.SharedCollection;
+    return collection;
   }
 
   /**

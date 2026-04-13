@@ -4,7 +4,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { View } from "@bitwarden/common/models/view/view";
-import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -176,14 +176,11 @@ export class CollectionView implements View, ITreeNodeObject {
   /**
    * Creates a CollectionView from the SDK CollectionView returned by SDK decrypt operations.
    *
-   * @param sdkView - The decrypted SDK CollectionView
-   * @param originalCollection - The original encrypted Collection, used to restore fields not
-   *   present on the SDK view (e.g. defaultUserCollectionEmail)
+   * Note: the SDK's decrypt impl already resolves defaultUserCollectionEmail — when set, the
+   * SDK places it directly into CollectionView.name instead of decrypting the EncString name.
+   * There is therefore no need to pass the original Collection here.
    */
-  static fromSdkCollectionView(
-    sdkView: SdkCollectionView,
-    originalCollection?: Collection,
-  ): CollectionView {
+  static fromSdkCollectionView(sdkView: SdkCollectionView): CollectionView {
     const view = new CollectionView({
       id: sdkView.id ? (uuidAsString(sdkView.id) as CollectionId) : ("" as CollectionId),
       organizationId: uuidAsString(sdkView.organizationId) as OrganizationId,
@@ -199,9 +196,30 @@ export class CollectionView implements View, ITreeNodeObject {
       sdkView.type === "DefaultUserCollection"
         ? CollectionTypes.DefaultUserCollection
         : CollectionTypes.SharedCollection;
-    view.defaultUserCollectionEmail = originalCollection?.defaultUserCollectionEmail;
 
     return view;
+  }
+
+  /**
+   * Maps this CollectionView to the SDK CollectionView format for use with SDK crypto operations.
+   *
+   * Uses the `name` getter, which resolves `defaultUserCollectionEmail` when present, ensuring
+   * the correct display name is passed to the SDK.
+   */
+  toSdkCollectionView(): SdkCollectionView {
+    return {
+      id: this.id ? asUuid(this.id) : undefined,
+      organizationId: asUuid(this.organizationId),
+      name: this.name,
+      externalId: this.externalId,
+      hidePasswords: this.hidePasswords,
+      readOnly: this.readOnly,
+      manage: this.manage,
+      type:
+        this.type === CollectionTypes.DefaultUserCollection
+          ? "DefaultUserCollection"
+          : "SharedCollection",
+    };
   }
 
   encrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<Collection> {

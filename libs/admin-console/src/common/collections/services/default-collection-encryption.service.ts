@@ -4,7 +4,7 @@ import { Collection } from "@bitwarden/common/admin-console/models/collections/c
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 
@@ -28,7 +28,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
             .collections()
             .decrypt(collection.toSdkCollection());
 
-          return CollectionView.fromSdkCollectionView(sdkCollectionView, collection);
+          return CollectionView.fromSdkCollectionView(sdkCollectionView);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collection: ${error}`);
@@ -52,24 +52,39 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
 
           using ref = sdk.take();
 
-          const collectionById = new Map<CollectionId, Collection>(
-            collections.map((c) => [c.id, c]),
-          );
-
           const sdkCollectionViews = ref.value
             .vault()
             .collections()
             .decrypt_list(collections.map((c) => c.toSdkCollection()));
 
-          return sdkCollectionViews.map((sdkView) => {
-            const originalCollection = sdkView.id
-              ? collectionById.get(sdkView.id as unknown as CollectionId)
-              : undefined;
-            return CollectionView.fromSdkCollectionView(sdkView, originalCollection);
-          });
+          return sdkCollectionViews.map((sdkView) => CollectionView.fromSdkCollectionView(sdkView));
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collections in batch: ${error}`);
+          return EMPTY;
+        }),
+      ),
+    );
+  }
+
+  async encrypt(collectionView: CollectionView, userId: UserId): Promise<Collection> {
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        concatMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+
+          using ref = sdk.take();
+          const sdkCollection = ref.value
+            .vault()
+            .collections()
+            .encrypt(collectionView.toSdkCollectionView());
+
+          return Collection.fromSdkCollection(sdkCollection);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to encrypt collection: ${error}`);
           return EMPTY;
         }),
       ),
