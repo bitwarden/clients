@@ -14,8 +14,9 @@ import { LayoutComponent } from "../layout";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
+import { DrawerRef } from "./dialog-ref";
 import { DialogModule } from "./dialog.module";
-import { DialogService, DrawerRef } from "./dialog.service";
+import { DialogService } from "./dialog.service";
 
 interface Animal {
   animal: string;

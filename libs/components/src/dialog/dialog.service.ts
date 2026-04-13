@@ -1,32 +1,21 @@
 import {
   Dialog as CdkDialog,
-  DialogConfig as CdkDialogConfig,
   DialogRef as CdkDialogRefBase,
   DIALOG_DATA,
-  DialogCloseOptions,
 } from "@angular/cdk/dialog";
 import { ComponentType, GlobalPositionStrategy, ScrollStrategy } from "@angular/cdk/overlay";
-import { ComponentPortal, Portal } from "@angular/cdk/portal";
+import { ComponentPortal } from "@angular/cdk/portal";
 import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import {
-  distinctUntilChanged,
-  filter,
-  firstValueFrom,
-  map,
-  Observable,
-  startWith,
-  Subject,
-  switchMap,
-  take,
-} from "rxjs";
+import { filter, firstValueFrom, map, switchMap, take } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
+import { CdkDialogRef, DialogConfig, DialogRef, DrawerRef } from "./dialog-ref";
 import { DrawerService } from "./drawer.service";
 import { SimpleConfigurableDialogComponent } from "./simple-dialog/simple-configurable-dialog/simple-configurable-dialog.component";
 import { SimpleDialogOptions } from "./simple-dialog/types";
@@ -51,35 +40,6 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
   /** Noop */
   detach() {}
 }
-
-export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
-  CdkDialogRef<R, C>,
-  "close" | "closed" | "disableClose" | "componentInstance"
-> {
-  abstract readonly isDrawer?: boolean;
-
-  // --- From CdkDialogRef ---
-  abstract close(result?: R, options?: DialogCloseOptions): void;
-  abstract readonly closed: Observable<R | undefined>;
-  abstract disableClose: boolean | undefined;
-  /**
-   * @deprecated
-   * Does not work with drawer dialogs.
-   **/
-  abstract componentInstance: C | null;
-}
-
-export type DialogConfig<D = unknown, R = unknown> = Pick<
-  CdkDialogConfig<D, R>,
-  | "data"
-  | "disableClose"
-  | "ariaModal"
-  | "positionStrategy"
-  | "height"
-  | "width"
-  | "restoreFocus"
-  | "closeOnNavigation"
->;
 
 /**
  * A responsive position strategy that adjusts the dialog position based on the screen size.
@@ -143,112 +103,6 @@ export class CenterPositionStrategy extends GlobalPositionStrategy {
   }
 }
 
-/**
- * A reference to an open drawer. Returned by `DialogService.openDrawer()`.
- *
- * Extends `DialogRef` with `stack()`, which pushes a new component onto the drawer stack
- * without closing the current one. The back button appears automatically when the stack
- * depth exceeds one.
- *
- * Can be injected directly inside drawer components alongside (or instead of) `DialogRef`:
- * ```ts
- * private drawerRef = inject(DrawerRef, { optional: true });
- * drawerRef?.stack(ChildComponent, { data: { ... } });
- * ```
- */
-export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
-  readonly isDrawer = true;
-
-  private _closedSubject = new Subject<R | undefined>();
-  private _isClosed = false;
-  closed = this._closedSubject.asObservable();
-  disableClose = false;
-
-  /** The portal containing the drawer — set by DialogService after construction. */
-  portal?: Portal<unknown>;
-
-  constructor(
-    /** Called when close() is invoked — responsible for tearing down the rest of the stack. */
-    private readonly onClose: () => void,
-    /** Pushes a new entry onto the stack. Provided by DialogService. */
-    private readonly onStack: <SR, SD, SC>(
-      component: ComponentType<SC>,
-      config?: Omit<DialogConfig<SD, DialogRef<SR, SC>>, "closeOnNavigation">,
-    ) => DrawerRef<SR, SC>,
-    /** Whether to close this drawer when navigating to a different route. Only meaningful on the root ref. */
-    readonly closeOnNavigation = false,
-  ) {}
-
-  /**
-   * Push a new component onto the drawer stack without closing the current drawer.
-   * The back button will appear automatically when the stack depth exceeds one.
-   *
-   * `closeOnNavigation` is inherited from the root drawer and cannot be set per-push.
-   */
-  stack<SR = unknown, SD = unknown, SC = unknown>(
-    component: ComponentType<SC>,
-    config?: Omit<DialogConfig<SD, DialogRef<SR, SC>>, "closeOnNavigation">,
-  ): DrawerRef<SR, SC> {
-    return this.onStack(component, config);
-  }
-
-  close(result?: R, _options?: DialogCloseOptions): void {
-    if (this.disableClose || this._isClosed) {
-      return;
-    }
-    this.closeWithResult(result);
-    this.onClose();
-  }
-
-  /**
-   * Emit closed and mark this ref as closed without triggering the onClose callback.
-   * Used by DialogService during stack teardown so each ref fires its closed observable
-   * exactly once without cascading.
-   */
-  closeWithResult(result?: R): void {
-    if (this._isClosed) {
-      return;
-    }
-    this._isClosed = true;
-    this._closedSubject.next(result);
-    this._closedSubject.complete();
-  }
-
-  componentInstance: C | null = null;
-}
-
-/**
- * DialogRef that delegates functionality to the CDK implementation
- **/
-export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
-  readonly isDrawer = false;
-
-  /** This is not available until after construction, @see DialogService.open. */
-  cdkDialogRefBase!: CdkDialogRefBase<R, C>;
-
-  // --- Delegated to CdkDialogRefBase ---
-
-  close(result?: R, options?: DialogCloseOptions): void {
-    this.cdkDialogRefBase.close(result, options);
-  }
-
-  get closed(): Observable<R | undefined> {
-    return this.cdkDialogRefBase.closed;
-  }
-
-  get disableClose(): boolean | undefined {
-    return this.cdkDialogRefBase.disableClose;
-  }
-  set disableClose(value: boolean | undefined) {
-    this.cdkDialogRefBase.disableClose = value;
-  }
-
-  // Delegate the `componentInstance` property to the CDK DialogRef
-  get componentInstance(): C | null {
-    return this.cdkDialogRefBase.componentInstance;
-  }
-}
-
 @Injectable()
 export class DialogService {
   private dialog = inject(CdkDialog);
@@ -259,7 +113,6 @@ export class DialogService {
 
   private backDropClasses = ["tw-fixed", "tw-bg-bg-overlay", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
-  private drawerStack: DrawerRef<any, any>[] = [];
 
   constructor() {
     /**
@@ -275,30 +128,7 @@ export class DialogService {
           filter((v) => v !== AuthenticationStatus.Unlocked),
           takeUntilDestroyed(),
         )
-        .subscribe(() => {
-          this.clearDrawerStack();
-          this.closeAll();
-        });
-    }
-
-    /**
-     * Close the active drawer stack on route navigation if configured.
-     * closeOnNavigation is set on the root (bottom) ref and governs the entire stack —
-     * pushed entries inherit this setting implicitly.
-     * Note: CDK dialogs have their own `closeOnNavigation` config option,
-     * but drawers use a custom implementation that requires manual cleanup.
-     */
-    if (this.router) {
-      this.router.events
-        .pipe(
-          filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-          map((event) => event.urlAfterRedirects.split("?")[0]),
-          startWith(this.router.url.split("?")[0]),
-          distinctUntilChanged(),
-          filter(() => this.drawerStack[0]?.closeOnNavigation === true),
-          takeUntilDestroyed(),
-        )
-        .subscribe(() => this.clearDrawerStack());
+        .subscribe(() => this.closeAll());
     }
   }
 
@@ -339,34 +169,24 @@ export class DialogService {
     return ref;
   }
 
-  /** Opens a dialog in the side drawer, replacing any currently open drawer stack. */
+  /**
+   * Opens a dialog in the side drawer, replacing any currently open drawer stack.
+   *
+   * To stack a new drawer over an existing one, use `DrawerRef.stack`
+   **/
   openDrawer<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
     config?: DialogConfig<D, DialogRef<R, C>>,
   ): DrawerRef<R, C> {
-    this.clearDrawerStack();
-    return this.stackOnto(component, config, config?.closeOnNavigation ?? false);
-  }
-
-  /**
-   * Pop the top drawer off the stack, firing its closed observable.
-   * If only one drawer is in the stack, it behaves like closeDrawer().
-   * Used internally by DialogComponent for the back button.
-   */
-  popDrawer(): void {
-    if (this.drawerStack.length === 0) {
-      return;
-    }
-    const ref = this.drawerStack.pop()!;
-    this.drawerService.pop();
-    ref.closeWithResult(undefined);
+    this.drawerService.closeAll();
+    return this.stackDrawer(component, config, config?.closeOnNavigation ?? false);
   }
 
   /**
    * Create a DrawerRef, wire up its portal, push it onto the stack, and open it.
    * Used by openDrawer() (for the root) and DrawerRef.stack() (for subsequent entries).
    */
-  private stackOnto<R, D, C>(
+  private stackDrawer<R, D, C>(
     component: ComponentType<C>,
     config?: Omit<DialogConfig<D, DialogRef<R, C>>, "closeOnNavigation">,
     closeOnNavigation = false,
@@ -377,8 +197,8 @@ export class DialogService {
      * pattern as openDialog / CdkDialogRef).
      */
     const ref = new DrawerRef<R, C>(
-      () => this.clearDrawerStack(),
-      (c, cfg) => this.stackOnto(c, cfg),
+      () => this.drawerService.pop(),
+      (c, cfg) => this.stackDrawer(c, cfg),
       closeOnNavigation,
     );
     const portal = new ComponentPortal(
@@ -387,8 +207,7 @@ export class DialogService {
       this.createInjector({ data: config?.data, dialogRef: ref, drawerRef: ref }),
     );
     ref.portal = portal;
-    this.drawerStack.push(ref);
-    this.drawerService.push(portal);
+    this.drawerService.push(ref);
     return ref;
   }
 
@@ -421,27 +240,10 @@ export class DialogService {
     });
   }
 
-  /** Close all open dialogs */
+  /** Close all open dialogs and drawers. */
   closeAll(): void {
-    return this.dialog.closeAll();
-  }
-
-  /** Close the entire drawer stack. */
-  closeDrawer(): void {
-    this.clearDrawerStack();
-  }
-
-  /**
-   * Close all refs in the drawer stack from top to bottom, firing each ref's closed
-   * observable exactly once, then clear the DrawerService portal stack.
-   */
-  private clearDrawerStack(): void {
-    const refs = [...this.drawerStack].reverse();
-    this.drawerStack = [];
-    this.drawerService.clearStack();
-    for (const ref of refs) {
-      ref.closeWithResult(undefined);
-    }
+    this.drawerService.closeAll();
+    this.dialog.closeAll();
   }
 
   /**

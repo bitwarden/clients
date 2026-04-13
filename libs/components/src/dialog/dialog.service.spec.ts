@@ -77,7 +77,7 @@ describe("DialogService", () => {
 
       await routerHarness.navigateByUrl("/other-route");
 
-      expect(drawerService.close).toHaveBeenCalled();
+      expect(drawerService.closeAll).toHaveBeenCalled();
     });
 
     it("does not close the drawer when navigating if closeOnNavigation is disabled", async () => {
@@ -85,7 +85,7 @@ describe("DialogService", () => {
 
       await routerHarness.navigateByUrl("/other-route");
 
-      expect(drawerService.close).not.toHaveBeenCalled();
+      expect(drawerService.closeAll).not.toHaveBeenCalled();
     });
 
     it("does not close the drawer when only query params change", async () => {
@@ -93,7 +93,7 @@ describe("DialogService", () => {
 
       await routerHarness.navigateByUrl("/?foo=bar");
 
-      expect(drawerService.close).not.toHaveBeenCalled();
+      expect(drawerService.closeAll).not.toHaveBeenCalled();
     });
 
     it("closes the drawer when the path changes but query params remain", async () => {
@@ -101,7 +101,7 @@ describe("DialogService", () => {
 
       await routerHarness.navigateByUrl("/other-route?foo=bar");
 
-      expect(drawerService.close).toHaveBeenCalled();
+      expect(drawerService.closeAll).toHaveBeenCalled();
     });
 
     it("does not close the drawer by default when closeOnNavigation is not specified", async () => {
@@ -109,7 +109,7 @@ describe("DialogService", () => {
 
       await routerHarness.navigateByUrl("/other-route");
 
-      expect(drawerService.close).not.toHaveBeenCalled();
+      expect(drawerService.closeAll).not.toHaveBeenCalled();
     });
   });
 });

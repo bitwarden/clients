@@ -19,13 +19,13 @@
       'tw-border-transparent': !showHeaderBorder,
     }"
   >
-    @if (showBackButton()) {
+    @if (isStacked()) {
       <button
         type="button"
         bitIconButton="bwi-angle-left"
         buttonType="primaryGhost"
         size="default"
-        (click)="goBack()"
+        bitDialogClose
         [label]="'back' | i18n"
       ></button>
     }
@@ -33,7 +33,7 @@
       bitDialogTitleContainer
       bitTypography="h3"
       noMargin
-      class="tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
+      class="tw-flex-1 tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
       tabindex="-1"
       #dialogHeader
     >
@@ -55,7 +55,7 @@
           bitIconButton="bwi-close"
           buttonType="primaryGhost"
           size="default"
-          bitDialogClose
+          (click)="closeDialog()"
           [label]="'close' | i18n"
         ></button>
       }

@@ -25,7 +25,8 @@ import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { DialogRef, DialogService } from "../dialog.service";
+import { DialogRef } from "../dialog-ref";
+import { DialogService } from "../dialog.service";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 import { DrawerService } from "../drawer.service";
@@ -178,12 +179,16 @@ export class DialogComponent implements AfterViewInit {
   });
 
   /** True when this dialog is a drawer and there is a previous entry in the stack to go back to. */
-  protected readonly showBackButton = computed(
+  protected readonly isStacked = computed(
     () => this.dialogRef?.isDrawer === true && this.drawerService.stackDepth() > 1,
   );
 
-  goBack(): void {
-    this.dialogService?.popDrawer();
+  protected closeDialog(): void {
+    if (this.dialogRef?.isDrawer) {
+      this.drawerService.closeAll();
+    } else {
+      this.dialogRef?.close();
+    }
   }
 
   handleEsc(event: Event) {
