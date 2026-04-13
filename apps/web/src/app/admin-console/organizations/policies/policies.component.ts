@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -43,7 +43,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
-  private drawerRef: DialogRef | undefined;
+  private readonly drawerRef = signal<DialogRef | undefined>(undefined);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -136,7 +136,7 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
-    this.destroyRef.onDestroy(() => this.drawerRef?.close());
+    this.destroyRef.onDestroy(() => this.drawerRef()?.close());
   }
 
   // Handle policies component launch from Event message
@@ -172,19 +172,21 @@ export class PoliciesComponent {
 
     if (useDrawer && dialogComponent.openDrawer) {
       // If a drawer is already open, check for unsaved changes before switching policies.
-      if (this.drawerRef) {
-        const closed = await this.drawerRef.tryClose();
+      if (this.drawerRef()) {
+        const closed = await this.drawerRef()!.tryClose();
         if (!closed) {
           return; // User chose to keep editing the current policy.
         }
       }
 
-      this.drawerRef = dialogComponent.openDrawer(this.dialogService, {
-        data: {
-          policy: policy,
-          organization: organization,
-        },
-      });
+      this.drawerRef.set(
+        dialogComponent.openDrawer(this.dialogService, {
+          data: {
+            policy: policy,
+            organization: organization,
+          },
+        }),
+      );
     } else {
       dialogComponent.open(this.dialogService, {
         data: {
@@ -200,10 +202,10 @@ export class PoliciesComponent {
    * Returns `true` if navigation may proceed, `false` if the user chose to stay.
    */
   async canDeactivate(): Promise<boolean> {
-    if (!this.drawerRef) {
+    if (!this.drawerRef()) {
       return true;
     }
-    const closed = await this.drawerRef.tryClose();
+    const closed = await this.drawerRef()!.tryClose();
     return closed;
   }
 }

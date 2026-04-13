@@ -496,7 +496,7 @@ describe("PoliciesComponent", () => {
   });
 
   describe("edit", () => {
-    it("should call dialogService.open with correct parameters when no custom dialog is specified", () => {
+    it("should call dialogService.open with correct parameters when no custom dialog is specified", async () => {
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
         description: "Test Description",
@@ -510,7 +510,7 @@ describe("PoliciesComponent", () => {
 
       const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
 
-      component.edit(mockPolicy, mockOrg);
+      await component.edit(mockPolicy, mockOrg);
 
       expect(openSpy).toHaveBeenCalled();
       const callArgs = openSpy.mock.calls[0];
@@ -522,7 +522,7 @@ describe("PoliciesComponent", () => {
       });
     });
 
-    it("should call custom dialog open method when specified", () => {
+    it("should call custom dialog open method when specified", async () => {
       const mockDialogRef = { close: jest.fn() };
       const mockCustomDialog = {
         open: jest.fn().mockReturnValue(mockDialogRef),
@@ -540,7 +540,7 @@ describe("PoliciesComponent", () => {
         display$: () => of(true),
       };
 
-      component.edit(mockPolicy, mockOrg);
+      await component.edit(mockPolicy, mockOrg);
 
       expect(mockCustomDialog.open).toHaveBeenCalled();
       const callArgs = mockCustomDialog.open.mock.calls[0];
@@ -553,7 +553,7 @@ describe("PoliciesComponent", () => {
       expect(PolicyEditDialogComponent.open).not.toHaveBeenCalled();
     });
 
-    it("should pass organization to dialog", () => {
+    it("should pass organization to dialog", async () => {
       const customOrg = { id: newGuid() as OrganizationId, name: "Custom Org" } as Organization;
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
@@ -568,7 +568,7 @@ describe("PoliciesComponent", () => {
 
       const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
 
-      component.edit(mockPolicy, customOrg);
+      await component.edit(mockPolicy, customOrg);
 
       expect(openSpy).toHaveBeenCalled();
       const callArgs = openSpy.mock.calls[0];
