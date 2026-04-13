@@ -109,13 +109,6 @@ describe("AutofillTriageService", () => {
       qualificationService.isFieldForIdentityEmail.mockReturnValue(false);
       qualificationService.isFieldForIdentityUsername.mockReturnValue(false);
 
-      // Override helper methods to return false
-      qualificationService.isPasswordField.mockReturnValue(false);
-      qualificationService.isLikePasswordField.mockReturnValue(false);
-      qualificationService.isSearchField.mockReturnValue(false);
-      qualificationService.fieldHasDisqualifyingAttributeValue.mockReturnValue(false);
-      qualificationService.keywordsFoundInFieldData.mockReturnValue(false);
-
       // Create a field with no matching type
       const nonMatchingField = {
         ...mockField,

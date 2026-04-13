@@ -11,8 +11,11 @@
   "activity": {
     "message": "Активность"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Критичные приложения, подверженные риску"
+  },
+  "allCriticalApps": {
+    "message": "Все критичные приложения"
   },
   "appLogoLabel": {
     "message": "Логотип Bitwarden"
@@ -324,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Не удалось пометить приложения как критичные"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Не удалось снять пометку приложений как критичных"
   },
   "application": {
     "message": "Приложение"
@@ -3398,6 +3404,9 @@
   "discount": {
     "message": "скидка"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Срок действия скидки истек. Просмотрите сумму корзины и повторите попытку."
+  },
   "downloadLicense": {
     "message": "Загрузить лицензию"
   },
@@ -3804,6 +3813,15 @@
   },
   "policies": {
     "message": "Политики"
+  },
+  "dataControls": {
+    "message": "Управление данными"
+  },
+  "authentication": {
+    "message": "Аутентификация"
+  },
+  "vaultManagement": {
+    "message": "Управление хранилищами"
   },
   "singleSignOn": {
     "message": "Единый вход"
@@ -4288,6 +4306,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "Один или несколько адресов email принадлежат пользователям, чьи аккаунтам были заблокированы. Восстановите их доступ, чтобы снова их пригласить.."
   },
   "restoredUserId": {
     "message": "Восстановлен доступ к организации для $ID$.",
@@ -6226,6 +6247,16 @@
     "message": "В соответствии с корпоративной политикой вы можете удалить только существующую Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Управление Send"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Настройте параметры создания и редактирования Send, включая возможность их удаления.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Политики не распространяются на пользователей организации, которые могут ими управлять."
+  },
   "sendOptions": {
     "message": "Параметры Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6486,6 +6517,14 @@
     "message": "Подтвердите свой адрес email, чтобы просмотреть эту Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Не получили код? Свяжитесь с отправителем, чтобы подтвердить свой адрес электронной почты, или ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "повторно отправьте код подтверждения",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Пользователь Bitwarden, создавший эту Send, решил скрыть свой адрес email. Вы должны убедиться, что доверяете источнику этой ссылки, прежде чем использовать или скачивать ее содержимое.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6573,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Мастер-пароль сброшен для пользователя $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Двухэтапный сброс данных для входа пользователя с $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8183,6 +8231,10 @@
     "message": "Скопировать API-ключ SCIM в буфер обмена",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Просмотр API-ключа SCIM",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Сменить API-ключ SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8213,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "Настройки SCIM успешно сохранены",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Допускается только одна интеграция данного типа ($TYPE$). Конфликтующая интеграция: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Уже существует другая интеграция того же типа ($TYPE$). Обновите страницу в браузере и попробуйте еще раз.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Необходимо ввести данные."
@@ -8375,6 +8449,15 @@
   },
   "pink": {
     "message": "Розовый"
+  },
+  "coral": {
+    "message": "Коралловый"
+  },
+  "purple": {
+    "message": "Фиолетовый"
+  },
+  "blue": {
+    "message": "Синий"
   },
   "customColor": {
     "message": "Пользовательский цвет"
@@ -9670,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Восстановить аккаунт"
+  },
+  "recoverAccountWarning": {
+    "message": "При сбросе пароля или отключении двухэтапной аутентификации для этого пользователя он получит уведомление об изменении и будет разлогинен."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Восстановление аккаунтов в случае утери мастер-пароля, данных для двухэтапной аутентификации или списка доверенных устройств."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Для существующих аккаунтов с мастер-паролями пользователям необходимо будет самостоятельно пройти процедуру регистрации, прежде чем администраторы смогут восстановить их аккаунты."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Автоматически регистрировать новых пользователей в системе восстановления аккаунтов"
+  },
+  "resetMasterPassword": {
+    "message": "Сбросить мастер-пароль"
+  },
+  "resetTwoStepLogin": {
+    "message": "Сбросить двухэтапную аутентификацию"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Доступ пользователя будет заблокирован до тех пор, пока он не настроит двухэтапную аутентификацию"
+  },
+  "recoverAccountSuccess": {
+    "message": "Аккаунт успешно восстановлен!"
   },
   "updatedTempPassword": {
     "message": "Пользователь обновил пароль, выданный через восстановление аккаунта."
@@ -11079,7 +11186,7 @@
     "message": "Информация о клиенте"
   },
   "downloadChart": {
-    "message": "Download chart"
+    "message": "Скачать диаграмму"
   },
   "downloadCSV": {
     "message": "Скачать CSV"

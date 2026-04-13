@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivite"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden logosu"
@@ -324,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Uygulamaların kritik olarak işaretlenmesi başarısız oldu"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
   },
   "application": {
     "message": "Uygulama"
@@ -3398,6 +3404,9 @@
   "discount": {
     "message": "indirim"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
+  },
   "downloadLicense": {
     "message": "Lisansı indir"
   },
@@ -3804,6 +3813,15 @@
   },
   "policies": {
     "message": "İlkeler"
+  },
+  "dataControls": {
+    "message": "Veri kontrolleri"
+  },
+  "authentication": {
+    "message": "Kimlik doğrulama"
+  },
+  "vaultManagement": {
+    "message": "Kasa yönetimi"
   },
   "singleSignOn": {
     "message": "Çoklu oturum açma"
@@ -4288,6 +4306,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "$ID$ için kuruluş erişimi geri getirildi.",
@@ -6226,6 +6247,16 @@
     "message": "Bir kuruluş ilkesi nedeniyle yalnızca mevcut Send'leri silebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send kontrolleri"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+  },
   "sendOptions": {
     "message": "Send seçenekleri",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6486,6 +6517,14 @@
     "message": "Bu Send'i görmek için e-posta adresinizi doğrulayın",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Bu Send'i oluşturan Bitwarden kullanıcısı e-posta adresini gizlemeyi seçti. Kullanmadan veya içeriğini indirmeden önce bu bağlantının kaynağının güvenilir olduğundan emin olun.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6573,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "$ID$ kullanıcısının ana parolası sıfırlandı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "$ID$ adlı kullanıcı için iki aşamalı giriş sıfırlandı.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8183,6 +8231,10 @@
     "message": "SCIM API anahtarını panoya kopyala",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "SCIM API anahtarını göster",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "SCIM API anahtarını yenile",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8213,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM ayarları kaydedildi",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Girdi gerekli."
@@ -8375,6 +8449,15 @@
   },
   "pink": {
     "message": "Pembe"
+  },
+  "coral": {
+    "message": "Mercan"
+  },
+  "purple": {
+    "message": "Mor"
+  },
+  "blue": {
+    "message": "Mavi"
   },
   "customColor": {
     "message": "Özel renk"
@@ -9670,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Hesabı kurtar"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Ana parolayı sıfırla"
+  },
+  "resetTwoStepLogin": {
+    "message": "İki adımlı girişi sıfırla"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Hesap kurtarma başarılı!"
   },
   "updatedTempPassword": {
     "message": "Kullanıcı, hesap kurtarma yoluyla verilen bir parolayı güncelledi."

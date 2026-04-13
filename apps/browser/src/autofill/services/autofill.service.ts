@@ -17,6 +17,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
   CardExpiryDateDelimiters,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -30,6 +31,7 @@ import {
   UriMatchStrategySetting,
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
+import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
@@ -49,11 +51,12 @@ import { ScriptInjectorService } from "../../platform/services/abstractions/scri
 // eslint-disable-next-line no-restricted-imports
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillMessageCommand, AutofillMessageSender } from "../enums/autofill-message.enums";
-import { InlineMenuFillTypes } from "../enums/autofill-overlay.enum";
+import { InlineMenuFillTypes, type InlineMenuFillType } from "../enums/autofill-overlay.enum";
 import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { fieldContainsKeyword, isNonLoginFormContext } from "../utils/qualification";
 
 import {
   AutoFillOptions,
@@ -76,6 +79,8 @@ export default class AutofillService implements AutofillServiceInterface {
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
   static searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
+  enableInlineMenuAnimation$: Observable<boolean>;
+  enableNotificationAnimation$: Observable<boolean>;
 
   constructor(
     private cipherService: CipherService,
@@ -92,7 +97,11 @@ export default class AutofillService implements AutofillServiceInterface {
     private configService: ConfigService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private messageListener: MessageListener,
-  ) {}
+    private animationControlService: AnimationControlService,
+  ) {
+    this.enableInlineMenuAnimation$ = this.animationControlService.enableInlineMenuAnimation$;
+    this.enableNotificationAnimation$ = this.animationControlService.enableNotificationAnimation$;
+  }
 
   /**
    * Collects page details from the specific tab. This method returns an observable that can
@@ -320,7 +329,14 @@ export default class AutofillService implements AutofillServiceInterface {
   getFormsWithPasswordFields(pageDetails: AutofillPageDetails): FormData[] {
     const formData: FormData[] = [];
 
-    const passwordFields = AutofillService.loadPasswordFields(pageDetails, true, true, false, true);
+    const passwordFields = AutofillService.loadPasswordFields(
+      pageDetails,
+      true,
+      true,
+      false,
+      true,
+      undefined,
+    );
 
     // TODO: this logic prevents multi-step account creation forms (that just start with email)
     // from being passed on to the notification bar content script - even if autofill-init.js found the form and email field.
@@ -485,6 +501,9 @@ export default class AutofillService implements AutofillServiceInterface {
           await this.cipherService.updateLastUsedDate(options.cipher.id, activeAccount.id);
         }
 
+        const showAnimations =
+          (await firstValueFrom(this.animationControlService.enableAutofillAnimation$)) ?? true;
+
         void BrowserApi.tabSendMessage(
           tab,
           {
@@ -492,6 +511,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillScript: fillScript,
             url: tab.url,
             pageDetailsUrl: pd.details.url,
+            showAnimations,
           },
           { frameId: pd.frameId },
         );
@@ -621,9 +641,8 @@ export default class AutofillService implements AutofillServiceInterface {
     tab: chrome.tabs.Tab,
     action?: string,
   ): Promise<boolean> {
-    const userHasMasterPasswordAndKeyHash =
-      await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
-    if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
+    const userHasMasterPassword = await this.userVerificationService.hasMasterPassword();
+    if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPassword) {
       if (!this.isDebouncingPasswordRepromptPopout()) {
         await this.openVaultItemPasswordRepromptPopout(tab, {
           cipherId: cipher.id,
@@ -754,6 +773,13 @@ export default class AutofillService implements AutofillServiceInterface {
       return null;
     }
 
+    // Check if page details contain targeted fields from targeting rules
+    // This operation is mutually-exclusive from heuristic data-gathering
+    const hasTargetedFields = pageDetails.fields.some((f) => f.targeted === true);
+    if (hasTargetedFields) {
+      return this.generateTargetedFillScript(pageDetails, options);
+    }
+
     const fillScript = new AutofillScript();
     const filledFields: { [id: string]: AutofillField } = {};
     const fields = options.cipher.fields;
@@ -838,6 +864,143 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
+   * Generates fill script actions for targeted fields, mapping cipher values
+   * directly to field types identified by targeting rules. Reuses the standard
+   * fill_by_opid actions since targeted elements are cached with synthetic opids.
+   */
+  private async generateTargetedFillScript(
+    pageDetails: AutofillPageDetails,
+    options: GenerateFillScriptOptions,
+  ): Promise<AutofillScript | null> {
+    const fillScript = new AutofillScript();
+    const cipher = options.cipher;
+
+    fillScript.savedUrls =
+      cipher.login?.uris
+        ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
+        .map((u) => u.uri!) ?? [];
+
+    // Note; targeted fields intentionally skip the untrusted iframe check. The
+    // presence of targeting rules represents explicit expectations of the target
+
+    for (const field of pageDetails.fields) {
+      if (!field.targeted || !field.fieldQualifier) {
+        continue;
+      }
+
+      const value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      if (!value) {
+        continue;
+      }
+
+      AutofillService.fillByOpid(fillScript, field, value);
+    }
+
+    if (!fillScript.script.length) {
+      return null;
+    }
+
+    return fillScript;
+  }
+
+  /**
+   * Maps a targeting rule field type to the corresponding cipher value.
+   */
+  private getValueForTargetedFieldType(fieldType: string, cipher: CipherView): string | null {
+    // Login fields
+    if (fieldType === AutofillTargetingRuleTypes.username) {
+      return cipher.login?.username ?? null;
+    }
+    if (
+      fieldType === AutofillTargetingRuleTypes.password ||
+      fieldType === AutofillTargetingRuleTypes.newPassword
+    ) {
+      return cipher.login?.password ?? null;
+    }
+
+    // Card fields
+    if (fieldType === AutofillTargetingRuleTypes.cardholderName) {
+      return cipher.card?.cardholderName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardNumber) {
+      return cipher.card?.number ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationMonth) {
+      return cipher.card?.expMonth ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationYear) {
+      return cipher.card?.expYear ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationDate) {
+      // FIXME combined expiry format is presumed and should be informed by
+      // the target format expectation
+      return cipher.card?.expMonth && cipher.card?.expYear
+        ? `${cipher.card.expMonth}/${cipher.card.expYear}`
+        : null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardCvv) {
+      return cipher.card?.code ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardType) {
+      return cipher.card?.brand ?? null;
+    }
+
+    // Identity fields
+    if (fieldType === AutofillTargetingRuleTypes.honorificPrefix) {
+      return cipher.identity?.title ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.firstName) {
+      return cipher.identity?.firstName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.middleName) {
+      return cipher.identity?.middleName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.lastName) {
+      return cipher.identity?.lastName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.fullName) {
+      return cipher.identity?.fullName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.streetAddress) {
+      return cipher.identity?.fullAddress ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLine1) {
+      return cipher.identity?.address1 ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLine2) {
+      return cipher.identity?.address2 ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLine3) {
+      return cipher.identity?.address3 ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLevel2) {
+      return cipher.identity?.city ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLevel1) {
+      return cipher.identity?.state ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.postalCode) {
+      return cipher.identity?.postalCode ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.country) {
+      return cipher.identity?.country ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.organization) {
+      return cipher.identity?.company ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.phone) {
+      return cipher.identity?.phone ?? null;
+    }
+    // FIXME phone sub-parts (phoneCountryCode, phoneAreaCode, phoneLocal,
+    // phoneExtension) can be derived by parsing cipher.identity?.phone
+    if (fieldType === AutofillTargetingRuleTypes.email) {
+      return cipher.identity?.email ?? null;
+    }
+
+    return null;
+  }
+
+  /**
    * Generates the autofill script for the specified page details and login cipher item.
    * @param {AutofillScript} fillScript
    * @param {AutofillPageDetails} pageDetails
@@ -879,6 +1042,7 @@ export default class AutofillService implements AutofillServiceInterface {
       false,
       options.onlyEmptyFields,
       options.fillNewPassword,
+      options.inlineMenuFillType,
     );
 
     const loginPasswordFields: AutofillField[] = [];
@@ -907,14 +1071,12 @@ export default class AutofillService implements AutofillServiceInterface {
       (focusedField.type === "text" ||
         focusedField.type === "number" ||
         focusedField.type === "tel") &&
-      (AutofillService.fieldIsFuzzyMatch(focusedField, [
+      (fieldContainsKeyword(focusedField, [
         ...AutoFillConstants.TotpFieldNames,
         ...AutoFillConstants.AmbiguousTotpFieldNames,
       ]) ||
         focusedField.autoCompleteType === "one-time-code") &&
-      !AutofillService.fieldIsFuzzyMatch(focusedField, [
-        ...AutoFillConstants.RecoveryCodeFieldNames,
-      ]);
+      !fieldContainsKeyword(focusedField, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
     const focusedUsernameField =
       focusedField &&
@@ -969,38 +1131,34 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     }
 
-    for (const formKey in pageDetails.forms) {
-      // eslint-disable-next-line
-      if (!pageDetails.forms.hasOwnProperty(formKey)) {
-        continue;
+    const pageHasNoFormMetadata =
+      pageDetails.forms == null || Object.keys(pageDetails.forms).length === 0;
+
+    prioritizedPasswordFields.forEach((passField) => {
+      if (focusedField && !passwordMatchesFocused(passField)) {
+        return;
       }
 
-      prioritizedPasswordFields.forEach((passField) => {
-        if (focusedField && !passwordMatchesFocused(passField)) {
-          return;
-        }
+      pf = passField;
+      passwords.push(pf);
 
-        pf = passField;
-        passwords.push(pf);
-
-        if (login.username) {
-          username = getUsernameForPassword(pf, false);
-          if (username?.opid != null) {
-            usernames.set(username.opid, username);
-          }
+      if (login.username) {
+        username = getUsernameForPassword(pf, pageHasNoFormMetadata);
+        if (username?.opid != null) {
+          usernames.set(username.opid, username);
         }
+      }
 
-        if (options.allowTotpAutofill && login.totp) {
-          totp =
-            isFocusedTotpField && passwordMatchesFocused(passField)
-              ? focusedField
-              : this.findTotpField(pageDetails, pf, false, false, false);
-          if (totp) {
-            totps.push(totp);
-          }
+      if (options.allowTotpAutofill && login.totp) {
+        totp =
+          isFocusedTotpField && passwordMatchesFocused(passField)
+            ? focusedField
+            : this.findTotpField(pageDetails, pf, false, false, pageHasNoFormMetadata);
+        if (totp) {
+          totps.push(totp);
         }
-      });
-    }
+      }
+    });
 
     if (passwordFields.length && !passwords.length) {
       // in the event that password fields exist but weren't processed within form elements.
@@ -1069,21 +1227,21 @@ export default class AutofillService implements AutofillServiceInterface {
         const isTotpCandidate =
           options.allowTotpAutofill &&
           ["number", "tel", "text"].some((t) => t === field.type) &&
-          !AutofillService.fieldIsFuzzyMatch(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
+          !fieldContainsKeyword(field, [...AutoFillConstants.RecoveryCodeFieldNames]);
 
         const isTotpField =
           isTotpCandidate &&
-          (AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.TotpFieldNames) ||
+          (fieldContainsKeyword(field, AutoFillConstants.TotpFieldNames) ||
             field.autoCompleteType === "one-time-code");
 
         const maybeTotpField =
-          isTotpCandidate &&
-          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.AmbiguousTotpFieldNames);
+          isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
 
         const isUsernameField =
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
-          AutofillService.fieldIsFuzzyMatch(field, AutoFillConstants.UsernameFieldNames);
+          fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
+          !isNonLoginFormContext(field, pageDetails);
 
         // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
         switch (true) {
@@ -1720,7 +1878,9 @@ export default class AutofillService implements AutofillServiceInterface {
         ...AutoFillConstants.ExcludedAutofillTypes,
       ]) ||
       (field.autoCompleteType != null &&
-        AutoFillConstants.ExcludedIdentityAutocompleteTypes.has(field.autoCompleteType)) ||
+        [...AutoFillConstants.ExcludedIdentityAutocompleteTypes].some((excludedToken) =>
+          AutofillService.autoCompleteTypeIncludesToken(field.autoCompleteType, excludedToken),
+        )) ||
       !field.viewable
     );
   }
@@ -2378,6 +2538,40 @@ export default class AutofillService implements AutofillServiceInterface {
     return valueIsOnExclusionList;
   }
 
+  private static collectExcludedPasswordFieldIds(pageDetails: AutofillPageDetails): Set<string> {
+    const passwordFieldsByForm = new Map<string | null, AutofillField[]>();
+    for (const field of pageDetails.fields) {
+      if (field.type !== "password" || field.disabled) {
+        continue;
+      }
+      const formKey = field.form ?? null;
+      const fieldsForForm = passwordFieldsByForm.get(formKey);
+      if (fieldsForForm) {
+        fieldsForForm.push(field);
+      } else {
+        passwordFieldsByForm.set(formKey, [field]);
+      }
+    }
+
+    const isCurrentPassword = (f: AutofillField) =>
+      AutofillService.autoCompleteTypeIncludesToken(
+        f.autoCompleteType,
+        AutoFillConstants.AutocompleteCurrentPassword,
+      );
+
+    const excluded = new Set<string>();
+    for (const [, passwordFields] of passwordFieldsByForm) {
+      if (passwordFields.length >= 2 && passwordFields.some(isCurrentPassword)) {
+        for (const field of passwordFields) {
+          if (!isCurrentPassword(field)) {
+            excluded.add(field.opid);
+          }
+        }
+      }
+    }
+    return excluded;
+  }
+
   /**
    * Accepts a pageDetails object with a list of fields and returns a list of
    * fields that are likely to be password fields.
@@ -2386,6 +2580,7 @@ export default class AutofillService implements AutofillServiceInterface {
    * @param {boolean} canBeReadOnly
    * @param {boolean} mustBeEmpty
    * @param {boolean} fillNewPassword
+   * @param {InlineMenuFillType} inlineMenuFillType
    * @returns {AutofillField[]}
    */
   static loadPasswordFields(
@@ -2394,8 +2589,14 @@ export default class AutofillService implements AutofillServiceInterface {
     canBeReadOnly: boolean,
     mustBeEmpty: boolean,
     fillNewPassword: boolean,
+    inlineMenuFillType?: InlineMenuFillType,
   ) {
     const arr: AutofillField[] = [];
+
+    const excludedPasswordFieldOpids =
+      fillNewPassword && inlineMenuFillType === InlineMenuFillTypes.PasswordGeneration
+        ? new Set<string>()
+        : AutofillService.collectExcludedPasswordFieldIds(pageDetails);
 
     pageDetails.fields.forEach((f) => {
       const isPassword = f.type === "password";
@@ -2412,7 +2613,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
 
       // We want to avoid treating TOTP fields as password fields
-      if (AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.TotpFieldNames)) {
+      if (fieldContainsKeyword(f, AutoFillConstants.TotpFieldNames)) {
         return;
       }
 
@@ -2438,7 +2639,12 @@ export default class AutofillService implements AutofillServiceInterface {
         (isPassword || isLikePassword()) &&
         (canBeHidden || f.viewable) &&
         (!mustBeEmpty || f.value == null || f.value.trim() === "") &&
-        (fillNewPassword || f.autoCompleteType !== "new-password")
+        (fillNewPassword ||
+          !AutofillService.autoCompleteTypeIncludesToken(
+            f.autoCompleteType,
+            AutoFillConstants.AutocompleteNewPassword,
+          )) &&
+        !excludedPasswordFieldOpids.has(f.opid)
       ) {
         arr.push(f);
       }
@@ -2497,51 +2703,63 @@ export default class AutofillService implements AutofillServiceInterface {
     canBeReadOnly: boolean,
     withoutForm: boolean,
   ): AutofillField | null {
-    let usernameField: AutofillField | null = null;
-    let usernameFieldInSameForm: AutofillField | null = null;
+    let sameFormCandidate: AutofillField | null = null;
+    let bestCandidate: AutofillField | null = null;
 
-    for (let i = 0; i < pageDetails.fields.length; i++) {
-      const f = pageDetails.fields[i];
-      if (AutofillService.forCustomFieldsOnly(f)) {
+    const fieldsPrecedingPassword = pageDetails.fields.filter(
+      (f) => f.elementNumber < passwordField.elementNumber,
+    );
+
+    for (const field of fieldsPrecedingPassword) {
+      if (AutofillService.forCustomFieldsOnly(field)) {
         continue;
       }
 
-      if (f.elementNumber >= passwordField.elementNumber) {
-        break;
+      if (isNonLoginFormContext(field, pageDetails)) {
+        continue;
       }
 
-      const includesUsernameFieldName =
-        this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1;
-      // only consider fields in same form if both have non-null form values
+      const isUsernameFieldType =
+        field.type === "text" || field.type === "email" || field.type === "tel";
+      if (!isUsernameFieldType) {
+        continue;
+      }
+
+      // Only consider fields with non-null form values as being in the same form;
       // null forms are treated as separate
       const isInSameForm =
-        f.form != null && passwordField.form != null && f.form === passwordField.form;
+        field.form != null && passwordField.form != null && field.form === passwordField.form;
 
-      // An email or tel field in the same form as the password field is likely a qualified
-      // candidate for autofill, even if visibility checks are unreliable
-      const isQualifiedUsernameField = isInSameForm && (f.type === "email" || f.type === "tel");
+      const includesUsernameKeyword = fieldContainsKeyword(
+        field,
+        AutoFillConstants.UsernameFieldNames,
+      );
 
-      if (
-        !f.disabled &&
-        (canBeReadOnly || !f.readonly) &&
-        (withoutForm || isInSameForm || includesUsernameFieldName) &&
-        (canBeHidden || f.viewable || isQualifiedUsernameField) &&
-        (f.type === "text" || f.type === "email" || f.type === "tel")
-      ) {
-        // Prioritize fields in the same form as the password field
-        if (isInSameForm) {
-          usernameFieldInSameForm = f;
-          if (includesUsernameFieldName) {
-            return f;
-          }
-        } else {
-          usernameField = f;
+      // Email/tel fields in the same form are strong candidates even when visibility
+      // checks are unreliable
+      const isQualifiedByType = isInSameForm && (field.type === "email" || field.type === "tel");
+
+      const isAccessible = !field.disabled && (canBeReadOnly || !field.readonly);
+      const isVisible = canBeHidden || field.viewable || isQualifiedByType;
+      const isReachable = withoutForm || isInSameForm || includesUsernameKeyword;
+
+      if (!isAccessible || !isVisible || !isReachable) {
+        continue;
+      }
+
+      if (isInSameForm) {
+        sameFormCandidate = field;
+        // A same-form field explicitly named for username is the best possible match
+        if (includesUsernameKeyword) {
+          return field;
         }
+      } else {
+        bestCandidate = field;
       }
     }
 
-    // Prefer username field in same form, fall back to any username field
-    return usernameFieldInSameForm || usernameField;
+    // Prefer a same-form candidate, fall back to any matching field
+    return sameFormCandidate || bestCandidate;
   }
 
   /**
@@ -2581,11 +2799,11 @@ export default class AutofillService implements AutofillServiceInterface {
           f.type === "number" ||
           // sites will commonly use tel in order to get the digit pad against semantic recommendations
           f.type === "tel") &&
-        AutofillService.fieldIsFuzzyMatch(f, [
+        fieldContainsKeyword(f, [
           ...AutoFillConstants.TotpFieldNames,
           ...AutoFillConstants.AmbiguousTotpFieldNames,
         ]) &&
-        !AutofillService.fieldIsFuzzyMatch(f, [...AutoFillConstants.RecoveryCodeFieldNames])
+        !fieldContainsKeyword(f, [...AutoFillConstants.RecoveryCodeFieldNames])
       ) {
         totpField = f;
 
@@ -2738,82 +2956,24 @@ export default class AutofillService implements AutofillServiceInterface {
   }
 
   /**
-   * Accepts a field and returns true if the field contains a
-   * value that matches any of the names in the provided list.
-   *
-   * Returns boolean and attr of value that was matched as a tuple if showMatch is set to true.
-   *
-   * @param {AutofillField} field
-   * @param {string[]} names
-   * @param {boolean} showMatch
-   * @returns {boolean | [boolean, { attr: string; value: string }?]}
+   * True if `autoCompleteType` includes `token` as a space-separated autocomplete token.
+   * Handles compound tokens such as `section-login current-password`.
    */
-  static fieldIsFuzzyMatch(
-    field: AutofillField,
-    names: string[],
-    showMatch: true,
-  ): [boolean, { attr: string; value: string }?];
-  static fieldIsFuzzyMatch(field: AutofillField, names: string[]): boolean;
-  static fieldIsFuzzyMatch(
-    field: AutofillField,
-    names: string[],
-    showMatch: boolean = false,
-  ): boolean | [boolean, { attr: string; value: string }?] {
-    const attrs = [
-      "htmlID",
-      "htmlName",
-      "label-tag",
-      "placeholder",
-      "label-left",
-      "label-right",
-      "label-top",
-      "label-aria",
-      "dataSetValues",
-    ];
-
-    for (const attr of attrs) {
-      const value = field[attr];
-      if (!AutofillService.hasValue(value)) {
-        continue;
-      }
-      if (AutofillService.fuzzyMatch(names, value)) {
-        return showMatch ? [true, { attr, value }] : true;
-      }
-    }
-    return showMatch ? [false] : false;
-  }
-
-  /**
-   * Accepts a list of options and a value and returns
-   * true if the value matches any of the options.
-   * @param {string[]} options
-   * @param {string} value
-   * @returns {boolean}
-   * @private
-   */
-  private static fuzzyMatch(options: string[], value: string): boolean {
-    if (
-      options == null ||
-      options.length === 0 ||
-      value == null ||
-      typeof value !== "string" ||
-      value.length < 1
-    ) {
+  static autoCompleteTypeIncludesToken(
+    autoCompleteType: string | null | undefined,
+    token: string,
+  ): boolean {
+    if (autoCompleteType == null || typeof autoCompleteType !== "string") {
       return false;
     }
 
-    value = value
-      .replace(/(?:\r\n|\r|\n)/g, "")
-      .trim()
-      .toLowerCase();
-
-    for (let i = 0; i < options.length; i++) {
-      if (value.indexOf(options[i]) > -1) {
-        return true;
-      }
+    const normalizedToken = token.trim().toLowerCase();
+    if (!normalizedToken) {
+      return false;
     }
 
-    return false;
+    const parts = autoCompleteType.trim().toLowerCase().split(/\s+/);
+    return parts.includes(normalizedToken);
   }
 
   /**

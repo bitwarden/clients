@@ -75,7 +75,10 @@ describe("AuthRequestLoginStrategy", () => {
   const decUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
   beforeEach(async () => {
+    cache = new AuthRequestLoginStrategyData();
+
     keyService = mock<KeyService>();
+    encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
     appIdService = mock<AppIdService>();
@@ -159,7 +162,6 @@ describe("AuthRequestLoginStrategy", () => {
 
     // setMasterKey and setMasterKeyHash should not be called
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setMasterKeyHash).not.toHaveBeenCalled();
 
     // setMasterKeyEncryptedUserKey, setUserKey, and setPrivateKey should still be called
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(

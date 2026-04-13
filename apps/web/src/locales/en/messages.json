@@ -11,8 +11,11 @@
   "activity": {
     "message": "Activity"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -23,7 +26,7 @@
   "noCriticalAppsAtRisk": {
     "message": "No critical applications at risk"
   },
-  "critical":{
+  "critical": {
     "message": "Critical ($COUNT$)",
     "placeholders": {
       "count": {
@@ -41,7 +44,7 @@
       }
     }
   },
-  "criticalBadge":{
+  "criticalBadge": {
     "message": "Critical"
   },
   "accessIntelligence": {
@@ -324,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Failed to mark applications as critical"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
   },
   "application": {
     "message": "Application"
@@ -631,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "autoFillOnPageLoad": {
     "message": "Autofill on page load?"
   },
@@ -750,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Learn more about authenticators"
@@ -3398,6 +3413,9 @@
   "discount": {
     "message": "discount"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
+  },
   "downloadLicense": {
     "message": "Download license"
   },
@@ -3804,6 +3822,15 @@
   },
   "policies": {
     "message": "Policies"
+  },
+  "dataControls": {
+    "message": "Data controls"
+  },
+  "authentication": {
+    "message": "Authentication"
+  },
+  "vaultManagement": {
+    "message": "Vault management"
   },
   "singleSignOn": {
     "message": "Single sign-on"
@@ -4288,6 +4315,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "Restored organization access for $ID$.",
@@ -5164,6 +5194,12 @@
   },
   "atAnyTime": {
     "message": "at any time."
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "By continuing, you agree to the"
@@ -6044,26 +6080,26 @@
       }
     }
   },
-  "centralizeDataOwnership":{
+  "centralizeDataOwnership": {
     "message": "Centralize organization ownership"
   },
-  "centralizeDataOwnershipDesc":{
+  "centralizeDataOwnershipDesc": {
     "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Learn more about centralized ownership",
     "description": "This will be used as a hyperlink"
   },
-  "benefits":{
+  "benefits": {
     "message": "Benefits"
   },
-  "centralizeDataOwnershipBenefit1":{
+  "centralizeDataOwnershipBenefit1": {
     "message": "Gain full visibility into credential health, including shared and unshared items."
   },
-  "centralizeDataOwnershipBenefit2":{
+  "centralizeDataOwnershipBenefit2": {
     "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
   },
-  "centralizeDataOwnershipBenefit3":{
+  "centralizeDataOwnershipBenefit3": {
     "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
   },
   "centralizeDataOwnershipWarningTitle": {
@@ -6225,6 +6261,16 @@
   "sendDisabledWarning": {
     "message": "Due to an Enterprise policy, you are only able to delete an existing Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
   },
   "sendOptions": {
     "message": "Send options",
@@ -6486,6 +6532,14 @@
     "message": "Verify your email to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "The Bitwarden user who created this Send has chosen to hide their email address. You should ensure you trust the source of this link before using or downloading its content.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6573,6 +6627,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Master password reset for user $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Two-step login reset for user $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6730,7 +6793,7 @@
       }
     }
   },
-  "reinviteSuccessToast":{
+  "reinviteSuccessToast": {
     "message": "1 invitation sent"
   },
   "bulkReinviteSentToast": {
@@ -6763,12 +6826,12 @@
     "message": "$COUNT$ of $TOTAL$ invitations sent...",
     "placeholders": {
       "count": {
-	"content": "$1",
-	"example": "1,000"
+        "content": "$1",
+        "example": "1,000"
       },
       "total": {
-	"content": "$2",
-	"example": "2,000"
+        "content": "$2",
+        "example": "2,000"
       }
     }
   },
@@ -6779,24 +6842,24 @@
     "message": "$COUNT$ invitations didn't send",
     "placeholders": {
       "count": {
-	"content": "$1",
-	"example": "1,000"
+        "content": "$1",
+        "example": "1,000"
       }
     }
   },
   "bulkReinviteFailureTitle": {
     "message": "1 invitation didn't send"
   },
-  "bulkReinviteFailureDescription":{
+  "bulkReinviteFailureDescription": {
     "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
     "placeholders": {
       "count": {
-	"content": "$1",
-	"example": "1,000"
+        "content": "$1",
+        "example": "1,000"
       },
       "total": {
-	"content": "$2",
-	"example": "2,000"
+        "content": "$2",
+        "example": "2,000"
       }
     }
   },
@@ -8183,6 +8246,10 @@
     "message": "Copy the SCIM API key to your clipboard",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "View the SCIM API key",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Rotate the SCIM API key",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8213,6 +8280,29 @@
   "scimSettingsSaved": {
     "message": "SCIM settings saved",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists":{
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
+
   },
   "inputRequired": {
     "message": "Input is required."
@@ -8375,6 +8465,15 @@
   },
   "pink": {
     "message": "Pink"
+  },
+  "coral": {
+    "message": "Coral"
+  },
+  "purple": {
+    "message": "Purple"
+  },
+  "blue": {
+    "message": "Blue"
   },
   "customColor": {
     "message": "Custom Color"
@@ -9670,6 +9769,30 @@
   },
   "recoverAccount": {
     "message": "Recover account"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Reset master password"
+  },
+  "resetTwoStepLogin": {
+    "message": "Reset two-step login"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Account recovery success!"
   },
   "updatedTempPassword": {
     "message": "User updated a password issued through account recovery."
@@ -11938,7 +12061,7 @@
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
-   "vulnerablePassword": {
+  "vulnerablePassword": {
     "message": "Vulnerable password."
   },
   "changeNow": {
@@ -12975,9 +13098,9 @@
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
-  "ownerBadgeA11yDescription":{
+  "ownerBadgeA11yDescription": {
     "message": "Owner, $OWNER$, show all items owned by $OWNER$",
-    "placeholders":{
+    "placeholders": {
       "owner": {
         "content": "$1",
         "example": "My Org Name"
@@ -13142,5 +13265,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

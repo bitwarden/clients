@@ -30,6 +30,7 @@ behavior across Bitwarden applications.
   - [With Amount Discount](#with-amount-discount)
   - [With Item-Level Discount](#with-item-level-discount)
   - [With Both Cart-Level and Item-Level Discounts](#with-both-cart-level-and-item-level-discounts)
+  - [With Multiple Stacked Discounts](#with-multiple-stacked-discounts)
   - [With Discount and Credit](#with-discount-and-credit)
   - [Hidden Cost Breakdown](#hidden-cost-breakdown)
   - [Hidden Pricing Term](#hidden-pricing-term)
@@ -57,11 +58,12 @@ import { CartSummaryComponent, Cart } from "@bitwarden/pricing";
 
 ### Inputs
 
-| Input             | Type                     | Description                                                                                 |
-| ----------------- | ------------------------ | ------------------------------------------------------------------------------------------- |
-| `cart`            | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence             |
-| `header`          | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                          |
-| `hidePricingTerm` | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header |
+| Input                | Type                     | Description                                                                                                                   |
+| -------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `cart`               | `Cart`                   | **Required.** The cart data containing all products, discount, tax, and cadence                                               |
+| `header`             | `TemplateRef<{ total }>` | **Optional.** Custom header template to replace the default header                                                            |
+| `hidePricingTerm`    | `boolean`                | **Optional.** When true, hides the billing term (e.g., "/ month", "/ year") from the header                                   |
+| `showDiscountBadges` | `boolean`                | **Optional.** When true, renders discount badge chips next to the header total. Use in checkout flows only. Default: `false`. |
 
 **Note:** Individual `CartItem` objects in the cart can include:
 
@@ -540,6 +542,39 @@ Show cart with both discount and credit applied:
       value: 50.00
     },
     estimatedTax: 15.00
+  }"
+>
+</billing-cart-summary>
+```
+
+### With Multiple Stacked Discounts
+
+Show cart with multiple percent-off discounts applied in sequence. Each discount is calculated
+against the running subtotal after the previous discount was applied (cascading):
+
+<Canvas of={CartSummaryStories.WithMultipleDiscounts} />
+
+```html
+<billing-cart-summary
+  [cart]="{
+    passwordManager: {
+      seats: {
+        quantity: 5,
+        translationKey: 'members',
+        cost: 50.00
+      },
+      additionalStorage: {
+        quantity: 2,
+        translationKey: 'additionalStorageGB',
+        cost: 10.00
+      }
+    },
+    cadence: 'annually',
+    discounts: [
+      { type: 'percent-off', value: 20 },
+      { type: 'percent-off', value: 10 }
+    ],
+    estimatedTax: 8.64
   }"
 >
 </billing-cart-summary>

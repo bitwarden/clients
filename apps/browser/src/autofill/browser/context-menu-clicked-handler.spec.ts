@@ -117,7 +117,7 @@ describe("ContextMenuClickedHandler", () => {
   describe("run", () => {
     beforeEach(() => {
       authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
-      userVerificationService.hasMasterPasswordAndMasterKeyHash.mockResolvedValue(false);
+      userVerificationService.hasMasterPassword.mockResolvedValue(false);
     });
 
     const runWithUrl = (data: chrome.contextMenus.OnClickData) =>
@@ -375,9 +375,9 @@ describe("ContextMenuClickedHandler", () => {
           { frameId: undefined },
           expect.any(Function),
         );
-        expect(sut.latestTriageResult).not.toBeUndefined();
-        expect(sut.latestTriageResult?.tabId).toBe(mockTab.id);
-        expect(sut.latestTriageResult?.pageUrl).toBe(mockTab.url);
+        expect(sut.triageResult).not.toBeUndefined();
+        expect(sut.triageResult?.tabId).toBe(mockTab.id);
+        expect(sut.triageResult?.pageUrl).toBe(mockTab.url);
       });
 
       it("opens the autofill triage popout when side panel API is not supported", async () => {

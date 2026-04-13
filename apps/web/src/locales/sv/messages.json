@@ -3,16 +3,19 @@
     "message": "Alla applikationer"
   },
   "allMembers": {
-    "message": "All members"
+    "message": "Alla medlemmar"
   },
   "allPasswords": {
-    "message": "All passwords"
+    "message": "Alla lösenord"
   },
   "activity": {
     "message": "Aktivitet"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwardens logotyp"
@@ -54,10 +57,10 @@
     "message": "Lösenordsrisk"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "Lösenord"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Risk över tid"
   },
   "passwordsAtRisk": {
     "message": "Passwords at risk"
@@ -324,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Misslyckades med att markera applikationer som kritiska"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
   },
   "application": {
     "message": "Applikation"
@@ -3398,6 +3404,9 @@
   "discount": {
     "message": "rabatt"
   },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
+  },
   "downloadLicense": {
     "message": "Hämta licens"
   },
@@ -3804,6 +3813,15 @@
   },
   "policies": {
     "message": "Policyer"
+  },
+  "dataControls": {
+    "message": "Datakontroller"
+  },
+  "authentication": {
+    "message": "Autentisering"
+  },
+  "vaultManagement": {
+    "message": "Valvhantering"
   },
   "singleSignOn": {
     "message": "Single Sign-On"
@@ -4288,6 +4306,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
   "restoredUserId": {
     "message": "Återställd organisationsåtkomst för $ID$.",
@@ -6226,6 +6247,16 @@
     "message": "På grund av en företagspolicy kan du bara radera en befintlig Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+  },
   "sendOptions": {
     "message": "Alternativ för Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6486,6 +6517,14 @@
     "message": "Verifiera din e-post för att visa detta Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Bitwarden-användaren som skapade denna Send har valt att dölja sin e-postadress. Du bör se till att du litar på källan till denna länk innan du använder eller hämtar innehållet.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6573,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Huvudlösenordet återställdes för användaren $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Two-step login reset for user $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8183,6 +8231,10 @@
     "message": "Kopiera SCIM API-nyckeln till ditt urklipp",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "View the SCIM API key",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Rotera SCIM API-nyckeln",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8213,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM-inställningar sparade",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Inmatning är obligatoriskt."
@@ -8375,6 +8449,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Korall"
+  },
+  "purple": {
+    "message": "Lila"
+  },
+  "blue": {
+    "message": "Blå"
   },
   "customColor": {
     "message": "Anpassad färg"
@@ -9670,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Återställ konto"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Reset master password"
+  },
+  "resetTwoStepLogin": {
+    "message": "Reset two-step login"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Account recovery success!"
   },
   "updatedTempPassword": {
     "message": "Användaren uppdaterade ett lösenord som utfärdats genom kontoåterställning."

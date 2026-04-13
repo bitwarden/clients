@@ -13,6 +13,7 @@ export type AutofillExtensionMessage = {
   subFrameUrl?: string;
   subFrameId?: string;
   pageDetailsUrl?: string;
+  showAnimations?: boolean;
   ciphers?: any;
   isInlineMenuHidden?: boolean;
   overlayElement?: AutofillOverlayElementType;

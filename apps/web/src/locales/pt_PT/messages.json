@@ -11,8 +11,11 @@
   "activity": {
     "message": "Atividade"
   },
-  "applicationsAtRisk": {
-    "message": "Aplicações em risco"
+  "criticalAppsAtRisk": {
+    "message": "Apps críticas em risco"
+  },
+  "allCriticalApps": {
+    "message": "Todas as apps críticas"
   },
   "appLogoLabel": {
     "message": "Logótipo do Bitwarden"
@@ -324,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Falha ao marcar aplicações como críticas"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Falha ao desmarcar aplicações como críticas"
   },
   "application": {
     "message": "Aplicação"
@@ -3398,6 +3404,9 @@
   "discount": {
     "message": "desconto"
   },
+  "discountExpiredOnPurchase": {
+    "message": "O desconto expirou. Por favor, reveja o total do seu carrinho e tente novamente."
+  },
   "downloadLicense": {
     "message": "Transferir licença"
   },
@@ -3804,6 +3813,15 @@
   },
   "policies": {
     "message": "Políticas"
+  },
+  "dataControls": {
+    "message": "Controlos de dados"
+  },
+  "authentication": {
+    "message": "Autenticação"
+  },
+  "vaultManagement": {
+    "message": "Gestão do cofre"
   },
   "singleSignOn": {
     "message": "Início de sessão único"
@@ -4288,6 +4306,9 @@
         "example": "John Smith"
       }
     }
+  },
+  "revokedEmailError": {
+    "message": "Um ou mais e-mails pertencem a membros com acesso revogado. Restaure o acesso para os voltar a convidar."
   },
   "restoredUserId": {
     "message": "Acesso à organização restaurado para $ID$.",
@@ -5118,7 +5139,7 @@
     }
   },
   "updateEncryptionKeyWarning": {
-    "message": "Depois de atualizar a sua chave de encriptação, é necessário terminar sessão e voltar a iniciar em todas as aplicações Bitwarden que está a utilizar atualmente (como a aplicação móvel ou as extensões do navegador). A falha em terminar sessão e voltar a iniciar (que descarrega a sua nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, pode demorar."
+    "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
@@ -6226,6 +6247,16 @@
     "message": "Devido a uma política da empresa, só é possível eliminar um Send existente.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Controlos do Send"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Defina opções para criar e editar Sends, incluindo a possibilidade de os remover.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Os membros da organização que podem gerir as políticas da organização estão isentos da aplicação desta política."
+  },
   "sendOptions": {
     "message": "Opções do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6486,6 +6517,14 @@
     "message": "Confirme o seu e-mail para ver este Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Não recebeu um código? Contacte o remetente para confirmar o seu endereço de e-mail ou ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Reenviar código de verificação",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "O utilizador Bitwarden que criou este Send optou por ocultar o seu endereço de e-mail. Deve certificar-se de que confia na fonte deste link antes de utilizar ou descarregar o seu conteúdo.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6573,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Redefinição da palavra-passe mestra do utilizador $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Reposição da verificação de dois passos para o utilizador $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8183,6 +8231,10 @@
     "message": "Copiar a chave da API SCIM para a área de transferência",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Ver a chave da API SCIM",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Regenerar a chave da API SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8213,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "Definições SCIM guardadas",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Apenas é permitida uma integração deste tipo ($TYPE$). A integração em conflito é: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Já existe outra integração do mesmo tipo ($TYPE$). Atualize o navegador e tente novamente.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Campo obrigatório."
@@ -8375,6 +8449,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Coral"
+  },
+  "purple": {
+    "message": "Roxo"
+  },
+  "blue": {
+    "message": "Azul"
   },
   "customColor": {
     "message": "Cor personalizada"
@@ -9670,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Recuperar conta"
+  },
+  "recoverAccountWarning": {
+    "message": "Ao redefinir a palavra-passe ou a verificação de dois passos deste membro, este será notificado da alteração e a sessão será terminada."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recupere contas quando a palavra-passe mestra, a verificação de dois passos ou os dispositivos fidedignos forem esquecidos ou perdidos."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "As contas existentes com palavras-passe mestras exigirão que os membros se inscrevam antes de os administradores poderem recuperar as suas contas."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Inscrever automaticamente novos membros na recuperação de conta"
+  },
+  "resetMasterPassword": {
+    "message": "Redefinir a palavra-passe mestra"
+  },
+  "resetTwoStepLogin": {
+    "message": "Redefinir a verificação de dois passos"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "O acesso do membro será revogado até que configure a verificação de dois passos"
+  },
+  "recoverAccountSuccess": {
+    "message": "Recuperação de conta bem-sucedida!"
   },
   "updatedTempPassword": {
     "message": "O utilizador atualizou uma palavra-passe emitida através da recuperação de conta."

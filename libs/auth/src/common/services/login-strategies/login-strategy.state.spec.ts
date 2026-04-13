@@ -21,7 +21,26 @@ import {
 } from "../../login-strategies/webauthn-login.strategy.spec";
 import { AuthRequestLoginCredentials, WebAuthnLoginCredentials } from "../../models";
 
-import { CACHE_KEY } from "./login-strategy.state";
+import { CACHE_EXPIRATION_KEY, CACHE_KEY } from "./login-strategy.state";
+
+describe("CACHE_EXPIRATION_KEY", () => {
+  const sut = CACHE_EXPIRATION_KEY;
+
+  it("should return null when data is null", () => {
+    expect(sut.deserializer(null)).toBeNull();
+  });
+
+  it("should deserialize a valid date string back to a Date object", () => {
+    const date = new Date("2025-01-01T00:00:00.000Z");
+    const serialized = JSON.parse(JSON.stringify(date));
+
+    const result = sut.deserializer(serialized);
+
+    expect(result).not.toBeNull();
+    expect(result).toBeInstanceOf(Date);
+    expect(result!.toISOString()).toBe(date.toISOString());
+  });
+});
 
 describe("LOGIN_STRATEGY_CACHE_KEY", () => {
   const sut = CACHE_KEY;
@@ -51,12 +70,12 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
       deviceRequest,
     );
     actual.password.masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-    actual.password.localMasterKeyHash = "LOCAL_MASTER_KEY_HASH";
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.password).toBeInstanceOf(PasswordLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.password).toBeInstanceOf(PasswordLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize SsoLoginStrategyData", () => {
@@ -71,23 +90,34 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.sso).toBeInstanceOf(SsoLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.sso).toBeInstanceOf(SsoLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize UserApiLoginStrategyData", () => {
     const actual = { userApiKey: new UserApiLoginStrategyData() };
-    actual.userApiKey.tokenRequest = new UserApiTokenRequest("CLIENT_ID", "CLIENT_SECRET", null);
+    actual.userApiKey.tokenRequest = new UserApiTokenRequest(
+      "CLIENT_ID",
+      "CLIENT_SECRET",
+      twoFactorRequest,
+    );
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.userApiKey).toBeInstanceOf(UserApiLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.userApiKey).toBeInstanceOf(UserApiLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize AuthRequestLoginStrategyData", () => {
     const actual = { authRequest: new AuthRequestLoginStrategyData() };
-    actual.authRequest.tokenRequest = new PasswordTokenRequest("EMAIL", "ACCESS_CODE", null, null);
+    actual.authRequest.tokenRequest = new PasswordTokenRequest(
+      "EMAIL",
+      "ACCESS_CODE",
+      twoFactorRequest,
+      deviceRequest,
+    );
     actual.authRequest.authRequestCredentials = new AuthRequestLoginCredentials(
       "EMAIL",
       "ACCESS_CODE",
@@ -97,8 +127,9 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.authRequest).toBeInstanceOf(AuthRequestLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.authRequest).toBeInstanceOf(AuthRequestLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 
   it("should correctly deserialize WebAuthnLoginStrategyData", () => {
@@ -120,8 +151,9 @@ describe("LOGIN_STRATEGY_CACHE_KEY", () => {
 
     const result = sut.deserializer(JSON.parse(JSON.stringify(actual)));
 
-    expect(result.webAuthn).toBeInstanceOf(WebAuthnLoginStrategyData);
-    verifyPropertyPrototypes(result, actual);
+    expect(result).not.toBeNull();
+    expect(result!.webAuthn).toBeInstanceOf(WebAuthnLoginStrategyData);
+    verifyPropertyPrototypes(result!, actual);
   });
 });
 

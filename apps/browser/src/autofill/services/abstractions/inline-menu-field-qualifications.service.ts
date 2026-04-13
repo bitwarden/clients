@@ -1,14 +1,6 @@
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
-export type AutofillKeywordsMap = WeakMap<
-  AutofillField,
-  {
-    keywordsSet: Set<string>;
-    stringValue: string;
-  }
->;
-
 export type SubmitButtonKeywordsMap = WeakMap<HTMLElement, string>;
 
 export interface InlineMenuFieldQualificationService {
@@ -46,20 +38,4 @@ export interface InlineMenuFieldQualificationService {
   isElementLoginSubmitButton(element: Element): boolean;
   isElementChangePasswordSubmitButton(element: Element): boolean;
   isTotpField(field: AutofillField): boolean;
-
-  // Helper methods exposed for enhanced triage reporting
-  isPasswordField(field: AutofillField): boolean;
-  isLikePasswordField(field: AutofillField): boolean;
-  isSearchField(field: AutofillField): boolean;
-  fieldHasDisqualifyingAttributeValue(field: AutofillField): boolean;
-  isExcludedFieldType(field: AutofillField, excludedTypes: Set<string>): boolean;
-  keywordsFoundInFieldData(
-    autofillFieldData: AutofillField,
-    keywords: string[],
-    fuzzyMatchKeywords?: boolean,
-  ): boolean;
-  fieldContainsAutocompleteValues(
-    autofillFieldData: AutofillField,
-    compareValues: string | Set<string>,
-  ): boolean;
 }

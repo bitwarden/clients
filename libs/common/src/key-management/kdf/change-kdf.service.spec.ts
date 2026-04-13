@@ -182,7 +182,6 @@ describe("ChangeKdfService", () => {
       await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
       expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
-      expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(mockHash, mockUserId);
     });
 
     it("should properly dispose of SDK resources", async () => {

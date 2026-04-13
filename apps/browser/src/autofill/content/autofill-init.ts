@@ -146,7 +146,7 @@ class AutofillInit implements AutofillInitInterface {
    *
    * @param {AutofillExtensionMessage} message
    */
-  private async fillForm({ fillScript, pageDetailsUrl }: AutofillExtensionMessage) {
+  private async fillForm({ fillScript, pageDetailsUrl, showAnimations }: AutofillExtensionMessage) {
     if ((document.defaultView || window).location.href !== pageDetailsUrl || !fillScript) {
       return;
     }
@@ -155,7 +155,7 @@ class AutofillInit implements AutofillInitInterface {
     await this.sendExtensionMessage("updateIsFieldCurrentlyFilling", {
       isFieldCurrentlyFilling: true,
     });
-    await this.insertAutofillContentService.fillForm(fillScript);
+    await this.insertAutofillContentService.fillForm(fillScript, showAnimations ?? true);
 
     setTimeout(
       () =>
