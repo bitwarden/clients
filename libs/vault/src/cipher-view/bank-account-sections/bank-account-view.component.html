@@ -162,6 +162,14 @@
           aria-readonly="true"
           data-testid="iban"
         />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyIban' | i18n"
+          appCopyField="iban"
+          [cipher]="cipher()"
+        ></button>
       </bit-form-field>
     }
 
