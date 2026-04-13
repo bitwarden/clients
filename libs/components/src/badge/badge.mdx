@@ -41,4 +41,21 @@ The warning badge is used to indicate a status waiting on an additional action f
 
 ## Accessibility
 
-Follows color WCAG color contrast guidelines for small text.
+Follows WCAG color contrast guidelines for small text.
+
+### Keyboard navigation
+
+Badges with truncated text are focusable via Tab — they receive `tabindex="0"` automatically when
+the badge has title content (truncated text or a custom `[title]`). This allows keyboard users to
+reach a badge and trigger its tooltip to see the full text.
+
+### Screen readers
+
+Badge text content is announced inline by screen readers. When the visual label alone is not
+sufficient — for example, a badge displaying only `"5"` — supply a descriptive `ariaLabel`:
+
+```html
+<bit-badge [ariaLabel]="'5 unread notifications'">5</bit-badge>
+```
+
+Screen readers will announce the `ariaLabel` value instead of the raw text content.

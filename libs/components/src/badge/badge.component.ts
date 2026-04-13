@@ -98,6 +98,8 @@ const getDefaultIconForVariant = (variant: BadgeVariant) => defaultIconMap[varia
   host: {
     "[class]": "classList()",
     "[attr.title]": "titleContent()",
+    "[attr.tabindex]": "titleContent() ? 0 : null",
+    "[attr.aria-label]": "ariaLabel()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -137,6 +139,15 @@ export class BadgeComponent {
   readonly maxWidthClass = input<`tw-max-w-${string}`>("tw-max-w-[calc(25ch_-_theme(spacing.2))]");
 
   readonly startIcon = input<BitwardenIcon | null | undefined>(undefined);
+
+  /**
+   * Optional accessible label override. Use when the visual text content alone
+   * is insufficient for screen readers (e.g., a badge showing "5" where the
+   * accessible name should be "5 unread notifications").
+   *
+   * When not provided, screen readers announce the badge's text content directly.
+   */
+  readonly ariaLabel = input<string>();
 
   protected readonly computedIcon = computed(() => {
     if (this.startIcon() === null) {
