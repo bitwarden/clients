@@ -62,7 +62,7 @@ describe("FormControlCardComponent - aria-describedby reactivity", () => {
   });
 
   it("sets aria-labelledby on the input element", () => {
-    expect(inputEl.getAttribute("aria-labelledby")).toBe(card.labelId);
+    expect(inputEl.getAttribute("aria-labelledby")).toContain(card.labelId);
   });
 
   describe("when control is untouched and invalid", () => {
@@ -71,9 +71,9 @@ describe("FormControlCardComponent - aria-describedby reactivity", () => {
       expect(inputEl.getAttribute("aria-describedby")).not.toBe(card.errorId);
     });
 
-    it("sets aria-describedby to the hint element", () => {
+    it("sets aria-describedby to include the hint element", () => {
       const hintEl = fixture.nativeElement.querySelector("bit-hint");
-      expect(inputEl.getAttribute("aria-describedby")).toBe(hintEl.id);
+      expect(inputEl.getAttribute("aria-describedby")).toContain(hintEl.id);
     });
   });
 
@@ -85,8 +85,8 @@ describe("FormControlCardComponent - aria-describedby reactivity", () => {
       await fixture.whenStable();
     });
 
-    it("updates aria-describedby to the error element", () => {
-      expect(inputEl.getAttribute("aria-describedby")).toBe(card.errorId);
+    it("updates aria-describedby to include the error element", () => {
+      expect(inputEl.getAttribute("aria-describedby")).toContain(card.errorId);
     });
   });
 
@@ -103,9 +103,9 @@ describe("FormControlCardComponent - aria-describedby reactivity", () => {
       await fixture.whenStable();
     });
 
-    it("reverts aria-describedby to the hint element", () => {
+    it("reverts aria-describedby to include the hint element", () => {
       const hintEl = fixture.nativeElement.querySelector("bit-hint");
-      expect(inputEl.getAttribute("aria-describedby")).toBe(hintEl.id);
+      expect(inputEl.getAttribute("aria-describedby")).toContain(hintEl.id);
     });
   });
 
@@ -123,8 +123,8 @@ describe("FormControlCardComponent - aria-describedby reactivity", () => {
       await fixture.whenStable();
     });
 
-    it("updates aria-describedby to the error element", () => {
-      expect(inputEl.getAttribute("aria-describedby")).toBe(card.errorId);
+    it("updates aria-describedby to include the error element", () => {
+      expect(inputEl.getAttribute("aria-describedby")).toContain(card.errorId);
     });
   });
 
@@ -148,13 +148,15 @@ describe("FormControlCardComponent - aria-describedby reactivity", () => {
       });
     }
 
-    it("removes aria-describedby entirely", async () => {
+    it("sets aria-describedby to the error element only", async () => {
       const noHintFixture = TestBed.createComponent(TestNoHintHostComponent);
       noHintFixture.detectChanges();
       await noHintFixture.whenStable();
 
+      const cardInstance = noHintFixture.debugElement.query(By.directive(FormControlCardComponent))
+        .componentInstance as FormControlCardComponent;
       const input = noHintFixture.nativeElement.querySelector("input[type=checkbox]");
-      expect(input.getAttribute("aria-describedby")).toBeNull();
+      expect(input.getAttribute("aria-describedby")).toBe(cardInstance.errorId);
     });
   });
 });

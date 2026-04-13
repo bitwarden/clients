@@ -6,9 +6,6 @@ import {
   inject,
   input,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { EMPTY } from "rxjs";
-import { distinctUntilChanged, map, switchMap } from "rxjs/operators";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -74,15 +71,6 @@ export class FormControlCardComponent {
   protected readonly hint = contentChild(BitHintDirective);
   protected readonly switch = contentChild(SwitchComponent);
 
-  private readonly hasErrorSignal = toSignal(
-    toObservable(this.base.ngControl).pipe(
-      switchMap((ngControl) => ngControl?.control?.events ?? EMPTY),
-      map(() => this.base.formControl().hasError),
-      distinctUntilChanged(),
-    ),
-    { initialValue: false },
-  );
-
   constructor() {
     effect(() => {
       this.switch()?.size.set("large");
@@ -92,25 +80,34 @@ export class FormControlCardComponent {
 
     effect(() => {
       const hostEl = this.base.formControlEl().nativeElement;
-      const hasError = this.hasErrorSignal();
-
-      const describedBy = hasError ? this.errorId : (this.hint()?.id ?? null);
-
+      const hintId = this.inGroup
+        ? (this.groupItem.group?.hint()?.id ?? null)
+        : (this.hint()?.id ?? null);
+      const errorId = this.inGroup ? (this.groupItem.group?.errorId ?? null) : this.errorId;
+      const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
       const switchElement = this.switch();
+
+      // Always clear ARIA from host wrapper — inner element owns these
+      hostEl.removeAttribute("aria-labelledby");
+      hostEl.removeAttribute("aria-describedby");
 
       if (switchElement) {
         // For SwitchComponent, use signals to set ARIA directly on the inner input,
         // avoiding a querySelector race with Angular's property binding rendering cycle
-        switchElement.ariaLabelledBy.set(this.labelId);
-        switchElement.ariaDescribedBy.set(describedBy ?? undefined);
-        hostEl.removeAttribute("aria-labelledby");
-        hostEl.removeAttribute("aria-describedby");
+        const labelledByIds = new Set(
+          (switchElement.ariaLabelledBy() ?? "").split(" ").filter(Boolean),
+        );
+        labelledByIds.add(this.labelId);
+        switchElement.ariaLabelledBy.set([...labelledByIds].join(" "));
+        switchElement.ariaDescribedBy.set(describedBy);
       } else {
         const el = this.base.formControl().inputEl?.nativeElement ?? hostEl;
 
-        hostEl.removeAttribute("aria-labelledby");
-        hostEl.removeAttribute("aria-describedby");
-        el.setAttribute("aria-labelledby", this.labelId);
+        const labelledByIds = new Set(
+          (el.getAttribute("aria-labelledby") ?? "").split(" ").filter(Boolean),
+        );
+        labelledByIds.add(this.labelId);
+        el.setAttribute("aria-labelledby", [...labelledByIds].join(" "));
 
         if (describedBy) {
           el.setAttribute("aria-describedby", describedBy);
