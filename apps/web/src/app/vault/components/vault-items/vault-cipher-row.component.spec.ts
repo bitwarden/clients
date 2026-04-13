@@ -154,6 +154,56 @@ describe("VaultCipherRowComponent", () => {
     });
   });
 
+  describe("hasBankAccountOptions", () => {
+    let bankAccountCipher: CipherView;
+
+    beforeEach(() => {
+      bankAccountCipher = new CipherView();
+      bankAccountCipher.id = "cipher-1";
+      bankAccountCipher.name = "Test Bank Account";
+      bankAccountCipher.type = CipherType.BankAccount;
+      bankAccountCipher.deletedDate = null;
+
+      component.cipher = bankAccountCipher;
+      component.disabled = false;
+    });
+
+    it("returns true when accountNumber is populated", () => {
+      bankAccountCipher.bankAccount.accountNumber = "123456789";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns true when routingNumber is populated", () => {
+      bankAccountCipher.bankAccount.routingNumber = "987654321";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns true when pin is populated", () => {
+      bankAccountCipher.bankAccount.pin = "1234";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns true when iban is populated", () => {
+      bankAccountCipher.bankAccount.iban = "GB29NWBK60161331926819";
+      expect(component["hasBankAccountOptions"]).toBe(true);
+    });
+
+    it("returns false when no bank account fields are populated", () => {
+      expect(component["hasBankAccountOptions"]).toBe(false);
+    });
+
+    it("returns false when cipher is not a bank account type", () => {
+      bankAccountCipher.type = CipherType.Login;
+      expect(component["hasBankAccountOptions"]).toBe(false);
+    });
+
+    it("returns false when cipher is deleted", () => {
+      bankAccountCipher.bankAccount.accountNumber = "123456789";
+      bankAccountCipher.deletedDate = new Date();
+      expect(component["hasBankAccountOptions"]).toBe(false);
+    });
+  });
+
   describe("showAssignToCollections", () => {
     let archivedCipher: CipherView;
 

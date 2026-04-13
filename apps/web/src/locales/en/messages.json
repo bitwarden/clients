@@ -1000,6 +1000,9 @@
   "typeSecureNotePlural": {
     "message": "Secure notes"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "folders": {
     "message": "Folders"
   },
@@ -13229,6 +13232,12 @@
   },
   "copyRoutingNumber": {
     "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"

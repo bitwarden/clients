@@ -6273,6 +6273,12 @@
   "copyRoutingNumber": {
     "message": "Copy routing number"
   },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
   "bankAccountTypeChecking": {
     "message": "Checking"
   },

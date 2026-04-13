@@ -225,4 +225,32 @@ describe("CopyCipherFieldDirective", () => {
       );
     });
   });
+
+  describe("bank account", () => {
+    beforeEach(() => {
+      const cipher = copyCipherFieldDirective.cipher as CipherView;
+      cipher.type = CipherType.BankAccount;
+      cipher.bankAccount.accountNumber = "test-account-number";
+      cipher.bankAccount.routingNumber = "test-routing-number";
+      cipher.bankAccount.pin = "test-pin";
+      cipher.bankAccount.iban = "test-iban";
+    });
+
+    it.each([
+      ["accountNumber", "test-account-number"],
+      ["routingNumber", "test-routing-number"],
+      ["pin", "test-pin"],
+      ["iban", "test-iban"],
+    ])("copies %s field from bank account to clipboard", async (action, value) => {
+      copyCipherFieldDirective.action = action as CopyCipherFieldDirective["action"];
+
+      await copyCipherFieldDirective.copy();
+
+      expect(copyFieldService.copy).toHaveBeenCalledWith(
+        value,
+        action,
+        copyCipherFieldDirective.cipher,
+      );
+    });
+  });
 });

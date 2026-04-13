@@ -278,6 +278,10 @@ export class CipherViewLikeUtils {
         return !!cipher.bankAccount?.accountNumber;
       case "routingNumber":
         return !!cipher.bankAccount?.routingNumber;
+      case "pin":
+        return !!cipher.bankAccount?.pin;
+      case "iban":
+        return !!cipher.bankAccount?.iban;
       default:
         return false;
     }
@@ -381,6 +385,10 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   privateKey: "SshKey",
   publicKey: "SshKey",
   keyFingerprint: "SshKey",
+  accountNumber: "BankAccountAccountNumber",
+  routingNumber: "BankAccountRoutingNumber",
+  pin: "BankAccountPin",
+  iban: "BankAccountIban",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

@@ -350,13 +350,24 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get hasBankAccountOptions(): boolean {
+    return (
+      this.isBankAccountCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "accountNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "routingNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "pin") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "iban"))
+    );
+  }
+
   protected get showMenuDivider() {
     return (
       this.hasVisibleLoginOptions ||
       this.hasVisibleCardOptions ||
       this.hasVisibleIdentityOptions ||
       this.hasVisibleBankAccountOptions ||
-      this.hasVisibleSecureNoteOptions
+      this.hasVisibleSecureNoteOptions ||
+      this.hasBankAccountOptions
     );
   }
 

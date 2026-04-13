@@ -34,7 +34,9 @@ export type CopyAction =
   | "publicKey"
   | "keyFingerprint"
   | "accountNumber"
-  | "routingNumber";
+  | "routingNumber"
+  | "pin"
+  | "iban";
 
 /**
  * Copy actions that can be used with the appCopyField directive.
@@ -82,6 +84,8 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   keyFingerprint: { typeI18nKey: "sshFingerprint", protected: true },
   accountNumber: { typeI18nKey: "accountNumber", protected: true },
   routingNumber: { typeI18nKey: "bankRoutingNumber", protected: false },
+  pin: { typeI18nKey: "pin", protected: true },
+  iban: { typeI18nKey: "iban", protected: true },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,
