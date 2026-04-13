@@ -292,7 +292,7 @@ export class DialogService {
   private createInjector(opts: {
     data: unknown;
     dialogRef: DialogRef;
-    drawerRef?: DrawerRef;
+    drawerRef?: DrawerRef<any, any>;
   }): Injector {
     return Injector.create({
       providers: [
