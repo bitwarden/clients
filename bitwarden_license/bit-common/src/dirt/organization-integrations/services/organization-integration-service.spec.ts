@@ -238,8 +238,8 @@ describe("OrganizationIntegrationService", () => {
       ).rejects.toThrow("Organization ID mismatch");
     });
 
-    it("should return mustBeOwner true when API returns 404", async () => {
-      const error = new ErrorResponse({}, 404);
+    it("should return mustBeOwner true when API returns 403", async () => {
+      const error = new ErrorResponse({}, 403);
       integrationApiService.createOrganizationIntegration.mockRejectedValue(error);
 
       const result = await service.save(orgId, OrganizationIntegrationType.Hec, config, template);
@@ -261,8 +261,8 @@ describe("OrganizationIntegrationService", () => {
       ).rejects.toThrow("Server error");
     });
 
-    it("should handle configuration creation failure with 404", async () => {
-      const error = new ErrorResponse({}, 404);
+    it("should handle configuration creation failure with 403", async () => {
+      const error = new ErrorResponse({}, 403);
       integrationApiService.createOrganizationIntegration.mockResolvedValue(
         mockIntegrationResponse,
       );
@@ -398,8 +398,8 @@ describe("OrganizationIntegrationService", () => {
       ).rejects.toThrow("Organization ID mismatch");
     });
 
-    it("should return mustBeOwner true when API returns 404", async () => {
-      const error = new ErrorResponse({}, 404);
+    it("should return mustBeOwner true when API returns 403", async () => {
+      const error = new ErrorResponse({}, 403);
       integrationApiService.updateOrganizationIntegration.mockRejectedValue(error);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -554,8 +554,8 @@ describe("OrganizationIntegrationService", () => {
       );
     });
 
-    it("should return mustBeOwner true when API returns 404", async () => {
-      const error = new ErrorResponse({}, 404);
+    it("should return mustBeOwner true when API returns 403", async () => {
+      const error = new ErrorResponse({}, 403);
       integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration.mockRejectedValue(
         error,
       );
@@ -564,7 +564,11 @@ describe("OrganizationIntegrationService", () => {
 
       const result = await service.delete(orgId, integrationId, configurationId);
 
-      expect(result).toEqual({ mustBeOwner: true, success: false });
+      expect(result).toEqual({
+        mustBeOwner: true,
+        success: false,
+        organizationIntegrationResult: undefined,
+      });
     });
 
     it("should rethrow non-404 errors", async () => {
@@ -580,8 +584,8 @@ describe("OrganizationIntegrationService", () => {
       );
     });
 
-    it("should handle 404 error when deleting integration", async () => {
-      const error = new ErrorResponse({}, 404);
+    it("should handle 403 error when deleting integration", async () => {
+      const error = new ErrorResponse({}, 403);
       integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration.mockResolvedValue(
         undefined,
       );
@@ -591,7 +595,11 @@ describe("OrganizationIntegrationService", () => {
 
       const result = await service.delete(orgId, integrationId, configurationId);
 
-      expect(result).toEqual({ mustBeOwner: true, success: false });
+      expect(result).toEqual({
+        mustBeOwner: true,
+        success: false,
+        organizationIntegrationResult: undefined,
+      });
     });
   });
 
