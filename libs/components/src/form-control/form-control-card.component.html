@@ -32,8 +32,9 @@
         class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium"
       >
         <ng-content select="bit-label"></ng-content>
+        {{ required }}
         @if (required) {
-          <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+          <sup aria-hidden class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
           <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
         }
       </span>

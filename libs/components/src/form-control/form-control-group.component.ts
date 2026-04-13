@@ -19,6 +19,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconComponent } from "../icon";
 
+import { BitHintDirective } from "./hint.directive";
 import { BitLabelComponent } from "./label.component";
 
 let nextId = 0;
@@ -42,6 +43,7 @@ export class FormControlGroupComponent<T = unknown>
   private readonly destroyRef = inject(DestroyRef);
 
   readonly id = `bit-form-control-group-${nextId++}`;
+  readonly errorId = `${this.id}-error`;
 
   readonly block = input(false);
 
@@ -52,6 +54,7 @@ export class FormControlGroupComponent<T = unknown>
   }
 
   protected readonly label = contentChild(BitLabelComponent);
+  readonly hint = contentChild(BitHintDirective, { descendants: false });
 
   // ── Template helpers ─────────────────────────────────────────────────────
   // Card groups (multi) are always column layout. Inline radio groups (single + !block) flow naturally.
