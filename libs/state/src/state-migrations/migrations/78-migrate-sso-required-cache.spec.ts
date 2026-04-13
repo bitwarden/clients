@@ -1,7 +1,7 @@
 import { runMigrator } from "../migration-helper.spec";
 import { IRREVERSIBLE } from "../migrator";
 
-import { MigrateSsoRequiredCache } from "./77-migrate-sso-required-cache";
+import { MigrateSsoRequiredCache } from "./78-migrate-sso-required-cache";
 
 describe("MigrateSsoRequiredCache", () => {
   const sut = new MigrateSsoRequiredCache(77, 78);

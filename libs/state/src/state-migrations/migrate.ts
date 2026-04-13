@@ -74,7 +74,7 @@ import { RemoveLegacyPin } from "./migrations/74-remove-legacy-pin";
 import { RemoveUserEncryptedPrivateKey } from "./migrations/75-remove-user-encrypted-private-key";
 import { MigratePopupWidthOptions } from "./migrations/76-migrate-popup-width-options";
 import { ClearClipboardDelayToStringMigrator } from "./migrations/77-clear-clipboard-delay-to-string";
-import { MigrateSsoRequiredCache } from "./migrations/77-migrate-sso-required-cache";
+import { MigrateSsoRequiredCache } from "./migrations/78-migrate-sso-required-cache";
 import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
