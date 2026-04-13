@@ -612,12 +612,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: FileUploadServiceAbstraction,
     useClass: FileUploadService,
-    deps: [LogService, ApiServiceAbstraction],
+    deps: [LogService, ApiServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: CipherFileUploadServiceAbstraction,
     useClass: CipherFileUploadService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction],
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: DomainSettingsService,
@@ -957,10 +957,12 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      CryptoFunctionServiceAbstraction,
       StateProvider,
       LogService,
       BiometricsService,
+      PlatformUtilsServiceAbstraction,
+      StateServiceAbstraction,
+      BiometricStateService,
     ],
   }),
   safeProvider({
@@ -1112,7 +1114,6 @@ const safeProviders: SafeProvider[] = [
     provide: AutomaticUserConfirmationService,
     useClass: DefaultAutomaticUserConfirmationService,
     deps: [
-      ConfigService,
       ApiServiceAbstraction,
       OrganizationUserService,
       StateProvider,
