@@ -36,7 +36,7 @@ export class KeeperTwoFactorMethodSelectComponent {
       case TwoFactorMethod.Totp:
         return "keeperTwoFactorTotp";
       case TwoFactorMethod.Sms:
-        return "keeperTwoFactorSms";
+        return "textMessageSms";
       case TwoFactorMethod.Duo:
         return "keeperTwoFactorDuo";
       case TwoFactorMethod.Rsa:

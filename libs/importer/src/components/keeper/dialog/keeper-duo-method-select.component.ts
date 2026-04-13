@@ -38,7 +38,7 @@ export class KeeperDuoMethodSelectComponent {
       case DuoMethod.Push:
         return "keeperDuoPush";
       case DuoMethod.Sms:
-        return "keeperDuoSms";
+        return "textMessageSms";
       case DuoMethod.Voice:
         return "keeperDuoVoice";
       case DuoMethod.Passcode:

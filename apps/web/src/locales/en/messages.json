@@ -13311,7 +13311,7 @@
   "keeperTwoFactorTotp": {
     "message": "Authenticator app (TOTP)"
   },
-  "keeperTwoFactorSms": {
+  "textMessageSms": {
     "message": "Text message (SMS)"
   },
   "keeperTwoFactorDuo": {
@@ -13346,9 +13346,6 @@
   },
   "keeperDuoPush": {
     "message": "Duo Push"
-  },
-  "keeperDuoSms": {
-    "message": "Text message (SMS)"
   },
   "keeperDuoVoice": {
     "message": "Phone call"
