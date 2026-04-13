@@ -53,7 +53,7 @@ describe("AtRiskNotification", () => {
         },
       });
 
-      expect(chrome.i18n.getMessage).toHaveBeenCalledWith("atRiskChangePromptV2", "Acme Co.");
+      expect(chrome.i18n.getMessage).toHaveBeenCalledWith("atRiskChangePrompt", "Acme Co.");
     });
 
     it("uses atRiskNavigatePrompt when passwordChangeUri is absent from params", () => {

@@ -33,7 +33,7 @@ export function AtRiskNotification({
 }: AtRiskNotificationProps) {
   const { passwordChangeUri, organizationName } = params;
   const riskMessage = chrome.i18n.getMessage(
-    passwordChangeUri ? "atRiskChangePromptV2" : "atRiskNavigatePromptV2",
+    passwordChangeUri ? "atRiskChangePrompt" : "atRiskNavigatePromptV2",
     organizationName,
   );
 
