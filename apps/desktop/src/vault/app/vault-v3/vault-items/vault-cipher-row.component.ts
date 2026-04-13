@@ -230,6 +230,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
         return [
           { field: "accountNumber", title: "copyAccountNumber" },
           { field: "routingNumber", title: "copyRoutingNumber" },
+          { field: "pin", title: "copyPin" },
+          { field: "iban", title: "copyIban" },
         ];
       default:
         return [];
