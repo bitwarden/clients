@@ -7,9 +7,11 @@ import { ContextMenuClickedHandler } from "../browser/context-menu-clicked-handl
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 export default class ContextMenusBackground {
   private contextMenus: typeof chrome.contextMenus;
-  private logService: LogService;
 
-  constructor(private contextMenuClickedHandler: ContextMenuClickedHandler) {
+  constructor(
+    private contextMenuClickedHandler: ContextMenuClickedHandler,
+    private logService: LogService,
+  ) {
     this.contextMenus = chrome.contextMenus;
   }
 

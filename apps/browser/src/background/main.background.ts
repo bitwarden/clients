@@ -1474,7 +1474,10 @@ export default class MainBackground {
       this.autofillTriageService,
     );
 
-    this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
+    this.contextMenusBackground = new ContextMenusBackground(
+      contextMenuClickedHandler,
+      this.logService,
+    );
 
     this.idleBackground = new IdleBackground(
       this.vaultTimeoutService,
