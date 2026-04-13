@@ -15,7 +15,7 @@ import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
-import { BiometricV2EncryptionMigration } from "./migrations/biometric-v2-encryption-migration";
+import { BiometricPersistentMigration } from "./migrations/biometric-v2-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
 
@@ -47,7 +47,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     });
     this.migrations.push({
       name: "Biometric V2 Encryption Migration",
-      migration: new BiometricV2EncryptionMigration(
+      migration: new BiometricPersistentMigration(
         keyService,
         biometricsService,
         biometricStateService,

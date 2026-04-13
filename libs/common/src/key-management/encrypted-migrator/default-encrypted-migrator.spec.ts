@@ -16,7 +16,7 @@ import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { DefaultEncryptedMigrator } from "./default-encrypted-migrator";
-import { BiometricV2EncryptionMigration } from "./migrations/biometric-v2-encryption-migration";
+import { BiometricPersistentMigration } from "./migrations/biometric-v2-encryption-migration";
 import { EncryptedMigration } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
 
@@ -36,7 +36,7 @@ describe("EncryptedMigrator", () => {
 
   let sut: DefaultEncryptedMigrator;
   const mockMigration = mock<MinimumKdfMigration>();
-  const mockBiometricMigration = mock<BiometricV2EncryptionMigration>();
+  const mockBiometricMigration = mock<BiometricPersistentMigration>();
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const mockMasterPassword = "masterPassword123";
@@ -49,7 +49,7 @@ describe("EncryptedMigrator", () => {
       () => mockMigration,
     );
     (
-      BiometricV2EncryptionMigration as jest.MockedClass<typeof BiometricV2EncryptionMigration>
+      BiometricPersistentMigration as jest.MockedClass<typeof BiometricPersistentMigration>
     ).mockImplementation(() => mockBiometricMigration);
 
     // Default biometric migration to no-op so it doesn't interfere with KDF migration tests

@@ -6,14 +6,12 @@ import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden
 import { LogService } from "@bitwarden/logging";
 import { CryptoClient } from "@bitwarden/sdk-internal";
 
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 
-import { BiometricV2EncryptionMigration } from "./biometric-v2-encryption-migration";
+import { BiometricPersistentMigration } from "./biometric-persistent-encryption-migration";
 
 // Mock the SDK CryptoClient
 jest.mock("@bitwarden/sdk-internal", () => ({
@@ -22,14 +20,13 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   },
 }));
 
-describe("BiometricV2EncryptionMigration", () => {
+describe("BiometricPersistentMigration", () => {
   const mockKeyService = mock<KeyService>();
   const mockBiometricsService = mock<BiometricsService>();
   const mockBiometricStateService = mock<BiometricStateService>();
-  const mockConfigService = mock<ConfigService>();
   const mockLogService = mock<LogService>();
 
-  let sut: BiometricV2EncryptionMigration;
+  let sut: BiometricPersistentMigration;
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -39,29 +36,22 @@ describe("BiometricV2EncryptionMigration", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    sut = new BiometricV2EncryptionMigration(
+    sut = new BiometricPersistentMigration(
       mockKeyService,
       mockBiometricsService,
       mockBiometricStateService,
-      mockConfigService,
       mockLogService,
     );
   });
 
   describe("needsMigration", () => {
     it("should return 'noMigrationNeeded' when feature flag is disabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("noMigrationNeeded");
-      expect(mockConfigService.getFeatureFlag).toHaveBeenCalledWith(
-        FeatureFlag.BiometricV2Migration,
-      );
     });
 
     it("should return 'noMigrationNeeded' when biometric unlock is not enabled", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(false);
 
       const result = await sut.needsMigration(mockUserId);
@@ -70,7 +60,6 @@ describe("BiometricV2EncryptionMigration", () => {
     });
 
     it("should return 'noMigrationNeeded' when user key is null (locked)", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(null));
 
@@ -80,7 +69,6 @@ describe("BiometricV2EncryptionMigration", () => {
     });
 
     it("should return 'noMigrationNeeded' when key has no key ID", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(undefined);
@@ -91,7 +79,6 @@ describe("BiometricV2EncryptionMigration", () => {
     });
 
     it("should return 'noMigrationNeeded' when enrolled key ID matches current key ID", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
@@ -103,7 +90,6 @@ describe("BiometricV2EncryptionMigration", () => {
     });
 
     it("should return 'needsMigration' when enrolled key ID does not match current key ID", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
@@ -115,7 +101,6 @@ describe("BiometricV2EncryptionMigration", () => {
     });
 
     it("should return 'needsMigration' when no enrolled key ID exists", async () => {
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
       mockBiometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
