@@ -36,6 +36,11 @@ export class DefaultLoginStrategySessionTimeoutService implements LoginStrategyS
       async () => {
         try {
           this.messageSender.send(LOGIN_SESSION_EXPIRED, {});
+        } catch (e) {
+          this.logService.error("Failed to send login session expired message", e);
+        }
+
+        try {
           await this.loginStrategyCacheService.clearCache();
         } catch (e) {
           this.logService.error("Failed to clear cache during session timeout", e);

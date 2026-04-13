@@ -55,17 +55,34 @@ describe("DefaultLoginStrategySessionTimeoutService", () => {
       expect(loginStrategyCacheService.clearCache).toHaveBeenCalled();
     });
 
-    it("should log error if handler throws", async () => {
+    it("should log error if clearCache throws", async () => {
       const error = new Error("test error");
       loginStrategyCacheService.clearCache.mockRejectedValue(error);
 
-      const handler = taskSchedulerService.registerTaskHandler.mock.calls[0][1];
+      const handler = taskSchedulerService.registerTaskHandler.mock
+        .calls[0][1] as () => Promise<void>;
       await handler();
 
       expect(logService.error).toHaveBeenCalledWith(
         "Failed to clear cache during session timeout",
         error,
       );
+    });
+
+    it("should log error and still clear cache if messageSender.send() throws", async () => {
+      const error = new Error("send error");
+      messageSender.send.mockImplementation(() => {
+        throw error;
+      });
+
+      const handler = taskSchedulerService.registerTaskHandler.mock.calls[0][1];
+      await handler();
+
+      expect(logService.error).toHaveBeenCalledWith(
+        "Failed to send login session expired message",
+        error,
+      );
+      expect(loginStrategyCacheService.clearCache).toHaveBeenCalled();
     });
   });
 
