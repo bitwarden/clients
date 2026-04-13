@@ -154,29 +154,32 @@ jobs:
             exit 1
           fi
 
-      - name: Switch to branch
-        id: switch-branch
+      - name: Check for existing branch
+        id: check-branch
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           BRANCH_NAME="sdlc/sdk-update"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-          if git switch "$BRANCH_NAME" 2>/dev/null; then
-            echo "✅ Switched to existing branch: $BRANCH_NAME"
-            echo "updating_existing_branch=true" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --heads origin "$BRANCH_NAME" > /dev/null 2>&1; then
+            echo "branch_exists=true" >> "$GITHUB_OUTPUT"
+            echo "📋 Branch $BRANCH_NAME exists on remote"
           else
-            echo "📝 Creating new branch: $BRANCH_NAME"
-            git switch -c "$BRANCH_NAME"
-            echo "updating_existing_branch=false" >> "$GITHUB_OUTPUT"
+            echo "branch_exists=false" >> "$GITHUB_OUTPUT"
+            echo "📋 Branch $BRANCH_NAME does not exist"
           fi
 
       - name: Prevent updating branch with manual changes
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        if: ${{ steps.check-branch.outputs.branch_exists == 'true' }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
-          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "$_BRANCH_NAME")
+          git fetch origin "$_BRANCH_NAME"
+          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "origin/$_BRANCH_NAME")
 
           echo "Latest commit author in branch ($_BRANCH_NAME): $LATEST_COMMIT_AUTHOR"
           echo "Expected bot email: $_BOT_EMAIL"
@@ -201,10 +204,10 @@ jobs:
           echo "✅ Branch tip commit was made by the bot. Safe to proceed."
 
       - name: Check for stop-updates label
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        if: ${{ steps.check-branch.outputs.branch_exists == 'true' }}
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number,labels --jq '.[0] // empty')
@@ -228,18 +231,17 @@ jobs:
           git config user.name "$_BOT_NAME"
           git config user.email "$_BOT_EMAIL"
 
-      - name: Rebase the existing branch onto base branch to clean up diff
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+      - name: Create fresh branch from base
         env:
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
-          echo "🔄 Rebasing onto origin/$BASE_BRANCH..."
-          if ! git rebase "origin/$BASE_BRANCH"; then
-            git rebase --abort
-            echo "::error::Rebase onto $BASE_BRANCH failed due to conflicts. Resolve conflicts manually and re-run."
-            exit 1
-          fi
-          echo "✅ Rebase complete."
+          # Delete local branch if it exists (from fetch)
+          git branch -D "$_BRANCH_NAME" 2>/dev/null || true
+
+          # Create fresh branch from base
+          echo "📝 Creating fresh branch $_BRANCH_NAME from $BASE_BRANCH"
+          git switch -c "$_BRANCH_NAME"
 
       - name: Update SDK versions
         env:
@@ -296,7 +298,7 @@ jobs:
       - name: Commit changes
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
         run: |
           echo "👀 Committing SDK version update..."
 
@@ -313,7 +315,7 @@ jobs:
       - name: Create or Update Pull Request
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           SDK_VERSION: ${{ inputs.sdk-version }}
           OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           OLD_COMMERCIAL_VERSION: ${{ steps.get-current-sdk.outputs.current-commercial-version }}

@@ -317,6 +317,7 @@ import {
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import AutofillService from "../autofill/services/autofill.service";
+import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
@@ -503,6 +504,7 @@ export default class MainBackground {
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
   autofillBadgeUpdaterService: AutofillBadgeUpdaterService;
+  clipboardNotificationBadgeUpdaterService: ClipboardNotificationBadgeUpdaterService;
   atRiskCipherUpdaterService: AtRiskCipherBadgeUpdaterService;
 
   onUpdatedRan: boolean;
@@ -803,10 +805,15 @@ export default class MainBackground {
     );
 
     this.hibpApiService = new HibpApiService(this.apiService);
-    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
+    this.fileUploadService = new FileUploadService(
+      this.logService,
+      this.apiService,
+      this.configService,
+    );
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
+      this.configService,
     );
     this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
 
@@ -844,7 +851,6 @@ export default class MainBackground {
     );
 
     this.autoConfirmService = new DefaultAutomaticUserConfirmationService(
-      this.configService,
       this.apiService,
       this.organizationUserService,
       this.stateProvider,
@@ -2060,6 +2066,12 @@ export default class MainBackground {
       this.logService,
     );
 
+    this.clipboardNotificationBadgeUpdaterService = new ClipboardNotificationBadgeUpdaterService(
+      this.badgeService,
+      this.accountService,
+      this.autofillSettingsService,
+    );
+
     this.atRiskCipherUpdaterService = new AtRiskCipherBadgeUpdaterService(
       this.badgeService,
       this.accountService,
@@ -2076,6 +2088,7 @@ export default class MainBackground {
     await this.overlayBackground.init();
     await this.tabsBackground.init();
     await this.autofillBadgeUpdaterService.init();
+    await this.clipboardNotificationBadgeUpdaterService.init();
     await this.atRiskCipherUpdaterService.init();
   }
 
