@@ -244,8 +244,7 @@ export class CipherViewComponent {
     if (!cipher) {
       return false;
     }
-    const { bankName, accountNumber, routingNumber, iban, swiftCode } = cipher.bankAccount;
-    return bankName || accountNumber || routingNumber || iban || swiftCode;
+    return Array.from(Object.values(cipher.bankAccount)).some((value) => Boolean(value));
   });
 
   readonly hasLoginUri = computed(() => {
