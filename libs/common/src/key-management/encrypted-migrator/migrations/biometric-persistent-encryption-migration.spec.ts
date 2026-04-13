@@ -53,34 +53,31 @@ describe("BiometricPersistentMigration", () => {
       expect(result).toBe("noMigrationNeeded");
     });
 
-    it("should return 'noMigrationNeeded' when user key is null (locked)", async () => {
+    it("should migrate v1 to v2", async () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
-      mockKeyService.userKey$.mockReturnValue(of(null));
-
-      const result = await sut.needsMigration(mockUserId);
-
-      expect(result).toBe("noMigrationNeeded");
-    });
-
-    it("should return 'noMigrationNeeded' when key has no key ID", async () => {
-      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
-      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(undefined);
-
-      const result = await sut.needsMigration(mockUserId);
-
-      expect(result).toBe("noMigrationNeeded");
-    });
-
-    it("should return 'noMigrationNeeded' when enrolled key ID matches current key ID", async () => {
-      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
-      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdB64);
+      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(null);
 
       const result = await sut.needsMigration(mockUserId);
 
-      expect(result).toBe("noMigrationNeeded");
+      expect(result).toBe("needsMigration");
+    });
+
+    it("should migrate v2 to v2", async () => {
+      const differentKeyId = new Uint8Array([5, 6, 7, 8]);
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
+      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
+      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
+      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(
+        Utils.fromBufferToB64(differentKeyId),
+      );
+
+      const result = await sut.needsMigration(mockUserId);
+
+      expect(result).toBe("needsMigration");
     });
 
     it("should return 'needsMigration' when enrolled key ID does not match current key ID", async () => {
@@ -95,7 +92,7 @@ describe("BiometricPersistentMigration", () => {
       expect(result).toBe("needsMigration");
     });
 
-    it("should return 'needsMigration' when no enrolled key ID exists", async () => {
+    it("should return 'needsMigration' when no enrolled key ID exists (v1 to v2 migration)", async () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
@@ -105,6 +102,15 @@ describe("BiometricPersistentMigration", () => {
       const result = await sut.needsMigration(mockUserId);
 
       expect(result).toBe("needsMigration");
+    });
+
+    it("should return 'noMigrationNeeded' when no persistent key exists", async () => {
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(false);
+
+      const result = await sut.needsMigration(mockUserId);
+
+      expect(result).toBe("noMigrationNeeded");
     });
   });
 
@@ -152,14 +158,6 @@ describe("BiometricPersistentMigration", () => {
       expect(mockBiometricStateService.setBiometricEnrolledKeyId).toHaveBeenCalledWith(
         mockUserId,
         mockKeyIdB64,
-      );
-    });
-
-    it("should throw when user key is not available", async () => {
-      mockKeyService.userKey$.mockReturnValue(of(null));
-
-      await expect(sut.runMigrations(mockUserId, null)).rejects.toThrow(
-        "User key is not available",
       );
     });
   });

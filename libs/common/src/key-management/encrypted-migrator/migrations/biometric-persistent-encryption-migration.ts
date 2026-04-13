@@ -38,16 +38,18 @@ export class BiometricPersistentMigration implements EncryptedMigration {
     }
 
     const currentKeyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
-    if (currentKeyId == null) {
-      return "noMigrationNeeded";
-    }
 
     const enrolledKeyId = await this.biometricStateService.getBiometricEnrolledKeyId(userId);
-    if (enrolledKeyId === Utils.fromBufferToB64(currentKeyId)) {
-      return "noMigrationNeeded";
+    const isV1ToV2Migration = enrolledKeyId == null && currentKeyId != null;
+    const isV2ToV2Migration =
+      enrolledKeyId != null &&
+      currentKeyId != null &&
+      enrolledKeyId !== Utils.fromBufferToB64(currentKeyId);
+    if (isV1ToV2Migration || isV2ToV2Migration) {
+      return "needsMigration";
     }
 
-    return "needsMigration";
+    return "noMigrationNeeded";
   }
 
   async runMigrations(userId: UserId, _masterPassword: string | null): Promise<void> {
