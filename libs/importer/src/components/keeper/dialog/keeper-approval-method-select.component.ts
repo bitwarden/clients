@@ -34,11 +34,11 @@ export class KeeperApprovalMethodSelectComponent {
   protected getMethodI18nKey(method: DeviceApprovalChannel): string {
     switch (method) {
       case DeviceApprovalChannel.Email:
-        return "keeperApprovalMethodEmail";
+        return "email";
       case DeviceApprovalChannel.KeeperPush:
         return "keeperApprovalMethodPush";
       default:
-        return "keeperApprovalMethodEmail";
+        return "email";
     }
   }
 

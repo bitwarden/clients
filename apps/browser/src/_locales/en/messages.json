@@ -4614,9 +4614,6 @@
   "keeperSelectApprovalMethodDesc": {
     "message": "Choose how you want to approve this device."
   },
-  "keeperApprovalMethodEmail": {
-    "message": "Email"
-  },
   "keeperApprovalMethodPush": {
     "message": "Keeper Push"
   },
