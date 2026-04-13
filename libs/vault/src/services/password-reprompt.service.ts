@@ -23,7 +23,7 @@ export class PasswordRepromptService {
   enabled$ = Utils.asyncToObservable(() => this.userVerificationService.hasMasterPassword());
 
   protectedFields() {
-    return ["TOTP", "Password", "H_Field", "Card Number", "Security Code"];
+    return ["TOTP", "Password", "H_Field", "Card Number", "Security Code", "PIN", "Account Number"];
   }
 
   async passwordRepromptCheck(cipher: CipherViewLike) {
