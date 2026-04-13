@@ -129,11 +129,10 @@ describe("FormControlCardComponent - aria-describedby reactivity", () => {
   });
 
   describe("when there is no hint and no error", () => {
-    // TODO: Fix this the next time the file is edited.
-    // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
     @Component({
       selector: "test-no-hint-host",
       imports: [ReactiveFormsModule, FormControlModule, CheckboxComponent],
+      changeDetection: ChangeDetectionStrategy.OnPush,
       template: `
         <form [formGroup]="formObj">
           <bit-form-control-card>
