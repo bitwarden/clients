@@ -1,6 +1,4 @@
 /// <reference types="chrome"/>
-import { LogService } from "@bitwarden/logging";
-
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ContextMenuClickedHandler } from "../browser/context-menu-clicked-handler";
 
@@ -8,10 +6,7 @@ import { LockedVaultPendingNotificationsData } from "./abstractions/notification
 export default class ContextMenusBackground {
   private contextMenus: typeof chrome.contextMenus;
 
-  constructor(
-    private contextMenuClickedHandler: ContextMenuClickedHandler,
-    private logService: LogService,
-  ) {
+  constructor(private contextMenuClickedHandler: ContextMenuClickedHandler) {
     this.contextMenus = chrome.contextMenus;
   }
 
@@ -63,6 +58,6 @@ export default class ContextMenusBackground {
       return true;
     }
 
-    this.logService.warning("Unrecognized message command.");
+    return;
   };
 }
