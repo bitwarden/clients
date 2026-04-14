@@ -81,7 +81,7 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           token: ${{ steps.app-token.outputs.token }}
           ref: ${{ inputs.base-branch }}
@@ -265,14 +265,13 @@ jobs:
 
           if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
             echo "Fetching changelog for sdk-internal: $OLD_REF...$NEW_REF"
-            CHANGELOG=$(gh api "repos/bitwarden/sdk-internal/compare/$OLD_REF...$NEW_REF" \
-              --jq '.commits | map("- " + .commit.message | split("\n")[0]) | join("\n")' 2>/dev/null || echo "")
+            CHANGELOG=$(./scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$OLD_REF" "$NEW_REF" 2>/dev/null || echo "")
 
             if [ -n "$CHANGELOG" ]; then
               echo "changelog<<__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
               echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
               echo "__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
-              echo "✅ Generated changelog with $(echo "$CHANGELOG" | wc -l) commits"
+              echo "✅ Generated changelog"
             else
               echo "::warning::Could not generate changelog"
             fi
@@ -395,7 +394,7 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.base-branch }}
           persist-credentials: false

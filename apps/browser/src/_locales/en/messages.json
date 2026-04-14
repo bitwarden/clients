@@ -1310,6 +1310,9 @@
   "additionalOptions": {
     "message": "Additional options"
   },
+  "enableFillAssist": {
+    "message": "Use fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Show context menu options"
   },
@@ -2110,6 +2113,27 @@
   },
   "typeNote": {
     "message": "Note"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
   },
   "newItemHeaderLogin": {
     "message": "New Login",
