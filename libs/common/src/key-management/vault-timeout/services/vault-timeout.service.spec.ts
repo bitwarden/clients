@@ -54,7 +54,7 @@ describe("VaultTimeoutService", () => {
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
       vaultTimeoutActionSubject,
     );
-    vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockReturnValue(of(null));
+    vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
 
     availableVaultTimeoutActionsSubject = new BehaviorSubject<VaultTimeoutAction[]>([]);
 
@@ -154,7 +154,7 @@ describe("VaultTimeoutService", () => {
       );
     });
 
-    vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockImplementation(() => of(null));
+    vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
   };
 
   const expectUserToHaveLocked = (userId: string) => {
@@ -356,8 +356,8 @@ describe("VaultTimeoutService", () => {
         { isViewFocused: false },
       );
 
-      vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockImplementation((userId) =>
-        of(userId === "1" ? Date.now() + 60 * 1000 : null),
+      vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockImplementation((userId) =>
+        Promise.resolve(userId === "1"),
       );
 
       await vaultTimeoutService.checkVaultTimeout();
@@ -379,9 +379,7 @@ describe("VaultTimeoutService", () => {
         { isViewFocused: false },
       );
 
-      vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$.mockReturnValue(
-        of(Date.now() - 1000),
-      );
+      vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
 
       await vaultTimeoutService.checkVaultTimeout();
 

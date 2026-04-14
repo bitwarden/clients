@@ -369,6 +369,11 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return this.stateProvider.getUserState$(VAULT_TIMEOUT_SUPPRESSED_UNTIL, userId);
   }
 
+  async isVaultTimeoutSuppressed(userId: UserId): Promise<boolean> {
+    const suppressedUntil = await firstValueFrom(this.vaultTimeoutSuppressedUntil$(userId));
+    return suppressedUntil != null && Date.now() < suppressedUntil;
+  }
+
   async suppressVaultTimeout(until: number, userId: UserId): Promise<void> {
     if (!userId) {
       throw new Error("User id required. Cannot suppress vault timeout.");

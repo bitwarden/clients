@@ -814,10 +814,7 @@ export class AppComponent implements OnInit, OnDestroy {
         continue;
       }
       // Skip if vault timeout is suppressed by shared unlock
-      const suppressedUntil = await firstValueFrom(
-        this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(userId as UserId),
-      );
-      if (suppressedUntil != null && Date.now() < suppressedUntil) {
+      if (await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)) {
         continue;
       }
 
