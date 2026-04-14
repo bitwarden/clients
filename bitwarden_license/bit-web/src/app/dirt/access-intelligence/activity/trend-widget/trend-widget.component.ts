@@ -185,8 +185,29 @@ export class TrendWidgetComponent {
 
   protected readonly lineChartConfiguration = computed<ChartConfig>(() => {
     const timespan = this.selectedTimespan();
-    const xMax = this.getXMaxForTimespan(timespan);
-    const xMin = this.getXMinForTimespan(timespan);
+    let xMax = this.getXMaxForTimespan(timespan);
+    let xMin = this.getXMinForTimespan(timespan);
+
+    // ensure x-axis shows labels when all data points fall on the same date
+    const dataPoints = this.data().dataPoints;
+    if (
+      timespan === TimePeriod.AllTime &&
+      dataPoints.length > 0 &&
+      dataPoints.every((p) => {
+        const d = new Date(p.timestamp);
+        const first = new Date(dataPoints[0].timestamp);
+        return (
+          d.getFullYear() === first.getFullYear() &&
+          d.getMonth() === first.getMonth() &&
+          d.getDate() === first.getDate()
+        );
+      })
+    ) {
+      const date = new Date(dataPoints[0].timestamp);
+      xMin = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
+      xMax = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    }
+
     return { xAxisType: "datetime", xMin, xMax };
   });
 
