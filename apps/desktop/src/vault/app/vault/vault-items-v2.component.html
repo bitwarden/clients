@@ -82,14 +82,11 @@
     <button
       type="button"
       class="block primary"
-      bitButton
-      appA11yTitle="{{ 'addItem' | i18n }}"
+      bitIconButton="bwi-plus"
+      [label]="'addItem' | i18n"
       [disabled]="deleted"
       (click)="onAddItemDialog.emit()"
-    >
-      <!-- eslint-disable-next-line @bitwarden/components/no-icon-children-in-bit-button -->
-      <bit-icon name="bwi-plus" size="lg" aria-hidden="true"></bit-icon>
-    </button>
+    ></button>
   } @else {
     <button
       type="button"
