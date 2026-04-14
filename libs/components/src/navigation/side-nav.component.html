@@ -4,11 +4,11 @@
 <div class="tw-relative tw-h-full">
   <nav
     id="bit-side-nav"
-    class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-sidenav tw-text-fg-sidenav-text tw-outline-none"
+    class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
     [style.width.rem]="open ? (sideNavService.width$ | async) : undefined"
     [style]="
       variant() === 'secondary'
-        ? '--color-sidenav-text: var(--color-admin-sidenav-text); --color-sidenav-background: var(--color-admin-sidenav-background); --color-sidenav-active-item: var(--color-admin-sidenav-active-item); --color-sidenav-item-hover: var(--color-admin-sidenav-item-hover);'
+        ? '--color-nav-fg-primary: var(--color-nav-fg-secondary); --color-nav-bg-primary: var(--color-nav-bg-secondary); --color-nav-bg-primary-strong: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-secondary-hover); --color-nav-bg-primary-hover-strong: var(--color-nav-bg-secondary-hover-strong); --color-nav-border-primary-focus: var(--color-nav-border-secondary-focus); --color-nav-border-primary: var(--color-nav-border-secondary);'
         : ''
     "
     [cdkTrapFocus]="isOverlay"
@@ -26,25 +26,25 @@
         </div>
         @if (open) {
           <div
-            class="tw-w-full tw-bg-bg-sidenav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
+            class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
           >
             <ng-content select="[slot=product-switcher]"></ng-content>
           </div>
         }
       </div>
     </div>
-    <div class="tw-w-full tw-bg-bg-sidenav">
+    <div class="tw-w-full tw-bg-bg-nav">
       <bit-nav-divider></bit-nav-divider>
       @if (open) {
         <ng-content select="[slot=footer]"></ng-content>
       }
-      <div class="tw-mx-0.5 tw-my-4 tw-w-[3.75rem]">
+      <div class="tw-m-4">
         <button
           #toggleButton
           type="button"
-          class="tw-mx-auto tw-block tw-max-w-fit"
+          class="tw-mx-auto tw-block"
           [bitIconButton]="open ? 'bwi-angle-left' : 'bwi-angle-right'"
-          buttonType="nav-contrast"
+          buttonType="side-nav"
           size="small"
           (click)="sideNavService.toggle()"
           [label]="'toggleSideNavigation' | i18n"

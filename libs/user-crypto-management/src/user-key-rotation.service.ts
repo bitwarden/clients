@@ -33,17 +33,17 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     newMasterPassword: string,
     hint: string | undefined,
     userId: UserId,
-  ): Promise<void> {
+  ): Promise<boolean> {
     // First, the provided organizations and emergency access users need to be verified;
     // this is currently done by providing the user a manual confirmation dialog.
     const { wasTrustDenied, trustedOrganizationPublicKeys, trustedEmergencyAccessUserPublicKeys } =
       await this.verifyTrust(userId);
     if (wasTrustDenied) {
       this.logService.info("[Userkey rotation] Trust was denied by user. Aborting!");
-      return;
+      return false;
     }
 
-    return firstValueFrom(
+    return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
@@ -63,6 +63,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
             trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
             trusted_organization_public_keys: trustedOrganizationPublicKeys,
           } as RotateUserKeysRequest);
+          return true;
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to rotate user keys: ${error}`);
@@ -140,7 +141,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     for (const details of emergencyAccessV1Memberships) {
       const dialogRef = EmergencyAccessTrustComponent.open(this.dialogService, {
         name: details.name,
-        userId: details.id as string,
+        userId: details.grantee_id as string,
         publicKey: Utils.fromB64ToArray(details.public_key),
       });
       if (!(await firstValueFrom(dialogRef.closed))) {

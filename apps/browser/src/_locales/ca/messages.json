@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opcions de desbloqueig"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configura un mètode de desbloqueig per canviar l'acció del temps d'espera de la caixa forta."
-  },
   "unlockMethodNeeded": {
     "message": "Configura un mètode de desbloqueig a Configuració"
   },
   "sessionTimeoutHeader": {
     "message": "Temps de sessió"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Temps d'espera de la caixa forta"
   },
   "otherOptions": {
     "message": "Altres opcions"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "La contrasenya mestra que heu triat és poc segura. Heu d'utilitzar una contrasenya mestra segura (o una frase de pas) per protegir correctament el vostre compte de Bitwarden. Esteu segur que voleu utilitzar aquesta contrasenya mestra?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Acció quan acabe el temps d'espera de la caixa forta"
   },
-  "vaultTimeoutAction1": {
-    "message": "Acció després del temps d'espera"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Bloqueja",
@@ -3229,9 +3247,6 @@
   },
   "minutes": {
     "message": "Minuts"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Les polítiques de l'organització afecten el temps d'espera de la caixa forta. El temps d'espera màxim permès d'aquesta és de $HOURS$ hores i $MINUTES$ minuts",
@@ -4435,6 +4450,9 @@
   },
   "exportSuccess": {
     "message": "S'han exportat les dades de la caixa forta"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "typePasskey": {
     "message": "Clau de pas"
@@ -6130,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6157,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
   },
   "items": {
     "message": "Items"
@@ -6178,9 +6199,6 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
@@ -6196,5 +6214,8 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

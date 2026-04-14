@@ -75,6 +75,13 @@ describe("CollectAutofillContentService", () => {
   describe("getPageDetails", () => {
     beforeEach(() => {
       jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: unknown) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({ result: null });
+          }
+        });
+      jest
         .spyOn(collectAutofillContentService as any, "setupMutationObserver")
         .mockImplementationOnce(() => {
           collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
@@ -3007,13 +3014,12 @@ describe("CollectAutofillContentService", () => {
   describe("destroy", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
-      collectAutofillContentService["updateAfterMutationIdleCallback"] = setTimeout(jest.fn, 100);
+      const callbackId = setTimeout(jest.fn, 100);
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = callbackId;
 
       collectAutofillContentService.destroy();
 
-      expect(clearTimeout).toHaveBeenCalledWith(
-        collectAutofillContentService["updateAfterMutationIdleCallback"],
-      );
+      expect(clearTimeout).toHaveBeenCalledWith(callbackId);
     });
 
     it("clears all pending overlay setup timeouts", () => {
