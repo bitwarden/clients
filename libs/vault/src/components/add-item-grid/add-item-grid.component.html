@@ -1,0 +1,28 @@
+@let allItems = items();
+<ul
+  class="tw-grid tw-grid-cols-1 tw-gap-x-4 tw-gap-y-2 tw-list-none tw-p-0 tw-m-0"
+  [ngClass]="{ 'md:tw-grid-cols-2': allItems.length >= 6 }"
+>
+  @for (item of allItems; track item.labelKey) {
+    <li>
+      <bit-item class="!tw-mb-0">
+        <button
+          type="button"
+          (click)="item.action()"
+          bit-item-content
+          class="tw-w-full tw-flex tw-items-center tw-gap-4"
+        >
+          <bit-icon-tile
+            slot="start"
+            [icon]="item.icon"
+            [variant]="'primary'"
+            [size]="'base'"
+          ></bit-icon-tile>
+          {{ item.labelKey | i18n }}
+          <div slot="secondary">{{ item.subtitleKey | i18n }}</div>
+          <bit-icon slot="end" name="bwi-angle-right" class="tw-text-main bwi-lg" />
+        </button>
+      </bit-item>
+    </li>
+  }
+</ul>

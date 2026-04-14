@@ -1,4 +1,20 @@
-<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
+@if (useNewItemDialog() && (canCreateCipher() || canCreateCollection() || canCreateFolder())) {
+  <button
+    bitButton
+    buttonType="primary"
+    type="button"
+    (click)="handleButtonClick()"
+    id="newItemButton"
+    [appA11yTitle]="getButtonLabel() | i18n"
+    [bitPopoverAnchorFor]="coachmarkPopover()"
+    [popoverOpen]="coachmarkPopoverOpen()"
+    [position]="coachmarkPosition()"
+    [spotlight]="!!coachmarkPopover()"
+    startIcon="bwi-plus"
+  >
+    {{ getButtonLabel() | i18n }}
+  </button>
+} @else if (canCreateCipher() || canCreateCollection() || canCreateFolder()) {
   <div>
     <button
       bitButton
@@ -40,4 +56,4 @@
       </button>
     </bit-menu>
   </div>
-</ng-container>
+}

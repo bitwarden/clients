@@ -43,6 +43,7 @@ import {
   DIALOG_DATA,
   DialogRef,
   AsyncActionsModule,
+  BitIconButtonComponent,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -133,6 +134,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
   imports: [
+    BitIconButtonComponent,
     ButtonModule,
     CipherViewComponent,
     DialogModule,
