@@ -55,6 +55,7 @@ export const SSO_REQUIRED_CACHE = new KeyDefinition<SsoRequiredCacheEntry[]>(
   "ssoRequiredCache",
   {
     deserializer: (cache) => {
+      // TODO: Remove deserializer check - https://bitwarden.atlassian.net/browse/PM-35145
       if (cache == null || cache.length === 0) {
         return cache;
       }
