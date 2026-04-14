@@ -68,7 +68,7 @@
   <td
     bitCell
     [ngClass]="RowHeightClass"
-    class="tw-hidden tw-overflow-hidden tw-pr-7 xl:tw-table-cell"
+    class="tw-hidden tw-overflow-hidden tw-pr-7 xl:tw-table-cell tw-text-sm"
   >
     @if (collectionGroups) {
       <app-group-badge [selectedGroups]="collectionGroups" [allGroups]="groups"></app-group-badge>
@@ -76,7 +76,7 @@
   </td>
 }
 @if (showPermissionsColumn) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 lg:tw-table-cell">
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 lg:tw-table-cell tw-text-sm">
     <p class="tw-mb-0 tw-truncate tw-text-muted" [title]="permissionTooltip">
       {{ permissionText }}
     </p>
