@@ -11,8 +11,11 @@
   "activity": {
     "message": "Дейност"
   },
-  "applicationsAtRisk": {
-    "message": "Приложения в риск"
+  "criticalAppsAtRisk": {
+    "message": "Важни приложения в риск"
+  },
+  "allCriticalApps": {
+    "message": "Всички важни приложения"
   },
   "appLogoLabel": {
     "message": "Лого на Битуорден"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "Двустепенното удостоверяване е нулирано за потребителя $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "Подновяване на връзката за еднократна идентификация за потребител $ID$",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "Копиране на ключа за API на SCIM в буфера",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Преглед на ключа за ППИ на SCIM",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Смяна на ключа за API на SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "Настройките за SCIM бяха запазени успешно",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Позволена е само една интеграция от този вид ($TYPE$). Интеграцията, която предизвиква проблем, е: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Има друга интеграция от същия вид ($TYPE$). Опреснете страницата в браузъра и опитайте отново.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Полето е задължително да бъде попълнено."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Розово"
+  },
+  "coral": {
+    "message": "Корал"
+  },
+  "purple": {
+    "message": "Лилаво"
+  },
+  "blue": {
+    "message": "Синьо"
   },
   "customColor": {
     "message": "Персонализиран цвят"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Възстановяване на профила"
+  },
+  "recoverAccountWarning": {
+    "message": "Когато нулирате паролата или двустепенното удостоверяване за този член, той ще бъде известен за промяната и ще бъде отписан."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Възстановявайте акаунти, когато главната парола, двустепенното удостоверяване или доверените устройства са забравени или изгубени."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Съществуващите акаунти с главни пароли ще изискват от членовете да се присъединят отново самостоятелно, преди администраторите да могат да възстановят акаунтите им."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Автоматично включване на новите членове във възстановяването на акаунти"
+  },
+  "resetMasterPassword": {
+    "message": "Нулиране на главната парола"
+  },
+  "resetTwoStepLogin": {
+    "message": "Нулиране на двустепенното удостоверяване"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Достъпът на този член ще бъде отнет, докато не настрои двустепенно удостоверяване"
+  },
+  "recoverAccountSuccess": {
+    "message": "Акаунтът беше възстановен успешно!"
   },
   "updatedTempPassword": {
     "message": "Потребителят промени парола издадена чрез възстановяването на профили."
