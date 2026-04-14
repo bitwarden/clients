@@ -5,7 +5,7 @@
 - [x] Email link click
 - [x] Email code
 - [x] Keeper push
-- [ ] Keeper DNA
+- [x] Keeper DNA
 
 ### 2FA
 
@@ -19,7 +19,7 @@
 - [x] Keeper DNA Push
 - [x] Keeper DNA Code
 - [ ] RSA?
-- [ ] Backup code
+- [x] Backup code
 
 ### TODO
 
