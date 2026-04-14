@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Mentetlen változtatások"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Ha most elmegyünk, a módosítások nem kerülnek mentésre. Telepítsük a frissítést később, így maradhatunk és menthetjük a módosításokat."
+  },
+  "installLater": {
+    "message": "Telepítés később"
+  },
+  "continueWithInstall": {
+    "message": "Folytatás telepítéssel"
+  },
   "clone": {
     "message": "Klónozás"
   },
