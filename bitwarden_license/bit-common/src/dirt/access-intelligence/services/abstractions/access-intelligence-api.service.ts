@@ -10,20 +10,17 @@ import {
 } from "../../models";
 
 export interface AccessReportCreateRequest {
-  reportData?: string;
-  contentEncryptionKey?: string;
-  summaryData?: string;
-  applicationData?: string;
-  metrics?: AccessReportMetricsApi;
-  fileSize?: number;
+  contentEncryptionKey: string;
+  summaryData: string;
+  applicationData: string;
+  metrics: AccessReportMetricsApi;
+  fileSize: number;
 }
 
-export interface AccessReportUpdateRequest {
-  reportData?: string;
-  contentEncryptionKey?: string;
-  summaryData?: string;
-  applicationData?: string;
-  metrics?: AccessReportMetricsApi;
+export interface AccessReportSettingsUpdateRequest {
+  summaryData: string;
+  applicationData: string;
+  metrics: AccessReportMetricsApi;
 }
 
 /**
@@ -90,7 +87,7 @@ export abstract class AccessIntelligenceApiService {
     orgId: OrganizationId,
     reportId: OrganizationReportId,
     summaryData: string,
-    metrics?: Record<string, number>,
+    metrics?: AccessReportMetricsApi,
   ): Observable<AccessReportApi>;
 
   /**
@@ -137,15 +134,15 @@ export abstract class AccessIntelligenceApiService {
   ): Observable<{ blob: Blob; fileName: string }>;
 
   /**
-   * Updates an existing Access Intelligence report.
+   * Update the settings properties for an existing Access Intelligence report.
    * @param orgId - the ID of the Organization the report belongs to
    * @param reportId - the ID of the report to update
    * @param request - the data to update on the report
    * @returns observable emitting the updated Access Intelligence report
    */
-  abstract updateReport$(
+  abstract updateReportSettings$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-    request: AccessReportUpdateRequest,
+    request: AccessReportSettingsUpdateRequest,
   ): Observable<AccessReportApi>;
 }

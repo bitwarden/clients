@@ -4,11 +4,16 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
-import { AccessReportApi, AccessReportFileApi, AccessReportSummaryApi } from "../../../models";
+import {
+  AccessReportApi,
+  AccessReportFileApi,
+  AccessReportMetricsApi,
+  AccessReportSummaryApi,
+} from "../../../models";
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
-  AccessReportUpdateRequest,
+  AccessReportSettingsUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 
 export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiService {
@@ -45,7 +50,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     orgId: OrganizationId,
     reportId: OrganizationReportId,
     summaryData: string,
-    metrics?: Record<string, number>,
+    metrics?: AccessReportMetricsApi,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
       "PATCH",
@@ -162,10 +167,10 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     return from(response);
   }
 
-  updateReport$(
+  updateReportSettings$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-    request: AccessReportUpdateRequest,
+    request: AccessReportSettingsUpdateRequest,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
       "PATCH",
