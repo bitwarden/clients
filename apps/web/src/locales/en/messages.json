@@ -7069,7 +7069,7 @@
     "message": "Session timeout action"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "This setting is being managed by the Bitwarden browser extension app"
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "Immediately"
