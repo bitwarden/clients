@@ -25,7 +25,9 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private static _ignoredHostnames = new Set<string>();
+  // Tracks hostname:tabId pairs that should bypass phishing checks after "Continue to this site".
+  // Entries persist for the lifetime of the background page (cleared on extension/browser restart).
+  private static _ignoredEntries = new Set<string>();
   private static _didInit = false;
 
   static initialize(
@@ -47,10 +49,8 @@ export class PhishingDetectionService {
       ),
       switchMap(async (message) => {
         const url = new URL(message.url);
-        this._ignoredHostnames.add(url.hostname);
+        this._ignoredEntries.add(`${url.hostname}:${message.tabId}`);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
-        // One-time pass consumed — distinctUntilChanged would suppress the pipeline event
-        this._ignoredHostnames.delete(url.hostname);
       }),
     );
 
@@ -64,11 +64,18 @@ export class PhishingDetectionService {
     );
 
     const onTabUpdated$ = merge(onCommitted$, onErrorOccurred$).pipe(
-      filter((details) => details.frameId === 0), // main frame only
-      filter((details) => !!details.url && !this._isExtensionPage(details.url)),
+      filter((details) => details.frameId === 0),
+      filter(
+        (details) =>
+          !!details.url && !details.url.startsWith("about:") && !this._isExtensionPage(details.url),
+      ),
       map((details) => {
         const url = new URL(details.url);
-        return { tabId: details.tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
+        return {
+          tabId: details.tabId,
+          url,
+          ignored: this._ignoredEntries.has(`${url.hostname}:${details.tabId}`),
+        };
       }),
       distinctUntilChanged(
         (prev, curr) => prev.url.toString() === curr.url.toString() && prev.tabId === curr.tabId,
