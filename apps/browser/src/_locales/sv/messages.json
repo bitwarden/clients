@@ -2370,7 +2370,7 @@
     "message": "Also rotate my account's encryption key"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Rotera krypteringsnyckel"
   },
   "rotateEncKeyConfirmation": {
     "message": "Are you sure you want to rotate your account's encryption key?"

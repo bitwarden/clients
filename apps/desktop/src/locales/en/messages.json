@@ -35,6 +35,27 @@
   "typeSshKey": {
     "message": "SSH key"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "folders": {
     "message": "Folders"
   },
@@ -2126,6 +2147,15 @@
   "unsavedChangesTitle": {
     "message": "Unsaved changes"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Clone"
   },
@@ -2234,9 +2264,6 @@
   },
   "copyTOTP": {
     "message": "Copy Authenticator key (TOTP)"
-  },
-  "copyNotes": {
-    "message": "Copy notes"
   },
   "totpHelperTitle": {
     "message": "Make 2-step verification seamless"

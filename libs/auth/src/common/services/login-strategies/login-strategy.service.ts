@@ -38,6 +38,7 @@ import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/plat
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
@@ -128,6 +129,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private passwordPreloginService: PasswordPreloginService,
+    private unlockService: UnlockService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -384,21 +386,23 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.passwordStrengthService,
               this.policyService,
               this.passwordPreloginService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.Sso:
             return new SsoLoginStrategy(
               data?.sso ?? new SsoLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               this.deviceTrustService,
               this.authRequestService,
-              this.i18nService,
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:
             return new UserApiLoginStrategy(
               data?.userApiKey ?? new UserApiLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.AuthRequest:
