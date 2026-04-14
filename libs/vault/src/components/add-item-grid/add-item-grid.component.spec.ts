@@ -6,7 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
-import { AddItemGridComponent } from "./add-item-grid.component";
+import { AddItemGridComponent, AddItemGridResult } from "./add-item-grid.component";
 
 describe("AddItemGridComponent", () => {
   let component: AddItemGridComponent;
@@ -125,51 +125,54 @@ describe("AddItemGridComponent", () => {
     expect(items.map((i) => i.labelKey)).not.toContain("typeLogin");
   });
 
-  it("emits cipherSelected when a cipher type is selected", () => {
+  it("emits itemSelected with cipher result when a cipher type is selected", () => {
     createComponent({
       canCreateFolder: false,
       canCreateCollection: false,
       canCreateSshKey: true,
     });
 
-    const cipherSelected = jest.fn();
-    component.cipherSelected.subscribe(cipherSelected);
+    const itemSelected = jest.fn();
+    component.itemSelected.subscribe(itemSelected);
 
     const loginItem = component["items"]().find((i) => i.labelKey === "typeLogin");
     loginItem!.action();
 
-    expect(cipherSelected).toHaveBeenCalledWith(CipherType.Login);
+    expect(itemSelected).toHaveBeenCalledWith({
+      result: AddItemGridResult.Cipher,
+      cipherType: CipherType.Login,
+    });
   });
 
-  it("emits folderSelected when folder is selected", () => {
+  it("emits itemSelected with folder result when folder is selected", () => {
     createComponent({
       canCreateFolder: true,
       canCreateCollection: false,
       canCreateSshKey: false,
     });
 
-    const folderSelected = jest.fn();
-    component.folderSelected.subscribe(folderSelected);
+    const itemSelected = jest.fn();
+    component.itemSelected.subscribe(itemSelected);
 
     const folderItem = component["items"]().find((i) => i.labelKey === "folder");
     folderItem!.action();
 
-    expect(folderSelected).toHaveBeenCalled();
+    expect(itemSelected).toHaveBeenCalledWith({ result: AddItemGridResult.Folder });
   });
 
-  it("emits collectionSelected when collection is selected", () => {
+  it("emits itemSelected with collection result when collection is selected", () => {
     createComponent({
       canCreateFolder: false,
       canCreateCollection: true,
       canCreateSshKey: false,
     });
 
-    const collectionSelected = jest.fn();
-    component.collectionSelected.subscribe(collectionSelected);
+    const itemSelected = jest.fn();
+    component.itemSelected.subscribe(itemSelected);
 
     const collectionItem = component["items"]().find((i) => i.labelKey === "collection");
     collectionItem!.action();
 
-    expect(collectionSelected).toHaveBeenCalled();
+    expect(itemSelected).toHaveBeenCalledWith({ result: AddItemGridResult.Collection });
   });
 });

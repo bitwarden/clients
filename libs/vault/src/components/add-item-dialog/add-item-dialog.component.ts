@@ -1,24 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { DIALOG_DATA, DialogModule, DialogRef, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AddItemGridComponent } from "../add-item-grid/add-item-grid.component";
+import { AddItemGridComponent, AddItemGridResult } from "../add-item-grid/add-item-grid.component";
 
-export const AddItemDialogResult = Object.freeze({
-  Cipher: "cipher",
-  Folder: "folder",
-  Collection: "collection",
-} as const);
-
-export type AddItemDialogResult = UnionOfValues<typeof AddItemDialogResult>;
-
-export type AddItemDialogCloseResult =
-  | { result: typeof AddItemDialogResult.Cipher; cipherType: CipherType }
-  | { result: typeof AddItemDialogResult.Folder }
-  | { result: typeof AddItemDialogResult.Collection };
+export { AddItemGridResult as AddItemDialogResult } from "../add-item-grid/add-item-grid.component";
+export type AddItemDialogCloseResult = AddItemGridResult;
 
 export type AddItemDialogData = {
   canCreateFolder: boolean;
@@ -36,16 +24,8 @@ export class AddItemDialogComponent {
   protected readonly dialogRef = inject<DialogRef<AddItemDialogCloseResult>>(DialogRef);
   protected readonly data = inject<AddItemDialogData>(DIALOG_DATA);
 
-  protected onCipherSelected(cipherType: CipherType): void {
-    this.dialogRef.close({ result: AddItemDialogResult.Cipher, cipherType });
-  }
-
-  protected onFolderSelected(): void {
-    this.dialogRef.close({ result: AddItemDialogResult.Folder });
-  }
-
-  protected onCollectionSelected(): void {
-    this.dialogRef.close({ result: AddItemDialogResult.Collection });
+  protected onItemSelected(closeResult: AddItemDialogCloseResult): void {
+    this.dialogRef.close(closeResult);
   }
 
   static open(

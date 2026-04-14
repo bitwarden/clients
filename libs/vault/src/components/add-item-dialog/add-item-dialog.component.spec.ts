@@ -59,7 +59,10 @@ describe("AddItemDialogComponent", () => {
       canCreateSshKey: true,
     });
 
-    getGrid().cipherSelected.emit(CipherType.Login);
+    getGrid().itemSelected.emit({
+      result: AddItemDialogResult.Cipher,
+      cipherType: CipherType.Login,
+    });
 
     expect(close).toHaveBeenCalledWith({
       result: AddItemDialogResult.Cipher,
@@ -74,7 +77,7 @@ describe("AddItemDialogComponent", () => {
       canCreateSshKey: false,
     });
 
-    getGrid().folderSelected.emit();
+    getGrid().itemSelected.emit({ result: AddItemDialogResult.Folder });
 
     expect(close).toHaveBeenCalledWith({ result: AddItemDialogResult.Folder });
   });
@@ -86,7 +89,7 @@ describe("AddItemDialogComponent", () => {
       canCreateSshKey: false,
     });
 
-    getGrid().collectionSelected.emit();
+    getGrid().itemSelected.emit({ result: AddItemDialogResult.Collection });
 
     expect(close).toHaveBeenCalledWith({ result: AddItemDialogResult.Collection });
   });

@@ -17,7 +17,18 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-type DialogItem = {
+export const AddItemGridResult = Object.freeze({
+  Cipher: "cipher",
+  Folder: "folder",
+  Collection: "collection",
+} as const);
+
+export type AddItemGridResult =
+  | { result: typeof AddItemGridResult.Cipher; cipherType: CipherType }
+  | { result: typeof AddItemGridResult.Folder }
+  | { result: typeof AddItemGridResult.Collection };
+
+type GridItem = {
   icon: BitwardenIcon;
   labelKey: string;
   subtitleKey: string;
@@ -35,17 +46,15 @@ export class AddItemGridComponent {
   readonly canCreateCollection = input(false);
   readonly canCreateSshKey = input(false);
 
-  readonly cipherSelected = output<CipherType>();
-  readonly folderSelected = output();
-  readonly collectionSelected = output();
+  readonly itemSelected = output<AddItemGridResult>();
 
   private readonly restrictedTypes = toSignal(this.restrictedItemTypesService.restricted$, {
     initialValue: [] as RestrictedCipherType[],
   });
 
-  protected readonly items = computed<DialogItem[]>(() => {
+  protected readonly items = computed<GridItem[]>(() => {
     const restrictedTypes = this.restrictedTypes();
-    const items: DialogItem[] = DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
+    const items: GridItem[] = DIALOG_CIPHER_MENU_ITEMS.filter((item) => {
       if (!this.canCreateSshKey() && item.type === CipherType.SshKey) {
         return false;
       }
@@ -54,7 +63,8 @@ export class AddItemGridComponent {
       icon: item.icon as BitwardenIcon,
       labelKey: item.labelKey,
       subtitleKey: item.subtitleKey,
-      action: () => this.cipherSelected.emit(item.type),
+      action: () =>
+        this.itemSelected.emit({ result: AddItemGridResult.Cipher, cipherType: item.type }),
     }));
 
     if (this.canCreateFolder()) {
@@ -62,7 +72,7 @@ export class AddItemGridComponent {
         icon: "bwi-folder",
         labelKey: "folder",
         subtitleKey: "folderSubtitle",
-        action: () => this.folderSelected.emit(),
+        action: () => this.itemSelected.emit({ result: AddItemGridResult.Folder }),
       });
     }
 
@@ -71,7 +81,7 @@ export class AddItemGridComponent {
         icon: "bwi-collection-shared",
         labelKey: "collection",
         subtitleKey: "collectionSubtitle",
-        action: () => this.collectionSelected.emit(),
+        action: () => this.itemSelected.emit({ result: AddItemGridResult.Collection }),
       });
     }
 
