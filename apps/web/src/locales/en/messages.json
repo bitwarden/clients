@@ -3925,8 +3925,14 @@
       }
     }
   },
+  "invite": {
+    "message": "Invite"
+  },
   "inviteUserDesc": {
     "message": "Invite a new user to your organization by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account."
+  },
+  "inviteUserDescription":{
+    "message": "Invite new users to your organization by entering their email address below."
   },
   "inviteMultipleEmailDesc": {
     "message": "Enter up to $COUNT$ emails by separating with a comma.",
@@ -9114,6 +9120,9 @@
   },
   "memberRole": {
     "message": "Member role"
+  },
+  "moreSettings": {
+    "message": "More settings"
   },
   "moreFromBitwarden": {
     "message": "More from Bitwarden"

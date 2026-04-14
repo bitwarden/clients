@@ -1,5 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -20,7 +20,6 @@ import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { AccessSelectorComponent, PermissionMode } from "./access-selector.component";
 import { AccessItemType, AccessItemValue, CollectionPermission } from "./access-selector.models";
 import { actionsData, itemsFactory } from "./storybook-utils";
-import { UserTypePipe } from "./user-type.pipe";
 
 /**
  * The Access Selector is used to view and edit:
@@ -35,8 +34,8 @@ export default {
   title: "Web/Organizations/Access Selector",
   decorators: [
     moduleMetadata({
-      declarations: [AccessSelectorComponent, UserTypePipe],
       imports: [
+        AccessSelectorComponent,
         DialogModule,
         ButtonModule,
         FormFieldModule,
@@ -73,7 +72,6 @@ const render: Story["render"] = (args) => ({
       (ngModelChange)="valueChanged($event)"
       [ngModel]="initialValue"
       [items]="items"
-      [disabled]="disabled"
       [columnHeader]="columnHeader"
       [showGroupColumn]="showGroupColumn"
       [selectorLabelText]="selectorLabelText"
@@ -132,7 +130,6 @@ export const MemberCollectionAccess: Story = {
     selectorLabelText: "Select Collections",
     selectorHelpText: "Some helper text describing what this does",
     emptySelectionText: "No collections added",
-    disabled: false,
     initialValue: [
       {
         id: "4c",
@@ -163,7 +160,6 @@ export const MemberGroupAccess: Story = {
     selectorLabelText: "Select Groups",
     selectorHelpText: "Some helper text describing what this does",
     emptySelectionText: "No groups added",
-    disabled: false,
     initialValue: [
       { id: "3g", type: AccessItemType.Group },
       { id: "0g", type: AccessItemType.Group },
@@ -193,7 +189,6 @@ export const GroupMembersAccess: Story = {
     selectorLabelText: "Select Members",
     selectorHelpText: "Some helper text describing what this does",
     emptySelectionText: "No members added",
-    disabled: false,
     initialValue: [
       { id: "2m", type: AccessItemType.Member },
       { id: "0m", type: AccessItemType.Member },
@@ -217,13 +212,62 @@ export const CollectionAccess: Story = {
     selectorHelpText:
       "Permissions set for a member will replace permissions set by that member's group",
     emptySelectionText: "No members or groups added",
-    disabled: false,
     initialValue: [
       { id: "3g", type: AccessItemType.Group, permission: CollectionPermission.EditExceptPass },
       { id: "0m", type: AccessItemType.Member, permission: CollectionPermission.View },
       { id: "7m", type: AccessItemType.Member, permission: CollectionPermission.Manage },
     ],
     items: sampleGroups.concat(sampleMembers),
+  },
+  render,
+};
+
+/**
+ * Displays collection access with `PermissionMode.Readonly` — permission controls are hidden,
+ * but the permission column is still rendered showing each item's `readonlyPermission` label.
+ */
+export const ReadonlyCollectionAccess: Story = {
+  args: {
+    permissionMode: PermissionMode.Readonly,
+    showMemberRoles: false,
+    columnHeader: "Groups/Members",
+    selectorLabelText: "Select groups and members",
+    selectorHelpText:
+      "Permissions set for a member will replace permissions set by that member's group",
+    emptySelectionText: "No members or groups added",
+    initialValue: [
+      { id: "3g", type: AccessItemType.Group, permission: CollectionPermission.EditExceptPass },
+      { id: "0m", type: AccessItemType.Member, permission: CollectionPermission.View },
+      { id: "7m", type: AccessItemType.Member, permission: CollectionPermission.Manage },
+    ],
+    items: sampleGroups.concat(sampleMembers).map((item) => ({
+      ...item,
+      readonlyPermission: CollectionPermission.View,
+    })),
+  },
+  render,
+};
+
+/**
+ * Hides the multi-select input so that new items cannot be added. Only the selected items table
+ * is shown. Useful when the caller manages the selection externally.
+ */
+export const HideMultiSelect: Story = {
+  args: {
+    ...CollectionAccess.args,
+    hideMultiSelect: true,
+  },
+  render,
+};
+
+/**
+ * Hides the selected items table so only the multi-select input is shown. Used when the caller
+ * wants inline selection without a separate table (e.g. the Groups tab in the invite dialog).
+ */
+export const HideTable: Story = {
+  args: {
+    ...CollectionAccess.args,
+    hideTable: true,
   },
   render,
 };
@@ -244,7 +288,6 @@ disabledGroups[0].readonlyPermission = CollectionPermission.ViewExceptPass;
 export const DisabledCollectionAccess: Story = {
   args: {
     ...CollectionAccess.args,
-    disabled: true,
     items: disabledGroups.concat(disabledMembers),
     initialValue: [
       { id: "1m", type: AccessItemType.Member, permission: CollectionPermission.Manage },
@@ -252,5 +295,25 @@ export const DisabledCollectionAccess: Story = {
       { id: "0g", type: AccessItemType.Group, permission: CollectionPermission.ViewExceptPass },
     ],
   },
-  render,
+  render: (args) => ({
+    props: {
+      valueChanged: actionsData.onValueChanged,
+      ...args,
+      formControl: new FormControl({ value: args["initialValue"], disabled: true }),
+    },
+    template: `
+      <bit-access-selector
+        (ngModelChange)="valueChanged($event)"
+        [formControl]="formControl"
+        [items]="items"
+        [columnHeader]="columnHeader"
+        [showGroupColumn]="showGroupColumn"
+        [selectorLabelText]="selectorLabelText"
+        [selectorHelpText]="selectorHelpText"
+        [emptySelectionText]="emptySelectionText"
+        [permissionMode]="permissionMode"
+        [showMemberRoles]="showMemberRoles"
+      ></bit-access-selector>
+    `,
+  }),
 };
