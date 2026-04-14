@@ -20,6 +20,7 @@
         formControlName="email"
         bitInput
         appAutofocus
+        aria-label="user e-mail"
         (input)="onEmailInput($event)"
         (keyup.enter)="ssoRequired ? handleSsoClick() : continuePressed()"
       />
@@ -88,7 +89,7 @@
     <!-- Master Password input -->
     <bit-form-field class="!tw-mb-1">
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <input type="password" formControlName="masterPassword" bitInput aria-label="master password" #masterPasswordInputRef />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
