@@ -128,7 +128,7 @@ jobs:
           RUSTFLAGS: "-D warnings"
 
       - name: Install cargo tool dependencies
-        run: ./scripts/prepare-env-rust.sh
+        run: ./scripts/prepare-env-unix-rust.sh
 
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native

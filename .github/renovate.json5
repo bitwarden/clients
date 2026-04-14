@@ -2,6 +2,14 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
   enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
+  customManagers: [
+    {
+      customType: "regex",
+      fileMatch: ["apps/desktop/desktop_native/cargo-tool-versions"],
+      matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
+      datasourceTemplate: "crate",
+    },
+  ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================
     {
