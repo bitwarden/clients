@@ -7,23 +7,23 @@ function rgba(color) {
   return "rgb(var(" + color + ") / <alpha-value>)";
 }
 
+// shared lib paths; add app-specific paths to the app's tailwind.config.js, not here
 const libContent = [
-  // shared lib paths; add app-specific paths to the app's tailwind.config.js, not here
-  path.resolve(__dirname, "./src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/admin-console/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/angular/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/assets/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/auth/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/billing/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/dirt/card/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/key-management-ui/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/platform/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/pricing/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/subscription/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}"),
-  path.resolve(__dirname, "../../libs/vault/src/**/*.{html,ts,mdx}"),
-];
+  "./src/**/*.{html,ts,mdx}",
+  "../../libs/admin-console/src/**/*.{html,ts,mdx}",
+  "../../libs/angular/src/**/*.{html,ts,mdx}",
+  "../../libs/assets/src/**/*.{html,ts,mdx}",
+  "../../libs/auth/src/**/*.{html,ts,mdx}",
+  "../../libs/billing/src/**/*.{html,ts,mdx}",
+  "../../libs/dirt/card/src/**/*.{html,ts,mdx}",
+  "../../libs/key-management-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/platform/src/**/*.{html,ts,mdx}",
+  "../../libs/pricing/src/**/*.{html,ts,mdx}",
+  "../../libs/subscription/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/vault/src/**/*.{html,ts,mdx}",
+].map((libPath) => path.resolve(__dirname, libPath));
 
 module.exports = {
   prefix: "tw-",
