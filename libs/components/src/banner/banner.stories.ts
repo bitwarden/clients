@@ -65,6 +65,26 @@ export const BannerBase: Story = {
   },
 };
 
+export const BannerBaseLargeText: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: /*html*/ `
+        <bit-banner
+          [variant]="variant"
+          [showClose]="showClose"
+          >
+          Bitwarden is the most trusted password manager for individuals, teams, and enterprises worldwide. We help you securely create, store, and manage strong, unique passwords for all your accounts, keeping your entire digital life safe and well organized. <a bitLink [linkType]="variant">Click me</a>
+        </bit-banner>
+      `,
+    };
+  },
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
+};
+
 export const TitleBannerBase: Story = {
   render: (args) => {
     return {
@@ -90,12 +110,52 @@ export const TitleBannerBase: Story = {
   },
 };
 
+export const TitleBannerBaseLargeText: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: /*html*/ `
+        <bit-banner
+          [variant]="variant"
+          [showClose]="showClose"
+          title="Integration is the key"
+        >
+          Bitwarden is the most trusted password manager for individuals, teams, and enterprises worldwide. We help you securely create, store, and manage strong, unique passwords for all your accounts, keeping your entire digital life safe and well organized.
+          <ng-container slot="actions">
+            <button bitButton type="button" [buttonType]="variant + 'Outline'" size="small">Cancel</button>
+            <button bitButton type="button" [buttonType]="variant" size="small">Continue</button>
+          </ng-container>
+        </bit-banner>
+      `,
+    };
+  },
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
+};
+
 export const BannerSimple: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
       <bit-banner [variant]="variant" [showClose]="showClose">
         Bitwarden is the most trusted password manager for individuals and teams.
+      </bit-banner>
+    `,
+  }),
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
+};
+
+export const BannerSimpleLargeText: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-banner [variant]="variant" [showClose]="showClose">
+        Bitwarden is the most trusted password manager for individuals, teams, and enterprises worldwide. We help you securely create, store, and manage strong, unique passwords for all your accounts, keeping your entire digital life safe and well organized.
       </bit-banner>
     `,
   }),
@@ -170,6 +230,21 @@ export const NoIcon: Story = {
     template: /*html*/ `
       <bit-banner [variant]="variant" [showClose]="showClose" [icon]="null">
         Bitwarden is the most trusted password manager for individuals and teams.
+      </bit-banner>
+    `,
+  }),
+  args: {
+    variant: "primary",
+    showClose: true,
+  },
+};
+
+export const NoIconLargeText: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-banner [variant]="variant" [showClose]="showClose" [icon]="null">
+        Bitwarden is the most trusted password manager for individuals, teams, and enterprises worldwide. We help you securely create, store, and manage strong, unique passwords for all your accounts, keeping your entire digital life safe and well organized.
       </bit-banner>
     `,
   }),
