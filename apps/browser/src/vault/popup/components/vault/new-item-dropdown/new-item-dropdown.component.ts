@@ -2,7 +2,8 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
-import { RouterLink } from "@angular/router";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { RouterLink, Router } from "@angular/router";
 import { combineLatest, map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -62,10 +63,16 @@ export class NewItemDropdownComponent implements OnInit {
     }),
   );
 
+  readonly useNewItemDialog = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    { initialValue: false },
+  );
+
   constructor(
     private dialogService: DialogService,
     private restrictedItemTypeService: RestrictedItemTypesService,
     private configService: ConfigService,
+    private router: Router,
   ) {}
 
   async ngOnInit() {
@@ -94,5 +101,15 @@ export class NewItemDropdownComponent implements OnInit {
 
   openFolderDialog() {
     AddEditFolderDialogComponent.open(this.dialogService);
+  }
+
+  navigateToNewItemPage(): void {
+    void this.router.navigate(["/new-item"], {
+      queryParams: {
+        folderId: this.initialValues?.folderId,
+        organizationId: this.initialValues?.organizationId,
+        collectionId: this.initialValues?.collectionId,
+      },
+    });
   }
 }

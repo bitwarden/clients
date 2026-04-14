@@ -7,6 +7,7 @@ import {
   inject,
   Input,
   Output,
+  output,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
@@ -123,7 +124,12 @@ export class VaultHeaderComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeleteCollection = new EventEmitter<void>();
 
-  canCreateBankAccount$ = this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes);
+  readonly canCreateBankAccount$ = this.configService.getFeatureFlag$(
+    FeatureFlag.PM32009_NewItemTypes,
+  );
+
+  /** Emits an event when the add item dialog should be opened */
+  readonly onOpenAddItemDialog = output<void>();
 
   constructor(
     private readonly i18nService: I18nService,
@@ -258,6 +264,10 @@ export class VaultHeaderComponent {
 
   protected addCipher(cipherType?: CipherType) {
     this.onAddCipher.emit(cipherType);
+  }
+
+  protected openAddItemDialog(): void {
+    this.onOpenAddItemDialog.emit();
   }
 
   async addFolder(): Promise<void> {

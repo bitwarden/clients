@@ -162,7 +162,10 @@ describe("VaultComponent", () => {
         { provide: SyncService, useValue: mock<SyncService>() },
         {
           provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+          useValue: {
+            ...mock<ConfigService>(),
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
         },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: WelcomeDialogService, useValue: mock<WelcomeDialogService>() },
