@@ -1,13 +1,30 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
-  enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
+  enabledManagers: [
+    "cargo",
+    "dockerfile",
+    "docker-compose",
+    "github-actions",
+    "npm",
+    "custom.regex",
+  ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================
     {
       // Group all Github Action minor updates together to reduce PR noise.
       groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
+      matchUpdateTypes: ["minor"],
+    },
+    {
+      groupName: "dockerfile minor",
+      matchManagers: ["dockerfile"],
+      matchUpdateTypes: ["minor"],
+    },
+    {
+      groupName: "docker-compose minor",
+      matchManagers: ["docker-compose"],
       matchUpdateTypes: ["minor"],
     },
     {
