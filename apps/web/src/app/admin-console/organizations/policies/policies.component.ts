@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -43,7 +43,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
-  private drawerRef: DialogRef | undefined;
+  private readonly drawerRef = signal<DialogRef<any> | undefined>(undefined);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -136,7 +136,7 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
-    this.destroyRef.onDestroy(() => this.drawerRef?.close());
+    this.destroyRef.onDestroy(() => this.drawerRef()?.close());
   }
 
   // Handle policies component launch from Event message
@@ -171,12 +171,14 @@ export class PoliciesComponent {
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
     if (useDrawer && dialogComponent.openDrawer) {
-      this.drawerRef = dialogComponent.openDrawer(this.dialogService, {
-        data: {
-          policy: policy,
-          organization: organization,
-        },
-      });
+      this.drawerRef.set(
+        dialogComponent.openDrawer(this.dialogService, {
+          data: {
+            policy: policy,
+            organization: organization,
+          },
+        }),
+      );
     } else {
       dialogComponent.open(this.dialogService, {
         data: {
