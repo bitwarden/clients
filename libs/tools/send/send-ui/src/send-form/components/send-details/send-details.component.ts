@@ -242,6 +242,9 @@ export class SendDetailsComponent implements OnInit {
         if (type === AuthType.Password) {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
+          if (this.hasPassword) {
+            passwordControl.setValue("************");
+          }
           passwordControl.setValidators([Validators.required]);
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
@@ -265,10 +268,6 @@ export class SendDetailsComponent implements OnInit {
 
     if (this.originalSendView()) {
       this.initializeFormFromOriginal(this.originalSendView());
-
-      if (this.hasPassword) {
-        this.sendDetailsForm.get("password")?.disable();
-      }
 
       if (this.originalSendView().deletionDate) {
         this.customDeletionDateOption = {

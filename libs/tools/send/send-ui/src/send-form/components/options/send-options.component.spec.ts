@@ -36,6 +36,7 @@ describe("SendOptionsComponent", () => {
       imports: [SendOptionsComponent],
       declarations: [],
       providers: [
+        { provide: AccountService, useValue: mockAccountService },
         { provide: SendFormContainer, useValue: mockSendFormContainer },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: I18nService, useValue: mock<I18nService>() },

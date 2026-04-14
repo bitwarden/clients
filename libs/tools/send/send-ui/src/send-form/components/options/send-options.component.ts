@@ -86,9 +86,7 @@ export class SendOptionsComponent implements OnInit {
     () => this.editing() || this.originalSendView()?.maxAccessCount != null,
   );
 
-  readonly showAccessCount = computed(
-    () => this.editing() && this.originalSendView()?.maxAccessCount != null,
-  );
+  readonly showAccessCount = computed(() => this.originalSendView()?.maxAccessCount != null);
 
   readonly viewsLeft = computed(() =>
     (

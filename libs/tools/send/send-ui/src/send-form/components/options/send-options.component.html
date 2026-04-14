@@ -5,17 +5,19 @@
     </bit-section-header>
     <bit-card>
       @if (maxAccessCountVisible()) {
-        <bit-form-field>
+        <bit-form-field [disableMargin]="!hideEmailVisible() && !privateNoteVisible()">
           <bit-label>{{ "maxAccessCount" | i18n }}</bit-label>
           <input bitInput type="number" formControlName="maxAccessCount" [readonly]="!editing()" />
-          <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
+          @if (editing()) {
+            <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
+          }
           @if (showAccessCount()) {
             <bit-hint>&nbsp;{{ "limitSendViewsCount" | i18n: viewsLeft() }}</bit-hint>
           }
         </bit-form-field>
       }
       @if (hideEmailVisible()) {
-        <bit-form-control>
+        <bit-form-control class="tw-flex tw-align-middle" [disableMargin]="!privateNoteVisible()">
           <input bitCheckbox type="checkbox" formControlName="hideEmail" />
           <bit-label>{{ "hideEmail" | i18n }}</bit-label>
         </bit-form-control>
