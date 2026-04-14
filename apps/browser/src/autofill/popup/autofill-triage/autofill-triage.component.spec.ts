@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
+import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -97,16 +98,17 @@ describe("AutofillTriageComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AutofillTriageComponent],
       providers: [
+        provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
-        { provide: DialogService, useValue: dialogService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
       .overrideComponent(AutofillTriageComponent, {
         set: { template: "" },
       })
+      .overrideProvider(DialogService, { useValue: dialogService })
       .compileComponents();
 
     fixture = TestBed.createComponent(AutofillTriageComponent);
