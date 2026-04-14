@@ -32,7 +32,6 @@ const render: Story["render"] = (args) => ({
           (ngModelChange)="valueChanged($event)"
           [ngModel]="initialValue"
           [items]="items"
-          [disabled]="disabled"
           [columnHeader]="columnHeader"
           [showGroupColumn]="showGroupColumn"
           [selectorLabelText]="selectorLabelText"
@@ -68,7 +67,6 @@ export const Dialog: Story = {
     selectorLabelText: "Select Collections",
     selectorHelpText: "Some helper text describing what this does",
     emptySelectionText: "No collections added",
-    disabled: false,
     initialValue: [] as any[],
     items: dialogAccessItems,
   },
