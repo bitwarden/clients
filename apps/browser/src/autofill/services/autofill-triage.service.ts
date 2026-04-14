@@ -414,7 +414,7 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
       valuePreview: this.sanitizeValue(field),
       checked: field.checked,
       selectOptions: field.selectInfo?.options
-        ? field.selectInfo.options.map((opt: any) => String(opt))
+        ? field.selectInfo.options.map((opt: unknown) => String(opt))
         : undefined,
       rel: field.rel || undefined,
       showPasskeys: field.showPasskeys,
