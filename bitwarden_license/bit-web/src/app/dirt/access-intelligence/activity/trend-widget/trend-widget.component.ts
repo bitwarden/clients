@@ -185,10 +185,26 @@ export class TrendWidgetComponent {
 
   protected readonly lineChartConfiguration = computed<ChartConfig>(() => {
     const timespan = this.selectedTimespan();
-    const xMax = new Date();
+    const xMax = this.getXMaxForTimespan(timespan);
     const xMin = this.getXMinForTimespan(timespan);
     return { xAxisType: "datetime", xMin, xMax };
   });
+
+  private getXMaxForTimespan(timespan: TimePeriod): Date | undefined {
+    const now = new Date();
+    switch (timespan) {
+      case TimePeriod.PastMonth:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      case TimePeriod.Past3Months:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2);
+      case TimePeriod.Past6Months:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3);
+      case TimePeriod.PastYear:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 4);
+      case TimePeriod.AllTime:
+        return now;
+    }
+  }
 
   private getXMinForTimespan(timespan: TimePeriod): Date | undefined {
     const now = new Date();
