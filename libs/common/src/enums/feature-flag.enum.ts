@@ -72,6 +72,7 @@ export enum FeatureFlag {
   AccessIntelligenceNewArchitecture = "pm-31936-access-intelligence-new-architecture",
 
   /* Vault */
+  PM32009NewItemTypes = "pm-32009-new-item-types",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
@@ -85,7 +86,7 @@ export enum FeatureFlag {
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
-  PM34500_StrictCipherDecryption = "PM-34500-strict-cipher-decryption",
+  PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -144,6 +145,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
 
   /* Vault */
+  [FeatureFlag.PM32009NewItemTypes]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,

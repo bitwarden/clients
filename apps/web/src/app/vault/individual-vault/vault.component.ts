@@ -80,6 +80,9 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   CipherFormConfig,
@@ -952,6 +955,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   /**
+   * Opens the add-item type selection dialog and handles the result.
+   */
+  protected async openAddItemDialog(): Promise<void> {
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: true,
+      canCreateCollection: this.canCreateCollections,
+      canCreateSshKey: true,
+    });
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (!result) {
+      return;
+    }
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Folder) {
+      this.addFolder();
+    } else {
+      await this.addCollection();
+    }
+  }
+
+  /**
    * Opens the add cipher dialog.
    * @param cipherType The type of cipher to add.
    */
@@ -1073,7 +1098,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     );
   }
 
-  async addCollection() {
+  async addCollection(): Promise<void> {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.allOrganizations
