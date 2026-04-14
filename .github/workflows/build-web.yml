@@ -70,7 +70,7 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -151,7 +151,7 @@ jobs:
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -181,7 +181,7 @@ jobs:
           echo "server_ref=$SERVER_REF" >> "$GITHUB_OUTPUT"
 
       - name: Check out Server repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           path: server
           repository: bitwarden/server
@@ -248,10 +248,10 @@ jobs:
             }
 
       - name: Set up QEMU emulators
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       ########## ACRs ##########
       - name: Log in to Azure
@@ -268,7 +268,7 @@ jobs:
 
       - name: Log in to GHCR
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1 # v3.5.0
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -407,7 +407,6 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/azure-logout@main
 
-
   crowdin-push:
     name: Crowdin Push
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
@@ -419,7 +418,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -453,7 +452,6 @@ jobs:
           upload_sources: true
           upload_translations: false
 
-
   trigger-web-vault-deploy:
     name: Trigger web vault deploy
     if: github.event_name != 'pull_request_target' && github.ref == 'refs/heads/main'
@@ -461,6 +459,7 @@ jobs:
     needs: build-containers
     permissions:
       id-token: write
+      actions: write
     steps:
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -469,20 +468,10 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Retrieve github PAT secrets
-        id: retrieve-secret-pat
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
       - name: Trigger web vault deploy using GitHub Run ID
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
-          github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             await github.rest.actions.createWorkflowDispatch({
               owner: 'bitwarden',
@@ -494,7 +483,6 @@ jobs:
                 'build-web-run-id': '${{ github.run_id }}'
               }
             })
-
 
   check-failures:
     name: Check for failures

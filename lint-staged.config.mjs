@@ -11,10 +11,12 @@ export default {
     ];
   },
   "apps/desktop/desktop_native/**/Cargo.toml": () => {
+    const hint =
+      "\nIf you are missing the required Rust tools, you can install them with scripts/prepare-env-rust.sh\n";
     return [
-      `sh -c 'cd apps/desktop/desktop_native && cargo sort --workspace --check'`,
-      `sh -c 'cd apps/desktop/desktop_native && cargo +nightly udeps --workspace --all-features --all-targets'`,
-      `sh -c 'cd apps/desktop/desktop_native && cargo deny --log-level error --all-features check all'`,
+      `sh -c 'cd apps/desktop/desktop_native && cargo sort --workspace --check || (echo "${hint}" && exit 1)'`,
+      `sh -c 'cd apps/desktop/desktop_native && cargo +nightly udeps --workspace --all-features --all-targets || (echo "${hint}" && exit 1)'`,
+      `sh -c 'cd apps/desktop/desktop_native && cargo deny --log-level error --all-features check all || (echo "${hint}" && exit 1)'`,
     ];
   },
 };

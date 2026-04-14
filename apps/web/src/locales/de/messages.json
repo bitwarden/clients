@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivität"
   },
-  "applicationsAtRisk": {
-    "message": "Gefährdete Anwendungen"
+  "criticalAppsAtRisk": {
+    "message": "Gefährdete kritische Apps"
+  },
+  "allCriticalApps": {
+    "message": "Alle kritischen Apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden-Logo"
@@ -324,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Anwendungen konnten nicht als kritisch markiert werden"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Das Aufheben der Markierung als kritisch ist fehlgeschlagen"
   },
   "application": {
     "message": "Anwendung"
@@ -4301,6 +4307,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "Eine oder mehrere E-Mail-Adressen gehören zu widerrufenen Mitgliedern. Stelle ihren Zugriff wieder her, um sie erneut einzuladen."
+  },
   "restoredUserId": {
     "message": "Zugriff auf die Organisation für $ID$ wiederhergestellt.",
     "placeholders": {
@@ -6238,6 +6247,16 @@
     "message": "Aufgrund einer Unternehmensrichtlinie kannst du ein bestehendes Send nur löschen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send-Einstellungen"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Lege Optionen für das Erstellen und Bearbeiten von Sends fest, einschließlich der Möglichkeit, Sends zu entfernen.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organisationsmitglieder, die die Richtlinien der Organisation verwalten können, sind von der Durchsetzung dieser Richtlinie ausgenommen."
+  },
   "sendOptions": {
     "message": "Send Einstellungen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6593,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Master-Passwort für Benutzer $ID$ zurückgesetzt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Zwei-Faktor-Authentifizierung für Benutzer $ID$ zurückgesetzt.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8203,6 +8231,10 @@
     "message": "Den SCIM API-Schlüssel in deine Zwischenablage kopieren",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "SCIM API-Schlüssel anzeigen",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Den SCIM API-Schlüssel erneuern",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8233,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM Einstellungen gespeichert",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Eingabe ist erforderlich."
@@ -8395,6 +8449,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Korallenrot"
+  },
+  "purple": {
+    "message": "Lila"
+  },
+  "blue": {
+    "message": "Blau"
   },
   "customColor": {
     "message": "Eigene Farbe"
@@ -9690,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Konto wiederherstellen"
+  },
+  "recoverAccountWarning": {
+    "message": "Wenn du das Passwort oder die Zwei-Faktor-Authentifizierung für dieses Mitglied zurücksetzt, wird es über die Änderung benachrichtigt und abgemeldet."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Konten wiederherstellen, wenn das Master-Passwort, die Zwei-Faktor-Authentifizierung oder vertrauenswürdige Geräte vergessen wurden oder verloren gegangen sind."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Bei bestehenden Konten mit Master-Passwörtern müssen sich die Mitglieder selbst registrieren, bevor Administratoren ihre Konten wiederherstellen können."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Neue Mitglieder automatisch für die Kontowiederherstellung registrieren"
+  },
+  "resetMasterPassword": {
+    "message": "Master-Passwort zurücksetzen"
+  },
+  "resetTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung zurücksetzen"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Der Zugriff des Mitglieds wird widerrufen, bis es die Zwei-Faktor-Authentifizierung eingerichtet hat"
+  },
+  "recoverAccountSuccess": {
+    "message": "Konto erfolgreich wiederhergestellt!"
   },
   "updatedTempPassword": {
     "message": "Der Benutzer hat ein Passwort aktualisiert, das durch die Kontowiederherstellung ausgestellt wurde."
