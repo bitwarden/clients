@@ -330,7 +330,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       // (activeUserId is the grantee's), so salt is always derived from the grantor's email
       // via emailToSalt().
       //
-      // If/when we shift to using random entropy for the salt, this would need to be replaced.
+      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
+      // a userId-independent salt for the grantor rather than email derivation.
       const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
 
       const authenticationData: MasterPasswordAuthenticationData =

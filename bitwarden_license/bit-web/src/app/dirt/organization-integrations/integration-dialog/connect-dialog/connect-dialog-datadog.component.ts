@@ -70,6 +70,10 @@ export class ConnectDatadogDialogComponent implements OnInit {
     return !!this.datadogConfig;
   }
 
+  get urlHelperLinkText(): string {
+    return this.connectInfo.settings.urlHelperLinkText ?? "";
+  }
+
   submit = async (): Promise<void> => {
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();

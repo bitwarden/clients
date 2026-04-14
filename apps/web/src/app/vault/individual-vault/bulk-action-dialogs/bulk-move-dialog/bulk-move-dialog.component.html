@@ -8,8 +8,9 @@
       <bit-form-field>
         <bit-label for="folder">{{ "selectFolder" | i18n }}</bit-label>
         <bit-select formControlName="folderId">
-          <bit-option *ngFor="let f of folders$ | async" [value]="f.id" [label]="f.name">
-          </bit-option>
+          @for (f of folders$ | async; track f.id) {
+            <bit-option [value]="f.id" [label]="f.name"> </bit-option>
+          }
         </bit-select>
       </bit-form-field>
     </span>
