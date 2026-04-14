@@ -79,6 +79,8 @@ const render: Story["render"] = (args) => ({
       [emptySelectionText]="emptySelectionText"
       [permissionMode]="permissionMode"
       [showMemberRoles]="showMemberRoles"
+      [hideMultiSelect]="hideMultiSelect"
+      [hideTable]="hideTable"
     ></bit-access-selector>
   `,
 });
@@ -223,32 +225,6 @@ export const CollectionAccess: Story = {
 };
 
 /**
- * Displays collection access with `PermissionMode.Readonly` — permission controls are hidden,
- * but the permission column is still rendered showing each item's `readonlyPermission` label.
- */
-export const ReadonlyCollectionAccess: Story = {
-  args: {
-    permissionMode: PermissionMode.Readonly,
-    showMemberRoles: false,
-    columnHeader: "Groups/Members",
-    selectorLabelText: "Select groups and members",
-    selectorHelpText:
-      "Permissions set for a member will replace permissions set by that member's group",
-    emptySelectionText: "No members or groups added",
-    initialValue: [
-      { id: "3g", type: AccessItemType.Group, permission: CollectionPermission.EditExceptPass },
-      { id: "0m", type: AccessItemType.Member, permission: CollectionPermission.View },
-      { id: "7m", type: AccessItemType.Member, permission: CollectionPermission.Manage },
-    ],
-    items: sampleGroups.concat(sampleMembers).map((item) => ({
-      ...item,
-      readonlyPermission: CollectionPermission.View,
-    })),
-  },
-  render,
-};
-
-/**
  * Hides the multi-select input so that new items cannot be added. Only the selected items table
  * is shown. Useful when the caller manages the selection externally.
  */
@@ -266,7 +242,7 @@ export const HideMultiSelect: Story = {
  */
 export const HideTable: Story = {
   args: {
-    ...CollectionAccess.args,
+    ...MemberGroupAccess.args,
     hideTable: true,
   },
   render,
@@ -276,11 +252,13 @@ export const HideTable: Story = {
 // AccessItemView.readonlyPermission, this will be refactored to reduce this duplication:
 // https://bitwarden.atlassian.net/browse/PM-11590
 const disabledMembers = itemsFactory(3, AccessItemType.Member);
+disabledMembers[0].readonlyPermission = CollectionPermission.Edit;
 disabledMembers[1].readonlyPermission = CollectionPermission.Manage;
 disabledMembers[2].readonlyPermission = CollectionPermission.View;
 
 const disabledGroups = itemsFactory(2, AccessItemType.Group);
 disabledGroups[0].readonlyPermission = CollectionPermission.ViewExceptPass;
+disabledGroups[1].readonlyPermission = CollectionPermission.Edit;
 
 /**
  * Displays the members and groups assigned to a collection when the control is in a disabled state.
@@ -297,13 +275,11 @@ export const DisabledCollectionAccess: Story = {
   },
   render: (args) => ({
     props: {
-      valueChanged: actionsData.onValueChanged,
       ...args,
       formControl: new FormControl({ value: args["initialValue"], disabled: true }),
     },
     template: `
       <bit-access-selector
-        (ngModelChange)="valueChanged($event)"
         [formControl]="formControl"
         [items]="items"
         [columnHeader]="columnHeader"

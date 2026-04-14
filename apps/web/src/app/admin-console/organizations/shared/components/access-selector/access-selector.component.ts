@@ -403,7 +403,7 @@ export class AccessSelectorComponent implements ControlValueAccessor {
   }
 
   protected canEditItemPermission(item: AccessItemView) {
-    return this.permissionMode() == PermissionMode.Edit && !item.readonly;
+    return this.permissionMode() == PermissionMode.Edit && !item.readonly && !this.disabled();
   }
 
   private _itemComparator(a: AccessItemView, b: AccessItemView) {
