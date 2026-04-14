@@ -236,13 +236,10 @@ export class FolderService implements InternalFolderServiceAbstraction {
       return encryptedFolders;
     }
     encryptedFolders = await Promise.all(
-      folders
-        // Filter out "No folder"
-        .filter((folder) => !Utils.isNullOrEmpty(folder.id))
-        .map(async (folder) => {
-          const encryptedFolder = await this.encrypt(folder, newUserKey);
-          return new FolderWithIdRequest(encryptedFolder);
-        }),
+      folders.map(async (folder) => {
+        const encryptedFolder = await this.encrypt(folder, newUserKey);
+        return new FolderWithIdRequest(encryptedFolder);
+      }),
     );
     return encryptedFolders;
   }
