@@ -68,7 +68,6 @@ describe("LoginStrategyService", () => {
 
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
-  let unlockService: MockProxy<UnlockService>;
   let keyService: MockProxy<KeyService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -77,6 +76,7 @@ describe("LoginStrategyService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
+  let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
   let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
@@ -112,6 +112,7 @@ describe("LoginStrategyService", () => {
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
     keyConnectorService = mock<KeyConnectorService>();
+    unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
     stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
@@ -139,7 +140,6 @@ describe("LoginStrategyService", () => {
     sut = new LoginStrategyService(
       accountService,
       masterPasswordService,
-      unlockService,
       keyService,
       apiService,
       tokenService,
@@ -166,6 +166,7 @@ describe("LoginStrategyService", () => {
       configService,
       accountCryptographicStateService,
       passwordPreloginService,
+      unlockService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);

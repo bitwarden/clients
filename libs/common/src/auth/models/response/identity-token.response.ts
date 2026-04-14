@@ -3,6 +3,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KeyConnectorUnlockData } from "@bitwarden/unlock";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
@@ -99,5 +100,20 @@ export class IdentityTokenResponse extends BaseResponse {
 
   hasMasterKeyEncryptedUserKey(): boolean {
     return Boolean(this.key);
+  }
+
+  canUnlockWithKeyConnector(): boolean {
+    return this.userDecryptionOptions?.keyConnectorOption != null;
+  }
+
+  intoKeyConnectorUnlockData(): KeyConnectorUnlockData {
+    if (!this.canUnlockWithKeyConnector()) {
+      throw new Error("Identity token response cannot be used for key connector unlock");
+    }
+
+    return {
+      url: this.userDecryptionOptions!.keyConnectorOption.keyConnectorUrl,
+      keyConnectorKeyWrappedUserKey: this.key.toSdk(),
+    };
   }
 }
