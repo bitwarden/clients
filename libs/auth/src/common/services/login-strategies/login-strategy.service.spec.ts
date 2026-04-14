@@ -49,6 +49,7 @@ import {
   KeyService,
   PBKDF2KdfConfig,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   AuthRequestServiceAbstraction,
@@ -75,6 +76,7 @@ describe("LoginStrategyService", () => {
   let messagingService: MockProxy<MessagingService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
+  let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
   let stateService: MockProxy<StateService>;
   let twoFactorService: MockProxy<TwoFactorService>;
@@ -101,6 +103,7 @@ describe("LoginStrategyService", () => {
   beforeEach(() => {
     accountService = mockAccountServiceWith(userId);
     masterPasswordService = new FakeMasterPasswordService();
+    unlockService = mock<UnlockService>();
     keyService = mock<KeyService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -109,6 +112,7 @@ describe("LoginStrategyService", () => {
     messagingService = mock<MessagingService>();
     logService = mock<LogService>();
     keyConnectorService = mock<KeyConnectorService>();
+    unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
     stateService = mock<StateService>();
     twoFactorService = mock<TwoFactorService>();
@@ -162,6 +166,7 @@ describe("LoginStrategyService", () => {
       configService,
       accountCryptographicStateService,
       passwordPreloginService,
+      unlockService,
     );
 
     loginStrategyCacheExpirationState = stateProvider.getFake(CACHE_EXPIRATION_KEY);
@@ -279,7 +284,7 @@ describe("LoginStrategyService", () => {
     expect(result).toBeInstanceOf(AuthResult);
   });
 
-  it("should clear the cache if more than 2 mins have passed since expiration date", async () => {
+  it("should clear the cache if the session has expired (expiration date is in the past)", async () => {
     const credentials = new PasswordLoginCredentials("EMAIL", "MASTER_PASSWORD");
     apiService.postIdentityToken.mockResolvedValue(
       new IdentityTwoFactorResponse({
