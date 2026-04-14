@@ -46,7 +46,6 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
-  SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordTdeUserWithPermissionCredentials,
 } from "./set-initial-password.service.abstraction";
@@ -261,49 +260,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
 
     // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
-    // Clear force set password reason to allow navigation back to vault.
-    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
-  }
-
-  /**
-   * @deprecated To be removed in PM-28143
-   */
-  async setInitialPasswordTdeOffboardingOld(
-    credentials: SetInitialPasswordTdeOffboardingCredentialsOld,
-    userId: UserId,
-  ) {
-    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found. Could not set password.`);
-      }
-    }
-
-    if (userId == null) {
-      throw new Error("userId not found. Could not set password.");
-    }
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (userKey == null) {
-      throw new Error("userKey not found. Could not set password.");
-    }
-
-    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      newMasterKey,
-      userKey,
-    );
-
-    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
-      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
-    }
-
-    const request = new UpdateTdeOffboardingPasswordRequest();
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
-    request.newMasterPasswordHash = newServerMasterKeyHash;
-    request.masterPasswordHint = newPasswordHint;
-
-    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
-
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
