@@ -52,6 +52,7 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
+  UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
   SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   UnlockViaSDK = "unlock-via-sdk",
 
@@ -84,7 +85,7 @@ export enum FeatureFlag {
   PM31039ItemActionInExtension = "pm-31039-item-action-in-extension",
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
-  PM34500_StrictCipherDecryption = "PM-34500-strict-cipher-decryption",
+  PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -186,6 +187,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
+  [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
   [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.UnlockViaSDK]: FALSE,
 
