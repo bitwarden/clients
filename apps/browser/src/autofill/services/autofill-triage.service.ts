@@ -4,6 +4,7 @@ import {
   AutofillTriageConditionResult,
   AutofillTriageFieldResult,
   AutofillTriageFormContext,
+  TriageQualification,
 } from "../types/autofill-triage";
 
 import { AutofillTriageService as AutofillTriageServiceInterface } from "./abstractions/autofill-triage.service";
@@ -361,19 +362,19 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
     }
 
     // Determine qualification based on form-level checks (matches AutofillOverlayContentService priority)
-    let qualifiedAs = "ineligible";
+    let qualifiedAs: TriageQualification = TriageQualification.Ineligible;
     if (isForLoginForm) {
-      qualifiedAs = "login";
+      qualifiedAs = TriageQualification.Login;
     } else if (isForCreditCardForm) {
-      qualifiedAs = "creditCard";
+      qualifiedAs = TriageQualification.CreditCard;
     } else if (isForAccountCreationForm) {
-      qualifiedAs = "accountCreation";
+      qualifiedAs = TriageQualification.AccountCreation;
     } else if (isForIdentityForm) {
-      qualifiedAs = "identity";
+      qualifiedAs = TriageQualification.Identity;
     }
 
     // A field is eligible only when it qualified for a recognized autofill category.
-    const eligible = qualifiedAs !== "ineligible";
+    const eligible = qualifiedAs !== TriageQualification.Ineligible;
 
     return {
       htmlId: field.htmlID || undefined,

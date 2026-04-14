@@ -1,5 +1,14 @@
 import AutofillPageDetails from "../models/autofill-page-details";
 
+export const TriageQualification = Object.freeze({
+  Login: "login",
+  CreditCard: "creditCard",
+  AccountCreation: "accountCreation",
+  Identity: "identity",
+  Ineligible: "ineligible",
+} as const);
+export type TriageQualification = (typeof TriageQualification)[keyof typeof TriageQualification];
+
 /**
  * Response returned by the content script after collecting page details for triage.
  */
@@ -196,9 +205,9 @@ export interface AutofillTriageFieldResult {
   eligible: boolean;
 
   /**
-   * What category this field qualified as (e.g., "login", "creditCard", "identity", "accountCreation", "ineligible").
+   * What category this field qualified as.
    */
-  qualifiedAs: string;
+  qualifiedAs: TriageQualification;
 
   /**
    * Array of all qualification conditions that were checked, with their results.
