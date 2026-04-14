@@ -59,10 +59,10 @@ describe("DefaultCollectionService", () => {
 
     // Default: feature flag disabled so tests exercise the legacy path
     configService.getFeatureFlag$
-      .calledWith(FeatureFlag.PM34918CollectionEncryptionService)
+      .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
       .mockReturnValue(of(false));
     configService.getFeatureFlag
-      .calledWith(FeatureFlag.PM34918CollectionEncryptionService)
+      .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
       .mockResolvedValue(false);
 
     // Set up mock decryption

@@ -108,7 +108,7 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   private initializeDecryptedState(userId: UserId): Observable<CollectionView[]> {
-    return this.configService.getFeatureFlag$(FeatureFlag.PM34918CollectionEncryptionService).pipe(
+    return this.configService.getFeatureFlag$(FeatureFlag.PM35153CollectionSdkDecryption).pipe(
       switchMap((sdkEnabled) => {
         if (sdkEnabled) {
           return this.encryptedCollections$(userId).pipe(
@@ -149,7 +149,7 @@ export class DefaultCollectionService implements CollectionService {
     });
 
     const sdkEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM34918CollectionEncryptionService,
+      FeatureFlag.PM35153CollectionSdkDecryption,
     );
 
     let decryptedCollections: CollectionView[];
