@@ -234,6 +234,9 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     }
 
     span {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
       width: 16px;
       height: 16px;
       border-radius: 50%;
