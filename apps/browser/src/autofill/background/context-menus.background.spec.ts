@@ -1,14 +1,11 @@
 import { mock } from "jest-mock-extended";
 
-import { LogService } from "@bitwarden/logging";
-
 import { ContextMenuClickedHandler } from "../browser/context-menu-clicked-handler";
 import { sendMockExtensionMessage } from "../spec/testing-utils";
 
 import ContextMenusBackground from "./context-menus.background";
 
 describe("ContextMenusBackground", () => {
-  const logService = mock<LogService>();
   const contextMenuClickedHandler = mock<ContextMenuClickedHandler>();
 
   let contextMenusBackground: ContextMenusBackground;
@@ -17,7 +14,7 @@ describe("ContextMenusBackground", () => {
     // The global test setup doesn't include onClicked on contextMenus
     (chrome.contextMenus as any).onClicked = { addListener: jest.fn() };
 
-    contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler, logService);
+    contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
     contextMenusBackground.init();
   });
 
@@ -30,7 +27,6 @@ describe("ContextMenusBackground", () => {
     const tabId = 42;
 
     beforeEach(() => {
-       
       (chrome.runtime as any).id = extensionId;
       contextMenuClickedHandler.triageResult = {
         tabId,
@@ -131,14 +127,6 @@ describe("ContextMenusBackground", () => {
       await new Promise(process.nextTick);
 
       expect(contextMenuClickedHandler.cipherAction).toHaveBeenCalledWith(onClickData, senderTab);
-    });
-  });
-
-  describe("unrecognized command", () => {
-    it("logs a warning for unknown commands", () => {
-      sendMockExtensionMessage({ command: "unknownCommand" }, { id: chrome.runtime.id });
-
-      expect(logService.warning).toHaveBeenCalledWith("Unrecognized message command.");
     });
   });
 });
