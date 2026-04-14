@@ -19,6 +19,7 @@ license = "GPL-3.0"
 edition = "2021"
 publish = false
 
+#foo
 [workspace.dependencies]
 aes = "=0.8.4"
 aes-gcm = "=0.10.3"
