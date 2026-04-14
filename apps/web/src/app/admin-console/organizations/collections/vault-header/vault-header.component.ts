@@ -110,7 +110,7 @@ export class VaultHeaderComponent {
   @Output() searchTextChanged = new EventEmitter<string>();
 
   /** Emits an event when the add item dialog should be opened */
-  onOpenAddItemDialog = output();
+  readonly onOpenAddItemDialog = output();
 
   protected CollectionDialogTabType = CollectionDialogTabType;
 
@@ -221,7 +221,7 @@ export class VaultHeaderComponent {
     this.onAddCipher.emit(cipherType);
   }
 
-  openAddItemDialog(): void {
+  protected openAddItemDialog(): void {
     this.onOpenAddItemDialog.emit();
   }
 
