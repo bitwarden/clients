@@ -41,9 +41,6 @@ import { PolicyStep } from "./models";
   templateUrl: "multi-step-policy-edit-dialog.component.html",
   imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    "[class.tw-h-full]": "dialogRef.isDrawer",
-  },
 })
 export class MultiStepPolicyEditDialogComponent
   extends PolicyEditDialogComponent
