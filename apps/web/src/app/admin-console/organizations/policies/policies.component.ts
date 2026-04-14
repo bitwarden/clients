@@ -43,7 +43,7 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
-  private readonly drawerRef = signal<DialogRef | undefined>(undefined);
+  private readonly drawerRef = signal<DialogRef<any> | undefined>(undefined);
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 

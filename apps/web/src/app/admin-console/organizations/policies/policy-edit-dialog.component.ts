@@ -199,6 +199,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     if ((await policyComponent.confirm?.()) == false) {
+      this.dialogRef.closePredicate = undefined;
       this.dialogRef.close();
       return;
     }
