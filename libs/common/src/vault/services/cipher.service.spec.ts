@@ -457,26 +457,6 @@ describe("Cipher Service", () => {
       expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(cipherView, userId);
     });
 
-    it("should call legacy encrypt when keys are provided", async () => {
-      jest.spyOn(cipherService as any, "encryptCipher").mockResolvedValue(encryptionContext.cipher);
-
-      const encryptKey = new SymmetricCryptoKey(new Uint8Array(32));
-      const decryptKey = new SymmetricCryptoKey(new Uint8Array(32));
-
-      let result = await cipherService.encrypt(cipherView, userId, encryptKey);
-
-      expect(result).toEqual(encryptionContext);
-      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
-
-      result = await cipherService.encrypt(cipherView, userId, undefined, decryptKey);
-      expect(result).toEqual(encryptionContext);
-      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
-
-      result = await cipherService.encrypt(cipherView, userId, encryptKey, decryptKey);
-      expect(result).toEqual(encryptionContext);
-      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
-    });
-
     it("should return the encrypting user id", async () => {
       keyService.getOrgKey.mockReturnValue(
         Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
@@ -514,7 +494,7 @@ describe("Cipher Service", () => {
         it("is not called when cipher viewPassword is false and original cipher has no key", async () => {
           cipherView.viewPassword = false;
 
-          await cipherService.encrypt(cipherView, userId, undefined, undefined, new Cipher());
+          await cipherService.encrypt(cipherView, userId, new Cipher());
 
           expect(cipherService["encryptCipherWithCipherKey"]).not.toHaveBeenCalled();
         });

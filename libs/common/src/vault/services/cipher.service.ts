@@ -291,64 +291,11 @@ export class CipherService implements CipherServiceAbstraction {
   async encrypt(
     model: CipherView,
     userId: UserId,
-    keyForCipherEncryption?: SymmetricCryptoKey,
-    keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher: Cipher = null,
   ): Promise<EncryptionContext> {
     await this.adjustCipherHistory(model, userId, originalCipher);
 
-    if (
-      keyForCipherEncryption == null && // PM-23085 - SDK encryption does not currently support custom keys (e.g. key rotation)
-      keyForCipherKeyDecryption == null // PM-23348 - Or has explicit methods for re-encrypting ciphers with different keys (e.g. move to org)
-    ) {
-      return await this.cipherEncryptionService.encrypt(model, userId);
-    }
-
-    const cipher = new Cipher();
-    cipher.id = model.id;
-    cipher.folderId = model.folderId;
-    cipher.favorite = model.favorite;
-    cipher.organizationId = model.organizationId;
-    cipher.type = model.type;
-    cipher.collectionIds = model.collectionIds;
-    cipher.creationDate = model.creationDate;
-    cipher.revisionDate = model.revisionDate;
-    cipher.archivedDate = model.archivedDate;
-    cipher.reprompt = model.reprompt;
-    cipher.edit = model.edit;
-    cipher.viewPassword = model.viewPassword;
-
-    if (
-      // prevent unprivileged users from migrating to cipher key encryption
-      (model.viewPassword && (await this.getCipherKeyEncryptionEnabled())) ||
-      originalCipher?.key
-    ) {
-      cipher.key = originalCipher?.key ?? null;
-      const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
-      // The keyForEncryption is only used for encrypting the cipher key, not the cipher itself, since cipher key encryption is enabled.
-      // If the caller has provided a key for cipher key encryption, use it. Otherwise, use the user or org key.
-      keyForCipherEncryption ||= userOrOrgKey;
-      // If the caller has provided a key for cipher key decryption, use it. Otherwise, use the user or org key.
-      keyForCipherKeyDecryption ||= userOrOrgKey;
-      return {
-        cipher: await this.encryptCipherWithCipherKey(
-          model,
-          cipher,
-          keyForCipherEncryption,
-          keyForCipherKeyDecryption,
-        ),
-        encryptedFor: userId,
-      };
-    } else {
-      keyForCipherEncryption ||= await this.getKeyForCipherKeyDecryption(cipher, userId);
-      // We want to ensure that the cipher key is null if cipher key encryption is disabled
-      // so that decryption uses the proper key.
-      cipher.key = null;
-      return {
-        cipher: await this.encryptCipher(model, cipher, keyForCipherEncryption),
-        encryptedFor: userId,
-      };
-    }
+    return await this.cipherEncryptionService.encrypt(model, userId);
   }
 
   async encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]> {
