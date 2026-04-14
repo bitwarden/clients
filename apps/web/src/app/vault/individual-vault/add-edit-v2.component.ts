@@ -193,5 +193,8 @@ export function openAddEditCipherDialog(
   dialogService: DialogService,
   config: DialogConfig<CipherFormConfig>,
 ): DialogRef<AddEditCipherDialogCloseResult> {
-  return dialogService.open(AddEditComponentV2, config);
+  return dialogService.open<AddEditCipherDialogCloseResult, CipherFormConfig, AddEditComponentV2>(
+    AddEditComponentV2,
+    config,
+  );
 }

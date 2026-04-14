@@ -115,10 +115,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   protected readonly emptyStateVideoSrc: string | null =
     "/videos/risk-insights-mark-as-critical.mp4";
 
-  protected readonly currentDialogRef = signal<DialogRef<
-    unknown,
-    AccessIntelligenceDrawerV2Component
-  > | null>(null);
+  protected readonly currentDialogRef = signal<
+    DialogRef<unknown, AccessIntelligenceDrawerV2Component> | undefined
+  >(undefined);
 
   // Prevents jarring quick transitions between progress steps
   private readonly STEP_DISPLAY_DELAY_MS = 250;
