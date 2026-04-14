@@ -4,7 +4,6 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -16,7 +15,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -65,7 +63,6 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private cipherService: CipherService,
     private logService: LogService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -319,55 +316,31 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
         break;
     }
 
-    // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
-    const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-    );
+    // Determine salt. In the Emergency Access Takeover flow, the grantee is setting a new
+    // master password for the grantor. The grantor's UserId is not available in this context
+    // (activeUserId is the grantee's), so salt is always derived from the grantor's email
+    // via emailToSalt().
+    //
+    // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
+    // a userId-independent salt for the grantor rather than email derivation.
+    const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
 
-    if (newApisWithInputPasswordFlagEnabled) {
-      // Determine salt. In the Emergency Access Takeover flow, the grantee is setting a new
-      // master password for the grantor. The grantor's UserId is not available in this context
-      // (activeUserId is the grantee's), so salt is always derived from the grantor's email
-      // via emailToSalt().
-      //
-      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
-      // a userId-independent salt for the grantor rather than email derivation.
-      const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        masterPassword,
+        config,
+        salt,
+      );
 
-      const authenticationData: MasterPasswordAuthenticationData =
-        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-          masterPassword,
-          config,
-          salt,
-        );
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        masterPassword,
+        config,
+        salt,
+        grantorUserKey,
+      );
 
-      const unlockData: MasterPasswordUnlockData =
-        await this.masterPasswordService.makeMasterPasswordUnlockData(
-          masterPassword,
-          config,
-          salt,
-          grantorUserKey,
-        );
-
-      const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
-
-      await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
-
-      return; // EARLY RETURN for flagged logic
-    }
-
-    const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
-    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
-
-    const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
-
-    if (encKey == null || !encKey[1].encryptedString) {
-      throw new Error("masterKeyEncryptedUserKey not found");
-    }
-
-    const request = new EmergencyAccessPasswordRequest();
-    request.newMasterPasswordHash = masterKeyHash;
-    request.key = encKey[1].encryptedString;
+    const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
 
     await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
