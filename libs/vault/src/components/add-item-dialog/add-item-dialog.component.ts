@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -33,10 +33,8 @@ export type AddItemDialogData = {
   imports: [DialogModule, I18nPipe, AddItemGridComponent],
 })
 export class AddItemDialogComponent {
-  constructor(
-    private readonly dialogRef: DialogRef<AddItemDialogCloseResult>,
-    @Inject(DIALOG_DATA) readonly data: AddItemDialogData,
-  ) {}
+  protected readonly dialogRef = inject<DialogRef<AddItemDialogCloseResult>>(DialogRef);
+  protected readonly data = inject<AddItemDialogData>(DIALOG_DATA);
 
   protected onCipherSelected(cipherType: CipherType): void {
     this.dialogRef.close({ result: AddItemDialogResult.Cipher, cipherType });
