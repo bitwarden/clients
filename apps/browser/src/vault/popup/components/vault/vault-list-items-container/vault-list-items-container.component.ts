@@ -48,6 +48,7 @@ import {
   TypographyModule,
   ScrollLayoutDirective,
   ChipActionComponent,
+  IconComponent,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -84,6 +85,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     DisclosureTriggerForDirective,
     ScrollLayoutDirective,
     ChipActionComponent,
+    IconComponent,
   ],
   selector: "app-vault-list-items-container",
   templateUrl: "vault-list-items-container.component.html",
