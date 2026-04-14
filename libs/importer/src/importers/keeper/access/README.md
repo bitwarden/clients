@@ -16,7 +16,8 @@
 - [x] Duo/SMS
 - [x] Duo/Voice
 - [-] WebAuthn
-- [ ] Keeper DNA
+- [x] Keeper DNA Push
+- [ ] Keeper DNA Code
 - [ ] RSA?
 - [ ] Backup code
 

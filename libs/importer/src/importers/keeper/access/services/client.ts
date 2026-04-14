@@ -479,6 +479,7 @@ export class Client {
     TwoFactorMethod.Totp,
     TwoFactorMethod.Sms,
     TwoFactorMethod.Duo,
+    TwoFactorMethod.KeeperDna,
   ]);
 
   private async handle2FA(
@@ -534,6 +535,34 @@ export class Client {
           channel.channelUid,
           TwoFactorValueType.TWO_FA_CODE_SMS,
         );
+        break;
+      }
+
+      // Keeper DNA: push notification to the Keeper app, the app responds with a TOTP code
+      case TwoFactorChannelType.TWO_FA_CT_DNA: {
+        await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_DNA);
+
+        const dnaResult = await Promise.race([socket.waitForMessage(), this.ui.waitForDnaPush()]);
+
+        this.ui.closeDnaPushDialog();
+
+        if (dnaResult && typeof dnaResult === "object" && "messageType" in dnaResult) {
+          const { messageType: mt, message: msg } = dnaResult as PushMessage;
+          const passcode = msg.passcode as string | undefined;
+
+          if (mt === MessageType.DNA && passcode) {
+            currentLoginToken = await this.validate2FA(
+              currentLoginToken,
+              passcode,
+              channel.channelUid,
+              TwoFactorValueType.TWO_FA_CODE_DNA,
+            );
+          } else {
+            throw new Error("Keeper DNA authentication failed or timed out");
+          }
+        } else {
+          throw new Error("Keeper DNA authentication cancelled");
+        }
         break;
       }
 

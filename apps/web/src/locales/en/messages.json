@@ -13332,6 +13332,12 @@
   "keeperDna": {
     "message": "Keeper DNA"
   },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device."
+  },
   "unknownMethod": {
     "message": "Unknown method"
   },

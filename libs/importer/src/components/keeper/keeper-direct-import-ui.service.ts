@@ -14,6 +14,7 @@ import {
 
 import { KeeperApprovalMethodSelectComponent } from "./dialog/keeper-approval-method-select.component";
 import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
+import { KeeperDnaPushPromptComponent } from "./dialog/keeper-dna-push-prompt.component";
 import { KeeperDuoMethodSelectComponent } from "./dialog/keeper-duo-method-select.component";
 import { KeeperDuoPushPromptComponent } from "./dialog/keeper-duo-push-prompt.component";
 import { KeeperErrorComponent } from "./dialog/keeper-error.component";
@@ -155,6 +156,23 @@ export class KeeperDirectImportUIService implements Ui {
   }
 
   closeDuoPushDialog(): void {
+    this.dialogRef?.close();
+  }
+
+  //
+  // Keeper DNA flow
+  //
+
+  async waitForDnaPush(): Promise<typeof Cancel | void> {
+    this.dialogRef = KeeperDnaPushPromptComponent.open(this.dialogService);
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+    if (result === "cancel" || result === undefined) {
+      return Cancel;
+    }
+  }
+
+  closeDnaPushDialog(): void {
     this.dialogRef?.close();
   }
 

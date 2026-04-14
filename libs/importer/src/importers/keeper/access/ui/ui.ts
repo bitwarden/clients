@@ -23,6 +23,10 @@ export interface Ui {
   waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | void>;
   closeDuoPushDialog(): void;
 
+  // Keeper DNA specific actions
+  waitForDnaPush(): Promise<typeof Cancel | void>;
+  closeDnaPushDialog(): void;
+
   // Error display
   showError(message: string): Promise<void>;
 }
