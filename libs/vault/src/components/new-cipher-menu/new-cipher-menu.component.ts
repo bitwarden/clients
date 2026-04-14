@@ -26,7 +26,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
   imports: [ButtonModule, CommonModule, MenuModule, PopoverModule, I18nPipe, JslibModule],
 })
 export class NewCipherMenuComponent {
-  readonly canCreateBankAccount = input(false);
   readonly canCreateCipher = input(false);
   readonly canCreateFolder = input(false);
   readonly canCreateCollection = input(false);
@@ -61,18 +60,14 @@ export class NewCipherMenuComponent {
     this.restrictedItemTypesService.restricted$,
     toObservable(this.canCreateCipher),
     toObservable(this.canCreateSshKey),
-    toObservable(this.canCreateBankAccount),
   ]).pipe(
-    map(([restrictedTypes, canCreateCipher, canCreateSshKey, canCreateBankAccount]) => {
+    map(([restrictedTypes, canCreateCipher, canCreateSshKey]) => {
       // If user cannot create ciphers at all, return empty array
       if (!canCreateCipher) {
         return [];
       }
       return CIPHER_MENU_ITEMS.filter((item) => {
         if (!canCreateSshKey && item.type === CipherType.SshKey) {
-          return false;
-        }
-        if (!canCreateBankAccount && item.type === CipherType.BankAccount) {
           return false;
         }
         return !restrictedTypes.some((restrictedType) => restrictedType.cipherType === item.type);
