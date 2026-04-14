@@ -23,7 +23,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -123,20 +123,23 @@ export class UserKeyRotationService {
       this.logService.info(
         "[UserKey Rotation] Using SDK-based key rotation service from user-crypto-management",
       );
-      await this.sdkUserKeyRotationService.changePasswordAndRotateUserKey(
+      const success = await this.sdkUserKeyRotationService.changePasswordAndRotateUserKey(
         currentMasterPassword,
         newMasterPassword,
         newMasterPasswordHint,
         asUuid(user.id),
       );
-      this.toastService.showToast({
-        variant: "success",
-        title: this.i18nService.t("rotationCompletedTitle"),
-        message: this.i18nService.t("rotationCompletedDesc"),
-        timeout: 15000,
-      });
 
-      await this.logoutService.logout(user.id);
+      if (success) {
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("rotationCompletedTitle"),
+          message: this.i18nService.t("rotationCompletedDesc"),
+          timeout: 15000,
+        });
+
+        await this.logoutService.logout(user.id);
+      }
       return;
     }
 
@@ -604,11 +607,7 @@ export class UserKeyRotationService {
       masterKeySalt,
       masterKeyKdfConfig,
     );
-    return this.keyService.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.ServerAuthorization,
-    );
+    return this.keyService.hashMasterKey(masterPassword, masterKey);
   }
 
   /**
