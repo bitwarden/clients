@@ -16,9 +16,46 @@ import { TooltipDirective } from "../tooltip/tooltip.directive";
 import { truncateFilename } from "../utils/truncate-filename";
 
 /**
+ * Shared ResizeObserver instance for all TruncatedFilenameComponent instances.
+ * A single observer watching N elements is more efficient than N separate observers.
+ */
+let sharedObserver: ResizeObserver | null = null;
+const observedElements = new WeakMap<Element, () => void>();
+
+function observeResize(el: Element, callback: () => void): void {
+  if (typeof ResizeObserver === "undefined") {
+    return;
+  }
+  if (!sharedObserver) {
+    sharedObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        observedElements.get(entry.target)?.();
+      }
+    });
+  }
+  observedElements.set(el, callback);
+  sharedObserver.observe(el);
+}
+
+function unobserveResize(el: Element): void {
+  sharedObserver?.unobserve(el);
+  observedElements.delete(el);
+}
+
+/** Shared offscreen canvas for text measurement across all instances. */
+let sharedCanvas: HTMLCanvasElement | null = null;
+
+function getMeasureContext(): CanvasRenderingContext2D | null {
+  if (!sharedCanvas) {
+    sharedCanvas = document.createElement("canvas");
+  }
+  return sharedCanvas.getContext("2d");
+}
+
+/**
  * Renders a filename with responsive middle-truncation that preserves the file extension.
  *
- * Measures the available container width via `ResizeObserver` and uses canvas text
+ * Measures the available container width via a shared `ResizeObserver` and uses canvas text
  * measurement to determine how many characters fit. The `truncateFilename` utility
  * handles the 50/50 split: start of filename + `…` + end of filename + extension.
  *
@@ -55,10 +92,6 @@ export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
 
   private readonly containerRef = viewChild<ElementRef<HTMLElement>>("container");
   private readonly destroyRef = inject(DestroyRef);
-  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
-  private resizeObserver: ResizeObserver | null = null;
-  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
-  private measureCanvas: HTMLCanvasElement | null = null;
 
   constructor() {
     // Recalculate when the filename input changes
@@ -74,21 +107,19 @@ export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    if (typeof ResizeObserver !== "undefined") {
-      this.resizeObserver = new ResizeObserver(() => this.recalculate());
-      this.resizeObserver.observe(el);
-    }
+    observeResize(el, () => this.recalculate());
     this.recalculate();
 
     this.destroyRef.onDestroy(() => {
-      this.resizeObserver?.disconnect();
-      this.resizeObserver = null;
-      this.measureCanvas = null;
+      unobserveResize(el);
     });
   }
 
   ngOnDestroy(): void {
-    this.resizeObserver?.disconnect();
+    const el = this.containerRef()?.nativeElement;
+    if (el) {
+      unobserveResize(el);
+    }
   }
 
   private recalculate(): void {
@@ -106,11 +137,7 @@ export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Measure full text width using an offscreen canvas
-    if (!this.measureCanvas) {
-      this.measureCanvas = document.createElement("canvas");
-    }
-    const ctx = this.measureCanvas.getContext("2d");
+    const ctx = getMeasureContext();
     if (!ctx) {
       this.displayText.set(name);
       return;
@@ -127,24 +154,22 @@ export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // Start with a ratio-based estimate, then adjust by measuring the actual result
-    let maxChars = Math.floor(name.length * (availableWidth / fullWidth));
-    let truncated = truncateFilename(name, maxChars);
+    // Binary search for the largest maxChars where truncated text fits
+    let lo = 5;
+    let hi = name.length - 1;
+    let best = lo;
 
-    // Shrink until it fits
-    while (maxChars > 5 && ctx.measureText(truncated).width > availableWidth) {
-      maxChars--;
-      truncated = truncateFilename(name, maxChars);
+    while (lo <= hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      const candidate = truncateFilename(name, mid);
+      if (ctx.measureText(candidate).width <= availableWidth) {
+        best = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
     }
 
-    // Grow to use all available space
-    let wider = truncateFilename(name, maxChars + 1);
-    while (maxChars < name.length && ctx.measureText(wider).width <= availableWidth) {
-      maxChars++;
-      truncated = wider;
-      wider = truncateFilename(name, maxChars + 1);
-    }
-
-    this.displayText.set(truncated);
+    this.displayText.set(truncateFilename(name, best));
   }
 }
