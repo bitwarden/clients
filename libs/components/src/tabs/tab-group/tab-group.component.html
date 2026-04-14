@@ -60,7 +60,7 @@
       [bitMenuTriggerFor]="overFlowTabsMenu"
     >
       <span [class]="tabLabelContentClasses">
-        More
+        {{ "more" | i18n }}
         <bit-berry [value]="sortedTabs().overflow.length"></bit-berry>
         <bit-icon name="bwi-angle-down" class="tw-text-base" />
       </span>

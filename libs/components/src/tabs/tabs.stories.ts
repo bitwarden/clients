@@ -74,7 +74,7 @@ export default {
       providers: [
         {
           provide: I18nService,
-          useValue: new I18nMockService({ loading: "Loading" }),
+          useValue: new I18nMockService({ loading: "Loading", more: "More" }),
         },
       ],
     }),
