@@ -16,7 +16,6 @@ export enum FeatureFlag {
   PolicyDrawers = "pm-34804-policy-drawers",
 
   /* Auth */
-  PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
@@ -161,7 +160,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
 
   /* Auth */
-  [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
