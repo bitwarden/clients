@@ -11,8 +11,11 @@
   "activity": {
     "message": "活動"
   },
-  "applicationsAtRisk": {
-    "message": "高風險應用程式"
+  "criticalAppsAtRisk": {
+    "message": "高風險關鍵應用程式"
+  },
+  "allCriticalApps": {
+    "message": "所有關鍵應用程式"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -326,7 +329,7 @@
     "message": "標記應用程式為關鍵失敗"
   },
   "applicationsUnmarkedAsCriticalFail": {
-    "message": "Failed to unmark applications as critical"
+    "message": "取消應用程式關鍵標示失敗"
   },
   "application": {
     "message": "應用程式"
@@ -4305,7 +4308,7 @@
     }
   },
   "revokedEmailError": {
-    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+    "message": "一個或多個電子郵件屬於已被撤銷的成員。請恢復其存取權以重新邀請。"
   },
   "restoredUserId": {
     "message": "已還原 $ID$ 的組織存取權限。",
@@ -6245,14 +6248,14 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendControls": {
-    "message": "Send controls"
+    "message": "Send 控制"
   },
   "sendControlsPolicyDesc": {
-    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "message": "設定建立與編輯 Send 的選項，包括移除 Send 的功能。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsExemption": {
-    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
+    "message": "能管理組織政策的成員不受此政策限制。"
   },
   "sendOptions": {
     "message": "Send 選項",
@@ -6609,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "已重設使用者 $ID$ 的主密碼。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Two-step login reset for user $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8219,6 +8231,10 @@
     "message": "複製 SCIM API 金鑰至剪貼簿",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "View the SCIM API key",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "輪換 SCIM API 金鑰",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "SCIM 設定已儲存",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "必須輸入內容。"
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "粉紅色"
+  },
+  "coral": {
+    "message": "珊瑚色"
+  },
+  "purple": {
+    "message": "紫色"
+  },
+  "blue": {
+    "message": "藍色"
   },
   "customColor": {
     "message": "自訂顏色"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "復原帳戶"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Reset master password"
+  },
+  "resetTwoStepLogin": {
+    "message": "Reset two-step login"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Account recovery success!"
   },
   "updatedTempPassword": {
     "message": "使用者更新了透過帳戶復原發送的密碼。"
