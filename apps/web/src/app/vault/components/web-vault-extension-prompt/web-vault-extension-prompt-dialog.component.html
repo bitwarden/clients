@@ -1,13 +1,11 @@
 <div
   class="tw-max-w-3xl tw-p-9 tw-border tw-border-solid tw-border-border-base tw-rounded-xl tw-bg-background tw-text-center"
 >
-  <div [attr.alt]="'extensionPromptImageAlt' | i18n" class="tw-mb-[1.875rem]">
-    <bit-svg
-      [content]="extensionMockLogin"
-      [ariaLabel]="'extensionPromptImageAlt' | i18n"
-      class="tw-mb-[1.875rem]"
-    ></bit-svg>
-  </div>
+  <bit-svg
+    [content]="extensionMockLogin"
+    [ariaLabel]="'extensionPromptImageAlt' | i18n"
+    class="tw-mb-[1.875rem]"
+  ></bit-svg>
   <div class="tw-flex tw-flex-col tw-gap-[1.6875rem]">
     <h2 class="tw-mb-0">
       {{ "extensionPromptHeading" | i18n }}
