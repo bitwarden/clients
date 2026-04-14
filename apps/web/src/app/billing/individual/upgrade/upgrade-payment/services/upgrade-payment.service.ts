@@ -16,8 +16,6 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
 
@@ -64,7 +62,6 @@ export class UpgradePaymentService {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private configService: ConfigService,
   ) {}
 
   userIsOwnerOfFreeOrg$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -175,12 +172,7 @@ export class UpgradePaymentService {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
     const passwordManagerSeats = this.getPasswordManagerSeats(planDetails);
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    const familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
+    const familyPlan = PlanType.FamiliesAnnually;
 
     const subscriptionInformation: SubscriptionInformation = {
       organization: {

@@ -8,7 +8,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -20,10 +19,8 @@ describe("TrialBillingStepService", () => {
   const mockOrganizationBillingService = mock<OrganizationBillingServiceAbstraction>();
   const mockPreviewInvoiceClient = mock<PreviewInvoiceClient>();
   const mockAccountService = mock<AccountService>();
-  const mockConfigService = mock<ConfigService>();
-
   const mockFamiliesPlan = {
-    type: PlanType.FamiliesAnnually2025,
+    type: PlanType.FamiliesAnnually,
     productTier: 4,
     name: "Families",
     isAnnual: true,
@@ -47,12 +44,9 @@ describe("TrialBillingStepService", () => {
     mockReset(mockOrganizationBillingService);
     mockReset(mockPreviewInvoiceClient);
     mockReset(mockAccountService);
-    mockReset(mockConfigService);
 
     mockApiService.getPlans.mockResolvedValue({ data: [mockFamiliesPlan] } as any);
     mockAccountService.activeAccount$ = of(mockAccount as any);
-    mockConfigService.getFeatureFlag.mockResolvedValue(false);
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     TestBed.configureTestingModule({
       providers: [
@@ -64,7 +58,6 @@ describe("TrialBillingStepService", () => {
         },
         { provide: PreviewInvoiceClient, useValue: mockPreviewInvoiceClient },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
@@ -135,28 +128,6 @@ describe("TrialBillingStepService", () => {
 
       const call = mockOrganizationBillingService.purchaseSubscription.mock.calls[0][0];
       expect(call).not.toHaveProperty("coupons");
-    });
-  });
-
-  describe("getCosts — feature flag", () => {
-    it("uses PM26462_Milestone_3 feature flag when fetching plan type", async () => {
-      mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase.mockResolvedValue({
-        tax: 0,
-        total: 40,
-      });
-
-      await sut.getCosts("passwordManager", "families", "annually", {
-        country: "US",
-        postalCode: "12345",
-      } as any);
-
-      expect(
-        mockPreviewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({ tier: "families", cadence: "annually" }),
-        expect.anything(),
-        undefined,
-      );
     });
   });
 });

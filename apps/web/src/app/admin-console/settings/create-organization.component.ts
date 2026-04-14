@@ -6,8 +6,6 @@ import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { OrganizationPlansComponent } from "../../billing";
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -24,24 +22,14 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected plan: PlanType = PlanType.Free;
   protected productTier: ProductTierType = ProductTierType.Free;
 
-  constructor(
-    private route: ActivatedRoute,
-    private configService: ConfigService,
-  ) {}
+  constructor(private route: ActivatedRoute) {}
 
   private destroy$ = new Subject<void>();
 
-  async ngOnInit(): Promise<void> {
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    const familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
-
+  ngOnInit(): void {
     this.route.queryParams.pipe(first(), takeUntil(this.destroy$)).subscribe((qParams) => {
       if (qParams.plan === "families" || qParams.productTier == ProductTierType.Families) {
-        this.plan = familyPlan;
+        this.plan = PlanType.FamiliesAnnually;
         this.productTier = ProductTierType.Families;
       } else if (qParams.plan === "teams" || qParams.productTier == ProductTierType.Teams) {
         this.plan = PlanType.TeamsAnnually;
