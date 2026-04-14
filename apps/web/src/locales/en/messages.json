@@ -13350,6 +13350,9 @@
   "enterCodeManually": {
     "message": "Enter code manually"
   },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
   "unknownMethod": {
     "message": "Unknown method"
   },

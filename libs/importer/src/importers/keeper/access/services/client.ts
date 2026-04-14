@@ -324,9 +324,22 @@ export class Client {
       await this.ui.selectApprovalMethod([
         DeviceApprovalChannel.Email,
         DeviceApprovalChannel.KeeperPush,
+        DeviceApprovalChannel.TwoFactor,
       ]),
       "Device approval",
     );
+
+    // TwoFactor: prompt for a code and validate with TWO_FA_CODE_NONE (server auto-detects type)
+    if (method === DeviceApprovalChannel.TwoFactor) {
+      const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp);
+      const updatedToken = await this.validate2FA(
+        currentLoginToken,
+        code,
+        new Uint8Array(),
+        TwoFactorValueType.TWO_FA_CODE_NONE,
+      );
+      return await this.resumeLogin(updatedToken, deviceToken, messageSessionUid);
+    }
 
     switch (method) {
       case DeviceApprovalChannel.Email:

@@ -37,6 +37,8 @@ export class KeeperApprovalMethodSelectComponent {
         return "email";
       case DeviceApprovalChannel.KeeperPush:
         return "keeperPush";
+      case DeviceApprovalChannel.TwoFactor:
+        return "twoFactorAuthentication";
       default:
         return "email";
     }
