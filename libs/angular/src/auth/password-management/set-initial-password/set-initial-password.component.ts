@@ -47,7 +47,6 @@ import {
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordTdeOffboardingCredentials,
-  SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordTdeUserWithPermissionCredentials,
   SetInitialPasswordUserType,
 } from "./set-initial-password.service.abstraction";
@@ -184,22 +183,10 @@ export class SetInitialPasswordComponent implements OnInit {
         break;
       }
       case SetInitialPasswordUserType.TDE_ORG_USER_RESET_PASSWORD_PERMISSION_REQUIRES_MP:
-        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-          await this.setInitialPasswordTdeUserWithPermission(passwordInputResult);
-          return; // EARLY RETURN for flagged logic
-        }
-
-        await this.setInitialPassword(passwordInputResult);
-
+        await this.setInitialPasswordTdeUserWithPermission(passwordInputResult);
         break;
       case SetInitialPasswordUserType.OFFBOARDED_TDE_ORG_USER:
-        if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-          await this.setInitialPasswordTdeOffboarding(passwordInputResult);
-          return;
-        }
-
-        await this.setInitialPasswordTdeOffboardingOld(passwordInputResult);
-
+        await this.setInitialPasswordTdeOffboarding(passwordInputResult);
         break;
       default:
         this.logService.error(
@@ -457,41 +444,6 @@ export class SetInitialPasswordComponent implements OnInit {
       this.showSuccessToastByUserType();
 
       // TODO: investigate refactoring logout and follow-up routing in https://bitwarden.atlassian.net/browse/PM-32660
-      await this.logoutService.logout(this.userId);
-      // navigate to root so redirect guard can properly route next active user or null user to correct page
-      await this.router.navigate(["/"]);
-    } catch (e) {
-      this.logService.error("Error setting initial password during TDE offboarding", e);
-      this.validationService.showError(e);
-    } finally {
-      this.submitting = false;
-    }
-  }
-
-  /**
-   * @deprecated To be removed in PM-28143
-   */
-  private async setInitialPasswordTdeOffboardingOld(passwordInputResult: PasswordInputResult) {
-    const ctx = "Could not set initial password.";
-    assertTruthy(passwordInputResult.newMasterKey, "newMasterKey", ctx);
-    assertTruthy(passwordInputResult.newServerMasterKeyHash, "newServerMasterKeyHash", ctx);
-    assertTruthy(this.userId, "userId", ctx);
-    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", ctx); // can have an empty string as a valid value, so check non-nullish
-
-    try {
-      const credentials: SetInitialPasswordTdeOffboardingCredentialsOld = {
-        newMasterKey: passwordInputResult.newMasterKey,
-        newServerMasterKeyHash: passwordInputResult.newServerMasterKeyHash,
-        newPasswordHint: passwordInputResult.newPasswordHint,
-      };
-
-      await this.setInitialPasswordService.setInitialPasswordTdeOffboardingOld(
-        credentials,
-        this.userId,
-      );
-
-      this.showSuccessToastByUserType();
-
       await this.logoutService.logout(this.userId);
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
