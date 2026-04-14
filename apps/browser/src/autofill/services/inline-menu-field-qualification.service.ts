@@ -918,7 +918,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    *
    * @param field - The field to validate
    */
-  isPasswordField = (field: AutofillField): boolean => {
+  private isPasswordField = (field: AutofillField): boolean => {
     const isInputPasswordType = field.type === "password";
     if (
       (!isInputPasswordType &&
@@ -938,7 +938,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    *
    * @param field - The field to validate
    */
-  isLikePasswordField(field: AutofillField): boolean {
+  private isLikePasswordField(field: AutofillField): boolean {
     if (field.type !== "text") {
       return false;
     }
@@ -1004,7 +1004,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    *
    * @param field - The field to validate
    */
-  fieldHasDisqualifyingAttributeValue(field: AutofillField): boolean {
+  private fieldHasDisqualifyingAttributeValue(field: AutofillField): boolean {
     const checkedAttributeValues = [field.htmlID, field.htmlName, field.placeholder];
 
     for (let i = 0; i < checkedAttributeValues.length; i++) {
@@ -1025,7 +1025,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    * @param excludedTypes - The set of excluded types
    */
-  isExcludedFieldType(field: AutofillField, excludedTypes: Set<string>): boolean {
+  private isExcludedFieldType(field: AutofillField, excludedTypes: Set<string>): boolean {
     const fieldType = field.type;
 
     if (fieldType && excludedTypes.has(fieldType)) {
@@ -1040,7 +1040,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    *
    * @param field - The field to validate
    */
-  isSearchField(field: AutofillField): boolean {
+  private isSearchField(field: AutofillField): boolean {
     const matchFieldAttributeValues = [field.type, field.htmlName, field.htmlID, field.placeholder];
     for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
       const attributeValueToMatch = matchFieldAttributeValues[attrIndex];
@@ -1107,7 +1107,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param autofillFieldData - The field autocomplete value to validate
    * @param compareValues - The set of autocomplete values to check against
    */
-  fieldContainsAutocompleteValues(
+  private fieldContainsAutocompleteValues(
     autofillFieldData: AutofillField,
     compareValues: string | Set<string>,
   ) {
