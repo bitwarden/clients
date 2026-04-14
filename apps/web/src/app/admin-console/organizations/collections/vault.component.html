@@ -38,6 +38,7 @@
           [organization]="organization"
           [activeFilter]="activeFilter"
           [searchText]="currentSearchText$ | async"
+          [ciphers$]="allCiphers$"
           (searchTextChanged)="filterSearchText($event)"
         ></app-organization-vault-filter>
       </div>
