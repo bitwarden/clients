@@ -1,3 +1,10 @@
+// ResizeObserver is not available in jsdom
+globalThis.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof ResizeObserver;
+
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";

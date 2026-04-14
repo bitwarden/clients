@@ -1,61 +1,21 @@
 import {
-  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  ElementRef,
-  OnDestroy,
   effect,
-  inject,
+  ElementRef,
   input,
   signal,
   viewChild,
 } from "@angular/core";
 
-import { TooltipDirective } from "../tooltip/tooltip.directive";
-import { truncateFilename } from "../utils/truncate-filename";
-
-/**
- * Shared ResizeObserver instance for all TruncatedFilenameComponent instances.
- * A single observer watching N elements is more efficient than N separate observers.
- */
-let sharedObserver: ResizeObserver | null = null;
-const observedElements = new WeakMap<Element, () => void>();
-
-function observeResize(el: Element, callback: () => void): void {
-  if (typeof ResizeObserver === "undefined") {
-    return;
-  }
-  if (!sharedObserver) {
-    sharedObserver = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        observedElements.get(entry.target)?.();
-      }
-    });
-  }
-  observedElements.set(el, callback);
-  sharedObserver.observe(el);
-}
-
-function unobserveResize(el: Element): void {
-  sharedObserver?.unobserve(el);
-  observedElements.delete(el);
-}
-
-/** Shared offscreen canvas for text measurement across all instances. */
-let sharedCanvas: HTMLCanvasElement | null = null;
-
-function getMeasureContext(): CanvasRenderingContext2D | null {
-  if (!sharedCanvas) {
-    sharedCanvas = document.createElement("canvas");
-  }
-  return sharedCanvas.getContext("2d");
-}
+import { ResizeObserverDirective } from "../resize-observer";
+import { TooltipDirective } from "../tooltip";
+import { truncateFilename } from "../utils";
 
 /**
  * Renders a filename with responsive middle-truncation that preserves the file extension.
  *
- * Measures the available container width via a shared `ResizeObserver` and uses canvas text
+ * Uses `ResizeObserverDirective` to detect container width changes and canvas text
  * measurement to determine how many characters fit. The `truncateFilename` utility
  * handles the 50/50 split: start of filename + `…` + end of filename + extension.
  *
@@ -71,6 +31,8 @@ function getMeasureContext(): CanvasRenderingContext2D | null {
   template: `
     <span
       #container
+      resizeObserver
+      (resize)="onResize()"
       class="tw-block tw-flex-1 tw-min-w-0 tw-overflow-hidden tw-whitespace-nowrap"
       [bitTooltip]="filename()"
       [attr.aria-label]="filename()"
@@ -81,9 +43,9 @@ function getMeasureContext(): CanvasRenderingContext2D | null {
   host: { class: "tw-contents" },
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [TooltipDirective],
+  imports: [ResizeObserverDirective, TooltipDirective],
 })
-export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
+export class TruncatedFilenameComponent {
   /** The full filename to display. */
   readonly filename = input.required<string>();
 
@@ -91,35 +53,16 @@ export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
   protected readonly displayText = signal("");
 
   private readonly containerRef = viewChild<ElementRef<HTMLElement>>("container");
-  private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
-    // Recalculate when the filename input changes
     effect(() => {
       this.filename();
       this.recalculate();
     });
   }
 
-  ngAfterViewInit(): void {
-    const el = this.containerRef()?.nativeElement;
-    if (!el) {
-      return;
-    }
-
-    observeResize(el, () => this.recalculate());
+  protected onResize(): void {
     this.recalculate();
-
-    this.destroyRef.onDestroy(() => {
-      unobserveResize(el);
-    });
-  }
-
-  ngOnDestroy(): void {
-    const el = this.containerRef()?.nativeElement;
-    if (el) {
-      unobserveResize(el);
-    }
   }
 
   private recalculate(): void {
@@ -137,7 +80,7 @@ export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const ctx = getMeasureContext();
+    const ctx = TruncatedFilenameComponent.getMeasureContext();
     if (!ctx) {
       this.displayText.set(name);
       return;
@@ -171,5 +114,14 @@ export class TruncatedFilenameComponent implements AfterViewInit, OnDestroy {
     }
 
     this.displayText.set(truncateFilename(name, best));
+  }
+
+  /** Shared offscreen canvas for text measurement across all instances. */
+  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
+  private static measureCanvas: HTMLCanvasElement | null = null;
+
+  private static getMeasureContext(): CanvasRenderingContext2D | null {
+    TruncatedFilenameComponent.measureCanvas ??= document.createElement("canvas");
+    return TruncatedFilenameComponent.measureCanvas.getContext("2d");
   }
 }
