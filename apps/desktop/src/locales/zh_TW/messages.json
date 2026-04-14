@@ -2127,13 +2127,13 @@
     "message": "有尚未儲存的變更"
   },
   "unsavedChangesUpdateBody": {
-    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+    "message": "如果您現在離開，變更將不會被儲存。請稍後安裝更新，以便您可以留下並儲存變更。"
   },
   "installLater": {
-    "message": "Install later"
+    "message": "稍後安裝"
   },
   "continueWithInstall": {
-    "message": "Continue with install"
+    "message": "繼續安裝"
   },
   "clone": {
     "message": "克隆"
@@ -2243,9 +2243,6 @@
   },
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
-  },
-  "copyNotes": {
-    "message": "複製備註"
   },
   "totpHelperTitle": {
     "message": "無縫兩步驟驗證"

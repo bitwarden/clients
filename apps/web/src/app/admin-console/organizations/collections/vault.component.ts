@@ -76,6 +76,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   CipherFormConfig,
@@ -318,6 +321,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.restrictedItemTypesService.restricted$,
       this.refreshingSubject$,
     ]).pipe(
+      filter(([, , , refreshing]) => refreshing),
       switchMap(async ([organization, userId, restricted]) => {
         // If user swaps organization reset the addAccessToggle
         if (!this.showAddAccessToggle || organization) {
@@ -834,6 +838,27 @@ export class VaultComponent implements OnInit, OnDestroy {
       result?.action === AttachmentDialogResult.Uploaded
     ) {
       this.refresh();
+    }
+  }
+
+  /**
+   * Opens the add-item type selection dialog and handles the result.
+   */
+  protected async openAddItemDialog(): Promise<void> {
+    const organization = await firstValueFrom(this.organization$);
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: false,
+      canCreateCollection: organization?.canCreateNewCollections ?? false,
+      canCreateSshKey: true,
+    });
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (!result) {
+      return;
+    }
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Collection) {
+      await this.addCollection();
     }
   }
 

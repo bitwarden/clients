@@ -11,8 +11,11 @@
   "activity": {
     "message": "Activité"
   },
-  "applicationsAtRisk": {
-    "message": "Applications à risque"
+  "criticalAppsAtRisk": {
+    "message": "Applications critiques à risque"
+  },
+  "allCriticalApps": {
+    "message": "Toutes les applications critiques"
   },
   "appLogoLabel": {
     "message": "Logo de Bitwarden"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "Réinitialisation de la connexion en deux étapes pour l'utilisateur $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "Réinitialiser le lien SSO pour l'utilisateur $ID$",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "Copiez la clé API SCIM dans votre presse-papiers",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Afficher la clé API SCIM",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Régénérer la clé API SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "Les paramètres SCIM ont été enregistrés avec succès",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Entrée requise."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Rose"
+  },
+  "coral": {
+    "message": "Corail"
+  },
+  "purple": {
+    "message": "Violet"
+  },
+  "blue": {
+    "message": "Bleu"
   },
   "customColor": {
     "message": "Couleur Personnalisée"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Récupérer le compte"
+  },
+  "recoverAccountWarning": {
+    "message": "Lorsque vous réinitialisez le mot de passe ou la connexion en deux étapes pour ce membre, il sera informé de la modification et déconnecté."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Récupérer les comptes lorsque le mot de passe maître, la connexion en deux étapes ou les appareils de confiance sont oubliés ou perdus."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Les comptes existants avec les mots de passe maîtres exigeront que les membres s'inscrivent eux-mêmes avant que les administrateurs puissent récupérer leurs comptes."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Inscrire automatiquement les nouveaux membres dans la récupération du compte"
+  },
+  "resetMasterPassword": {
+    "message": "Réinitialiser le mot de passe principal"
+  },
+  "resetTwoStepLogin": {
+    "message": "Réinitialiser la connexion en deux étapes"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "L'accès du membre sera révoqué jusqu'à ce qu'il mette en place la connexion en deux étapes"
+  },
+  "recoverAccountSuccess": {
+    "message": "Récupération du compte réussie!"
   },
   "updatedTempPassword": {
     "message": "L'utilisateur a mis à jour un mot de passe émis lors de la récupération du compte."

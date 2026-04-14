@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Kimlik doğrulama anahtarını kopyala (TOTP)"
   },
-  "copyNotes": {
-    "message": "Notları kopyala"
-  },
   "totpHelperTitle": {
     "message": "2 adımlı doğrulamayı sorunsuz hale getirin"
   },
