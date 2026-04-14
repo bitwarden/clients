@@ -18,8 +18,7 @@ import {
   ItemModule,
   IconButtonModule,
   SectionHeaderComponent,
-  TooltipDirective,
-  TruncateFilenamePipe,
+  TruncatedFilenameComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -37,8 +36,7 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
     ItemModule,
     IconButtonModule,
     SectionHeaderComponent,
-    TooltipDirective,
-    TruncateFilenamePipe,
+    TruncatedFilenameComponent,
     TypographyModule,
     DownloadAttachmentComponent,
   ],

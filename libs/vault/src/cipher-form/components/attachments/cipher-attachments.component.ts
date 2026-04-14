@@ -48,8 +48,7 @@ import {
   ItemModule,
   ProgressModule,
   ToastService,
-  TooltipDirective,
-  TruncateFilenamePipe,
+  TruncatedFilenameComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -73,8 +72,7 @@ type CipherAttachmentForm = FormGroup<{
     JslibModule,
     ProgressModule,
     ReactiveFormsModule,
-    TooltipDirective,
-    TruncateFilenamePipe,
+    TruncatedFilenameComponent,
     TypographyModule,
     CardComponent,
     DeleteAttachmentComponent,

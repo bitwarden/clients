@@ -172,7 +172,9 @@ describe("CipherAttachmentsComponent", () => {
     const fileName = fixture.debugElement.query(By.css('[data-testid="file-name"]'));
     const fileSize = fixture.debugElement.query(By.css('[data-testid="file-size"]'));
 
-    expect(fileName.nativeElement.textContent.trim()).toEqual(attachment.fileName);
+    expect(fileName.nativeElement.textContent.replace(/\s+/g, " ").trim()).toEqual(
+      attachment.fileName,
+    );
     expect(fileSize.nativeElement.textContent.trim()).toEqual(attachment.sizeName);
   });
 
@@ -473,7 +475,7 @@ describe("CipherAttachmentsComponent", () => {
     });
   });
 
-  it("truncates long filenames and sets aria-label to full name", async () => {
+  it("sets aria-label to full filename for accessibility", async () => {
     const longFileName = "this-is-a-very-long-attachment-filename.pdf";
     const attachment = {
       id: "1234-5678",
@@ -492,12 +494,13 @@ describe("CipherAttachmentsComponent", () => {
     await waitForInitialization();
 
     const fileNameEl = fixture.debugElement.query(By.css('[data-testid="file-name"]'));
-    const displayedText = fileNameEl.nativeElement.textContent.trim();
-
-    // Displayed text should be truncated (shorter than the original)
-    expect(displayedText.length).toBeLessThan(longFileName.length);
-    // Aria-label should contain the full filename
-    expect(fileNameEl.nativeElement.getAttribute("aria-label")).toEqual(longFileName);
+    // The inner span of the component should have aria-label with the full filename
+    const ariaSpan = fileNameEl.nativeElement.querySelector("[aria-label]");
+    expect(ariaSpan.getAttribute("aria-label")).toEqual(longFileName);
+    // Full text is present in the DOM (CSS handles visual truncation)
+    expect(fileNameEl.nativeElement.textContent.replace(/\s+/g, "").trim()).toEqual(
+      longFileName.replace(/\s+/g, ""),
+    );
   });
 
   describe("removeAttachment", () => {

@@ -5,13 +5,10 @@
   <bit-item-group>
     <bit-item *ngFor="let attachment of cipher.attachments">
       <bit-item-content>
-        <span
+        <bit-truncated-filename
           data-testid="file-name"
-          [bitTooltip]="getAttachmentFileName(attachment)"
-          [attr.aria-label]="getAttachmentFileName(attachment)"
-        >
-          {{ getAttachmentFileName(attachment) | truncateFilename }}
-        </span>
+          [filename]="getAttachmentFileName(attachment)"
+        />
         @if (!attachment.hasDecryptionError) {
           <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
         }
