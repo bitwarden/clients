@@ -11,8 +11,11 @@
   "activity": {
     "message": "Активность"
   },
-  "applicationsAtRisk": {
-    "message": "Applications at risk"
+  "criticalAppsAtRisk": {
+    "message": "Критичные приложения, подверженные риску"
+  },
+  "allCriticalApps": {
+    "message": "Все критичные приложения"
   },
   "appLogoLabel": {
     "message": "Логотип Bitwarden"
@@ -6616,6 +6619,15 @@
       }
     }
   },
+  "eventAdminResetTwoFactor": {
+    "message": "Двухэтапный сброс данных для входа пользователя с $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "eventResetSsoLink": {
     "message": "Сбросить SSO-ссылку для пользователя $ID$",
     "placeholders": {
@@ -8219,6 +8231,10 @@
     "message": "Скопировать API-ключ SCIM в буфер обмена",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Просмотр API-ключа SCIM",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Сменить API-ключ SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8249,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "Настройки SCIM успешно сохранены",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Допускается только одна интеграция данного типа ($TYPE$). Конфликтующая интеграция: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Уже существует другая интеграция того же типа ($TYPE$). Обновите страницу в браузере и попробуйте еще раз.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Необходимо ввести данные."
@@ -8411,6 +8449,15 @@
   },
   "pink": {
     "message": "Розовый"
+  },
+  "coral": {
+    "message": "Коралловый"
+  },
+  "purple": {
+    "message": "Фиолетовый"
+  },
+  "blue": {
+    "message": "Синий"
   },
   "customColor": {
     "message": "Пользовательский цвет"
@@ -9706,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Восстановить аккаунт"
+  },
+  "recoverAccountWarning": {
+    "message": "При сбросе пароля или отключении двухэтапной аутентификации для этого пользователя он получит уведомление об изменении и будет разлогинен."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Восстановление аккаунтов в случае утери мастер-пароля, данных для двухэтапной аутентификации или списка доверенных устройств."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Для существующих аккаунтов с мастер-паролями пользователям необходимо будет самостоятельно пройти процедуру регистрации, прежде чем администраторы смогут восстановить их аккаунты."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Автоматически регистрировать новых пользователей в системе восстановления аккаунтов"
+  },
+  "resetMasterPassword": {
+    "message": "Сбросить мастер-пароль"
+  },
+  "resetTwoStepLogin": {
+    "message": "Сбросить двухэтапную аутентификацию"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Доступ пользователя будет заблокирован до тех пор, пока он не настроит двухэтапную аутентификацию"
+  },
+  "recoverAccountSuccess": {
+    "message": "Аккаунт успешно восстановлен!"
   },
   "updatedTempPassword": {
     "message": "Пользователь обновил пароль, выданный через восстановление аккаунта."
@@ -11115,7 +11186,7 @@
     "message": "Информация о клиенте"
   },
   "downloadChart": {
-    "message": "Download chart"
+    "message": "Скачать диаграмму"
   },
   "downloadCSV": {
     "message": "Скачать CSV"
