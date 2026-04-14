@@ -61,11 +61,15 @@ export class ContextMenuClickedHandler {
   }
 
   /**
-   * Returns the stored triage result and clears it from memory in one step.
+   * Returns the stored triage result for the given tab and clears it from memory.
+   * Returns undefined if no result is stored or the tabId doesn't match.
    * Call this when handing the result to the popup so it doesn't linger in
    * the background after it has been consumed.
    */
-  consumeTriageResult(): AutofillTriagePageResult | undefined {
+  consumeTriageResult(tabId: number): AutofillTriagePageResult | undefined {
+    if (this._triageResult?.tabId !== tabId) {
+      return undefined;
+    }
     const result = this._triageResult;
     this._triageResult = undefined;
     return result;

@@ -36,11 +36,11 @@ describe("ContextMenusBackground", () => {
 
     beforeEach(() => {
       (chrome.runtime as any).id = extensionId;
-      contextMenuClickedHandler.triageResult = mockResult;
-      contextMenuClickedHandler.consumeTriageResult.mockReturnValue(mockResult);
     });
 
     it("returns the triage result when sender is own extension, has no tab, and tabId matches", () => {
+      contextMenuClickedHandler.consumeTriageResult.mockReturnValue(mockResult);
+
       const sendResponse = jest.fn();
       sendMockExtensionMessage(
         { command: "getAutofillTriageResult", tabId },
@@ -48,10 +48,13 @@ describe("ContextMenusBackground", () => {
         sendResponse,
       );
 
+      expect(contextMenuClickedHandler.consumeTriageResult).toHaveBeenCalledWith(tabId);
       expect(sendResponse).toHaveBeenCalledWith(mockResult);
     });
 
-    it("returns null when the tabId does not match the stored result", () => {
+    it("returns null when consumeTriageResult returns undefined (tabId mismatch or no result)", () => {
+      contextMenuClickedHandler.consumeTriageResult.mockReturnValue(undefined);
+
       const sendResponse = jest.fn();
       sendMockExtensionMessage(
         { command: "getAutofillTriageResult", tabId: 999 },
@@ -89,18 +92,6 @@ describe("ContextMenusBackground", () => {
       sendMockExtensionMessage(
         { command: "getAutofillTriageResult", tabId },
         { id: "foreign-extension-id", tab: undefined },
-        sendResponse,
-      );
-
-      expect(sendResponse).toHaveBeenCalledWith(null);
-    });
-
-    it("returns null when triageResult is undefined", () => {
-      contextMenuClickedHandler.triageResult = undefined;
-      const sendResponse = jest.fn();
-      sendMockExtensionMessage(
-        { command: "getAutofillTriageResult", tabId },
-        { id: extensionId, tab: undefined },
         sendResponse,
       );
 

@@ -46,15 +46,13 @@ export default class ContextMenusBackground {
     if (msg.command === "getAutofillTriageResult") {
       const isOwnExtension = sender.id === chrome.runtime.id;
       const isExtensionPage = sender.tab === undefined;
-      const tabMatches =
-        msg.tabId !== undefined && msg.tabId === this.contextMenuClickedHandler.triageResult?.tabId;
 
-      if (!isOwnExtension || !isExtensionPage || !tabMatches) {
+      if (!isOwnExtension || !isExtensionPage || msg.tabId == null) {
         sendResponse(null);
         return true;
       }
 
-      sendResponse(this.contextMenuClickedHandler.consumeTriageResult());
+      sendResponse(this.contextMenuClickedHandler.consumeTriageResult(msg.tabId) ?? null);
       return true;
     }
 
