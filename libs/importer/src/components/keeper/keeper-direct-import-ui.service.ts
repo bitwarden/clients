@@ -6,6 +6,7 @@ import { DialogRef, DialogService } from "@bitwarden/components";
 import {
   Cancel,
   DeviceApprovalChannel,
+  DnaMethod,
   DuoMethod,
   Resend,
   TwoFactorMethod,
@@ -14,6 +15,7 @@ import {
 
 import { KeeperApprovalMethodSelectComponent } from "./dialog/keeper-approval-method-select.component";
 import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
+import { KeeperDnaMethodSelectComponent } from "./dialog/keeper-dna-method-select.component";
 import { KeeperDnaPushPromptComponent } from "./dialog/keeper-dna-push-prompt.component";
 import { KeeperDuoMethodSelectComponent } from "./dialog/keeper-duo-method-select.component";
 import { KeeperDuoPushPromptComponent } from "./dialog/keeper-duo-push-prompt.component";
@@ -103,7 +105,8 @@ export class KeeperDirectImportUIService implements Ui {
       method === TwoFactorMethod.Sms ||
       method === TwoFactorMethod.Duo ||
       method === TwoFactorMethod.Backup ||
-      method === TwoFactorMethod.Rsa;
+      method === TwoFactorMethod.Rsa ||
+      method === TwoFactorMethod.KeeperDna;
 
     const variant = needsCodeInput ? "totp" : "push";
 
@@ -162,6 +165,23 @@ export class KeeperDirectImportUIService implements Ui {
   //
   // Keeper DNA flow
   //
+
+  async selectDnaMethod(methods: DnaMethod[]): Promise<DnaMethod | typeof Cancel> {
+    if (methods.length === 0) {
+      return Cancel;
+    }
+
+    if (methods.length === 1) {
+      return methods[0];
+    }
+
+    this.dialogRef = KeeperDnaMethodSelectComponent.open(this.dialogService, {
+      methods,
+    });
+
+    const result = await firstValueFrom(this.dialogRef.closed);
+    return result === undefined ? Cancel : (result as DnaMethod);
+  }
 
   async waitForDnaPush(): Promise<typeof Cancel | void> {
     this.dialogRef = KeeperDnaPushPromptComponent.open(this.dialogService);

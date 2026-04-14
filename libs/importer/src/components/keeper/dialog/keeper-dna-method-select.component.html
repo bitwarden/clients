@@ -1,0 +1,28 @@
+<bit-dialog>
+  <span bitDialogTitle>
+    {{ "selectKeeperDnaMethod" | i18n }}
+  </span>
+
+  <div bitDialogContent>
+    <p>{{ "selectKeeperDnaMethodDesc" | i18n }}</p>
+    <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-4">
+      @for (method of methods; track method) {
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          (click)="select(method)"
+          class="tw-w-full"
+        >
+          {{ getMethodLabel(method) | i18n }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <ng-container bitDialogFooter>
+    <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button">
+      <span>{{ "cancel" | i18n }}</span>
+    </button>
+  </ng-container>
+</bit-dialog>

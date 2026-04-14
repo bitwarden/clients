@@ -13338,6 +13338,18 @@
   "keeperDnaPushWaiting": {
     "message": "Approve the Keeper DNA notification on your device."
   },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
   "unknownMethod": {
     "message": "Unknown method"
   },

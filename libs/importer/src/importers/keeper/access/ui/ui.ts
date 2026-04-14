@@ -1,4 +1,5 @@
 import { DeviceApprovalChannel } from "../enums/device-approval-channel";
+import { DnaMethod } from "../enums/dna-method";
 import { DuoMethod } from "../enums/duo-method";
 import { TwoFactorMethod } from "../enums/two-factor-method";
 
@@ -24,6 +25,7 @@ export interface Ui {
   closeDuoPushDialog(): void;
 
   // Keeper DNA specific actions
+  selectDnaMethod(methods: DnaMethod[]): Promise<DnaMethod | Cancel>;
   waitForDnaPush(): Promise<typeof Cancel | void>;
   closeDnaPushDialog(): void;
 
