@@ -11,6 +11,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BitwardenIcon } from "@bitwarden/components";
 
 @Injectable()
 export class EventService {
@@ -707,7 +708,7 @@ export class EventService {
     };
   }
 
-  private getAppInfo(ev: EventResponse): [string, string] {
+  private getAppInfo(ev: EventResponse): [BitwardenIcon, string] {
     if (ev.serviceAccountId) {
       return ["bwi-globe", this.i18nService.t("sdk")];
     }
@@ -965,7 +966,7 @@ export class EventService {
 export class EventInfo {
   message: string;
   humanReadableMessage: string;
-  appIcon: string;
+  appIcon: BitwardenIcon;
   appName: string;
 }
 
