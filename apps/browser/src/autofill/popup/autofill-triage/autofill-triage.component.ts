@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { DatePipe, CommonModule } from "@angular/common";
 import {
   Component,
@@ -48,7 +46,6 @@ import { formatAutofillTriageReport } from "../utils/format-autofill-triage-repo
     BadgeModule,
     ButtonModule,
     CalloutModule,
-    DialogService,
     IconButtonModule,
     IconModule,
     ItemModule,
@@ -100,7 +97,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       // Clear previous results and show loading state for new triage
       this.triageResult.set(null);
       this.expandedFields.set(new Set());
-      this.fetchTriageResult();
+      void this.fetchTriageResult();
     }
   };
 
@@ -125,7 +122,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
 
     // Safety net: if the background finished collection before Angular bootstrapped,
     // pick up the already-stored result immediately.
-    this.fetchTriageResult();
+    void this.fetchTriageResult();
   }
 
   ngOnDestroy() {
@@ -136,17 +133,19 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
     }
   }
 
-  private fetchTriageResult(): void {
+  private async fetchTriageResult(): Promise<void> {
     this.loading.set(true);
-    void BrowserApi.sendMessageWithResponse<AutofillTriagePageResult | null>(
-      "getAutofillTriageResult",
-      { tabId: this.currentTabId() },
-    ).then((response) => {
+    try {
+      const response = await BrowserApi.sendMessageWithResponse<AutofillTriagePageResult | null>(
+        "getAutofillTriageResult",
+        { tabId: this.currentTabId() },
+      );
       if (response) {
         this.triageResult.set(response);
       }
+    } finally {
       this.loading.set(false);
-    });
+    }
   }
 
   /**
