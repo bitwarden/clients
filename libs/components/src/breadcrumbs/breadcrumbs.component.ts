@@ -87,9 +87,9 @@ export class BreadcrumbsComponent {
     "!tw-m-0",
     "focus-visible:!tw-text-fg-brand",
     "focus-visible:!tw-rounded",
-    "focus-visible:!tw-outline-none",
-    "focus-visible:!tw-ring-2",
-    "focus-visible:!tw-ring-border-focus",
+    "focus-visible:tw-outline-none",
+    "focus-visible:tw-ring-2",
+    "focus-visible:tw-ring-border-focus",
   ];
 
   protected readonly breadcrumbStyles = [
