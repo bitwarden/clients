@@ -25,6 +25,7 @@ export class BitFieldContainerDirective {
       "tw-border-solid",
       "tw-border-border-strong",
       "tw-bg-bg-secondary",
+      "tw-placeholder-fg-body-subtle",
       "has-[input:disabled]:tw-border-border-base",
       "tw-transition-colors",
       "has-[:focus-visible]:tw-border-border-brand",
@@ -33,6 +34,18 @@ export class BitFieldContainerDirective {
       "has-[.tw-test-focus-visible]:tw-ring-border-brand",
       "has-[:focus-visible]:tw-ring-1",
       "has-[.tw-test-focus-visible]:tw-ring-1",
+      "tw-relative",
+      "has-[select]:after:tw-absolute",
+      // spacing here to match visual spacing used by ng-select arrow
+      "has-[select]:after:tw-end-[calc(theme(spacing.3)_+_2px)]",
+      "has-[select]:after:tw-top-[calc(50%_-_1px)]",
+      "has-[select]:after:tw-rotate-[45deg]",
+      "has-[select]:after:-tw-translate-y-1/2",
+      "has-[select]:after:tw-size-2",
+      "has-[select]:after:tw-border-fg-heading",
+      "has-[select]:after:tw-border-r-[2px]",
+      "has-[select]:after:tw-border-b-[2px]",
+      "has-[select]:after:tw-rounded-[2px]",
       ...(size === "large" ? ["tw-text-base/6", "tw-min-h-12"] : ["tw-text-sm/5", "tw-min-h-10"]),
       ...(hasError
         ? [
