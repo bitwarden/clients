@@ -8,7 +8,7 @@
 //! The implementations include DPAPI on Windows, `keyctl` on Linux, and `memfd_secret` on Linux,
 //! and a fallback implementation using mlock.
 
-use tracing::info;
+use tracing::{debug, info, warn};
 
 mod crypto;
 #[cfg(target_os = "windows")]
@@ -174,14 +174,21 @@ fn get_env_forced_container() -> Option<CrossPlatformSecureKeyContainer> {
             ))
         }
         Ok(env_var) => {
-            info!(
+            warn!(
                 env_var,
                 "is not a valid secure key container backend, using automatic selection"
             );
             None
         }
+        Err(std::env::VarError::NotPresent) => {
+            debug!(
+                env_var = ENV_VAR_SECURE_KEY_CONTAINER_BACKEND,
+                "is not set, using automatic selection"
+            );
+            None
+        }
         Err(error) => {
-            info!(
+            warn!(
                 %error,
                 env_var = ENV_VAR_SECURE_KEY_CONTAINER_BACKEND,
                 "failed to read environment variable, using automatic selection"
