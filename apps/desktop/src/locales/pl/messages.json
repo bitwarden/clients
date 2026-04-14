@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Niezapisane zmiany"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Jeśli wyjdziesz teraz, zmiany nie zostaną zapisane. Zainstaluj aktualizację później, abyś mógł pozostać na stronie i zapisać zmiany."
+  },
+  "installLater": {
+    "message": "Zainstaluj później"
+  },
+  "continueWithInstall": {
+    "message": "Kontynuuj instalację"
+  },
   "clone": {
     "message": "Klonuj"
   },

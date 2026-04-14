@@ -31,9 +31,9 @@ import {
   SectionHeaderComponent,
   SelectModule,
 } from "@bitwarden/components";
+import { SendPolicyService, SendFormConfig } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
 import { SendFormContainer } from "../../send-form-container";
 
 @Component({
@@ -76,6 +76,11 @@ export class SendOptionsComponent implements OnInit {
   readonly anyOptionFieldVisible = computed(
     () => this.maxAccessCountVisible() || this.hideEmailVisible() || this.privateNoteVisible(),
   );
+  private readonly sendPolicyService = inject(SendPolicyService);
+
+  get shouldShowCount(): boolean {
+    return this.config().mode === "edit" && this.sendOptionsForm.value.maxAccessCount !== null;
+  }
 
   readonly maxAccessCountVisible = computed(
     () => this.editing() || this.originalSendView()?.maxAccessCount != null,

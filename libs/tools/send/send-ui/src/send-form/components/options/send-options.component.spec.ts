@@ -9,6 +9,7 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { UserId } from "@bitwarden/user-core";
 
 import { SendFormContainer } from "../../send-form-container";
@@ -38,7 +39,7 @@ describe("SendOptionsComponent", () => {
         { provide: SendFormContainer, useValue: mockSendFormContainer },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: I18nService, useValue: mock<I18nService>() },
-        { provide: AccountService, useValue: mockAccountService },
+        { provide: SendPolicyService, useValue: { disableHideEmail$: of(false) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(SendOptionsComponent);

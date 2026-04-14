@@ -115,6 +115,7 @@ export const ContentSlots: Story = {
           <bit-avatar
             slot="start"
             text="Foo"
+            size="lg"
           ></bit-avatar>
           foo&#64;bitwarden.com
           <ng-container slot="secondary">
