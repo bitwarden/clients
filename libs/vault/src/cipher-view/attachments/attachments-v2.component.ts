@@ -73,7 +73,7 @@ export class AttachmentsV2Component {
     this.admin = params.admin ?? false;
     this.canEditCipher = params?.canEditCipher ?? false;
     this.buttonText =
-      this.canEditCipher || this.admin ? this.i18nService.t("upload") : this.i18nService.t("close");
+      this.canEditCipher || this.admin ? this.i18nService.t("add") : this.i18nService.t("close");
   }
 
   /**

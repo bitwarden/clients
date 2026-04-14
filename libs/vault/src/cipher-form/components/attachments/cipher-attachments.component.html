@@ -7,8 +7,12 @@
         @if (!attachment.hasDecryptionError) {
           <bit-item>
             <bit-item-content>
-              <span data-testid="file-name" [title]="attachment.fileName">
-                {{ attachment.fileName }}
+              <span
+                data-testid="file-name"
+                [bitTooltip]="attachment.fileName"
+                [attr.aria-label]="attachment.fileName"
+              >
+                {{ attachment.fileName | truncateFilename }}
               </span>
               <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
               @if (attachment.key == null) {
@@ -82,7 +86,7 @@
 <form [id]="attachmentFormId" [formGroup]="attachmentForm" [bitSubmit]="submit">
   @if (cipher()?.edit) {
     <bit-card>
-      <label for="file" bitTypography="body2" class="tw-block tw-text-muted tw-px-1 tw-pb-1.5">
+      <label for="file" bitTypography="body2" class="tw-sr-only">
         {{ "addAttachment" | i18n }}
       </label>
       <div class="tw-relative">
@@ -110,10 +114,15 @@
           >
             {{ "chooseFile" | i18n }}
           </button>
-          <p bitTypography="body2" class="tw-text-muted tw-mb-0">
+          <p
+            bitTypography="body2"
+            class="tw-text-muted tw-mb-0 tw-truncate tw-min-w-0"
+            [bitTooltip]="this.attachmentForm.controls.file?.value?.name ?? ''"
+            [attr.aria-label]="this.attachmentForm.controls.file?.value?.name"
+          >
             {{
               this.attachmentForm.controls.file?.value
-                ? this.attachmentForm.controls.file.value.name
+                ? (this.attachmentForm.controls.file.value.name | truncateFilename)
                 : ("noFileChosen" | i18n)
             }}
           </p>
