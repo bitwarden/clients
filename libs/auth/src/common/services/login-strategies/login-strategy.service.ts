@@ -103,7 +103,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   constructor(
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private unlockService: UnlockService,
     private keyService: KeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
@@ -130,6 +129,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private passwordPreloginService: PasswordPreloginService,
+    private unlockService: UnlockService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -393,15 +393,16 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
             return new SsoLoginStrategy(
               data?.sso ?? new SsoLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               this.deviceTrustService,
               this.authRequestService,
-              this.i18nService,
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:
             return new UserApiLoginStrategy(
               data?.userApiKey ?? new UserApiLoginStrategyData(),
               this.keyConnectorService,
+              this.unlockService,
               ...sharedDeps,
             );
           case AuthenticationType.AuthRequest:
