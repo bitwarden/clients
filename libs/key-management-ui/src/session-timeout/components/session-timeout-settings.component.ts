@@ -131,8 +131,7 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   protected readonly isTimeoutSuppressed = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(userId)),
-      map((until) => until != null && Date.now() < until),
+      switchMap((userId) => this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed$(userId)),
     ),
     { initialValue: false },
   );
@@ -192,16 +191,14 @@ export class SessionTimeoutSettingsComponent implements OnInit {
             this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(this.userId),
             this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(this.userId),
             this.sessionTimeoutActionFromPolicy$,
-            this.vaultTimeoutSettingsService.vaultTimeoutSuppressedUntil$(this.userId),
+            this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed$(this.userId),
           ]),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(([availableActions, action, sessionTimeoutActionFromPolicy, suppressedUntil]) => {
+      .subscribe(([availableActions, action, sessionTimeoutActionFromPolicy, isSuppressed]) => {
         this.availableTimeoutActions.set(availableActions);
         this.formGroup.controls.timeoutAction.setValue(action, { emitEvent: false });
-
-        const isSuppressed = suppressedUntil != null && Date.now() < suppressedUntil;
 
         // Disable the entire form when vault timeout is suppressed by shared unlock
         if (isSuppressed) {
