@@ -28,7 +28,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
             .collections()
             .decrypt(collection.toSdkCollection());
 
-          return CollectionView.fromSdkCollectionView(sdkCollectionView);
+          return CollectionView.fromSdkCollectionView(sdkCollectionView, collection);
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collection: ${error}`);
@@ -57,7 +57,9 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
             .collections()
             .decrypt_list(collections.map((c) => c.toSdkCollection()));
 
-          return sdkCollectionViews.map((sdkView) => CollectionView.fromSdkCollectionView(sdkView));
+          return sdkCollectionViews.map((sdkView, index) =>
+            CollectionView.fromSdkCollectionView(sdkView, collections[index]),
+          );
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collections in batch: ${error}`);
@@ -67,27 +69,9 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     );
   }
 
-  async encrypt(collectionView: CollectionView, userId: UserId): Promise<Collection> {
-    return firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-          const sdkCollection = ref.value
-            .vault()
-            .collections()
-            .encrypt(collectionView.toSdkCollectionView());
-
-          return Collection.fromSdkCollection(sdkCollection);
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to encrypt collection: ${error}`);
-          return EMPTY;
-        }),
-      ),
-    );
+  async encrypt(_collectionView: CollectionView, _userId: UserId): Promise<Collection> {
+    // The SDK's CollectionsClient does not yet expose an encrypt method.
+    // Callers should use the legacy key-service path via DefaultCollectionService.encrypt.
+    throw new Error("Collection encryption via the SDK is not yet supported.");
   }
 }

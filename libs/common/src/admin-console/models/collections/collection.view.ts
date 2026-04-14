@@ -176,11 +176,16 @@ export class CollectionView implements View, ITreeNodeObject {
   /**
    * Creates a CollectionView from the SDK CollectionView returned by SDK decrypt operations.
    *
-   * Note: the SDK's decrypt impl already resolves defaultUserCollectionEmail — when set, the
-   * SDK places it directly into CollectionView.name instead of decrypting the EncString name.
-   * There is therefore no need to pass the original Collection here.
+   * The `sourceCollection` parameter is required to preserve `defaultUserCollectionEmail`, which
+   * the SDK's CollectionView type does not carry. That field is consumed by `canEditName()` to
+   * enforce the security restriction that prevents editing names on offboarded default-user
+   * collections (see WARNING on `canEditName`). Without it the restriction would be silently
+   * bypassed on the SDK decrypt path.
    */
-  static fromSdkCollectionView(sdkView: SdkCollectionView): CollectionView {
+  static fromSdkCollectionView(
+    sdkView: SdkCollectionView,
+    sourceCollection: Collection,
+  ): CollectionView {
     const view = new CollectionView({
       id: sdkView.id ? (uuidAsString(sdkView.id) as CollectionId) : ("" as CollectionId),
       organizationId: uuidAsString(sdkView.organizationId) as OrganizationId,
@@ -192,6 +197,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.readOnly = sdkView.readOnly;
     view.manage = sdkView.manage;
     view.assigned = true;
+    view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
     view.type =
       sdkView.type === "DefaultUserCollection"
         ? CollectionTypes.DefaultUserCollection

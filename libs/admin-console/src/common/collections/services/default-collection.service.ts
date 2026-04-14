@@ -222,14 +222,6 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   async encrypt(model: CollectionView, userId: UserId): Promise<Collection> {
-    const sdkEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM34918CollectionEncryptionService,
-    );
-
-    if (sdkEnabled) {
-      return await this.collectionEncryptionService.encrypt(model, userId);
-    }
-
     const key = await firstValueFrom(
       this.keyService.orgKeys$(userId).pipe(
         filter((orgKeys) => !!orgKeys),
