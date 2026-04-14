@@ -16,14 +16,17 @@ import {
 import { DialogService } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
-import { AddEditFolderDialogComponent, AddItemGridComponent } from "@bitwarden/vault";
+import {
+  AddEditFolderDialogComponent,
+  AddItemGridComponent,
+  AddItemGridResult,
+} from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 
 import { NewItemPageComponent } from "./new-item-page.component";
 
 describe("NewItemPageComponent", () => {
-  let component: NewItemPageComponent;
   let fixture: ComponentFixture<NewItemPageComponent>;
   let accountServiceMock: jest.Mocked<AccountService>;
   let billingAccountProfileStateServiceMock: jest.Mocked<BillingAccountProfileStateService>;
@@ -32,6 +35,7 @@ describe("NewItemPageComponent", () => {
   const mockActiveAccount = { id: "user-1" as any };
 
   let navigate: jest.SpyInstance;
+  let queryParams$: BehaviorSubject<Record<string, string>>;
 
   beforeEach(async () => {
     accountServiceMock = mock<AccountService>();
@@ -43,8 +47,9 @@ describe("NewItemPageComponent", () => {
     accountServiceMock.activeAccount$ = of(mockActiveAccount) as any;
     billingAccountProfileStateServiceMock.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
+    queryParams$ = new BehaviorSubject<Record<string, string>>({});
     const activatedRouteMock = {
-      queryParams: of({}),
+      queryParams: queryParams$,
       snapshot: { paramMap: { get: jest.fn() } },
     };
 
@@ -67,7 +72,6 @@ describe("NewItemPageComponent", () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(NewItemPageComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
 
     const router = TestBed.inject(Router);
@@ -76,90 +80,93 @@ describe("NewItemPageComponent", () => {
 
   const newItemGrid = () => fixture.debugElement.query(By.directive(AddItemGridComponent));
 
-  describe("onCipherSelected", () => {
-    it("navigates to /add-cipher with correct query params for a non-login cipher", async () => {
-      newItemGrid().triggerEventHandler("cipherSelected", CipherType.SecureNote);
+  describe("onItemSelected", () => {
+    describe("cipher", () => {
+      it("navigates to /add-cipher with correct query params for a non-login cipher", async () => {
+        newItemGrid().triggerEventHandler("itemSelected", {
+          result: AddItemGridResult.Cipher,
+          cipherType: CipherType.SecureNote,
+        });
 
-      const navigateCall = navigate.mock.calls[0];
-      const queryParams = navigateCall[1].queryParams;
+        const navigateCall = navigate.mock.calls[0];
+        const queryParams = navigateCall[1].queryParams;
 
-      expect(navigate).toHaveBeenCalledWith(
-        ["/add-cipher"],
-        expect.objectContaining({
-          queryParams: expect.objectContaining({
-            type: CipherType.SecureNote.toString(),
+        expect(navigate).toHaveBeenCalledWith(
+          ["/add-cipher"],
+          expect.objectContaining({
+            queryParams: expect.objectContaining({
+              type: CipherType.SecureNote.toString(),
+            }),
           }),
-        }),
-      );
-      expect(queryParams.prefillNameAndURIFromTab).toBeUndefined();
-    });
-
-    it("adds prefillNameAndURIFromTab=true for Login cipher when not popped out", () => {
-      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
-
-      component["onCipherSelected"](CipherType.Login);
-
-      expect(navigate).toHaveBeenCalledWith(
-        ["/add-cipher"],
-        expect.objectContaining({
-          queryParams: expect.objectContaining({
-            type: CipherType.Login.toString(),
-            prefillNameAndURIFromTab: "true",
-          }),
-        }),
-      );
-    });
-
-    it("does NOT add prefillNameAndURIFromTab for Login cipher when popped out", () => {
-      jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
-
-      newItemGrid().triggerEventHandler("cipherSelected", CipherType.Login);
-
-      const navigateCall = navigate.mock.calls[0];
-      const queryParams = navigateCall[1].queryParams;
-      expect(queryParams.prefillNameAndURIFromTab).toBeUndefined();
-    });
-
-    it("passes folderId, organizationId, and collectionId from route params", async () => {
-      const activatedRoute = TestBed.inject(ActivatedRoute);
-      (activatedRoute as any).queryParams = of({
-        folderId: "folder-1",
-        organizationId: "org-1",
-        collectionId: "col-1",
+        );
+        expect(queryParams.prefillNameAndURIFromTab).toBeUndefined();
       });
 
-      // Recreate component with new route params
-      fixture = TestBed.createComponent(NewItemPageComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-      // Allow async switchMap to resolve
-      await fixture.whenStable();
+      it("adds prefillNameAndURIFromTab=true for Login cipher when not popped out", () => {
+        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(false);
 
-      newItemGrid().triggerEventHandler("cipherSelected", CipherType.Identity);
+        newItemGrid().triggerEventHandler("itemSelected", {
+          result: AddItemGridResult.Cipher,
+          cipherType: CipherType.Login,
+        });
 
-      expect(navigate).toHaveBeenCalledWith(
-        ["/add-cipher"],
-        expect.objectContaining({
-          queryParams: expect.objectContaining({
-            type: CipherType.Identity.toString(),
-            folderId: "folder-1",
-            organizationId: "org-1",
-            collectionId: "col-1",
+        expect(navigate).toHaveBeenCalledWith(
+          ["/add-cipher"],
+          expect.objectContaining({
+            queryParams: expect.objectContaining({
+              type: CipherType.Login.toString(),
+              prefillNameAndURIFromTab: "true",
+            }),
           }),
-        }),
-      );
+        );
+      });
+
+      it("does NOT add prefillNameAndURIFromTab for Login cipher when popped out", () => {
+        jest.spyOn(BrowserPopupUtils, "inPopout").mockReturnValue(true);
+
+        newItemGrid().triggerEventHandler("itemSelected", {
+          result: AddItemGridResult.Cipher,
+          cipherType: CipherType.Login,
+        });
+
+        const navigateCall = navigate.mock.calls[0];
+        const queryParams = navigateCall[1].queryParams;
+        expect(queryParams.prefillNameAndURIFromTab).toBeUndefined();
+      });
+
+      it("passes folderId, organizationId, and collectionId from route params", async () => {
+        queryParams$.next({ folderId: "folder-1", organizationId: "org-1", collectionId: "col-1" });
+        await fixture.whenStable();
+
+        newItemGrid().triggerEventHandler("itemSelected", {
+          result: AddItemGridResult.Cipher,
+          cipherType: CipherType.Identity,
+        });
+
+        expect(navigate).toHaveBeenCalledWith(
+          ["/add-cipher"],
+          expect.objectContaining({
+            queryParams: expect.objectContaining({
+              type: CipherType.Identity.toString(),
+              folderId: "folder-1",
+              organizationId: "org-1",
+              collectionId: "col-1",
+            }),
+          }),
+        );
+      });
     });
-  });
 
-  describe("onFolderSelected", () => {
-    it("opens the AddEditFolderDialogComponent", () => {
-      const openSpy = jest
-        .spyOn(AddEditFolderDialogComponent, "open")
-        .mockImplementation(() => ({}) as any);
+    describe("folder", () => {
+      it("opens the AddEditFolderDialogComponent", () => {
+        const openSpy = jest
+          .spyOn(AddEditFolderDialogComponent, "open")
+          .mockImplementation(() => ({}) as any);
 
-      newItemGrid().triggerEventHandler("folderSelected", null);
+        newItemGrid().triggerEventHandler("itemSelected", { result: AddItemGridResult.Folder });
 
-      expect(openSpy).toHaveBeenCalled();
+        expect(openSpy).toHaveBeenCalled();
+      });
     });
   });
 });

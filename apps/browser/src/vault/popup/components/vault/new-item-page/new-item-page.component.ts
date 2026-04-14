@@ -15,6 +15,7 @@ import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
   AddItemGridComponent,
+  AddItemGridResult,
 } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
@@ -69,30 +70,33 @@ export class NewItemPageComponent {
     private readonly route: ActivatedRoute,
   ) {}
 
-  protected onCipherSelected(cipherType: CipherType): void {
+  protected async onItemSelected(item: AddItemGridResult): Promise<void> {
+    if (item.result === AddItemGridResult.Folder) {
+      const dialogRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const result = await firstValueFrom(dialogRef.closed);
+      if (result === AddEditFolderDialogResult.Created) {
+        void this.router.navigate(["/vault"]);
+      }
+      return;
+    }
+
+    if (item.result !== AddItemGridResult.Cipher) {
+      return;
+    }
+
     const poppedOut = BrowserPopupUtils.inPopout(window);
 
     const queryParams: AddEditQueryParams = {
-      type: cipherType.toString(),
+      type: item.cipherType.toString(),
       folderId: this.folderId(),
       organizationId: this.organizationId(),
       collectionId: this.collectionId(),
     };
 
-    if (!poppedOut && cipherType === CipherType.Login) {
+    if (!poppedOut && item.cipherType === CipherType.Login) {
       queryParams.prefillNameAndURIFromTab = "true";
     }
 
     void this.router.navigate(["/add-cipher"], { queryParams });
-  }
-
-  protected async onFolderSelected(): Promise<void> {
-    const dialogRef = AddEditFolderDialogComponent.open(this.dialogService);
-
-    const result = await firstValueFrom(dialogRef.closed);
-
-    if (result === AddEditFolderDialogResult.Created) {
-      void this.router.navigate(["/vault"]);
-    }
   }
 }
