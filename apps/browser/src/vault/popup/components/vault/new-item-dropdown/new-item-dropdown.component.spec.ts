@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, RouterLink } from "@angular/router";
+import { By } from "@angular/platform-browser";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -17,6 +18,8 @@ import {
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
+import { GlobalStateProvider } from "@bitwarden/state";
+import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
@@ -27,10 +30,14 @@ describe("NewItemDropdownComponent", () => {
   let component: NewItemDropdownComponent;
   let fixture: ComponentFixture<NewItemDropdownComponent>;
   let dialogServiceMock: jest.Mocked<DialogService>;
+  let configServiceMock: jest.Mocked<ConfigService>;
   const browserApiMock: jest.Mocked<typeof BrowserApi> = mock<typeof BrowserApi>();
   let restrictedItemTypesServiceMock: jest.Mocked<RestrictedItemTypesService>;
 
   const mockTab = { url: "https://example.com" };
+
+  const featureFlagSubject = new BehaviorSubject<boolean>(false);
+  let navigate: jest.SpyInstance;
 
   beforeAll(() => {
     jest.spyOn(BrowserApi, "getTabFromCurrentWindow").mockResolvedValue(mockTab as chrome.tabs.Tab);
@@ -41,6 +48,9 @@ describe("NewItemDropdownComponent", () => {
   beforeEach(async () => {
     dialogServiceMock = mock<DialogService>();
     dialogServiceMock.open.mockClear();
+    configServiceMock = mock<ConfigService>();
+    configServiceMock.getFeatureFlag$.mockReturnValue(featureFlagSubject.asObservable());
+    featureFlagSubject.next(false);
 
     const activatedRouteMock = {
       snapshot: { paramMap: { get: jest.fn() } },
@@ -66,7 +76,7 @@ describe("NewItemDropdownComponent", () => {
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: ConfigService, useValue: { getFeatureFlag: () => Promise.resolve(false) } },
+        { provide: ConfigService, useValue: configServiceMock },
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: I18nService, useValue: i18nServiceMock },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
@@ -75,6 +85,7 @@ describe("NewItemDropdownComponent", () => {
         { provide: FolderApiServiceAbstraction, useValue: folderApiServiceAbstractionMock },
         { provide: AccountService, useValue: accountServiceMock },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesServiceMock },
+        { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
       ],
     }).compileComponents();
   });
@@ -83,6 +94,9 @@ describe("NewItemDropdownComponent", () => {
     fixture = TestBed.createComponent(NewItemDropdownComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+
+    const router = TestBed.inject(Router);
+    navigate = jest.spyOn(router, "navigate").mockResolvedValue(true);
   });
 
   describe("buildQueryParams", () => {
@@ -172,6 +186,45 @@ describe("NewItemDropdownComponent", () => {
       expect(params).toEqual({
         type: CipherType.SshKey.toString(),
         collectionId: "777-888-999",
+      });
+    });
+  });
+
+  describe("new item types", () => {
+    beforeEach(() => {
+      featureFlagSubject.next(true);
+      fixture.detectChanges();
+    });
+
+    it("navigateToNewItemPage navigates to /new-item with initial values as query params", () => {
+      component.initialValues = {
+        folderId: "folder-1",
+        organizationId: "org-1" as any,
+        collectionId: "col-1" as any,
+      };
+
+      fixture.debugElement.query(By.css("button")).triggerEventHandler("click", null);
+
+      expect(navigate).toHaveBeenCalledWith(["/new-item"], {
+        queryParams: {
+          folderId: "folder-1",
+          organizationId: "org-1",
+          collectionId: "col-1",
+        },
+      });
+    });
+
+    it("navigateToNewItemPage passes undefined query params when initialValues is not set", () => {
+      component.initialValues = undefined;
+
+      fixture.debugElement.query(By.css("button")).triggerEventHandler("click", null);
+
+      expect(navigate).toHaveBeenCalledWith(["/new-item"], {
+        queryParams: {
+          folderId: undefined,
+          organizationId: undefined,
+          collectionId: undefined,
+        },
       });
     });
   });
