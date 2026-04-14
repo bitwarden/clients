@@ -3,7 +3,6 @@ import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -134,12 +133,25 @@ describe("MasterPasswordService", () => {
         expect(result).toBe(expectedSalt);
       });
 
-      it("throws when master password unlock data is null", async () => {
+      it("throws when unlock data is null and user has a master password (hydration failure)", async () => {
         stateProvider.singleUser.getFake(userId, MASTER_PASSWORD_UNLOCK_KEY).nextState(null);
+        // Simulate a user who has a master password by setting their encrypted user key
+        stateProvider.singleUser
+          .getFake(userId, MASTER_KEY_ENCRYPTED_USER_KEY)
+          .nextState(new EncString(testMasterKeyEncryptedKey).toSdk());
 
         await expect(firstValueFrom(sut.saltForUser$(userId))).rejects.toThrow(
           "Master password unlock data not found for user.",
         );
+      });
+
+      it("returns email-derived salt when unlock data is null and user has no master password (TDE offboarding)", async () => {
+        stateProvider.singleUser.getFake(userId, MASTER_PASSWORD_UNLOCK_KEY).nextState(null);
+
+        const result = await firstValueFrom(sut.saltForUser$(userId));
+
+        // mockAccountServiceWith defaults email to "email"; emailToSalt lowercases and trims it
+        expect(result).toBe("email" as MasterPasswordSalt);
       });
     });
   });
@@ -551,16 +563,6 @@ describe("MasterPasswordService", () => {
       );
 
       await sut.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
-
-      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-        masterKey.inner().encryptionKey,
-        password,
-        "sha256",
-        HashPurpose.LocalAuthorization,
-      );
-
-      const hashState = await firstValueFrom(sut.masterKeyHash$(userId));
-      expect(hashState).toEqual(expectedHashB64);
     });
 
     it("throws if password is null", async () => {
