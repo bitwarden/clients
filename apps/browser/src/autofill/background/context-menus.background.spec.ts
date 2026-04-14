@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { ContextMenuClickedHandler } from "../browser/context-menu-clicked-handler";
 import { sendMockExtensionMessage } from "../spec/testing-utils";
+import { AutofillTriagePageResult } from "../types/autofill-triage";
 
 import ContextMenusBackground from "./context-menus.background";
 
@@ -26,14 +27,17 @@ describe("ContextMenusBackground", () => {
     const extensionId = "test-extension-id";
     const tabId = 42;
 
+    const mockResult: AutofillTriagePageResult = {
+      tabId,
+      pageUrl: "https://example.com",
+      analyzedAt: "2026-01-01T00:00:00.000Z",
+      fields: [],
+    };
+
     beforeEach(() => {
       (chrome.runtime as any).id = extensionId;
-      contextMenuClickedHandler.triageResult = {
-        tabId,
-        pageUrl: "https://example.com",
-        analyzedAt: "2026-01-01T00:00:00.000Z",
-        fields: [],
-      };
+      contextMenuClickedHandler.triageResult = mockResult;
+      contextMenuClickedHandler.consumeTriageResult.mockReturnValue(mockResult);
     });
 
     it("returns the triage result when sender is own extension, has no tab, and tabId matches", () => {
@@ -44,7 +48,7 @@ describe("ContextMenusBackground", () => {
         sendResponse,
       );
 
-      expect(sendResponse).toHaveBeenCalledWith(contextMenuClickedHandler.triageResult);
+      expect(sendResponse).toHaveBeenCalledWith(mockResult);
     });
 
     it("returns null when the tabId does not match the stored result", () => {

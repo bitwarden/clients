@@ -54,7 +54,7 @@ export default class ContextMenusBackground {
         return true;
       }
 
-      sendResponse(this.contextMenuClickedHandler.triageResult);
+      sendResponse(this.contextMenuClickedHandler.consumeTriageResult());
       return true;
     }
 
