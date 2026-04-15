@@ -2978,6 +2978,45 @@ describe("OverlayBackground", () => {
           left: "1271px",
         });
       });
+
+      it("sets button position correctly when direction is RTL", async () => {
+        const subframe = {
+          top: 0,
+          left: 0,
+          url: "",
+          frameId: 0,
+        };
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          focusedFieldRects: {
+            width: 500,
+            height: 40,
+            top: 100,
+            left: 200,
+          },
+          focusedFieldStyles: {
+            direction: "rtl",
+            paddingLeft: "10px",
+            paddingRight: "0px",
+          },
+        });
+
+        const buttonPostion = overlayBackground["getInlineMenuButtonPosition"](subframe);
+
+        // height = 40. elementOffset = 40 * 0.42 = 16.8 (since height >= 35)
+        // elementHeight = 40 - 16.8 = 23.2
+        // elementTopPosition = 100 + 16.8 / 2 = 108.4
+        // isRtl = true. fieldPaddingLeft = 10, fieldPaddingRight = 0.
+        // fieldPaddingLeft > fieldPaddingRight is true.
+        // elementLeftPosition = 200 + (10 - 23.2 - 2) = 200 - 15.2 = 184.8
+
+        expect(buttonPostion).toEqual({
+          width: "23px",
+          height: "23px",
+          top: "108px",
+          left: "185px",
+        });
+      });
       it("sets button and menu width and position when multi-input totp field is focused", async () => {
         const subframe = {
           top: 0,

@@ -1793,7 +1793,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const { width, height } = this.focusedFieldData.focusedFieldRects;
     let { top, left } = this.focusedFieldData.focusedFieldRects;
-    const { paddingRight, paddingLeft } = this.focusedFieldData.focusedFieldStyles;
+    const { paddingRight, paddingLeft, direction } = this.focusedFieldData.focusedFieldStyles;
 
     if (this.isTotpFieldForCurrentField()) {
       const totpFields = this.getTotpFields();
@@ -1828,8 +1828,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const elementHeight = height - elementOffset;
 
     const elementTopPosition = subFrameTopOffset + top + elementOffset / 2;
-    const elementLeftPosition =
-      fieldPaddingRight > fieldPaddingLeft
+    const isRtl = direction === "rtl";
+    const elementLeftPosition = isRtl
+      ? fieldPaddingLeft > fieldPaddingRight
+        ? subFrameLeftOffset + left + (fieldPaddingLeft - elementHeight - 2)
+        : subFrameLeftOffset + left + elementOffset / 2
+      : fieldPaddingRight > fieldPaddingLeft
         ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
         : subFrameLeftOffset + left + width - height + elementOffset / 2;
 
