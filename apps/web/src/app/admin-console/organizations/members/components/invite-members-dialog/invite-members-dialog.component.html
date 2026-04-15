@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="large">
+  <bit-dialog dialogSize="large" [disablePadding]="true">
     <span bitDialogTitle>{{ "inviteMember" | i18n }}</span>
     <div bitDialogContent>
       <bit-tab-group
