@@ -24,6 +24,8 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
@@ -34,6 +36,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ApproveSshRequestComponent } from "../components/approve-ssh-request";
+import { SSH_AGENT_IPC_CHANNELS } from "../models/ipc-channels";
 import { SshAgentPromptType } from "../models/ssh-agent-setting";
 
 @Injectable({
@@ -42,7 +45,6 @@ import { SshAgentPromptType } from "../models/ssh-agent-setting";
 export class SshAgentService implements OnDestroy {
   SSH_REFRESH_INTERVAL = 1000;
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
-  SSH_REQUEST_UNLOCK_POLLING_INTERVAL = 100;
 
   private authorizedSshKeys: Record<string, Date> = {};
 
@@ -58,14 +60,17 @@ export class SshAgentService implements OnDestroy {
     private i18nService: I18nService,
     private desktopSettingsService: DesktopSettingsService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   async init() {
+    const useV2 = await this.configService.getFeatureFlag(FeatureFlag.SSHAgentV2);
+
     this.desktopSettingsService.sshAgentEnabled$
       .pipe(
         concatMap(async (enabled) => {
-          if (!(await ipc.platform.sshAgent.isLoaded()) && enabled) {
-            await ipc.platform.sshAgent.init();
+          if (!(await ipc.autofill.sshAgent.isLoaded()) && enabled) {
+            await ipc.autofill.sshAgent.init(useV2);
           }
         }),
         takeUntil(this.destroy$),
@@ -76,13 +81,15 @@ export class SshAgentService implements OnDestroy {
   }
 
   private async initListeners() {
+    // Shared: sign request approval — renderer shows the approval dialog.
+    // Contains v1-only sections marked below; see sshagent.unlockrequest for the v2 unlock flow.
     this.messageListener
-      .messages$(new CommandDefinition("sshagent.signrequest"))
+      .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST))
       .pipe(
         withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
         concatMap(async ([message, enabled]) => {
           if (!enabled) {
-            await ipc.platform.sshAgent.signRequestResponse(message.requestId as number, false);
+            await ipc.autofill.sshAgent.signRequestResponse(message.requestId as number, false);
           }
           return { message, enabled };
         }),
@@ -95,6 +102,10 @@ export class SshAgentService implements OnDestroy {
         //   - If the vault is unlocked, we will continue with the flow.
         // switchMap is used here to prevent multiple requests from being processed at the same time,
         // and will cancel the previous request if a new one is received.
+        //
+        // V1, delete with PM-30758: in v2 the native agent calls unlockCallback before
+        // signCallback, so the vault is always unlocked before a sign request arrives.
+        // When v1 is removed, replace this entire switchMap with: of([message, account.id])
         switchMap(([message, status, account]) => {
           if (status !== AuthenticationStatus.Unlocked || account == null) {
             ipc.platform.focusWindow();
@@ -118,7 +129,7 @@ export class SshAgentService implements OnDestroy {
                   const requestId = message.requestId as number;
                   // Abort flow by sending a false response.
                   // Returning an empty observable this will prevent the rest of the flow from executing
-                  return from(ipc.platform.sshAgent.signRequestResponse(requestId, false)).pipe(
+                  return from(ipc.autofill.sshAgent.signRequestResponse(requestId, false)).pipe(
                     map(() => EMPTY),
                   );
                 }
@@ -153,6 +164,7 @@ export class SshAgentService implements OnDestroy {
             application = this.i18nService.t("unknownApplication");
           }
 
+          // V1, delete with PM-30758: isListRequest is not present in v2.
           if (isListRequest) {
             const sshCiphers = ciphers.filter(
               (cipher) => cipher.type === CipherType.SshKey && !cipher.isDeleted,
@@ -164,13 +176,13 @@ export class SshAgentService implements OnDestroy {
                 cipherId: cipher.id,
               };
             });
-            await ipc.platform.sshAgent.setKeys(keys);
-            await ipc.platform.sshAgent.signRequestResponse(requestId, true);
+            await ipc.autofill.sshAgent.setKeys(keys);
+            await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             return;
           }
 
           if (ciphers === undefined) {
-            ipc.platform.sshAgent
+            ipc.autofill.sshAgent
               .signRequestResponse(requestId, false)
               .catch((e) => this.logService.error("Failed to respond to SSH request", e));
           }
@@ -188,41 +200,92 @@ export class SshAgentService implements OnDestroy {
 
             if (await firstValueFrom(dialogRef.closed)) {
               await this.rememberAuthorization(cipherId);
-              return ipc.platform.sshAgent.signRequestResponse(requestId, true);
+              return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             } else {
-              return ipc.platform.sshAgent.signRequestResponse(requestId, false);
+              return ipc.autofill.sshAgent.signRequestResponse(requestId, false);
             }
           } else {
-            return ipc.platform.sshAgent.signRequestResponse(requestId, true);
+            return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
           }
         }),
         takeUntil(this.destroy$),
       )
       .subscribe();
 
+    // V2 only: v1 has no unlock callback; it handles unlock inline in sshagent.signrequest above.
+    this.messageListener
+      .messages$(new CommandDefinition(SSH_AGENT_IPC_CHANNELS.UNLOCK_REQUEST))
+      .pipe(
+        withLatestFrom(this.desktopSettingsService.sshAgentEnabled$),
+        concatMap(async ([message, enabled]) => {
+          const requestId = message.requestId as number;
+          if (!enabled) {
+            await ipc.autofill.sshAgent.signRequestResponse(requestId, false);
+            return;
+          }
+
+          const status = await firstValueFrom(this.authService.activeAccountStatus$);
+          if (status === AuthenticationStatus.Unlocked) {
+            await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
+            return;
+          }
+
+          ipc.platform.focusWindow();
+          this.toastService.showToast({
+            variant: "info",
+            title: null,
+            message: this.i18nService.t("sshAgentUnlockRequired"),
+          });
+
+          const unlocked = await firstValueFrom(
+            this.authService.activeAccountStatus$.pipe(
+              filter((s) => s === AuthenticationStatus.Unlocked),
+              timeout({ first: this.SSH_VAULT_UNLOCK_REQUEST_TIMEOUT }),
+              map(() => true),
+              catchError((error: unknown) => {
+                if (error instanceof TimeoutError) {
+                  this.toastService.showToast({
+                    variant: "error",
+                    title: null,
+                    message: this.i18nService.t("sshAgentUnlockTimeout"),
+                  });
+                }
+                return of(false);
+              }),
+            ),
+          );
+
+          await ipc.autofill.sshAgent.signRequestResponse(requestId, unlocked);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
+
+    // Shared: clear keys on account switch.
     this.accountService.activeAccount$.pipe(skip(1), takeUntil(this.destroy$)).subscribe({
       next: (account) => {
         this.authorizedSshKeys = {};
         this.logService.info("Active account changed, clearing SSH keys");
-        ipc.platform.sshAgent
+        ipc.autofill.sshAgent
           .clearKeys()
           .catch((e) => this.logService.error("Failed to clear SSH keys", e));
       },
       error: (e: unknown) => {
         this.logService.error("Error in active account observable", e);
-        ipc.platform.sshAgent
+        ipc.autofill.sshAgent
           .clearKeys()
           .catch((e) => this.logService.error("Failed to clear SSH keys", e));
       },
       complete: () => {
         this.logService.info("Active account observable completed, clearing SSH keys");
         this.authorizedSshKeys = {};
-        ipc.platform.sshAgent
+        ipc.autofill.sshAgent
           .clearKeys()
           .catch((e) => this.logService.error("Failed to clear SSH keys", e));
       },
     });
 
+    // Shared: periodic key refresh. In v2, setKeys() is a no-op pending PM-30755.
     combineLatest([
       timer(0, this.SSH_REFRESH_INTERVAL),
       this.desktopSettingsService.sshAgentEnabled$,
@@ -230,7 +293,7 @@ export class SshAgentService implements OnDestroy {
       .pipe(
         concatMap(async ([, enabled]) => {
           if (!enabled) {
-            await ipc.platform.sshAgent.clearKeys();
+            await ipc.autofill.sshAgent.clearKeys();
             return;
           }
 
@@ -244,7 +307,7 @@ export class SshAgentService implements OnDestroy {
 
           const ciphers = await this.cipherService.getAllDecrypted(activeAccount.id);
           if (ciphers == null) {
-            await ipc.platform.sshAgent.lock();
+            await ipc.autofill.sshAgent.lock();
             return;
           }
 
@@ -258,7 +321,7 @@ export class SshAgentService implements OnDestroy {
               cipherId: cipher.id,
             };
           });
-          await ipc.platform.sshAgent.setKeys(keys);
+          await ipc.autofill.sshAgent.setKeys(keys);
         }),
         takeUntil(this.destroy$),
       )
