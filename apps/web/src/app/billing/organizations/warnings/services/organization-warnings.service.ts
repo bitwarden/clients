@@ -123,29 +123,19 @@ export class OrganizationWarningsService {
             return {
               type: "info",
               message: this.i18nService.t(
-                "resellerRenewalWarningMsg",
-                organization.providerName,
+                "resellerRenewalWarningMsgV2",
                 format(warning.upcoming!.renewalDate),
               ),
             };
           }
           case "issued": {
-            return {
-              type: "info",
-              message: this.i18nService.t(
-                "resellerOpenInvoiceWarningMgs",
-                organization.providerName,
-                format(warning.issued!.issuedDate),
-                format(warning.issued!.dueDate),
-              ),
-            };
+            return null;
           }
           case "past_due": {
             return {
-              type: "warning",
+              type: "info",
               message: this.i18nService.t(
-                "resellerPastDueWarningMsg",
-                organization.providerName,
+                "resellerPastDueWarningMsgV2",
                 format(warning.pastDue!.suspensionDate),
               ),
             };
