@@ -312,10 +312,12 @@ jobs:
           PROJECT_NAME: ${{ matrix.image_name }}
         run: |
           ACR_NAME="$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
-          GHCR_NAME="$_GHCR_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
           echo "name=$ACR_NAME" >> "$GITHUB_OUTPUT"
-          echo "ghcr_name=$GHCR_NAME" >> "$GITHUB_OUTPUT"
-          echo "tags=$ACR_NAME,$GHCR_NAME" >> "$GITHUB_OUTPUT"
+          if [[ "$IMAGE_TAG" == "rc" || "$IMAGE_TAG" == "hotfix-rc-web" ]]; then
+            echo "tags=$ACR_NAME,$_GHCR_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tags=$ACR_NAME" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build Docker image
         id: build-container
