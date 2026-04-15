@@ -8,7 +8,6 @@ import { SimpleDialogOptions, SimpleDialogType, Translation } from "../..";
 import { BitSubmitDirective } from "../../../async-actions/bit-submit.directive";
 import { BitFormButtonDirective } from "../../../async-actions/form-button.directive";
 import { ButtonComponent } from "../../../button/button.component";
-import { ButtonType } from "../../../shared/button-like.abstraction";
 import {
   SimpleDialogComponent,
   IconDirective,
@@ -51,10 +50,6 @@ export class SimpleConfigurableDialogComponent {
       this.simpleDialogOpts.icon ?? DEFAULT_ICON[this.simpleDialogOpts.type],
       DEFAULT_COLOR[this.simpleDialogOpts.type],
     ];
-  }
-
-  get acceptButtonType(): ButtonType {
-    return this.simpleDialogOpts.type === "danger" ? "danger" : "primary";
   }
 
   protected title?: string;
