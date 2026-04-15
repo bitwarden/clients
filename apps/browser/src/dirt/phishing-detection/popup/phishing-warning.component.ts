@@ -15,6 +15,7 @@ import {
   LinkModule,
   CalloutComponent,
   TypographyModule,
+  IconComponent,
 } from "@bitwarden/components";
 import { MessageSender } from "@bitwarden/messaging";
 
@@ -42,6 +43,7 @@ import {
     IconTileComponent,
     CalloutComponent,
     TypographyModule,
+    IconComponent,
   ],
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
