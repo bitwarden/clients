@@ -40,6 +40,7 @@ describe("ApiService", () => {
 
   const testActiveUser = "activeUser" as UserId;
   const testInactiveUser = "inactiveUser" as UserId;
+  const kdfFields = { Kdf: 0, KdfIterations: 600_000 };
 
   beforeEach(() => {
     tokenService = mock();
@@ -300,6 +301,7 @@ describe("ApiService", () => {
                 access_token: `${expectedEffectiveUser}_new_access_token`,
                 token_type: "Bearer",
                 refresh_token: `${expectedEffectiveUser}_new_refresh_token`,
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -540,6 +542,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -869,6 +872,7 @@ describe("ApiService", () => {
                 access_token: "active_new_access_token",
                 token_type: "Bearer",
                 refresh_token: "active_new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -987,6 +991,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -1100,6 +1105,8 @@ describe("ApiService", () => {
                       access_token: "new_access_token",
                       token_type: "Bearer",
                       refresh_token: "new_refresh_token",
+                      Kdf: 0,
+                      KdfIterations: 600_000,
                     }),
                 } satisfies Partial<Response> as Response),
               100,
