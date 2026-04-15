@@ -18,13 +18,14 @@ import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { TaskService, SecurityTask } from "@bitwarden/common/vault/tasks";
+import { SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks/enums";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { NotificationType } from "../enums/notification-type.enum";
@@ -43,6 +44,13 @@ import {
 } from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
+
+const mockGetChangePasswordUrl = jest.fn();
+jest.mock("../services/notification-change-login-password.service", () => ({
+  TemporaryNotificationChangeLoginService: jest.fn().mockImplementation(() => ({
+    getChangePasswordUrl: mockGetChangePasswordUrl,
+  })),
+}));
 
 jest.mock("rxjs", () => {
   const rxjs = jest.requireActual("rxjs");
@@ -368,6 +376,175 @@ describe("NotificationBackground", () => {
           "adjustNotificationBar",
           message.data,
         );
+      });
+    });
+
+    describe("bgOpenChangePasswordUrl message handler", () => {
+      const tabUrl = "https://jest-testing-website.com";
+
+      function createMockCipher(overrides: Partial<CipherView> = {}): CipherView {
+        return {
+          id: "cipher-1",
+          deletedDate: null,
+          ...overrides,
+        } as CipherView;
+      }
+
+      function createMockSecurityTask(overrides: Partial<SecurityTask> = {}): SecurityTask {
+        return {
+          cipherId: "cipher-1",
+          status: SecurityTaskStatus.Pending,
+          type: SecurityTaskType.UpdateAtRiskCredential,
+          ...overrides,
+        } as SecurityTask;
+      }
+
+      let createNewTabSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        mockGetChangePasswordUrl.mockReset();
+        taskService.tasksEnabled$.mockReturnValue(of(true));
+        taskService.pendingTasks$.mockReturnValue(of([]));
+        createNewTabSpy = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue(null as any);
+      });
+
+      it("opens a new tab with the trusted change-password URL when a matching cipher and task exist", async () => {
+        const cipher = createMockCipher();
+        const task = createMockSecurityTask();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+        mockGetChangePasswordUrl.mockResolvedValue(
+          "https://jest-testing-website.com/.well-known/change-password",
+        );
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
+        expect(mockGetChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(createNewTabSpy).toHaveBeenCalledWith(
+          "https://jest-testing-website.com/.well-known/change-password",
+        );
+      });
+
+      it("does nothing when the sender tab has no URL", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: undefined },
+        });
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when there is no active user", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        activeAccountSubject.next(null as any);
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+
+        // Restore active account for subsequent tests
+        activeAccountSubject.next({
+          id: userId,
+          ...mockAccountInfoWith({ email: "test@example.com", name: "Test User" }),
+        });
+      });
+
+      it("does nothing when no ciphers match the tab URL", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([]);
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when no pending security tasks exist", async () => {
+        const cipher = createMockCipher();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([]));
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips soft-deleted ciphers", async () => {
+        const cipher = createMockCipher({ deletedDate: new Date() });
+        const task = createMockSecurityTask();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(mockGetChangePasswordUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when no task references any matched cipher", async () => {
+        const cipher = createMockCipher({ id: "cipher-1" });
+        const task = createMockSecurityTask({ cipherId: "cipher-999" as CipherId });
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(mockGetChangePasswordUrl).not.toHaveBeenCalled();
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when getChangePasswordUrl returns null", async () => {
+        const cipher = createMockCipher();
+        const task = createMockSecurityTask();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: 1, url: tabUrl },
+        });
+        cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
+        taskService.pendingTasks$.mockReturnValue(of([task]));
+        mockGetChangePasswordUrl.mockResolvedValue(null);
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(mockGetChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(createNewTabSpy).not.toHaveBeenCalled();
+      });
+
+      it("does nothing when sender has no tab", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: undefined });
+
+        sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
+        await flushPromises();
+
+        expect(createNewTabSpy).not.toHaveBeenCalled();
       });
     });
 
