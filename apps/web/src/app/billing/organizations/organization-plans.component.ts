@@ -537,7 +537,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       await this.loadPlanData();
     }
 
-    this._familyPlan = await this.determineFamilyPlan();
+    this._familyPlan = PlanType.FamiliesAnnually;
 
     const currentPlan = this.currentPlan();
     if (currentPlan) {
@@ -835,6 +835,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.messagingService.send("organizationCreated", { organizationId });
     } catch (error: unknown) {
       if (error instanceof Error && error.message === "Payment method validation failed") {
+        return;
+      }
+      if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("unverifiedBankAccountNotSupportedForUpgrade"),
+        });
         return;
       }
       if (this.subscriptionDiscountService.isDiscountExpiredError(error)) {
@@ -1169,13 +1176,6 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     return !plan.disabled && !plan.legacyYear;
   }
 
-  private async determineFamilyPlan(): Promise<PlanType> {
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    return milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025;
-  }
-
   /**
    * Loads existing organization, billing, and subscription data for the given organization ID
    * and populates the form controls with the retrieved billing address.
@@ -1316,6 +1316,21 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     const tier = this.premiumOrgUpgradeService.SubscriptionTierIdFromProductTier(
       this.formGroup.controls.productTier.value!,
     );
+
+    const paymentMethod = await this.enterPaymentMethodComponent()?.tokenize();
+    if (!paymentMethod) {
+      throw new Error("Payment method validation failed");
+    }
+
+    await this.subscriberBillingClient.updatePaymentMethod(
+      { type: "account", data: account },
+      paymentMethod,
+      {
+        country: this.billingFormGroup.value.billingAddress?.country ?? "",
+        postalCode: this.billingFormGroup.value.billingAddress?.postalCode ?? "",
+      },
+    );
+
     return await this.premiumOrgUpgradeService.upgradeToOrganization(
       account!,
       organizationName,

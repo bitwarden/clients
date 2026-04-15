@@ -1,17 +1,23 @@
 import {
+  BehaviorSubject,
+  concatMap,
   debounceTime,
+  filter,
   firstValueFrom,
   map,
   merge,
   Observable,
   ReplaySubject,
+  skip,
   Subject,
+  Subscription,
   switchMap,
   throttleTime,
+  timeout,
 } from "rxjs";
 import { parse } from "tldts";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -46,6 +52,8 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
+import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -77,8 +85,8 @@ import {
   rectHasSize,
   specialCharacterToKeyMap,
 } from "../utils";
+import { trackGeneratedCredential } from "../utils/credential-history-utils";
 
-import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
@@ -103,11 +111,13 @@ import {
   ToggleInlineMenuHiddenMessage,
   UpdateInlineMenuVisibilityMessage,
   UpdateOverlayCiphersParams,
+  PasswordGenerateRequestSource,
 } from "./abstractions/overlay.background";
 
 const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
 
 export class OverlayBackground implements OverlayBackgroundInterface {
+  // Assigned as members so jest.spyOn can intercept them in tests
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
@@ -122,6 +132,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly repositionInlineMenu$ = new Subject<chrome.runtime.MessageSender>();
   private readonly rebuildSubFrameOffsets$ = new Subject<chrome.runtime.MessageSender>();
   private readonly addNewVaultItem$ = new Subject<CurrentAddNewItemData>();
+  private readonly requestGeneratedPassword$ = new Subject<GenerateRequest>();
+  private readonly clearGeneratedPassword$ = new Subject<void>();
+  private credential$ = new BehaviorSubject<string>("");
+  private credentialPipelineSubscription: Subscription | undefined;
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private portKeyForTab: Record<number, string> = {};
@@ -145,7 +159,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isInlineMenuListVisible: boolean = false;
   private showPasskeysLabelsWithinInlineMenu: boolean = false;
   private iconsServerUrl: string = "";
-  private generatedPassword: string | null = null;
   private passkeyAuthTabId: number | null = null;
   private readonly validPortConnections: Set<string> = new Set([
     AutofillOverlayPort.Button,
@@ -246,8 +259,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private themeStateService: ThemeStateService,
     private totpService: TotpService,
     private accountService: AccountService,
-    private generatePasswordCallback: () => Promise<string>,
-    private addPasswordCallback: (password: string) => Promise<void>,
+    private generatorHistoryService: GeneratorHistoryService,
+    private generatorService: CredentialGeneratorService,
   ) {
     this.initOverlayEventObservables();
   }
@@ -260,6 +273,40 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.setupExtensionListeners();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.iconsServerUrl = env.getIconsUrl();
+    const yieldedPassword$ = merge(
+      this.generatorService.generate$({
+        on$: this.requestGeneratedPassword$,
+        account$: this.accountService.activeAccount$.pipe(filter((a): a is Account => a !== null)),
+      }),
+      this.clearGeneratedPassword$.pipe(map((): null => null)),
+    );
+
+    // init() is called exactly once; this guard is a defensive safeguard against
+    // unexpected re-entry creating a duplicate subscription.
+    if (!this.credentialPipelineSubscription) {
+      this.credentialPipelineSubscription = yieldedPassword$
+        .pipe(
+          concatMap(async (generated) => {
+            if (!generated) {
+              return "";
+            }
+            // Track all inline menu credentials — both InlineMenuInit and InlineMenu
+            // are shown to the user. InlineMenuInit fires inside handlePortOnConnect,
+            // so the password is rendered in the same async turn it is generated.
+            try {
+              await trackGeneratedCredential(
+                this.generatorHistoryService,
+                this.accountService.activeAccount$,
+                generated,
+              );
+            } catch (e) {
+              this.logService.error(e);
+            }
+            return generated.credential;
+          }),
+        )
+        .subscribe(this.credential$);
+    }
   }
 
   /**
@@ -336,7 +383,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       delete this.portKeyForTab[tabId];
     }
 
-    this.generatedPassword = null;
+    this.clearGeneratedPassword$.next();
     this.focusedFieldData = null;
   }
 
@@ -1466,7 +1513,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const command = "closeAutofillInlineMenu";
     const sendOptions = { frameId: 0 };
     const updateVisibilityDefaults = { overlayElement, isVisible: false, forceUpdate: true };
-    this.generatedPassword = null;
+    this.clearGeneratedPassword$.next();
 
     if (forceCloseInlineMenu) {
       BrowserApi.tabSendMessage(tab, { command, overlayElement }, sendOptions).catch((error) =>
@@ -2018,13 +2065,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Generates a password based on the user defined password generation options.
+   * Awaits the next non-empty credential emitted by the credential pipeline.
    */
-  private async generatePassword(): Promise<void> {
-    this.generatedPassword = await this.generatePasswordCallback();
-    if (this.generatedPassword !== null && this.generatedPassword !== undefined) {
-      await this.addPasswordCallback(this.generatedPassword);
-    }
+  private waitForNextCredential() {
+    return firstValueFrom(this.credential$.pipe(skip(1), filter(Boolean), timeout(10_000)));
   }
 
   /**
@@ -2033,13 +2077,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param refreshPassword - Identifies whether the generated password should be refreshed
    */
   private async updateGeneratedPassword(refreshPassword: boolean = false) {
-    if (!this.generatedPassword || refreshPassword) {
-      await this.generatePassword();
+    if (!this.credential$.value || refreshPassword) {
+      this.requestGeneratedPassword$.next({
+        source: PasswordGenerateRequestSource.InlineMenu,
+        type: Type.password,
+      });
+      const generatedPassword = await this.waitForNextCredential();
+      this.postMessageToPort(this.inlineMenuListPort, {
+        command: "updateAutofillInlineMenuGeneratedPassword",
+        generatedPassword,
+        refreshPassword,
+      });
+      return;
     }
 
     this.postMessageToPort(this.inlineMenuListPort, {
       command: "updateAutofillInlineMenuGeneratedPassword",
-      generatedPassword: this.generatedPassword,
+      generatedPassword: this.credential$.value,
       refreshPassword,
     });
   }
@@ -2051,62 +2105,67 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param port - The port of the sender
    */
   private async fillGeneratedPassword(port: chrome.runtime.Port) {
-    if (!this.generatedPassword || !port.sender || !this.senderHasValidTab(port.sender)) {
+    if (!this.credential$.value || !port.sender) {
       return;
     }
 
-    const pageDetailsForTab = this.pageDetailsForTab[port.sender.tab.id];
-    if (!pageDetailsForTab) {
-      return;
-    }
+    await this.withSenderTab(port.sender, async (senderTab) => {
+      if (senderTab.id === undefined) {
+        return;
+      }
 
-    let pageDetails: PageDetail[] = Array.from(pageDetailsForTab.values());
-    if (!pageDetails.length) {
-      return;
-    }
+      const pageDetailsForTab = this.pageDetailsForTab[senderTab.id];
+      if (!pageDetailsForTab) {
+        return;
+      }
 
-    // If our currently focused field is for a login form, we want to fill the current password field.
-    // Otherwise, map over all page details and filter out fields that are not new password fields.
-    if (!this.focusedFieldMatchesFillType(CipherType.Login)) {
-      pageDetails = this.getFilteredPageDetails(
+      let pageDetails: PageDetail[] = Array.from(pageDetailsForTab.values());
+      if (!pageDetails.length) {
+        return;
+      }
+
+      // If our currently focused field is for a login form, we want to fill the current password field.
+      // Otherwise, map over all page details and filter out fields that are not new password fields.
+      if (!this.focusedFieldMatchesFillType(CipherType.Login)) {
+        pageDetails = this.getFilteredPageDetails(
+          pageDetails,
+          this.inlineMenuFieldQualificationService.isNewPasswordField,
+        );
+      }
+
+      const cipher = this.buildLoginCipherView({
+        username: "",
+        password: this.credential$.value,
+        hostname: "",
+        uri: "",
+      });
+
+      await this.autofillService.doAutoFill({
+        tab: senderTab,
+        cipher,
         pageDetails,
-        this.inlineMenuFieldQualificationService.isNewPasswordField,
-      );
-    }
+        fillNewPassword: true,
+        allowTotpAutofill: false,
+        focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
+        focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
+        inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
+      });
 
-    const cipher = this.buildLoginCipherView({
-      username: "",
-      password: this.generatedPassword,
-      hostname: "",
-      uri: "",
+      const frameId = this.focusedFieldData?.frameId;
+      if (frameId !== null && frameId !== undefined) {
+        globalThis.setTimeout(() => {
+          BrowserApi.tabSendMessage(
+            senderTab,
+            {
+              command: "generatedPasswordModifyLogin",
+            },
+            {
+              frameId,
+            },
+          ).catch((error) => this.logService.error(error));
+        }, 300);
+      }
     });
-
-    await this.autofillService.doAutoFill({
-      tab: port.sender.tab,
-      cipher,
-      pageDetails,
-      fillNewPassword: true,
-      allowTotpAutofill: false,
-      focusedFieldForm: this.focusedFieldData?.focusedFieldForm,
-      focusedFieldOpid: this.focusedFieldData?.focusedFieldOpid,
-      inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
-    });
-
-    const portTab = port.sender?.tab;
-    const frameId = this.focusedFieldData?.frameId;
-    if (portTab && frameId !== null && frameId !== undefined) {
-      globalThis.setTimeout(() => {
-        BrowserApi.tabSendMessage(
-          portTab,
-          {
-            command: "generatedPasswordModifyLogin",
-          },
-          {
-            frameId,
-          },
-        ).catch((error) => this.logService.error(error));
-      }, 300);
-    }
   }
 
   /**
@@ -2343,16 +2402,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
-    const retryMessage: LockedVaultPendingNotificationsData = {
+    await this.openUnlockPopout(sender.tab, {
       commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
       target: "overlay.background",
-    };
-    await BrowserApi.tabSendMessageData(
-      sender.tab,
-      "addToLockedVaultPendingNotifications",
-      retryMessage,
-    );
-    await this.openUnlockPopout(sender.tab);
+    });
   }
 
   /**
@@ -3231,6 +3284,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       isInlineMenuListPort,
       showInlineMenuAccountCreation,
     );
+
     const showSaveLoginMenu =
       (await this.checkFocusedFieldHasValue(port.sender.tab)) &&
       (await this.shouldShowSaveLoginInlineMenuList(port.sender.tab));
@@ -3260,7 +3314,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         : AutofillOverlayPort.ButtonMessageConnector,
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
       showPasskeysLabels: this.showPasskeysLabelsWithinInlineMenu,
-      generatedPassword: showInlineMenuPasswordGenerator ? this.generatedPassword : null,
+      generatedPassword: showInlineMenuPasswordGenerator ? this.credential$.value : null,
       showSaveLoginMenu,
       showInlineMenuAccountCreation,
       authStatus,
@@ -3362,8 +3416,22 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
-    if (!this.generatedPassword) {
-      await this.generatePassword();
+    const { capabilities } = await firstValueFrom(
+      this.generatorService.preferredAlgorithm$("password", {
+        account$: this.accountService.activeAccount$.pipe(filter((a): a is Account => a !== null)),
+      }),
+    );
+
+    if (!this.credential$.value && capabilities.autogenerate) {
+      this.requestGeneratedPassword$.next({
+        source: PasswordGenerateRequestSource.InlineMenuInit,
+        type: Type.password,
+      });
+      try {
+        await this.waitForNextCredential();
+      } catch (e) {
+        this.logService.error(e);
+      }
     }
 
     return true;
@@ -3403,7 +3471,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    handler({ message, port });
+    const handlerResponse = handler({ message, port });
+    if (handlerResponse instanceof Promise) {
+      handlerResponse.catch((error) => this.logService.error(error));
+    }
   };
 
   /**

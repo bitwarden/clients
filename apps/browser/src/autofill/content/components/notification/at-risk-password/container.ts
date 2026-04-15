@@ -3,7 +3,10 @@ import { html, nothing } from "lit";
 
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 
-import { NotificationBarIframeInitData } from "../../../../notification/abstractions/notification-bar";
+import {
+  AtRiskPasswordNotificationParams,
+  NotificationBarIframeInitData,
+} from "../../../../notification/abstractions/notification-bar";
 import { I18n } from "../../common-types";
 import { themes, spacing } from "../../constants/styles";
 import {
@@ -15,22 +18,29 @@ import { AtRiskNotificationBody } from "./body";
 import { AtRiskNotificationFooter } from "./footer";
 
 export type AtRiskNotificationProps = NotificationBarIframeInitData & {
+  /**
+   * Click handler for the "Change password" button. When omitted, the button
+   * is not rendered and the notification body instructs the user to navigate
+   * to the site manually.
+   */
+  handleChangePasswordClick?: (e: Event) => void;
   handleCloseNotification: (e: Event) => void;
-} & {
   i18n: I18n;
   notificationTestId: string;
+  params: AtRiskPasswordNotificationParams;
 };
 
 export function AtRiskNotification({
+  handleChangePasswordClick,
   handleCloseNotification,
   i18n,
   notificationTestId,
   theme = ThemeTypes.Light,
   params,
 }: AtRiskNotificationProps) {
-  const { passwordChangeUri, organizationName } = params;
+  const { hasPasswordChangeUri, organizationName } = params;
   const riskMessage = chrome.i18n.getMessage(
-    passwordChangeUri ? "atRiskChangePrompt" : "atRiskNavigatePrompt",
+    hasPasswordChangeUri ? "atRiskChangePrompt" : "atRiskNavigatePromptV2",
     organizationName,
   );
 
@@ -46,11 +56,11 @@ export function AtRiskNotification({
         theme,
         riskMessage,
       })}
-      ${passwordChangeUri
+      ${handleChangePasswordClick
         ? AtRiskNotificationFooter({
             i18n,
             theme,
-            passwordChangeUri: params?.passwordChangeUri,
+            handleChangePasswordClick,
           })
         : nothing}
     </div>
