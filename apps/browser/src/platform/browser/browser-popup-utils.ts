@@ -252,10 +252,19 @@ export default class BrowserPopupUtils {
 
     // Background/service-worker context: read from chrome.storage.local
     // Key format is derived from the state framework: global_<stateDefinitionName>_<keyName>
+    // Values are stored with a serialization wrapper: { "__json__": true, value: '"narrow"' }
     const chromeStorageKey = "global_popupStyle_popup-width";
     try {
       const result = await chrome.storage.local.get(chromeStorageKey);
-      const storedWidth = result[chromeStorageKey];
+      let storedWidth = result[chromeStorageKey];
+      // Deserialize the state framework's serialization wrapper if present
+      if (
+        storedWidth != null &&
+        storedWidth["__json__"] === true &&
+        typeof storedWidth.value === "string"
+      ) {
+        storedWidth = JSON.parse(storedWidth.value);
+      }
       if (storedWidth != null && storedWidth in PopupWidthOptions) {
         return PopupWidthOptions[storedWidth as PopupWidthOption];
       }

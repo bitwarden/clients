@@ -304,7 +304,7 @@ describe("BrowserPopupUtils", () => {
       const url = "popup/index.html";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
       (chrome.storage.local.get as jest.Mock).mockResolvedValueOnce({
-        "global_popupStyle_popup-width": "narrow",
+        "global_popupStyle_popup-width": { __json__: true, value: '"narrow"' },
       });
 
       await BrowserPopupUtils.openPopout(url);
