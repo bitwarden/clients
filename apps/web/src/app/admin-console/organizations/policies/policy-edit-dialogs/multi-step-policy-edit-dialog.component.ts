@@ -41,9 +41,6 @@ import { PolicyStep } from "./models";
   templateUrl: "multi-step-policy-edit-dialog.component.html",
   imports: [SharedModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: {
-    "[class.tw-h-full]": "dialogRef.isDrawer",
-  },
 })
 export class MultiStepPolicyEditDialogComponent
   extends PolicyEditDialogComponent
@@ -58,6 +55,10 @@ export class MultiStepPolicyEditDialogComponent
   readonly currentStep: WritableSignal<number> = signal(0);
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
+
+  protected readonly titleTemplate = computed(() =>
+    this.policySteps()[this.currentStep()]?.titleContent?.(),
+  );
 
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
