@@ -1,5 +1,54 @@
 <bit-tab-header>
-  <nav bitTabListContainer [attr.aria-label]="label()" (keydown)="keyManager.onKeydown($event)">
+  <nav
+    bitTabListContainer
+    [attr.aria-label]="label()"
+    (keydown)="keyManager()?.onKeydown($event)"
+    [class.tw-invisible]="!tabListRendered()"
+  >
     <ng-content></ng-content>
+    <button
+      #moreButton
+      bitTabListItem
+      type="button"
+      [hidden]="sortedTabs().overflow.length === 0"
+      [attr.aria-hidden]="sortedTabs().overflow.length === 0 ? 'true' : null"
+      [attr.tabindex]="sortedTabs().overflow.length === 0 ? null : -1"
+      [bitMenuTriggerFor]="overflowTabsMenu"
+    >
+      <span [class]="tabLabelContentClasses">
+        {{ "more" | i18n }}
+        <bit-berry [value]="sortedTabs().overflow.length" />
+        <bit-icon name="bwi-angle-down" class="tw-text-base" />
+      </span>
+    </button>
   </nav>
 </bit-tab-header>
+
+<bit-menu #overflowTabsMenu>
+  @for (i of sortedTabs().overflow; track i) {
+    @let tab = tabLabels()[i];
+    <button
+      bitMenuItem
+      type="button"
+      [routerLink]="tab.disabled ? null : tab.route()"
+      [disabled]="tab.disabled"
+      [attr.aria-disabled]="tab.disabled || null"
+      (click)="!tab.disabled && overflowTabsMenu.closed.emit()"
+      ariaCurrentWhenActive="page"
+    >
+      <span [class]="tabLabelContentClasses">
+        @if (tab.templateLabel) {
+          <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
+        } @else {
+          {{ tab.displayText() }}
+        }
+        @if (tab.berryValue()) {
+          <bit-berry [value]="tab.berryValue()" />
+        }
+        @if (tab.trailingIcon()) {
+          <bit-icon [name]="tab.trailingIcon()" class="tw-text-base" />
+        }
+      </span>
+    </button>
+  }
+</bit-menu>

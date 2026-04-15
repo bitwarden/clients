@@ -1,6 +1,3 @@
-@let tabLabelContentClasses =
-  "tw-flex tw-items-center tw-gap-1.5 tw-rounded group-focus-visible/tab-list-item:tw-ring-2 group-focus-visible/tab-list-item:tw-ring-border-focus";
-
 <ng-template #tabLabelContent let-tab="tab" let-truncate="truncate">
   <span [class]="tabLabelContentClasses">
     <span [class]="truncate ? 'tw-min-w-0 tw-truncate' : ''">
@@ -29,7 +26,7 @@
   >
     @for (i of sortedTabs().displayed; track i) {
       @let tab = tabs()[i];
-      @let truncate = i === selectedIndex() && sortedTabs().truncateTab;
+      @let truncate = sortedTabs().truncateTabIndex === i;
       <button
         bitTabListItem
         type="button"
@@ -68,7 +65,7 @@
   </div>
 </bit-tab-header>
 <div class="tw-px-6 tw-pt-5">
-  @for (tab of tabs(); track tab; let i = $index) {
+  @for (tab of tabs(); track tab.id; let i = $index) {
     <bit-tab-body
       role="tabpanel"
       [id]="getTabContentId(i)"
@@ -88,7 +85,7 @@
     <button bitMenuItem type="button" [disabled]="tab.disabled()" (click)="selectTab(i)">
       <ng-container
         [ngTemplateOutlet]="tabLabelContent"
-        [ngTemplateOutletContext]="{ tab: tab }"
+        [ngTemplateOutletContext]="{ tab: tab, truncate: sortedTabs().truncateTabIndex === i }"
       ></ng-container>
     </button>
   }

@@ -136,16 +136,36 @@ export const NavigationTabs: Story = {
     props: args,
     template: `
       <bit-tab-nav-bar label="Main">
-        <bit-tab-link [route]="['active']">Active</bit-tab-link>
+        <bit-tab-link [route]="['active']" [berryValue]="3" [trailingIcon]="'bwi-check-circle'">Active</bit-tab-link>
         <bit-tab-link [route]="['item-2']">Item 2</bit-tab-link>
         <bit-tab-link [route]="['item-3']">Item 3</bit-tab-link>
         <bit-tab-link [route]="['item-with-child-counter']">
           Item With Counter
-          <div slot="end" class="tw-ps-2 tw-text-muted">
-            42
-          </div>
+          <div slot="end" class="tw-ps-2 tw-text-muted">42</div>
         </bit-tab-link>
         <bit-tab-link [route]="['disable']" [disabled]="true">Disabled</bit-tab-link>
+      </bit-tab-nav-bar>
+      <div class="tw-bg-transparent tw-text-semibold tw-text-center tw-text-main tw-py-10">
+        <router-outlet></router-outlet>
+      </div>
+    `,
+  }),
+};
+
+export const OverflowNavigationTabs: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-tab-nav-bar label="Main">
+        <bit-tab-link [route]="['active']" [berryValue]="3" [trailingIcon]="'bwi-check-circle'">
+          <ng-template bitTabLabel>
+            <bit-icon name="bwi-check-circle" /> Active Long Named Tab
+          </ng-template>
+        </bit-tab-link>
+        <bit-tab-link label="Item 2 Long Named Tab" [route]="['item-2']">Item 2 Long Named Tab</bit-tab-link>
+        <bit-tab-link label="Item 3 Long Named Tab" [route]="['item-3']">Item 3 Long Named Tab</bit-tab-link>
+        <bit-tab-link label="Item With Counter Long Named Tab" [route]="['item-with-child-counter']">Item With Counter Long Named Tab</bit-tab-link>
+        <bit-tab-link label="Disabled Long Named Tab" [route]="['disable']" [disabled]="true">Disabled Long Named Tab</bit-tab-link>
       </bit-tab-nav-bar>
       <div class="tw-bg-transparent tw-text-semibold tw-text-center tw-text-main tw-py-10">
         <router-outlet></router-outlet>

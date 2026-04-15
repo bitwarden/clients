@@ -12,8 +12,10 @@ import {
 } from "@angular/core";
 
 import { BitwardenIcon } from "../../shared/icon";
+import { TabLabelDirective } from "../shared/tab-label.directive";
 
-import { TabLabelDirective } from "./tab-label.directive";
+/** Used to generate unique IDs for each tab component */
+let nextTabId = 0;
 
 @Component({
   selector: "bit-tab",
@@ -24,6 +26,8 @@ import { TabLabelDirective } from "./tab-label.directive";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TabComponent implements OnInit {
+  readonly id = nextTabId++;
+
   readonly disabled = input(false);
   readonly textLabel = input("", { alias: "label" });
   readonly berryValue = input<number>();

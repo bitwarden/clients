@@ -28,11 +28,14 @@ import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
 import { MenuModule } from "../../menu";
 import { TabHeaderComponent } from "../shared/tab-header.component";
-import {
-  TabListContainerDirective,
-  TAB_LIST_CONTAINER_GAP,
-} from "../shared/tab-list-container.directive";
+import { TabListContainerDirective } from "../shared/tab-list-container.directive";
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
+import {
+  TAB_LABEL_CONTENT_CLASSES,
+  computeTabOverflow,
+  measureMoreButtonWidth,
+  measureTabWidths,
+} from "../shared/tab-utils";
 
 import { TabBodyComponent } from "./tab-body.component";
 import { TabComponent } from "./tab.component";
@@ -57,6 +60,8 @@ let nextId = 0;
   ],
 })
 export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
+  protected readonly tabLabelContentClasses = TAB_LABEL_CONTENT_CLASSES;
+
   private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly resizeObserver: ResizeObserver;
@@ -96,65 +101,16 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   protected readonly tabListRendered = signal(false);
 
   /** Determines which tabs are displayed and which overflow into the "More" menu. */
-  protected readonly sortedTabs = computed(() => {
-    const allTabs = this.tabs().map((_, i) => i);
-
-    if (!this.tabListRendered()) {
-      return { displayed: allTabs, overflow: [] as number[] };
-    }
-
-    const tabWidths = this.tabWidths();
-    const containerWidth = this.tabHeaderWidth();
-
-    // Total width of all tabs including gaps
-    const totalTabsWidth = tabWidths.reduce(
-      (sum, w, i) => sum + w + (i > 0 ? TAB_LIST_CONTAINER_GAP : 0),
-      0,
-    );
-
-    // If all tabs fit without the more button, no overflow needed
-    if (totalTabsWidth <= containerWidth) {
-      return { displayed: allTabs, overflow: [] as number[] };
-    }
-
-    const displayed: number[] = []; // Store indexes of tabs that are displayed
-    const overflow: number[] = []; // Store indexes of tabs that are in the "More" overflow menu
-    const selectedIndex = this.selectedIndex();
-
-    // Reserve space for the more button and the selected tab.
-    const moreButtonWidth = this.moreButtonWidth();
-    const selectedTabWidth = tabWidths[selectedIndex] ?? 0;
-
-    const availableWidth = containerWidth - moreButtonWidth - selectedTabWidth;
-    let totalWidth = 0;
-    for (let i = 0; i < tabWidths.length; i++) {
-      if (i === selectedIndex) {
-        continue;
-      }
-      const tabWidth = tabWidths[i] + TAB_LIST_CONTAINER_GAP;
-      if (totalWidth + tabWidth > availableWidth) {
-        overflow.push(...allTabs.slice(i));
-        break;
-      }
-      totalWidth += tabWidth;
-      displayed.push(i);
-    }
-
-    // Determine where to display the selected tab while conserving tab order
-    const insertPos = displayed.findIndex((j) => j > selectedIndex);
-    // Insert the selected tab as the last displayed tab
-    if (insertPos === -1) {
-      displayed.push(selectedIndex);
-    } else {
-      // Display selected tab in its original position
-      displayed.splice(insertPos, 0, selectedIndex);
-    }
-
-    // Truncate the first displayed tab if it's the selected tab and there are overflowed tabs
-    const truncateTab = displayed.length === 1 && overflow.length > 0 && availableWidth < 0;
-
-    return { displayed, overflow, truncateTab };
-  });
+  protected readonly sortedTabs = computed(() =>
+    computeTabOverflow(
+      this.tabs().length,
+      this.tabListRendered(),
+      this.tabWidths(),
+      this.tabHeaderWidth(),
+      this.moreButtonWidth(),
+      this.selectedIndex(),
+    ),
+  );
 
   /** The index of the active tab. Supports two-way binding via `[(selectedIndex)]`. */
   readonly selectedIndex = model(0);
@@ -172,13 +128,22 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   constructor() {
     this._groupId = nextId++;
-    this.resizeObserver = new ResizeObserver(this.measureTabHeaderWidth);
+    this.resizeObserver = new ResizeObserver((entries) =>
+      this.tabHeaderWidth.set(entries[0].contentBoxSize[0].inlineSize),
+    );
 
     afterNextRender(() => {
       // Measure tab widths and more button width after fonts have loaded to ensure accurate measurements
       void document.fonts.ready.then(() => {
-        this.measureMoreButtonWidth();
-        this.measureTabWidths();
+        this.moreButtonWidth.set(measureMoreButtonWidth(this.moreButton().nativeElement));
+        this.tabWidths.set(
+          measureTabWidths(
+            this.tabLabels()
+              // Exclude the More button (last item) — it's measured separately
+              .slice(0, -1)
+              .map((tab) => tab.elementRef.nativeElement),
+          ),
+        );
         this.tabListRendered.set(true);
       });
       this.resizeObserver.observe(this.tabHeader().nativeElement);
@@ -283,70 +248,6 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
   private _clampTabIndex(index: number): number {
     return Math.min(this.tabs().length - 1, Math.max(index || 0, 0));
   }
-
-  /**
-   * Calculates and sets the width of the tab header
-   */
-  private readonly measureTabHeaderWidth = (entries?: ResizeObserverEntry[]) => {
-    const headerEl = this.tabHeader().nativeElement;
-    const contentWidth = entries
-      ? entries[0].contentBoxSize[0].inlineSize
-      : headerEl.getBoundingClientRect().width;
-
-    if (contentWidth !== this.tabHeaderWidth()) {
-      this.tabHeaderWidth.set(contentWidth);
-    }
-  };
-
-  /**
-   * Measures the widths of all the tabs and stores them in the `tabWidths` signal.
-   * This is used to determine how many tabs can fit in the available space before
-   * overflowing into the "More" menu.
-   */
-  private readonly measureTabWidths = () => {
-    this.tabWidths.set(
-      this.tabLabels()
-        // Exclude the More button (last item) — it's measured separately
-        .slice(0, -1)
-        // Round up to prevent edge case overflow when tab width is close to available space
-        .map((tab) => Math.ceil(tab.elementRef.nativeElement.getBoundingClientRect().width)),
-    );
-  };
-
-  /**
-   * Measures the width of the "More" button and stores it in the `moreButtonWidth` signal.
-   * This is used to determine how many tabs can fit in the available space before
-   * overflowing into the "More" menu.
-   */
-  private readonly measureMoreButtonWidth = (entries?: ResizeObserverEntry[]): void => {
-    const moreButtonEl = this.moreButton().nativeElement;
-    if (!moreButtonEl) {
-      this.moreButtonWidth.set(0);
-      return;
-    }
-
-    if (entries != null) {
-      // Called by ResizeObserver — button is visible, read directly from entries
-      this.moreButtonWidth.set(entries[0].contentBoxSize[0].inlineSize + TAB_LIST_CONTAINER_GAP);
-      return;
-    }
-
-    // Called manually (init / fonts loaded) — button may be hidden, temporarily show it
-    const wasHidden = moreButtonEl.hidden;
-    if (wasHidden) {
-      moreButtonEl.hidden = false;
-      // Force style recalculation before measuring, as getBoundingClientRect()
-      // may return stale dimensions if styles haven't been flushed yet.
-      void window.getComputedStyle(moreButtonEl).width;
-    }
-
-    this.moreButtonWidth.set(moreButtonEl.getBoundingClientRect().width + TAB_LIST_CONTAINER_GAP);
-
-    // Hide the more button again if it was originally hidden
-    if (wasHidden) {
-      moreButtonEl.hidden = true;
-    }
-  };
 }
 
 export interface BitTabChangeEvent {

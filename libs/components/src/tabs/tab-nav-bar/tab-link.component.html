@@ -10,10 +10,23 @@
   [attr.aria-disabled]="disabled"
   ariaCurrentWhenActive="page"
   role="link"
-  class="tw-flex tw-group/tab hover:tw-no-underline"
+  [class.tw-flex-1]="truncate()"
+  [class.tw-overflow-hidden]="truncate()"
 >
-  <ng-content></ng-content>
-  <div class="tw-font-normal tw-ms-2 empty:tw-ms-0">
+  <span [class]="tabLabelContentClasses">
+    <span #labelText [class]="truncate() ? 'tw-min-w-0 tw-truncate' : ''">
+      @if (templateLabel) {
+        <ng-container [ngTemplateOutlet]="templateLabel.templateRef"></ng-container>
+      } @else {
+        <ng-content></ng-content>
+      }
+    </span>
+    @if (berryValue()) {
+      <bit-berry [value]="berryValue()" />
+    }
+    @if (trailingIcon()) {
+      <bit-icon [name]="trailingIcon()" class="tw-text-base" />
+    }
     <ng-content select="[slot=end]"></ng-content>
-  </div>
+  </span>
 </a>
