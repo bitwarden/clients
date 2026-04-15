@@ -9,7 +9,7 @@ beforeAll(() => {
     (performance as any).measure = () => {};
   }
   if (!performance.getEntriesByType) {
-    (performance as any).getEntriesByType = () => [];
+    (performance as any).getEntriesByType = () => [] as any[];
   }
   if (!performance.clearMarks) {
     (performance as any).clearMarks = () => {};
