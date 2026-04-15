@@ -160,7 +160,16 @@ pub mod sshagent_v2 {
         ///
         /// * `unlock_callback` - Allows agent to vault unlock
         /// * `sign_callback` - Allows agent to get approval for sign requests
-        #[napi(factory)]
+        #[napi(
+            factory,
+            // ts_args_type overrides the generated TypeScript parameter types. The Rust type
+            // `ThreadsafeFunction<T, bool>` would generate `(arg: T) => boolean`, but these
+            // callbacks return Promises. `call_async` awaits the Promise and deserializes the
+            // resolved value as `bool`, so `bool` is the correct Rust type — the mismatch is
+            // only in the generated TypeScript declaration.
+            ts_args_type = "unlockCallback: () => Promise<boolean>,
+                            signCallback: (data: SignRequestData) => Promise<boolean>"
+        )]
         #[allow(clippy::unused_async)]
         pub async fn serve(
             unlock_callback: ThreadsafeFunction<(), bool>,
