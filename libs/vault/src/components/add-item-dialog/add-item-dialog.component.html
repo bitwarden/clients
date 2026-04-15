@@ -1,0 +1,13 @@
+<bit-dialog dialogSize="large" background="alt">
+  <span bitDialogTitle>
+    {{ "chooseItemToAdd" | i18n }}
+  </span>
+  <div bitDialogContent>
+    <vault-add-item-grid
+      [canCreateFolder]="data.canCreateFolder"
+      [canCreateCollection]="data.canCreateCollection"
+      [canCreateSshKey]="data.canCreateSshKey"
+      (itemSelected)="onItemSelected($event)"
+    />
+  </div>
+</bit-dialog>
