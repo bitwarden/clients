@@ -961,6 +961,15 @@ describe("AutofillService", () => {
       expect(logService.info).not.toHaveBeenCalledWith(
         "Autofill on page load was blocked due to an untrusted iframe.",
       );
+      expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+        autofillOptions.pageDetails[0].tab.id,
+        expect.objectContaining({
+          command: "fillForm",
+          fillScript: expect.objectContaining({ untrustedIframe: true }),
+        }),
+        expect.any(Object),
+        expect.any(Function),
+      );
     });
 
     it("skips updating the cipher's last used date if the passed options indicate that we should skip the last used cipher", async () => {
@@ -3507,9 +3516,9 @@ describe("AutofillService", () => {
       expect(result).toBe(false);
     });
 
-    it("returns a false value if the passed pageUrl matches the domain of the tabUrl", async () => {
-      const pageUrl = "https://subdomain.example.com";
-      const tabUrl = "https://www.example.com";
+    it("returns false when same origin and the page URL matches the cipher", async () => {
+      const pageUrl = "https://www.example.com/iframe/path";
+      const tabUrl = "https://www.example.com/top/path";
       const equivalentDomains = new Set([
         "ejemplo.es",
         "example.co.uk",
@@ -3519,29 +3528,6 @@ describe("AutofillService", () => {
       const generateFillScriptOptions = createGenerateFillScriptOptionsMock({ tabUrl });
       generateFillScriptOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(true);
 
-      const result = await autofillService["inUntrustedIframe"](pageUrl, generateFillScriptOptions);
-
-      expect(generateFillScriptOptions.cipher.login.matchesUri).toHaveBeenCalledWith(
-        pageUrl,
-        equivalentDomains,
-        generateFillScriptOptions.defaultUriMatch,
-      );
-      expect(result).toBe(false);
-    });
-
-    it("returns a true value if the passed pageUrl does not match the domain of the tabUrl", async () => {
-      const equivalentDomains = new Set([
-        "ejemplo.es",
-        "example.co.uk",
-        "example.com",
-        "exampleapp.com",
-      ]);
-      const pageUrl = "https://subdomain.example.com";
-      const tabUrl = "https://www.not-example.com";
-      const generateFillScriptOptions = createGenerateFillScriptOptionsMock({ tabUrl });
-      generateFillScriptOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(false);
-
-      // Mock getUrlEquivalentDomains to return the expected domains
       jest
         .spyOn(domainSettingsService, "getUrlEquivalentDomains")
         .mockReturnValue(of(equivalentDomains));
@@ -3553,6 +3539,44 @@ describe("AutofillService", () => {
         equivalentDomains,
         generateFillScriptOptions.defaultUriMatch,
       );
+      expect(result).toBe(false);
+    });
+
+    it("returns true when same origin but the page URL does not match the cipher", async () => {
+      const equivalentDomains = new Set([
+        "ejemplo.es",
+        "example.co.uk",
+        "example.com",
+        "exampleapp.com",
+      ]);
+      const pageUrl = "https://www.example.com/iframe";
+      const tabUrl = "https://www.example.com/top";
+      const generateFillScriptOptions = createGenerateFillScriptOptionsMock({ tabUrl });
+      generateFillScriptOptions.cipher.login.matchesUri = jest.fn().mockReturnValueOnce(false);
+
+      jest
+        .spyOn(domainSettingsService, "getUrlEquivalentDomains")
+        .mockReturnValue(of(equivalentDomains));
+
+      const result = await autofillService["inUntrustedIframe"](pageUrl, generateFillScriptOptions);
+
+      expect(generateFillScriptOptions.cipher.login.matchesUri).toHaveBeenCalledWith(
+        pageUrl,
+        equivalentDomains,
+        generateFillScriptOptions.defaultUriMatch,
+      );
+      expect(result).toBe(true);
+    });
+
+    it("returns true when the page origin differs from the tab origin (cross-origin iframe)", async () => {
+      const pageUrl = "https://other-origin.example.com/form";
+      const tabUrl = "https://www.example.com/embedder";
+      const generateFillScriptOptions = createGenerateFillScriptOptionsMock({ tabUrl });
+      generateFillScriptOptions.cipher.login.matchesUri = jest.fn();
+
+      const result = await autofillService["inUntrustedIframe"](pageUrl, generateFillScriptOptions);
+
+      expect(generateFillScriptOptions.cipher.login.matchesUri).not.toHaveBeenCalled();
       expect(result).toBe(true);
     });
   });
