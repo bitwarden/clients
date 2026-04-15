@@ -1566,8 +1566,17 @@ export default class AutofillService implements AutofillServiceInterface {
       return false;
     }
 
-    // Check the pageUrl against cipher URIs using the configured match detection.
-    // Remember: if we are in this function, the tabUrl already matches a saved URI for the login.
+    // Different origin than the top level tab so we will treat as untrusted.
+    try {
+      if (new URL(pageUrl).origin !== new URL(options.tabUrl).origin) {
+        return true;
+      }
+    } catch {
+      // Fall through to legacy check for unparseable URLs
+    }
+
+    // Otherwise, check the pageUrl against cipher URIs using the configured match detection.
+    // Remember: if we are in this part of the function, the tabUrl already matches a saved URI for the login.
     // We need to verify the pageUrl also matches.
     const equivalentDomains = await firstValueFrom(
       this.domainSettingsService.getUrlEquivalentDomains(pageUrl),

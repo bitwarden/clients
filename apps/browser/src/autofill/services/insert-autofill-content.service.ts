@@ -112,7 +112,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     const confirmationWarning = [
       chrome.i18n.getMessage("autofillIframeWarning"),
-      chrome.i18n.getMessage("autofillIframeWarningTip", [globalThis.location.hostname]),
+      chrome.i18n.getMessage("autofillIframeWarningTip", [globalThis.location.href]),
     ].join("\n\n");
 
     return !globalThis.confirm(confirmationWarning);
