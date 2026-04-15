@@ -1,0 +1,56 @@
+<bit-dialog background="alt">
+  <ng-container bitDialogTitle>{{ receive.name }}</ng-container>
+  <ng-container bitDialogContent>
+    @if (isExpired()) {
+      <bit-callout type="info" title="{{ 'receiveExpiredCalloutTitle' | i18n }}">
+        {{ "receiveExpiredCallout" | i18n }}
+      </bit-callout>
+    }
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">Receive Details</h2>
+      </bit-section-header>
+      <bit-card>
+        <bit-form-field>
+          <bit-label>{{ "receiveLink" | i18n }}</bit-label>
+          <input bitInput disabled type="text" [value]="receiveLink()" />
+          <button
+            type="button"
+            bitIconButton="bwi-clone"
+            bitSuffix
+            [label]="'copyLink' | i18n"
+            [disabled]="isExpired()"
+            [appCopyClick]="receiveLink()"
+            showToast
+            [valueLabel]="'receiveLink' | i18n"
+          ></button>
+        </bit-form-field>
+        <dl>
+          <dt bitTypography="body2" class="tw-text-muted">{{ "expiration" | i18n }}</dt>
+          <dd>{{ receive.expirationDate | date: "medium" }}</dd>
+        </dl>
+      </bit-card>
+    </bit-section>
+
+    @if (receive.fileData?.length > 0) {
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h6">
+            {{ "receives" | i18n }} {{ "(" + receive.fileData?.length + ")" }}
+          </h2>
+        </bit-section-header>
+        <bit-card>
+          <app-receive-files-view [receiveView]="receive" />
+        </bit-card>
+      </bit-section>
+    }
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" (click)="openEdit()">
+      {{ "edit" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "close" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

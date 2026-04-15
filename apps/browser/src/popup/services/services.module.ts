@@ -136,6 +136,8 @@ import { WindowStorageService } from "@bitwarden/common/platform/storage/window-
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications/system-notifications.service";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
+import { InternalReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -390,6 +392,8 @@ const safeProviders: SafeProvider[] = [
       SendApiService,
       MessageListener,
       StateProvider,
+      InternalReceiveService,
+      ReceiveApiService,
     ],
   }),
   safeProvider({

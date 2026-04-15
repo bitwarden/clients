@@ -11,6 +11,7 @@ import {
   UserDecryptionOptions,
   InternalUserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -37,6 +38,7 @@ import {
   MasterPasswordUnlockData,
 } from "../../key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
+import { InternalReceiveService } from "../../tools/receive/services/receive.service";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -62,6 +64,7 @@ describe("DefaultSyncService", () => {
   let messageSender: MockProxy<MessageSender>;
   let policyService: MockProxy<InternalPolicyService>;
   let sendService: MockProxy<InternalSendService>;
+  let receiveService: MockProxy<InternalReceiveService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
   let providerService: MockProxy<ProviderService>;
@@ -78,6 +81,7 @@ describe("DefaultSyncService", () => {
   let securityStateService: MockProxy<SecurityStateService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let receiveApiService: MockProxy<ReceiveApiService>;
 
   let sut: DefaultSyncService;
 
@@ -93,6 +97,7 @@ describe("DefaultSyncService", () => {
     messageSender = mock();
     policyService = mock();
     sendService = mock();
+    receiveService = mock();
     logService = mock();
     keyConnectorService = mock();
     keyConnectorService.convertAccountRequired$ = of(false);
@@ -110,6 +115,7 @@ describe("DefaultSyncService", () => {
     securityStateService = mock();
     kdfConfigService = mock();
     accountCryptographicStateService = mock();
+    receiveApiService = mock();
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -139,6 +145,8 @@ describe("DefaultSyncService", () => {
       securityStateService,
       kdfConfigService,
       accountCryptographicStateService,
+      receiveService,
+      receiveApiService,
     );
   });
 

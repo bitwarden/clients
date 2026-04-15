@@ -1,0 +1,67 @@
+<div class="tw-@container/receive-table">
+  <bit-table [dataSource]="dataSource()">
+    <ng-container header>
+      <tr>
+        <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
+        <th bitCell bitSortable="files" default>{{ "file" | i18n }}</th>
+        <th bitCell bitSortable="expiration" class="@lg/receive-table:tw-table-cell tw-hidden">
+          {{ "expiration" | i18n }}
+        </th>
+        <th bitCell>{{ "options" | i18n }}</th>
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      <tr
+        bitRow
+        *ngFor="let r of rows$ | async"
+        (click)="onViewReceive(r)"
+        class="tw-cursor-pointer"
+      >
+        <td bitCell>
+          <div class="tw-flex tw-gap-2 tw-items-center">
+            <button type="button" bitLink>
+              {{ r.name }}
+              @if (r.expired) {
+                <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
+              }
+            </button>
+            @if (r.expired) {
+              <bit-icon name="bwi-clock" appStopProp title="{{ 'expired' | i18n }}" />
+            }
+          </div>
+        </td>
+        <td bitCell class="tw-text-muted @lg/receive-table:tw-table-cell tw-hidden">
+          <small bitTypography="body2" appStopProp>
+            {{ r.fileData?.length ?? 0 }}
+          </small>
+        </td>
+        <td bitCell class="tw-text-muted @lg/receive-table:tw-table-cell tw-hidden">
+          <small bitTypography="body2" appStopProp>
+            {{ r.expirationDate | date: "medium" }}
+          </small>
+        </td>
+        <td bitCell class="tw-w-0 tw-text-right" appStopProp>
+          <button
+            type="button"
+            size="small"
+            [bitMenuTriggerFor]="receiveOptions"
+            bitIconButton="bwi-ellipsis-v"
+            label="{{ 'options' | i18n }}"
+          ></button>
+          <bit-menu #receiveOptions>
+            <button type="button" bitMenuItem (click)="onCopy(r)">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyReceiveLink" | i18n }}
+            </button>
+            <button type="button" bitMenuItem (click)="onDelete(r)">
+              <span class="tw-text-danger">
+                <bit-icon name="bwi-trash" fixedWidth />
+                {{ "delete" | i18n }}
+              </span>
+            </button>
+          </bit-menu>
+        </td>
+      </tr>
+    </ng-template>
+  </bit-table>
+</div>

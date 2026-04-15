@@ -1,4 +1,54 @@
 {
+  "clickToUploadOrDragAndDrop" : {
+    "message": "Click to upload or drag and drop"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. File Size: $MAX_SIZE$MB",
+    "placeholders": {
+      "MAX_SIZE": {
+        "content": "$1"
+      }
+    }
+  },
+  "chooseFiles" : {
+    "message": "Add files"
+  },
+  "fileUploadError": {
+    "message": "Could not upload $FILENAME$",
+    "placeholders": {
+      "FILENAME": {
+        "content": "$1"
+      }
+    }
+  },
+  "uploadMoreFiles": {
+    "message": "Upload more files"
+  },
+  "filesUploadedSuccessFully": {
+    "message": "Files uploaded successfully"
+  },
+  "nFilesSentToSingular": {
+    "message": "Your file has been sent to $OWNER_EMAIL$",
+    "placeholders": {
+      "OWNER_EMAIL": {
+        "content": "$1"
+      }
+    }
+  },
+  "nFilesSentToPlural": {
+    "message": "Your $NUMBER_OF_FILES$ files have been sent to $OWNER_EMAIL$",
+    "placeholders": {
+      "NUMBER_OF_FILES": {
+        "content": "$1"
+      },
+      "OWNER_EMAIL": {
+        "content": "$2"
+      }
+    }
+  },
+  "successfullyUploadedDocuments": {
+    "message": "Successfully uploaded documents"
+  },
   "allApplications": {
     "message": "All applications"
   },
@@ -6427,6 +6477,74 @@
     "message": "Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "receive": {
+    "message": "Receive"
+  },
+  "receiveLink": {
+    "message": "Receive link"
+  },
+  "receiveCreatedSuccessfully": {
+    "message": "Receive created successfully!"
+  },
+  "receiveCreatedDescription": {
+    "message": "Copy and share this Receive link. Anyone can upload files to this link."
+  },
+  "receives": {
+    "message": "Receives"
+  },
+  "allReceives": {
+    "message": "All Receives"
+  },
+  "copyReceiveLink": {
+    "message": "Copy Receive link"
+  },
+  "receivesTitleNoItems": {
+    "message": "Receive encrypted data safely"
+  },
+  "receivesBodyNoItems": {
+    "message": "Access files and data shared with you securely. Your information remains end-to-end encrypted."
+  },
+  "receivesTitleNoSearchResults": {
+    "message": "No search results returned"
+  },
+  "receivesBodyNoSearchResults": {
+    "message": "Clear filters or try another search term"
+  },
+  "newReceive": {
+    "message": "New Receive"
+  },
+  "editReceive": {
+    "message": "Edit Receive"
+  },
+  "sentYouThisRequest": {
+    "message": "$OWNER_EMAIL$ sent you this request",
+    "placeholders": {
+      "OWNER_EMAIL": {
+        "content": "$1"
+      }
+    }
+  },
+  "expirationDays": {
+    "message": "Expiration (days)"
+  },
+  "expirationDaysDescV2": {
+    "message": "The Receive will expire after the specified number of days. After expiration, uploads will no longer be allowed."
+  },
+  "generateLink": {
+    "message": "Generate Link"
+  },
+  "deleteReceive": {
+    "message": "Delete Receive",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "deleteReceivePermanentConfirmation": {
+    "message": "Are you sure you want to permanently delete this Receive?",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "deletedReceive": {
+    "message": "Receive deleted",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
   "sendAccessTaglineProductDesc": {
     "message": "Bitwarden Send transmits sensitive, temporary information to others easily and securely.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -11603,6 +11721,31 @@
   },
   "addAttachment": {
     "message": "Add attachment"
+  },
+  "receiveLoadError": {
+    "message": "Could not load this receive"
+  },
+  "receiveAccessExpiredTitle": {
+    "message": "Receive unavailable"
+  },
+  "receiveAccessExpiredDescription": {
+    "message": "The Receive you are trying to access has either expired or been deleted, and cannot be used for uploads.",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "receiveExpiredCalloutTitle": {
+    "message": "This Receive has expired",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "receiveExpiredCallout": {
+    "message": "To make it active, update the expiration date.",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
+  },
+  "receiveAccessErrorTitle": {
+    "message": "Something went wrong"
+  },
+  "receiveAccessErrorDescription": {
+    "message": "The Receive you are trying to access could not be loaded. Please verify the link and try again.",
+    "description": "'Receive' is a noun and the name of a feature called 'Bitwarden Receive'. It should not be translated."
   },
   "maxFileSizeSansPunctuation": {
     "message": "Maximum file size is 500 MB"

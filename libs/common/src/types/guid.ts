@@ -24,6 +24,9 @@ export type OrganizationIntegrationConfigurationId = Opaque<
 >;
 export type OrganizationReportId = Opaque<string, "OrganizationReportId">;
 
+export type ReceiveId = Opaque<string, "ReceiveId">;
+export type ReceiveFileId = Opaque<string, "ReceiveFileId">;
+
 /**
  * A string representation of an empty guid.
  */

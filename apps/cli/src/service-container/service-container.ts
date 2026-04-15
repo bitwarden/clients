@@ -151,6 +151,10 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { createSystemServiceProvider } from "@bitwarden/common/tools/providers";
+import { DefaultReceiveApiService } from "@bitwarden/common/tools/receive/services/default-receive-api.service";
+import { DefaultReceiveService } from "@bitwarden/common/tools/receive/services/default-receive.service";
+import { ReceiveApiService } from "@bitwarden/common/tools/receive/services/receive-api.service";
+import { InternalReceiveService } from "@bitwarden/common/tools/receive/services/receive.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -300,6 +304,8 @@ export class ServiceContainer {
   policyApiService: PolicyApiServiceAbstraction;
   logService: ConsoleLogService;
   sendService: SendService;
+  receiveApiService: ReceiveApiService;
+  receiveService: InternalReceiveService;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadService;
   cipherFileUploadService: CipherFileUploadService;
@@ -652,6 +658,16 @@ export class ServiceContainer {
       this.sendService,
     );
 
+    this.receiveApiService = new DefaultReceiveApiService(this.apiService);
+    this.receiveService = new DefaultReceiveService(
+      this.encryptService,
+      this.keyService,
+      this.keyGenerationService,
+      this.receiveApiService,
+      this.stateProvider,
+      this.environmentService,
+    );
+
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
 
     this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
@@ -940,6 +956,16 @@ export class ServiceContainer {
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
+    this.receiveApiService = new DefaultReceiveApiService(this.apiService);
+    this.receiveService = new DefaultReceiveService(
+      this.encryptService,
+      this.keyService,
+      this.keyGenerationService,
+      this.receiveApiService,
+      this.stateProvider,
+      this.environmentService,
+    );
+
     this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
@@ -968,6 +994,8 @@ export class ServiceContainer {
       this.securityStateService,
       this.kdfConfigService,
       this.accountCryptographicStateService,
+      this.receiveService,
+      this.receiveApiService,
     );
 
     this.totpService = new TotpService(this.sdkService);

@@ -1,0 +1,23 @@
+<bit-item-group>
+  @for (file of receiveView().fileData; track file.id) {
+    <bit-item>
+      <bit-item-content>
+        <bit-icon-tile slot="start" icon="bwi-file" />
+        <span data-testid="file-name">{{ file.fileName }}</span>
+        <span slot="secondary">{{ file.sizeName }}</span>
+      </bit-item-content>
+      <ng-container slot="end">
+        <bit-item-action>
+          <button
+            type="button"
+            bitIconButton="bwi-download"
+            buttonType="main"
+            size="small"
+            [label]="'download' | i18n"
+            [bitAction]="downloadFile(file)"
+          ></button>
+        </bit-item-action>
+      </ng-container>
+    </bit-item>
+  }
+</bit-item-group>

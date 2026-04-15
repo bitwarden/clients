@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import {
   SyncCipherNotification,
   SyncFolderNotification,
+  SyncReceiveNotification,
   SyncSendNotification,
 } from "../../models/response/notification.response";
 import { UserId } from "../../types/guid";
@@ -90,4 +91,8 @@ export abstract class SyncService {
   abstract syncDeleteCipher(notification: SyncFolderNotification, userId: UserId): Promise<boolean>;
   abstract syncUpsertSend(notification: SyncSendNotification, isEdit: boolean): Promise<boolean>;
   abstract syncDeleteSend(notification: SyncSendNotification): Promise<boolean>;
+  abstract syncUpsertReceive(
+    notification: SyncReceiveNotification,
+    isEdit: boolean,
+  ): Promise<boolean>;
 }
