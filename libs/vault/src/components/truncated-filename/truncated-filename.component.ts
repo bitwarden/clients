@@ -33,11 +33,13 @@ import { truncateFilename } from "./truncate-filename";
   template: `
     <span
       #container
-      class="tw-block tw-flex-1 tw-min-w-0 tw-overflow-hidden tw-whitespace-nowrap"
+      class="tw-block tw-flex-1 tw-min-w-0 tw-overflow-hidden tw-whitespace-nowrap tw-relative"
       [bitTooltip]="filename()"
       [attr.aria-label]="filename()"
     >
-      {{ displayText() }}
+      <!-- Invisible full text drives intrinsic width so ResizeObserver fires  -->
+      <span class="tw-invisible" aria-hidden="true">{{ filename() }}</span>
+      <span class="tw-absolute tw-inset-0">{{ displayText() }}</span>
     </span>
   `,
   host: { class: "tw-contents" },
