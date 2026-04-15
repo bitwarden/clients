@@ -4,7 +4,6 @@ import { CommonModule } from "@angular/common";
 import { Component, viewChild, input, inject } from "@angular/core";
 import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
 
-import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -13,12 +12,20 @@ import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultFilter, CipherStatus, CipherTypeFilter } from "@bitwarden/vault";
 
+import { PremiumBadgeDesktopComponent } from "../../premium-badge-desktop.component";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-status-filter",
   templateUrl: "status-filter.component.html",
-  imports: [CommonModule, A11yTitleDirective, NavigationModule, PremiumBadgeComponent, I18nPipe],
+  imports: [
+    CommonModule,
+    A11yTitleDirective,
+    NavigationModule,
+    PremiumBadgeDesktopComponent,
+    I18nPipe,
+  ],
 })
 export class StatusFilterComponent {
   private accountService: AccountService = inject(AccountService);
@@ -26,7 +33,7 @@ export class StatusFilterComponent {
 
   protected readonly activeFilter = input.required<VaultFilter>();
 
-  private readonly premiumBadgeComponent = viewChild(PremiumBadgeComponent);
+  private readonly premiumBadgeComponent = viewChild(PremiumBadgeDesktopComponent);
 
   protected readonly archiveFilter: CipherTypeFilter = {
     id: "archive",
