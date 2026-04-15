@@ -160,7 +160,13 @@ describe("VaultComponent", () => {
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: SyncService, useValue: mock<SyncService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ConfigService,
+          useValue: {
+            ...mock<ConfigService>(),
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
+        },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: WelcomeDialogService, useValue: mock<WelcomeDialogService>() },
         { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
@@ -224,9 +230,10 @@ describe("VaultComponent", () => {
         {
           provide: CipherArchiveService,
           useValue: {
-            hasArchiveFlagEnabled$: of(false),
             userCanArchive$: jest.fn().mockReturnValue(of(false)),
             showSubscriptionEndedMessaging$: jest.fn().mockReturnValue(of(false)),
+            archivedCiphers$: jest.fn().mockReturnValue(of([])),
+            userHasPremium$: jest.fn().mockReturnValue(of([])),
           },
         },
         {

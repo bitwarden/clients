@@ -43,6 +43,7 @@ import {
   DIALOG_DATA,
   DialogRef,
   AsyncActionsModule,
+  BitIconButtonComponent,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -54,6 +55,7 @@ import {
 import {
   AttachmentDialogCloseResult,
   AttachmentDialogResult,
+  AttachmentsDialogParams,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
   CipherFormComponent,
@@ -132,6 +134,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
   imports: [
+    BitIconButtonComponent,
     ButtonModule,
     CipherViewComponent,
     DialogModule,
@@ -224,11 +227,6 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     ),
   );
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-  private readonly archiveFlagEnabled = toSignal(this.archiveFlagEnabled$, {
-    initialValue: false,
-  });
-
   protected userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   /**
@@ -298,9 +296,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   }
 
   protected get showArchiveOptions(): boolean {
-    return (
-      this.archiveFlagEnabled() && !this.params.isAdminConsoleAction && this.params.mode === "view"
-    );
+    return !this.params.isAdminConsoleAction && this.params.mode === "view";
   }
 
   protected get showArchiveBtn(): boolean {
@@ -465,6 +461,19 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
+
+    // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
+    this.canEdit = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
+    );
+
+    this.canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(
+        this.cipher,
+        this.params.isAdminConsoleAction,
+      ),
+    );
+
     await this.changeMode("view");
   }
 
@@ -524,16 +533,17 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const dialogRef = this.dialogService.open<
-      AttachmentDialogCloseResult,
-      { cipherId: CipherId; organizationId?: OrganizationId; canEditCipher?: boolean }
-    >(AttachmentsV2Component, {
-      data: {
-        cipherId: this.formConfig.originalCipher?.id as CipherId,
-        organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
-        canEditCipher: this.formConfig.originalCipher?.edit,
+    const dialogRef = this.dialogService.open<AttachmentDialogCloseResult, AttachmentsDialogParams>(
+      AttachmentsV2Component,
+      {
+        data: {
+          cipherId: this.formConfig.originalCipher?.id as CipherId,
+          organizationId: this.formConfig.originalCipher?.organizationId as OrganizationId,
+          canEditCipher: this.formConfig.originalCipher?.edit,
+          admin: this.formConfig.admin,
+        },
       },
-    });
+    );
 
     const result = await firstValueFrom(dialogRef.closed);
 
@@ -715,7 +725,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     this.dialogContent().nativeElement.parentElement.scrollTop = 0;
 
     // Refocus on title element, the built-in focus management of the dialog only works for the initial open.
-    this.dialogComponent().handleAutofocus();
+    this.dialogComponent().focusHeader();
 
     // Update the URL query params to reflect the new mode.
     await this.router.navigate([], {

@@ -5,6 +5,11 @@ export const AuthWebRouteSegment = Object.freeze({
   EmergencyAccess: "emergency-access",
 
   // settings/security routes
+  /**
+   * IMPORTANT: This `AuthWebRouteSegment.Password` route path must NOT contain the substring "change-password". The `authGuard`
+   * uses a substring check (`url.includes("change-password")`) to exempt the forced `/change-password` route from redirection — a route
+   * containing that substring would be incorrectly exempted. See PM-34258 for further explanation/future cleanup.
+   */
   Password: "password",
   TwoFactor: "two-factor",
   SecurityKeys: "security-keys",

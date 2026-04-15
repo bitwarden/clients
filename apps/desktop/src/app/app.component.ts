@@ -23,6 +23,7 @@ import {
   timeout,
 } from "rxjs";
 
+import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -36,16 +37,18 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import {
@@ -63,7 +66,6 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "@bitwarden/common/platform/services/server-communication-config/server-communication-config-platform-api.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -77,9 +79,10 @@ import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
-import { DeleteAccountComponent } from "../auth/delete-account.component";
+import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
+import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
@@ -103,7 +106,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
     <div id="container">
       <div class="loading" *ngIf="loading">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+        <bit-spinner></bit-spinner>
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
@@ -180,6 +183,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestService: AuthRequestServiceAbstraction,
     private authRequestAnsweringService: AuthRequestAnsweringService,
+    private ssoLoginService: SsoLoginServiceAbstraction,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -291,6 +295,9 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openPremium":
             await this.premiumUpgradePromptService.promptForPremium();
             break;
+          case "openChangePasswordDialog":
+            this.dialogService.open(ChangePasswordDialogComponent);
+            break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
               getUserId(this.accountService.activeAccount$),
@@ -328,6 +335,24 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "ssoCallback": {
+            const storedState = await this.ssoLoginService.getSsoState();
+            const storedVerifier = await this.ssoLoginService.getCodeVerifier();
+
+            if (!storedState || !storedVerifier) {
+              this.logService.warning(
+                "[App Component] SSO callback rejected: no active SSO flow in progress",
+              );
+              break;
+            }
+
+            const storedStatePrefix = storedState.split("_identifier=")[0];
+            const receivedStatePrefix = (message.state ?? "").split("_identifier=")[0];
+
+            if (storedStatePrefix !== receivedStatePrefix) {
+              this.logService.warning("[App Component] SSO callback rejected: state mismatch");
+              break;
+            }
+
             const queryParams = {
               code: message.code,
               state: message.state,
@@ -578,6 +603,10 @@ export class AppComponent implements OnInit, OnDestroy {
             email: stateAccounts[userId].email,
             userId: userId,
             hasMasterPassword: await this.userVerificationService.hasMasterPassword(userId),
+            // TODO: PM-32419 - remove multiClientPasswordManagement flag and logic once the feature is fully rolled out
+            multiClientPasswordManagement: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
+            ),
           };
         }
       }
@@ -891,7 +920,8 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    DeleteAccountComponent.open(this.dialogService);
+    const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
+    await lastValueFrom(dialogRef.closed);
   }
 
   private async processPendingAuthRequests() {

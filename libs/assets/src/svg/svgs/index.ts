@@ -15,6 +15,7 @@ export * from "./deactivated-org";
 export * from "./devices.icon";
 export * from "./domain.icon";
 export * from "./empty-trash";
+export * from "./extension-mock-login";
 export * from "./favorites.icon";
 export * from "./gear";
 export * from "./generator";

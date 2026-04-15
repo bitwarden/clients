@@ -40,6 +40,7 @@ describe("ApiService", () => {
 
   const testActiveUser = "activeUser" as UserId;
   const testInactiveUser = "inactiveUser" as UserId;
+  const kdfFields = { Kdf: 0, KdfIterations: 600_000 };
 
   beforeEach(() => {
     tokenService = mock();
@@ -300,6 +301,7 @@ describe("ApiService", () => {
                 access_token: `${expectedEffectiveUser}_new_access_token`,
                 token_type: "Bearer",
                 refresh_token: `${expectedEffectiveUser}_new_refresh_token`,
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -540,6 +542,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -869,6 +872,7 @@ describe("ApiService", () => {
                 access_token: "active_new_access_token",
                 token_type: "Bearer",
                 refresh_token: "active_new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -987,6 +991,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -1100,6 +1105,8 @@ describe("ApiService", () => {
                       access_token: "new_access_token",
                       token_type: "Bearer",
                       refresh_token: "new_refresh_token",
+                      Kdf: 0,
+                      KdfIterations: 600_000,
                     }),
                 } satisfies Partial<Response> as Response),
               100,
@@ -1266,7 +1273,9 @@ describe("ApiService", () => {
     });
 
     it("executes a registered middleware before sending the request", async () => {
-      const middleware = jest.fn<Promise<void>, [Request]>().mockResolvedValue(undefined);
+      const middleware = jest.fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>(
+        async (req, next) => next(req),
+      );
       sut.addMiddleware(middleware);
 
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
@@ -1284,18 +1293,24 @@ describe("ApiService", () => {
       await sut.fetch(request);
 
       expect(middleware).toHaveBeenCalledTimes(1);
-      expect(middleware).toHaveBeenCalledWith(request);
+      expect(middleware).toHaveBeenCalledWith(request, expect.any(Function));
       expect(nativeFetch).toHaveBeenCalledTimes(1);
     });
 
     it("executes all registered middlewares before sending the request", async () => {
       const callOrder: number[] = [];
-      const middleware1 = jest.fn<Promise<void>, [Request]>().mockImplementation(async () => {
-        callOrder.push(1);
-      });
-      const middleware2 = jest.fn<Promise<void>, [Request]>().mockImplementation(async () => {
-        callOrder.push(2);
-      });
+      const middleware1 = jest
+        .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
+        .mockImplementation(async (req, next) => {
+          callOrder.push(1);
+          return next(req);
+        });
+      const middleware2 = jest
+        .fn<Promise<Response>, [Request, (req: Request) => Promise<Response>]>()
+        .mockImplementation(async (req, next) => {
+          callOrder.push(2);
+          return next(req);
+        });
       sut.addMiddleware(middleware1);
       sut.addMiddleware(middleware2);
 
