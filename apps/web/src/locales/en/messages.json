@@ -5137,9 +5137,6 @@
       }
     }
   },
-  "reorderAriaDescription":{
-    "message": "Make sure your screen reader is in focus mode so you can use your arrow keys to move items."
-  },
   "reorderFieldUp": {
     "message": "$LABEL$ moved up, position $INDEX$ of $LENGTH$",
     "placeholders": {
