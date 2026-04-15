@@ -208,9 +208,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.loadRememberedEmail();
     }
 
-    // This SSO required check should come after email has had a chance to be pre-filled (if it
-    // was found in query params or was the remembered email)
-    await this.determineIfSsoRequired();
+    // This SSO required tracking should be initialized after email has had a chance to be pre-filled
+    // (if it was found in query params or was the remembered email)
+    await this.initSsoRequiredTracking();
 
     // Listen for region/environment changes after initialization.
     // If the user switches region while on the password entry screen, we need to clear
@@ -256,7 +256,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
-  private async determineIfSsoRequired() {
+  private async initSsoRequiredTracking() {
     const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
     // Only set up a subscription if there is actually a populated ssoRequiredCache
