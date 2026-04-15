@@ -43,6 +43,7 @@ import {
   DIALOG_DATA,
   DialogRef,
   AsyncActionsModule,
+  BitIconButtonComponent,
   ButtonModule,
   DialogModule,
   DialogService,
@@ -133,6 +134,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
   selector: "app-vault-item-dialog",
   templateUrl: "vault-item-dialog.component.html",
   imports: [
+    BitIconButtonComponent,
     ButtonModule,
     CipherViewComponent,
     DialogModule,
@@ -459,6 +461,19 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     // Store the updated cipher so any following edits use the most up to date cipher
     this.formConfig.originalCipher = cipher;
     this._cipherModified = true;
+
+    // Update canEdit based on the saved cipher (important for newly created items where canEdit was never set)
+    this.canEdit = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(this.cipher, this.params.isAdminConsoleAction),
+    );
+
+    this.canDelete = await firstValueFrom(
+      this.cipherAuthorizationService.canDeleteCipher$(
+        this.cipher,
+        this.params.isAdminConsoleAction,
+      ),
+    );
+
     await this.changeMode("view");
   }
 

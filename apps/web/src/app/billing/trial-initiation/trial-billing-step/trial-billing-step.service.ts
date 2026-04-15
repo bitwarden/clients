@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { combineLatestWith, firstValueFrom, from, map, shareReplay } from "rxjs";
+import { firstValueFrom, from, map, shareReplay } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
@@ -10,8 +10,6 @@ import {
   SubscriptionInformation,
 } from "@bitwarden/common/billing/abstractions";
 import { PaymentMethodType, PlanType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PreviewInvoiceClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   BillingAddressControls,
@@ -64,7 +62,6 @@ export class TrialBillingStepService {
     private apiService: ApiService,
     private organizationBillingService: OrganizationBillingServiceAbstraction,
     private previewInvoiceClient: PreviewInvoiceClient,
-    private configService: ConfigService,
   ) {}
 
   private plans$ = from(this.apiService.getPlans()).pipe(
@@ -73,17 +70,10 @@ export class TrialBillingStepService {
 
   getPrices$ = (product: Product, tier: Tier) =>
     this.plans$.pipe(
-      combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
-      map(([plans, milestone3FeatureEnabled]) => {
+      map((plans) => {
         switch (tier) {
           case "families": {
-            const annually = plans.data.find(
-              (plan) =>
-                plan.type ===
-                (milestone3FeatureEnabled
-                  ? PlanType.FamiliesAnnually
-                  : PlanType.FamiliesAnnually2025),
-            );
+            const annually = plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually);
             return {
               annually: annually!.PasswordManager.basePrice,
             };
@@ -162,15 +152,9 @@ export class TrialBillingStepService {
   ): Promise<OrganizationResponse> => {
     const getPlanType = async (tier: Tier, cadence: Cadence) => {
       const plans = await firstValueFrom(this.plans$);
-      const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM26462_Milestone_3,
-      );
-      const familyPlan = milestone3FeatureEnabled
-        ? PlanType.FamiliesAnnually
-        : PlanType.FamiliesAnnually2025;
       switch (tier) {
         case "families":
-          return plans.data.find((plan) => plan.type === familyPlan)!.type;
+          return plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually)!.type;
         case "teams":
           return plans.data.find(
             (plan) =>

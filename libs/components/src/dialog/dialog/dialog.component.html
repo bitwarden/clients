@@ -69,6 +69,7 @@
       cdkScrollable
       [ngClass]="{
         'tw-py-2 tw-ps-6 tw-pe-6': !disablePadding(),
+        'tw-pb-4': !hasFooter() && !disablePadding(),
         'tw-overflow-y-auto': !loading(),
         'tw-invisible tw-overflow-y-hidden': loading(),
         'tw-py-4': background() === 'alt',
@@ -78,24 +79,26 @@
       <div #scrollBottom></div>
     </div>
   </div>
-  @let isScrollable = isScrollable$ | async;
-  @let showFooterBorder =
-    (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
-  <div
-    class="tw-border-0 tw-border-t tw-border-solid"
-    [ngClass]="{
-      'tw-border-transparent': !showFooterBorder,
-      'tw-border-secondary-100': showFooterBorder,
-    }"
-    data-chromatic="ignore"
-  ></div>
-  <footer
-    class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-bg-background tw-py-5 tw-ps-6 tw-pe-4"
-    [ngClass]="{
-      'tw-px-6 tw-py-4': isDrawer,
-      'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
-    }"
-  >
-    <ng-content select="[bitDialogFooter]"></ng-content>
-  </footer>
+  @if (hasFooter()) {
+    @let isScrollable = isScrollable$ | async;
+    @let showFooterBorder =
+      (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
+    <div
+      class="tw-border-0 tw-border-t tw-border-solid"
+      [ngClass]="{
+        'tw-border-transparent': !showFooterBorder,
+        'tw-border-secondary-100': showFooterBorder,
+      }"
+      data-chromatic="ignore"
+    ></div>
+    <footer
+      class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-bg-background tw-py-5 tw-ps-6 tw-pe-4"
+      [ngClass]="{
+        'tw-px-6 tw-py-4': isDrawer,
+        'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
+      }"
+    >
+      <ng-content select="[bitDialogFooter]"></ng-content>
+    </footer>
+  }
 </section>

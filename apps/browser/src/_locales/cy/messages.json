@@ -297,13 +297,13 @@
     "message": "Newid y prif gyfrinair"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Parhau i'r ap gwe?"
   },
   "continueToWebAppDesc": {
     "message": "Explore more features of your Bitwarden account on the web app."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "Parhau i'r ganolfan gymorth?"
   },
   "continueToHelpCenterDesc": {
     "message": "Learn more about how to use Bitwarden on the Help Center."
@@ -592,7 +592,7 @@
     "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Mae angen aelodaeth uwch i ddefnyddio'r nodwedd hon."
   },
   "itemRestored": {
     "message": "Item has been restored"
@@ -700,7 +700,7 @@
     "message": "Set up an unlock method in Settings"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Dod â sesiynau i ben"
   },
   "otherOptions": {
     "message": "Dewisiadau eraill"
@@ -764,7 +764,7 @@
     "message": "Cloi'r gell"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Daw'r sesiwn i ben"
   },
   "lockNow": {
     "message": "Cloi nawr"
@@ -2478,7 +2478,7 @@
     "message": "Addasu'r gell"
   },
   "vaultTimeoutAction": {
-    "message": "Vault timeout action"
+    "message": "Gweithred pan ddaw sesiwn y gell i ben"
   },
   "showAtRiskPasswordNotifications": {
     "message": "Show at-risk password notifications"
@@ -2516,10 +2516,10 @@
     "message": "Oes gennych chi gyfrif eisoes?"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Logging out will remove all access to your vault and requires online authentication after the timeout period. Are you sure you want to use this setting?"
+    "message": "Bydd allgofnodi yn tynnu pob mynediad i'ch cell a gorfodi dilysu ar lein ar ôl i'r sesiwn ddod i ben. Ydych chi'n siŵr yr hoffech chi ddefnyddio'r gosodiad hwn?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "Timeout action confirmation"
+    "message": "Cadarnhau'r weithred"
   },
   "autoFillAndSave": {
     "message": "Llenwi'n awtomatig a chadw"
@@ -3353,7 +3353,7 @@
     "message": "Toggle character count"
   },
   "sessionTimeout": {
-    "message": "Your session has timed out. Please go back and try logging in again."
+    "message": "Mae eich sesiwn wedi dod i ben. Ewch yn ôl a cheisio mewngofnodi eto."
   },
   "exportingPersonalVaultTitle": {
     "message": "Exporting individual vault"
@@ -4752,7 +4752,7 @@
     "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Cadwch eitem fewngofnodi i'w llewni'n awtomatig ar y wefan hon"
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"
@@ -5978,7 +5978,7 @@
     "message": "Great job securing your at-risk logins!"
   },
   "upgradeNow": {
-    "message": "Uwchraddio nawr"
+    "message": "Uwchraddiwch nawr"
   },
   "builtInAuthenticator": {
     "message": "Built-in authenticator"
@@ -6069,7 +6069,7 @@
     "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Gweithred pan ddaw i ben"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."
@@ -6110,13 +6110,13 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "wrth ailgychwyn y porwr"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Uwchraddio"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"
