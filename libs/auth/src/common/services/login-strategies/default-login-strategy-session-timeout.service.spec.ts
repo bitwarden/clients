@@ -10,7 +10,7 @@ import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cac
 import {
   LOGIN_SESSION_EXPIRED,
   DefaultLoginStrategySessionTimeoutService,
-} from "./login-strategy-session-timeout.service";
+} from "./default-login-strategy-session-timeout.service";
 
 describe("DefaultLoginStrategySessionTimeoutService", () => {
   let sut: DefaultLoginStrategySessionTimeoutService;

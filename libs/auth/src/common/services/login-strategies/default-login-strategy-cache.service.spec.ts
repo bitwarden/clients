@@ -3,7 +3,7 @@ import { firstValueFrom } from "rxjs";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 
-import { DefaultLoginStrategyCacheService } from "./login-strategy-cache.service";
+import { DefaultLoginStrategyCacheService } from "./default-login-strategy-cache.service";
 import {
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
