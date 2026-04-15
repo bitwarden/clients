@@ -1,7 +1,8 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { firstValueFrom, map } from "rxjs";
+import { map } from "rxjs";
 
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
@@ -47,12 +48,14 @@ export class PhishingWarningComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly messageSender = inject(MessageSender);
 
-  private readonly phishingUrl$ = this.activatedRoute.queryParamMap.pipe(
-    map((params) => params.get("phishingUrl") || ""),
+  private readonly phishingUrl = toSignal(
+    this.activatedRoute.queryParamMap.pipe(map((params) => params.get("phishingUrl") || "")),
+    { initialValue: "" },
   );
-  protected readonly phishingHostname$ = this.phishingUrl$.pipe(
-    map((url) => new URL(url).hostname),
-  );
+  protected readonly phishingHostname = computed(() => {
+    const url = this.phishingUrl();
+    return url ? new URL(url).hostname : "";
+  });
 
   async closeTab() {
     const tabId = await this.getTabId();
@@ -61,7 +64,7 @@ export class PhishingWarningComponent {
     });
   }
   async continueAnyway() {
-    const url = await firstValueFrom(this.phishingUrl$);
+    const url = this.phishingUrl();
     const tabId = await this.getTabId();
     this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, {
       tabId,
