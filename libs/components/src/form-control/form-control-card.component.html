@@ -11,12 +11,12 @@
   ></label>
 
   <div class="tw-flex tw-items-center tw-gap-4">
-    @if (icon()) {
+    @if (icon(); as icon) {
       <!-- this positioning style to account for tile staying top aligned when text wraps -->
       <bit-icon-tile
         [variant]="base.formControl().disabled ? 'subtle' : 'primary'"
         class="tw-self-start tw-relative tw-top-[1px]"
-        [icon]="icon()"
+        [icon]="icon"
       ></bit-icon-tile>
     }
 
