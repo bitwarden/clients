@@ -16,7 +16,9 @@ import {
   OrganizationUserApiService,
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import type { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -32,6 +34,8 @@ import {
 } from "../../abstractions/member-cipher-mapping.service";
 import { ReportGenerationService } from "../../abstractions/report-generation.service";
 import { ReportPersistenceService } from "../../abstractions/report-persistence.service";
+import { DefaultReportPersistenceService } from "../persistence/default-report-persistence.service";
+import { FileReportPersistenceService } from "../persistence/file-report-persistence.service";
 
 /**
  * Default implementation of AccessIntelligenceDataService.
@@ -56,10 +60,21 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     private cipherService: CipherService,
     private organizationUserApiService: OrganizationUserApiService,
     private reportGenerationService: ReportGenerationService,
-    private reportPersistenceService: ReportPersistenceService,
+    private defaultReportPersistenceService: DefaultReportPersistenceService,
+    private fileReportPersistenceService: FileReportPersistenceService,
+    private configService: ConfigService,
     private logService: LogService,
   ) {
     super();
+  }
+
+  private get reportPersistenceService$(): Observable<ReportPersistenceService> {
+    return this.configService.getFeatureFlag$(FeatureFlag.AccessIntelligenceReportFileStorage).pipe(
+      take(1),
+      map((enabled) =>
+        enabled ? this.fileReportPersistenceService : this.defaultReportPersistenceService,
+      ),
+    );
   }
 
   initializeForOrganization$(orgId: OrganizationId): Observable<void> {
@@ -78,7 +93,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
+    return this.reportPersistenceService$.pipe(
+      switchMap((svc) => svc.loadReport$(orgId)),
       switchMap((result) => {
         if (!result) {
           return of(null);
@@ -90,7 +106,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
           this.logService.info(
             "[DefaultAccessIntelligenceDataService] Legacy blobs detected, re-saving in current format",
           );
-          return this.reportPersistenceService.saveReport$(report, orgId).pipe(
+          return this.reportPersistenceService$.pipe(
+            switchMap((svc) => svc.saveReport$(report, orgId)),
             tap(({ id, contentEncryptionKey }) => {
               report.id = id;
               report.contentEncryptionKey = contentEncryptionKey;
@@ -184,7 +201,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
             switchMap((generatedReport) => {
               // Emit Saving before persistence call
               this._reportProgress.next(ReportProgress.Saving);
-              return this.reportPersistenceService.saveReport$(generatedReport, orgId).pipe(
+              return this.reportPersistenceService$.pipe(
+                switchMap((svc) => svc.saveReport$(generatedReport, orgId)),
                 map(({ id, contentEncryptionKey }) => {
                   generatedReport.id = id;
                   generatedReport.organizationId = orgId;
@@ -227,7 +245,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
+    return this.reportPersistenceService$.pipe(
+      switchMap((svc) => svc.loadReport$(orgId)),
       tap((result) => {
         this._report.next(result?.report ?? null);
         this._loading.next(false);
@@ -285,7 +304,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     report.markApplicationsAsCritical(appNames);
 
     // Persist once
-    return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
+    return this.reportPersistenceService$.pipe(
+      switchMap((svc) => svc.saveApplicationMetadata$(report)),
       tap(() => {
         this._report.next(report);
         this.logService.debug(
@@ -343,7 +363,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     report.unmarkApplicationsAsCritical(appNames);
 
     // Persist once
-    return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
+    return this.reportPersistenceService$.pipe(
+      switchMap((svc) => svc.saveApplicationMetadata$(report)),
       tap(() => {
         this._report.next(report);
         this.logService.debug(
@@ -399,7 +420,8 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     appNames.forEach((name) => report.markApplicationAsReviewed(name, date));
 
     // Persist once
-    return this.reportPersistenceService.saveApplicationMetadata$(report).pipe(
+    return this.reportPersistenceService$.pipe(
+      switchMap((svc) => svc.saveApplicationMetadata$(report)),
       tap(() => {
         this._report.next(report);
         this.logService.debug(

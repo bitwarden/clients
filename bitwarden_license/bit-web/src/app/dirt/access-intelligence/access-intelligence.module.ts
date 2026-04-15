@@ -3,10 +3,12 @@ import { NgModule } from "@angular/core";
 import { OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
+  AccessIntelligenceApiService,
   AccessIntelligenceDataService,
   AccessReportEncryptionService,
   ApplicationVersioningService,
   CipherHealthService,
+  DefaultAccessIntelligenceApiService,
   DefaultAccessIntelligenceDataService,
   DefaultAccessReportEncryptionService,
   DefaultCipherHealthService,
@@ -15,10 +17,10 @@ import {
   DefaultReportGenerationService,
   DefaultReportPersistenceService,
   DrawerStateService,
+  FileReportPersistenceService,
   LegacyRiskInsightsEncryptionService,
   MemberCipherMappingService,
   ReportGenerationService,
-  ReportPersistenceService,
   ReportVersioningService,
   SummaryVersioningService,
 } from "@bitwarden/bit-common/dirt/access-intelligence/services";
@@ -40,6 +42,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
@@ -191,7 +195,12 @@ import { DefaultAccessSecurityTasksService } from "./v2/services/implementations
       deps: [CipherHealthService, MemberCipherMappingService, LogService],
     }),
     safeProvider({
-      provide: ReportPersistenceService,
+      provide: AccessIntelligenceApiService,
+      useClass: DefaultAccessIntelligenceApiService,
+      deps: [ApiService],
+    }),
+    safeProvider({
+      provide: DefaultReportPersistenceService,
       useClass: DefaultReportPersistenceService,
       deps: [
         RiskInsightsApiService,
@@ -201,13 +210,26 @@ import { DefaultAccessSecurityTasksService } from "./v2/services/implementations
       ],
     }),
     safeProvider({
+      provide: FileReportPersistenceService,
+      useClass: FileReportPersistenceService,
+      deps: [
+        AccessIntelligenceApiService,
+        AccessReportEncryptionService,
+        AccountServiceAbstraction,
+        LogService,
+        FileUploadService,
+      ],
+    }),
+    safeProvider({
       provide: AccessIntelligenceDataService,
       useClass: DefaultAccessIntelligenceDataService,
       deps: [
         CipherService,
         OrganizationUserApiService,
         ReportGenerationService,
-        ReportPersistenceService,
+        DefaultReportPersistenceService,
+        FileReportPersistenceService,
+        ConfigService,
         LogService,
       ],
     }),

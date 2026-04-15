@@ -19,7 +19,12 @@ import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-arr
 import { OrganizationReportId, OrganizationId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportView, AccessReport, AccessReportData } from "../../../models";
+import {
+  AccessReportView,
+  AccessReport,
+  AccessReportData,
+  AccessReportMetricsApi,
+} from "../../../models";
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
@@ -165,7 +170,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               view.organizationId,
               view.id,
               data.summary,
-              metrics as unknown as Record<string, number>,
+              metrics as AccessReportMetricsApi,
             );
 
             return forkJoin([updateApplicationsCall, updateSummaryCall]).pipe(
