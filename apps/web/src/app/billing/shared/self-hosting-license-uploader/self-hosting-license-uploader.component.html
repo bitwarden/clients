@@ -4,14 +4,8 @@
 <form [formGroup]="form" [bitSubmit]="submit">
   <bit-form-field>
     <bit-label>{{ description | i18n }}</bit-label>
-    <div class="tw-text-main tw-flex tw-items-center tw-h-full tw-gap-2">
-      <button
-        bitButton
-        type="button"
-        size="small"
-        buttonType="secondary"
-        (click)="fileSelector.click()"
-      >
+    <div class="tw-my-1">
+      <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
         {{ "chooseFile" | i18n }}
       </button>
       {{ form.value.file ? form.value.file.name : ("noFileChosen" | i18n) }}
