@@ -13,6 +13,7 @@ import {
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
+  AccessReportLegacyCreateRequest,
   AccessReportSettingsUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 
@@ -44,6 +45,20 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
       true,
     );
     return from(response).pipe(map((response) => new AccessReportFileApi(response)));
+  }
+
+  createLegacyReport$(
+    orgId: OrganizationId,
+    request: AccessReportLegacyCreateRequest,
+  ): Observable<AccessReportApi> {
+    const response = this.apiService.send(
+      "POST",
+      `/reports/organizations/${orgId.toString()}`,
+      request,
+      true,
+      true,
+    );
+    return from(response).pipe(map((res) => new AccessReportApi(res)));
   }
 
   updateSummaryData$(

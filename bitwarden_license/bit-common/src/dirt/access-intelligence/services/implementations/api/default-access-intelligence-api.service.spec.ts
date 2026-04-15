@@ -14,6 +14,7 @@ import {
 } from "../../../models";
 import {
   AccessReportCreateRequest,
+  AccessReportLegacyCreateRequest,
   AccessReportSettingsUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 
@@ -126,6 +127,50 @@ describe("DefaultAccessIntelligenceApiService", () => {
       mockApiService.send.mockRejectedValue(new Error("API error"));
 
       await expect(firstValueFrom(service.createReport$(orgId, {} as any))).rejects.toThrow(
+        "API error",
+      );
+    });
+  });
+
+  describe("createLegacyReport$", () => {
+    it("should call POST /reports/organizations/{orgId} and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        reportData: "encrypted-report-data",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        contentEncryptionKey: "enc-key",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const request: AccessReportLegacyCreateRequest = {
+        reportData: "encrypted-report-data",
+        contentEncryptionKey: "enc-key",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        metrics: mockMetrics,
+      };
+
+      const result = await firstValueFrom(service.createLegacyReport$(orgId, request));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/reports/organizations/${orgId}`,
+        request,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+      expect(result.organizationId).toBe(orgId);
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("API error"));
+
+      await expect(firstValueFrom(service.createLegacyReport$(orgId, {} as any))).rejects.toThrow(
         "API error",
       );
     });

@@ -17,6 +17,14 @@ export interface AccessReportCreateRequest {
   fileSize: number;
 }
 
+export interface AccessReportLegacyCreateRequest {
+  reportData: string;
+  contentEncryptionKey: string;
+  summaryData: string;
+  applicationData: string;
+  metrics: AccessReportMetricsApi;
+}
+
 export interface AccessReportSettingsUpdateRequest {
   summaryData: string;
   applicationData: string;
@@ -37,7 +45,7 @@ export abstract class AccessIntelligenceApiService {
   abstract getLatestReport$(orgId: OrganizationId): Observable<AccessReportApi>;
 
   /**
-   * Creates an Access Intelligence report on the server.
+   * Creates an Access Intelligence report on the server, where the report contents are stored as a file.
    * @param orgId - the ID of the Organization to create the report for
    * @param request - contains data used to create the report
    * @returns observable emitting the server's response, which includes the created Access Intelligence report
@@ -46,6 +54,17 @@ export abstract class AccessIntelligenceApiService {
     orgId: OrganizationId,
     request: AccessReportCreateRequest,
   ): Observable<AccessReportFileApi>;
+
+  /**
+   * Creates an Access Intelligence report on the server, where report contents are included directly in the request body.
+   * @param orgId - the ID of the Organization to create the report for
+   * @param request - contains the report data and metadata used to create the report
+   * @returns observable emitting the created Access Intelligence report
+   */
+  abstract createLegacyReport$(
+    orgId: OrganizationId,
+    request: AccessReportLegacyCreateRequest,
+  ): Observable<AccessReportApi>;
 
   /**
    * Self-hosted only. Uploads a file containing the Access Intelligence report data directly to a Bitwarden self-hosted server.
