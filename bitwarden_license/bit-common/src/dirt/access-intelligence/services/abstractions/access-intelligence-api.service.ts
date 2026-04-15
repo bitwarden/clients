@@ -10,20 +10,25 @@ import {
 } from "../../models";
 
 export interface AccessReportCreateRequest {
-  reportData?: string;
-  contentEncryptionKey?: string;
-  summaryData?: string;
-  applicationData?: string;
-  metrics?: AccessReportMetricsApi;
-  fileSize?: number;
+  contentEncryptionKey: string;
+  summaryData: string;
+  applicationData: string;
+  metrics: AccessReportMetricsApi;
+  fileSize: number;
 }
 
-export interface AccessReportUpdateRequest {
-  reportData?: string;
-  contentEncryptionKey?: string;
-  summaryData?: string;
-  applicationData?: string;
-  metrics?: AccessReportMetricsApi;
+export interface AccessReportLegacyCreateRequest {
+  reportData: string;
+  contentEncryptionKey: string;
+  summaryData: string;
+  applicationData: string;
+  metrics: AccessReportMetricsApi;
+}
+
+export interface AccessReportSettingsUpdateRequest {
+  summaryData: string;
+  applicationData: string;
+  metrics: AccessReportMetricsApi;
 }
 
 /**
@@ -40,7 +45,7 @@ export abstract class AccessIntelligenceApiService {
   abstract getLatestReport$(orgId: OrganizationId): Observable<AccessReportApi>;
 
   /**
-   * Creates an Access Intelligence report on the server.
+   * Creates an Access Intelligence report on the server, where the report contents are stored as a file.
    * @param orgId - the ID of the Organization to create the report for
    * @param request - contains data used to create the report
    * @returns observable emitting the server's response, which includes the created Access Intelligence report
@@ -49,6 +54,17 @@ export abstract class AccessIntelligenceApiService {
     orgId: OrganizationId,
     request: AccessReportCreateRequest,
   ): Observable<AccessReportFileApi>;
+
+  /**
+   * Creates an Access Intelligence report on the server, where report contents are included directly in the request body.
+   * @param orgId - the ID of the Organization to create the report for
+   * @param request - contains the report data and metadata used to create the report
+   * @returns observable emitting the created Access Intelligence report
+   */
+  abstract createLegacyReport$(
+    orgId: OrganizationId,
+    request: AccessReportLegacyCreateRequest,
+  ): Observable<AccessReportApi>;
 
   /**
    * Self-hosted only. Uploads a file containing the Access Intelligence report data directly to a Bitwarden self-hosted server.
@@ -90,7 +106,7 @@ export abstract class AccessIntelligenceApiService {
     orgId: OrganizationId,
     reportId: OrganizationReportId,
     summaryData: string,
-    metrics?: Record<string, number>,
+    metrics?: AccessReportMetricsApi,
   ): Observable<AccessReportApi>;
 
   /**
@@ -137,16 +153,16 @@ export abstract class AccessIntelligenceApiService {
   ): Observable<{ blob: Blob; fileName: string }>;
 
   /**
-   * Updates an existing Access Intelligence report.
+   * Update the settings properties for an existing Access Intelligence report.
    * @param orgId - the ID of the Organization the report belongs to
    * @param reportId - the ID of the report to update
    * @param request - the data to update on the report
    * @returns observable emitting the updated Access Intelligence report
    */
-  abstract updateReport$(
+  abstract updateReportSettings$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-    request: AccessReportUpdateRequest,
+    request: AccessReportSettingsUpdateRequest,
   ): Observable<AccessReportApi>;
 
   // TODO: add jsdoc

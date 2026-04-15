@@ -4,11 +4,17 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
-import { AccessReportApi, AccessReportFileApi, AccessReportSummaryApi } from "../../../models";
+import {
+  AccessReportApi,
+  AccessReportFileApi,
+  AccessReportMetricsApi,
+  AccessReportSummaryApi,
+} from "../../../models";
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
-  AccessReportUpdateRequest,
+  AccessReportLegacyCreateRequest,
+  AccessReportSettingsUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 
 export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiService {
@@ -41,11 +47,25 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     return from(response).pipe(map((response) => new AccessReportFileApi(response)));
   }
 
+  createLegacyReport$(
+    orgId: OrganizationId,
+    request: AccessReportLegacyCreateRequest,
+  ): Observable<AccessReportApi> {
+    const response = this.apiService.send(
+      "POST",
+      `/reports/organizations/${orgId.toString()}`,
+      request,
+      true,
+      true,
+    );
+    return from(response).pipe(map((res) => new AccessReportApi(res)));
+  }
+
   updateSummaryData$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
     summaryData: string,
-    metrics?: Record<string, number>,
+    metrics?: AccessReportMetricsApi,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
       "PATCH",
@@ -162,10 +182,10 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     return from(response);
   }
 
-  updateReport$(
+  updateReportSettings$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-    request: AccessReportUpdateRequest,
+    request: AccessReportSettingsUpdateRequest,
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
       "PATCH",

@@ -6,10 +6,16 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 
-import { AccessReportApi, AccessReportFileApi, AccessReportSummaryApi } from "../../../models";
+import {
+  AccessReportApi,
+  AccessReportFileApi,
+  AccessReportMetricsApi,
+  AccessReportSummaryApi,
+} from "../../../models";
 import {
   AccessReportCreateRequest,
-  AccessReportUpdateRequest,
+  AccessReportLegacyCreateRequest,
+  AccessReportSettingsUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 
 import { DefaultAccessIntelligenceApiService } from "./default-access-intelligence-api.service";
@@ -21,6 +27,20 @@ describe("DefaultAccessIntelligenceApiService", () => {
   const orgId = "org-123" as OrganizationId;
   const reportId = "report-456" as OrganizationReportId;
   const reportFileId = "file-789";
+  const mockMetrics = new AccessReportMetricsApi({
+    totalApplicationCount: 10,
+    totalAtRiskApplicationCount: 3,
+    totalCriticalApplicationCount: 2,
+    totalCriticalAtRiskApplicationCount: 1,
+    totalMemberCount: 50,
+    totalAtRiskMemberCount: 12,
+    totalCriticalMemberCount: 5,
+    totalCriticalAtRiskMemberCount: 2,
+    totalPasswordCount: 200,
+    totalAtRiskPasswordCount: 40,
+    totalCriticalPasswordCount: 15,
+    totalCriticalAtRiskPasswordCount: 5,
+  });
 
   beforeEach(() => {
     mockApiService = mock<ApiService>();
@@ -83,6 +103,9 @@ describe("DefaultAccessIntelligenceApiService", () => {
       const request: AccessReportCreateRequest = {
         fileSize: 1024,
         contentEncryptionKey: "enc-key",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        metrics: mockMetrics,
       };
 
       const result = await firstValueFrom(service.createReport$(orgId, request));
@@ -103,7 +126,53 @@ describe("DefaultAccessIntelligenceApiService", () => {
     it("should propagate API errors", async () => {
       mockApiService.send.mockRejectedValue(new Error("API error"));
 
-      await expect(firstValueFrom(service.createReport$(orgId, {}))).rejects.toThrow("API error");
+      await expect(firstValueFrom(service.createReport$(orgId, {} as any))).rejects.toThrow(
+        "API error",
+      );
+    });
+  });
+
+  describe("createLegacyReport$", () => {
+    it("should call POST /reports/organizations/{orgId} and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        reportData: "encrypted-report-data",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        contentEncryptionKey: "enc-key",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const request: AccessReportLegacyCreateRequest = {
+        reportData: "encrypted-report-data",
+        contentEncryptionKey: "enc-key",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        metrics: mockMetrics,
+      };
+
+      const result = await firstValueFrom(service.createLegacyReport$(orgId, request));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/reports/organizations/${orgId}`,
+        request,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+      expect(result.organizationId).toBe(orgId);
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("API error"));
+
+      await expect(firstValueFrom(service.createLegacyReport$(orgId, {} as any))).rejects.toThrow(
+        "API error",
+      );
     });
   });
 
@@ -119,7 +188,7 @@ describe("DefaultAccessIntelligenceApiService", () => {
       mockApiService.send.mockResolvedValue(rawResponse);
 
       const summaryData = "encrypted-summary-data";
-      const metrics = { totalApplicationCount: 5, totalAtRiskApplicationCount: 2 };
+      const metrics = mockMetrics;
 
       const result = await firstValueFrom(
         service.updateSummaryData$(orgId, reportId, summaryData, metrics),
@@ -361,23 +430,23 @@ describe("DefaultAccessIntelligenceApiService", () => {
     });
   });
 
-  describe("updateReport$", () => {
+  describe("updateReportSettings$", () => {
     it("should call PATCH /reports/organizations/{orgId}/{reportId} and return AccessReportApi", async () => {
       const rawResponse = {
         id: reportId,
         organizationId: orgId,
         creationDate: "2024-01-01T00:00:00Z",
         summaryData: "encrypted-summary",
-        contentEncryptionKey: "enc-key",
       };
       mockApiService.send.mockResolvedValue(rawResponse);
 
-      const request: AccessReportUpdateRequest = {
+      const request: AccessReportSettingsUpdateRequest = {
         summaryData: "encrypted-summary",
-        contentEncryptionKey: "enc-key",
+        applicationData: "encrypted-apps",
+        metrics: mockMetrics,
       };
 
-      const result = await firstValueFrom(service.updateReport$(orgId, reportId, request));
+      const result = await firstValueFrom(service.updateReportSettings$(orgId, reportId, request));
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "PATCH",
@@ -393,9 +462,9 @@ describe("DefaultAccessIntelligenceApiService", () => {
     it("should propagate API errors", async () => {
       mockApiService.send.mockRejectedValue(new Error("Update failed"));
 
-      await expect(firstValueFrom(service.updateReport$(orgId, reportId, {}))).rejects.toThrow(
-        "Update failed",
-      );
+      await expect(
+        firstValueFrom(service.updateReportSettings$(orgId, reportId, {} as any)),
+      ).rejects.toThrow("Update failed");
     });
   });
 });
