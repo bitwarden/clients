@@ -79,17 +79,13 @@ export class FormControlCardComponent {
     this.base.disableMarginSignal.set(true);
 
     effect(() => {
-      const hostEl = this.base.formControlEl().nativeElement;
+      const controlWrapperEl = this.base.formControlEl().nativeElement;
       const hintId = this.inGroup
         ? (this.groupItem.group?.hint()?.id ?? null)
         : (this.hint()?.id ?? null);
       const errorId = this.inGroup ? (this.groupItem.group?.errorId ?? null) : this.errorId;
-      const describedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
+      const ariaDescribedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
       const switchElement = this.switch();
-
-      // Always clear ARIA from host wrapper — inner element owns these
-      hostEl.removeAttribute("aria-labelledby");
-      hostEl.removeAttribute("aria-describedby");
 
       if (switchElement) {
         // For SwitchComponent, use signals to set ARIA directly on the inner input,
@@ -99,20 +95,25 @@ export class FormControlCardComponent {
         );
         labelledByIds.add(this.labelId);
         switchElement.ariaLabelledBy.set([...labelledByIds].join(" "));
-        switchElement.ariaDescribedBy.set(describedBy);
+        switchElement.ariaDescribedBy.set(ariaDescribedBy);
       } else {
-        const el = this.base.formControl().inputEl?.nativeElement ?? hostEl;
+        const ariaTargetEl = this.base.formControl().inputEl?.nativeElement ?? controlWrapperEl;
 
         const labelledByIds = new Set(
-          (el.getAttribute("aria-labelledby") ?? "").split(" ").filter(Boolean),
+          (ariaTargetEl.getAttribute("aria-labelledby") ?? "").split(" ").filter(Boolean),
         );
         labelledByIds.add(this.labelId);
-        el.setAttribute("aria-labelledby", [...labelledByIds].join(" "));
 
-        if (describedBy) {
-          el.setAttribute("aria-describedby", describedBy);
+        // Clear ARIA from wrapper — inner element owns these
+        controlWrapperEl.removeAttribute("aria-labelledby");
+        controlWrapperEl.removeAttribute("aria-describedby");
+
+        ariaTargetEl.setAttribute("aria-labelledby", [...labelledByIds].join(" "));
+
+        if (ariaDescribedBy) {
+          ariaTargetEl.setAttribute("aria-describedby", ariaDescribedBy);
         } else {
-          el.removeAttribute("aria-describedby");
+          ariaTargetEl.removeAttribute("aria-describedby");
         }
       }
     });
