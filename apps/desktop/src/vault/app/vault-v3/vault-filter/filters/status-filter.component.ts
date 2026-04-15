@@ -12,7 +12,7 @@ import { NavigationModule, A11yTitleDirective } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { VaultFilter, CipherStatus, CipherTypeFilter } from "@bitwarden/vault";
 
-import { PremiumBadgeDesktopComponent } from "../../premium-badge-desktop.component";
+import { PremiumBadgeDesktopComponent } from "../../../../../billing/components/premium-badge-desktop.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

@@ -9,7 +9,7 @@ import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { PremiumBadgeDesktopComponent } from "../../../vault/app/vault-v3/premium-badge-desktop.component";
+import { PremiumBadgeDesktopComponent } from "../../../billing/components/premium-badge-desktop.component";
 
 /**
  * Navigation component that renders Send filter options in the sidebar.
