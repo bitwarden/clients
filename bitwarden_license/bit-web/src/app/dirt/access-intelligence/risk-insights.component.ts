@@ -34,6 +34,7 @@ import {
   ButtonModule,
   DialogRef,
   DialogService,
+  IconModule,
   TabsModule,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
@@ -62,6 +63,7 @@ type ProgressStep = ReportProgress | null;
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
+    IconModule,
     CriticalApplicationsComponent,
     EmptyStateCardComponent,
     JslibModule,
