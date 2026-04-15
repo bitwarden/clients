@@ -10,7 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { AnonLayoutComponent, I18nMockService } from "@bitwarden/components";
 import { MessageSender } from "@bitwarden/messaging";
 
-import { PhishingWarning } from "./phishing-warning.component";
+import { PhishingWarningComponent } from "./phishing-warning.component";
 import { ProtectedByComponent } from "./protected-by-component";
 
 class MockPlatformUtilsService implements Partial<PlatformUtilsService> {
@@ -39,7 +39,7 @@ type StoryArgs = {
 
 export default {
   title: "Browser/DIRT/Phishing Warning",
-  component: PhishingWarning,
+  component: PhishingWarningComponent,
   decorators: [
     moduleMetadata({
       imports: [AnonLayoutComponent, ProtectedByComponent, RouterModule],
