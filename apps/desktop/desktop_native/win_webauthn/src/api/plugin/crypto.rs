@@ -4,25 +4,23 @@
 use std::mem::{self, MaybeUninit};
 
 use windows::{
-    core::HRESULT,
+    core::PCWSTR,
     Win32::{
         Foundation::E_INVALIDARG,
         Security::Cryptography::{
-            BCryptCreateHash, BCryptDestroyHash, BCryptDestroyKey, BCryptFinishHash,
-            BCryptGetProperty, BCryptHashData, BCryptImportKeyPair, BCryptVerifySignature,
-            BCRYPT_ALG_HANDLE, BCRYPT_ECDSA_P256_ALG_HANDLE, BCRYPT_ECDSA_P384_ALG_HANDLE,
-            BCRYPT_ECDSA_P521_ALG_HANDLE, BCRYPT_ECDSA_PUBLIC_P256_MAGIC,
-            BCRYPT_ECDSA_PUBLIC_P384_MAGIC, BCRYPT_ECDSA_PUBLIC_P521_MAGIC, BCRYPT_FLAGS,
-            BCRYPT_HASH_HANDLE, BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB, BCRYPT_KEY_HANDLE,
-            BCRYPT_OBJECT_LENGTH, BCRYPT_PAD_PKCS1, BCRYPT_PAD_PSS, BCRYPT_PKCS1_PADDING_INFO,
-            BCRYPT_PSS_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB, BCRYPT_RSAPUBLIC_MAGIC,
-            BCRYPT_RSA_ALG_HANDLE, BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE,
+            BCryptCreateHash, BCryptDestroyHash, BCryptFinishHash, BCryptGetProperty,
+            BCryptHashData, NCryptFreeObject, NCryptImportKey, NCryptOpenStorageProvider,
+            NCryptVerifySignature, BCRYPT_HASH_HANDLE, BCRYPT_HASH_LENGTH, BCRYPT_KEY_BLOB,
+            BCRYPT_OBJECT_LENGTH, BCRYPT_PSS_PADDING_INFO, BCRYPT_PUBLIC_KEY_BLOB,
+            BCRYPT_RSAPUBLIC_MAGIC, BCRYPT_SHA256_ALGORITHM, BCRYPT_SHA256_ALG_HANDLE,
+            NCRYPT_FLAGS, NCRYPT_HANDLE, NCRYPT_KEY_HANDLE, NCRYPT_PAD_PSS_FLAG,
+            NCRYPT_PROV_HANDLE,
         },
     },
 };
 
 /// Parses a slice as a [BCRYPT_PUBLIC_KEY_BLOB].
-pub(super) fn parse_public_key(data: &[u8]) -> Result<BcryptKey, windows::core::Error> {
+pub(super) fn parse_public_key(data: &[u8]) -> Result<NcryptKey, windows::core::Error> {
     // BCRYPT_KEY_BLOB is a base structure for all types of keys used in the BCRYPT API.
     // Cf. https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_key_blob.
     //
@@ -30,10 +28,18 @@ pub(super) fn parse_public_key(data: &[u8]) -> Result<BcryptKey, windows::core::
     // P-256, P-384, etc.) and subtype (public, private; RSA also has a
     // "full private" key that includes the key exponents and coefficients).
     //
-    // The exact key types which the OS can return from webauthn.dll
-    // operations is not documented, but we have observed at least RSA
-    // public keys being used. For forward compatibility, we'll implement
-    // RSA, P-256, P-384 and P-521.
+    // The exact key types which the OS can return from webauthn.dll operations
+    // is not currently documented, but we have observed RSA-PSS and ECDSA keys
+    // (including P-256 and P-384). They may also evolve in the future (e.g.
+    // different curves or PQ algorithms).
+    //
+    // Because of that, instead of using BCrypt APIs to verify the signature, we
+    // use NCrypt, which parses the key blob header automatically to select the
+    // correct EC curve. That way, we don't need to enumerate specific ECDSA
+    // curve variants (P-256, P-384, P-521).
+    //
+    // We still detect RSA vs EC to choose the import blob type, and store the
+    // RSA flag to apply PSS padding during verification.
 
     if data.len() < size_of::<BCRYPT_KEY_BLOB>() {
         return Err(windows::core::Error::from_hresult(E_INVALIDARG));
@@ -41,90 +47,74 @@ pub(super) fn parse_public_key(data: &[u8]) -> Result<BcryptKey, windows::core::
     let header: *const BCRYPT_KEY_BLOB = data.as_ptr().cast();
     let magic = unsafe { (*header).Magic };
     tracing::debug!("  got key magic: {}", magic);
-    let alg_handle = if magic == BCRYPT_RSAPUBLIC_MAGIC.0 {
-        BCRYPT_RSA_ALG_HANDLE
-    } else if magic == BCRYPT_ECDSA_PUBLIC_P256_MAGIC {
-        tracing::debug!("Detected ECDSA P-256 key");
-        BCRYPT_ECDSA_P256_ALG_HANDLE
-    } else if magic == BCRYPT_ECDSA_PUBLIC_P384_MAGIC {
-        tracing::debug!("Detected ECDSA P-384 key");
-        BCRYPT_ECDSA_P384_ALG_HANDLE
-    } else if magic == BCRYPT_ECDSA_PUBLIC_P521_MAGIC {
-        tracing::debug!("Detected ECDSA P-521 key");
-        BCRYPT_ECDSA_P521_ALG_HANDLE
-    } else {
-        tracing::error!("Unsupported key type: magic={}", magic);
-        // NTE_BAD_ALGID
-        return Err(windows::core::Error::from_hresult(HRESULT(
-            0x80090008u32 as i32,
-        )));
-    };
+    // RSA is detected solely to apply PSS padding during verification.
+    // NCrypt parses the blob header to select the correct algorithm for all other key types.
+    let is_rsa = magic == BCRYPT_RSAPUBLIC_MAGIC.0;
+    if is_rsa {
+        tracing::debug!("Detected RSA key");
+    }
 
     tracing::debug!("Getting key handle");
-    let mut key_handle = MaybeUninit::uninit();
-    let key_handle = unsafe {
-        BCryptImportKeyPair(
-            alg_handle,
+    let mut key_handle = MaybeUninit::<NCRYPT_KEY_HANDLE>::uninit();
+    let provider_handle = unsafe {
+        let mut provider = MaybeUninit::uninit();
+        NCryptOpenStorageProvider(provider.as_mut_ptr(), PCWSTR::null(), 0)?;
+        provider.assume_init()
+    };
+    unsafe {
+        NCryptImportKey(
+            provider_handle,
             None,
             BCRYPT_PUBLIC_KEY_BLOB,
+            None,
             key_handle.as_mut_ptr(),
             data,
-            0,
-        )
-        .ok()?;
-        BcryptKey {
-            alg: alg_handle,
-            handle: key_handle.assume_init(),
-        }
-    };
-    Ok(key_handle)
+            NCRYPT_FLAGS(0),
+        )?;
+    }
+
+    Ok(NcryptKey {
+        is_rsa,
+        key_handle: unsafe { key_handle.assume_init() },
+        provider_handle,
+    })
 }
 /// Verify a public key signature over a SHA-256 hash using Windows Crypto APIs.
 ///
 /// The supported algorithms may change over time without notice, so the whole key blob
 /// received from a call to a WebAuthn function.
 ///
-/// Regardless of the key algorithm, the payload is always a SHA-256 hash (i.e., not SHA-384 for P-384 curve, etc.).
+/// Regardless of the key algorithm, the payload is always a SHA-256 hash (i.e., not SHA-384 for
+/// P-384 curve, etc.).
 pub(super) fn verify_signature(
-    public_key: &BcryptKey,
+    public_key: &NcryptKey,
     hash: RequestHash,
     signature: Signature,
 ) -> Result<(), windows::core::Error> {
     tracing::debug!("Verifying signature");
-    let (padding_info, bcrypt_flags) = match public_key.alg {
-        BCRYPT_RSA_ALG_HANDLE => {
-            // Contrary to the current Microsoft sample code, Windows Hello uses PSS padding.
-            tracing::debug!("Detected RSA key, adding PSS padding");
-            let padding_info = BCRYPT_PSS_PADDING_INFO {
-                pszAlgId: BCRYPT_SHA256_ALGORITHM,
-                cbSalt: 32,
-            };
-            (Some(padding_info), BCRYPT_PAD_PSS)
-        }
-        // Note that SHA-256 hash is used regardless of the signing algorithm.
-        BCRYPT_ECDSA_P256_ALG_HANDLE
-        | BCRYPT_ECDSA_P384_ALG_HANDLE
-        | BCRYPT_ECDSA_P521_ALG_HANDLE => (None, BCRYPT_FLAGS(0)),
-        _ => {
-            tracing::error!("Unsupported key type: alg={:?}", public_key.alg);
-            // NTE_BAD_ALGID
-            return Err(windows::core::Error::from_hresult(HRESULT(
-                0x80090008u32 as i32,
-            )));
-        }
+    let (padding_info, ncrypt_flags) = if public_key.is_rsa {
+        // Contrary to the current Microsoft sample code, Windows Hello uses PSS padding.
+        tracing::debug!("Detected RSA key, adding PSS padding");
+        let padding_info = BCRYPT_PSS_PADDING_INFO {
+            pszAlgId: BCRYPT_SHA256_ALGORITHM,
+            cbSalt: 32,
+        };
+        (Some(padding_info), NCRYPT_PAD_PSS_FLAG)
+    } else {
+        // NCrypt selects the signing algorithm from the key type automatically.
+        (None, NCRYPT_FLAGS(0))
     };
     let padding_info = padding_info
         .as_ref()
         .map(|padding| std::ptr::from_ref(padding).cast());
     unsafe {
-        BCryptVerifySignature(
-            public_key.handle,
+        NCryptVerifySignature(
+            public_key.key_handle,
             padding_info,
             hash.0,
             signature.0,
-            bcrypt_flags,
-        )
-        .ok()?
+            ncrypt_flags,
+        )?
     };
     tracing::debug!("Verified");
     Ok(())
@@ -242,17 +232,25 @@ impl Drop for BcryptHash {
     }
 }
 
-pub(super) struct BcryptKey {
-    alg: BCRYPT_ALG_HANDLE,
-    handle: BCRYPT_KEY_HANDLE,
+pub(super) struct NcryptKey {
+    is_rsa: bool,
+    key_handle: NCRYPT_KEY_HANDLE,
+    provider_handle: NCRYPT_PROV_HANDLE,
 }
 
-impl Drop for BcryptKey {
+impl Drop for NcryptKey {
     fn drop(&mut self) {
-        if !self.handle.is_invalid() {
+        if !self.key_handle.is_invalid() {
             unsafe {
-                if let Err(err) = BCryptDestroyKey(self.handle).to_hresult().ok() {
+                if let Err(err) = NCryptFreeObject(NCRYPT_HANDLE(self.key_handle.0)) {
                     tracing::error!("Failed to clean up key handle: {err}");
+                }
+            }
+        }
+        if !self.provider_handle.is_invalid() {
+            unsafe {
+                if let Err(err) = NCryptFreeObject(NCRYPT_HANDLE(self.provider_handle.0)) {
+                    tracing::error!("Failed to clean up provider handle: {err}");
                 }
             }
         }
