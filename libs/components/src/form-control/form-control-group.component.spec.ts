@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -15,11 +15,10 @@ describe("FormControlGroupComponent", () => {
   let host: TestHostComponent;
   let group: FormControlGroupComponent;
 
-  // TODO: Fix this the next time the file is edited.
-  // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
   @Component({
     selector: "test-host",
     imports: [ReactiveFormsModule, FormControlModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
       <bit-form-control-group [formControl]="ctrl">
         <bit-label>Options</bit-label>
@@ -152,11 +151,10 @@ describe("FormControlGroupComponent", () => {
     });
 
     it("required is false when no required validator is set", async () => {
-      // TODO: Fix this the next time the file is edited.
-      // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
       @Component({
         selector: "test-no-required-host",
         imports: [ReactiveFormsModule, FormControlModule],
+        changeDetection: ChangeDetectionStrategy.OnPush,
         template: ` <bit-form-control-group [formControl]="ctrl"></bit-form-control-group> `,
       })
       class TestNoRequiredHostComponent {
