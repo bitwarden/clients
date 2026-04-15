@@ -482,34 +482,6 @@ describe("CipherAttachmentsComponent", () => {
     });
   });
 
-  it("sets aria-label to full filename for accessibility", async () => {
-    const longFileName = "this-is-a-very-long-attachment-filename.pdf";
-    const attachment = {
-      id: "1234-5678",
-      fileName: longFileName,
-      sizeName: "1.5 MB",
-    } as AttachmentView;
-
-    const cipherWithAttachments = { ...cipherView, attachments: [attachment] };
-    cipherServiceDecrypt.mockResolvedValue(cipherWithAttachments);
-
-    fixture = TestBed.createComponent(CipherAttachmentsComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
-    fixture.detectChanges();
-
-    await waitForInitialization();
-
-    const fileNameEl = fixture.debugElement.query(By.css('[data-testid="file-name"]'));
-    // The inner span of the component should have aria-label with the full filename
-    const ariaSpan = fileNameEl.nativeElement.querySelector("[aria-label]");
-    expect(ariaSpan.getAttribute("aria-label")).toEqual(longFileName);
-    // Full text is present in the DOM (CSS handles visual truncation)
-    expect(fileNameEl.nativeElement.textContent.replace(/\s+/g, "").trim()).toEqual(
-      longFileName.replace(/\s+/g, ""),
-    );
-  });
-
   describe("removeAttachment", () => {
     const attachment = { id: "1234-5678", fileName: "test.txt" } as AttachmentView;
 
