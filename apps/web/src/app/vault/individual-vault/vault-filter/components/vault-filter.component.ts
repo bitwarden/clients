@@ -266,7 +266,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const [userId, showBankAccount] = await firstValueFrom(
+    const [userId, newItemTypesEnabled] = await firstValueFrom(
       combineLatest([
         this.accountService.activeAccount$.pipe(getUserId),
         this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
@@ -274,7 +274,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     );
 
     const excludeTypes: CipherStatus[] = [];
-    if (!showBankAccount) {
+    if (!newItemTypesEnabled) {
       excludeTypes.push(CipherType.BankAccount);
     }
 

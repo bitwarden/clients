@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterLink, Router } from "@angular/router";
+import { Router, RouterLink } from "@angular/router";
 import { map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -52,9 +52,7 @@ export class NewItemDropdownComponent implements OnInit {
       map((restrictedTypes) => {
         const restrictedTypeArr = restrictedTypes.map((item) => item.cipherType);
 
-        return CIPHER_MENU_ITEMS.filter((menuItem) => {
-          return !restrictedTypeArr.includes(menuItem.type);
-        });
+        return CIPHER_MENU_ITEMS.filter((menuItem) => !restrictedTypeArr.includes(menuItem.type));
       }),
     );
 

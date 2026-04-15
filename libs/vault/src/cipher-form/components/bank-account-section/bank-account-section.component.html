@@ -61,9 +61,6 @@
         data-testid="toggle-pin-visibility"
         bitPasswordInputToggle
       ></button>
-      @if (bankAccountForm.controls.pin.errors?.["pattern"]) {
-        <bit-hint> {{ "pin" | i18n }}: numbers only </bit-hint>
-      }
     </bit-form-field>
 
     <bit-form-field>

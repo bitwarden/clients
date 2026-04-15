@@ -58,8 +58,7 @@ import { VaultFilterComponent as BaseVaultFilterComponent } from "../../../../va
 })
 export class VaultFilterComponent
   extends BaseVaultFilterComponent
-  implements OnInit, OnDestroy, OnChanges
-{
+  implements OnInit, OnDestroy, OnChanges {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() set organization(value: Organization) {
@@ -224,12 +223,12 @@ export class VaultFilterComponent
   }
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const showBankAccount = await firstValueFrom(
+    const newTypesEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
     );
 
     const excludeTypes: CipherStatus[] = ["favorites"];
-    if (!showBankAccount) {
+    if (!newTypesEnabled) {
       excludeTypes.push(CipherType.BankAccount);
     }
 

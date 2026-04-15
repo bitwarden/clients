@@ -7,7 +7,7 @@ import {
   OnInit,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BankAccountType } from "@bitwarden/common/vault/enums/bank-account-type";
@@ -51,7 +51,7 @@ export class BankAccountSectionComponent implements OnInit {
     accountNumber: [""],
     routingNumber: [""],
     branchNumber: [""],
-    pin: ["", [Validators.pattern(/^\d*$/)]],
+    pin: [""],
     swiftCode: [""],
     iban: [""],
     bankContactPhone: [""],
