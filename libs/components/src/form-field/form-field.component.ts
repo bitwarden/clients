@@ -29,8 +29,6 @@ import { BitSuffixDirective } from "./suffix.directive";
   imports: [CommonModule, BitErrorComponent, BitFieldContainerDirective, I18nPipe],
   host: {
     "[class]": "classList",
-    "(focusin)": "onFocusIn($event.target)",
-    "(focusout)": "onFocusOut()",
   },
 })
 export class BitFormFieldComponent implements AfterContentChecked {
@@ -79,21 +77,6 @@ export class BitFormFieldComponent implements AfterContentChecked {
 
   get classList() {
     return ["tw-block"].concat(this.disableMargin() ? [] : ["tw-mb-4", "bit-compact:tw-mb-3"]);
-  }
-
-  /**
-   * If the currently focused element is not part of the default content, then we don't want to show focus on the
-   * input field itself.
-   *
-   * This is necessary because the `tw-group/bit-form-field` wraps the input and any prefix/suffix
-   * buttons
-   */
-  protected readonly defaultContentIsFocused = signal(false);
-  onFocusIn(target: HTMLElement) {
-    this.defaultContentIsFocused.set(target.matches("[data-default-content] *:focus-visible"));
-  }
-  onFocusOut() {
-    this.defaultContentIsFocused.set(false);
   }
 
   protected get readOnly(): boolean {
