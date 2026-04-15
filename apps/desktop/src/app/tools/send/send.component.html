@@ -1,7 +1,11 @@
 <div class="tw-m-4 tw-p-4">
   <app-header>
     @if (!disableSend()) {
-      <tools-new-send-dropdown-v2 buttonType="primary" (addSend)="addSend($event)" />
+      <tools-new-send-dropdown-v2
+        buttonType="primary"
+        (addSend)="addSend($event)"
+        (addFolderSend)="addFolderSend()"
+      />
     }
   </app-header>
 
@@ -21,6 +25,7 @@
       [hideIcon]="true"
       buttonType="primary"
       (addSend)="addSend($event)"
+      (addFolderSend)="addFolderSend()"
     />
   </tools-send-list>
 </div>

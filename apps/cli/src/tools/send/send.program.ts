@@ -48,6 +48,7 @@ export class SendProgram extends BaseProgram {
         "Work with Bitwarden sends. A Send can be quickly created using this command or subcommands can be used to fine-tune the Send",
       )
       .option("-f, --file", "Specifies that <data> is a filepath")
+      .option("--folder", "Specifies that <data> is a folder path")
       .option(
         "-d, --deleteInDays <days>",
         "The number of days in the future to set deletion date, defaults to 7",
@@ -340,7 +341,17 @@ export class SendProgram extends BaseProgram {
     let sendText = null;
     let name = Utils.newGuid();
     let type: SendType = SendType.Text;
-    if (options.file != null) {
+    if (options.folder != null) {
+      const folderPath = path.resolve(data);
+      if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
+        return Response.badRequest("data path does not exist or is not a directory");
+      }
+
+      sendFile = SendFileResponse.template();
+      name = path.basename(folderPath);
+      type = SendType.File;
+      options.folder = folderPath;
+    } else if (options.file != null) {
       data = path.resolve(data);
       if (!fs.existsSync(data)) {
         return Response.badRequest("data path does not exist");
@@ -373,6 +384,7 @@ export class SendProgram extends BaseProgram {
       this.serviceContainer.sendApiService,
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
+      this.serviceContainer.sdkService,
     );
     return await cmd.run(encodedJson, options);
   }

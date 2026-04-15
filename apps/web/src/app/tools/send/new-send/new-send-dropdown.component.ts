@@ -1,5 +1,6 @@
+import { CommonModule } from "@angular/common";
 import { Component, Input } from "@angular/core";
-import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
+import { firstValueFrom, Observable, of, switchMap, lastValueFrom, map } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -8,6 +9,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+import { supportsFolderSend } from "@bitwarden/common/tools/send/utils/folder-send-support";
 import { ButtonModule, DialogService, IconComponent, MenuModule } from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
@@ -22,7 +24,14 @@ import { SendSuccessDrawerDialogComponent } from "../shared";
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent, IconComponent],
+  imports: [
+    JslibModule,
+    CommonModule,
+    ButtonModule,
+    MenuModule,
+    PremiumBadgeComponent,
+    IconComponent,
+  ],
   providers: [DefaultSendFormConfigService],
 })
 /**
@@ -40,6 +49,9 @@ export class NewSendDropdownComponent {
   /** Indicates whether the user can access premium features. */
   protected canAccessPremium$: Observable<boolean>;
 
+  /** Whether the folder send option should be shown. */
+  protected showFolderOption$: Observable<boolean>;
+
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
@@ -54,6 +66,38 @@ export class NewSendDropdownComponent {
           : of(false),
       ),
     );
+
+    this.showFolderOption$ = this.configService
+      .getFeatureFlag$(FeatureFlag.SendFolder)
+      .pipe(map((enabled) => enabled && supportsFolderSend()));
+  }
+
+  async createFolderSend() {
+    if (!(await firstValueFrom(this.canAccessPremium$))) {
+      return;
+    }
+    const formConfig = await this.addEditFormConfigService.buildConfig(
+      "add",
+      undefined,
+      SendType.File,
+    );
+    formConfig.isFolderMode = true;
+
+    const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
+
+    if (useRefresh) {
+      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
+      if (dialogRef) {
+        const result = await lastValueFrom(dialogRef.closed);
+        if (result?.result === SendItemDialogResult.Saved && result?.send) {
+          this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+            data: result.send,
+          });
+        }
+      }
+    } else {
+      SendAddEditDialogComponent.open(this.dialogService, { formConfig });
+    }
   }
 
   /**

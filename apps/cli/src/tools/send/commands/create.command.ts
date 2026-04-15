@@ -9,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -19,6 +20,9 @@ import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
 import { SendTextResponse } from "../models/send-text.response";
 import { SendResponse } from "../models/send.response";
+
+const MAX_FOLDER_SIZE = 500 * 1024 * 1024; // 500 MB
+
 export class SendCreateCommand {
   constructor(
     private sendService: SendService,
@@ -26,6 +30,7 @@ export class SendCreateCommand {
     private sendApiService: SendApiService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private sdkService: SdkService,
   ) {}
 
   async run(requestJson: any, cmdOptions: Record<string, any>) {
@@ -104,6 +109,8 @@ export class SendCreateCommand {
       switchMap(({ id }) => this.accountProfileService.hasPremiumFromAnySource$(id)),
     );
 
+    let folderPath: string | null = null;
+
     switch (req.type) {
       case SendType.File:
         if (process.env.BW_SERVE === "true") {
@@ -116,13 +123,18 @@ export class SendCreateCommand {
           return Response.error("Premium status is required to use this feature.");
         }
 
-        if (filePath == null) {
+        if (options.folder != null) {
+          folderPath = path.resolve(options.folder);
+          if (!fs.existsSync(folderPath) || !fs.statSync(folderPath).isDirectory()) {
+            return Response.badRequest("Folder path does not exist or is not a directory.");
+          }
+        } else if (filePath == null) {
           return Response.badRequest(
             "Must specify a file to Send either with the --file option or in the request JSON.",
           );
+        } else {
+          req.file.fileName = path.basename(filePath);
         }
-
-        req.file.fileName = path.basename(filePath);
         break;
       case SendType.Text:
         if (text == null) {
@@ -142,7 +154,32 @@ export class SendCreateCommand {
 
     try {
       let fileBuffer: ArrayBuffer = null;
-      if (req.type === SendType.File) {
+      if (folderPath != null) {
+        const fileInfos = this.collectFiles(folderPath);
+
+        if (fileInfos.length === 0) {
+          return Response.badRequest("Folder is empty.");
+        }
+
+        const totalSize = fileInfos.reduce((sum, f) => sum + f.size, 0);
+        if (totalSize > MAX_FOLDER_SIZE) {
+          return Response.badRequest("Maximum folder size is 500 MB.");
+        }
+
+        const entries = fileInfos.map((f) => ({
+          path: path.relative(folderPath, f.path).split(path.sep).join("/"),
+          contents: Array.from(fs.readFileSync(f.path)),
+        }));
+
+        const folderName = path.basename(folderPath);
+        const client = await firstValueFrom(this.sdkService.client$);
+        const result = client
+          .sends()
+          .make_send_multi_file({ archiveName: folderName, files: entries });
+
+        req.file.fileName = result.file.fileName;
+        fileBuffer = new Uint8Array(result.contents).buffer;
+      } else if (req.type === SendType.File) {
         fileBuffer = NodeUtils.bufferToArrayBuffer(fs.readFileSync(filePath));
       }
 
@@ -159,10 +196,29 @@ export class SendCreateCommand {
       return Response.error(e);
     }
   }
+
+  /** Recursively collect file paths and their sizes, skipping symlinks to avoid circular loops. */
+  private collectFiles(dir: string): { path: string; size: number }[] {
+    const results: { path: string; size: number }[] = [];
+    for (const entry of fs.readdirSync(dir)) {
+      const fullPath = path.join(dir, entry);
+      const stat = fs.lstatSync(fullPath);
+      if (stat.isSymbolicLink()) {
+        continue;
+      }
+      if (stat.isDirectory()) {
+        results.push(...this.collectFiles(fullPath));
+      } else if (stat.isFile()) {
+        results.push({ path: fullPath, size: stat.size });
+      }
+    }
+    return results;
+  }
 }
 
 class Options {
   file: string;
+  folder: string;
   text: string;
   maxAccessCount: number;
   password: string;
@@ -171,6 +227,7 @@ class Options {
 
   constructor(passedOptions: Record<string, any>) {
     this.file = passedOptions?.file;
+    this.folder = passedOptions?.folder;
     this.text = passedOptions?.text;
     this.password = passedOptions?.password;
     this.emails = passedOptions?.emails;

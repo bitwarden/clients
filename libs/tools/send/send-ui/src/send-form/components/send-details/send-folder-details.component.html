@@ -1,0 +1,22 @@
+<bit-section [formGroup]="sendFolderDetailsForm">
+  <bit-form-field>
+    <bit-label>{{ "chooseFolder" | i18n }}</bit-label>
+    <div class="tw-flex tw-mt-2 tw-mb-1">
+      <button bitButton type="button" buttonType="secondary" (click)="folderSelector.click()">
+        {{ "chooseFolder" | i18n }}
+      </button>
+      <span
+        class="tw-flex tw-items-center tw-pl-3"
+        [ngClass]="folderPreview() ? 'tw-text-main' : 'tw-text-muted'"
+      >
+        {{ folderPreview() || ("noFolderChosen" | i18n) }}</span
+      >
+    </div>
+    <!-- Hidden text input for form validation (required error styling). -->
+    <!-- Separate from the file input because browsers forbid programmatic value assignment on -->
+    <!-- file inputs, which breaks Angular's DefaultValueAccessor. -->
+    <input bitInput formControlName="folder" hidden type="text" />
+    <input #folderSelector type="file" hidden webkitdirectory (change)="onFolderSelected($event)" />
+    <bit-hint>{{ "maxFolderSize" | i18n }}</bit-hint>
+  </bit-form-field>
+</bit-section>

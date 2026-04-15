@@ -16,4 +16,15 @@
     <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
     <i class="bwi bwi-popout tw-text-muted" slot="end" aria-hidden="true"></i>
   </a>
+  @if (showFolderOption$ | async) {
+    <a bitMenuItem (click)="sendFolderClick()" [title]="'popOutNewWindow' | i18n">
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>
+        {{ "sendTypeFolder" | i18n }}
+        <app-premium-badge></app-premium-badge>
+      </div>
+      <span class="tw-sr-only">{{ "popOutNewWindow" | i18n }}</span>
+      <i class="bwi bwi-popout tw-text-muted" slot="end" aria-hidden="true"></i>
+    </a>
+  }
 </bit-menu>

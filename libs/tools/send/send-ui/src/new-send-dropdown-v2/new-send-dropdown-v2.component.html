@@ -16,4 +16,13 @@
       <app-premium-badge></app-premium-badge>
     </div>
   </button>
+  @if (showFolderOption()) {
+    <button bitMenuItem type="button" (click)="onFolderSendClick()">
+      <div class="tw-flex tw-items-center tw-gap-2">
+        <i class="bwi bwi-folder" slot="start" aria-hidden="true"></i>
+        {{ "sendTypeFolder" | i18n }}
+        <app-premium-badge></app-premium-badge>
+      </div>
+    </button>
+  }
 </bit-menu>

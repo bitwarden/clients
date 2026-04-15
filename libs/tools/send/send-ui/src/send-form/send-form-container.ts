@@ -6,6 +6,7 @@ import { SendFormConfig } from "./abstractions/send-form-config.service";
 import { SendOptionsComponent } from "./components/options/send-options.component";
 import { SendDetailsComponent } from "./components/send-details/send-details.component";
 import { SendFileDetailsComponent } from "./components/send-details/send-file-details.component";
+import { SendFolderDetailsComponent } from "./components/send-details/send-folder-details.component";
 import { SendTextDetailsComponent } from "./components/send-details/send-text-details.component";
 /**
  * The complete form for a send. Includes all the sub-forms from their respective section components.
@@ -15,6 +16,7 @@ export type SendForm = {
   sendDetailsForm?: SendDetailsComponent["sendDetailsForm"];
   sendTextDetailsForm?: SendTextDetailsComponent["sendTextDetailsForm"];
   sendFileDetailsForm?: SendFileDetailsComponent["sendFileDetailsForm"];
+  sendFolderDetailsForm?: SendFolderDetailsComponent["sendFolderDetailsForm"];
   sendOptionsForm?: SendOptionsComponent["sendOptionsForm"];
 };
 
@@ -44,6 +46,8 @@ export abstract class SendFormContainer {
   ): void;
 
   abstract onFileSelected(file: File): void;
+
+  abstract onFolderSelected(files: FileList): void;
 
   abstract patchSend(updateFn: (current: SendView) => SendView): void;
 }

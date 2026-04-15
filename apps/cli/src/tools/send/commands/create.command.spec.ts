@@ -6,6 +6,7 @@ import { of } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -23,6 +24,7 @@ describe("SendCreateCommand", () => {
   const sendApiService = mock<SendApiService>();
   const accountProfileService = mock<BillingAccountProfileStateService>();
   const accountService = mock<AccountService>();
+  const sdkService = mock<SdkService>();
 
   const activeAccount = {
     id: "user-id" as UserId,
@@ -47,6 +49,7 @@ describe("SendCreateCommand", () => {
       sendApiService,
       accountProfileService,
       accountService,
+      sdkService,
     );
   });
 

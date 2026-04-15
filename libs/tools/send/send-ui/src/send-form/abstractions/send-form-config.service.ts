@@ -34,6 +34,12 @@ type BaseSendFormConfig = {
    * The original send that is being edited or cloned. This can be undefined when creating a new send.
    */
   originalSend?: Send;
+
+  /**
+   * When true, the form uses folder-picker mode instead of single-file picker.
+   * The selected folder contents are zipped via the SDK and sent as a File Send.
+   */
+  isFolderMode?: boolean;
 };
 
 /**

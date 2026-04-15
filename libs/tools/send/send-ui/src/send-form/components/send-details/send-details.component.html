@@ -15,11 +15,19 @@
       [originalSendView]="originalSendView"
     ></tools-send-text-details>
 
-    <tools-send-file-details
-      *ngIf="config.sendType === FileSendType"
-      [config]="config"
-      [originalSendView]="originalSendView"
-    ></tools-send-file-details>
+    @if (config.sendType === FileSendType) {
+      @if (config.isFolderMode) {
+        <tools-send-folder-details
+          [config]="config"
+          [originalSendView]="originalSendView"
+        ></tools-send-folder-details>
+      } @else {
+        <tools-send-file-details
+          [config]="config"
+          [originalSendView]="originalSendView"
+        ></tools-send-file-details>
+      }
+    }
 
     <bit-form-field>
       <bit-label>{{ "deletionDate" | i18n }}</bit-label>

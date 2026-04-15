@@ -18,8 +18,12 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
@@ -32,6 +36,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { MakeSendMultiFileEntry } from "@bitwarden/sdk-internal";
 
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -69,6 +74,7 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   private destroyRef = inject(DestroyRef);
   private _firstInitialized = false;
   private file: File | null = null;
+  private folderFiles: FileList | null = null;
 
   /**
    * The form ID to use for the form. Used to connect it to a submit button.
@@ -186,6 +192,8 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     this.loading = true;
     this.updatedSendView = new SendView();
     this.originalSendView = null;
+    this.file = null;
+    this.folderFiles = null;
     this.sendForm.reset();
 
     if (this.config == null) {
@@ -212,10 +220,16 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     private addEditFormService: SendFormService,
     private toastService: ToastService,
     private i18nService: I18nService,
+    private sdkService: SdkService,
+    private logService: LogService,
   ) {}
 
   onFileSelected(file: File): void {
     this.file = file;
+  }
+
+  onFolderSelected(files: FileList): void {
+    this.folderFiles = files;
   }
 
   submit = async () => {
@@ -224,9 +238,48 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
       return;
     }
 
+    let fileOrBuffer: File | ArrayBuffer = this.file;
+
+    if (this.folderFiles != null && this.folderFiles.length > 0) {
+      const entries: MakeSendMultiFileEntry[] = [];
+      const firstPath = this.folderFiles[0].webkitRelativePath;
+      const folderName = firstPath.split("/")[0];
+
+      this.logService.debug(
+        `[SendFormComponent] Creating zip from ${this.folderFiles.length} files in "${folderName}"`,
+      );
+
+      for (const f of Array.from(this.folderFiles)) {
+        const buffer = await f.arrayBuffer();
+        entries.push({
+          path: f.webkitRelativePath,
+          contents: Array.from(new Uint8Array(buffer)),
+        });
+      }
+
+      const client = await firstValueFrom(this.sdkService.client$);
+      const result = client
+        .sends()
+        .make_send_multi_file({ archiveName: folderName, files: entries });
+
+      this.logService.debug(
+        `[SendFormComponent] Zip created: "${result.file.fileName}" (${result.file.sizeName})`,
+      );
+
+      const fileView = new SendFileView();
+      fileView.id = result.file.id ?? null;
+      fileView.fileName = result.file.fileName;
+      fileView.size = result.file.size;
+      fileView.sizeName = result.file.sizeName;
+
+      this.updatedSendView.type = SendType.File;
+      this.updatedSendView.file = fileView;
+      fileOrBuffer = new Uint8Array(result.contents).buffer;
+    }
+
     const sendView = await this.addEditFormService.saveSend(
       this.updatedSendView,
-      this.file,
+      fileOrBuffer,
       this.config,
     );
 

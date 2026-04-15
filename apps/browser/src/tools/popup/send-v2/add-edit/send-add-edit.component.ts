@@ -49,6 +49,7 @@ class QueryParams {
     } else {
       throw new Error(`Invalid SendType: ${params.type}`);
     }
+    this.isFolderMode = params.isFolderMode === "true";
   }
 
   /**
@@ -60,6 +61,11 @@ class QueryParams {
    * The type of send to create.
    */
   type: SendType;
+
+  /**
+   * Whether to use folder mode for file sends.
+   */
+  isFolderMode: boolean;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -196,6 +202,9 @@ export class SendAddEditComponent {
             params.sendId,
             params.type,
           );
+          if (params.isFolderMode) {
+            config.isFolderMode = true;
+          }
           return config;
         }),
       )
@@ -215,7 +224,12 @@ export class SendAddEditComponent {
     const isEditMode = mode === "edit" || mode === "partial-edit";
     const translation = {
       [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+      [SendType.File]:
+        this.config?.isFolderMode && !isEditMode
+          ? "newItemHeaderFolderSend"
+          : isEditMode
+            ? "editItemHeaderFileSend"
+            : "newItemHeaderFileSend",
     };
     return this.i18nService.t(translation[type]);
   }

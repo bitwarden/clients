@@ -46,6 +46,7 @@ import { SendFormContainer } from "../../send-form-container";
 import { SendOptionsComponent } from "../options/send-options.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
+import { SendFolderDetailsComponent } from "./send-folder-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
 
 /** A preset duration (in hours) for deletion. */
@@ -108,6 +109,7 @@ export function asDatePreset(value: unknown): DatePreset | undefined {
     ReactiveFormsModule,
     SendTextDetailsComponent,
     SendFileDetailsComponent,
+    SendFolderDetailsComponent,
     SendOptionsComponent,
     IconButtonModule,
     CheckboxModule,

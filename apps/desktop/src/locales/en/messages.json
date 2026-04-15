@@ -178,6 +178,10 @@
     "message": "New File Send",
     "description": "Header for new file send"
   },
+  "newItemHeaderFolderSend": {
+    "message": "New Folder Send",
+    "description": "Header for new folder send"
+  },
   "editItemHeaderTextSend": {
     "message": "Edit Text Send",
     "description": "Header for edit text send"
@@ -2496,6 +2500,31 @@
   },
   "sendTypeFile": {
     "message": "File"
+  },
+  "sendTypeFolder": {
+    "message": "Folder"
+  },
+  "chooseFolder": {
+    "message": "Choose Folder"
+  },
+  "noFolderChosen": {
+    "message": "No folder chosen"
+  },
+  "folderPreview": {
+    "message": "$COUNT$ files, $SIZE$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      },
+      "size": {
+        "content": "$2",
+        "example": "4.2 MB"
+      }
+    }
+  },
+  "maxFolderSize": {
+    "message": "Maximum folder size is 500 MB."
   },
   "sendTypeText": {
     "message": "Text"

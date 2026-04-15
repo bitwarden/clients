@@ -60,6 +60,7 @@ export enum FeatureFlag {
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendEmailOTP = "pm-19051-send-email-verification",
   SendControls = "pm-31885-send-controls",
+  SendFolder = "innovation-sprint-2026-send-folder",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -133,6 +134,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendEmailOTP]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
+  [FeatureFlag.SendFolder]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
