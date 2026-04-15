@@ -56,6 +56,10 @@ export class MultiStepPolicyEditDialogComponent
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
 
+  protected readonly titleTemplate = computed(() =>
+    this.policySteps()[this.currentStep()]?.titleContent?.(),
+  );
+
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
       switchMap((stepConfig) => {
