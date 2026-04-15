@@ -89,39 +89,29 @@ export class TruncatedFilenameComponent {
     const style = getComputedStyle(el);
     ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
 
-    const fullWidth = ctx.measureText(name).width;
-    // clientWidth is rounded to an integer; canvas measureText returns a float.
-    // Add a small tolerance to avoid truncating text that actually fits.
-    if (fullWidth <= availableWidth + 4) {
+    const fullWidth = Math.round(ctx.measureText(name).width);
+    if (fullWidth <= availableWidth) {
       this.displayText.set(name);
       return;
     }
 
-    // Binary search for the largest maxChars where truncated text fits
-    let lo = 5;
-    let hi = name.length - 1;
-    let best = lo;
+    // Estimate max chars from average character width, then verify it fits
+    const avgCharWidth = fullWidth / name.length;
+    let maxChars = Math.max(5, Math.floor(availableWidth / avgCharWidth));
+    let truncated = truncateFilename(name, maxChars);
 
-    while (lo <= hi) {
-      const mid = Math.floor((lo + hi) / 2);
-      const candidate = truncateFilename(name, mid);
-      if (ctx.measureText(candidate).width <= availableWidth) {
-        best = mid;
-        lo = mid + 1;
-      } else {
-        hi = mid - 1;
-      }
+    while (ctx.measureText(truncated).width > availableWidth && maxChars > 5) {
+      maxChars--;
+      truncated = truncateFilename(name, maxChars);
     }
 
-    this.displayText.set(truncateFilename(name, best));
+    this.displayText.set(truncated);
   }
 
   /** Shared offscreen canvas for text measurement across all instances. */
-  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
-  private static measureCanvas: HTMLCanvasElement | null = null;
+  private static readonly measureCanvas: HTMLCanvasElement = document.createElement("canvas");
 
   private static getMeasureContext(): CanvasRenderingContext2D | null {
-    TruncatedFilenameComponent.measureCanvas ??= document.createElement("canvas");
     return TruncatedFilenameComponent.measureCanvas.getContext("2d");
   }
 }
