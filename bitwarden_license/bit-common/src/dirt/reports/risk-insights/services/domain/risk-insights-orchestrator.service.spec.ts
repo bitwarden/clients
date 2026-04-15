@@ -209,8 +209,7 @@ describe("RiskInsightsOrchestratorService", () => {
         mockRiskInsightsEncryptionService,
       );
 
-      const privateOrganizationDetailsSubject =
-        testService["_organizationDetailsSubject"];
+      const privateOrganizationDetailsSubject = testService["_organizationDetailsSubject"];
       const privateUserIdSubject = testService["_userIdSubject"];
 
       privateOrganizationDetailsSubject.next({
