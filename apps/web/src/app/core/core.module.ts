@@ -455,9 +455,7 @@ const safeProviders: SafeProvider[] = [
     useClass: WebVaultPremiumUpgradePromptService,
     deps: [
       DialogService,
-      ConfigService,
       AccountService,
-      ApiService,
       SyncService,
       BillingAccountProfileStateService,
       PlatformUtilsService,
