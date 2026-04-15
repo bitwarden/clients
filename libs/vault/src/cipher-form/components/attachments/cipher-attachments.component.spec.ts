@@ -179,7 +179,7 @@ describe("CipherAttachmentsComponent", () => {
     const fileName = fixture.debugElement.query(By.css('[data-testid="file-name"]'));
     const fileSize = fixture.debugElement.query(By.css('[data-testid="file-size"]'));
 
-    expect(fileName.nativeElement.textContent.replace(/\s+/g, " ").trim()).toEqual(
+    expect(fileName.nativeElement.querySelector("[aria-label]").getAttribute("aria-label")).toEqual(
       attachment.fileName,
     );
     expect(fileSize.nativeElement.textContent.trim()).toEqual(attachment.sizeName);
