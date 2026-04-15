@@ -144,7 +144,9 @@ export class GetCommand extends DownloadCommand {
       return Response.notFound();
     }
 
-    const isNewItemEnabled = await this.configService.getFeatureFlag(FeatureFlag.PM32009_NewItemTypes);
+    const isNewItemEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM32009NewItemTypes,
+    );
 
     if (Array.isArray(decCipher)) {
       // Apply restricted ciphers filter
@@ -521,14 +523,14 @@ export class GetCommand extends DownloadCommand {
         response.groups == null
           ? null
           : response.groups.map(
-            (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
-          );
+              (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
+            );
       const users =
         response.users == null
           ? null
           : response.users.map(
-            (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
-          );
+              (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
+            );
       const res = new OrganizationCollectionResponse(decCollection, groups, users);
       return Response.success(res);
     } catch (e) {
@@ -592,7 +594,7 @@ export class GetCommand extends DownloadCommand {
         break;
       case "item.bankaccount": {
         const bankAccountEnabled = await firstValueFrom(
-          this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
         );
         if (!bankAccountEnabled) {
           return Response.badRequest("Bank account item type is not available.");

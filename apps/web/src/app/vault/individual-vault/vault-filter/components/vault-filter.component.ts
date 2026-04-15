@@ -269,7 +269,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const [userId, showBankAccount] = await firstValueFrom(
       combineLatest([
         this.accountService.activeAccount$.pipe(getUserId),
-        this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+        this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
       ]),
     );
 

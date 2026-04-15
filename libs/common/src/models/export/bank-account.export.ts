@@ -51,7 +51,9 @@ export class BankAccountExport {
     domain.pin = req.pin ? new EncString(req.pin) : undefined;
     domain.swiftCode = req.swiftCode ? new EncString(req.swiftCode) : undefined;
     domain.iban = req.iban ? new EncString(req.iban) : undefined;
-    domain.bankContactPhone = req.bankContactPhone ? new EncString(req.bankContactPhone) : undefined;
+    domain.bankContactPhone = req.bankContactPhone
+      ? new EncString(req.bankContactPhone)
+      : undefined;
     return domain;
   }
 

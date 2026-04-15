@@ -2117,6 +2117,9 @@
   "typeNote": {
     "message": "Note"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -2137,6 +2140,9 @@
   },
   "collectionSubtitle": {
     "message": "Organize shared items"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "newItemHeaderLogin": {
     "message": "New Login",

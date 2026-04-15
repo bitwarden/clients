@@ -39,7 +39,7 @@ import {
 } from "./vault-popup-list-filters.service";
 
 const configService = {
-  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(true)),
+  getFeatureFlag$: jest.fn(() => new BehaviorSubject<boolean>(false)),
 } as unknown as ConfigService;
 
 jest.mock("@bitwarden/angular/vault/vault-filter/services/vault-filter.service", () => ({
@@ -174,7 +174,6 @@ describe("VaultPopupListFiltersService", () => {
           CipherType.Identity,
           CipherType.SecureNote,
           CipherType.SshKey,
-          CipherType.BankAccount,
         ]);
         done();
       });
@@ -191,7 +190,28 @@ describe("VaultPopupListFiltersService", () => {
           CipherType.Identity,
           CipherType.SecureNote,
           CipherType.SshKey,
+        ]);
+        done();
+      });
+    });
+
+    it("includes BankAccount cipher type when the feature flag is enabled", (done) => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValueOnce(new BehaviorSubject(true));
+      const { service: flagEnabledService } = createSeededVaultPopupListFiltersService(
+        [],
+        [],
+        [],
+        {},
+      );
+
+      flagEnabledService.cipherTypes$.subscribe((cipherTypes) => {
+        expect(cipherTypes.map((c) => c.value)).toEqual([
+          CipherType.Login,
+          CipherType.Card,
           CipherType.BankAccount,
+          CipherType.Identity,
+          CipherType.SecureNote,
+          CipherType.SshKey,
         ]);
         done();
       });

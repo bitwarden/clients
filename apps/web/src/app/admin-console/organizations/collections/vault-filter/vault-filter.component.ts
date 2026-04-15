@@ -225,7 +225,7 @@ export class VaultFilterComponent
 
   async buildAllFilters(): Promise<VaultFilterList> {
     const showBankAccount = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+      this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
     );
 
     const excludeTypes: CipherStatus[] = ["favorites"];

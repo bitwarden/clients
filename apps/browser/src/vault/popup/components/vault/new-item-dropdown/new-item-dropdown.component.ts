@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, Input, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink, Router } from "@angular/router";
-import { combineLatest, map, Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -47,21 +47,16 @@ export class NewItemDropdownComponent implements OnInit {
   /**
    * Observable of cipher menu items that are not restricted by policy
    */
-  readonly cipherMenuItems$: Observable<CipherMenuItem[]> = combineLatest([
-    this.restrictedItemTypeService.restricted$,
-    this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
-  ]).pipe(
-    map(([restrictedTypes, canCreateBankAccount]) => {
-      const restrictedTypeArr = restrictedTypes.map((item) => item.cipherType);
+  readonly cipherMenuItems$: Observable<CipherMenuItem[]> =
+    this.restrictedItemTypeService.restricted$.pipe(
+      map((restrictedTypes) => {
+        const restrictedTypeArr = restrictedTypes.map((item) => item.cipherType);
 
-      return CIPHER_MENU_ITEMS.filter((menuItem) => {
-        if (!canCreateBankAccount && menuItem.type === CipherType.BankAccount) {
-          return false;
-        }
-        return !restrictedTypeArr.includes(menuItem.type);
-      });
-    }),
-  );
+        return CIPHER_MENU_ITEMS.filter((menuItem) => {
+          return !restrictedTypeArr.includes(menuItem.type);
+        });
+      }),
+    );
 
   readonly useNewItemDialog = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),

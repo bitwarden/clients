@@ -46,7 +46,7 @@ export class TypeFilterComponent {
 
   protected typeFilters$ = combineLatest([
     this.restrictedItemTypesService.restricted$,
-    this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
   ]).pipe(
     map(([restrictedItemTypes, canCreateBankAccount]) =>
       // Filter out restricted item types and feature-flagged types from the typeFilters array

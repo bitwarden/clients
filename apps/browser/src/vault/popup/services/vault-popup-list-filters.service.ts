@@ -47,7 +47,10 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import {
+  CIPHER_MENU_ITEMS,
+  DIALOG_CIPHER_MENU_ITEMS,
+} from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
@@ -276,21 +279,22 @@ export class VaultPopupListFiltersService {
    */
   readonly cipherTypes$: Observable<ChipFilterOption<CipherType>[]> = combineLatest([
     this.restrictedItemTypesService.restricted$,
-    this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
   ]).pipe(
-    map(([restrictedTypes, canCreateBankAccount]) => {
-      return CIPHER_MENU_ITEMS.filter((item) => {
-        if (!canCreateBankAccount && item.type === CipherType.BankAccount) {
-          return false;
-        }
-        const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
-        // Show if no restriction or if the restriction allows viewing in at least one org
-        return !restriction || restriction.allowViewOrgIds.length > 0;
-      }).map((item) => ({
-        value: item.type,
-        label: this.i18nService.t(item.labelKey),
-        icon: item.icon,
-      }));
+    map(([restrictedTypes, allowNewItemTypes]) => {
+      const cipherMenuItems = allowNewItemTypes ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
+
+      return cipherMenuItems
+        .filter((item) => {
+          const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
+          // Show if no restriction or if the restriction allows viewing in at least one org
+          return !restriction || restriction.allowViewOrgIds.length > 0;
+        })
+        .map((item) => ({
+          value: item.type,
+          label: this.i18nService.t(item.labelKey),
+          icon: item.icon as BitwardenIcon,
+        }));
     }),
   );
 

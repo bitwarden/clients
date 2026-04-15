@@ -103,7 +103,7 @@ export class CreateCommand {
 
       if (cipherView.type === CipherType.BankAccount) {
         const bankAccountEnabled = await firstValueFrom(
-          this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
         );
         if (!bankAccountEnabled) {
           return Response.error("Bank account item type is not available.");

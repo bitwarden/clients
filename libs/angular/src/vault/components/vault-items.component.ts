@@ -22,7 +22,10 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import {
+  CIPHER_MENU_ITEMS,
+  DIALOG_CIPHER_MENU_ITEMS,
+} from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -55,19 +58,17 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
 
   protected itemTypes$ = combineLatest([
     this.restrictedItemTypesService.restricted$,
-    this.configService.getFeatureFlag$(FeatureFlag.PM32009_NewItemTypes),
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
   ]).pipe(
-    map(([restrictedItemTypes, canCreateBankAccount]) =>
+    map(([restrictedItemTypes, newItemTypesEnabled]) => {
+      const availableMenuItems = newItemTypesEnabled ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
       // Filter out restricted and feature-flagged item types
-      CIPHER_MENU_ITEMS.filter((itemType) => {
-        if (!canCreateBankAccount && itemType.type === CipherType.BankAccount) {
-          return false;
-        }
+      return availableMenuItems.filter((itemType) => {
         return !restrictedItemTypes.some(
           (restrictedType) => restrictedType.cipherType === itemType.type,
         );
-      }),
-    ),
+      });
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
