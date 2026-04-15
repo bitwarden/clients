@@ -2,6 +2,8 @@ import { SsoRequiredCacheEntry } from "../../abstractions/sso-login.service.abst
 
 import { SSO_REQUIRED_CACHE } from "./sso-login.state";
 
+// TODO: Delete these tests as part of https://bitwarden.atlassian.net/browse/PM-35145, as they
+//       will become irrelevant.
 describe("SSO_REQUIRED_CACHE deserializer", () => {
   const deserialize = (value: unknown) =>
     SSO_REQUIRED_CACHE.deserializer(value as SsoRequiredCacheEntry[]);
