@@ -8,6 +8,7 @@ describe("IdentityTokenResponse", () => {
   const expiresIn = 3600;
   const refreshToken = "testRefreshToken";
   const encryptedUserKey = makeEncString("testUserKey");
+  const kdfFields = { Kdf: 0, KdfIterations: 600_000 };
 
   it("should throw an error when access token is missing", () => {
     const response = {
@@ -35,6 +36,7 @@ describe("IdentityTokenResponse", () => {
     const response = {
       access_token: accessToken,
       token_type: tokenType,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -49,6 +51,7 @@ describe("IdentityTokenResponse", () => {
       access_token: accessToken,
       token_type: tokenType,
       expires_in: expiresIn,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -64,6 +67,7 @@ describe("IdentityTokenResponse", () => {
       token_type: tokenType,
       expires_in: expiresIn,
       refresh_token: refreshToken,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -78,6 +82,7 @@ describe("IdentityTokenResponse", () => {
       access_token: accessToken,
       token_type: tokenType,
       Key: undefined as unknown,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -89,6 +94,7 @@ describe("IdentityTokenResponse", () => {
       access_token: accessToken,
       token_type: tokenType,
       Key: encryptedUserKey.encryptedString,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -100,6 +106,7 @@ describe("IdentityTokenResponse", () => {
       access_token: accessToken,
       token_type: tokenType,
       UserDecryptionOptions: undefined as unknown,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -111,6 +118,7 @@ describe("IdentityTokenResponse", () => {
       access_token: accessToken,
       token_type: tokenType,
       UserDecryptionOptions: {},
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -122,6 +130,7 @@ describe("IdentityTokenResponse", () => {
       access_token: accessToken,
       token_type: tokenType,
       AccountKeys: null as unknown,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);
@@ -140,6 +149,7 @@ describe("IdentityTokenResponse", () => {
       access_token: accessToken,
       token_type: tokenType,
       AccountKeys: accountKeysData,
+      ...kdfFields,
     };
 
     const identityTokenResponse = new IdentityTokenResponse(response);

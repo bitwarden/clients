@@ -58,7 +58,7 @@ describe("DefaultChangePasswordService", () => {
     newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
     newServerMasterKeyHash: "newServerMasterKeyHash",
 
-    kdfConfig: new PBKDF2KdfConfig(),
+    kdfConfig: PBKDF2KdfConfig.createDefault(),
     newApisWithInputPasswordFlagEnabled: false,
   };
 

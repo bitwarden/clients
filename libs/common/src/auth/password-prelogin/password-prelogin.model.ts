@@ -19,7 +19,11 @@ export class PasswordPreloginData {
     const kdfConfig =
       response.kdf === KdfType.PBKDF2_SHA256
         ? new PBKDF2KdfConfig(response.kdfIterations)
-        : new Argon2KdfConfig(response.kdfIterations, response.kdfMemory, response.kdfParallelism);
+        : new Argon2KdfConfig(
+            response.kdfIterations,
+            response.kdfMemory!,
+            response.kdfParallelism!,
+          );
     kdfConfig.validateKdfConfigForPrelogin();
     return new PasswordPreloginData(kdfConfig);
   }

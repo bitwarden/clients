@@ -180,7 +180,7 @@ describe("LoginStrategy", () => {
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(new PBKDF2KdfConfig())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
     );
     keyService.makeMasterKey.mockResolvedValue({} as any);
 

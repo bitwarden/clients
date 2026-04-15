@@ -10,7 +10,6 @@ import { DialogService } from "@bitwarden/components";
 import {
   KdfConfigService,
   Argon2KdfConfig,
-  DEFAULT_KDF_CONFIG,
   KdfConfig,
   PBKDF2KdfConfig,
   KdfType,
@@ -26,7 +25,7 @@ import { ChangeKdfConfirmationComponent } from "./change-kdf-confirmation.compon
   standalone: false,
 })
 export class ChangeKdfComponent implements OnInit, OnDestroy {
-  kdfConfig: KdfConfig = DEFAULT_KDF_CONFIG;
+  kdfConfig: KdfConfig = PBKDF2KdfConfig.createDefault();
   kdfOptions: any[] = [];
   private destroy$ = new Subject<void>();
 
@@ -81,10 +80,10 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
 
     switch (newValue) {
       case KdfType.PBKDF2_SHA256:
-        config = new PBKDF2KdfConfig();
+        config = PBKDF2KdfConfig.createDefault();
         break;
       case KdfType.Argon2id:
-        config = new Argon2KdfConfig();
+        config = Argon2KdfConfig.createDefault();
         break;
       default:
         throw new Error("Unknown KDF type.");
@@ -165,11 +164,13 @@ export class ChangeKdfComponent implements OnInit, OnDestroy {
 
     const kdfConfigFormGroup = this.formGroup.controls.kdfConfig;
     if (this.kdfConfig.kdfType === KdfType.PBKDF2_SHA256) {
-      this.kdfConfig.iterations = kdfConfigFormGroup.controls.iterations.value!;
+      this.kdfConfig = new PBKDF2KdfConfig(kdfConfigFormGroup.controls.iterations.value!);
     } else if (this.kdfConfig.kdfType === KdfType.Argon2id) {
-      this.kdfConfig.iterations = kdfConfigFormGroup.controls.iterations.value!;
-      this.kdfConfig.memory = kdfConfigFormGroup.controls.memory.value!;
-      this.kdfConfig.parallelism = kdfConfigFormGroup.controls.parallelism.value!;
+      this.kdfConfig = new Argon2KdfConfig(
+        kdfConfigFormGroup.controls.iterations.value!,
+        kdfConfigFormGroup.controls.memory.value!,
+        kdfConfigFormGroup.controls.parallelism.value!,
+      );
     }
     this.dialogService.open(ChangeKdfConfirmationComponent, {
       data: {
