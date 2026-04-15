@@ -54,12 +54,15 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -92,6 +95,11 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   ChangeLoginPasswordService,
@@ -199,6 +207,8 @@ export class VaultComponent<C extends CipherViewLike>
   private changeDetectorRef = inject(ChangeDetectorRef);
   private ngZone = inject(NgZone);
   private messagingService = inject(MessagingService);
+  private syncService = inject(SyncService);
+  private configService = inject(ConfigService);
   private eventCollectionService = inject(EventCollectionService);
   private searchService = inject(SearchService);
   private searchPipe = inject(SearchPipe);
@@ -983,7 +993,34 @@ export class VaultComponent<C extends CipherViewLike>
   }
 
   async addFolder() {
-    this.messagingService.send("newFolder");
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM32009NewItemTypes)) {
+      const folderRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const folderResult = await firstValueFrom(folderRef.closed);
+      if (folderResult === AddEditFolderDialogResult.Created) {
+        await this.syncService.fullSync(false);
+      }
+    } else {
+      this.messagingService.send("newFolder");
+    }
+  }
+
+  protected async openAddItemDialog(): Promise<void> {
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: true,
+      canCreateCollection: false,
+      canCreateSshKey: true,
+    });
+
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (result == null) {
+      return;
+    }
+
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Folder) {
+      await this.addFolder();
+    }
   }
 
   filterSearchText(searchText: string) {

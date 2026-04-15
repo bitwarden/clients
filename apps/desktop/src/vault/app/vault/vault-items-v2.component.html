@@ -78,28 +78,38 @@
 </ng-container>
 
 <ng-template #addCipherButton>
-  <button
-    type="button"
-    class="block primary"
-    bitButton
-    appA11yTitle="{{ 'addItem' | i18n }}"
-    [disabled]="deleted"
-    [bitMenuTriggerFor]="addCipherMenu"
-  >
-    <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
-  </button>
-  <bit-menu #addCipherMenu>
-    @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
-      <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">
-        <i class="bwi {{ itemTypes.icon }} tw-mr-1" aria-hidden="true"></i>
-        {{ itemTypes.labelKey | i18n }}
-      </button>
-    }
-    <bit-menu-divider />
-
-    <button type="button" bitMenuItem (click)="onAddFolder.emit()">
-      <i class="bwi bwi-folder tw-mr-1" aria-hidden="true"></i>
-      {{ "folder" | i18n }}
+  @if (useNewItemDialog()) {
+    <button
+      type="button"
+      class="block primary"
+      bitIconButton="bwi-plus"
+      [label]="'addItem' | i18n"
+      [disabled]="deleted"
+      (click)="onAddItemDialog.emit()"
+    ></button>
+  } @else {
+    <button
+      type="button"
+      class="block primary"
+      bitButton
+      appA11yTitle="{{ 'addItem' | i18n }}"
+      [disabled]="deleted"
+      [bitMenuTriggerFor]="addCipherMenu"
+    >
+      <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
     </button>
-  </bit-menu>
+    <bit-menu #addCipherMenu>
+      @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
+        <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">
+          <i class="bwi {{ itemTypes.icon }} tw-mr-1" aria-hidden="true"></i>
+          {{ itemTypes.labelKey | i18n }}
+        </button>
+      }
+      <bit-menu-divider />
+      <button type="button" bitMenuItem (click)="onAddFolder.emit()">
+        <i class="bwi bwi-folder tw-mr-1" aria-hidden="true"></i>
+        {{ "folder" | i18n }}
+      </button>
+    </bit-menu>
+  }
 </ng-template>
