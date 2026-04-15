@@ -2,13 +2,12 @@ import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
   computed,
-  contentChild,
   contentChildren,
   input,
-  Input,
-  signal,
+  contentChild,
   viewChild,
 } from "@angular/core";
 
@@ -23,11 +22,10 @@ import { BitFormFieldControl } from "./form-field-control";
 import { BitPrefixDirective } from "./prefix.directive";
 import { BitSuffixDirective } from "./suffix.directive";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, BitErrorComponent, BitFieldContainerDirective, I18nPipe],
   host: {
     "[class]": "classList",
@@ -45,14 +43,6 @@ export class BitFormFieldComponent implements AfterContentChecked {
   readonly disableMargin = input(false, { transform: booleanAttribute });
 
   readonly size = input<FieldContainerSize>("base");
-
-  /** If `true`, remove the bottom border for `readonly` inputs */
-  // TODO: Skipped for signal migration because:
-  //  Your application code writes to the input. This prevents migration.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute })
-  disableReadOnlyBorder = false;
 
   private readonly prefixChildren = contentChildren(BitPrefixDirective);
   private readonly suffixChildren = contentChildren(BitSuffixDirective);

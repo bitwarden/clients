@@ -9,7 +9,7 @@
       [ngClass]="{ 'tw-mb-4': !last }"
       data-testid="custom-field"
     >
-      <bit-form-field *ngIf="field.type === fieldType.Text" [disableReadOnlyBorder]="last">
+      <bit-form-field *ngIf="field.type === fieldType.Text">
         <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
         <textarea
           readonly
@@ -29,7 +29,7 @@
           data-testid="copy-custom-field"
         ></button>
       </bit-form-field>
-      <bit-form-field *ngIf="field.type === fieldType.Hidden" [disableReadOnlyBorder]="last">
+      <bit-form-field *ngIf="field.type === fieldType.Hidden">
         <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
         <input
           readonly
@@ -103,7 +103,7 @@
           {{ field.name }}
         </bit-label>
       </bit-form-control>
-      <bit-form-field *ngIf="field.type === fieldType.Linked" [disableReadOnlyBorder]="last">
+      <bit-form-field *ngIf="field.type === fieldType.Linked">
         <bit-label> {{ "cfTypeLinked" | i18n }}: {{ field.name }} </bit-label>
         <input
           readonly

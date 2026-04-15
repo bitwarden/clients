@@ -331,8 +331,8 @@ Row2
 Row3</textarea>
             </bit-form-field>
 
-            <bit-form-field disableMargin disableReadOnlyBorder>
-              <bit-label>Sans margin & border</bit-label>
+            <bit-form-field disableMargin>
+              <bit-label>Sans margin</bit-label>
               <input bitInput value="Foobar" readonly />
             </bit-form-field>
           </bit-card>
