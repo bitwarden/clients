@@ -51,7 +51,7 @@ export class DefaultCipherFormService implements CipherFormService {
     const newCollectionIds = new Set(cipher.collectionIds ?? []);
 
     // Call shareWithServer if the owner is changing from a user to an organization
-    if (config.originalCipher.organizationId === null && cipher.organizationId != null) {
+    if (config.originalCipher.organizationId == null && cipher.organizationId != null) {
       // shareWithServer expects the cipher to have no organizationId set
       const organizationId = cipher.organizationId as OrganizationId;
       cipher.organizationId = null;

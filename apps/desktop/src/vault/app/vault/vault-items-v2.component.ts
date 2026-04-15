@@ -1,12 +1,13 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, input, output } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { distinctUntilChanged, debounceTime } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultItemsComponent as BaseVaultItemsComponent } from "@bitwarden/angular/vault/components/vault-items.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -18,7 +19,12 @@ import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CalloutComponent, MenuModule } from "@bitwarden/components";
+import {
+  CalloutComponent,
+  MenuModule,
+  BitIconButtonComponent,
+  IconButtonModule,
+} from "@bitwarden/components";
 
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
 
@@ -27,14 +33,26 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 @Component({
   selector: "app-vault-items-v2",
   templateUrl: "vault-items-v2.component.html",
-  imports: [MenuModule, CommonModule, JslibModule, ScrollingModule, CalloutComponent],
+  imports: [
+    CommonModule,
+    JslibModule,
+    ScrollingModule,
+    CalloutComponent,
+    MenuModule,
+    IconButtonModule,
+    BitIconButtonComponent,
+  ],
 })
 export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultItemsComponent<C> {
   readonly showPremiumCallout = input<boolean>(false);
 
   readonly onAddFolder = output<void>();
+  readonly onAddItemDialog = output<void>();
 
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+  protected readonly useNewItemDialog = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+  );
 
   constructor(
     searchService: SearchService,

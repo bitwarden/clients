@@ -217,6 +217,9 @@ export class EditCommand {
     if (options.organizationId !== req.organizationId) {
       return Response.badRequest("`organizationid` option does not match request object.");
     }
+    if (req.name == null || req.name.trim() === "") {
+      return Response.badRequest("Collection name is required.");
+    }
     try {
       const orgKey = await firstValueFrom(
         this.accountService.activeAccount$.pipe(
