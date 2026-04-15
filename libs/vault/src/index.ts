@@ -23,6 +23,9 @@ export {
 } from "./components/assign-collections.component";
 
 export { DownloadAttachmentComponent } from "./components/download-attachment/download-attachment.component";
+export { TruncatedFilenameComponent } from "./components/truncated-filename";
+export { truncateFilename } from "./components/truncated-filename/truncate-filename";
+export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";

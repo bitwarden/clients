@@ -1,21 +1,23 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   effect,
   ElementRef,
+  inject,
   input,
   signal,
   viewChild,
 } from "@angular/core";
 
-import { ResizeObserverDirective } from "../resize-observer";
-import { TooltipDirective } from "../tooltip";
-import { truncateFilename } from "../utils";
+import { TooltipDirective } from "@bitwarden/components";
+
+import { truncateFilename } from "./truncate-filename";
 
 /**
  * Renders a filename with responsive middle-truncation that preserves the file extension.
  *
- * Uses `ResizeObserverDirective` to detect container width changes and canvas text
+ * Uses a `ResizeObserver` to detect container width changes and canvas text
  * measurement to determine how many characters fit. The `truncateFilename` utility
  * handles the 50/50 split: start of filename + `…` + end of filename + extension.
  *
@@ -31,8 +33,6 @@ import { truncateFilename } from "../utils";
   template: `
     <span
       #container
-      resizeObserver
-      (resize)="onResize()"
       class="tw-block tw-flex-1 tw-min-w-0 tw-overflow-hidden tw-whitespace-nowrap"
       [bitTooltip]="filename()"
       [attr.aria-label]="filename()"
@@ -43,7 +43,7 @@ import { truncateFilename } from "../utils";
   host: { class: "tw-contents" },
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ResizeObserverDirective, TooltipDirective],
+  imports: [TooltipDirective],
 })
 export class TruncatedFilenameComponent {
   /** The full filename to display. */
@@ -53,16 +53,26 @@ export class TruncatedFilenameComponent {
   protected readonly displayText = signal("");
 
   private readonly containerRef = viewChild<ElementRef<HTMLElement>>("container");
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly observer = new ResizeObserver(() => this.recalculate());
 
   constructor() {
     effect(() => {
       this.filename();
       this.recalculate();
     });
-  }
 
-  protected onResize(): void {
-    this.recalculate();
+    effect(() => {
+      const el = this.containerRef()?.nativeElement;
+      if (!el) {
+        return;
+      }
+
+      this.observer.disconnect();
+      this.observer.observe(el);
+    });
+
+    this.destroyRef.onDestroy(() => this.observer.disconnect());
   }
 
   private recalculate(): void {

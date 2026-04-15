@@ -48,11 +48,12 @@ import {
   ItemModule,
   ProgressModule,
   ToastService,
-  TruncatedFilenameComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
 import { DownloadAttachmentComponent } from "../../../components/download-attachment/download-attachment.component";
+import { TruncatedFilenameComponent } from "../../../components/truncated-filename";
+
 
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 

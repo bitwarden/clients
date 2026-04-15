@@ -50,6 +50,5 @@ export * from "./tabs";
 export * from "./toast";
 export * from "./toggle-group";
 export * from "./tooltip";
-export * from "./truncated-filename";
 export * from "./typography";
 export * from "./utils";
