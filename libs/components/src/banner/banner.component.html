@@ -27,7 +27,7 @@
       }
     }
     <div
-      class="tw-flex tw-flex-col @3xl:tw-flex-row @3xl:tw-items-center tw-gap-1 @3xl:tw-gap-3 tw-min-w-0"
+      class="tw-flex tw-flex-col @3xl:tw-flex-row tw-gap-1 @3xl:tw-gap-3 tw-min-w-0"
       [class]="showActions() ? '@3xl:tw-flex-1' : ''"
     >
       <div
@@ -35,7 +35,9 @@
         [class]="showActions() ? '@3xl:tw-flex-1' : ''"
       >
         @if (title()) {
-          <div bitTypography="h4" noMargin class="tw-leading-6">{{ title() }}</div>
+          <div class="!tw-text-sm @3xl:!tw-text-lg tw-text-main tw-font-medium @3xl:!tw-leading-6">
+            {{ title() }}
+          </div>
         }
         <span bitTypography="body2" class="tw-max-w-[800px]">
           <ng-content></ng-content>

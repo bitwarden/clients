@@ -93,9 +93,7 @@ export class BannerComponent {
   });
 
   protected readonly alignClass = computed(() =>
-    this.showActions()
-      ? "tw-items-start @5xl:tw-items-center"
-      : "tw-items-center @5xl:tw-justify-center",
+    this.showActions() ? "tw-items-start" : "tw-items-center @3xl:tw-justify-center",
   );
 
   protected readonly bannerClass = computed(

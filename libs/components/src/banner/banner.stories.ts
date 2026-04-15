@@ -2,6 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -50,10 +51,7 @@ export const BannerBase: Story = {
     return {
       props: args,
       template: /*html*/ `
-        <bit-banner
-          [variant]="variant"
-          [showClose]="showClose"
-          >
+        <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
           Bitwarden is the most trusted password manager. <a bitLink [linkType]="variant">Click me</a>
         </bit-banner>
       `,
@@ -70,10 +68,7 @@ export const BannerBaseLargeText: Story = {
     return {
       props: args,
       template: /*html*/ `
-        <bit-banner
-          [variant]="variant"
-          [showClose]="showClose"
-          >
+        <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
           Bitwarden is the most trusted password manager for individuals, teams, and enterprises worldwide. We help you securely create, store, and manage strong, unique passwords for all your accounts, keeping your entire digital life safe and well organized. <a bitLink [linkType]="variant">Click me</a>
         </bit-banner>
       `,
@@ -139,7 +134,7 @@ export const BannerSimple: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-banner [variant]="variant" [showClose]="showClose">
+      <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
         Bitwarden is the most trusted password manager for individuals and teams.
       </bit-banner>
     `,
@@ -154,7 +149,7 @@ export const BannerSimpleLargeText: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-banner [variant]="variant" [showClose]="showClose">
+      <bit-banner ${formatArgsForCodeSnippet<BannerComponent>(args)}>
         Bitwarden is the most trusted password manager for individuals, teams, and enterprises worldwide. We help you securely create, store, and manage strong, unique passwords for all your accounts, keeping your entire digital life safe and well organized.
       </bit-banner>
     `,
