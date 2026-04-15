@@ -98,14 +98,14 @@ export class TargetingRulesDataService {
         // switchMap cancels any in-progress update (including retry delays)
         // when a new trigger arrives, ensuring account/environment switches
         // are not blocked by a stale retry chain
-        switchMap((skipCacheCheck) => this._backgroundUpdate(skipCacheCheck)),
+        switchMap((skipCacheAgeCheck) => this._backgroundUpdate(skipCacheAgeCheck)),
         takeUntil(this._destroy$),
       )
       .subscribe();
 
     // Trigger a fetch whenever the server config changes (e.g. after
     // unlock, account switch, or environment change). The config lags
-    // behind environment$, so reacting here ensures _resolveSourceUrl
+    // behind environment$, so reacting here ensures _resolveManifestUrl
     // reads the correct config for the active environment.
     this.configService.serverConfig$.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this._triggerUpdate$.next(false);
@@ -126,7 +126,7 @@ export class TargetingRulesDataService {
     const apiUrl = env.getApiUrl();
     await this._metaState.update((existing) => ({
       ...existing,
-      [apiUrl]: { timestamp: 0 },
+      [apiUrl]: { cid: undefined, timestamp: 0 },
     }));
   }
 
@@ -136,12 +136,12 @@ export class TargetingRulesDataService {
     this._destroy$.complete();
   }
 
-  private _backgroundUpdate(skipCacheCheck = false) {
+  private _backgroundUpdate(skipCacheAgeCheck = false) {
     // Use defer to restart timer if retry is activated
     return defer(() => {
       const startTime = Date.now();
 
-      return from(this._fetchAndStoreRules(skipCacheCheck)).pipe(
+      return from(this._fetchAndStoreRules(skipCacheAgeCheck)).pipe(
         tap(() => {
           const elapsed = Date.now() - startTime;
           this.logService.info(`[TargetingRulesDataService] Update completed in ${elapsed}ms`);
@@ -178,7 +178,7 @@ export class TargetingRulesDataService {
     });
   }
 
-  private async _fetchAndStoreRules(skipCacheCheck = false): Promise<void> {
+  private async _fetchAndStoreRules(skipCacheAgeCheck = false): Promise<void> {
     const isEnabled = await this.configService.getFeatureFlag(FeatureFlag.FillAssistTargetingRules);
     if (!isEnabled) {
       this.logService.debug("[TargetingRulesDataService] Feature is not enabled, skipping fetch.");
@@ -195,7 +195,7 @@ export class TargetingRulesDataService {
     const meta = allMeta?.[apiUrl];
     const cacheAge = Date.now() - (meta?.timestamp ?? 0);
 
-    if (!skipCacheCheck && cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
+    if (!skipCacheAgeCheck && cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
       this.logService.debug("[TargetingRulesDataService] Cache is still fresh, skipping fetch.");
       return;
     }
@@ -205,7 +205,13 @@ export class TargetingRulesDataService {
     // Step 1: Fetch the lightweight manifest to check if the data has changed
     this.logService.info(`[TargetingRulesDataService] Checking manifest at ${manifestUrl}`);
 
-    const manifestResponse = await this.apiService.nativeFetch(new Request(manifestUrl));
+    // Add CDN cache-buster
+    const manifestRequestURL = new URL(manifestUrl);
+    manifestRequestURL.searchParams.set("_", Date.now().toString());
+
+    const manifestResponse = await this.apiService.nativeFetch(
+      new Request(manifestRequestURL.href),
+    );
     if (!manifestResponse.ok) {
       throw new Error(
         `Failed to fetch manifest: ${manifestResponse.status} ${manifestResponse.statusText}`,
@@ -216,8 +222,14 @@ export class TargetingRulesDataService {
 
     // Locate the forms map entry for our target version
     const formsEntry = manifest?.maps?.forms?.[TARGET_FORMS_VERSION];
-    if (!formsEntry?.name) {
-      throw new Error(`Manifest contains no forms map entry for ${TARGET_FORMS_VERSION}`);
+    if (
+      !formsEntry?.filename ||
+      typeof formsEntry.filename !== "string" ||
+      !formsEntry.filename.endsWith(".json") ||
+      formsEntry.filename.includes("/") ||
+      formsEntry.filename.includes("\\")
+    ) {
+      throw new Error(`Manifest contains no valid forms map entry for ${TARGET_FORMS_VERSION}`);
     }
 
     const remoteCid = formsEntry.cid;
@@ -235,8 +247,7 @@ export class TargetingRulesDataService {
     }
 
     // Step 2: Data has changed (or first fetch); download the map file
-    const baseUrl = manifestUrl.substring(0, manifestUrl.lastIndexOf("/") + 1);
-    const formsMapUrl = new URL(formsEntry.name, baseUrl).href;
+    const formsMapUrl = new URL(formsEntry.filename, manifestRequestURL.href).href;
     this.logService.info(`[TargetingRulesDataService] Fetching updated data from ${formsMapUrl}`);
 
     const response = await this.apiService.nativeFetch(new Request(formsMapUrl));
