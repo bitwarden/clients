@@ -212,6 +212,7 @@ describe("AutofillOverlayContentService", () => {
           htmlName: "username",
           htmlID: "username",
           placeholder: "username",
+          targeted: false,
         });
       });
 

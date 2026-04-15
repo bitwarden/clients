@@ -1,15 +1,14 @@
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { CardView } from "../vault/models/view/card.view";
-
+import { CardView } from "../../vault/models/view/card.view";
 import {
   DelimiterPatternExpression,
   ExpiryFullYearPattern,
   ExpiryFullYearPatternExpression,
   IrrelevantExpiryCharactersPatternExpression,
   MonthPatternExpression,
-} from "./constants";
+} from "../constants";
 
 type NonZeroIntegers = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
 type Year = `${NonZeroIntegers}${NonZeroIntegers}${0 | NonZeroIntegers}${0 | NonZeroIntegers}`;
@@ -54,7 +53,7 @@ export function normalizeExpiryYearFormat(yearInput: string | number): Year | nu
 }
 
 /**
- * Takes a cipher card view and returns "true" if the month and year affirmativey indicate
+ * Takes a cipher card view and returns "true" if the month and year affirmatively indicate
  * the card is expired. Uncertain cases return "false".
  *
  * @param {CardView} cipherCard

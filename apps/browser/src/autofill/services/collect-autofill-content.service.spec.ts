@@ -75,6 +75,13 @@ describe("CollectAutofillContentService", () => {
   describe("getPageDetails", () => {
     beforeEach(() => {
       jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: unknown) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({ result: null });
+          }
+        });
+      jest
         .spyOn(collectAutofillContentService as any, "setupMutationObserver")
         .mockImplementationOnce(() => {
           collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
