@@ -53,9 +53,6 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
       .ng-arrow {
         transform: translateY(0) rotate(-135deg);
         transition: transform 250ms;
-        &:hover {
-          border-color: transparent transparent $ng-select-arrow-hover;
-        }
       }
     }
     &.ng-select-top {
