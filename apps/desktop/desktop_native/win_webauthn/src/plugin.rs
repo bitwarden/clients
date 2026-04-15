@@ -17,14 +17,53 @@ use crate::{
 /// Object referring to a specific passkey plugin authenticator instance,
 /// identified by its CLSID.
 ///
-/// ```rust
-/// let clsid = Clsid::try_from("213149301-123124-1231-32321321").unwrap();
-/// let plugin = WebAuthnPlugin::new(clsid);
-/// let authenticator = MyPluginAuthenticator::new(&plugin);
+/// ```no_run
+/// use win_webauthn::plugin::{
+///     Clsid, PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
+///     PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
+/// };
+///
+/// struct MyAuthenticator { }
+///
+/// impl PluginAuthenticator for MyAuthenticator {
+///     fn make_credential(
+///         &self,
+///         request: PluginMakeCredentialRequest,
+///     ) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+///         todo!()
+///     }
+///
+///     fn get_assertion(&self, request: PluginGetAssertionRequest) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+///         todo!()
+///     }
+///
+///     fn cancel_operation(&self, request: PluginCancelOperationRequest)
+///         -> Result<(), Box<dyn std::error::Error>> {
+///         todo!()
+///     }
+///
+///     fn lock_status(&self) -> Result<PluginLockStatus, Box<dyn std::error::Error>> {
+///         todo!()
+///     }
+/// }
+///
+/// let clsid = Clsid::try_from("51739952-ca07-4071-99bb-187481f8859e").unwrap();
 /// // Add this plugin as an option in Windows settings.
-/// plugin.add_authenticator(authenticator.options());
+/// let authenticator = MyAuthenticator { };
+/// let options = PluginAddAuthenticatorOptions {
+///     authenticator_name: todo!(),
+///     clsid,
+///     rp_id: todo!(),
+///     light_theme_logo_svg: todo!(),
+///     dark_theme_logo_svg: todo!(),
+///     authenticator_info: todo!(),
+///     supported_rp_ids: todo!(),
+/// };
+/// WebAuthnPlugin::add_authenticator(&options).unwrap();
+///
 /// // Register this process to receive COM messages.
-/// plugin.register_server(authenticator)?;
+/// let plugin = WebAuthnPlugin::new(clsid);
+/// plugin.register_server(authenticator).unwrap();
 /// ```
 pub struct WebAuthnPlugin {
     clsid: Clsid,
