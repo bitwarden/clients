@@ -59,7 +59,13 @@ This stage runs during `requestIdleCallback` (with a `setTimeout` fallback). It 
 
 ### Stage 3: Extraction (on demand)
 
-The standard `performance.getEntriesByType("measure")` API returns all recorded measures. This is called from test frameworks (Playwright), DevTools, or any other consumer. It runs on demand, outside any hot path.
+`exportPerformanceEntries(name)` calls `performance.getEntriesByName(name, "measure")` to return measures for a specific instrumented function. The underlying `performance.getEntriesByType("measure")` API remains available for consumers who need all measures. Extraction runs on demand, outside any hot path.
+
+### Name stability
+
+Each stage produces entries with structured names: for a measure called `"foo"`, the marks are `foo:start`, `foo:end`, and (if poisoned) `foo:poison`. These names are part of the public contract — they are visible in browser developer tools, consumed by `exportPerformanceEntries`, and relied upon by test infrastructure. Changing the suffix convention (`:start`, `:end`, `:poison`) is a breaking change.
+
+Mark and measure name strings are cached per measurement name (via `resolveNames`) so that string concatenation happens at most once per unique name, not on every flush iteration.
 
 ### Privacy
 
@@ -102,6 +108,12 @@ The first buffer write after a flush schedules an idle callback. Subsequent writ
 The instrumentation measures the wall-clock time between two `performance.now()` calls that bracket the measured function. This captures exactly the synchronous work — the code that blocks the main thread and causes jank.
 
 Async functions are out of scope. If a measured function returns a Promise, the recorded duration is the time to _create_ the promise, not to _resolve_ it. The interesting work in an async workflow happens after the function returns, across microtask boundaries and event loop ticks. While `measure()` may be used to monitor the runtime between async calls, measuring the duration of async tasks requires a different approach.
+
+### Poison mechanism
+
+`poison(name)` writes a `${name}:poison` mark, and `exportPerformanceEntries(name)` throws if it finds one. The alternative — silently returning empty results or annotating entries with a flag — would let corrupted data pass through extraction without the consumer noticing. Throwing forces the caller to handle the poisoned state explicitly: either catch and report, or let it propagate as a test failure. This makes poisoned measurements impossible to ignore.
+
+Poisoning is not automatic so that the framework can instrument error paths.
 
 ## Further optimization opportunities
 

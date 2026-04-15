@@ -29,7 +29,7 @@ import { stopwatch } from "./performance";
 this.handleMutation = stopwatch("handleMutation", this.handleMutation);
 ```
 
-When enabled, the wrapper captures `performance.now()` timestamps before and after each call, writing them to a preallocated circular buffer. When disabled, it delegates directly to the original. The function's return value, arguments, and `this` context are always preserved.
+When enabled, the wrapper captures `performance.now()` timestamps before and after each call, writing them to a preallocated circular buffer. When disabled, it delegates directly to the original. The function's return value, arguments, and `this` context are always preserved — this is why the example assigns back to `this.handleMutation`, since the wrapper correctly forwards the receiver when called as a method.
 
 > [!WARNING]
 > If the measured function throws, the timing entry is silently dropped. The exception propagates normally, but the invocation will not appear in the performance timeline.
@@ -48,30 +48,43 @@ const result = measure("shadowRootCheck", () => {
 
 When disabled, this is equivalent to calling the arrow function directly.
 
-> [!WARNING]
-> If the lambda throws, the timing entry is silently dropped. The exception propagates normally, but the invocation will not appear in the performance timeline.
-
-## How data flows
-
-1. **Hot path**: `performance.now()` timestamps are written to preallocated buffer slots. No allocations, no additional Web API calls.
-2. **Idle time**: A flush callback (via `requestIdleCallback`) reads the buffer and creates standard `performance.mark()` and `performance.measure()` entries.
-3. **Extraction**: The entries are available through the standard Performance API.
-
 ## Extracting results
 
-### In browser DevTools
+### API methods
 
-Open the Performance tab in Chrome DevTools or the Firefox Profiler. The measures appear in the User Timing row of the timeline.
+Use `exportPerformanceEntries(name)` to retrieve measures for a specific instrumented function or block:
 
-### In Playwright / BIT
+```ts
+import { exportPerformanceEntries } from "./performance";
+
+const entries = exportPerformanceEntries("handleMutation");
+```
+
+This returns a `PerformanceEntryList` filtered to measures matching the given name. If the measurement has been poisoned, it throws.
+
+Use `poison(name)` to mark a measurement as unreliable — for example, when an unexpected error during processing means the timing data can't be trusted:
+
+```ts
+import { poison } from "./performance";
+
+try {
+  processResults();
+} catch {
+  poison("handleMutation");
+}
+```
+
+Once poisoned, any call to `exportPerformanceEntries("handleMutation")` will throw rather than return misleading data.
+
+### After a test scenario
 
 Content scripts run in an isolated world, but in Chromium the `performance` timeline is shared across worlds within a frame. This means `page.evaluate()` (which runs in the main world) can read measures created by content scripts.
 
-After a test scenario completes:
+After a test scenario completes, extract entries for a specific measure via `page.evaluate`:
 
 ```ts
 const entries = await page.evaluate(() =>
-  performance.getEntriesByType("measure").map((e) => ({
+  performance.getEntriesByName("handleMutation", "measure").map((e) => ({
     name: e.name,
     startTime: e.startTime,
     duration: e.duration,
@@ -79,13 +92,24 @@ const entries = await page.evaluate(() =>
 );
 ```
 
-The module also exports a convenience wrapper:
+Note that this approach bypasses the poison check. If reliability matters, check for poison marks first:
 
 ```ts
-import { exportPerformanceEntries } from "./performance";
-
-const entries = exportPerformanceEntries(); // performance.getEntriesByType("measure")
+const poisoned = await page.evaluate(
+  () => performance.getEntriesByName("handleMutation:poison", "mark").length > 0,
+);
 ```
+
+### Underlying Web APIs
+
+The instrumentation writes standard User Timing entries that are visible in Chrome DevTools, the Firefox Profiler, or any tool that reads the Performance API. For a measure named `"foo"`, the following entries are created:
+
+- `foo:start` — a `performance.mark` at the start of each invocation
+- `foo:end` — a `performance.mark` at the end of each invocation
+- `foo` — a `performance.measure` spanning each start/end pair
+- `foo:poison` — a `performance.mark` created by `poison("foo")`, if called
+
+These can be queried directly via `performance.getEntriesByName()` and `performance.getEntriesByType()`, and cleared via `performance.clearMarks()` and `performance.clearMeasures()`.
 
 ### BIT integration
 

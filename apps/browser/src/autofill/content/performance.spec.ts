@@ -11,6 +11,9 @@ beforeAll(() => {
   if (!performance.getEntriesByType) {
     (performance as any).getEntriesByType = () => [] as any[];
   }
+  if (!performance.getEntriesByName) {
+    (performance as any).getEntriesByName = () => [] as any[];
+  }
   if (!performance.clearMarks) {
     (performance as any).clearMarks = () => {};
   }
@@ -25,13 +28,13 @@ beforeAll(() => {
 describe("Performance instrumentation", () => {
   let markSpy: jest.SpyInstance;
   let measureSpy: jest.SpyInstance;
-  let getEntriesSpy: jest.SpyInstance;
+  let getEntriesByNameSpy: jest.SpyInstance;
   let requestIdleCallbackSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     markSpy = jest.spyOn(performance, "mark").mockImplementation();
     measureSpy = jest.spyOn(performance, "measure").mockImplementation();
-    getEntriesSpy = jest.spyOn(performance, "getEntriesByType").mockReturnValue([]);
+    getEntriesByNameSpy = jest.spyOn(performance, "getEntriesByName").mockReturnValue([]);
 
     // Execute idle callbacks synchronously by default
     requestIdleCallbackSpy = jest
@@ -113,11 +116,9 @@ describe("Performance instrumentation", () => {
       const wrapped = perfModule.stopwatch("myFunc", fn);
       wrapped();
 
-      expect(markSpy).toHaveBeenCalledWith("myFunc-start", {
-        startTime: 100,
-      });
-      expect(markSpy).toHaveBeenCalledWith("myFunc-end", { startTime: 105 });
-      expect(measureSpy).toHaveBeenCalledWith("myFunc", "myFunc-start", "myFunc-end");
+      expect(markSpy).toHaveBeenCalledWith("myFunc:start", { startTime: 100 });
+      expect(markSpy).toHaveBeenCalledWith("myFunc:end", { startTime: 105 });
+      expect(measureSpy).toHaveBeenCalledWith("myFunc", "myFunc:start", "myFunc:end");
     });
 
     it("does not record a timing entry when the wrapped function throws", () => {
@@ -133,8 +134,11 @@ describe("Performance instrumentation", () => {
 
       expect(() => wrapped()).toThrow(error);
 
-      // The throw prevents recordEntry from being called, so no flush is scheduled
+      // The throw prevents recordEntry from being called — no marks or measures leak
       expect(measureSpy).not.toHaveBeenCalled();
+      const markCalls = markSpy.mock.calls.map((c: unknown[]) => c[0]);
+      expect(markCalls).not.toContain("throws:start");
+      expect(markCalls).not.toContain("throws:end");
     });
 
     it("responds to enableInstrumentation called after wrapping", () => {
@@ -153,7 +157,7 @@ describe("Performance instrumentation", () => {
       wrapped();
 
       // Should now record
-      expect(markSpy).toHaveBeenCalledWith("late-enable-start", { startTime: 0 });
+      expect(markSpy).toHaveBeenCalledWith("late-enable:start", { startTime: 0 });
     });
   });
 
@@ -181,9 +185,9 @@ describe("Performance instrumentation", () => {
       const result = perfModule.measure("block", () => 42);
 
       expect(result).toBe(42);
-      expect(markSpy).toHaveBeenCalledWith("block-start", { startTime: 200 });
-      expect(markSpy).toHaveBeenCalledWith("block-end", { startTime: 210 });
-      expect(measureSpy).toHaveBeenCalledWith("block", "block-start", "block-end");
+      expect(markSpy).toHaveBeenCalledWith("block:start", { startTime: 200 });
+      expect(markSpy).toHaveBeenCalledWith("block:end", { startTime: 210 });
+      expect(measureSpy).toHaveBeenCalledWith("block", "block:start", "block:end");
     });
 
     it("does not record a timing entry when the function throws", () => {
@@ -198,8 +202,67 @@ describe("Performance instrumentation", () => {
         }),
       ).toThrow(error);
 
-      // The throw prevents recordEntry from being called, so no flush is scheduled
+      // The throw prevents recordEntry from being called — no marks or measures leak
       expect(measureSpy).not.toHaveBeenCalled();
+      const markCalls = markSpy.mock.calls.map((c: unknown[]) => c[0]);
+      expect(markCalls).not.toContain("throws:start");
+      expect(markCalls).not.toContain("throws:end");
+    });
+  });
+
+  describe("poison", () => {
+    it("creates a poison mark for the given name", () => {
+      perfModule.poison("myFunc");
+
+      expect(markSpy).toHaveBeenCalledWith("myFunc:poison");
+    });
+
+    it("works regardless of enabled state", () => {
+      // Do not call enableInstrumentation — poison should work even when disabled
+      perfModule.poison("myFunc");
+
+      expect(markSpy).toHaveBeenCalledWith("myFunc:poison");
+    });
+  });
+
+  describe("exportPerformanceEntries", () => {
+    it("returns an empty list when no entries exist", () => {
+      const result = perfModule.exportPerformanceEntries("myFunc");
+
+      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc:poison", "mark");
+      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc", "measure");
+      expect(result).toEqual([]);
+    });
+
+    it("returns measures filtered by name", () => {
+      const mockEntries = [
+        { name: "myFunc", startTime: 0, duration: 5 },
+      ] as unknown as PerformanceEntryList;
+      getEntriesByNameSpy.mockImplementation((name: string, type?: string) => {
+        if (name === "myFunc" && type === "measure") {
+          return mockEntries;
+        }
+        return [];
+      });
+
+      const result = perfModule.exportPerformanceEntries("myFunc");
+
+      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc:poison", "mark");
+      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc", "measure");
+      expect(result).toBe(mockEntries);
+    });
+
+    it("throws if the measurement has been poisoned", () => {
+      getEntriesByNameSpy.mockImplementation((name: string, type?: string) => {
+        if (name === "myFunc:poison" && type === "mark") {
+          return [{ name: "myFunc:poison" }];
+        }
+        return [];
+      });
+
+      expect(() => perfModule.exportPerformanceEntries("myFunc")).toThrow(
+        'Measurement "myFunc" has been poisoned',
+      );
     });
   });
 
@@ -307,20 +370,6 @@ describe("Performance instrumentation", () => {
       flushCallbacks[0]({} as IdleDeadline);
 
       expect(flushCallbacks.length).toBeGreaterThan(1);
-    });
-  });
-
-  describe("exportPerformanceEntries", () => {
-    it("delegates to performance.getEntriesByType", () => {
-      const mockEntries = [
-        { name: "test", startTime: 0, duration: 5 },
-      ] as unknown as PerformanceEntryList;
-      getEntriesSpy.mockReturnValue(mockEntries);
-
-      const result = perfModule.exportPerformanceEntries();
-
-      expect(getEntriesSpy).toHaveBeenCalledWith("measure");
-      expect(result).toBe(mockEntries);
     });
   });
 

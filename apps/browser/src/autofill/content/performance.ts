@@ -6,6 +6,41 @@ let enabled = false;
 const BUFFER_SIZE = 128;
 const BUFFER_MASK = BUFFER_SIZE - 1;
 
+// Mark and measure names must remain stable — they are part of the
+// extraction API and are visible in browser developer tools.
+interface PerfNames {
+  measure: string;
+  start: string;
+  end: string;
+  poison: string;
+}
+
+const namesCache: Record<string, PerfNames> = {};
+let namesCacheSize = 0;
+const NAMES_CACHE_WARN_THRESHOLD = 64;
+
+function resolveNames(name: string): PerfNames {
+  let names = namesCache[name];
+  if (!names) {
+    names = {
+      measure: name,
+      start: name + ":start",
+      end: name + ":end",
+      poison: name + ":poison",
+    };
+    namesCache[name] = names;
+    namesCacheSize++;
+    if (namesCacheSize === NAMES_CACHE_WARN_THRESHOLD) {
+      // eslint-disable-next-line no-console -- this is running in a content-script; `LogService` is unavailable
+      console.warn(
+        `[perf] ${NAMES_CACHE_WARN_THRESHOLD} unique measurement names registered. ` +
+          "This cache is not bounded — ensure names are static, not dynamically generated.",
+      );
+    }
+  }
+  return names;
+}
+
 interface PerfSlot {
   name: string;
   start: number;
@@ -49,12 +84,11 @@ function flushBuffer(): void {
 
   while (readHead < currentWriteHead) {
     const slot = buffer[readHead & BUFFER_MASK];
-    const startMarkName = slot.name + "-start";
-    const endMarkName = slot.name + "-end";
+    const names = resolveNames(slot.name);
 
-    performance.mark(startMarkName, { startTime: slot.start });
-    performance.mark(endMarkName, { startTime: slot.end });
-    performance.measure(slot.name, startMarkName, endMarkName);
+    performance.mark(names.start, { startTime: slot.start });
+    performance.mark(names.end, { startTime: slot.end });
+    performance.measure(names.measure, names.start, names.end);
 
     readHead++;
   }
@@ -63,6 +97,7 @@ function flushBuffer(): void {
 
   if (writeHead > currentWriteHead) {
     pendingFlush = true;
+    // the polyfill defined in ../utils is not available in content scripts
     if ("requestIdleCallback" in globalThis) {
       globalThis.requestIdleCallback(flushBuffer);
     } else {
@@ -141,9 +176,28 @@ export function measure<T>(name: string, fn: () => T): T {
 }
 
 /**
- * Returns all performance measure entries recorded by the instrumentation.
- * Delegates to the standard `performance.getEntriesByType("measure")` API.
+ * Marks a measurement as poisoned. Use when an unexpected error or external
+ * factor has compromised the timing data, making it unreliable.
+ * {@link exportPerformanceEntries} will throw if it encounters a poisoned name.
+ *
+ * @param name - The measurement name to poison.
  */
-export function exportPerformanceEntries(): PerformanceEntryList {
-  return performance.getEntriesByType("measure");
+export function poison(name: string): void {
+  const names = resolveNames(name);
+  performance.mark(names.poison);
+}
+
+/**
+ * Returns all performance measure entries for the given name.
+ * Throws if the measurement has been poisoned via {@link poison}.
+ *
+ * @param name - The measurement name to export.
+ * @throws If a `${name}:poison` mark exists in the timeline.
+ */
+export function exportPerformanceEntries(name: string): PerformanceEntryList {
+  const names = resolveNames(name);
+  if (performance.getEntriesByName(names.poison, "mark").length > 0) {
+    throw new Error(`Measurement "${name}" has been poisoned`);
+  }
+  return performance.getEntriesByName(names.measure, "measure");
 }
