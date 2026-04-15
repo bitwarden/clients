@@ -6,13 +6,11 @@ set -euo pipefail
 # in CI.
 #
 # NOTE: The cargo tools installed in this script, are installed to the default location
-# (user's $HOME dir). If you prefer another location, please install the vesrions
-# specified below, and ensure they are in your $PATH.
+# (user's $HOME dir). If you prefer another location, please install the versions
+# specified in apps/desktop/desktop_native/cargo-tool-versions, and ensure they are in your $PATH.
 
-
-CARGO_DENY_VERSION="0.18.6"
-CARGO_SORT_VERSION="2.0.2"
-CARGO_UDEPS_VERSION="0.1.57"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VERSIONS_FILE="${SCRIPT_DIR}/../apps/desktop/desktop_native/cargo-tool-versions"
 
 # Ensures the active toolchain is installed, and that nightly is installed
 # for the cargo tools
@@ -65,6 +63,6 @@ maybe_install_cargo_tool() {
 
 toolchain_is_installed
 
-maybe_install_cargo_tool cargo-deny "${CARGO_DENY_VERSION}"
-maybe_install_cargo_tool cargo-sort "${CARGO_SORT_VERSION}"
-maybe_install_cargo_tool cargo-udeps "${CARGO_UDEPS_VERSION}"
+while IFS='=' read -r tool version; do
+  maybe_install_cargo_tool "$tool" "$version"
+done < "${VERSIONS_FILE}"
