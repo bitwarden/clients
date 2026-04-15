@@ -225,6 +225,7 @@ describe("WebVaultExtensionPromptService", () => {
 
       const exactDate = new Date();
       exactDate.setDate(exactDate.getDate() - 30); // Exactly 30 days old
+      exactDate.setHours(0, 0, 0, 0); // Set to start of day to avoid edge case with time
       activeAccountSubject.next({ id: mockUserId, creationDate: exactDate });
 
       const result = await service["profileIsWithinThresholds"]();

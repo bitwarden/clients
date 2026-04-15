@@ -1,0 +1,78 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./progress-bar.stories";
+
+<Meta of={stories} />
+
+```ts
+import { ProgressBarComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Determinate loading state
+
+A determinate state is when the system is working to complete an action, and the load duration can
+be accurately predicted. The progress bar communicates that a process is ongoing and provides
+context for how long it will take. For loading states we we can not accurately predict a duration,
+use a Spinner component.
+
+## Usage
+
+Use progress bars for longer-running tasks where showing progress helps users stay oriented and
+confident, such as uploads, downloads, data processing, or report generation. When appropriate, pair
+the progress bar with descriptive text or a percentage to clarify what the system is doing and what
+the progress represents.
+
+Avoid using the progress bar for:
+
+- Indeterminate loading states (use a Spinner instead)
+- Very short actions where progress feedback adds unnecessary friction
+- Multiple competing progress indicators within the same view
+
+## All Variants
+
+<Canvas of={stories.AllVariants} />
+
+## With Label and Helper Hints (Start and End)
+
+Pass in a label with the `label` slot. Always display a label to provide a text based description of
+what the indicator is measuring. This allows those who may not be familiar with the pattern to be
+able to read and digest the information. It also allows assistive technology to accurately describe
+the indicator to those who may be unable to see part or all of the indicator. Helper hints may be
+passed in with the `start` and `end` slots.
+
+<Canvas of={stories.WithLabelAndHelperHint} />
+
+## Start Hint
+
+When measuring something other than progress, such as password strength, pass in a `bit-hint` to the
+`start` slot that fits the context of the implementation. If nothing is passed into the `start`
+slot, it will default to `[value]% complete`. Set `hideStartHint` to `true` in order to omit
+displaying any value.
+
+<Canvas of={stories.StartHint} />
+
+### Strength indicator styles
+
+For a strength indicator use the following variants:
+
+- **Weak:** `danger`
+- **Weak2:** `warning`
+- **Good:** `primary`
+- **Strong:** `success`
+
+## Content Guidelines
+
+- In upload scenarios, file size is placed at the end of the bar. You don’t need to spell out the
+  size labels; write as MB or GB.
+
+## Accessibility
+
+In the case of a password strength indicator; `aria-describedby` is used on the password field and
+points to the `id` of the progress bar. This results in the screen reader reading the password
+strength to the user after they finish typing.
