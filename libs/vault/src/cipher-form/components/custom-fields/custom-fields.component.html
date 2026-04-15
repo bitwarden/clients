@@ -99,12 +99,12 @@
         ></button>
 
         <button
+          role="application"
           type="button"
           bitIconButton="bwi-drag-and-drop"
           class="tw-self-center tw-mt-2"
           cdkDragHandle
           [label]="'reorderToggleButton' | i18n: field.value.name"
-          [attr.aria-description]="'reorderAriaDescription' | i18n"
           (keydown)="handleKeyDown($event, field.value.name, i)"
           data-testid="reorder-toggle-button"
           [disabled]="parentFormDisabled"
