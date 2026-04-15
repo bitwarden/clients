@@ -3,7 +3,9 @@
     <legend class="tw-flex tw-gap-0.5 tw-items-center tw-mb-2 tw-text-sm/5 tw-font-medium">
       <ng-content select="bit-label"></ng-content>
       @if (required()) {
-        <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
+        <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]" aria-hidden="true"
+          >*</sup
+        >
         <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
       }
     </legend>
