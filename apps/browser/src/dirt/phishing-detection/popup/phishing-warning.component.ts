@@ -4,7 +4,6 @@ import { ActivatedRoute, RouterModule } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -51,26 +50,44 @@ export class PhishingWarning {
   private messageSender = inject(MessageSender);
 
   private phishingUrl$ = this.activatedRoute.queryParamMap.pipe(
-    map((params) => params.get("phishingUrl") || ""),
+    map((params) => {
+      const encoded = params.get("phishingUrl");
+      if (!encoded) {
+        return "";
+      }
+      try {
+        return decodeURIComponent(encoded);
+      } catch {
+        return encoded;
+      }
+    }),
+  );
+  private tabId$ = this.activatedRoute.queryParamMap.pipe(
+    map((params) => {
+      const tabIdParam = params.get("tabId");
+      if (!tabIdParam) {
+        return undefined;
+      }
+      const parsed = parseInt(tabIdParam, 10);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    }),
   );
   protected phishingHostname$ = this.phishingUrl$.pipe(map((url) => new URL(url).hostname));
 
   async closeTab() {
-    const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, {
-      tabId,
-    });
-  }
-  async continueAnyway() {
-    const url = await firstValueFrom(this.phishingUrl$);
-    const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, {
-      tabId,
-      url,
-    });
+    const tabId = await firstValueFrom(this.tabId$);
+    if (tabId === undefined) {
+      return;
+    }
+    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, { tabId });
   }
 
-  private async getTabId() {
-    return BrowserApi.getCurrentTab()?.then((tab) => tab.id);
+  async continueAnyway() {
+    const url = await firstValueFrom(this.phishingUrl$);
+    const tabId = await firstValueFrom(this.tabId$);
+    if (tabId === undefined) {
+      return;
+    }
+    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, { tabId, url });
   }
 }

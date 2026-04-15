@@ -93,7 +93,7 @@ export class PhishingDetectionService {
 
         const phishingWarningPage = new URL(
           BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
-            `?phishingUrl=${url.toString()}`,
+            `?phishingUrl=${encodeURIComponent(url.toString())}&tabId=${tabId}`,
         );
         await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
       }),
