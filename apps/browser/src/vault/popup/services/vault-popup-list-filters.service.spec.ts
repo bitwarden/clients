@@ -195,6 +195,13 @@ describe("VaultPopupListFiltersService", () => {
       });
     });
 
+    it("excludes BankAccount cipher type when the feature flag is disabled", (done) => {
+      service.cipherTypes$.subscribe((cipherTypes) => {
+        expect(cipherTypes.map((c) => c.value)).not.toContain(CipherType.BankAccount);
+        done();
+      });
+    });
+
     it("includes BankAccount cipher type when the feature flag is enabled", (done) => {
       (configService.getFeatureFlag$ as jest.Mock).mockReturnValueOnce(new BehaviorSubject(true));
       const { service: flagEnabledService } = createSeededVaultPopupListFiltersService(

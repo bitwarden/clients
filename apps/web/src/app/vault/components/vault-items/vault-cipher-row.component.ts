@@ -329,14 +329,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  protected get hasVisibleBankAccountOptions(): boolean {
-    return (
-      this.isBankAccountCipher &&
-      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "accountNumber") ||
-        CipherViewLikeUtils.hasCopyableValue(this.cipher, "routingNumber"))
-    );
-  }
-
   protected get isSecureNoteCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
@@ -365,7 +357,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
       this.hasVisibleLoginOptions ||
       this.hasVisibleCardOptions ||
       this.hasVisibleIdentityOptions ||
-      this.hasVisibleBankAccountOptions ||
       this.hasVisibleSecureNoteOptions ||
       this.hasBankAccountOptions
     );

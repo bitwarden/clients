@@ -593,10 +593,10 @@ export class GetCommand extends DownloadCommand {
         template = SecureNoteExport.template();
         break;
       case "item.bankaccount": {
-        const bankAccountEnabled = await firstValueFrom(
+        const newItemTypesEnabled = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
         );
-        if (!bankAccountEnabled) {
+        if (!newItemTypesEnabled) {
           return Response.badRequest("Bank account item type is not available.");
         }
         template = BankAccountExport.template();
