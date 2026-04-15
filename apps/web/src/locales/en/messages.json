@@ -1416,6 +1416,18 @@
   "deleteAttachment": {
     "message": "Delete attachment"
   },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Download Attachment"
+  },
   "deleteItemConfirmation": {
     "message": "Do you really want to send to the trash?"
   },
