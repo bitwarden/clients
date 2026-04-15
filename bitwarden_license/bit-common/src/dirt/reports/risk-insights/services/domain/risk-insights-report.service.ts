@@ -1,4 +1,4 @@
-import { catchError, EMPTY, from, map, Observable, of, switchMap, throwError } from "rxjs";
+import { catchError, from, map, Observable, of, switchMap, throwError } from "rxjs";
 
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
@@ -297,9 +297,6 @@ export class RiskInsightsReportService {
             })),
           ),
       ),
-      catchError((error: unknown) => {
-        return EMPTY;
-      }),
       map((result) => {
         if (!isSaveRiskInsightsReportResponse(result.response)) {
           throw new Error("Invalid response from API");
