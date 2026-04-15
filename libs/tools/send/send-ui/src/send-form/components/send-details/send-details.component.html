@@ -78,12 +78,7 @@
     @if (sendDetailsForm.get("authType").value === AuthType.Password) {
       <bit-form-field disableMargin>
         <bit-label>{{ (passwordRemoved ? "newPassword" : "password") | i18n }}</bit-label>
-        <input
-          bitInput
-          type="password"
-          formControlName="password"
-          [readonly]="!editing() || hasPassword"
-        />
+        <input bitInput type="password" formControlName="password" [readonly]="!editing()" />
         <div bitSuffix ngProjectAs="[bitSuffix]" class="tw-flex tw-items-center">
           @if (!hasPassword) {
             <button
