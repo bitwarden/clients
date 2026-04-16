@@ -36,36 +36,19 @@ The data flows through three stages, each with a different performance budget:
 
 ### Stage 1: Capture (hot path)
 
-Two `performance.now()` calls bracket the measured code. The resulting timestamps (a name, a start time, and an end time) are written to a preallocated slot in a circular buffer.
-
-This stage is allowed to:
-
-- Read `performance.now()` (a single native call, returns a float)
-- Write three properties on an existing object (two numbers and a string pointer)
-- Increment a counter
-
-This stage must not:
-
-- Allocate any objects (no `new`, no object literals, no array operations)
-- Call any Web API other than `performance.now()`
-- Perform string concatenation or template literal evaluation
-- Touch the DOM
+Records a name and two timestamps (start and end) into a preallocated circular buffer. This is the only stage that runs during performance-critical code — its budget is two `performance.now()` reads and a buffer write. No objects are allocated, no Web APIs are called, and no strings are built.
 
 ### Stage 2: Flush (idle time)
 
-An idle callback reads accumulated buffer entries and converts them into standard `performance.mark()` and `performance.measure()` entries. This is where the string concatenation for mark names happens, where the `{ startTime }` options objects are created, and where the Web API calls to `performance.mark()` and `performance.measure()` are made.
-
-This stage runs during `requestIdleCallback` (with a `setTimeout` fallback). It has no performance budget constraint — the browser has indicated it's idle and has time to spare.
+Drains the buffer and materializes each entry as a pair of `performance.mark` entries and a `performance.measure` entry in the browser's Performance Timeline. Runs during idle time (`requestIdleCallback`, with a `setTimeout` fallback), so it has no performance budget constraint.
 
 ### Stage 3: Extraction (on demand)
 
-`exportPerformanceEntries(name)` calls `performance.getEntriesByName(name, "measure")` to return measures for a specific instrumented function. The underlying `performance.getEntriesByType("measure")` API remains available for consumers who need all measures. Extraction runs on demand, outside any hot path.
+Retrieves measure entries by name from the Performance Timeline. If the name has been poisoned (see [Poison mechanism](#poison-mechanism)), extraction throws rather than returning unreliable data. Runs on demand, outside any hot path.
 
 ### Name stability
 
 Each stage produces entries with structured names: for a measure called `"foo"`, the marks are `foo:start`, `foo:end`, and (if poisoned) `foo:poison`. These names are part of the public contract — they are visible in browser developer tools, consumed by `exportPerformanceEntries`, and relied upon by test infrastructure. Changing the suffix convention (`:start`, `:end`, `:poison`) is a breaking change.
-
-Mark and measure name strings are cached per measurement name (via `resolveNames`) so that string concatenation happens at most once per unique name, not on every flush iteration.
 
 ### Privacy
 
