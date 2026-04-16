@@ -35,6 +35,9 @@ export class SubscriptionStatusComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) organizationSubscriptionResponse: OrganizationSubscriptionResponse;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() exempt = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() reinstatementRequested = new EventEmitter<void>();
 
@@ -78,6 +81,26 @@ export class SubscriptionStatusComponent {
     const subscriptionExpiredDateLabel = this.i18nService.t("subscriptionExpired");
     const cancellationDateLabel = this.i18nService.t("cancellationDate");
 
+    const result = this.getStatusData(
+      defaultStatusLabel,
+      nextChargeDateLabel,
+      subscriptionExpiredDateLabel,
+      cancellationDateLabel,
+    );
+
+    if (this.exempt && result?.callout) {
+      return { ...result, callout: undefined };
+    }
+
+    return result;
+  }
+
+  private getStatusData(
+    defaultStatusLabel: string,
+    nextChargeDateLabel: string,
+    subscriptionExpiredDateLabel: string,
+    cancellationDateLabel: string,
+  ): ComponentData {
     switch (this.status) {
       case "free": {
         return {};

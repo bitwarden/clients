@@ -111,4 +111,50 @@ describe("SubscriptionStatusComponent", () => {
       expect(component.status).toBe("incomplete_expired");
     });
   });
+
+  describe("data getter with exempt organization", () => {
+    it("suppresses callout when organization is exempt and status is past_due", () => {
+      component.exempt = true;
+      component.organizationSubscriptionResponse = makeOrgResponse(
+        makeSubscription({ status: "past_due" }),
+      );
+      expect(component.data.callout).toBeUndefined();
+      expect(component.data.status).toBeDefined();
+    });
+
+    it("suppresses callout when organization is exempt and status is unpaid", () => {
+      component.exempt = true;
+      component.organizationSubscriptionResponse = makeOrgResponse(
+        makeSubscription({ status: "unpaid" }),
+      );
+      expect(component.data.callout).toBeUndefined();
+      expect(component.data.status).toBeDefined();
+    });
+
+    it("suppresses callout when organization is exempt and status is pending_cancellation", () => {
+      component.exempt = true;
+      component.organizationSubscriptionResponse = makeOrgResponse(
+        makeSubscription({ cancelAtEndDate: true }),
+      );
+      expect(component.data.callout).toBeUndefined();
+      expect(component.data.status).toBeDefined();
+    });
+
+    it("suppresses callout when organization is exempt and status is canceled", () => {
+      component.exempt = true;
+      component.organizationSubscriptionResponse = makeOrgResponse(
+        makeSubscription({ status: "canceled" }),
+      );
+      expect(component.data.callout).toBeUndefined();
+      expect(component.data.status).toBeDefined();
+    });
+
+    it("does not suppress callout when organization is not exempt", () => {
+      component.exempt = false;
+      component.organizationSubscriptionResponse = makeOrgResponse(
+        makeSubscription({ status: "past_due" }),
+      );
+      expect(component.data.callout).toBeDefined();
+    });
+  });
 });

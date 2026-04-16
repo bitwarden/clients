@@ -232,6 +232,19 @@ describe("OrganizationWarningsService", () => {
       });
     });
 
+    it("should return null when organization is exempt", (done) => {
+      const exemptOrganization = {
+        ...organization,
+        exemptFromBillingAutomation: true,
+      } as Organization;
+
+      service.getResellerRenewalWarning$(exemptOrganization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
     it("should return upcoming warning with correct type and message", (done) => {
       const renewalDate = new Date(2024, 11, 31);
       const warning = {
