@@ -348,6 +348,56 @@ describe("OrganizationBillingService", () => {
         expect(syncService.fullSync).toHaveBeenCalledWith(true);
         expect(result).toBe(mockResponse);
       });
+
+      it("includes coupons in the request when coupons are provided", async () => {
+        const subscriptionWithCoupons = {
+          ...mockSubscription,
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: { postalCode: "12345", country: "US" },
+          } as PaymentInformation,
+          coupons: ["coupon-abc", "coupon-xyz"],
+        } as SubscriptionInformation;
+
+        await sut.purchaseSubscription(subscriptionWithCoupons, mockUserId);
+
+        expect(organizationApiService.create).toHaveBeenCalledWith(
+          expect.objectContaining({ coupons: ["coupon-abc", "coupon-xyz"] }),
+        );
+      });
+
+      it("does not include coupons in the request when coupons are not provided", async () => {
+        const subscriptionWithoutCoupons = {
+          ...mockSubscription,
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: { postalCode: "12345", country: "US" },
+          } as PaymentInformation,
+        } as SubscriptionInformation;
+
+        await sut.purchaseSubscription(subscriptionWithoutCoupons, mockUserId);
+
+        expect(organizationApiService.create).toHaveBeenCalledWith(
+          expect.not.objectContaining({ coupons: expect.anything() }),
+        );
+      });
+
+      it("does not include coupons in the request when an empty coupons array is provided", async () => {
+        const subscriptionWithEmptyCoupons = {
+          ...mockSubscription,
+          payment: {
+            paymentMethod: ["test-token", PaymentMethodType.Card],
+            billing: { postalCode: "12345", country: "US" },
+          } as PaymentInformation,
+          coupons: [],
+        } as SubscriptionInformation;
+
+        await sut.purchaseSubscription(subscriptionWithEmptyCoupons, mockUserId);
+
+        expect(organizationApiService.create).toHaveBeenCalledWith(
+          expect.not.objectContaining({ coupons: expect.anything() }),
+        );
+      });
     });
 
     describe("purchaseSubscriptionNoPaymentMethod", () => {
