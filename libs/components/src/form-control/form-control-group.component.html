@@ -9,15 +9,15 @@
         <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
       }
     </legend>
-    <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+    <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
   </fieldset>
 }
 
 @if (!label()) {
-  <ng-container *ngTemplateOutlet="contentTpl"></ng-container>
+  <ng-container *ngTemplateOutlet="contentTemplate"></ng-container>
 }
 
-<ng-template #contentTpl>
+<ng-template #contentTemplate>
   <div class="tw-flex tw-flex-col tw-gap-2">
     <div [class]="containerClass()">
       <ng-content></ng-content>
