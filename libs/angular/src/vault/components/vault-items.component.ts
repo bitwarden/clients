@@ -173,13 +173,19 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             const restrictedTypeFilter = (cipher: CipherViewLike) =>
               !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
 
-            const searchFilteredCiphers = await this.searchService.searchCiphers(
+            let filteredCiphers = await this.searchService.searchCiphers(
               userId,
               null,
               searchText,
               allCiphers,
             );
-            return searchFilteredCiphers.filter(restrictedTypeFilter).filter(filter);
+            filteredCiphers = filteredCiphers.filter(restrictedTypeFilter);
+            // Filter is initially null
+            if (filter != null) {
+              filteredCiphers = filteredCiphers.filter(filter);
+            }
+            
+            return filteredCiphers;
           },
         ),
         takeUntilDestroyed(),

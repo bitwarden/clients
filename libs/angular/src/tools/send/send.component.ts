@@ -92,7 +92,7 @@ export class SendComponent implements OnInit, OnDestroy {
 
     this._searchText$
       .pipe(
-        switchMap(([searchText]) => from(this.searchService.isSearchable(searchText))),
+        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {

@@ -159,7 +159,7 @@ export class VaultPopupItemsService {
    * @private
    */
   private _hasSearchText = this.searchText$.pipe(
-    switchMap(([searchText]) => {
+    switchMap((searchText) => {
       return this.searchService.isSearchable(searchText);
     }),
   );
