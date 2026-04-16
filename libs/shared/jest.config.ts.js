@@ -1,4 +1,6 @@
 /* eslint-env node */
+/* eslint-disable @typescript-eslint/no-require-imports */
+const path = require("path");
 
 /** @type {import('jest').Config} */
 module.exports = {
@@ -9,7 +11,7 @@ module.exports = {
   // Also anecdotally improves performance when run locally
   maxWorkers: 3,
 
-  setupFiles: ["<rootDir>/../../libs/shared/polyfill-node-globals.ts"],
+  setupFiles: [path.resolve(__dirname, "polyfill-node-globals.ts")],
 
   transform: {
     "^.+\\.tsx?$": [
@@ -23,7 +25,7 @@ module.exports = {
         // See https://bitwarden.atlassian.net/browse/EC-497 for more info
         isolatedModules: true,
         astTransformers: {
-          before: ["<rootDir>/../../libs/shared/es2020-transformer.ts"],
+          before: [path.resolve(__dirname, "es2020-transformer.ts")],
         },
       },
     ],
