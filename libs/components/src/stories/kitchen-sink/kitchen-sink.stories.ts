@@ -78,6 +78,7 @@ export default {
               no: "No",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
+              more: "More",
             });
           },
         },
