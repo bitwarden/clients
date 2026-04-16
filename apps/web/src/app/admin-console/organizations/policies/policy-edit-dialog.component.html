@@ -28,7 +28,7 @@
     <button bitButton buttonType="primary" [disabled]="saveDisabled()" bitFormButton type="submit">
       {{ "save" | i18n }}
     </button>
-    <button bitButton buttonType="secondary" bitDialogClose type="button">
+    <button bitButton buttonType="secondary" type="button" (click)="cancel()">
       {{ "cancel" | i18n }}
     </button>
   </ng-container>
