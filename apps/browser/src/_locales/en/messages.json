@@ -6154,6 +6154,15 @@
   "sessionTimeoutSuppressedByConnectedDevice": {
     "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Upgrade"
   },
