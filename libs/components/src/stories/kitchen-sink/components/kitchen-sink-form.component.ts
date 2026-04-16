@@ -30,6 +30,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           multiSelectLoading: "Retrieving options...",
           multiSelectNotFound: "No items found",
           multiSelectPlaceholder: "-- Type to Filter --",
+          percentageCompleted: (p) => `${p}% complete`,
           required: "required",
           selectPlaceholder: "-- Select --",
           toggleVisibility: "Toggle visibility",
@@ -40,7 +41,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
   template: `
     <form [formGroup]="formObj" [bitSubmit]="submit">
       <div class="tw-mb-6">
-        <bit-progress [barWidth]="50"></bit-progress>
+        <bit-progress-bar [value]="50" />
       </div>
 
       <bit-form-field>

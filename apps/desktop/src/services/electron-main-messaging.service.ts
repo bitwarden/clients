@@ -1,18 +1,22 @@
 import * as path from "path";
 
-import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification, shell } from "electron";
+import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification } from "electron";
 
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender, CommandDefinition } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Using implementation helper in implementation
 import { getCommand } from "@bitwarden/common/platform/messaging/internal";
-import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { WindowMain } from "../main/window.main";
+import { SafeShell } from "../platform/main/safe-shell.main";
 import { RendererMenuItem } from "../utils";
 
 export class ElectronMainMessagingService implements MessageSender {
-  constructor(private windowMain: WindowMain) {
+  constructor(
+    private windowMain: WindowMain,
+    private shell: SafeShell,
+  ) {
     ipcMain.handle("appVersion", () => {
       return app.getVersion();
     });
@@ -68,11 +72,7 @@ export class ElectronMainMessagingService implements MessageSender {
     });
 
     ipcMain.handle("launchUri", async (event, uri) => {
-      if (SafeUrls.canLaunch(uri)) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        shell.openExternal(uri);
-      }
+      void this.shell.openExternal(uri, UrlType.CipherUri);
     });
 
     nativeTheme.on("updated", () => {

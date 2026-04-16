@@ -1,5 +1,6 @@
 import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
+import { map } from "rxjs/operators";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -17,6 +18,7 @@ import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
+  Environment,
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -39,6 +41,8 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { GeneratedCredential, GeneratorHistoryService } from "@bitwarden/generator-history";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
@@ -76,6 +80,7 @@ import {
   FocusedFieldData,
   InlineMenuPosition,
   PageDetailsForTab,
+  PasswordGenerateRequestSource,
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
 } from "./abstractions/overlay.background";
@@ -83,8 +88,6 @@ import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {
   const generatedPassword = "generated-password";
-  const generatedPasswordCallbackMock = jest.fn().mockResolvedValue(generatedPassword);
-  const addPasswordCallbackMock = jest.fn();
   const mockUserId = Utils.newGuid() as UserId;
   const sendResponse = jest.fn();
   let accountService: FakeAccountService;
@@ -111,7 +114,11 @@ describe("OverlayBackground", () => {
   let selectedThemeMock$: BehaviorSubject<ThemeType>;
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   let themeStateService: MockProxy<ThemeStateService>;
+  let enableNotificationAnimationMock$: BehaviorSubject<boolean>;
+  let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
   let totpService: MockProxy<TotpService>;
+  let generatorService: MockProxy<CredentialGeneratorService>;
+  let generatorHistoryService: MockProxy<GeneratorHistoryService>;
   let overlayBackground: OverlayBackground;
   let portKeyForTabSpy: Record<number, string>;
   let pageDetailsForTabSpy: PageDetailsForTab;
@@ -158,10 +165,21 @@ describe("OverlayBackground", () => {
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);
     neverDomainsMock$ = new BehaviorSubject({});
+    const mockEnvironment = mock<Environment>();
+    mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
+    const environmentServiceForDomain = mock<EnvironmentService>();
+    environmentServiceForDomain.environment$ = new BehaviorSubject(mockEnvironment);
+
+    const authServiceForDomain = mock<AuthService>();
+    authServiceForDomain.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
+      environmentServiceForDomain,
+      authServiceForDomain,
     );
     domainSettingsService.showFavicons$ = showFaviconsMock$;
     domainSettingsService.neverDomains$ = neverDomainsMock$;
@@ -169,7 +187,11 @@ describe("OverlayBackground", () => {
     cipherService = mock<CipherService>({
       getAllDecryptedForUrl: jest.fn().mockResolvedValue([]),
     });
+    enableNotificationAnimationMock$ = new BehaviorSubject(true);
+    enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
     autofillService = mock<AutofillService>();
+    autofillService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
+    autofillService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
@@ -198,6 +220,17 @@ describe("OverlayBackground", () => {
     totpService = mock<TotpService>({
       getCode$: jest.fn().mockReturnValue(of(undefined)),
     });
+    generatorService = mock<CredentialGeneratorService>();
+    generatorService.preferredAlgorithm$.mockReturnValue(
+      of({ capabilities: { autogenerate: true } } as any),
+    );
+    generatorService.generate$.mockImplementation(({ on$ }) =>
+      on$.pipe(
+        map((request) => new GeneratedCredential(generatedPassword, "password", new Date())),
+      ),
+    );
+    generatorHistoryService = mock<GeneratorHistoryService>();
+    generatorHistoryService.track.mockResolvedValue(null);
     overlayBackground = new OverlayBackground(
       logService,
       cipherService,
@@ -214,8 +247,8 @@ describe("OverlayBackground", () => {
       themeStateService,
       totpService,
       accountService,
-      generatedPasswordCallbackMock,
-      addPasswordCallbackMock,
+      generatorHistoryService,
+      generatorService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -2845,7 +2878,7 @@ describe("OverlayBackground", () => {
         sendResponse,
       );
 
-      expect(returnValue).toBe(null);
+      expect(returnValue).toBeUndefined();
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
@@ -2878,15 +2911,10 @@ describe("OverlayBackground", () => {
           { command: "closeAutofillInlineMenu", overlayElement: undefined },
           { frameId: 0 },
         );
-        expect(tabSendMessageDataSpy).toBeCalledWith(
-          sender.tab,
-          "addToLockedVaultPendingNotifications",
-          {
-            commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
-            target: "overlay.background",
-          },
-        );
-        expect(openUnlockPopoutSpy).toHaveBeenCalled();
+        expect(openUnlockPopoutSpy).toHaveBeenCalledWith(sender.tab, {
+          commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
+          target: "overlay.background",
+        });
       });
 
       it("opens the inline menu if the user auth status is unlocked", async () => {
@@ -3155,7 +3183,9 @@ describe("OverlayBackground", () => {
     const portKey = "inlineMenuListPort";
 
     beforeEach(async () => {
-      sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+      sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1, url: "https://example.com" }),
+      });
       portKeyForTabSpy[sender.tab.id] = portKey;
       activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
       await initOverlayElementPorts();
@@ -3300,8 +3330,8 @@ describe("OverlayBackground", () => {
       });
 
       it("copies the cipher's totp code to the clipboard after filling", async () => {
-        const cipher1 = mock<CipherView>({ id: "inline-menu-cipher-1" });
-        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-1", cipher1]]);
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
           [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
         ]);
@@ -3371,6 +3401,7 @@ describe("OverlayBackground", () => {
 
           it("aborts all active FIDO2 requests if the subsequent request after the authentication is invalid", async () => {
             jest.spyOn(fido2ActiveRequestManager, "removeActiveRequest");
+            getTabSpy.mockResolvedValue(sender.tab);
 
             sendPortMessage(listMessageConnectorSpy, {
               command: "fillAutofillInlineMenuCipher",
@@ -3384,6 +3415,7 @@ describe("OverlayBackground", () => {
                 statusCode: 401,
               }),
             );
+            await flushPromises();
 
             expect(fido2ActiveRequestManager.removeActiveRequest).toHaveBeenCalled();
           });
@@ -3442,6 +3474,8 @@ describe("OverlayBackground", () => {
         const pageDetails = createAutofillPageDetailsMock({
           fields: [currentPasswordField, newPasswordField, confirmNewPasswordField],
         });
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-2", cipher2]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
           [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
         ]);
@@ -3595,23 +3629,38 @@ describe("OverlayBackground", () => {
 
     describe("refreshGeneratedPassword", () => {
       it("refreshes the generated password", async () => {
-        overlayBackground["generatedPassword"] = "populated";
+        overlayBackground["credential$"].next("populated");
 
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
         await flushPromises();
 
-        expect(generatedPasswordCallbackMock).toHaveBeenCalled();
+        expect(generatorService.generate$).toHaveBeenCalled();
       });
 
       it("sends a message to the list port indicating that the generated password should be updated", async () => {
+        overlayBackground["credential$"].next(generatedPassword);
+
         sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
+
         await flushPromises();
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "updateAutofillInlineMenuGeneratedPassword",
-          generatedPassword,
+          generatedPassword: "generated-password",
           refreshPassword: true,
         });
+      });
+
+      it("adds the refreshed password to generator history", async () => {
+        sendPortMessage(listMessageConnectorSpy, { command: "refreshGeneratedPassword", portKey });
+        await flushPromises();
+
+        expect(generatorHistoryService.track).toHaveBeenCalledWith(
+          mockUserId,
+          generatedPassword,
+          "password",
+          expect.any(Date),
+        );
       });
     });
 
@@ -3629,7 +3678,7 @@ describe("OverlayBackground", () => {
           },
           sender,
         );
-        overlayBackground["generatedPassword"] = generatedPassword;
+        overlayBackground["credential$"].next(generatedPassword);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
           [sender.frameId, createPageDetailMock()],
         ]);
@@ -3637,7 +3686,7 @@ describe("OverlayBackground", () => {
 
       describe("skipping filling the generated password", () => {
         it("skips filling when the password has not been created", () => {
-          overlayBackground["generatedPassword"] = "";
+          overlayBackground["credential$"].next(null);
 
           sendPortMessage(listMessageConnectorSpy, { command: "fillGeneratedPassword", portKey });
 
@@ -3779,12 +3828,52 @@ describe("OverlayBackground", () => {
         inlineMenuFillType: CipherType.Login,
         accountCreationFieldType: InlineMenuAccountCreationFieldType.Password,
       });
-      sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: 1 }),
+        frameId: 0,
+      });
+      sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
 
       await initOverlayElementPorts();
       await flushPromises();
 
-      expect(generatedPasswordCallbackMock).toHaveBeenCalled();
+      expect(generatorService.generate$).toHaveBeenCalled();
+    });
+  });
+
+  describe("credential pipeline history tracking", () => {
+    it("tracks history for InlineMenuInit-sourced credentials", async () => {
+      await flushPromises();
+
+      overlayBackground["requestGeneratedPassword$"].next({
+        source: PasswordGenerateRequestSource.InlineMenuInit,
+        type: "password",
+      } as any);
+      await flushPromises();
+
+      expect(generatorHistoryService.track).toHaveBeenCalledWith(
+        mockUserId,
+        generatedPassword,
+        "password",
+        expect.any(Date),
+      );
+    });
+
+    it("tracks history for InlineMenu-sourced credentials", async () => {
+      await flushPromises();
+
+      overlayBackground["requestGeneratedPassword$"].next({
+        source: PasswordGenerateRequestSource.InlineMenu,
+        type: "password",
+      } as any);
+      await flushPromises();
+
+      expect(generatorHistoryService.track).toHaveBeenCalledWith(
+        mockUserId,
+        generatedPassword,
+        "password",
+        expect.any(Date),
+      );
     });
   });
 
