@@ -8,6 +8,25 @@ use windows::{
 
 use crate::{ErrorKind, WinWebAuthnError};
 
+/// Defines a Rust function to call a webauthn.dll function over FFI based on
+/// the name of the function. Documentation comments will be captured, and the
+/// return type will be wrapped in a WinWebAuthnError that will be returned if
+/// the function cannot be loaded from webauthn.dll.
+///
+/// # Examples
+///
+/// ```ignore
+/// use crate::api::sys::util::webauthn_call;
+///
+/// webauthn_call!("WebAuthNFreeDecodedMakeCredentialRequest" as
+/// /// Frees a decoded make credential request from [webauthn_free_decoded_make_credential_request].
+/// ///
+/// /// # Arguments
+/// /// - `pMakeCredentialRequest`: An pointer to a [WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST] to be freed.
+/// fn webauthn_free_decoded_make_credential_request(
+///     pMakeCredentialRequest: *mut WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST
+/// ) -> ());
+/// ```
 macro_rules! webauthn_call {
     ($symbol:literal as $(#[$attr:meta])* fn $fn_name:ident($($arg:ident: $arg_type:ty),+ $(,)?) -> $result_type:ty) => (
         $(#[$attr])*

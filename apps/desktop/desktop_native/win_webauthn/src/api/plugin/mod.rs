@@ -807,6 +807,7 @@ pub struct PluginMakeCredentialResponse {
     ///Encoded CBOR attestation information
     pub attestation_statement: Option<Vec<u8>>,
 
+    // We are not using these attestation type fields from the original C struct yet.
     // dwAttestationDecodeType: u32,
     /// Following depends on the dwAttestationDecodeType
     ///  WEBAUTHN_ATTESTATION_DECODE_NONE
@@ -896,7 +897,7 @@ impl PluginMakeCredentialResponse {
             None => (std::ptr::null(), 0),
         };
 
-        // Convert extensions (TODO: implement proper extension conversion)
+        // Convert extensions (TODO (PM-30510): implement proper extension conversion)
         let extensions = WEBAUTHN_EXTENSIONS {
             cExtensions: 0,
             pExtensions: std::ptr::null(),
@@ -1038,7 +1039,7 @@ impl<'a> PluginGetAssertionRequest<'a> {
         unsafe { self.as_ref().CredentialList.iter() }
     }
 
-    // TODO: Support extensions
+    // TODO(PM-30510): Support extensions
     // pub fn extensions(&self) -> Options<Extensions> {}
 
     pub fn authenticator_options(&self) -> Option<WebAuthnCtapCborAuthenticatorOptions> {

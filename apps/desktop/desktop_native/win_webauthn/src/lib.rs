@@ -17,6 +17,7 @@ pub use api::webauthn::{
     UserId,
 };
 
+/// Errors that may be returned when interacting with this library.
 #[derive(Debug)]
 pub struct WinWebAuthnError {
     kind: ErrorKind,
@@ -49,10 +50,19 @@ impl WinWebAuthnError {
 
 #[derive(Debug)]
 enum ErrorKind {
+    /// There was an error loading the webauthn.dll library.
     DllLoad,
+
+    /// There was an error parsing or serializing data.
     Serialization,
+
+    /// An invalid argument was passed.
     InvalidArguments,
+
+    /// An unknown error occurred.
     Other,
+
+    /// An internal library error occurred.
     WindowsInternal,
 }
 
