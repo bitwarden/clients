@@ -71,6 +71,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
             // Extract encrypted data from domain model
             const data = domain.toData();
+            const metrics = view.toMetrics();
 
             const reportFile = new File([data.reports], "report-data.json", {
               type: "application/json",
@@ -80,6 +81,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               applicationData: data.applications,
               summaryData: data.summary,
               contentEncryptionKey: data.contentEncryptionKey,
+              metrics: metrics.toAccessReportMetricsData(),
               fileSize: reportFile.size,
             } as AccessReportCreateRequest;
 
@@ -227,8 +229,20 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                       organizationId,
                       apiResponse.id as OrganizationReportId,
                     )
-              ).pipe(switchMap(({ blob }) => from(blob.text())));
+              ).pipe(
+                switchMap(({ blob }) => {
+                  // console.log("loaded report from file ", {
+                  //   text: blob.text(),
+                  //   url: apiResponse.reportFileDownloadUrl,
+                  // });
+
+                  return from(blob.text());
+                }),
+              );
             } else {
+              // console.log("report loaded, from response contents", {
+              //   text: apiResponse.reportData,
+              // });
               reportData$ = of(apiResponse.reportData);
             }
 
