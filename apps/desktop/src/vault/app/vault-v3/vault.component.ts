@@ -594,7 +594,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
     const formConfig = await this.cipherFormConfigService.buildConfig(
-      "edit",
+      cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
