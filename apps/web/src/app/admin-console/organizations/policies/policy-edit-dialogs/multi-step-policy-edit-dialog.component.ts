@@ -12,7 +12,7 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { map, of, startWith, switchMap } from "rxjs";
 
@@ -105,13 +105,6 @@ export class MultiStepPolicyEditDialogComponent
   }
 
   override async ngAfterViewInit() {
-    if (!this.dialogRef.isDrawer) {
-      this.dialogRef.disableClose = true;
-      this.cdkDialogRef.backdropClick
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => void this.cancel());
-    }
-
     const policyResponse = await this.load();
     this.loading.set(false);
 
@@ -132,6 +125,8 @@ export class MultiStepPolicyEditDialogComponent
     // Read step configuration from child component.
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
+
+    this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {
@@ -152,6 +147,7 @@ export class MultiStepPolicyEditDialogComponent
           variant: "success",
           message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
         });
+        this.dialogRef.closePredicate = undefined;
         this.dialogRef.close("saved");
         return;
       }

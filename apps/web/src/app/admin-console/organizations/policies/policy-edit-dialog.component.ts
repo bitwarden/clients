@@ -106,20 +106,52 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return (component?.enabled?.dirty ?? false) || (component?.data?.dirty ?? false);
   }
 
+  private readonly discardDialogOptions = {
+    title: { key: "discardEditsTitle" },
+    content: { key: "discardEditsConfirmation" },
+    type: "danger" as const,
+    hideIcon: true,
+    acceptButtonText: { key: "discardEdits" },
+    cancelButtonText: { key: "backToEditing" },
+  };
+
+  /**
+   * Sets up the discard-edits guard based on whether the dialog is a modal or a drawer.
+   *
+   * For modals: disables the default ESC/backdrop close and subscribes to backdrop clicks manually
+   * so they go through the `cancel()` dirty check.
+   *
+   * For drawers: installs a `closePredicate` on the dialog ref so that any close path — including
+   * the X button, policy switching, and the `canDeactivate` navigation guard — shows the
+   * confirmation dialog before proceeding.
+   *
+   * Call this once the child policy component has been initialised.
+   */
+  protected setupDiscardGuard(): void {
+    if (!this.dialogRef.isDrawer) {
+      this.dialogRef.disableClose = true;
+      this.cdkDialogRef.backdropClick
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => void this.cancel());
+    } else {
+      this.dialogRef.closePredicate = async () => {
+        if (!this.isFormDirty()) {
+          return true;
+        }
+        return this.dialogService.openSimpleDialog(this.discardDialogOptions);
+      };
+    }
+  }
+
   protected readonly cancel = async () => {
     if (!this.isFormDirty()) {
       this.dialogRef.close();
       return;
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "discardEditsTitle" },
-      content: { key: "discardEditsConfirmation" },
-      type: "danger",
-      hideIcon: true,
-      acceptButtonText: { key: "discardEdits" },
-      cancelButtonText: { key: "backToEditing" },
-    });
+    const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
     if (confirmed) {
+      // Clear the predicate first so the drawer's tryClose() doesn't show a second dialog.
+      this.dialogRef.closePredicate = undefined;
       this.dialogRef.close();
     }
   };
@@ -133,13 +165,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   async ngAfterViewInit() {
-    if (!this.dialogRef.isDrawer) {
-      this.dialogRef.disableClose = true;
-      this.cdkDialogRef.backdropClick
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(() => void this.cancel());
-    }
-
     const policyResponse = await this.load();
     this.loading.set(false);
 
@@ -164,6 +189,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     this.cdr.detectChanges();
+    this.setupDiscardGuard();
   }
 
   async load() {
@@ -189,6 +215,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     if ((await policyComponent.confirm?.()) == false) {
+      this.dialogRef.closePredicate = undefined;
       this.dialogRef.close();
       return;
     }
@@ -200,6 +227,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         variant: "success",
         message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
       });
+      this.dialogRef.closePredicate = undefined;
       this.dialogRef.close("saved");
     } catch (error: any) {
       this.toastService.showToast({

@@ -69,6 +69,13 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   abstract componentInstance: C | null;
 
   /**
+   * An optional predicate called before closing. Return `true` to allow the close, `false` to
+   * prevent it (e.g. to ask the user to confirm discarding unsaved changes).
+   * Only honoured by drawer dialogs via `tryClose()`.
+   */
+  closePredicate?: (result?: R) => Promise<boolean>;
+
+  /**
    * Attempts to close the dialog.
    * Returns `true` if the dialog was closed, `false` if it was prevented (e.g. `disableClose`).
    * The default implementation always closes and returns `true`.
@@ -159,6 +166,7 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   private _closed = new Subject<R | undefined>();
   closed = this._closed.asObservable();
   disableClose = false;
+  closePredicate?: (result?: R) => Promise<boolean>;
 
   private _isClosed = false;
 
@@ -171,18 +179,28 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     readonly closeOnNavigation = false,
   ) {}
 
-  tryClose(result?: R, _options?: DialogCloseOptions): Promise<boolean> {
+  async tryClose(result?: R, _options?: DialogCloseOptions): Promise<boolean> {
     if (this._isClosed) {
-      return Promise.resolve(true);
+      return true;
     }
     if (this.disableClose) {
-      return Promise.resolve(false);
+      return false;
+    }
+    if (this.closePredicate) {
+      // Temporarily clear to prevent re-entrancy while the async predicate (e.g. a dialog) runs.
+      const predicate = this.closePredicate;
+      this.closePredicate = undefined;
+      const shouldClose = await predicate(result);
+      if (!shouldClose) {
+        this.closePredicate = predicate; // Restore — drawer stays open.
+        return false;
+      }
     }
     this._isClosed = true;
     this.drawerService.close(this.portal!);
     this._closed.next(result);
     this._closed.complete();
-    return Promise.resolve(true);
+    return true;
   }
 
   close(result?: R, _options?: DialogCloseOptions): void {
