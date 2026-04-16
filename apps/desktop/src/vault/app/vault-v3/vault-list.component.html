@@ -94,6 +94,7 @@
           [canCreateSshKey]="true"
           (cipherAdded)="addCipher($event)"
           (folderAdded)="addFolder()"
+          (onAddItemDialog)="onAddItemDialog.emit()"
           slot="button"
         />
       }
