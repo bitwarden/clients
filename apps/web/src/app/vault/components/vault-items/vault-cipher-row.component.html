@@ -11,7 +11,7 @@
     />
   }
 </td>
-<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit tw-flex">
+<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit [&>*]:tw-flex tw-flex">
   <app-vault-icon [cipher]="cipher"></app-vault-icon>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-pr-7 lg:tw-pr-0">
@@ -74,7 +74,7 @@
   </td>
 }
 @if (showCollections) {
-  <td bitCell [ngClass]="RowHeightClass">
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 xl:tw-table-cell">
     @if (cipher.collectionIds) {
       <app-collection-badge
         [collectionIds]="cipher.collectionIds"
