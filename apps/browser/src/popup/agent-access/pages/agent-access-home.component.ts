@@ -86,13 +86,17 @@ import { CredentialRequestData } from "../../../agent-access/agent-access.types"
                   <span
                     class="tw-inline-flex tw-items-center tw-px-1.5 tw-py-0.5 tw-rounded-full tw-text-xs tw-font-medium tw-bg-warning-600 tw-text-contrast tw-ml-1"
                   >
-                    Request
+                    @if (pendingRequests().get(conn.id)!.count > 1) {
+                      {{ pendingRequests().get(conn.id)!.count }} Requests
+                    } @else {
+                      Request
+                    }
                   </span>
                 }
               </p>
               @if (pendingRequests().has(conn.id)) {
                 <p class="tw-text-warning-600 tw-text-xs tw-mb-0">
-                  {{ pendingRequests().get(conn.id)!.domain }}
+                  {{ pendingRequests().get(conn.id)!.request.domain }}
                 </p>
               } @else {
                 <p class="tw-text-muted tw-text-xs tw-mb-0">
@@ -140,7 +144,9 @@ import { CredentialRequestData } from "../../../agent-access/agent-access.types"
 })
 export class AgentAccessHomeComponent {
   readonly connections = input<{ id: string; name: string; lastConnected: number }[]>([]);
-  readonly pendingRequests = input<Map<string, CredentialRequestData>>(new Map());
+  readonly pendingRequests = input<Map<string, { request: CredentialRequestData; count: number }>>(
+    new Map(),
+  );
 
   readonly addConnection = output();
   readonly renameConnection = output<string>();

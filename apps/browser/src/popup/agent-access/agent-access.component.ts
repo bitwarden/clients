@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnDestroy,
@@ -82,7 +83,7 @@ interface SessionDisplay {
         @case ("home") {
           <app-agent-access-home
             [connections]="connections()"
-            [pendingRequests]="pendingRequests()"
+            [pendingRequests]="pendingByConnection()"
             (addConnection)="startPairing()"
             (renameConnection)="onRenameConnection($event)"
             (removeConnection)="onRemoveConnection($event)"
@@ -158,8 +159,24 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
   // Credential request state
   protected readonly currentRequest = signal<CredentialRequestData | null>(null);
-  // Pending requests by connection ID — survives navigation back to home
+  // Pending requests keyed by SDK requestId — multiple parallel requests from the
+  // same identity must each be tracked independently.
   protected readonly pendingRequests = signal<Map<string, CredentialRequestData>>(new Map());
+
+  // Per-connection view of pending requests for the home page: shows the oldest
+  // pending request per connection, plus the total count for that connection.
+  protected readonly pendingByConnection = computed(() => {
+    const byConnection = new Map<string, { request: CredentialRequestData; count: number }>();
+    for (const request of this.pendingRequests().values()) {
+      const existing = byConnection.get(request.identity);
+      if (existing) {
+        existing.count++;
+      } else {
+        byConnection.set(request.identity, { request, count: 1 });
+      }
+    }
+    return byConnection;
+  });
 
   // Audit log state
   protected readonly auditLogEntries = signal<AuditLogEntry[]>([]);
@@ -327,7 +344,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
     await this.service.respondToCredential(request.requestId, true, filtered, autoApprove);
 
-    this.clearPendingRequest(request.identity);
+    this.clearPendingRequest(request.requestId);
 
     const autoMsg = selection.autoApprove
       ? ` (auto-approving for ${selection.autoApprove.durationMinutes}m)`
@@ -347,7 +364,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     }
 
     await this.service.respondToCredential(request.requestId, false);
-    this.clearPendingRequest(request.identity);
+    this.clearPendingRequest(request.requestId);
 
     if (request.matches.length > 0) {
       this.toastService.showToast({
@@ -360,9 +377,9 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
   }
 
   openPendingRequest(connectionId: string): void {
-    const request = this.pendingRequests().get(connectionId);
-    if (request) {
-      this.currentRequest.set(request);
+    const entry = this.pendingByConnection().get(connectionId);
+    if (entry) {
+      this.currentRequest.set(entry.request);
       this.view.set(AgentAccessView.CredentialRequest);
     }
   }
@@ -616,7 +633,7 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
 
     this.pendingRequests.update((map) => {
       const updated = new Map(map);
-      updated.set(remoteId, requestData);
+      updated.set(pending.requestId, requestData);
       return updated;
     });
 
@@ -635,11 +652,10 @@ export class AgentAccessComponent implements OnInit, OnDestroy {
     this.view.set(AgentAccessView.CredentialRequest);
   }
 
-  private clearPendingRequest(identity: string): void {
-    const remoteId = parseIdentityFingerprint(identity);
+  private clearPendingRequest(requestId: string): void {
     this.pendingRequests.update((map) => {
       const updated = new Map(map);
-      updated.delete(remoteId);
+      updated.delete(requestId);
       return updated;
     });
   }
