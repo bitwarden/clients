@@ -1,12 +1,14 @@
 <label
   class="tw-transition tw-items-start tw-gap-2 tw-select-none tw-mb-0 tw-inline-flex tw-rounded has-[:focus-visible]:tw-ring has-[:focus-visible]:tw-ring-border-focus"
-  [ngClass]="[base.formControl().disabled ? 'tw-cursor-auto' : 'tw-cursor-pointer']"
+  [class.tw-cursor-auto]="base.formControl().disabled"
+  [class.tw-cursor-pointer]="!base.formControl().disabled"
 >
   <ng-content></ng-content>
   <!-- minor padding adjustment for visual alignment -->
   <span
     class="tw-inline-flex tw-flex-col tw-pt-px"
-    [ngClass]="base.formControl().disabled ? 'tw-text-muted' : 'tw-text-main'"
+    [class.tw-text-fg-inactive]="base.formControl().disabled"
+    [class.tw-text-fg-heading]="!base.formControl().disabled"
   >
     <span bitTypography="body2" class="tw-leading-5 tw-font-medium">
       <ng-content select="bit-label"></ng-content>
