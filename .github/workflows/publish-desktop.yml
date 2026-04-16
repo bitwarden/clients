@@ -250,9 +250,10 @@ jobs:
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
+          SNAP_CHANNEL: ${{ inputs.snap_channel }}
         run: |
-          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release ${{ inputs.snap_channel }}
-          snapcraft upload "bitwarden_${_PKG_VERSION}_arm64.snap" --release ${{ inputs.snap_channel }}
+          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release $SNAP_CHANNEL
+          snapcraft upload "bitwarden_${_PKG_VERSION}_arm64.snap" --release $SNAP_CHANNEL
           snapcraft logout
         working-directory: apps/desktop/dist
 
