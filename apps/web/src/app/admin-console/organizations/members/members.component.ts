@@ -46,7 +46,6 @@ import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/membe
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import {
-  CloudBulkReinviteLimit,
   MaxCheckedCount,
   MembersTableDataSource,
   peopleFilter,
@@ -148,13 +147,10 @@ export class MembersComponent {
     () => this.organization()?.canManageUsers ?? false,
   );
 
-  protected readonly bulkReinviteUIEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.BulkReinviteUI),
-  );
-
   protected billingMetadata$: Observable<OrganizationBillingMetadataResponse>;
 
   protected resetPasswordPolicyEnabled$: Observable<boolean>;
+  protected adminResetTwoFactorEnabled$: Observable<boolean>;
 
   // Fixed sizes used for cdkVirtualScroll
   protected rowHeight = 66;
@@ -198,6 +194,10 @@ export class MembersComponent {
             .filter((policy) => policy.type === PolicyType.ResetPassword)
             .find((p) => p.organizationId === organization.id)?.enabled ?? false,
       ),
+    );
+
+    this.adminResetTwoFactorEnabled$ = this.configService.getFeatureFlag$(
+      FeatureFlag.AdminResetTwoFactor,
     );
 
     combineLatest([this.route.queryParams, organization$])
@@ -304,11 +304,13 @@ export class MembersComponent {
     orgUser: OrganizationUserView,
     organization: Organization,
     orgResetPasswordPolicyEnabled: boolean,
+    adminResetTwoFactorEnabled: boolean,
   ): boolean {
     return this.memberActionsService.allowResetPassword(
       orgUser,
       organization,
       orgResetPasswordPolicyEnabled,
+      adminResetTwoFactorEnabled,
     );
   }
 
@@ -332,12 +334,12 @@ export class MembersComponent {
       return;
     }
 
-    const allUserEmails = this.dataSource().data?.map((user) => user.email) ?? [];
+    const allUsers = this.dataSource().data ?? [];
 
     const result = await this.memberDialogManager.openInviteDialog(
       organization,
       billingMetadata,
-      allUserEmails,
+      allUsers,
     );
 
     if (result === MemberDialogResult.Saved) {
@@ -400,22 +402,9 @@ export class MembersComponent {
     }
 
     const allInvitedUsers = users.filter((u) => u.status === OrganizationUserStatusType.Invited);
+    const invitedCount = allInvitedUsers.length;
 
-    // Capture the original count BEFORE enforcing the limit
-    const originalInvitedCount = allInvitedUsers.length;
-
-    // In cloud environments, limit invited users and uncheck the excess
-    let filteredUsers: OrganizationUserView[];
-    if (this.dataSource().isIncreasedBulkLimitEnabled() && !this.bulkReinviteUIEnabled()) {
-      filteredUsers = this.dataSource().limitAndUncheckExcess(
-        allInvitedUsers,
-        CloudBulkReinviteLimit,
-      );
-    } else {
-      filteredUsers = allInvitedUsers;
-    }
-
-    if (filteredUsers.length <= 0) {
+    if (invitedCount <= 0) {
       this.toastService.showToast({
         variant: "error",
         title: this.i18nService.t("errorOccurred"),
@@ -424,43 +413,25 @@ export class MembersComponent {
       return;
     }
 
-    const result = await this.memberActionsService.bulkReinvite(organization, filteredUsers);
+    const result = await this.memberActionsService.bulkReinvite(organization, allInvitedUsers);
 
     if (result.successful.length === 0) {
       this.validationService.showError(result.failed);
     }
 
-    // In cloud environments, show toast instead of dialog
     if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      const selectedCount = originalInvitedCount;
-      const invitedCount = filteredUsers.length;
-
-      // Only show limited toast if feature flag is disabled and limit was applied
-      if (!this.bulkReinviteUIEnabled() && selectedCount > CloudBulkReinviteLimit) {
-        const excludedCount = selectedCount - CloudBulkReinviteLimit;
-        this.toastService.showToast({
-          variant: "success",
-          message: this.i18nService.t(
-            "bulkReinviteLimitedSuccessToast",
-            CloudBulkReinviteLimit.toLocaleString(),
-            selectedCount.toLocaleString(),
-            excludedCount.toLocaleString(),
-          ),
-        });
-      } else {
-        this.toastService.showToast({
-          variant: "success",
-          message:
-            invitedCount === 1
-              ? this.i18nService.t("reinviteSuccessToast")
-              : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
-        });
-      }
+      this.toastService.showToast({
+        variant: "success",
+        message:
+          invitedCount === 1
+            ? this.i18nService.t("reinviteSuccessToast")
+            : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
+      });
     } else {
       // In self-hosted environments, show legacy dialog
       await this.memberDialogManager.openBulkStatusDialog(
         users,
-        filteredUsers,
+        allInvitedUsers,
         Promise.resolve(result.successful),
         this.i18nService.t("bulkReinviteMessage"),
       );

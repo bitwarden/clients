@@ -6,48 +6,48 @@
     >
       @if (allFilters.organizations; as organizations) {
         @if (organizations.length) {
-          <bit-chip-select
+          <bit-chip-filter
             fullWidth
             formControlName="organization"
             placeholderIcon="bwi-vault"
             [placeholderText]="'vault' | i18n"
             [options]="organizations"
           >
-          </bit-chip-select>
+          </bit-chip-filter>
         }
       }
       @if (allFilters.collections; as collections) {
         @if (collections.length) {
-          <bit-chip-select
+          <bit-chip-filter
             fullWidth
             formControlName="collection"
             placeholderIcon="bwi-collection-shared"
             [placeholderText]="'collection' | i18n"
             [options]="collections"
           >
-          </bit-chip-select>
+          </bit-chip-filter>
         }
       }
       @if (allFilters.folders; as folders) {
         @if (folders.length) {
-          <bit-chip-select
+          <bit-chip-filter
             fullWidth
             placeholderIcon="bwi-folder"
             formControlName="folder"
             [placeholderText]="'folder' | i18n"
             [options]="folders"
           >
-          </bit-chip-select>
+          </bit-chip-filter>
         }
       }
-      <bit-chip-select
+      <bit-chip-filter
         formControlName="cipherType"
         fullWidth
         placeholderIcon="bwi-list"
         [placeholderText]="'type' | i18n"
         [options]="cipherTypes$ | async"
       >
-      </bit-chip-select>
+      </bit-chip-filter>
     </form>
   }
 </div>

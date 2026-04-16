@@ -1483,10 +1483,10 @@
     "message": "添付ファイルを保存しました。"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "暗号化を修正"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "このファイルは古い暗号化方法を使用しています。"
   },
   "attachmentUpdated": {
     "message": "Attachment updated"
@@ -1549,7 +1549,7 @@
     "message": "YubiKey、Duo などのプロプライエタリな2段階認証オプション。"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "プレミアム サブスクリプションが終了しました"
   },
   "archivePremiumRestart": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
@@ -2366,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "設定されたマスターパスワードの強度は脆弱です。Bitwarden アカウントを適切に保護するために、強力なマスターパスワード（またはパスフレーズ）を使用すべきです。本当にこのマスターパスワードを使用しますか？"
   },
+  "rotateAccountEncKey": {
+    "message": "アカウントの暗号化キーをローテーションする"
+  },
+  "rotateEncKeyTitle": {
+    "message": "暗号化キーをローテーションする"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "暗号化キーをローテーションしてよろしいですか？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "暗号化キーの更新後は、モバイルアプリやブラウザ拡張機能など現在利用中のすべての Bitwarden アプリで再ログインが必要となります。再ログインしないと(新しい暗号化キーをダウンロードすると)データが破損する可能性があります。自動的にログアウトを試みますが、遅延することがあります。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "保存済みのアカウント制限付きエクスポートは無効になります。"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "暗号化キーのローテーションを行う前に、保管庫内の古い添付ファイルを修正する必要があります。"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "暗号化キーのローテーションによる影響"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "組織ポリシーの要件を満たすためにマスターパスワードが必要です:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2455,6 +2479,9 @@
   },
   "vaultTimeoutAction": {
     "message": "保管庫タイムアウト時のアクション"
+  },
+  "showAtRiskPasswordNotifications": {
+    "message": "リスクの高いパスワードの通知を表示する"
   },
   "lock": {
     "message": "ロック",
@@ -3078,7 +3105,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ 時間",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -4863,7 +4890,7 @@
     "message": "管理コンソール"
   },
   "admin": {
-    "message": "Admin"
+    "message": "管理者"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -4878,7 +4905,7 @@
     "message": "This could impact your organization’s data security. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "リスクについて学ぶ"
   },
   "autoConfirmSetup": {
     "message": "Automatically confirm new users"
@@ -4899,7 +4926,7 @@
     "message": "アカウントのセキュリティ"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "フィッシングブロッカー"
   },
   "enablePhishingDetection": {
     "message": "Phishing detection"
@@ -5020,7 +5047,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "添付ファイルをダウンロード"
   },
   "downloadBitwarden": {
     "message": "Bitwarden をダウンロード"
@@ -5527,7 +5554,7 @@
     "message": "You can customize your unlock and timeout settings to more quickly access your vault."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "PIN のロックを解除"
   },
   "unlockWithBiometricSet": {
     "message": "生体認証でロック解除を設定しました"
@@ -5925,7 +5952,7 @@
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "このページを表示する権限がありません。別のアカウントでログインしてください。"
   },
   "wasmNotSupported": {
     "message": "WebAssembly はお使いのブラウザでサポートされていないか、有効になっていません。WebAssembly は Bitwarden アプリを使用するために必要です。",
@@ -6000,7 +6027,7 @@
     "message": "カード番号"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "エラー: 復号できません"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -6009,10 +6036,10 @@
     "message": "Continue with log in"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "続行しない"
   },
   "domain": {
-    "message": "Domain"
+    "message": "ドメイン"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."

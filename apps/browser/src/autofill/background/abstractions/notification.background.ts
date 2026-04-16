@@ -35,9 +35,13 @@ export type ChangePasswordNotificationData = {
 
 export type UnlockVaultNotificationData = never;
 
+/**
+ * Queue-time data for at-risk password notifications.
+ * Field semantics mirror {@link AtRiskPasswordNotificationParams}.
+ */
 export type AtRiskPasswordNotificationData = {
   organizationName: string;
-  passwordChangeUri?: string;
+  hasPasswordChangeUri: boolean;
 };
 
 // Notification queue message types using generic pattern
@@ -129,6 +133,7 @@ export type NotificationBackgroundExtensionMessageHandlers = {
   }: BackgroundOnMessageHandlerParams) => Promise<CollectionView[]>;
   bgCloseNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgOpenAtRiskPasswords: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgOpenChangePasswordUrl: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
   bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;

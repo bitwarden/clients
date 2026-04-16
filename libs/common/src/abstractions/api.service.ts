@@ -51,30 +51,28 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
+import { EventRequest, EventResponse } from "../dirt/event-logs";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { DomainsResponse } from "../models/response/domains.response";
-import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
+import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
@@ -151,7 +149,6 @@ export abstract class ApiService {
   abstract getUserSubscription(): Promise<SubscriptionResponse>;
   abstract putProfile(request: UpdateProfileRequest): Promise<ProfileResponse>;
   abstract putAvatar(request: UpdateAvatarRequest): Promise<ProfileResponse>;
-  abstract postPrelogin(request: PreloginRequest): Promise<PreloginResponse>;
   abstract postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any>;
   abstract postSecurityStamp(request: SecretVerificationRequest): Promise<any>;
   abstract getAccountRevisionDate(): Promise<number>;
@@ -259,7 +256,12 @@ export abstract class ApiService {
     id: string,
     attachmentId: string,
   ): Promise<AttachmentUploadDataResponse>;
-  abstract postAttachmentFile(id: string, attachmentId: string, data: FormData): Promise<any>;
+  abstract postAttachmentFile(
+    id: string,
+    attachmentId: string,
+    data: FormData,
+    options?: UploadOptions,
+  ): Promise<any>;
 
   abstract getUserCollections(): Promise<ListResponse<CollectionResponse>>;
   abstract getCollections(organizationId: string): Promise<ListResponse<CollectionResponse>>;
@@ -459,6 +461,10 @@ export abstract class ApiService {
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
+  abstract nativeXMLHttpRequest(
+    request: Request,
+    onProgress: (percentage: number) => void,
+  ): Promise<Response>;
 
   /**
    * Adds a middleware that wraps the fetch call. Middlewares can modify requests, inspect/modify

@@ -17,9 +17,8 @@
         <div class="tw-flex tw-items-center tw-justify-center tw-gap-2">
           <p>{{ "importNoun" | i18n }}</p>
           @if (emptyVaultImportBadge$ | async) {
-            <span bitBadge variant="notification" [attr.aria-label]="'nudgeBadgeAria' | i18n">
-              1
-            </span>
+            <bit-berry variant="danger" [attr.aria-label]="'nudgeBadgeAria' | i18n" [value]="1">
+            </bit-berry>
           }
         </div>
         <ng-container slot="end">
@@ -34,30 +33,28 @@
         <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
       </a>
     </bit-item>
-    @if (showArchiveItem()) {
-      @if (userCanArchive()) {
-        <bit-item>
-          <a data-test-id="archive-link" bit-item-content routerLink="/archive">
+    @if (userCanArchive()) {
+      <bit-item>
+        <a data-test-id="archive-link" bit-item-content routerLink="/archive">
+          {{ "archiveNoun" | i18n }}
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </a>
+      </bit-item>
+    } @else {
+      <bit-item>
+        <a
+          data-test-id="premium-archive-link"
+          bit-item-content
+          href="#"
+          (click)="conditionallyRouteToArchive($event)"
+        >
+          <span class="tw-flex tw-items-center tw-gap-2">
             {{ "archiveNoun" | i18n }}
-            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>
-        </bit-item>
-      } @else {
-        <bit-item>
-          <a
-            data-test-id="premium-archive-link"
-            bit-item-content
-            href="#"
-            (click)="conditionallyRouteToArchive($event)"
-          >
-            <span class="tw-flex tw-items-center tw-gap-2">
-              {{ "archiveNoun" | i18n }}
-              <app-premium-badge></app-premium-badge>
-            </span>
-            <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-          </a>
-        </bit-item>
-      }
+            <app-premium-badge></app-premium-badge>
+          </span>
+          <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
+        </a>
+      </bit-item>
     }
     <bit-item>
       <a bit-item-content routerLink="/trash">
