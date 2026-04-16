@@ -31,9 +31,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -249,7 +247,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private subscriberBillingClient: SubscriberBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -299,12 +296,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    this._familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
+    this._familyPlan = PlanType.FamiliesAnnually;
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
         this.currentPlan.productTier === ProductTierType.Free
