@@ -27,6 +27,7 @@
       (onEditCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
       (onDeleteCollection)="deleteCollection(selectedCollection?.node)"
       (searchTextChanged)="filterSearchText($event)"
+      (onOpenAddItemDialog)="openAddItemDialog()"
     ></app-org-vault-header>
   }
 
