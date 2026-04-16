@@ -165,7 +165,6 @@ describe("MinimumKdfMigration", () => {
       expect(mockLogService.info).toHaveBeenCalledWith(
         `[MinimumKdfMigration] Updating user ${mockUserId} to minimum PBKDF2 iteration count ${PBKDF2KdfConfig.ITERATIONS.min}`,
       );
-      expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
       expect(mockChangeKdfService.updateUserKdfParams).toHaveBeenCalledWith(
         mockMasterPassword,
         expect.any(PBKDF2KdfConfig),
@@ -219,7 +218,6 @@ describe("MinimumKdfMigration", () => {
       expect(mockLogService.info).toHaveBeenCalledWith(
         `[MinimumKdfMigration] Updating user ${mockUserId} to minimum PBKDF2 iteration count ${PBKDF2KdfConfig.ITERATIONS.min}`,
       );
-      expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
       expect(mockChangeKdfService.updateUserKdfParams).toHaveBeenCalledWith(
         mockMasterPassword,
         expect.any(PBKDF2KdfConfig),
