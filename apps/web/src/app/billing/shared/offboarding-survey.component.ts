@@ -84,24 +84,25 @@ export class OffboardingSurveyComponent {
       { value: null, text: this.i18nService.t("selectPlaceholder") },
       {
         value: "missing_features",
-        text: this.i18nService.t(isBusiness ? "cancelSurveyDidntMeetNeeds" : "missingFeatures"),
+        text: this.i18nService.t(isBusiness ? "cancelSurveyMissingFeatures" : "missingFeatures"),
       },
       {
         value: "switched_service",
-        text: this.i18nService.t(
-          isBusiness ? "cancelSurveyTeamPrioritiesChanged" : "movingToAnotherTool",
-        ),
+        text: this.i18nService.t(isBusiness ? "cancelSurveyTooComplex" : "movingToAnotherTool"),
       },
       {
         value: "too_complex",
-        text: this.i18nService.t(isBusiness ? "cancelSurveyOrgRestructuring" : "tooDifficultToUse"),
+        text: this.i18nService.t(isBusiness ? "cancelSurveyNotEnoughValue" : "tooDifficultToUse"),
       },
       {
         value: "unused",
-        text: this.i18nService.t(isBusiness ? "cancelSurveyDidntUseIt" : "notUsingEnough"),
+        text: this.i18nService.t(isBusiness ? "cancelSurveyNotEnoughUsage" : "notUsingEnough"),
       },
       ...(isBusiness
-        ? [{ value: "too_expensive", text: this.i18nService.t("cancelSurveyNotInBudget") }]
+        ? [
+            { value: "too_expensive", text: this.i18nService.t("cancelSurveyNeedsChanged") },
+            { value: "other", text: this.i18nService.t("other") },
+          ]
         : [this.getSwitchingReason(), { value: "other", text: this.i18nService.t("other") }]),
     ];
   }

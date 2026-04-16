@@ -10375,24 +10375,24 @@
     "message": "Switching to free organization",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
-  "cancelSurveyDidntMeetNeeds": {
-    "message": "It didn't meet our needs",
+  "cancelSurveyMissingFeatures": {
+    "message": "Missing features or functionality - Something we needed wasn't available",
     "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyTeamPrioritiesChanged": {
-    "message": "Our team or priorities have changed",
+  "cancelSurveyTooComplex": {
+    "message": "Too difficult to set up or manage - Onboarding, admin, or day-to-day use was too complex",
     "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyOrgRestructuring": {
-    "message": "Our organization is restructuring or closing",
+  "cancelSurveyNotEnoughValue": {
+    "message": "We're not getting enough value for the cost - The price doesn't match what we're getting out of it",
     "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyDidntUseIt": {
-    "message": "We didn't end up using it",
+  "cancelSurveyNotEnoughUsage": {
+    "message": "Not enough usage by our team - We couldn't get people to actually use it",
     "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
   },
-  "cancelSurveyNotInBudget": {
-    "message": "It's not in our budget right now",
+  "cancelSurveyNeedsChanged": {
+    "message": "Our needs changed - Reorg, acquisition, shift in priorities, or we no longer need a password manager",
     "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
