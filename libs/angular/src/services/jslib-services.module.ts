@@ -561,7 +561,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      UnlockService,
       KeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -588,22 +587,30 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       AccountCryptographicStateService,
       PasswordPreloginService,
+      UnlockService,
     ],
   }),
   safeProvider({
     provide: FileUploadServiceAbstraction,
     useClass: FileUploadService,
-    deps: [LogService, ApiServiceAbstraction],
+    deps: [LogService, ApiServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: CipherFileUploadServiceAbstraction,
     useClass: CipherFileUploadService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction],
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, ConfigService],
   }),
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService],
+    deps: [
+      StateProvider,
+      PolicyServiceAbstraction,
+      AccountService,
+      ConfigService,
+      EnvironmentService,
+      AuthServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: CipherSdkService,
@@ -955,10 +962,12 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      CryptoFunctionServiceAbstraction,
       StateProvider,
       LogService,
       BiometricsService,
+      PlatformUtilsServiceAbstraction,
+      StateServiceAbstraction,
+      BiometricStateService,
     ],
   }),
   safeProvider({
@@ -1110,7 +1119,6 @@ const safeProviders: SafeProvider[] = [
     provide: AutomaticUserConfirmationService,
     useClass: DefaultAutomaticUserConfirmationService,
     deps: [
-      ConfigService,
       ApiServiceAbstraction,
       OrganizationUserService,
       StateProvider,

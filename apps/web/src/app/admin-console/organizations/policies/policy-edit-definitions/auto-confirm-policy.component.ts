@@ -1,6 +1,15 @@
 import { ChangeDetectionStrategy, Component, Signal, TemplateRef, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { combineLatest, defer, firstValueFrom, map, Observable, startWith, switchMap } from "rxjs";
+import {
+  combineLatest,
+  defer,
+  firstValueFrom,
+  map,
+  Observable,
+  of,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
@@ -9,8 +18,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 
 import { SharedModule } from "../../../../shared";
@@ -36,10 +43,8 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
     super();
   }
 
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService
-      .getFeatureFlag$(FeatureFlag.AutoConfirm)
-      .pipe(map((enabled) => enabled && organization.useAutomaticUserConfirmation));
+  override display$(organization: Organization): Observable<boolean> {
+    return of(organization.useAutomaticUserConfirmation);
   }
 }
 
