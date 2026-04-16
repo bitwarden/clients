@@ -388,16 +388,11 @@ describe("context-aware postMessage targetOrigin", () => {
   });
 
   function setWindowLocation(url: string) {
-    const parsed = new URL(url);
-    Object.defineProperty(window, "location", {
-      value: {
-        href: url,
-        hostname: parsed.hostname,
-        origin: parsed.origin,
-      },
-      writable: true,
-      configurable: true,
-    });
+    // Mock wrapper functions so getQsParam can be tested
+    // Previously could not mock window.location in jsdom, now we mock getLocationHref()
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const commonModule = require("./common");
+    jest.mocked(commonModule.getLocationHref).mockReturnValue(url);
   }
 
   function mockCredentials(behavior: "reject" | "resolve") {
