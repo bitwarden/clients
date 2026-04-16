@@ -1,7 +1,6 @@
 import { mock } from "jest-mock-extended";
 
 import { SyncService } from "@bitwarden/common/platform/sync";
-
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,

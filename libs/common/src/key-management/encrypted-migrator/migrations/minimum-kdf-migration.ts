@@ -9,6 +9,7 @@ import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { ChangeKdfService } from "../../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
+
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
 
 /**
