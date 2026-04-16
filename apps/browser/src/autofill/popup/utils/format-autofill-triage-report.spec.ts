@@ -6,6 +6,8 @@ const baseResult: AutofillTriagePageResult = {
   tabId: 1,
   pageUrl: "https://example.com/login",
   analyzedAt: new Date("2026-01-01T00:00:00.000Z"),
+  extensionVersion: "2024.1.0",
+  browserInfo: { name: "Chrome", version: "120.0" },
   fields: [],
 };
 
@@ -41,9 +43,9 @@ describe("formatAutofillTriageReport", () => {
       expect(output).toContain("Browser: Chrome 120.0");
     });
 
-    it("omits the version section when neither is present", () => {
+    it("always includes the version section", () => {
       const output = formatAutofillTriageReport(baseResult);
-      expect(output).not.toContain("Version Information:");
+      expect(output).toContain("Version Information:");
     });
   });
 

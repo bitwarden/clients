@@ -28,6 +28,8 @@ describe("AutofillTriageComponent", () => {
     analyzedAt: new Date("2026-03-26T10:30:00.000Z"),
     targetElementRef: "username",
     tabId: 123,
+    extensionVersion: "2024.1.0",
+    browserInfo: { name: "Chrome", version: "120.0" },
     fields: [
       {
         htmlId: "username",

@@ -17,16 +17,10 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
   lines.push(`Analyzed: ${result.analyzedAt.toISOString()}`);
 
   // Version Information
-  if (result.extensionVersion || result.browserInfo) {
-    lines.push("");
-    lines.push("Version Information:");
-    if (result.extensionVersion) {
-      lines.push(`  Extension Version: ${result.extensionVersion}`);
-    }
-    if (result.browserInfo) {
-      lines.push(`  Browser: ${result.browserInfo.name} ${result.browserInfo.version}`);
-    }
-  }
+  lines.push("");
+  lines.push("Version Information:");
+  lines.push(`  Extension Version: ${result.extensionVersion}`);
+  lines.push(`  Browser: ${result.browserInfo.name} ${result.browserInfo.version}`);
 
   // Page Context
   if (result.pageContext) {

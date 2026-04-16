@@ -117,12 +117,12 @@ export interface AutofillTriagePageResult {
   /**
    * Extension version that generated this report.
    */
-  extensionVersion?: string;
+  extensionVersion: string;
 
   /**
    * Browser name and version.
    */
-  browserInfo?: AutofillTriageBrowserInfo;
+  browserInfo: AutofillTriageBrowserInfo;
 }
 
 /**

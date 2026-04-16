@@ -84,33 +84,27 @@
       </bit-section>
     }
 
-    @if (result.extensionVersion || result.browserInfo) {
-      <bit-section>
-        <bit-section-header>
-          <h2 bitTypography="h6">Version Information</h2>
-        </bit-section-header>
-        <bit-item-group>
-          @if (result.extensionVersion) {
-            <bit-item>
-              <bit-item-content>
-                <i class="bwi bwi-fw bwi-puzzle tw-text-muted" slot="start" aria-hidden="true"></i>
-                {{ result.extensionVersion }}
-                <span slot="secondary">Extension Version</span>
-              </bit-item-content>
-            </bit-item>
-          }
-          @if (result.browserInfo) {
-            <bit-item>
-              <bit-item-content>
-                <i class="bwi bwi-fw bwi-browser tw-text-muted" slot="start" aria-hidden="true"></i>
-                {{ result.browserInfo.name }} {{ result.browserInfo.version }}
-                <span slot="secondary">Browser</span>
-              </bit-item-content>
-            </bit-item>
-          }
-        </bit-item-group>
-      </bit-section>
-    }
+    <bit-section>
+      <bit-section-header>
+        <h2 bitTypography="h6">Version Information</h2>
+      </bit-section-header>
+      <bit-item-group>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-puzzle tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.extensionVersion }}
+            <span slot="secondary">Extension Version</span>
+          </bit-item-content>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>
+            <i class="bwi bwi-fw bwi-browser tw-text-muted" slot="start" aria-hidden="true"></i>
+            {{ result.browserInfo.name }} {{ result.browserInfo.version }}
+            <span slot="secondary">Browser</span>
+          </bit-item-content>
+        </bit-item>
+      </bit-item-group>
+    </bit-section>
 
     <!-- Fields List -->
     <bit-section>
