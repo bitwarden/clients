@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
+import { EMPTY, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
@@ -30,6 +31,7 @@ export interface EmergencyViewDialogParams {
 
 /** Stubbed class, premium upgrade is not applicable for emergency viewing */
 class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
+  readonly upgradeConfirmed$: Observable<boolean> = EMPTY;
   async promptForPremium() {
     return Promise.resolve();
   }
