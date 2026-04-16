@@ -104,7 +104,8 @@
         </button>
       }
       <bit-menu-divider />
-      <button startIcon="bwi-folder" type="button" bitMenuItem (click)="onAddFolder.emit()">
+      <button type="button" bitMenuItem (click)="onAddFolder.emit()">
+        <i slot="start" class="bwi-folder" aria-hidden="true"></i>
         {{ "folder" | i18n }}
       </button>
     </bit-menu>
