@@ -225,7 +225,7 @@ describe("AutofillTriageComponent", () => {
 
       // Expand a field
       component.toggleField(0);
-      expect(component.expandedFields().has(0)).toBe(true);
+      expect(component.isFieldExpanded()(0)).toBe(true);
 
       // Simulate a new triage being triggered
       capturedListener({ command: "triageResultReady", tabId: mockTab.id });
@@ -233,7 +233,7 @@ describe("AutofillTriageComponent", () => {
 
       // Results and expanded fields should be cleared and then refreshed
       expect(component.triageResult()).toEqual(newTriageResult);
-      expect(component.expandedFields().size).toBe(0);
+      expect(component.isFieldExpanded()(0)).toBe(false);
     }));
 
     it("should get active tab when in side panel and getCurrentTab returns null", fakeAsync(() => {
@@ -301,26 +301,26 @@ describe("AutofillTriageComponent", () => {
   });
 
   describe("toggleField", () => {
-    it("should add field index to expandedFields when not present", () => {
+    it("should add field index to expanded set when not present", () => {
       component.toggleField(0);
-      expect(component.expandedFields().has(0)).toBe(true);
+      expect(component.isFieldExpanded()(0)).toBe(true);
     });
 
-    it("should remove field index from expandedFields when present", () => {
-      component.expandedFields.set(new Set([0]));
+    it("should remove field index from expanded set when present", () => {
       component.toggleField(0);
-      expect(component.expandedFields().has(0)).toBe(false);
+      component.toggleField(0);
+      expect(component.isFieldExpanded()(0)).toBe(false);
     });
   });
 
   describe("isFieldExpanded", () => {
     it("should return true when field is expanded", () => {
-      component.expandedFields.set(new Set([1]));
+      component.toggleField(1);
       expect(component.isFieldExpanded()(1)).toBe(true);
     });
 
     it("should return false when field is not expanded", () => {
-      component.expandedFields.set(new Set([1]));
+      component.toggleField(1);
       expect(component.isFieldExpanded()(0)).toBe(false);
     });
   });
@@ -341,34 +341,34 @@ describe("AutofillTriageComponent", () => {
       expect(component.getFieldLabel(field as any)).toBe("(password)");
     });
 
-    it("should return '(unnamed)' when no identifiers are present", () => {
+    it("should return '(unnamed field)' when no identifiers are present", () => {
       const field = {};
-      expect(component.getFieldLabel(field as any)).toBe("(unnamed)");
+      expect(component.getFieldLabel(field as any)).toBe("(unnamed field)");
     });
 
     it("should handle unknown type gracefully", () => {
       const field = { htmlId: "field1" };
-      expect(component.getFieldLabel(field as any)).toBe("field1 (unknown)");
+      expect(component.getFieldLabel(field as any)).toBe("field1 (unknown type)");
     });
   });
 
   describe("copyReport", () => {
     it("should not copy when triageResult is null", async () => {
       component.triageResult.set(null);
-      await component.copyReport();
+      await component.copyReport("text");
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
 
     it("should not copy when user cancels the export dialog", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
       component.triageResult.set(mockTriageResult);
-      await component.copyReport();
+      await component.copyReport("text");
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
 
     it("should copy formatted report to clipboard after confirming export dialog", async () => {
       component.triageResult.set(mockTriageResult);
-      await component.copyReport();
+      await component.copyReport("text");
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({ type: "warning" }),
@@ -382,7 +382,7 @@ describe("AutofillTriageComponent", () => {
 
     it("should show success toast after copying", async () => {
       component.triageResult.set(mockTriageResult);
-      await component.copyReport();
+      await component.copyReport("text");
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
@@ -392,23 +392,23 @@ describe("AutofillTriageComponent", () => {
     });
   });
 
-  describe("copyJsonReport", () => {
+  describe("copyReport (json format)", () => {
     it("should not copy when triageResult is null", async () => {
       component.triageResult.set(null);
-      await component.copyJsonReport();
+      await component.copyReport("json");
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
 
     it("should not copy when user cancels the export dialog", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
       component.triageResult.set(mockTriageResult);
-      await component.copyJsonReport();
+      await component.copyReport("json");
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
 
     it("should copy JSON report to clipboard after confirming export dialog", async () => {
       component.triageResult.set(mockTriageResult);
-      await component.copyJsonReport();
+      await component.copyReport("json");
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({ type: "warning" }),
@@ -420,7 +420,7 @@ describe("AutofillTriageComponent", () => {
 
     it("should show success toast after copying", async () => {
       component.triageResult.set(mockTriageResult);
-      await component.copyJsonReport();
+      await component.copyReport("json");
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",

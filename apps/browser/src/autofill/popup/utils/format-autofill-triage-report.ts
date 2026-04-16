@@ -219,7 +219,11 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
 /**
  * Gets a human-readable label for a field, falling back through available identifiers.
  */
-function getFieldLabel(field: { htmlId?: string; htmlName?: string; htmlType?: string }): string {
+export function getFieldLabel(field: {
+  htmlId?: string;
+  htmlName?: string;
+  htmlType?: string;
+}): string {
   if (field.htmlId) {
     return `${field.htmlId} (${field.htmlType || "unknown type"})`;
   }

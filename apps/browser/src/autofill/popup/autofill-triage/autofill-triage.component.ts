@@ -30,7 +30,7 @@ import { PopupFooterComponent } from "../../../platform/popup/layout/popup-foote
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { AutofillTriagePageResult, AutofillTriageFieldResult } from "../../types/autofill-triage";
-import { formatAutofillTriageReport } from "../utils/format-autofill-triage-report";
+import { formatAutofillTriageReport, getFieldLabel } from "../utils/format-autofill-triage-report";
 
 @Component({
   selector: "app-autofill-triage",
@@ -66,11 +66,6 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
   readonly triageResult = signal<AutofillTriagePageResult | null>(null);
 
   /**
-   * Set of field indices that are currently expanded to show their conditions.
-   */
-  readonly expandedFields = signal<Set<number>>(new Set());
-
-  /**
    * Computed count of eligible fields.
    */
   readonly eligibleCount = computed(() => {
@@ -81,12 +76,16 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
     return result.fields.filter((f: AutofillTriageFieldResult) => f.eligible).length;
   });
 
+  private readonly _expandedFields = new Set<number>();
+  private readonly _expandedCount = signal(0);
+
   /**
    * Computed signal that creates a function to check if a field is expanded.
+   * Depends on _expandedCount so Angular re-evaluates when the set changes.
    */
   readonly isFieldExpanded = computed(() => {
-    const expanded = this.expandedFields();
-    return (index: number) => expanded.has(index);
+    this._expandedCount();
+    return (index: number) => this._expandedFields.has(index);
   });
 
   private readonly currentTabId = signal<number | undefined>(undefined);
@@ -95,7 +94,8 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
     if (msg.command === "triageResultReady" && msg.tabId === this.currentTabId()) {
       // Clear previous results and show loading state for new triage
       this.triageResult.set(null);
-      this.expandedFields.set(new Set());
+      this._expandedFields.clear();
+      this._expandedCount.set(0);
       void this.fetchTriageResult();
     }
   };
@@ -139,7 +139,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
         { tabId: this.currentTabId() },
       );
       if (response) {
-        this.triageResult.set(response);
+        this.triageResult.set({ ...response, analyzedAt: new Date(response.analyzedAt) });
       }
     } finally {
       this.loading.set(false);
@@ -150,35 +150,22 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
    * Toggles the expanded state of a field's conditions list.
    */
   toggleField(index: number): void {
-    const current = new Set(this.expandedFields());
-    if (current.has(index)) {
-      current.delete(index);
+    if (this._expandedFields.has(index)) {
+      this._expandedFields.delete(index);
     } else {
-      current.add(index);
+      this._expandedFields.add(index);
     }
-    this.expandedFields.set(current);
+    this._expandedCount.set(this._expandedFields.size);
   }
 
-  /**
-   * Gets a human-readable label for a field, falling back through available identifiers.
-   */
   getFieldLabel(field: AutofillTriageFieldResult): string {
-    if (field.htmlId) {
-      return `${field.htmlId} (${field.htmlType || "unknown"})`;
-    }
-    if (field.htmlName) {
-      return `${field.htmlName} (${field.htmlType || "unknown"})`;
-    }
-    if (field.htmlType) {
-      return `(${field.htmlType})`;
-    }
-    return "(unnamed)";
+    return getFieldLabel(field);
   }
 
   /**
-   * Formats and copies the triage report to the clipboard.
+   * Copies the triage report to the clipboard in the requested format.
    */
-  async copyReport(): Promise<void> {
+  async copyReport(format: "text" | "json"): Promise<void> {
     const result = this.triageResult();
     if (!result) {
       return;
@@ -189,36 +176,17 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const report = formatAutofillTriageReport(result);
-    await this.platformUtilsService.copyToClipboard(report);
+    const content =
+      format === "json" ? JSON.stringify(result, null, 2) : formatAutofillTriageReport(result);
+    await this.platformUtilsService.copyToClipboard(content);
 
     this.toastService.showToast({
       variant: "success",
       title: "Copied to Clipboard",
-      message: "Triage report copied to clipboard",
-    });
-  }
-
-  /**
-   * Serializes the triage result as formatted JSON and copies it to the clipboard.
-   */
-  async copyJsonReport(): Promise<void> {
-    const result = this.triageResult();
-    if (!result) {
-      return;
-    }
-
-    const confirmed = await this.promptExportWarning();
-    if (!confirmed) {
-      return;
-    }
-
-    await this.platformUtilsService.copyToClipboard(JSON.stringify(result, null, 2));
-
-    this.toastService.showToast({
-      variant: "success",
-      title: "Copied to Clipboard",
-      message: "Triage JSON report copied to clipboard",
+      message:
+        format === "json"
+          ? "Triage JSON report copied to clipboard"
+          : "Triage report copied to clipboard",
     });
   }
 
