@@ -77,14 +77,20 @@ export class IdentityTokenResponse extends BaseResponse {
       this.key = new EncString(key);
     }
     this.twoFactorToken = this.getResponseProperty("TwoFactorToken");
+
     const kdf = this.getResponseProperty("Kdf");
     const kdfIterations = this.getResponseProperty("KdfIterations");
     const kdfMemory = this.getResponseProperty("KdfMemory");
     const kdfParallelism = this.getResponseProperty("KdfParallelism");
-    this.kdfConfig =
-      kdf == KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(kdfIterations)
-        : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+
+    if (kdf == KdfType.PBKDF2_SHA256) {
+      this.kdfConfig = new PBKDF2KdfConfig(kdfIterations);
+    }
+
+    if (kdf == KdfType.Argon2id) {
+      this.kdfConfig = new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+    }
+
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset");
     this.apiUseKeyConnector = this.getResponseProperty("ApiUseKeyConnector");
 

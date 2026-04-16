@@ -1,3 +1,7 @@
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+
 import { makeEncString } from "../../../../spec";
 
 import { IdentityTokenResponse } from "./identity-token.response";
@@ -157,5 +161,48 @@ describe("IdentityTokenResponse", () => {
     expect(
       identityTokenResponse.accountKeysResponseModel?.publicKeyEncryptionKeyPair,
     ).toBeDefined();
+  });
+
+  describe("kdfConfig", () => {
+    it("should build a PBKDF2KdfConfig when Kdf is PBKDF2_SHA256", () => {
+      const response = {
+        access_token: accessToken,
+        token_type: tokenType,
+        Kdf: KdfType.PBKDF2_SHA256,
+        KdfIterations: 600_000,
+      };
+
+      const identityTokenResponse = new IdentityTokenResponse(response);
+      expect(identityTokenResponse.kdfConfig).toBeInstanceOf(PBKDF2KdfConfig);
+      expect((identityTokenResponse.kdfConfig as PBKDF2KdfConfig).iterations).toEqual(600_000);
+    });
+
+    it("should build an Argon2KdfConfig when Kdf is Argon2id", () => {
+      const response = {
+        access_token: accessToken,
+        token_type: tokenType,
+        Kdf: KdfType.Argon2id,
+        KdfIterations: 3,
+        KdfMemory: 64,
+        KdfParallelism: 4,
+      };
+
+      const identityTokenResponse = new IdentityTokenResponse(response);
+      expect(identityTokenResponse.kdfConfig).toBeInstanceOf(Argon2KdfConfig);
+      const argon2Config = identityTokenResponse.kdfConfig as Argon2KdfConfig;
+      expect(argon2Config.iterations).toEqual(3);
+      expect(argon2Config.memory).toEqual(64);
+      expect(argon2Config.parallelism).toEqual(4);
+    });
+
+    it("should leave kdfConfig undefined when Kdf is absent (e.g. org token refresh)", () => {
+      const response = {
+        access_token: accessToken,
+        token_type: tokenType,
+      };
+
+      const identityTokenResponse = new IdentityTokenResponse(response);
+      expect(identityTokenResponse.kdfConfig).toBeUndefined();
+    });
   });
 });
