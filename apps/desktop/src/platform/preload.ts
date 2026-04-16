@@ -49,26 +49,6 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
-const sshAgent = {
-  init: async () => {
-    await ipcRenderer.invoke("sshagent.init");
-  },
-  setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
-    ipcRenderer.invoke("sshagent.setkeys", keys),
-  signRequestResponse: async (requestId: number, accepted: boolean) => {
-    await ipcRenderer.invoke("sshagent.signrequestresponse", { requestId, accepted });
-  },
-  lock: async () => {
-    return await ipcRenderer.invoke("sshagent.lock");
-  },
-  clearKeys: async () => {
-    return await ipcRenderer.invoke("sshagent.clearkeys");
-  },
-  isLoaded(): Promise<boolean> {
-    return ipcRenderer.invoke("sshagent.isloaded");
-  },
-};
-
 const powermonitor = {
   isLockMonitorAvailable: (): Promise<boolean> =>
     ipcRenderer.invoke("powermonitor.isLockMonitorAvailable"),
@@ -193,7 +173,6 @@ export default {
   storage,
   passwords,
   clipboard,
-  sshAgent,
   powermonitor,
   nativeMessaging,
   crypto,

@@ -77,10 +77,14 @@ describe("OrganizationWarningsService", () => {
           return "Your free trial ends today.";
         case "resellerRenewalWarningMsg":
           return `Your subscription will renew soon. To ensure uninterrupted service, contact ${args[0]} to confirm your renewal before ${args[1]}.`;
+        case "resellerRenewalWarningMsgV2":
+          return `Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before ${args[0]}.`;
         case "resellerOpenInvoiceWarningMgs":
           return `An invoice for your subscription was issued on ${args[1]}. To ensure uninterrupted service, contact ${args[0]} to confirm your renewal before ${args[2]}.`;
         case "resellerPastDueWarningMsg":
           return `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact ${args[0]} to confirm your renewal before ${args[1]}.`;
+        case "resellerPastDueWarningMsgV2":
+          return `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before ${args[0]}.`;
         case "suspendedOrganizationTitle":
           return `${args[0]} subscription suspended`;
         case "close":
@@ -247,18 +251,17 @@ describe("OrganizationWarningsService", () => {
 
         expect(result).toEqual({
           type: "info",
-          message: `Your subscription will renew soon. To ensure uninterrupted service, contact Test Reseller Inc to confirm your renewal before ${expectedFormattedDate}.`,
+          message: `Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before ${expectedFormattedDate}.`,
         });
         expect(i18nService.t).toHaveBeenCalledWith(
-          "resellerRenewalWarningMsg",
-          "Test Reseller Inc",
+          "resellerRenewalWarningMsgV2",
           expectedFormattedDate,
         );
         done();
       });
     });
 
-    it("should return issued warning with correct type and message", (done) => {
+    it("should return null for issued warning type", (done) => {
       const issuedDate = new Date(2024, 10, 15);
       const dueDate = new Date(2024, 11, 15);
       const warning = {
@@ -270,19 +273,7 @@ describe("OrganizationWarningsService", () => {
       } as OrganizationWarningsResponse);
 
       service.getResellerRenewalWarning$(organization).subscribe((result) => {
-        const expectedIssuedDate = format(issuedDate);
-        const expectedDueDate = format(dueDate);
-
-        expect(result).toEqual({
-          type: "info",
-          message: `An invoice for your subscription was issued on ${expectedIssuedDate}. To ensure uninterrupted service, contact Test Reseller Inc to confirm your renewal before ${expectedDueDate}.`,
-        });
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "resellerOpenInvoiceWarningMgs",
-          "Test Reseller Inc",
-          expectedIssuedDate,
-          expectedDueDate,
-        );
+        expect(result).toBeNull();
         done();
       });
     });
@@ -301,12 +292,11 @@ describe("OrganizationWarningsService", () => {
         const expectedSuspensionDate = format(suspensionDate);
 
         expect(result).toEqual({
-          type: "warning",
-          message: `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact Test Reseller Inc to confirm your renewal before ${expectedSuspensionDate}.`,
+          type: "info",
+          message: `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before ${expectedSuspensionDate}.`,
         });
         expect(i18nService.t).toHaveBeenCalledWith(
-          "resellerPastDueWarningMsg",
-          "Test Reseller Inc",
+          "resellerPastDueWarningMsgV2",
           expectedSuspensionDate,
         );
         done();
