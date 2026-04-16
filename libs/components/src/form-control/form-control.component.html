@@ -5,7 +5,7 @@
   <ng-content></ng-content>
   <!-- minor padding adjustment for visual alignment -->
   <span
-    class="tw-inline-flex tw-flex-col tw-pt-[1px]"
+    class="tw-inline-flex tw-flex-col tw-pt-px"
     [ngClass]="base.formControl().disabled ? 'tw-text-muted' : 'tw-text-main'"
   >
     <span bitTypography="body2" class="tw-leading-5 tw-font-medium">
@@ -23,6 +23,6 @@
 </label>
 @if (base.hasError) {
   <div class="tw-mt-1 tw-text-danger tw-text-xs tw-ms-0.5">
-    <i class="bwi bwi-error"></i> {{ base.displayError }}
+    <bit-icon name="bwi-error" /> {{ base.displayError }}
   </div>
 }
