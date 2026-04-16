@@ -25,7 +25,9 @@
       "@bitwarden/client-type": ["../../../libs/client-type/src/index.ts"],
       "@bitwarden/messaging": ["../../../libs/messaging/src/index.ts"],
       "@bitwarden/guid": ["../../../libs/guid/src/index.ts"],
-      "@bitwarden/serialization": ["../../../libs/serialization/src/index.ts"]
+      "@bitwarden/serialization": ["../../../libs/serialization/src/index.ts"],
+      "@bitwarden/scheduling": ["../../../libs/scheduling/src/index.ts"],
+      "@bitwarden/unlock": ["../../../libs/unlock/src/index.ts"]
     },
     "plugins": [
       {
