@@ -231,6 +231,10 @@ export abstract class LoginStrategy {
       tokenResponse.refreshToken, // Note: CLI login via API key sends undefined for refresh token.
     );
 
+    if (tokenResponse.kdfConfig == null) {
+      throw new Error("kdfConfig not found");
+    }
+
     await this.KdfConfigService.setKdfConfig(userId as UserId, tokenResponse.kdfConfig);
 
     await this.billingAccountProfileStateService.setHasPremium(

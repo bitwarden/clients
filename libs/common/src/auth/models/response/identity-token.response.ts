@@ -36,7 +36,7 @@ export class IdentityTokenResponse extends BaseResponse {
    */
   key?: EncString;
   twoFactorToken: string;
-  kdfConfig: KdfConfig;
+  kdfConfig?: KdfConfig;
   forcePasswordReset: boolean;
   masterPasswordPolicy: MasterPasswordPolicyResponse;
   apiUseKeyConnector: boolean;
