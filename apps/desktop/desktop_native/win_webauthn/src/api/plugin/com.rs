@@ -169,7 +169,8 @@ impl PluginAuthenticatorComObject {
         Ok(())
     }
 
-    /// Validates the incoming request and stores the context for completing the request with [Self::complete_request]. and Verify the signature on an operation request.
+    /// Validates the incoming request and stores the context for completing the request with
+    /// [Self::complete_request]. and Verify the signature on an operation request.
     ///
     /// - Checks that the request struct and response buffer is non-null.
     /// - Verifies the signature request.
@@ -179,8 +180,10 @@ impl PluginAuthenticatorComObject {
     ///
     /// # Safety
     /// The caller must ensure that the request:
-    /// - `request.pbEncodedRequest` points to a valid non-null byte string of length `request.cbEncodedRequest`.
-    /// - `request.pbRequestSignature` points to a valid non-null byte string of length `request.cbRequestSignature`.
+    /// - `request.pbEncodedRequest` points to a valid non-null byte string of length
+    ///   `request.cbEncodedRequest`.
+    /// - `request.pbRequestSignature` points to a valid non-null byte string of length
+    ///   `request.cbRequestSignature`.
     unsafe fn initialize_request<'a, T: OperationRequest<'a>>(
         &self,
         request_ptr: *const WEBAUTHN_PLUGIN_OPERATION_REQUEST,
@@ -216,11 +219,11 @@ impl PluginAuthenticatorComObject {
 
         // Verify that the request came from the OS.
         tracing::debug!("Verifying request");
-        // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety requirements as
-        // this function: the encoded request must be valid.
+        // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::request_hash() has the same safety
+        // requirements as this function: the encoded request must be valid.
         let request_hash = unsafe { request.request_hash()? };
-        // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::signature() has the same safety requirements as
-        // this function: the encoded request must be valid.
+        // SAFETY: WEBAUTHN_PLUGIN_OPERATION_REQUEST::signature() has the same safety requirements
+        // as this function: the encoded request must be valid.
         let signature = unsafe { request.signature() };
         tracing::debug!("Retrieving signing key");
         let op_pub_key = get_operation_signing_public_key(&self.clsid).map_err(|err| {

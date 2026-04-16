@@ -192,7 +192,7 @@ impl RpEntityInformation<'_> {
     /// - the pointer is convertible to a reference,
     /// - pwszId points to a valid null-terminated UTF-16 string.
     /// - pwszName is null or points to a valid null-terminated UTF-16 string.
-    pub(crate) unsafe fn new(ptr: &WEBAUTHN_RP_ENTITY_INFORMATION) -> Self {
+    pub(in crate::api) unsafe fn new(ptr: &WEBAUTHN_RP_ENTITY_INFORMATION) -> Self {
         Self {
             ptr: NonNull::from_ref(ptr),
             _phantom: PhantomData,
@@ -247,7 +247,7 @@ impl UserEntityInformation<'_> {
     /// - pbId is non-null and points to a valid memory allocation with length of cbId.
     /// - pwszName is non-null and points to a valid null-terminated UTF-16 string.
     /// - pwszDisplayName is non-null and points to a valid null-terminated UTF-16 string.
-    pub(crate) unsafe fn new(ptr: &WEBAUTHN_USER_ENTITY_INFORMATION) -> Self {
+    pub(in crate::api) unsafe fn new(ptr: &WEBAUTHN_USER_ENTITY_INFORMATION) -> Self {
         Self {
             ptr: NonNull::from_ref(ptr),
             _phantom: PhantomData,
@@ -307,7 +307,7 @@ impl CoseCredentialParameter<'_> {
 }
 
 pub struct CoseCredentialParameters<'a> {
-    pub(crate) inner: ArrayPointerIterator<'a, WEBAUTHN_COSE_CREDENTIAL_PARAMETER>,
+    pub(in crate::api) inner: ArrayPointerIterator<'a, WEBAUTHN_COSE_CREDENTIAL_PARAMETER>,
 }
 
 impl<'a> Iterator for CoseCredentialParameters<'a> {
