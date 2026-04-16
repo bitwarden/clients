@@ -15,6 +15,8 @@ import {
   USER_KEY_ENCRYPTED_PIN,
 } from "./pin.state";
 
+const EPHEMERAL_PIN_ENVELOPE_KEY = "";
+
 export class PinStateService implements PinStateServiceAbstraction {
   constructor(private stateProvider: StateProvider) {}
 
@@ -80,7 +82,7 @@ export class PinStateService implements PinStateServiceAbstraction {
     if (pinLockType === "EPHEMERAL") {
       await this.stateProvider.setUserState(
         PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
-        pinProtectedUserKeyEnvelope,
+        { [EPHEMERAL_PIN_ENVELOPE_KEY]: { pin_envelope: pinProtectedUserKeyEnvelope } },
         userId,
       );
     } else if (pinLockType === "PERSISTENT") {
@@ -117,7 +119,9 @@ export class PinStateService implements PinStateServiceAbstraction {
     assertNonNullish(userId, "userId");
 
     if (pinLockType === "EPHEMERAL") {
-      return this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId);
+      return this.stateProvider
+        .getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId)
+        .pipe(map((record) => record?.[EPHEMERAL_PIN_ENVELOPE_KEY]?.pin_envelope ?? null));
     } else if (pinLockType === "PERSISTENT") {
       return this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT, userId);
     } else {

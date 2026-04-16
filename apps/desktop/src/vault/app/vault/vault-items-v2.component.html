@@ -4,7 +4,7 @@
 <ng-container *ngIf="loaded">
   @if (showPremiumCallout()) {
     <div class="tw-m-4">
-      <bit-callout type="default" [title]="'premiumSubscriptionEnded' | i18n">
+      <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">
         <ng-container>
           <div>
             {{ "premiumSubscriptionEndedDesc" | i18n }}
@@ -78,27 +78,41 @@
 </ng-container>
 
 <ng-template #addCipherButton>
-  <button
-    type="button"
-    class="block primary"
-    bitButton
-    appA11yTitle="{{ 'addItem' | i18n }}"
-    [disabled]="deleted"
-    [bitMenuTriggerFor]="addCipherMenu"
-    startIcon="bwi-plus"
-  ></button>
-  <bit-menu #addCipherMenu>
-    @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
-      <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">
-        <i class="bwi {{ itemTypes.icon }} tw-mr-1" aria-hidden="true"></i>
-        {{ itemTypes.labelKey | i18n }}
+  @if (useNewItemDialog()) {
+    <button
+      type="button"
+      class="block primary"
+      bitIconButton="bwi-plus"
+      [label]="'addItem' | i18n"
+      [disabled]="deleted"
+      (click)="onAddItemDialog.emit()"
+    ></button>
+  } @else {
+    <button
+      type="button"
+      class="block primary"
+      bitIconButton="bwi-plus"
+      [label]="'addItem' | i18n"
+      [disabled]="deleted"
+      [bitMenuTriggerFor]="addCipherMenu"
+    ></button>
+    <bit-menu #addCipherMenu>
+      @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
+        <button
+          startIcon="{{"
+          itemTypes.icon
+          }}
+          type="button"
+          bitMenuItem
+          (click)="addCipher(itemTypes.type)"
+        >
+          {{ itemTypes.labelKey | i18n }}
+        </button>
+      }
+      <bit-menu-divider />
+      <button startIcon="bwi-folder" type="button" bitMenuItem (click)="onAddFolder.emit()">
+        {{ "folder" | i18n }}
       </button>
-    }
-    <bit-menu-divider />
-
-    <button type="button" bitMenuItem (click)="onAddFolder.emit()">
-      <i class="bwi bwi-folder tw-mr-1" aria-hidden="true"></i>
-      {{ "folder" | i18n }}
-    </button>
-  </bit-menu>
+    </bit-menu>
+  }
 </ng-template>

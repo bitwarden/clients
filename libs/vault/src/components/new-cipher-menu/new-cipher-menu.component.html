@@ -1,4 +1,20 @@
-<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
+@if (useNewItemDialog() && (canCreateCipher() || canCreateCollection() || canCreateFolder())) {
+  <button
+    bitButton
+    buttonType="primary"
+    type="button"
+    (click)="handleButtonClick()"
+    id="newItemButton"
+    [appA11yTitle]="getButtonLabel() | i18n"
+    [bitPopoverAnchorFor]="coachmarkPopover()"
+    [popoverOpen]="coachmarkPopoverOpen()"
+    [position]="coachmarkPosition()"
+    [spotlight]="!!coachmarkPopover()"
+    startIcon="bwi-plus"
+  >
+    {{ getButtonLabel() | i18n }}
+  </button>
+} @else if (canCreateCipher() || canCreateCollection() || canCreateFolder()) {
   <div>
     <button
       bitButton
@@ -8,7 +24,11 @@
       (click)="handleButtonClick()"
       id="newItemDropdown"
       [appA11yTitle]="getButtonLabel() | i18n"
-      startIcon="bwi-plus"
+      [bitPopoverAnchorFor]="coachmarkPopover()"
+      [popoverOpen]="coachmarkPopoverOpen()"
+      [position]="coachmarkPosition()"
+      [spotlight]="!!coachmarkPopover()"
+      [closeOnBackdropClick]="false"
     >
       {{ getButtonLabel() | i18n }}
     </button>
@@ -20,8 +40,13 @@
         </button>
       }
       <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
-      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
-        <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+      <button
+        startIcon="bwi-folder"
+        *ngIf="canCreateFolder()"
+        type="button"
+        bitMenuItem
+        (click)="folderAdded.emit()"
+      >
         {{ "folder" | i18n }}
       </button>
       <button
@@ -29,10 +54,10 @@
         type="button"
         bitMenuItem
         (click)="collectionAdded.emit()"
+        startIcon="bwi-collection-shared"
       >
-        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
         {{ "collection" | i18n }}
       </button>
     </bit-menu>
   </div>
-</ng-container>
+}
