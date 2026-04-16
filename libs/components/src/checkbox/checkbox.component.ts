@@ -2,7 +2,7 @@ import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
-  effect,
+  computed,
   ElementRef,
   inject,
   input,
@@ -10,6 +10,7 @@ import {
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 
 @Component({
@@ -18,16 +19,30 @@ import { FormControlGroupComponent } from "../form-control/form-control-group.co
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    "[checked]": "isGroupChecked()",
     "[disabled]": "disabled",
     "[class]": "inputClasses",
     "[style.--check-mask]": "checkMask",
     "[style.--indeterminate-mask-image]": "indeterminateImage",
+    "[attr.aria-labelledby]": "cardLabelledBy()",
+    "[attr.aria-describedby]": "cardDescribedBy()",
     "(change)": "onGroupChange()",
   },
 })
 export class CheckboxComponent implements BitFormControlAbstraction {
   readonly inputEl = inject<ElementRef<HTMLInputElement>>(ElementRef);
   protected readonly group = inject(FormControlGroupComponent, { optional: true });
+  private readonly card = inject(FormControlCardComponent, { optional: true });
+
+  protected readonly cardLabelledBy = computed(() => this.card?.labelId ?? null);
+  protected readonly cardDescribedBy = computed(() => {
+    if (!this.card) {
+      return null;
+    }
+    return (
+      [this.card.effectiveErrorId, this.card.effectiveHintId()].filter(Boolean).join(" ") || null
+    );
+  });
 
   protected readonly inputClasses = [
     "tw-appearance-none",
@@ -121,15 +136,16 @@ export class CheckboxComponent implements BitFormControlAbstraction {
 
   readonly value = input<unknown>();
 
-  constructor() {
-    effect(() => {
-      if (!this.group || this.value() === undefined) {
-        return;
-      }
-      this.inputEl.nativeElement.checked = this.group.selectedValues().includes(this.value());
-      this.inputEl.nativeElement.disabled = this.group.groupDisabled() || this.disabledInput();
-    });
-  }
+  // In the group path this is a reactive signal dependency; re-evaluates when selectedValues
+  // changes. In the standalone path there are no signal dependencies so the computed is
+  // evaluated once (after writeValue has already run in ngOnInit) and then frozen — the
+  // ControlValueAccessor owns all subsequent DOM updates.
+  protected readonly isGroupChecked = computed(() => {
+    if (this.group && this.value() !== undefined) {
+      return this.group.selectedValues().includes(this.value());
+    }
+    return this.inputEl.nativeElement.checked;
+  });
 
   protected onGroupChange() {
     if (this.group && this.value() !== undefined) {

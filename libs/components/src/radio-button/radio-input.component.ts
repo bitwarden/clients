@@ -1,8 +1,7 @@
 import {
   booleanAttribute,
   Component,
-  effect,
-  ElementRef,
+  computed,
   HostBinding,
   inject,
   input,
@@ -12,6 +11,7 @@ import {
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 
 let nextId = 0;
@@ -24,15 +24,30 @@ let nextId = 0;
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
   host: {
     "[id]": "this.id()",
+    "[checked]": "isGroupChecked()",
     "[disabled]": "disabled",
     "[attr.name]": "groupName",
+    "[attr.aria-labelledby]": "cardLabelledBy()",
+    "[attr.aria-describedby]": "cardDescribedBy()",
     "(change)": "onGroupChange()",
     "(blur)": "onGroupBlur()",
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
-  readonly inputEl = inject<ElementRef<HTMLInputElement>>(ElementRef);
   protected readonly group = inject(FormControlGroupComponent, { optional: true });
+  private readonly card = inject(FormControlCardComponent, { optional: true });
+
+  protected readonly isGroupChecked = computed(
+    () => this.group?.selectedValues().includes(this.value()) ?? false,
+  );
+
+  protected readonly cardLabelledBy = computed(() => this.card?.labelId ?? null);
+  protected readonly cardDescribedBy = computed(() => {
+    if (!this.card) {return null;}
+    return (
+      [this.card.effectiveErrorId, this.card.effectiveHintId()].filter(Boolean).join(" ") || null
+    );
+  });
 
   readonly id = input(`bit-radio-input-${nextId++}`);
   readonly value = input<unknown>();
@@ -105,14 +120,7 @@ export class RadioInputComponent implements BitFormControlAbstraction {
   ];
 
   constructor(@Optional() @Self() private ngControl?: NgControl) {
-    if (this.group) {
-      this.group.registerRadioChild();
-
-      effect(() => {
-        this.inputEl.nativeElement.checked = this.group!.selectedValues().includes(this.value());
-        this.inputEl.nativeElement.disabled = this.group!.groupDisabled() || this.disabledInput();
-      });
-    }
+    this.group?.registerRadioChild();
   }
 
   get groupName(): string | null {
