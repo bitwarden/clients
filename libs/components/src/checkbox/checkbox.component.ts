@@ -40,9 +40,9 @@ export class CheckboxComponent implements BitFormControlAbstraction {
     "tw-w-6",
     "tw-rounded-lg",
     // negative margin to negate the positioning added by the sizing
-    "!-tw-mt-[1px]",
-    "!-tw-mb-[1px]",
-    "!-tw-ms-[1px]",
+    "!-tw-mt-px",
+    "!-tw-mb-px",
+    "!-tw-ms-px",
     "hover:tw-bg-bg-hover",
     "focus-visible:tw-bg-bg-hover",
 
