@@ -130,11 +130,6 @@ export class DialogComponent implements AfterViewInit {
   readonly subtitle = input<string>();
 
   /**
-   * Disable the built-in padding on the dialog, for use with tabbed dialogs.
-   */
-  readonly disablePadding = input(false, { transform: booleanAttribute });
-
-  /**
    * Disable animations for the dialog.
    */
   readonly disableAnimations = input(false, { transform: booleanAttribute });
