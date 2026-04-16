@@ -410,4 +410,51 @@ describe("Performance instrumentation", () => {
       expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 0);
     });
   });
+
+  describe("useTimeoutForFlush", () => {
+    it("forces flush scheduling to use setTimeout even when requestIdleCallback is available", () => {
+      perfModule.enableInstrumentation();
+      perfModule.useTimeoutForFlush();
+
+      const setTimeoutSpy = jest.spyOn(globalThis, "setTimeout");
+
+      let nowValue = 0;
+      jest.spyOn(performance, "now").mockImplementation(() => nowValue++);
+
+      const fn = jest.fn();
+      const wrapped = perfModule.stopwatch("timeout-mode", fn);
+      wrapped();
+
+      expect(requestIdleCallbackSpy).toHaveBeenCalledTimes(0);
+      expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 0);
+    });
+
+    it("is a one-way latch — cannot revert to idle callbacks", () => {
+      perfModule.enableInstrumentation();
+      perfModule.useTimeoutForFlush();
+
+      const flushCallbacks: any[] = [];
+      requestIdleCallbackSpy.mockImplementation((cb: IdleRequestCallback) => {
+        flushCallbacks.push(cb);
+        return 0;
+      });
+      const setTimeoutSpy = jest.spyOn(globalThis, "setTimeout").mockImplementation((cb) => {
+        if (typeof cb === "function") {
+          cb();
+        }
+        return 0 as any;
+      });
+
+      let nowValue = 0;
+      jest.spyOn(performance, "now").mockImplementation(() => nowValue++);
+
+      const fn = jest.fn();
+      const wrapped = perfModule.stopwatch("latch", fn);
+      wrapped();
+      wrapped();
+
+      expect(flushCallbacks).toHaveLength(0);
+      expect(setTimeoutSpy).toHaveBeenCalled();
+    });
+  });
 });

@@ -86,6 +86,8 @@ The first buffer write after a flush schedules an idle callback. Subsequent writ
 - No scheduling overhead on the hot path after the first write
 - If new entries arrive during a flush, the flush reschedules itself
 
+A consequence of this design is that if the browser never goes idle, the flush never fires and entries remain in the buffer indefinitely (or are overwritten as the circular buffer wraps). The framework optimizes for hot-path instrumentation, and does not attempt to detect this scenario. Instead, `useTimeoutForFlush()` lets the caller opt into `setTimeout`-based flushing.
+
 ### Synchronous code paths only
 
 The instrumentation measures the wall-clock time between two `performance.now()` calls that bracket the measured function. This captures exactly the synchronous work — the code that blocks the main thread and causes jank.

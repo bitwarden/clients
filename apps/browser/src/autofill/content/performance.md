@@ -62,6 +62,15 @@ const entries = exportPerformanceEntries("handleMutation");
 
 This returns a `PerformanceEntryList` filtered to measures matching the given name. If the measurement has been poisoned, it throws.
 
+> [!TIP]
+> Buffered entries are flushed to the Performance Timeline during idle time. If a page never goes idle (e.g., continuous animation or heavy scripting), the flush will never fire and `exportPerformanceEntries` will return an empty list. Call `useTimeoutForFlush()` to force the collector to flush using `setTimeout` instead:
+>
+> ```ts
+> import { useTimeoutForFlush } from "./performance";
+>
+> useTimeoutForFlush();
+> ```
+
 Use `poison(name)` to mark a measurement as unreliable — for example, when an unexpected error during processing means the timing data can't be trusted:
 
 ```ts

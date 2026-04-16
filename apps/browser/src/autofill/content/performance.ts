@@ -2,6 +2,7 @@
 // See performance.md for usage and performance.design.md for design rationale.
 
 let enabled = false;
+let forceTimeout = false;
 
 const BUFFER_SIZE = 128;
 const BUFFER_MASK = BUFFER_SIZE - 1;
@@ -56,6 +57,16 @@ let writeHead = 0;
 let readHead = 0;
 let pendingFlush = false;
 
+function scheduleFlush(): void {
+  // Inlined `requestIdleCallbackPolyfill()` from ../utils to avoid
+  // pulling background resources into content scripts
+  if (!forceTimeout && "requestIdleCallback" in globalThis) {
+    globalThis.requestIdleCallback(flushBuffer);
+  } else {
+    globalThis.setTimeout(flushBuffer, 0);
+  }
+}
+
 function recordEntry(name: string, start: number, end: number): void {
   const slot = buffer[writeHead & BUFFER_MASK];
   slot.name = name;
@@ -65,13 +76,7 @@ function recordEntry(name: string, start: number, end: number): void {
 
   if (!pendingFlush) {
     pendingFlush = true;
-    // Inlined rather than importing requestIdleCallbackPolyfill from ../utils,
-    // which would pull in the entire barrel export and bloat the content script bundle.
-    if ("requestIdleCallback" in globalThis) {
-      globalThis.requestIdleCallback(flushBuffer);
-    } else {
-      globalThis.setTimeout(flushBuffer, 0);
-    }
+    scheduleFlush();
   }
 }
 
@@ -97,12 +102,7 @@ function flushBuffer(): void {
 
   if (writeHead > currentWriteHead) {
     pendingFlush = true;
-    // the polyfill defined in ../utils is not available in content scripts
-    if ("requestIdleCallback" in globalThis) {
-      globalThis.requestIdleCallback(flushBuffer);
-    } else {
-      globalThis.setTimeout(flushBuffer, 0);
-    }
+    scheduleFlush();
   }
 }
 
@@ -120,6 +120,18 @@ export function enableInstrumentation(): void {
 /** Returns whether instrumentation is currently enabled. */
 export function isInstrumentationEnabled(): boolean {
   return enabled;
+}
+
+/**
+ * Forces the flush scheduler to use `setTimeout` instead of `requestIdleCallback`.
+ * This is a one-way latch — once activated, all subsequent flushes use timeouts
+ * for the lifetime of the content script.
+ *
+ * Use this when the page under test never goes idle, which would prevent
+ * `requestIdleCallback` from firing and leave entries stranded in the buffer.
+ */
+export function useTimeoutForFlush(): void {
+  forceTimeout = true;
 }
 
 /**
