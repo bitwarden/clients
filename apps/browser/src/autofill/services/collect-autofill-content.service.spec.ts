@@ -75,6 +75,13 @@ describe("CollectAutofillContentService", () => {
   describe("getPageDetails", () => {
     beforeEach(() => {
       jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: unknown) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({ result: null });
+          }
+        });
+      jest
         .spyOn(collectAutofillContentService as any, "setupMutationObserver")
         .mockImplementationOnce(() => {
           collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
@@ -1503,6 +1510,34 @@ describe("CollectAutofillContentService", () => {
 
       expect(labelTag).toEqual("Username");
     });
+
+    it("does not collect text from a sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Enter Country Code <select><option>US</option></select></div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Helper text</div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("Helper text");
+    });
   });
 
   describe("createAutofillFieldLeftLabel", () => {
@@ -1519,6 +1554,53 @@ describe("CollectAutofillContentService", () => {
       const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
 
       expect(labelTag).toEqual("Text ContentUsername");
+    });
+
+    it("does not collect text from a direct sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not collect text from a parent sibling that contains a form field", () => {
+      // Exercises the parent-walk code path: the input has no direct previous
+      // siblings, so the traversal walks up to the parent and checks its previous
+      // sibling — which should be blocked because it contains a form field.
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <div>
+            <input type="text" name="username" id="username-id">
+          </div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Helpful label</div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("Helpful label");
     });
   });
 
@@ -1650,6 +1732,42 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService["createAutofillFieldTopLabel"](targetTableCellInput);
 
       expect(targetTableCellLabel).toEqual(null);
+    });
+  });
+
+  describe("containsChildField", () => {
+    it("returns true when the element contains an input descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Enter Country Code</span><input type="text" />`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a select descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<select><option>US</option></select>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a textarea descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<textarea></textarea>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns false when the element contains no form field descendants", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Helper text</span>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(false);
+    });
+
+    it("returns false when the node is a text node", () => {
+      const textNode = document.createTextNode("Enter Country Code");
+
+      expect(collectAutofillContentService["containsChildField"](textNode)).toBe(false);
     });
   });
 
@@ -2076,7 +2194,7 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["setupMutationObserver"]();
 
       expect(collectAutofillContentService["mutationObserver"]).toBeInstanceOf(MutationObserver);
-      expect(collectAutofillContentService["mutationObserver"].observe).toBeCalled();
+      expect(collectAutofillContentService["mutationObserver"].observe).toHaveBeenCalled();
     });
   });
 
@@ -2114,11 +2232,11 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["domRecentlyMutated"]).toEqual(true);
       expect(collectAutofillContentService["noFieldsFound"]).toEqual(false);
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).toBeCalledWith(
+      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).toHaveBeenCalledWith(
         removedNodes,
         true,
       );
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).toBeCalledWith(
+      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).toHaveBeenCalledWith(
         addedNodes,
       );
     });
@@ -2183,8 +2301,10 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["domRecentlyMutated"]).toEqual(false);
       expect(collectAutofillContentService["noFieldsFound"]).toEqual(true);
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toBeCalled();
-      expect(collectAutofillContentService["handleAutofillElementAttributeMutation"]).toBeCalled();
+      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toHaveBeenCalled();
+      expect(
+        collectAutofillContentService["handleAutofillElementAttributeMutation"],
+      ).toHaveBeenCalled();
     });
 
     it("will handle window location mutations", () => {
@@ -2206,11 +2326,11 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
-      expect(collectAutofillContentService["handleWindowLocationMutation"]).toBeCalled();
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toBeCalled();
+      expect(collectAutofillContentService["handleWindowLocationMutation"]).toHaveBeenCalled();
+      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toHaveBeenCalled();
       expect(
         collectAutofillContentService["handleAutofillElementAttributeMutation"],
-      ).not.toBeCalled();
+      ).not.toHaveBeenCalled();
     });
 
     it("will setup the overlay listeners on mutated elements", async () => {
@@ -2238,7 +2358,9 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
       jest.runAllTimers();
 
-      expect(collectAutofillContentService["setupOverlayListenersOnMutatedElements"]).toBeCalled();
+      expect(
+        collectAutofillContentService["setupOverlayListenersOnMutatedElements"],
+      ).toHaveBeenCalled();
     });
 
     it("triggers debounced page details update when mutations occur in shadow roots", () => {
@@ -2431,7 +2553,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["setupOverlayListenersOnMutatedElements"](nodes);
 
-      expect(collectAutofillContentService["buildAutofillFieldItem"]).not.toBeCalled();
+      expect(collectAutofillContentService["buildAutofillFieldItem"]).not.toHaveBeenCalled();
     });
 
     it("skips building the autofill field item if the node is already a field element", () => {
@@ -2445,7 +2567,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["setupOverlayListenersOnMutatedElements"](nodes);
 
-      expect(collectAutofillContentService["buildAutofillFieldItem"]).not.toBeCalled();
+      expect(collectAutofillContentService["buildAutofillFieldItem"]).not.toHaveBeenCalled();
     });
   });
 
@@ -2526,7 +2648,9 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["currentLocationHref"]).toEqual(window.location.href);
       expect(collectAutofillContentService["domRecentlyMutated"]).toEqual(true);
       expect(collectAutofillContentService["noFieldsFound"]).toEqual(false);
-      expect(collectAutofillContentService["updateAutofillElementsAfterMutation"]).toBeCalled();
+      expect(
+        collectAutofillContentService["updateAutofillElementsAfterMutation"],
+      ).toHaveBeenCalled();
       expect(collectAutofillContentService["_autofillFormElements"].size).toEqual(0);
       expect(collectAutofillContentService["autofillFieldElements"].size).toEqual(0);
     });
@@ -2549,7 +2673,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["handleAutofillElementAttributeMutation"](mutationRecord);
 
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toBeCalled();
+      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toHaveBeenCalled();
     });
 
     it("will update the autofill form element data if the target node can be found in the autofillFormElements map", () => {
@@ -2581,7 +2705,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["handleAutofillElementAttributeMutation"](mutationRecord);
 
-      expect(collectAutofillContentService["updateAutofillFormElementData"]).toBeCalledWith(
+      expect(collectAutofillContentService["updateAutofillFormElementData"]).toHaveBeenCalledWith(
         mutationRecord.attributeName,
         mutationRecord.target,
         autofillForm,
@@ -2628,7 +2752,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["handleAutofillElementAttributeMutation"](mutationRecord);
 
-      expect(collectAutofillContentService["updateAutofillFieldElementData"]).toBeCalledWith(
+      expect(collectAutofillContentService["updateAutofillFieldElementData"]).toHaveBeenCalledWith(
         mutationRecord.attributeName,
         mutationRecord.target,
         autofillField,
@@ -2663,7 +2787,7 @@ describe("CollectAutofillContentService", () => {
           autofillForm,
         );
 
-        expect(collectAutofillContentService["_autofillFormElements"].set).toBeCalledWith(
+        expect(collectAutofillContentService["_autofillFormElements"].set).toHaveBeenCalledWith(
           formElement,
           autofillForm,
         );
@@ -2679,7 +2803,7 @@ describe("CollectAutofillContentService", () => {
         autofillForm,
       );
 
-      expect(collectAutofillContentService["_autofillFormElements"].set).not.toBeCalled();
+      expect(collectAutofillContentService["_autofillFormElements"].set).not.toHaveBeenCalled();
     });
   });
 
@@ -2732,7 +2856,7 @@ describe("CollectAutofillContentService", () => {
           autofillField,
         );
 
-        expect(collectAutofillContentService["autofillFieldElements"].set).toBeCalledWith(
+        expect(collectAutofillContentService["autofillFieldElements"].set).toHaveBeenCalledWith(
           fieldElement,
           autofillField,
         );
@@ -2748,7 +2872,7 @@ describe("CollectAutofillContentService", () => {
         autofillField,
       );
 
-      expect(collectAutofillContentService["autofillFieldElements"].set).not.toBeCalled();
+      expect(collectAutofillContentService["autofillFieldElements"].set).not.toHaveBeenCalled();
     });
   });
 
@@ -2896,13 +3020,12 @@ describe("CollectAutofillContentService", () => {
   describe("destroy", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
-      collectAutofillContentService["updateAfterMutationIdleCallback"] = setTimeout(jest.fn, 100);
+      const callbackId = setTimeout(jest.fn, 100);
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = callbackId;
 
       collectAutofillContentService.destroy();
 
-      expect(clearTimeout).toHaveBeenCalledWith(
-        collectAutofillContentService["updateAfterMutationIdleCallback"],
-      );
+      expect(clearTimeout).toHaveBeenCalledWith(callbackId);
     });
 
     it("clears all pending overlay setup timeouts", () => {

@@ -16,7 +16,6 @@ import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-pro
 import { AuthRequestServiceAbstraction, LockService, LogoutService } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -25,6 +24,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -56,16 +56,14 @@ import {
   RoutedVaultFilterService,
   VaultFilter,
   VaultFilterServiceAbstraction,
+  VaultItemDialogComponent,
+  VaultItemDialogResult,
   VaultItemEvent,
   VaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { OrganizationWarningsService } from "../../billing/organizations/warnings/services";
 import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
-import {
-  VaultItemDialogComponent,
-  VaultItemDialogResult,
-} from "../components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { WebVaultExtensionPromptService } from "../services/web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
@@ -160,7 +158,13 @@ describe("VaultComponent", () => {
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: SyncService, useValue: mock<SyncService>() },
-        { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: ConfigService,
+          useValue: {
+            ...mock<ConfigService>(),
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
+        },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: WelcomeDialogService, useValue: mock<WelcomeDialogService>() },
         { provide: OrganizationUserApiService, useValue: mock<OrganizationUserApiService>() },
@@ -224,9 +228,10 @@ describe("VaultComponent", () => {
         {
           provide: CipherArchiveService,
           useValue: {
-            hasArchiveFlagEnabled$: of(false),
             userCanArchive$: jest.fn().mockReturnValue(of(false)),
             showSubscriptionEndedMessaging$: jest.fn().mockReturnValue(of(false)),
+            archivedCiphers$: jest.fn().mockReturnValue(of([])),
+            userHasPremium$: jest.fn().mockReturnValue(of([])),
           },
         },
         {

@@ -1,8 +1,10 @@
-import { BrowserWindow, dialog, MenuItemConstructorOptions, shell } from "electron";
+import { BrowserWindow, dialog, MenuItemConstructorOptions } from "electron";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 
+import { SafeShell } from "../../platform/main/safe-shell.main";
 import { isMacAppStore, isWindowsStore } from "../../utils";
 
 import { IMenubarMenu } from "./menubar";
@@ -32,6 +34,8 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
   private readonly _hasMasterPassword: boolean;
+  // TODO: PM-32419 - remove once multi client password management is fully rolled out
+  private readonly _multiClientPasswordManagement: boolean;
 
   constructor(
     i18nService: I18nService,
@@ -40,6 +44,8 @@ export class AccountMenu implements IMenubarMenu {
     window: BrowserWindow,
     isLocked: boolean,
     hasMasterPassword: boolean,
+    multiClientPasswordManagement: boolean = false,
+    private shell: SafeShell,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
@@ -47,6 +53,8 @@ export class AccountMenu implements IMenubarMenu {
     this._window = window;
     this._isLocked = isLocked;
     this._hasMasterPassword = hasMasterPassword;
+    // TODO: PM-32419 - remove once multi client password management is fully rolled out
+    this._multiClientPasswordManagement = multiClientPasswordManagement;
   }
 
   private get premiumMembership(): MenuItemConstructorOptions {
@@ -60,6 +68,17 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   private get changeMasterPassword(): MenuItemConstructorOptions {
+    // TODO: PM-32419 - remove feature flag check once fully rolled out
+    if (this._multiClientPasswordManagement) {
+      return {
+        // TODO: PM-32419 - remove "changeMasterPass" translation since we now use changeMasterPassword
+        label: this.localize("changeMasterPassword"),
+        id: "changeMasterPassword",
+        click: () => this.sendMessage("openChangePasswordDialog"),
+        enabled: !this._isLocked,
+      };
+    }
+    // TODO: PM-32419 - remove old change password menu item once multi client password management is fully rolled out
     return {
       label: this.localize("changeMasterPass"),
       id: "changeMasterPass",
@@ -74,9 +93,7 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,
@@ -98,9 +115,7 @@ export class AccountMenu implements IMenubarMenu {
           noLink: true,
         });
         if (result.response === 0) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          shell.openExternal(this._webVaultUrl);
+          void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
       enabled: !this._isLocked,

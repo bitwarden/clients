@@ -10,14 +10,13 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ToastService } from "@bitwarden/components";
-import { BaseEventsComponent } from "@bitwarden/web-vault/app/admin-console/common/base.events.component";
-import { EventService } from "@bitwarden/web-vault/app/core";
+import { EventService, BaseEventsComponent } from "@bitwarden/web-vault/app/dirt/event-logs";
 import { EventExportService } from "@bitwarden/web-vault/app/tools/event-export";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

@@ -45,7 +45,6 @@ export const SetInitialPasswordUserType: Readonly<{
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;
-  newLocalMasterKeyHash: string;
   newPasswordHint: string;
   kdfConfig: KdfConfig;
   orgSsoIdentifier: string;

@@ -60,6 +60,7 @@ describe("ItemMoreOptionsComponent", () => {
 
   const domainSettingsService = {
     resolvedDefaultUriMatchStrategy$: uriMatchStrategy$.asObservable(),
+    getUrlEquivalentDomains: jest.fn().mockReturnValue(of(new Set<string>())),
   };
 
   const baseCipher = {
@@ -102,7 +103,7 @@ describe("ItemMoreOptionsComponent", () => {
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
         {
           provide: CipherArchiveService,
-          useValue: { userCanArchive$: () => of(true), hasArchiveFlagEnabled$: of(true) },
+          useValue: { userCanArchive$: () => of(true) },
         },
         { provide: ToastService, useValue: { showToast: () => {} } },
         { provide: Router, useValue: { navigate: () => Promise.resolve(true) } },
@@ -137,6 +138,10 @@ describe("ItemMoreOptionsComponent", () => {
   }
 
   describe("doAutofill", () => {
+    beforeEach(() => {
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+    });
+
     it("calls the passwordService to passwordRepromptCheck", async () => {
       autofillSvc.currentAutofillTab$.next({ url: "https://page.example.com" });
       mockConfirmDialogResult(AutofillConfirmationDialogResult.AutofilledOnly);
@@ -162,6 +167,22 @@ describe("ItemMoreOptionsComponent", () => {
       beforeEach(() => {
         uriMatchStrategy$.next(UriMatchStrategy.Domain);
         passwordRepromptService.passwordRepromptCheck.mockResolvedValue(true);
+        jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      });
+
+      it("autofills directly without showing confirmation dialog when domain matches", async () => {
+        autofillSvc.currentAutofillTab$.next({ url: "https://one.example.com" });
+        jest.spyOn(component as any, "_domainMatched").mockResolvedValue(true);
+        const openSpy = jest.spyOn(AutofillConfirmationDialogComponent, "open");
+
+        await component.doAutofill();
+
+        expect(openSpy).not.toHaveBeenCalled();
+        expect(autofillSvc.doAutofill).toHaveBeenCalledWith(
+          expect.objectContaining({ id: "cipher-1" }),
+          true,
+          true,
+        );
       });
 
       it("calls the passwordService to passwordRepromptCheck", async () => {
@@ -182,9 +203,9 @@ describe("ItemMoreOptionsComponent", () => {
         expect(openSpy).toHaveBeenCalledTimes(1);
         const args = openSpy.mock.calls[0][1];
         expect(args.data?.currentUrl).toBe("https://page.example.com/path");
-        expect(args.data?.savedUrls).toEqual([
-          "https://one.example.com",
-          "https://two.example.com/a",
+        expect(args.data?.savedUris).toEqual([
+          { uri: "https://one.example.com" },
+          { uri: "https://two.example.com/a" },
         ]);
       });
 

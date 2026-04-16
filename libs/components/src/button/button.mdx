@@ -6,6 +6,7 @@ import {
   Controls,
   Title,
   Description,
+  Story,
 } from "@storybook/addon-docs/blocks";
 
 import * as stories from "./button.stories";
@@ -46,30 +47,65 @@ right.
 
 ## Styles
 
-There are 3 main styles for the button: Primary, Secondary, and Danger.
+Buttons come in multiple semantic types, each with three style variants: solid (default), outline,
+and ghost.
 
-### Default / Secondary
+<Canvas of={stories.AllVariants} />
 
-The secondary styling(shown above) should be used for secondary calls to action. An action is
-"secondary" if it relates indirectly to the purpose of a page. There may be multiple secondary
-buttons next to each other; however, generally there should only be 1 or 2 calls to action per page.
+### Button Types
 
-### Primary
+#### Primary
 
-Use the primary button styling for all Primary call to actions. An action is "primary" if it relates
-to the main purpose of a page. There should never be 2 primary styled buttons next to each other.
+Use the primary button styling for the main call to action. An action is "primary" if it relates to
+the main purpose of a page. There should never be 2 primary styled buttons next to each other.
 
-<Canvas of={stories.Primary} />
+- **primary** - Solid primary button with brand colors
+- **primaryOutline** - Outlined primary button with transparent background
+- **primaryGhost** - Minimal primary button with no border
 
-### Danger
+#### Secondary
+
+The secondary styling should be used for secondary calls to action. An action is "secondary" if it
+relates indirectly to the purpose of a page. There may be multiple secondary buttons next to each
+other; however, generally there should only be 1 or 2 calls to action per page.
+
+- **secondary** - Default button style
+
+#### Subtle
+
+Use subtle buttons for tertiary actions that should be less prominent than secondary buttons.
+
+- **subtle** - Solid subtle button with contrast colors
+- **subtleOutline** - Outlined subtle button with transparent background
+- **subtleGhost** - Minimal subtle button with no border
+
+#### Danger
 
 Use the danger styling only in settings when the user may perform a permanent destructive action.
 
-<Canvas of={stories.Danger} />
+- **danger** - Solid danger button
+- **dangerOutline** - Outlined danger button
+- **dangerGhost** - Minimal danger button with no border
 
-## Disabled UI
+#### Warning
 
-<Canvas of={stories.Disabled} />
+Use warning buttons to indicate caution or actions that require attention.
+
+- **warning** - Solid warning button
+- **warningOutline** - Outlined warning button
+- **warningGhost** - Minimal warning button with no border
+
+#### Success
+
+Use success buttons to indicate positive or completion actions.
+
+- **success** - Solid success button
+- **successOutline** - Outlined success button
+- **successGhost** - Minimal success button with no border
+
+## Inactive UI
+
+<Canvas of={stories.Inactive} />
 
 ## Block
 
