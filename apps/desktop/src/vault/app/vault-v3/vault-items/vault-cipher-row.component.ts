@@ -99,7 +99,6 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected readonly showArchiveButton = computed(() => {
     return (
-      !this.cipher().organizationId &&
       !CipherViewLikeUtils.isArchived(this.cipher()) &&
       !CipherViewLikeUtils.isDeleted(this.cipher())
     );
