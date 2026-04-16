@@ -16,7 +16,7 @@ Spinners provide visual feedback during loading states with support for multiple
 
 ## Variants
 
-7 supported color variants & 4 sizes are available:
+6 supported color variants & 4 sizes are available:
 
 - **sm** (16px) - Small indicators for list items or compact cards
 - **md** (24px) - Medium size for use cases where Default is to large
@@ -37,12 +37,10 @@ Spinners provide visual feedback during loading states with support for multiple
 
 ## Accessibility
 
-The spinner includes an optional `title` input for screen readers. Defaults to "Loading" from i18n
-service.
+The SVG is always marked `aria-hidden="true"` as it is purely decorative. The `title` input provides
+screen reader text rendered as a visually hidden element alongside the SVG. Defaults to "Loading"
+from the i18n service.
 
 ```html
 <bit-spinner variant="primary" size="base" title="Processing payment"></bit-spinner>
 ```
-
-When a title is provided, the SVG element receives `aria-label` and `aria-hidden` attributes for
-proper accessibility support.
