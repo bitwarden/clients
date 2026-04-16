@@ -1,6 +1,6 @@
 <bit-banner
   *ngIf="showCurrentTabIsBlockedBanner$ | async"
-  bannerType="info"
+  variant="primary"
   (onClose)="handleCurrentTabIsBlockedBannerDismiss()"
 >
   {{ "autofillBlockedNoticeV2" | i18n }}
