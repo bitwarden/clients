@@ -76,6 +76,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import {
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   CipherFormConfig,
@@ -90,6 +93,9 @@ import {
   All,
   RoutedVaultFilterModel,
   VaultFilter,
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -101,11 +107,6 @@ import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/v
 
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
-import {
-  VaultItemDialogComponent,
-  VaultItemDialogMode,
-  VaultItemDialogResult,
-} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
 import {
@@ -835,6 +836,27 @@ export class VaultComponent implements OnInit, OnDestroy {
       result?.action === AttachmentDialogResult.Uploaded
     ) {
       this.refresh();
+    }
+  }
+
+  /**
+   * Opens the add-item type selection dialog and handles the result.
+   */
+  protected async openAddItemDialog(): Promise<void> {
+    const organization = await firstValueFrom(this.organization$);
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: false,
+      canCreateCollection: organization?.canCreateNewCollections ?? false,
+      canCreateSshKey: true,
+    });
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (!result) {
+      return;
+    }
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Collection) {
+      await this.addCollection();
     }
   }
 
