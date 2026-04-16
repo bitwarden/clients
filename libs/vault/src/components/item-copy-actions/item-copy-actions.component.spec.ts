@@ -366,17 +366,14 @@ describe("VaultItemCopyActionsComponent", () => {
       jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
     });
 
-    it("uses copyableFields for login values", () => {
-      (component.cipher() as CipherListView).copyableFields = [
-        "LoginUsername",
-        "CardNumber",
-      ] as CopyableCipherFields[];
+    it("uses hasCopyableValue for login values", () => {
+      jest
+        .spyOn(CipherViewLikeUtils, "hasCopyableValue")
+        .mockImplementation((_cipher, field) => field === "username" || field === "password");
 
       expect(component.hasLoginValues).toBe(true);
 
-      (component.cipher() as CipherListView).copyableFields = [
-        "CardNumber",
-      ] as CopyableCipherFields[];
+      jest.spyOn(CipherViewLikeUtils, "hasCopyableValue").mockImplementation(() => false);
 
       expect(component.hasLoginValues).toBe(false);
     });

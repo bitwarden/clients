@@ -121,13 +121,11 @@ export class VaultItemCopyActionsComponent {
   /** Sets the number of populated login values for the cipher */
   private getNumberOfLoginValues(cipher: CipherViewLike) {
     if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      const copyableLoginFields: CopyableCipherFields[] = [
-        "LoginUsername",
-        "LoginPassword",
-        "LoginTotp",
-      ];
-
-      return cipher.copyableFields.filter((field) => copyableLoginFields.includes(field)).length;
+      return [
+        CipherViewLikeUtils.hasCopyableValue(cipher, "username"),
+        CipherViewLikeUtils.hasCopyableValue(cipher, "password"),
+        CipherViewLikeUtils.hasCopyableValue(cipher, "totp"),
+      ].filter(Boolean).length;
     }
 
     return [cipher.login.username, cipher.login.password, cipher.login.totp].filter(Boolean).length;
