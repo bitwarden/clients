@@ -7,7 +7,7 @@
     "**/_locales/*[^n]/messages.json": true
   },
   "rust-analyzer.linkedProjects": ["apps/desktop/desktop_native/Cargo.toml"],
-  "typescript.tsdk": "node_modules/typescript/lib",
   "eslint.useFlatConfig": true,
-  "tailwindCSS.experimental.classRegex": ["[\"'`]([^\"'`\\n]*tw-[^\"'`\\n]*)[\"'`]"]
+  "tailwindCSS.experimental.classRegex": ["[\"'`]([^\"'`\\n]*tw-[^\"'`\\n]*)[\"'`]"],
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }
