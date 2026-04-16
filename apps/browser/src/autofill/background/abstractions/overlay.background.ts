@@ -73,6 +73,14 @@ export type InlineMenuPosition = {
   list?: InlineMenuElementPosition | null;
 };
 
+export const PasswordGenerateRequestSource = Object.freeze({
+  Clipboard: "clipboard",
+  InlineMenu: "inline-menu",
+  InlineMenuInit: "inline-menu/init",
+} as const);
+export type PasswordGenerateRequestSource =
+  (typeof PasswordGenerateRequestSource)[keyof typeof PasswordGenerateRequestSource];
+
 export type NewLoginCipherData = {
   uri?: string;
   hostname: string;

@@ -617,9 +617,16 @@ export class ServiceContainer {
       this.stateProvider,
       this.policyService,
       this.accountService,
+      this.configService,
+      this.environmentService,
+      this.authService,
     );
 
-    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
+    this.fileUploadService = new FileUploadService(
+      this.logService,
+      this.apiService,
+      this.configService,
+    );
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
@@ -636,6 +643,7 @@ export class ServiceContainer {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
+      this.configService,
     );
 
     this.sendApiService = this.sendApiService = new SendApiService(
@@ -699,10 +707,12 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountService,
       this.masterPasswordService,
-      this.cryptoFunctionService,
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),
+      this.platformUtilsService,
+      this.stateService,
+      this.biometricStateService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -792,7 +802,6 @@ export class ServiceContainer {
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
-      this.unlockService,
       this.keyService,
       this.apiService,
       this.tokenService,
@@ -819,6 +828,7 @@ export class ServiceContainer {
       this.configService,
       this.accountCryptographicStateService,
       this.passwordPreloginService,
+      this.unlockService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(

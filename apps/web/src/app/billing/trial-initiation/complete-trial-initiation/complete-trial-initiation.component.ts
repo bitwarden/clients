@@ -293,21 +293,14 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     this.verticalStepper.previous();
   }
 
-  async getPlanType() {
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    const familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
-
+  getPlanType() {
     switch (this.productTier) {
       case ProductTierType.Teams:
         return PlanType.TeamsAnnually;
       case ProductTierType.Enterprise:
         return PlanType.EnterpriseAnnually;
       case ProductTierType.Families:
-        return familyPlan;
+        return PlanType.FamiliesAnnually;
       case ProductTierType.Free:
         return PlanType.Free;
       default:

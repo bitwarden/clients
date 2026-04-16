@@ -1,0 +1,16 @@
+<div class="tw-flex tw-w-full tw-gap-8">
+  <div class="tw-flex tw-justify-center tw-items-center">
+    <ng-content select="[slot=illustration]"></ng-content>
+  </div>
+  <div class="tw-flex tw-flex-col tw-justify-center tw-flex-1 tw-gap-6">
+    <div class="tw-flex tw-flex-col tw-gap-1">
+      <div bitTypography="h2" noMargin>
+        <ng-content select="[slot=title]"></ng-content>
+      </div>
+      <div bitTypography="body1">
+        <ng-content select="[slot=description]"></ng-content>
+      </div>
+    </div>
+    <ng-content select="bit-progress-bar"></ng-content>
+  </div>
+</div>
