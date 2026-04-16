@@ -10,6 +10,7 @@ import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
+import jest from "eslint-plugin-jest";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
@@ -674,6 +675,17 @@ export default tseslint.config(
           ],
         },
       ],
+    },
+  },
+
+  // Jest test files configuration
+  {
+    files: ["**/*.spec.ts", "**/*.spec.js"],
+    plugins: {
+      jest,
+    },
+    rules: {
+      "jest/no-alias-methods": "error",
     },
   },
 
