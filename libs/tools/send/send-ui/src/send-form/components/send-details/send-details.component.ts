@@ -246,7 +246,7 @@ export class SendDetailsComponent implements OnInit {
             passwordControl.setValue("************");
           }
           passwordControl.setValidators([Validators.required]);
-          if (this.editing()) {
+          if (this.editing() && this.hasPassword) {
             passwordControl.disable();
           }
         } else if (type === AuthType.Email) {
