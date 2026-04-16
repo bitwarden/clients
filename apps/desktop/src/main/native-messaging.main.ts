@@ -286,15 +286,32 @@ export class NativeMessagingMain {
     }
   }
 
+  /*
+    Helper functions to get the native messaging host paths for each platform.
+
+    Note that for the chromium-based browsers (Edge, Brave, Vivaldi, etc.) they
+    usually fallback to checking Chrome's NativeMessagingHosts path if the manifest
+    is not found in their own path, but we still want to install the manifest in their
+    own path as well if possible on macOS and Linux.
+
+    This is because our code requires the browser paths to exist before installing the manifest,
+    so the fallback included in these browsers won't work if the user hasn't installed Chrome
+    first (or some other application created the folder for them).
+  */
+
   private getWindowsNMHS() {
     return {
       Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
       Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
       Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      // Edge uses the same registry key as Chrome as a fallback, but it's has its own separate key as well.
       "Microsoft Edge": [
         "HKCU",
         "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
+      ],
+      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
+      Brave: [
+        "HKCU",
+        "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
       ],
     };
   }
@@ -325,6 +342,8 @@ export class NativeMessagingMain {
       Chrome: `${this.homedir()}/.config/google-chrome/`,
       Chromium: `${this.homedir()}/.config/chromium/`,
       "Microsoft Edge": `${this.homedir()}/.config/microsoft-edge/`,
+      Vivaldi: `${this.homedir()}/.config/vivaldi/`,
+      Brave: `${this.homedir()}/.config/BraveSoftware/Brave-Browser/`,
     };
   }
 
@@ -403,13 +422,24 @@ export class NativeMessagingMain {
                 this.logService.info(`Found extension from ${chromePath}: ${extension}`);
               }
             }
+
+            // Match via settings too. Sometimes global commands don't register properly.
+            const settings: Map<string, any> = prefs.extensions.settings;
+            for (const [extension, setting] of Object.entries(settings)) {
+              if (setting.commands) {
+                for (const [command_name] of Object.entries(setting.commands)) {
+                  if (command_name === "autofill_login" || command_name === "generate_password") {
+                    ids.add(`chrome-extension://${extension}/`);
+                    this.logService.info(`Found extension ${chromePath}: ${extension}`);
+                  }
+                }
+              }
+            }
           } catch (e) {
             this.logService.info(`Error reading preferences: ${e}`);
           }
         }
-        // FIXME: Remove when updating file. Eslint update
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (e) {
+      } catch {
         // Browser is not installed, we can just skip it
       }
     }

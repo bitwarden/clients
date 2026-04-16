@@ -93,7 +93,7 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
           #enterPaymentMethodComponent
           [includeBillingAddress]="false"
           [group]="formGroup"
-          [showBankAccount]="true"
+          [showBankAccount]="showBankAccountOption()"
           [showAccountCredit]="false"
         >
         </app-enter-payment-method>
@@ -118,12 +118,12 @@ import { EnterPaymentMethodComponent } from "./enter-payment-method.component";
   `,
   standalone: true,
   imports: [SharedModule, EnterPaymentMethodComponent, IconComponent],
-  providers: [SubscriberBillingClient],
 })
 export class DisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<BitwardenSubscriber>();
   readonly paymentMethod = input.required<MaskedPaymentMethod | null>();
   readonly externalFormGroup = input<FormGroup | null>(null);
+  readonly showBankAccountOption = input<boolean>(false);
 
   readonly updated = output<MaskedPaymentMethod>();
 

@@ -12,6 +12,7 @@ import {
 } from "rxjs";
 import { SemVer } from "semver";
 
+import { UploadOptions } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -318,11 +319,12 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.archivedDate = model.archivedDate;
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
+    cipher.viewPassword = model.viewPassword;
 
     if (
       // prevent unprivileged users from migrating to cipher key encryption
-      (model.viewPassword || originalCipher?.key) &&
-      (await this.getCipherKeyEncryptionEnabled())
+      (model.viewPassword && (await this.getCipherKeyEncryptionEnabled())) ||
+      originalCipher?.key
     ) {
       cipher.key = originalCipher?.key ?? null;
       const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
@@ -716,10 +718,6 @@ export class CipherService implements CipherServiceAbstraction {
       this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
     );
 
-    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
     return ciphers.filter((cipher) => {
       const type = CipherViewLikeUtils.getType(cipher);
       const login = CipherViewLikeUtils.getLogin(cipher);
@@ -729,7 +727,7 @@ export class CipherService implements CipherServiceAbstraction {
         return false;
       }
 
-      if (archiveFeatureEnabled && CipherViewLikeUtils.isArchived(cipher)) {
+      if (CipherViewLikeUtils.isArchived(cipher)) {
         return false;
       }
 
@@ -756,15 +754,9 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
   ): Promise<CipherView[]> {
     const ciphers = await this.getAllDecrypted(userId);
-    const archiveFeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
     return ciphers
       .filter(
-        (cipher) =>
-          cipher.deletedDate == null &&
-          (!archiveFeatureEnabled || !cipher.isArchived) &&
-          type.includes(cipher.type),
+        (cipher) => cipher.deletedDate == null && !cipher.isArchived && type.includes(cipher.type),
       )
       .sort((a, b) => this.sortCiphersByLastUsedThenName(a, b));
   }
@@ -1219,6 +1211,7 @@ export class CipherService implements CipherServiceAbstraction {
     unencryptedFile: any,
     userId: UserId,
     admin = false,
+    options?: UploadOptions,
   ): Promise<Cipher> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -1231,6 +1224,7 @@ export class CipherService implements CipherServiceAbstraction {
             evt.target.result,
             userId,
             admin,
+            options,
           );
           resolve(cData);
         } catch (e) {
@@ -1249,6 +1243,7 @@ export class CipherService implements CipherServiceAbstraction {
     data: Uint8Array,
     userId: UserId,
     admin = false,
+    options?: UploadOptions,
   ): Promise<Cipher> {
     // The organization's symmetric key or the user's user key
     const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
@@ -1272,6 +1267,7 @@ export class CipherService implements CipherServiceAbstraction {
       encData,
       admin,
       attachmentKey,
+      options,
     );
 
     const cData = new CipherData(response, cipher.collectionIds);
@@ -2343,7 +2339,9 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   private async clearEncryptedCiphersState(userId: UserId) {
-    await this.stateProvider.setUserState(ENCRYPTED_CIPHERS, {}, userId);
+    // Use null (not {}) so that cipherListViews$/cipherViews$ filter it out
+    // and don't emit an empty array during sync.
+    await this.stateProvider.setUserState(ENCRYPTED_CIPHERS, null, userId);
   }
 
   private async clearDecryptedCiphersState(userId: UserId) {

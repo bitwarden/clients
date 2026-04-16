@@ -4,7 +4,12 @@ import { NgModule } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { CardComponent, ScrollLayoutDirective, SearchModule } from "@bitwarden/components";
+import {
+  BerryComponent,
+  CardComponent,
+  ScrollLayoutDirective,
+  SearchModule,
+} from "@bitwarden/components";
 import { MemberActionsService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-actions/member-actions.service";
 import { MemberDialogManagerService } from "@bitwarden/web-vault/app/admin-console/organizations/members/services/member-dialog-manager/member-dialog-manager.service";
 import { DangerZoneComponent } from "@bitwarden/web-vault/app/auth/settings/account/danger-zone.component";
@@ -21,7 +26,6 @@ import { ProviderBillingHistoryComponent } from "../../billing/providers/billing
 import { SetupBusinessUnitComponent } from "../../billing/providers/setup/setup-business-unit.component";
 import { ProviderSubscriptionStatusComponent } from "../../billing/providers/subscription/provider-subscription-status.component";
 import { ProviderSubscriptionComponent } from "../../billing/providers/subscription/provider-subscription.component";
-import { ProviderWarningsModule } from "../../billing/providers/warnings/provider-warnings.module";
 import { EventsComponent } from "../../dirt/provider-events/events.component";
 
 import { AddExistingOrganizationDialogComponent } from "./clients/add-existing-organization-dialog.component";
@@ -57,9 +61,9 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     ScrollingModule,
     CardComponent,
     ScrollLayoutDirective,
-    ProviderWarningsModule,
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
+    BerryComponent,
   ],
   declarations: [
     AcceptProviderComponent,
