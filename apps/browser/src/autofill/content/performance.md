@@ -64,32 +64,9 @@ try {
 }
 ```
 
-Once poisoned, any call to `exportPerformanceEntries("handleMutation")` will throw rather than return misleading data.
+Once poisoned, a `handleMutation:poison` mark appears in the Performance Timeline. Consumers should check for it before trusting extracted measures.
 
 ## Extracting results
-
-### API methods
-
-Use `exportPerformanceEntries(name)` to retrieve measures for a specific instrumented function or block:
-
-```ts
-import { exportPerformanceEntries } from "./performance";
-
-const entries = exportPerformanceEntries("handleMutation");
-```
-
-This returns a `PerformanceEntryList` filtered to measures matching the given name. If the measurement has been poisoned, it throws.
-
-> [!TIP]
-> Buffered entries are flushed to the Performance Timeline during idle time. If a page never goes idle (e.g., continuous animation or heavy scripting), the flush will never fire and `exportPerformanceEntries` will return an empty list. Call `useTimeoutForFlush()` to force the collector to flush using `setTimeout` instead:
->
-> ```ts
-> import { useTimeoutForFlush } from "./performance";
->
-> useTimeoutForFlush();
-> ```
-
-### After a test scenario
 
 Content scripts run in an isolated world, but in Chromium the `performance` timeline is shared across worlds within a frame. This means `page.evaluate()` (which runs in the main world) can read measures created by content scripts.
 
@@ -105,13 +82,22 @@ const entries = await page.evaluate(() =>
 );
 ```
 
-Note that this approach bypasses the poison check. If reliability matters, check for poison marks first:
+If reliability matters, check for poison marks first:
 
 ```ts
 const poisoned = await page.evaluate(
   () => performance.getEntriesByName("handleMutation:poison", "mark").length > 0,
 );
 ```
+
+> [!TIP]
+> Buffered entries are flushed to the Performance Timeline during idle time. If a page never goes idle (e.g., continuous animation or heavy scripting), the flush will never fire and measures will not appear. Call `useTimeoutForFlush()` to force the collector to flush using `setTimeout` instead:
+>
+> ```ts
+> import { useTimeoutForFlush } from "./performance";
+>
+> useTimeoutForFlush();
+> ```
 
 ### Underlying Web APIs
 

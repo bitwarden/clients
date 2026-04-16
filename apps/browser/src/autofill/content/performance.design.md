@@ -42,13 +42,9 @@ Records a name and two timestamps (start and end) into a preallocated circular b
 
 Drains the buffer and materializes each entry as a pair of `performance.mark` entries and a `performance.measure` entry in the browser's Performance Timeline. Runs during idle time (`requestIdleCallback`, with a `setTimeout` fallback), so it has no performance budget constraint.
 
-### Stage 3: Extraction (on demand)
-
-Retrieves measure entries by name from the Performance Timeline. If the name has been poisoned (see [Poison mechanism](#poison-mechanism)), extraction throws rather than returning unreliable data. Runs on demand, outside any hot path.
-
 ### Name stability
 
-Each stage produces entries with structured names: for a measure called `"foo"`, the marks are `foo:start`, `foo:end`, and (if poisoned) `foo:poison`. These names are part of the public contract — they are visible in browser developer tools, consumed by `exportPerformanceEntries`, and relied upon by test infrastructure. Changing the suffix convention (`:start`, `:end`, `:poison`) is a breaking change.
+Each stage produces entries with structured names: for a measure called `"foo"`, the marks are `foo:start`, `foo:end`, and (if poisoned) `foo:poison`. These names are part of the public contract — they are visible in browser developer tools and relied upon by test infrastructure. Changing the suffix convention (`:start`, `:end`, `:poison`) is a breaking change.
 
 ### Privacy
 
@@ -96,7 +92,7 @@ Async functions are out of scope. If a measured function returns a Promise, the 
 
 ### Poison mechanism
 
-`poison(name)` writes a `${name}:poison` mark, and `exportPerformanceEntries(name)` throws if it finds one. The alternative — silently returning empty results or annotating entries with a flag — would let corrupted data pass through extraction without the consumer noticing. Throwing forces the caller to handle the poisoned state explicitly: either catch and report, or let it propagate as a test failure. This makes poisoned measurements impossible to ignore.
+`poison(name)` writes a `${name}:poison` mark to the Performance Timeline. Consumers extracting measures via `performance.getEntriesByName()` should check for the corresponding poison mark before trusting the data. The convention is explicit and visible in browser developer tools — a poisoned measurement is impossible to overlook when inspecting the timeline.
 
 Poisoning is not automatic so that the framework can instrument error paths.
 

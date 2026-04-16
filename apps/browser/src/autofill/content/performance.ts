@@ -188,28 +188,14 @@ export function measure<T>(name: string, fn: () => T): T {
 }
 
 /**
- * Marks a measurement as poisoned. Use when an unexpected error or external
- * factor has compromised the timing data, making it unreliable.
- * {@link exportPerformanceEntries} will throw if it encounters a poisoned name.
+ * Marks a measurement as poisoned by writing a `${name}:poison` mark to the
+ * Performance Timeline. Use when an unexpected error or external factor has
+ * compromised the timing data, making it unreliable. Consumers should check
+ * for poison marks before trusting extracted measures.
  *
  * @param name - The measurement name to poison.
  */
 export function poison(name: string): void {
   const names = resolveNames(name);
   performance.mark(names.poison);
-}
-
-/**
- * Returns all performance measure entries for the given name.
- * Throws if the measurement has been poisoned via {@link poison}.
- *
- * @param name - The measurement name to export.
- * @throws If a `${name}:poison` mark exists in the timeline.
- */
-export function exportPerformanceEntries(name: string): PerformanceEntryList {
-  const names = resolveNames(name);
-  if (performance.getEntriesByName(names.poison, "mark").length > 0) {
-    throw new Error(`Measurement "${name}" has been poisoned`);
-  }
-  return performance.getEntriesByName(names.measure, "measure");
 }

@@ -28,13 +28,11 @@ beforeAll(() => {
 describe("Performance instrumentation", () => {
   let markSpy: jest.SpyInstance;
   let measureSpy: jest.SpyInstance;
-  let getEntriesByNameSpy: jest.SpyInstance;
   let requestIdleCallbackSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     markSpy = jest.spyOn(performance, "mark").mockImplementation();
     measureSpy = jest.spyOn(performance, "measure").mockImplementation();
-    getEntriesByNameSpy = jest.spyOn(performance, "getEntriesByName").mockReturnValue([]);
 
     // Execute idle callbacks synchronously by default
     requestIdleCallbackSpy = jest
@@ -222,47 +220,6 @@ describe("Performance instrumentation", () => {
       perfModule.poison("myFunc");
 
       expect(markSpy).toHaveBeenCalledWith("myFunc:poison");
-    });
-  });
-
-  describe("exportPerformanceEntries", () => {
-    it("returns an empty list when no entries exist", () => {
-      const result = perfModule.exportPerformanceEntries("myFunc");
-
-      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc:poison", "mark");
-      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc", "measure");
-      expect(result).toEqual([]);
-    });
-
-    it("returns measures filtered by name", () => {
-      const mockEntries = [
-        { name: "myFunc", startTime: 0, duration: 5 },
-      ] as unknown as PerformanceEntryList;
-      getEntriesByNameSpy.mockImplementation((name: string, type?: string) => {
-        if (name === "myFunc" && type === "measure") {
-          return mockEntries;
-        }
-        return [];
-      });
-
-      const result = perfModule.exportPerformanceEntries("myFunc");
-
-      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc:poison", "mark");
-      expect(getEntriesByNameSpy).toHaveBeenCalledWith("myFunc", "measure");
-      expect(result).toBe(mockEntries);
-    });
-
-    it("throws if the measurement has been poisoned", () => {
-      getEntriesByNameSpy.mockImplementation((name: string, type?: string) => {
-        if (name === "myFunc:poison" && type === "mark") {
-          return [{ name: "myFunc:poison" }];
-        }
-        return [];
-      });
-
-      expect(() => perfModule.exportPerformanceEntries("myFunc")).toThrow(
-        'Measurement "myFunc" has been poisoned',
-      );
     });
   });
 
