@@ -1,96 +1,44 @@
-import { MockProxy, mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { of, throwError } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
-import { makeStaticByteArray, mockEnc } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
-import { VerifyAsymmetricKeysResponse, EncString as SdkEncString } from "@bitwarden/sdk-internal";
+import {
+  EncString as SdkEncString,
+  WrappedAccountCryptographicState,
+} from "@bitwarden/sdk-internal";
 
 import { KeyService } from "../../abstractions/key.service";
-import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
 
 import { DefaultUserAsymmetricKeysRegenerationService } from "./default-user-asymmetric-key-regeneration.service";
-
-function setupVerificationResponse(
-  mockVerificationResponse: VerifyAsymmetricKeysResponse,
-  sdkService: MockSdkService,
-) {
-  const mockKeyPairResponse = {
-    userPublicKey: "userPublicKey",
-    userKeyEncryptedPrivateKey: "userKeyEncryptedPrivateKey" as SdkEncString,
-  };
-
-  sdkService.client.crypto
-    .mockDeep()
-    .verify_asymmetric_keys.mockReturnValue(mockVerificationResponse);
-  sdkService.client.crypto.mockDeep().make_key_pair.mockReturnValue(mockKeyPairResponse);
-}
-
-function setupUserKeyValidation(
-  cipherService: MockProxy<CipherService>,
-  keyService: MockProxy<KeyService>,
-  encryptService: MockProxy<EncryptService>,
-) {
-  const cipher = new Cipher();
-  cipher.id = "id";
-  cipher.edit = true;
-  cipher.viewPassword = true;
-  cipher.favorite = false;
-  cipher.name = mockEnc("EncryptedString");
-  cipher.notes = mockEnc("EncryptedString");
-  cipher.key = mockEnc("EncKey");
-  cipherService.getAll.mockResolvedValue([cipher]);
-  encryptService.unwrapSymmetricKey.mockResolvedValue(
-    new SymmetricCryptoKey(makeStaticByteArray(64)),
-  );
-  encryptService.decryptString.mockResolvedValue("mockDecryptedString");
-  (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-}
 
 describe("regenerateIfNeeded", () => {
   let sut: DefaultUserAsymmetricKeysRegenerationService;
   const userId = "userId" as UserId;
 
   let keyService: MockProxy<KeyService>;
-  let cipherService: MockProxy<CipherService>;
-  let userAsymmetricKeysRegenerationApiService: MockProxy<UserAsymmetricKeysRegenerationApiService>;
   let logService: MockProxy<LogService>;
   let sdkService: MockSdkService;
-  let apiService: MockProxy<ApiService>;
   let configService: MockProxy<ConfigService>;
-  let encryptService: MockProxy<EncryptService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
-    cipherService = mock<CipherService>();
-    userAsymmetricKeysRegenerationApiService = mock<UserAsymmetricKeysRegenerationApiService>();
     logService = mock<LogService>();
     sdkService = new MockSdkService();
-    apiService = mock<ApiService>();
     configService = mock<ConfigService>();
-    encryptService = mock<EncryptService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     sut = new DefaultUserAsymmetricKeysRegenerationService(
       keyService,
-      cipherService,
-      userAsymmetricKeysRegenerationApiService,
       logService,
       sdkService,
-      apiService,
       configService,
       accountCryptographicStateService,
     );
@@ -98,16 +46,8 @@ describe("regenerateIfNeeded", () => {
     configService.getFeatureFlag.mockResolvedValue(true);
 
     const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-    const mockEncryptedString = new SymmetricCryptoKey(
-      mockRandomBytes,
-    ).toString() as EncryptedString;
     const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
     keyService.userKey$.mockReturnValue(of(mockUserKey));
-    keyService.userEncryptedPrivateKey$.mockReturnValue(of(mockEncryptedString));
-    apiService.getUserPublicKey.mockResolvedValue({
-      userId: "userId",
-      publicKey: "publicKey",
-    } as any);
   });
 
   afterEach(() => {
@@ -123,311 +63,88 @@ describe("regenerateIfNeeded", () => {
   });
 
   it("should not regenerate when top level error is thrown", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
     keyService.userKey$.mockReturnValue(throwError(() => new Error("error")));
+    const mockClient = sdkService.simulate.userLogin(userId);
+    mockClient.user_crypto_management
+      .mockDeep()
+      .should_regenerate_asymmetric_keys.mockResolvedValue(true);
 
     await sut.regenerateIfNeeded(userId);
 
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should not regenerate when private key is decryptable and valid", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: true,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
   it("should not regenerate when user symmetric key is unavailable", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
     keyService.userKey$.mockReturnValue(of(undefined as unknown as UserKey));
+    const mockClient = sdkService.simulate.userLogin(userId);
+    mockClient.user_crypto_management
+      .mockDeep()
+      .should_regenerate_asymmetric_keys.mockResolvedValue(true);
 
     await sut.regenerateIfNeeded(userId);
 
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
-  it("should not regenerate when user's encrypted private key is unavailable", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    keyService.userEncryptedPrivateKey$.mockReturnValue(
-      of(undefined as unknown as EncryptedString),
-    );
+  it("should not regenerate when SDK says regeneration is not needed", async () => {
+    const mockClient = sdkService.simulate.userLogin(userId);
+    mockClient.user_crypto_management
+      .mockDeep()
+      .should_regenerate_asymmetric_keys.mockResolvedValue(false);
 
     await sut.regenerateIfNeeded(userId);
 
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
-  it("should not regenerate when user's public key is unavailable", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    apiService.getUserPublicKey.mockRejectedValue(
-      Object.assign(new Error("Not found"), { statusCode: 404 }),
-    );
+  it("should regenerate when SDK says regeneration is needed", async () => {
+    const mockClient = sdkService.simulate.userLogin(userId);
+    const mockUserCryptoMgmt = mockClient.user_crypto_management.mockDeep();
+    mockUserCryptoMgmt.should_regenerate_asymmetric_keys.mockResolvedValue(true);
+    mockUserCryptoMgmt.regenerate_asymmetric_key_pair_if_needed.mockResolvedValue({
+      V1: { private_key: "newEncryptedPrivateKey" as SdkEncString },
+    } as WrappedAccountCryptographicState);
 
     await sut.regenerateIfNeeded(userId);
 
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should regenerate when user has no asymmetric keys at all", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    keyService.userEncryptedPrivateKey$.mockReturnValue(
-      of(undefined as unknown as EncryptedString),
-    );
-    apiService.getUserPublicKey.mockRejectedValue(
-      Object.assign(new Error("Not found"), { statusCode: 404 }),
-    );
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
   });
 
-  it("should regenerate when private key is decryptable and invalid", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
-  });
-
-  it("should not set private key on known API error", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-
-    userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys.mockRejectedValue(
-      new Error("Key regeneration not supported for this user."),
+  it("should not set crypto state when regeneration returns null", async () => {
+    const mockClient = sdkService.simulate.userLogin(userId);
+    const mockUserCryptoMgmt = mockClient.user_crypto_management.mockDeep();
+    mockUserCryptoMgmt.should_regenerate_asymmetric_keys.mockResolvedValue(true);
+    mockUserCryptoMgmt.regenerate_asymmetric_key_pair_if_needed.mockResolvedValue(
+      undefined as unknown as WrappedAccountCryptographicState,
     );
 
     await sut.regenerateIfNeeded(userId);
 
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should not set private key on unknown API error", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: true,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-
-    userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys.mockRejectedValue(
-      new Error("error"),
-    );
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should regenerate when private key is not decryptable and user key is valid", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: false,
-      validPrivateKey: true,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    setupUserKeyValidation(cipherService, keyService, encryptService);
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
-  });
-
-  it("should not regenerate when private key is not decryptable and user key is invalid", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: false,
-      validPrivateKey: true,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    setupUserKeyValidation(cipherService, keyService, encryptService);
-    encryptService.decryptString.mockRejectedValue(new Error("error"));
-    encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("error"));
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should not regenerate when private key is not decryptable and no ciphers to check", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: false,
-      validPrivateKey: true,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    cipherService.getAll.mockResolvedValue([]);
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should regenerate when private key is not decryptable and invalid and user key is valid", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: false,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    setupUserKeyValidation(cipherService, keyService, encryptService);
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
-  });
-
-  it("should not regenerate when private key is not decryptable and invalid and user key is invalid", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: false,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    setupUserKeyValidation(cipherService, keyService, encryptService);
-    encryptService.decryptString.mockRejectedValue(new Error("error"));
-    encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("error"));
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should not regenerate when private key is not decryptable and invalid and no ciphers to check", async () => {
-    const mockVerificationResponse: VerifyAsymmetricKeysResponse = {
-      privateKeyDecryptable: false,
-      validPrivateKey: false,
-    };
-    setupVerificationResponse(mockVerificationResponse, sdkService);
-    cipherService.getAll.mockResolvedValue([]);
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-  });
-
-  it("should not regenerate when userKey type is CoseEncrypt0 (V2 encryption)", async () => {
-    const mockUserKey = {
-      keyB64: "mockKeyB64",
-      inner: () => ({ type: 7 }),
-    } as unknown as UserKey;
-    keyService.userKey$.mockReturnValue(of(mockUserKey));
-
-    await sut.regenerateIfNeeded(userId);
-
-    expect(
-      userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys,
-    ).not.toHaveBeenCalled();
-    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
-    expect(logService.error).toHaveBeenCalledWith(
-      "[UserAsymmetricKeyRegeneration] Cannot regenerate asymmetric keys for accounts on V2 encryption.",
-    );
   });
 });
 
-describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
+describe("shouldRegenerate", () => {
   let sut: DefaultUserAsymmetricKeysRegenerationService;
   const userId = "userId" as UserId;
 
   let keyService: MockProxy<KeyService>;
-  let cipherService: MockProxy<CipherService>;
-  let userAsymmetricKeysRegenerationApiService: MockProxy<UserAsymmetricKeysRegenerationApiService>;
   let logService: MockProxy<LogService>;
   let sdkService: MockSdkService;
-  let apiService: MockProxy<ApiService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   beforeEach(() => {
     keyService = mock<KeyService>();
-    cipherService = mock<CipherService>();
-    userAsymmetricKeysRegenerationApiService = mock<UserAsymmetricKeysRegenerationApiService>();
     logService = mock<LogService>();
     sdkService = new MockSdkService();
-    apiService = mock<ApiService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     sut = new DefaultUserAsymmetricKeysRegenerationService(
       keyService,
-      cipherService,
-      userAsymmetricKeysRegenerationApiService,
       logService,
       sdkService,
-      apiService,
       configService,
       accountCryptographicStateService,
     );
@@ -437,15 +154,123 @@ describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
     jest.resetAllMocks();
   });
 
-  it("should throw error when user key is not V1 encryption type", async () => {
-    const mockUserKey = {
-      keyB64: "mockKeyB64",
-      inner: () => ({ type: 7 }),
-    } as unknown as UserKey;
+  it("should return false when user key is null", async () => {
+    keyService.userKey$.mockReturnValue(of(null as unknown as UserKey));
+
+    const result = await sut.shouldRegenerate(userId);
+
+    expect(result).toBe(false);
+  });
+
+  it("should return true when SDK says keys should be regenerated", async () => {
+    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+    const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
     keyService.userKey$.mockReturnValue(of(mockUserKey));
 
-    await expect(sut.regenerateUserPublicKeyEncryptionKeyPair(userId)).rejects.toThrow(
-      "User key is not V1 encryption type",
+    const mockClient = sdkService.simulate.userLogin(userId);
+    mockClient.user_crypto_management
+      .mockDeep()
+      .should_regenerate_asymmetric_keys.mockResolvedValue(true);
+
+    const result = await sut.shouldRegenerate(userId);
+
+    expect(result).toBe(true);
+  });
+
+  it("should return false when SDK says keys should not be regenerated", async () => {
+    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+    const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
+    keyService.userKey$.mockReturnValue(of(mockUserKey));
+
+    const mockClient = sdkService.simulate.userLogin(userId);
+    mockClient.user_crypto_management
+      .mockDeep()
+      .should_regenerate_asymmetric_keys.mockResolvedValue(false);
+
+    const result = await sut.shouldRegenerate(userId);
+
+    expect(result).toBe(false);
+  });
+});
+
+describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
+  let sut: DefaultUserAsymmetricKeysRegenerationService;
+  const userId = "userId" as UserId;
+
+  let keyService: MockProxy<KeyService>;
+  let logService: MockProxy<LogService>;
+  let sdkService: MockSdkService;
+  let configService: MockProxy<ConfigService>;
+  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+
+  beforeEach(() => {
+    keyService = mock<KeyService>();
+    logService = mock<LogService>();
+    sdkService = new MockSdkService();
+    configService = mock<ConfigService>();
+    accountCryptographicStateService = mock<AccountCryptographicStateService>();
+
+    sut = new DefaultUserAsymmetricKeysRegenerationService(
+      keyService,
+      logService,
+      sdkService,
+      configService,
+      accountCryptographicStateService,
     );
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
+
+  it("should throw error when user key is not found", async () => {
+    keyService.userKey$.mockReturnValue(of(null as unknown as UserKey));
+
+    await expect(sut.regenerateUserPublicKeyEncryptionKeyPair(userId)).rejects.toThrow(
+      "User key not found",
+    );
+  });
+
+  it("should set crypto state and return true when SDK returns new state", async () => {
+    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+    const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
+    keyService.userKey$.mockReturnValue(of(mockUserKey));
+
+    const mockCryptoState = {
+      V1: { private_key: "newEncryptedPrivateKey" as SdkEncString },
+    } as WrappedAccountCryptographicState;
+    const mockClient = sdkService.simulate.userLogin(userId);
+    mockClient.user_crypto_management
+      .mockDeep()
+      .regenerate_asymmetric_key_pair_if_needed.mockResolvedValue(mockCryptoState);
+
+    const result = await sut.regenerateUserPublicKeyEncryptionKeyPair(userId);
+
+    expect(result).toBe(true);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      mockCryptoState,
+      userId,
+    );
+    expect(logService.info).toHaveBeenCalledWith(
+      "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
+    );
+  });
+
+  it("should return false when SDK returns null", async () => {
+    const mockRandomBytes = new Uint8Array(64) as CsprngArray;
+    const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
+    keyService.userKey$.mockReturnValue(of(mockUserKey));
+
+    const mockClient = sdkService.simulate.userLogin(userId);
+    mockClient.user_crypto_management
+      .mockDeep()
+      .regenerate_asymmetric_key_pair_if_needed.mockResolvedValue(
+        undefined as unknown as WrappedAccountCryptographicState,
+      );
+
+    const result = await sut.regenerateUserPublicKeyEncryptionKeyPair(userId);
+
+    expect(result).toBe(false);
+    expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 });

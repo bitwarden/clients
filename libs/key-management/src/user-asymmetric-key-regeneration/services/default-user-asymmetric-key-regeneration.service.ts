@@ -1,29 +1,20 @@
 import { firstValueFrom, map } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey } from "@bitwarden/common/types/key";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { KeyService } from "../../abstractions/key.service";
-import { UserAsymmetricKeysRegenerationApiService } from "../abstractions/user-asymmetric-key-regeneration-api.service";
 import { UserAsymmetricKeysRegenerationService } from "../abstractions/user-asymmetric-key-regeneration.service";
 
 export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmetricKeysRegenerationService {
   constructor(
     private keyService: KeyService,
-    private cipherService: CipherService,
-    private userAsymmetricKeysRegenerationApiService: UserAsymmetricKeysRegenerationApiService,
     private logService: LogService,
     private sdkService: SdkService,
-    private apiService: ApiService,
     private configService: ConfigService,
     private accountCryptographyStateService: AccountCryptographicStateService,
   ) {}
@@ -48,95 +39,24 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     }
   }
 
-  private async shouldRegenerate(userId: UserId): Promise<boolean> {
+  async shouldRegenerate(userId: UserId): Promise<boolean> {
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-
-    // For SSO logins from untrusted devices, the userKey will not be available, and the private key regeneration process should be skipped.
-    // In such cases, regeneration will occur on the following device login flow.
-    if (!userKey) {
-      this.logService.info(
-        "[UserAsymmetricKeyRegeneration] User symmetric key unavailable, skipping regeneration for the user.",
-      );
+    if (userKey == null) {
       return false;
     }
 
-    if (userKey.inner().type === EncryptionType.CoseEncrypt0) {
-      this.logService.error(
-        "[UserAsymmetricKeyRegeneration] Cannot regenerate asymmetric keys for accounts on V2 encryption.",
-      );
-      return false;
-    }
-
-    const userKeyEncryptedPrivateKey = await firstValueFrom(
-      this.keyService.userEncryptedPrivateKey$(userId),
-    );
-
-    let publicKeyResponse = null;
-    try {
-      publicKeyResponse = await this.apiService.getUserPublicKey(userId);
-    } catch (e) {
-      if ((e as any)?.statusCode !== 404) {
-        throw e;
-      }
-    }
-
-    // If a user doesn't have a keypair at all, attempt to create one. We have a subset of old users in this state.
-    if (!userKeyEncryptedPrivateKey && !publicKeyResponse) {
-      this.logService.info(
-        "[UserAsymmetricKeyRegeneration] User has no asymmetric keys, attempting to create a new keypair.",
-      );
-      return true;
-    }
-
-    // If the user has one but not the other, something is wrong so log a warning and skip regeneration.
-    if (!userKeyEncryptedPrivateKey || !publicKeyResponse) {
-      this.logService.warning(
-        "[UserAsymmetricKeyRegeneration] User's asymmetric key initialization data is unavailable, skipping regeneration.",
-      );
-      return false;
-    }
-
-    const verificationResponse = await firstValueFrom(
-      this.sdkService.client$.pipe(
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
-          if (sdk === undefined) {
-            throw new Error("SDK is undefined");
+          if (!sdk) {
+            throw new Error("SDK not available");
           }
-          return sdk.crypto().verify_asymmetric_keys({
-            userKey: userKey.keyB64,
-            userPublicKey: publicKeyResponse.publicKey,
-            userKeyEncryptedPrivateKey: userKeyEncryptedPrivateKey,
-          });
+
+          using ref = sdk.take();
+          return ref.value.user_crypto_management().should_regenerate_asymmetric_keys();
         }),
       ),
     );
-
-    if (verificationResponse.privateKeyDecryptable) {
-      if (verificationResponse.validPrivateKey) {
-        // The private key is decryptable and valid. Should not regenerate.
-        return false;
-      } else {
-        // The private key is decryptable but not valid so we should regenerate it.
-        this.logService.info(
-          "[UserAsymmetricKeyRegeneration] User's private key is decryptable but not a valid key, attempting regeneration.",
-        );
-        return true;
-      }
-    }
-
-    // The private isn't decryptable, check to see if we can decrypt something with the userKey.
-    const userKeyCanDecrypt = await this.userKeyCanDecrypt(userKey, userId);
-    if (userKeyCanDecrypt) {
-      this.logService.info(
-        "[UserAsymmetricKeyRegeneration] User Asymmetric Key decryption failure detected, attempting regeneration.",
-      );
-      return true;
-    }
-
-    this.logService.warning(
-      "[UserAsymmetricKeyRegeneration] User Asymmetric Key decryption failure detected, but unable to determine User Symmetric Key validity, skipping regeneration.",
-    );
-    return false;
   }
 
   async regenerateUserPublicKeyEncryptionKeyPair(userId: UserId): Promise<boolean> {
@@ -144,79 +64,30 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     if (userKey == null) {
       throw new Error("User key not found");
     }
-    if (userKey.inner().type !== EncryptionType.AesCbc256_HmacSha256_B64) {
-      throw new Error("User key is not V1 encryption type");
-    }
-    const makeKeyPairResponse = await firstValueFrom(
-      this.sdkService.client$.pipe(
+
+    const newAccountCryptoState = await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
-          if (sdk === undefined) {
-            throw new Error("SDK is undefined");
+          if (!sdk) {
+            throw new Error("SDK not available");
           }
-          return sdk.crypto().make_key_pair(userKey.keyB64);
+
+          using ref = sdk.take();
+          return ref.value.user_crypto_management().regenerate_asymmetric_key_pair_if_needed();
         }),
       ),
     );
 
-    try {
-      await this.userAsymmetricKeysRegenerationApiService.regenerateUserAsymmetricKeys(
-        makeKeyPairResponse.userPublicKey,
-        new EncString(makeKeyPairResponse.userKeyEncryptedPrivateKey),
+    if (newAccountCryptoState != null) {
+      await this.accountCryptographyStateService.setAccountCryptographicState(
+        newAccountCryptoState,
+        userId,
       );
-    } catch (error: any) {
-      if (error?.message === "Key regeneration not supported for this user.") {
-        this.logService.info(
-          "[UserAsymmetricKeyRegeneration] Regeneration not supported for this user at this time.",
-        );
-        return false;
-      } else {
-        this.logService.error(
-          "[UserAsymmetricKeyRegeneration] Regeneration error when submitting the request to the server.",
-          error,
-        );
-        return false;
-      }
-    }
-
-    await this.accountCryptographyStateService.setAccountCryptographicState(
-      {
-        V1: {
-          private_key: makeKeyPairResponse.userKeyEncryptedPrivateKey,
-        },
-      },
-      userId,
-    );
-    this.logService.info(
-      "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
-    );
-    return true;
-  }
-
-  private async userKeyCanDecrypt(userKey: UserKey, userId: UserId): Promise<boolean> {
-    const ciphers = await this.cipherService.getAll(userId);
-    const cipher = ciphers.find((cipher) => cipher.organizationId == null);
-
-    if (!cipher) {
-      return false;
-    }
-
-    try {
-      const cipherView = await cipher.decrypt(userKey);
-
-      if (cipherView.decryptionFailure) {
-        this.logService.error(
-          "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error: Cipher decryption failed",
-        );
-        return false;
-      }
-
+      this.logService.info(
+        "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
+      );
       return true;
-    } catch (error) {
-      this.logService.error(
-        "[UserAsymmetricKeyRegeneration] User Symmetric Key validation error.",
-        error,
-      );
-      return false;
     }
+    return false;
   }
 }
