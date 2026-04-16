@@ -4,4 +4,3 @@ export * from "./form-control-base.directive";
 export * from "./form-control.component";
 export * from "./form-control-card.component";
 export * from "./form-control-group.component";
-export * from "./form-control-group-item.directive";

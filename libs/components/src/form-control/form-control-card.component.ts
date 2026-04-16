@@ -16,7 +16,7 @@ import { SwitchComponent } from "../switch";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { FormControlBaseDirective } from "./form-control-base.directive";
-import { FormControlGroupItemDirective } from "./form-control-group-item.directive";
+import { FormControlGroupComponent } from "./form-control-group.component";
 import { BitHintDirective } from "./hint.directive";
 
 @Component({
@@ -28,10 +28,6 @@ import { BitHintDirective } from "./hint.directive";
       directive: FormControlBaseDirective,
       inputs: ["label", "inline"],
     },
-    {
-      directive: FormControlGroupItemDirective,
-      inputs: ["value"],
-    },
   ],
   host: {
     class: "[&_bit-hint]:tw-leading-4 [&_bit-hint]:tw-mt-0",
@@ -41,32 +37,10 @@ import { BitHintDirective } from "./hint.directive";
 export class FormControlCardComponent {
   protected readonly icon = input<BitwardenIcon>();
   protected readonly base = inject(FormControlBaseDirective);
-  protected readonly groupItem = inject(FormControlGroupItemDirective);
+  private readonly group = inject(FormControlGroupComponent, { optional: true });
 
   readonly labelId = `${this.base.id}-label`;
   readonly errorId = `${this.base.id}-error`;
-
-  protected onInnerChange() {
-    if (this.inGroup) {
-      this.groupItem.notifyChange();
-    }
-  }
-
-  protected get inGroup() {
-    return this.groupItem.group != null && this.groupItem.value() !== undefined;
-  }
-
-  get required() {
-    return this.inGroup ? false : this.base.required;
-  }
-
-  get hasError() {
-    return this.inGroup ? false : this.base.hasError;
-  }
-
-  get displayError() {
-    return this.inGroup ? "" : this.base.displayError;
-  }
 
   protected readonly hint = contentChild(BitHintDirective);
   protected readonly switch = contentChild(SwitchComponent);
@@ -78,12 +52,13 @@ export class FormControlCardComponent {
 
     this.base.disableMarginSignal.set(true);
 
+    // Wire aria-labelledby and aria-describedby onto the inner input element.
+    // The card uses an absolute-positioned overlay label, so the browser's native
+    // label association doesn't reach the visible text — we wire it manually.
     effect(() => {
       const controlWrapperEl = this.base.formControlEl().nativeElement;
-      const hintId = this.inGroup
-        ? (this.groupItem.group?.hint()?.id ?? null)
-        : (this.hint()?.id ?? null);
-      const errorId = this.inGroup ? (this.groupItem.group?.errorId ?? null) : this.errorId;
+      const hintId = this.group ? (this.group.hint()?.id ?? null) : (this.hint()?.id ?? null);
+      const errorId = this.group ? (this.group.errorId ?? null) : this.errorId;
       const ariaDescribedBy = [errorId, hintId].filter(Boolean).join(" ") || undefined;
       const switchElement = this.switch();
 
@@ -116,23 +91,6 @@ export class FormControlCardComponent {
           ariaTargetEl.removeAttribute("aria-describedby");
         }
       }
-    });
-
-    // When inside a group, drive checked/disabled state into the inner control
-    effect(() => {
-      if (!this.groupItem.group || this.groupItem.value() === undefined) {
-        return;
-      }
-      const isSelected = this.groupItem.isSelected();
-      const isDisabled = this.groupItem.isDisabled();
-      const inputEl = this.base.formControl().inputEl?.nativeElement ?? null;
-
-      if (inputEl) {
-        inputEl.checked = isSelected;
-        inputEl.disabled = isDisabled;
-      }
-
-      this.switch()?.writeValue(isSelected);
     });
   }
 }

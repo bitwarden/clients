@@ -1,6 +1,7 @@
 import {
   booleanAttribute,
   Component,
+  effect,
   ElementRef,
   HostBinding,
   inject,
@@ -11,6 +12,7 @@ import {
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 
 let nextId = 0;
 
@@ -23,12 +25,17 @@ let nextId = 0;
   host: {
     "[id]": "this.id()",
     "[disabled]": "disabled",
+    "[attr.name]": "groupName",
+    "(change)": "onGroupChange()",
+    "(blur)": "onGroupBlur()",
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
   readonly inputEl = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  protected readonly group = inject(FormControlGroupComponent, { optional: true });
 
   readonly id = input(`bit-radio-input-${nextId++}`);
+  readonly value = input<unknown>();
 
   @HostBinding("class")
   protected inputClasses = [
@@ -97,14 +104,37 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "checked:disabled:hover:before:tw-border-border-base",
   ];
 
-  constructor(@Optional() @Self() private ngControl?: NgControl) {}
+  constructor(@Optional() @Self() private ngControl?: NgControl) {
+    if (this.group) {
+      this.group.registerRadioChild();
+
+      effect(() => {
+        this.inputEl.nativeElement.checked = this.group!.selectedValues().includes(this.value());
+        this.inputEl.nativeElement.disabled = this.group!.groupDisabled() || this.disabledInput();
+      });
+    }
+  }
+
+  get groupName(): string | null {
+    return this.group?.name ?? null;
+  }
+
+  protected onGroupChange() {
+    if (this.group) {
+      this.group.onItemChange(this.value());
+    }
+  }
+
+  protected onGroupBlur() {
+    this.group?.onBlur();
+  }
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
   // TODO migrate to computed signal when Angular adds signal support to reactive forms
   // https://bitwarden.atlassian.net/browse/CL-819
   get disabled() {
-    return this.disabledInput() || this.ngControl?.disabled || false;
+    return this.disabledInput() || this.ngControl?.disabled || this.group?.groupDisabled() || false;
   }
 
   get required() {

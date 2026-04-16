@@ -1,7 +1,5 @@
-<!-- (change) listens for events bubbling up from the projected form control (checkbox/radio) -->
 <div
   class="tw-flex tw-items-center tw-relative tw-p-4 tw-border tw-border-border-base tw-rounded-xl tw-justify-between tw-gap-4 has-[label:hover]:tw-border-border-brand-soft has-[input:focus-visible]:tw-ring-2 has-[input:focus-visible]:tw-ring-border-focus has-[input:focus-visible]:tw-border-transparent has-[input:checked]:tw-bg-bg-brand-soft"
-  (change)="onInnerChange()"
 >
   <!-- label z-index to ensure label sits on top of switch thumb control(z-index: 2) -->
   <label
@@ -32,7 +30,7 @@
         class="tw-flex tw-gap-0.5 tw-items-center tw-leading-5 tw-font-medium"
       >
         <ng-content select="bit-label"></ng-content>
-        @if (required) {
+        @if (base.required) {
           <sup aria-hidden class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
           <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
         }
