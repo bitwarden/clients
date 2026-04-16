@@ -303,18 +303,6 @@ describe("LoginStrategy", () => {
       await expect(async () => await passwordLoginStrategy.logIn(credentials)).rejects.toThrow();
     });
 
-    it("throws if kdfConfig is missing from token response", async () => {
-      const tokenResponse = new IdentityTokenResponse({
-        access_token: accessToken,
-        token_type: "Bearer",
-        Key: encryptedUserKey, // required to pass encryptionKeyMigrationRequired check
-        UserDecryptionOptions: defaultUserDecryptionOptionsServerResponse, // required to pass UserDecryptionOptions check
-      });
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-      await expect(passwordLoginStrategy.logIn(credentials)).rejects.toThrow("kdfConfig not found");
-    });
-
     it("builds AuthResult", async () => {
       const tokenResponse = identityTokenResponseFactory();
       tokenResponse.forcePasswordReset = true;

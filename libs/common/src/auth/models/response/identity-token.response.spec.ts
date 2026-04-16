@@ -195,14 +195,15 @@ describe("IdentityTokenResponse", () => {
       expect(argon2Config.parallelism).toEqual(4);
     });
 
-    it("should leave kdfConfig undefined when Kdf is absent (e.g. org token refresh)", () => {
+    it("should throw when Kdf is absent or unrecognized", () => {
       const response = {
         access_token: accessToken,
         token_type: tokenType,
       };
 
-      const identityTokenResponse = new IdentityTokenResponse(response);
-      expect(identityTokenResponse.kdfConfig).toBeUndefined();
+      expect(() => new IdentityTokenResponse(response)).toThrow(
+        "kdf is required on IdentityTokenResponse",
+      );
     });
   });
 });

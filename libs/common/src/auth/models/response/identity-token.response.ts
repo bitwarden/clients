@@ -36,10 +36,7 @@ export class IdentityTokenResponse extends BaseResponse {
    */
   key?: EncString;
   twoFactorToken: string;
-  /**
-   * Absent when the server response does not include KDF fields (refresh token flows).
-   */
-  kdfConfig?: KdfConfig;
+  kdfConfig: KdfConfig;
   forcePasswordReset: boolean;
   masterPasswordPolicy: MasterPasswordPolicyResponse;
   apiUseKeyConnector: boolean;
@@ -93,6 +90,8 @@ export class IdentityTokenResponse extends BaseResponse {
       case KdfType.Argon2id:
         this.kdfConfig = new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
         break;
+      default:
+        throw new Error("kdf is required on IdentityTokenResponse");
     }
 
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset");
