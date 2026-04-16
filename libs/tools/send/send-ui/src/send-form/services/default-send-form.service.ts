@@ -71,7 +71,7 @@ export class DefaultSendFormService implements SendFormService {
     this._sendForm.reset();
     this.file = undefined;
     this.updatedSendView = new SendView();
-    if (this.sendFormConfig.mode == "add") {
+    if (this.sendFormConfig.mode === "add") {
       this.originalSendView = null;
       this.updatedSendView.type = this.sendFormConfig.sendType;
     } else {
@@ -125,8 +125,9 @@ export class DefaultSendFormService implements SendFormService {
       }
     };
     return (
+      this.sendForm().touched &&
       JSON.stringify(this.originalSendView, replacer) !==
-      JSON.stringify(this.updatedSendView, replacer)
+        JSON.stringify(this.updatedSendView, replacer)
     );
   }
 
@@ -142,8 +143,8 @@ export class DefaultSendFormService implements SendFormService {
       const dialogRef = this.dialogService.open<UnsavedEditsDialogResult>(
         UnsavedEditsDialogComponent,
       );
-      const result = await lastValueFrom(dialogRef.closed);
-      if (result.result === UnsavedEditsDialogResult.Discard) {
+      const unsavedEditsDialogResult = await lastValueFrom(dialogRef.closed);
+      if (unsavedEditsDialogResult?.result === UnsavedEditsDialogResult.Discard) {
         this.originalSendView = null;
         this.updatedSendView = null;
         return true;

@@ -266,11 +266,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       )
       .subscribe((content) => {
         if (content) {
-          this.currentDialogRef.set(
-            void this.dialogService.openDrawer(AccessIntelligenceDrawerV2Component, {
+          void this.dialogService
+            .openDrawer(AccessIntelligenceDrawerV2Component, {
               data: content,
-            }),
-          );
+            })
+            .then((drawerRef) => this.currentDialogRef.set(drawerRef));
         } else {
           void this.currentDialogRef()?.close();
         }

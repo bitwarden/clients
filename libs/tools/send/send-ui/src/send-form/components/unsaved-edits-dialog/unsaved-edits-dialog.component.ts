@@ -5,9 +5,9 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 /** A result of the unsaved edits dialog. */
 export const UnsavedEditsDialogResult = Object.freeze({
-  /** The send item was created or updated. */
+  /** Discard unsaved edits */
   Discard: "discard",
-  /** The send item was deleted. */
+  /** Go back to editing */
   Back: "back",
 } as const);
 
