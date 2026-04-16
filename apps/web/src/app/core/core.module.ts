@@ -133,8 +133,13 @@ import {
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
-import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
+import {
+  CipherFormGenerationService,
+  DefaultSshImportPromptService,
+  SshImportPromptService,
+} from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -448,6 +453,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DeviceManagementComponentServiceAbstraction,
     useClass: DefaultDeviceManagementComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: CipherFormGenerationService,
+    useClass: WebCipherFormGenerationService,
     deps: [],
   }),
   safeProvider({

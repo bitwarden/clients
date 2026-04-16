@@ -12,12 +12,11 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { VaultItemDialogResult } from "@bitwarden/vault";
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogStatus,
 } from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
-
-import { VaultItemDialogResult } from "../components/vault-item-dialog/vault-item-dialog.component";
 
 @Injectable()
 export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePromptService {
