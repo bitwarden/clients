@@ -4861,5 +4861,9 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "viewSend": {
+    "message": "View Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

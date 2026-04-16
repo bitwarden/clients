@@ -6290,5 +6290,9 @@
   },
   "hideEmail": {
     "message": "Hide my email address from recipients."
+  },
+  "viewSend": {
+    "message": "View Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

@@ -220,6 +220,9 @@ export class SendAddEditComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
+    if (!this.editing()) {
+      return this.i18nService.t("viewSend");
+    }
     const isEditMode = mode === "edit" || mode === "partial-edit";
     const translation = {
       [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
@@ -230,9 +233,11 @@ export class SendAddEditComponent {
 
   protected editSend() {
     this.editing.set(true);
+    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
   }
 
   protected async cancelEditSend() {
     this.editing.set(false);
+    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
   }
 }
