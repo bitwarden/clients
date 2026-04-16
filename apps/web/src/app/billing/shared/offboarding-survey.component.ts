@@ -7,6 +7,7 @@ import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
+import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -25,6 +26,7 @@ type OrganizationOffboardingParams = {
   type: "Organization";
   id: string;
   plan: PlanType;
+  productTier: ProductTierType;
 };
 
 export type OffboardingSurveyDialogParams = UserOffboardingParams | OrganizationOffboardingParams;
@@ -76,32 +78,31 @@ export class OffboardingSurveyComponent {
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
   ) {
+    const isBusiness = this.isBusinessPlan();
+
     this.reasons = [
-      {
-        value: null,
-        text: this.i18nService.t("selectPlaceholder"),
-      },
+      { value: null, text: this.i18nService.t("selectPlaceholder") },
       {
         value: "missing_features",
-        text: this.i18nService.t("missingFeatures"),
+        text: this.i18nService.t(isBusiness ? "cancelSurveyDidntMeetNeeds" : "missingFeatures"),
       },
       {
         value: "switched_service",
-        text: this.i18nService.t("movingToAnotherTool"),
+        text: this.i18nService.t(
+          isBusiness ? "cancelSurveyTeamPrioritiesChanged" : "movingToAnotherTool",
+        ),
       },
       {
         value: "too_complex",
-        text: this.i18nService.t("tooDifficultToUse"),
+        text: this.i18nService.t(isBusiness ? "cancelSurveyOrgRestructuring" : "tooDifficultToUse"),
       },
       {
         value: "unused",
-        text: this.i18nService.t("notUsingEnough"),
+        text: this.i18nService.t(isBusiness ? "cancelSurveyDidntUseIt" : "notUsingEnough"),
       },
-      this.getSwitchingReason(),
-      {
-        value: "other",
-        text: this.i18nService.t("other"),
-      },
+      ...(isBusiness
+        ? [{ value: "too_expensive", text: this.i18nService.t("cancelSurveyNotInBudget") }]
+        : [this.getSwitchingReason(), { value: "other", text: this.i18nService.t("other") }]),
     ];
   }
 
@@ -129,6 +130,15 @@ export class OffboardingSurveyComponent {
 
     this.dialogRef.close(this.ResultType.Submitted);
   };
+
+  private isBusinessPlan(): boolean {
+    return (
+      this.dialogParams.type === "Organization" &&
+      [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
+        this.dialogParams.productTier,
+      )
+    );
+  }
 
   private getSwitchingReason(): Reason {
     if (this.dialogParams.type === "User") {

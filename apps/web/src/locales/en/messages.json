@@ -10375,6 +10375,26 @@
     "message": "Switching to free organization",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyDidntMeetNeeds": {
+    "message": "It didn't meet our needs",
+    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTeamPrioritiesChanged": {
+    "message": "Our team or priorities have changed",
+    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyOrgRestructuring": {
+    "message": "Our organization is restructuring or closing",
+    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyDidntUseIt": {
+    "message": "We didn't end up using it",
+    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotInBudget": {
+    "message": "It's not in our budget right now",
+    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Free for 1 year"
   },
