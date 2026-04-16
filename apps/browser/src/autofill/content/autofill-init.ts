@@ -27,7 +27,7 @@ class AutofillInit implements AutofillInitInterface {
   private readonly extensionMessageHandlers: AutofillExtensionMessageHandlers = {
     collectPageDetails: ({ message }) => this.collectPageDetails(message),
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
-    collectAutofillTriage: () => this.collectPageDetailsForTriage(),
+    collectAutofillTriage: () => this.collectPageDetailsForContextMenu(),
     fillForm: ({ message }) => this.fillForm(message),
   };
 
@@ -124,14 +124,14 @@ class AutofillInit implements AutofillInitInterface {
   /**
    * Collects page details and returns them directly in the response for autofill triage.
    */
-  private async collectPageDetailsForTriage(): Promise<AutofillTriageResponse> {
+  private async collectPageDetailsForContextMenu(): Promise<AutofillTriageResponse> {
     const pageDetails = await this.collectAutofillContentService.getPageDetails();
 
     let targetFieldRef: string | undefined;
     const el = this.lastContextMenuClickedElement;
     if (el) {
       const htmlId = el.id;
-      const htmlName = (el as HTMLInputElement)?.name;
+      const htmlName = el instanceof HTMLInputElement ? el.name : undefined;
       const match = pageDetails.fields.find(
         (f) => (htmlId && f.htmlID === htmlId) || (htmlName && f.htmlName === htmlName),
       );

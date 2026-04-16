@@ -32,83 +32,91 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 
 import { InitContextMenuItems } from "./abstractions/main-context-menu-handler";
 
+function separatorIds() {
+  let n = 0;
+  return () => `${SEPARATOR_ID}${++n}`;
+}
+
 export class MainContextMenuHandler {
   static existingMenuItems: Set<string> = new Set();
   initRunning = false;
-  private initContextMenuItems: InitContextMenuItems[] = [
-    {
-      id: ROOT_ID,
-      title: "Bitwarden",
-    },
-    {
-      id: AUTOFILL_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("autoFillLogin"),
-      requiresUnblockedUri: true,
-    },
-    {
-      id: COPY_USERNAME_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("copyUsername"),
-    },
-    {
-      id: COPY_PASSWORD_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("copyPassword"),
-    },
-    {
-      id: COPY_VERIFICATION_CODE_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("copyVerificationCode"),
-      requiresPremiumAccess: true,
-    },
-    {
-      id: SEPARATOR_ID + 1,
-      type: "separator",
-      parentId: ROOT_ID,
-    },
-    {
-      id: AUTOFILL_IDENTITY_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("autoFillIdentity"),
-      requiresUnblockedUri: true,
-    },
-    {
-      id: AUTOFILL_CARD_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("autoFillCard"),
-      requiresUnblockedUri: true,
-    },
-    {
-      id: SEPARATOR_ID + 2,
-      type: "separator",
-      parentId: ROOT_ID,
-      requiresUnblockedUri: true,
-    },
-    {
-      id: GENERATE_PASSWORD_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("generatePasswordCopied"),
-    },
-    {
-      id: COPY_IDENTIFIER_ID,
-      parentId: ROOT_ID,
-      title: this.i18nService.t("copyElementIdentifier"),
-      requiresUnblockedUri: true,
-    },
-    {
-      id: SEPARATOR_ID + 3,
-      type: "separator",
-      parentId: ROOT_ID,
-      requiresFeatureFlagKey: FeatureFlag.EnableAutofillTriage,
-    },
-    {
-      id: AUTOFILL_TRIAGE_ID,
-      parentId: ROOT_ID,
-      title: "Triage Autofill Issues",
-      requiresFeatureFlagKey: FeatureFlag.EnableAutofillTriage,
-    },
-  ];
+  private initContextMenuItems: InitContextMenuItems[] = (() => {
+    const nextSeparator = separatorIds();
+    return [
+      {
+        id: ROOT_ID,
+        title: "Bitwarden",
+      },
+      {
+        id: AUTOFILL_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("autoFillLogin"),
+        requiresUnblockedUri: true,
+      },
+      {
+        id: COPY_USERNAME_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("copyUsername"),
+      },
+      {
+        id: COPY_PASSWORD_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("copyPassword"),
+      },
+      {
+        id: COPY_VERIFICATION_CODE_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("copyVerificationCode"),
+        requiresPremiumAccess: true,
+      },
+      {
+        id: nextSeparator(),
+        type: "separator",
+        parentId: ROOT_ID,
+      },
+      {
+        id: AUTOFILL_IDENTITY_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("autoFillIdentity"),
+        requiresUnblockedUri: true,
+      },
+      {
+        id: AUTOFILL_CARD_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("autoFillCard"),
+        requiresUnblockedUri: true,
+      },
+      {
+        id: nextSeparator(),
+        type: "separator",
+        parentId: ROOT_ID,
+        requiresUnblockedUri: true,
+      },
+      {
+        id: GENERATE_PASSWORD_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("generatePasswordCopied"),
+      },
+      {
+        id: COPY_IDENTIFIER_ID,
+        parentId: ROOT_ID,
+        title: this.i18nService.t("copyElementIdentifier"),
+        requiresUnblockedUri: true,
+      },
+      {
+        id: nextSeparator(),
+        type: "separator",
+        parentId: ROOT_ID,
+        requiresFeatureFlag: FeatureFlag.EnableAutofillTriage,
+      },
+      {
+        id: AUTOFILL_TRIAGE_ID,
+        parentId: ROOT_ID,
+        title: "Triage Autofill Issues",
+        requiresFeatureFlag: FeatureFlag.EnableAutofillTriage,
+      },
+    ];
+  })();
   private noCardsContextMenuItems: chrome.contextMenus.CreateProperties[] = [
     {
       id: `${AUTOFILL_CARD_ID}_NOTICE`,
@@ -203,28 +211,31 @@ export class MainContextMenuHandler {
         await firstValueFrom(this.restrictedItemTypesService.restricted$)
       ).some((rt) => rt.cipherType === CipherType.Card);
 
-      for (const menuItem of this.initContextMenuItems) {
-        const {
-          requiresPremiumAccess,
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          requiresUnblockedUri, // destructuring this out of being passed to `create`
-          requiresFeatureFlagKey,
-          ...otherOptions
-        } = menuItem;
+      const visibleItems = (
+        await Promise.all(
+          this.initContextMenuItems.map(async (item) => {
+            if (item.requiresPremiumAccess && !hasPremium) {return null;}
+            if (item.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {return null;}
+            if (
+              item.requiresFeatureFlag &&
+              !(await this.configService.getFeatureFlag(item.requiresFeatureFlag))
+            ) {
+              return null;
+            }
+            return item;
+          }),
+        )
+      ).filter((item): item is InitContextMenuItems => item !== null);
 
-        if (requiresPremiumAccess && !hasPremium) {
-          continue;
-        }
-        if (menuItem.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
-          continue;
-        }
-        if (
-          requiresFeatureFlagKey &&
-          !(await this.configService.getFeatureFlag(requiresFeatureFlagKey))
-        ) {
-          continue;
-        }
-
+      for (const {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        requiresPremiumAccess, // destructuring these out of being passed to `create`
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        requiresUnblockedUri,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        requiresFeatureFlag,
+        ...otherOptions
+      } of visibleItems) {
         await MainContextMenuHandler.create({ ...otherOptions, contexts: ["all"] });
       }
     } catch (error) {

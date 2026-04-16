@@ -11,8 +11,6 @@ import { AutofillTriageService as AutofillTriageServiceInterface } from "./abstr
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 
 const VALUE_PREVIEW_MAX_LENGTH = 50;
-const PASSWORD_BULLET_MAX = 8;
-const SENSITIVE_BULLET_MAX = 4;
 const SENSITIVE_AUTOCOMPLETE_TYPES = ["cc-number", "cc-csc", "cc-exp", "ssn", "tax-id"];
 
 export class AutofillTriageService implements AutofillTriageServiceInterface {
@@ -441,17 +439,16 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
       return undefined;
     }
 
-    // Never show password values
+    // Never show password or sensitive autocomplete values
     if (field.type === "password") {
-      return `${"•".repeat(Math.min(field.value.length, PASSWORD_BULLET_MAX))} (${field.value.length} chars)`;
+      return undefined;
     }
 
-    // For sensitive autocomplete types, show limited preview
     if (
       field.autoCompleteType &&
       SENSITIVE_AUTOCOMPLETE_TYPES.some((type) => field.autoCompleteType?.includes(type))
     ) {
-      return `${"•".repeat(Math.min(field.value.length, SENSITIVE_BULLET_MAX))}... (${field.value.length} chars)`;
+      return undefined;
     }
 
     // For other fields, show truncated value
