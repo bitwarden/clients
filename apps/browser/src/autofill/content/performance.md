@@ -113,7 +113,7 @@ These can be queried directly via `performance.getEntriesByName()` and `performa
 
 ### BIT integration
 
-The Browser Interactions Testing framework runs Playwright against real extension builds. To use instrumentation in BIT:
+The [Browser Interactions Testing](https://github.com/bitwarden/browser-interactions-testing) framework runs Playwright against real extension builds. To use instrumentation in BIT:
 
 1. Build the extension normally (`npm run build` from `apps/browser`)
 2. In the content script bootstrap, call `enableInstrumentation()` before services are initialized
