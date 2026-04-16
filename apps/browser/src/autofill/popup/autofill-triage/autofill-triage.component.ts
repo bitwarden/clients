@@ -9,7 +9,6 @@ import {
 } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   BadgeModule,
@@ -103,7 +102,6 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly platformUtilsService: PlatformUtilsService,
-    private readonly i18nService: I18nService,
     private readonly toastService: ToastService,
     private readonly dialogService: DialogService,
   ) {}
@@ -196,8 +194,8 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      title: this.i18nService.t("copiedToClipboard"),
-      message: this.i18nService.t("triageReportCopied"),
+      title: "Copied to Clipboard",
+      message: "Triage report copied to clipboard",
     });
   }
 
@@ -219,15 +217,16 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
 
     this.toastService.showToast({
       variant: "success",
-      title: this.i18nService.t("copiedToClipboard"),
-      message: this.i18nService.t("triageJsonReportCopied"),
+      title: "Copied to Clipboard",
+      message: "Triage JSON report copied to clipboard",
     });
   }
 
   private async promptExportWarning(): Promise<boolean> {
     return this.dialogService.openSimpleDialog({
-      title: { key: "triageReportExportTitle" },
-      content: { key: "triageReportExportDesc" },
+      title: "Export Report Data",
+      content:
+        "Carefully review all data before copying. The report may contain form field details, labels, and partial field values — ensure no sensitive information is included before sharing.",
       type: "warning",
     });
   }

@@ -1,13 +1,14 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="'autofillTriage' | i18n" [showBackButton]="false" />
+  <popup-header slot="header" [pageTitle]="'Autofill Triage'" [showBackButton]="false" />
 
   @if (loading()) {
     <div class="tw-flex tw-justify-center tw-p-8">
       <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
     </div>
   } @else if (!triageResult()) {
-    <bit-callout type="info" [title]="'noTriageResults' | i18n">
-      {{ "noTriageResultsDesc" | i18n }}
+    <bit-callout type="info" [title]="'No Triage Results'">
+      No triage results are available for this page. Please right-click on a form field and select
+      'Triage Autofill Issues' to analyze the page.
     </bit-callout>
   }
 
@@ -19,14 +20,14 @@
           <bit-item-content>
             <i class="bwi bwi-fw bwi-globe tw-text-muted" slot="start" aria-hidden="true"></i>
             {{ result.pageUrl }}
-            <span slot="secondary">{{ "url" | i18n }}</span>
+            <span slot="secondary">URL</span>
           </bit-item-content>
         </bit-item>
         <bit-item>
           <bit-item-content>
             <i class="bwi bwi-fw bwi-clock tw-text-muted" slot="start" aria-hidden="true"></i>
             {{ result.analyzedAt | date: "medium" }}
-            <span slot="secondary">{{ "analyzed" | i18n }}</span>
+            <span slot="secondary">Analyzed</span>
           </bit-item-content>
         </bit-item>
         <bit-item>
@@ -36,8 +37,8 @@
               slot="start"
               aria-hidden="true"
             ></i>
-            {{ eligibleCount() }} of {{ result.fields.length }} {{ "fields" | i18n }}
-            <span slot="secondary">{{ "eligible" | i18n }}</span>
+            {{ eligibleCount() }} of {{ result.fields.length }} fields
+            <span slot="secondary">Eligible</span>
           </bit-item-content>
         </bit-item>
         @if (result.targetElementRef) {
@@ -45,7 +46,7 @@
             <bit-item-content>
               <i class="bwi bwi-fw bwi-filter tw-text-muted" slot="start" aria-hidden="true"></i>
               {{ result.targetElementRef }}
-              <span slot="secondary">{{ "targetElement" | i18n }}</span>
+              <span slot="secondary">Target Element</span>
             </bit-item-content>
           </bit-item>
         }
@@ -55,7 +56,7 @@
     @if (result.pageContext) {
       <bit-section>
         <bit-section-header>
-          <h2 bitTypography="h6">{{ "pageInformation" | i18n }}</h2>
+          <h2 bitTypography="h6">Page Information</h2>
         </bit-section-header>
         <bit-item-group>
           <bit-item>
@@ -69,14 +70,14 @@
             <bit-item-content>
               <i class="bwi bwi-fw bwi-list-alt tw-text-muted" slot="start" aria-hidden="true"></i>
               {{ result.pageContext.totalForms }}
-              <span slot="secondary">{{ "totalForms" | i18n }}</span>
+              <span slot="secondary">Total Forms</span>
             </bit-item-content>
           </bit-item>
           <bit-item>
             <bit-item-content>
               <i class="bwi bwi-fw bwi-list tw-text-muted" slot="start" aria-hidden="true"></i>
               {{ result.pageContext.totalFields }}
-              <span slot="secondary">{{ "totalFields" | i18n }}</span>
+              <span slot="secondary">Total Fields</span>
             </bit-item-content>
           </bit-item>
         </bit-item-group>
@@ -86,7 +87,7 @@
     @if (result.extensionVersion || result.browserInfo) {
       <bit-section>
         <bit-section-header>
-          <h2 bitTypography="h6">{{ "versionInformation" | i18n }}</h2>
+          <h2 bitTypography="h6">Version Information</h2>
         </bit-section-header>
         <bit-item-group>
           @if (result.extensionVersion) {
@@ -94,7 +95,7 @@
               <bit-item-content>
                 <i class="bwi bwi-fw bwi-puzzle tw-text-muted" slot="start" aria-hidden="true"></i>
                 {{ result.extensionVersion }}
-                <span slot="secondary">{{ "extensionVersion" | i18n }}</span>
+                <span slot="secondary">Extension Version</span>
               </bit-item-content>
             </bit-item>
           }
@@ -103,7 +104,7 @@
               <bit-item-content>
                 <i class="bwi bwi-fw bwi-browser tw-text-muted" slot="start" aria-hidden="true"></i>
                 {{ result.browserInfo.name }} {{ result.browserInfo.version }}
-                <span slot="secondary">{{ "browser" | i18n }}</span>
+                <span slot="secondary">Browser</span>
               </bit-item-content>
             </bit-item>
           }
@@ -114,7 +115,7 @@
     <!-- Fields List -->
     <bit-section>
       <bit-section-header>
-        <h2 bitTypography="h6">{{ "fields" | i18n }}</h2>
+        <h2 bitTypography="h6">Fields</h2>
       </bit-section-header>
       <bit-item-group>
         @for (field of result.fields; track $index) {
@@ -173,15 +174,13 @@
 
               <!-- Field State -->
               <div class="tw-mb-3 tw-text-sm tw-text-muted">
-                <h4 class="tw-font-semibold tw-mb-1">{{ "fieldState" | i18n }}</h4>
+                <h4 class="tw-font-semibold tw-mb-1">Field State</h4>
                 <div class="tw-flex tw-gap-2 tw-flex-wrap">
                   <span bitBadge [variant]="field.viewable !== false ? 'success' : 'secondary'"
-                    >{{ "viewable" | i18n }}:
-                    {{ field.viewable !== false ? ("yes" | i18n) : ("no" | i18n) }}</span
+                    >Viewable: {{ field.viewable !== false ? ("yes" | i18n) : ("no" | i18n) }}</span
                   >
                   <span bitBadge [variant]="!field.readonly ? 'success' : 'warning'"
-                    >{{ "readonly" | i18n }}:
-                    {{ field.readonly ? ("yes" | i18n) : ("no" | i18n) }}</span
+                    >Readonly: {{ field.readonly ? ("yes" | i18n) : ("no" | i18n) }}</span
                   >
                   <span bitBadge [variant]="!field.disabled ? 'success' : 'warning'"
                     >{{ "disabled" | i18n }}:
@@ -193,21 +192,15 @@
               <!-- Element Metadata -->
               @if (field.tagName || field.elementNumber !== undefined || field.htmlClass) {
                 <div class="tw-mb-3 tw-text-sm tw-text-muted">
-                  <h4 class="tw-font-semibold tw-mb-1">{{ "elementMetadata" | i18n }}</h4>
+                  <h4 class="tw-font-semibold tw-mb-1">Element Metadata</h4>
                   @if (field.tagName) {
-                    <p>
-                      <strong>{{ "tagName" | i18n }}:</strong> {{ field.tagName }}
-                    </p>
+                    <p><strong>Tag Name:</strong> {{ field.tagName }}</p>
                   }
                   @if (field.elementNumber !== undefined) {
-                    <p>
-                      <strong>{{ "elementPosition" | i18n }}:</strong> #{{ field.elementNumber }}
-                    </p>
+                    <p><strong>Element Position:</strong> #{{ field.elementNumber }}</p>
                   }
                   @if (field.htmlClass) {
-                    <p>
-                      <strong>{{ "cssClasses" | i18n }}:</strong> {{ field.htmlClass }}
-                    </p>
+                    <p><strong>CSS Classes:</strong> {{ field.htmlClass }}</p>
                   }
                   @if (field.title) {
                     <p>
@@ -215,14 +208,10 @@
                     </p>
                   }
                   @if (field.tabindex) {
-                    <p>
-                      <strong>{{ "tabindex" | i18n }}:</strong> {{ field.tabindex }}
-                    </p>
+                    <p><strong>Tabindex:</strong> {{ field.tabindex }}</p>
                   }
                   @if (field.maxLength !== undefined) {
-                    <p>
-                      <strong>{{ "maxLength" | i18n }}:</strong> {{ field.maxLength }}
-                    </p>
+                    <p><strong>Max Length:</strong> {{ field.maxLength }}</p>
                   }
                 </div>
               }
@@ -230,26 +219,18 @@
               <!-- Label Context -->
               @if (field.labelLeft || field.labelRight || field.labelTag || field.labelTop) {
                 <div class="tw-mb-3 tw-text-sm tw-text-muted">
-                  <h4 class="tw-font-semibold tw-mb-1">{{ "labelContext" | i18n }}</h4>
+                  <h4 class="tw-font-semibold tw-mb-1">Label Context</h4>
                   @if (field.labelLeft) {
-                    <p>
-                      <strong>{{ "labelLeft" | i18n }}:</strong> "{{ field.labelLeft }}"
-                    </p>
+                    <p><strong>Label Left:</strong> "{{ field.labelLeft }}"</p>
                   }
                   @if (field.labelRight) {
-                    <p>
-                      <strong>{{ "labelRight" | i18n }}:</strong> "{{ field.labelRight }}"
-                    </p>
+                    <p><strong>Label Right:</strong> "{{ field.labelRight }}"</p>
                   }
                   @if (field.labelTag) {
-                    <p>
-                      <strong>{{ "labelTag" | i18n }}:</strong> "{{ field.labelTag }}"
-                    </p>
+                    <p><strong>Label Tag:</strong> "{{ field.labelTag }}"</p>
                   }
                   @if (field.labelTop) {
-                    <p>
-                      <strong>{{ "labelTop" | i18n }}:</strong> "{{ field.labelTop }}"
-                    </p>
+                    <p><strong>Label Top:</strong> "{{ field.labelTop }}"</p>
                   }
                 </div>
               }
@@ -257,22 +238,12 @@
               <!-- Form Context -->
               @if (field.formContext) {
                 <div class="tw-mb-3 tw-text-sm tw-text-muted">
-                  <h4 class="tw-font-semibold tw-mb-1">{{ "formInformation" | i18n }}</h4>
-                  <p>
-                    <strong>{{ "formId" | i18n }}:</strong> {{ field.formContext.htmlId }}
-                  </p>
-                  <p>
-                    <strong>{{ "formName" | i18n }}:</strong> {{ field.formContext.htmlName }}
-                  </p>
-                  <p>
-                    <strong>{{ "formAction" | i18n }}:</strong> {{ field.formContext.htmlAction }}
-                  </p>
-                  <p>
-                    <strong>{{ "formMethod" | i18n }}:</strong> {{ field.formContext.htmlMethod }}
-                  </p>
-                  <p>
-                    <strong>{{ "fieldsInForm" | i18n }}:</strong> {{ field.formContext.fieldCount }}
-                  </p>
+                  <h4 class="tw-font-semibold tw-mb-1">Form Information</h4>
+                  <p><strong>Form ID:</strong> {{ field.formContext.htmlId }}</p>
+                  <p><strong>Form Name:</strong> {{ field.formContext.htmlName }}</p>
+                  <p><strong>Form Action:</strong> {{ field.formContext.htmlAction }}</p>
+                  <p><strong>Form Method:</strong> {{ field.formContext.htmlMethod }}</p>
+                  <p><strong>Fields in Form:</strong> {{ field.formContext.fieldCount }}</p>
                 </div>
               }
 
@@ -283,7 +254,7 @@
                 (field.selectOptions && field.selectOptions.length > 0)
               ) {
                 <div class="tw-mb-3 tw-text-sm tw-text-muted">
-                  <h4 class="tw-font-semibold tw-mb-1">{{ "valueAndState" | i18n }}</h4>
+                  <h4 class="tw-font-semibold tw-mb-1">Value &amp; State</h4>
                   @if (field.valuePreview) {
                     <p>
                       <strong>{{ "value" | i18n }}:</strong> {{ field.valuePreview }}
@@ -291,13 +262,13 @@
                   }
                   @if (field.checked !== undefined) {
                     <p>
-                      <strong>{{ "checked" | i18n }}:</strong>
+                      <strong>Checked:</strong>
                       {{ field.checked ? ("yes" | i18n) : ("no" | i18n) }}
                     </p>
                   }
                   @if (field.selectOptions && field.selectOptions.length > 0) {
                     <p>
-                      <strong>{{ "selectOptions" | i18n }}:</strong>
+                      <strong>Select Options:</strong>
                       {{ field.selectOptions.length }} {{ "options" | i18n }}
                     </p>
                     <p class="tw-text-xs tw-pl-2">
@@ -319,24 +290,22 @@
                 field.ariaHasPopup
               ) {
                 <div class="tw-mb-3 tw-text-sm tw-text-muted">
-                  <h4 class="tw-font-semibold tw-mb-1">{{ "specialAttributes" | i18n }}</h4>
+                  <h4 class="tw-font-semibold tw-mb-1">Special Attributes</h4>
                   @if (field.dataStripe) {
                     <p><strong>Data-Stripe:</strong> {{ field.dataStripe }}</p>
                   }
                   @if (field.inlineMenuFillType) {
                     <p>
-                      <strong>{{ "inlineMenuFillType" | i18n }}:</strong>
+                      <strong>Inline Menu Fill Type:</strong>
                       {{ field.inlineMenuFillType }}
                     </p>
                   }
                   @if (field.fieldQualifier) {
-                    <p>
-                      <strong>{{ "fieldQualifier" | i18n }}:</strong> {{ field.fieldQualifier }}
-                    </p>
+                    <p><strong>Field Qualifier:</strong> {{ field.fieldQualifier }}</p>
                   }
                   @if (field.accountCreationFieldType) {
                     <p>
-                      <strong>{{ "accountCreationFieldType" | i18n }}:</strong>
+                      <strong>Account Creation Field Type:</strong>
                       {{ field.accountCreationFieldType }}
                     </p>
                   }
@@ -344,9 +313,7 @@
                     <p><strong>Rel:</strong> {{ field.rel }}</p>
                   }
                   @if (field.showPasskeys) {
-                    <p>
-                      <strong>{{ "showPasskeys" | i18n }}:</strong> {{ field.showPasskeys }}
-                    </p>
+                    <p><strong>Show Passkeys:</strong> {{ field.showPasskeys }}</p>
                   }
                   @if (field.ariaHasPopup) {
                     <p><strong>ARIA Has-Popup:</strong> {{ field.ariaHasPopup }}</p>
@@ -356,7 +323,7 @@
 
               <!-- Conditions List -->
               <div class="tw-mb-2">
-                <h3 class="tw-text-sm tw-font-semibold tw-mb-2">{{ "conditions" | i18n }}</h3>
+                <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Conditions</h3>
                 @for (condition of field.conditions; track condition.description) {
                   <div class="tw-flex tw-items-start tw-gap-2 tw-mb-1">
                     <span class="tw-shrink-0">
@@ -391,7 +358,7 @@
         startIcon="bwi-clone"
         (click)="copyReport()"
       >
-        {{ "copyReport" | i18n }}
+        Copy Report
       </button>
       <button
         slot="end"
@@ -401,7 +368,7 @@
         startIcon="bwi-clone"
         (click)="copyJsonReport()"
       >
-        {{ "copyJsonReport" | i18n }}
+        Copy JSON
       </button>
     </popup-footer>
   }

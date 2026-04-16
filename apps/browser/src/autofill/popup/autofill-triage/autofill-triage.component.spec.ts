@@ -5,7 +5,6 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testin
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -19,7 +18,6 @@ describe("AutofillTriageComponent", () => {
   let component: AutofillTriageComponent;
   let fixture: ComponentFixture<AutofillTriageComponent>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
-  let i18nService: MockProxy<I18nService>;
   let toastService: MockProxy<ToastService>;
   let dialogService: MockProxy<DialogService>;
 
@@ -71,12 +69,9 @@ describe("AutofillTriageComponent", () => {
 
   beforeEach(async () => {
     platformUtilsService = mock<PlatformUtilsService>();
-    i18nService = mock<I18nService>();
     toastService = mock<ToastService>();
     dialogService = mock<DialogService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
-
-    i18nService.t.mockImplementation((key: string) => key);
 
     // Mock chrome.runtime with onMessage support
     global.chrome = {
@@ -100,7 +95,6 @@ describe("AutofillTriageComponent", () => {
       providers: [
         provideNoopAnimations(),
         { provide: PlatformUtilsService, useValue: platformUtilsService },
-        { provide: I18nService, useValue: i18nService },
         { provide: ToastService, useValue: toastService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -392,8 +386,8 @@ describe("AutofillTriageComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: "copiedToClipboard",
-        message: "triageReportCopied",
+        title: "Copied to Clipboard",
+        message: "Triage report copied to clipboard",
       });
     });
   });
@@ -430,8 +424,8 @@ describe("AutofillTriageComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        title: "copiedToClipboard",
-        message: "triageJsonReportCopied",
+        title: "Copied to Clipboard",
+        message: "Triage JSON report copied to clipboard",
       });
     });
   });
