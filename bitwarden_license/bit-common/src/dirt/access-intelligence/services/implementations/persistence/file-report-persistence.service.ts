@@ -229,20 +229,8 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                       organizationId,
                       apiResponse.id as OrganizationReportId,
                     )
-              ).pipe(
-                switchMap(({ blob }) => {
-                  // console.log("loaded report from file ", {
-                  //   text: blob.text(),
-                  //   url: apiResponse.reportFileDownloadUrl,
-                  // });
-
-                  return from(blob.text());
-                }),
-              );
+              ).pipe(switchMap(({ blob }) => from(blob.text())));
             } else {
-              // console.log("report loaded, from response contents", {
-              //   text: apiResponse.reportData,
-              // });
               reportData$ = of(apiResponse.reportData);
             }
 
