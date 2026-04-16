@@ -249,6 +249,20 @@ describe("VaultItemDialogComponent", () => {
   });
 
   describe("archive", () => {
+    it("shows a confirmation dialog before archiving", async () => {
+      component.setTestCipher({ id: "cipher-id", collectionIds: [] } as any);
+      jest.spyOn(component as any, "updateCipherFromResponse").mockResolvedValue(undefined);
+
+      await component.archive();
+
+      expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "archiveItem" },
+        content: { key: "archiveItemDialogContent" },
+        acceptButtonText: { key: "archiveVerb" },
+        type: "info",
+      });
+    });
+
     it("calls archiveService.archiveWithServer with the cipher id and active user id", async () => {
       component.setTestCipher({ id: "cipher-id", collectionIds: [] } as any);
       jest.spyOn(component as any, "updateCipherFromResponse").mockResolvedValue(undefined);
@@ -259,6 +273,15 @@ describe("VaultItemDialogComponent", () => {
         "cipher-id",
         "test-user-id",
       );
+    });
+
+    it("does not archive when the user cancels the confirmation", async () => {
+      component.setTestCipher({ id: "cipher-id", collectionIds: [] } as any);
+      mockDialogService.openSimpleDialog.mockResolvedValueOnce(false);
+
+      await component.archive();
+
+      expect(mockArchiveService.archiveWithServer).not.toHaveBeenCalled();
     });
   });
 

@@ -592,6 +592,17 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   };
 
   archive = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
     const activeUserId = await firstValueFrom(this.userId$);
     try {
       const cipherResponse = await this.archiveService.archiveWithServer(
