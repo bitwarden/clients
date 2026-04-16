@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "Authenticatie-sleutel (TOTP) kopiëren"
   },
-  "copyNotes": {
-    "message": "Notities kopiëren"
-  },
   "totpHelperTitle": {
     "message": "Maak tweestapsaanmelding naadloos"
   },

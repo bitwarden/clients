@@ -2244,9 +2244,6 @@
   "copyTOTP": {
     "message": "인증 키 (TOTP) 복사"
   },
-  "copyNotes": {
-    "message": "Copy notes"
-  },
   "totpHelperTitle": {
     "message": "Make 2-step verification seamless"
   },
