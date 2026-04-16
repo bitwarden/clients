@@ -348,6 +348,7 @@ import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.s
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
+import { BadgeStatePriority } from "../platform/badge/priority";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { flagEnabled } from "../platform/flags";
@@ -2149,6 +2150,19 @@ export default class MainBackground {
       this.accountService,
       this.cipherService,
       this.taskService,
+    );
+
+    this.badgeService.setState("agent-access-pending-requests", () =>
+      this.agentAccessListener.pendingRequestCount$.pipe(
+        map((count) =>
+          count > 0
+            ? {
+                priority: BadgeStatePriority.High,
+                state: { text: count > 9 ? "9+" : String(count), backgroundColor: "#cf6639" },
+              }
+            : undefined,
+        ),
+      ),
     );
 
     this.tabsBackground = new TabsBackground(

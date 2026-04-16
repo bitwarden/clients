@@ -161,7 +161,9 @@ export class AgentAccessService implements OnDestroy {
       this.listSessions(),
     ]);
 
-    // Try to get pending requests from background (best-effort)
+    // Truth source for connected/pendingRequests is the background — sessions on disk
+    // do not imply an active SDK connection (esp. after MV3 service worker restart).
+    let connected = false;
     let pendingRequests: Array<{
       domain: string;
       identity: string;
@@ -178,14 +180,15 @@ export class AgentAccessService implements OnDestroy {
           query: any;
         }>;
       }>("getState");
+      connected = bgState?.connected ?? false;
       pendingRequests = bgState?.pendingRequests ?? [];
     } catch {
-      // Background may not be ready — that's fine, pending requests will arrive via events
+      // Background may not be ready — leave connected = false
     }
 
     return {
       listening,
-      connected: sessions.length > 0,
+      connected,
       sessions,
       pendingRequests,
     };

@@ -1,4 +1,4 @@
-import { Observable, concatMap, filter, firstValueFrom, map } from "rxjs";
+import { BehaviorSubject, Observable, concatMap, filter, firstValueFrom, map } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -33,7 +33,6 @@ import {
 } from "../../agent-access/agent-access.types";
 import { BrowserProxyClient } from "../../agent-access/proxy-client";
 import { ChromeSessionRepository, type SessionRecord } from "../../agent-access/session-repository";
-import { BrowserApi } from "../../platform/browser/browser-api";
 
 /** Default proxy URL — should eventually come from environment config */
 const DEFAULT_PROXY_URL = "wss://rat1.lesspassword.dev";
@@ -107,6 +106,9 @@ export class AgentAccessListener {
     string,
     { domain: string; identity: string; requestId: string; query: any }
   >();
+
+  private readonly pendingRequestCountSubject = new BehaviorSubject<number>(0);
+  readonly pendingRequestCount$ = this.pendingRequestCountSubject.asObservable();
 
   constructor(
     private readonly messageListener: MessageListener,
@@ -296,7 +298,7 @@ export class AgentAccessListener {
           requestId: reqEvent.request_id,
           query,
         });
-        void this.updateBadge();
+        this.pendingRequestCountSubject.next(this.pendingRequests.size);
       }
 
       this.messageSender.send(AGENT_ACCESS_EVENT, { event });
@@ -374,7 +376,7 @@ export class AgentAccessListener {
     }
 
     this.pendingRequests.delete(requestId);
-    void this.updateBadge();
+    this.pendingRequestCountSubject.next(this.pendingRequests.size);
   }
 
   private async lookupCredentials(
@@ -500,7 +502,7 @@ export class AgentAccessListener {
     this.client = null;
     this.pendingRequests.clear();
     this.approvalCache.clear();
-    void this.updateBadge();
+    this.pendingRequestCountSubject.next(0);
   }
 
   // --- Private helpers ---
@@ -571,17 +573,4 @@ export class AgentAccessListener {
     return this.sessionRepository;
   }
 
-  /** Update the extension icon badge to show the number of pending credential requests. */
-  private async updateBadge(): Promise<void> {
-    try {
-      const action = BrowserApi.getBrowserAction();
-      const count = this.pendingRequests.size;
-      await action.setBadgeText({ text: count > 0 ? String(count) : "" });
-      if (count > 0) {
-        await action.setBadgeBackgroundColor({ color: "#cf6639" });
-      }
-    } catch (err) {
-      this.logService.warning("[AgentAccess] Failed to update badge", err);
-    }
-  }
 }
