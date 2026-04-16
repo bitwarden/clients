@@ -36,18 +36,13 @@
     <bit-menu #addOptions aria-labelledby="newItemDropdown">
       @for (item of cipherMenuItems$ | async; track item.type) {
         <button type="button" bitMenuItem (click)="cipherAdded.emit(item.type)">
-          <i class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
+          <i slot="start" class="bwi {{ item.icon }}" slot="start" aria-hidden="true"></i>
           {{ item.labelKey | i18n }}
         </button>
       }
       <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
-      <button
-        startIcon="bwi-folder"
-        *ngIf="canCreateFolder()"
-        type="button"
-        bitMenuItem
-        (click)="folderAdded.emit()"
-      >
+      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
+        <i slot="start" class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
         {{ "folder" | i18n }}
       </button>
       <button
@@ -55,8 +50,8 @@
         type="button"
         bitMenuItem
         (click)="collectionAdded.emit()"
-        startIcon="bwi-collection-shared"
       >
+        <i slot="start" class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
         {{ "collection" | i18n }}
       </button>
     </bit-menu>
