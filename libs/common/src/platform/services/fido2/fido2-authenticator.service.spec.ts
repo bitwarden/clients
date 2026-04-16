@@ -246,7 +246,7 @@ describe("FidoAuthenticatorService", () => {
           expect(userInterfaceSession.confirmNewCredential).toHaveBeenCalledWith({
             credentialName: params.rpEntity.name,
             userName: params.userEntity.name,
-            userHandle: Fido2Utils.bufferToString(params.userEntity.id),
+            userHandle: Fido2Utils.arrayToString(params.userEntity.id),
             userVerification,
             rpId: params.rpEntity.id,
           } as NewCredentialParams);
@@ -278,7 +278,7 @@ describe("FidoAuthenticatorService", () => {
                   keyCurve: "P-256",
                   rpId: params.rpEntity.id,
                   rpName: params.rpEntity.name,
-                  userHandle: Fido2Utils.bufferToString(params.userEntity.id),
+                  userHandle: Fido2Utils.arrayToString(params.userEntity.id),
                   userName: params.userEntity.name,
                   counter: 0,
                   userDisplayName: params.userEntity.displayName,
@@ -669,8 +669,8 @@ describe("FidoAuthenticatorService", () => {
       const init = async () => {
         keyPair = await createKeyPair();
         credentialIds = [Utils.newGuid(), Utils.newGuid()];
-        const keyValue = Fido2Utils.bufferToString(
-          await crypto.subtle.exportKey("pkcs8", keyPair.privateKey),
+        const keyValue = Fido2Utils.arrayToString(
+          new Uint8Array(await crypto.subtle.exportKey("pkcs8", keyPair.privateKey)),
         );
         ciphers = credentialIds.map((id) =>
           createCipherView(
@@ -735,7 +735,7 @@ describe("FidoAuthenticatorService", () => {
 
         expect(result.selectedCredential.id).toEqual(parseCredentialId(selectedCredentialId));
         expect(result.selectedCredential.userHandle).toEqual(
-          Fido2Utils.stringToBuffer(fido2Credentials[0].userHandle),
+          Fido2Utils.stringToArray(fido2Credentials[0].userHandle),
         );
         expect(rpIdHash).toEqual(
           new Uint8Array([
@@ -772,7 +772,7 @@ describe("FidoAuthenticatorService", () => {
           const counter = result.authenticatorData.slice(33, 37);
           expect(counter).toEqual(new Uint8Array([0, 0, 0x23, 0x29])); // double check that the counter doesn't change
 
-          const signature = Fido2Utils.bufferToString(result.signature);
+          const signature = Fido2Utils.arrayToString(result.signature);
           if (signatures.has(signature)) {
             throw new Error("Found duplicate signature");
           }
@@ -847,7 +847,7 @@ function createCipherView(
   fido2CredentialView.rpId = fido2Credential.rpId ?? RpId;
   fido2CredentialView.counter = fido2Credential.counter ?? 0;
   fido2CredentialView.userHandle =
-    fido2Credential.userHandle ?? Fido2Utils.bufferToString(randomBytes(16));
+    fido2Credential.userHandle ?? Fido2Utils.arrayToString(randomBytes(16));
   fido2CredentialView.userName = fido2Credential.userName;
   fido2CredentialView.keyAlgorithm = fido2Credential.keyAlgorithm ?? "ECDSA";
   fido2CredentialView.keyCurve = fido2Credential.keyCurve ?? "P-256";
@@ -867,7 +867,7 @@ async function createClientDataHash() {
   const clientData = encoder.encode(
     JSON.stringify({
       type: "webauthn.create",
-      challenge: Fido2Utils.bufferToString(randomBytes(16)),
+      challenge: Fido2Utils.arrayToString(randomBytes(16)),
       origin: RpId,
       crossOrigin: false,
     }),

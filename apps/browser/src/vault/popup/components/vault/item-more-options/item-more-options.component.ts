@@ -129,8 +129,6 @@ export class ItemMoreOptionsComponent {
     }),
   );
 
-  protected showArchive$: Observable<boolean> = this.cipherArchiveService.hasArchiveFlagEnabled$;
-
   protected canArchive$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
@@ -198,6 +196,12 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    //for non login types that are still auto-fillable
+    if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      return;
+    }
+
     const uris = cipher.login?.uris ?? [];
     const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
 
@@ -218,6 +222,8 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    //this tab checking should be moved into the vault-popup-autofill service in case the current tab is changed
+    //ticket: https://bitwarden.atlassian.net/browse/PM-32467
     const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
 
     if (!currentTab?.url) {
@@ -229,10 +235,15 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    if (await this._domainMatched(currentTab.url)) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      return;
+    }
+
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
-        savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
         viewOnly: !this.cipher.edit,
       },
     });
@@ -249,6 +260,17 @@ export class ItemMoreOptionsComponent {
         await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
         return;
     }
+  }
+
+  private async _domainMatched(url: string): Promise<boolean> {
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(url),
+    );
+    const defaultMatch = await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
+
+    return CipherViewLikeUtils.matchesUri(this.cipher, url, equivalentDomains, defaultMatch);
   }
 
   async onView() {
@@ -383,7 +405,7 @@ export class ItemMoreOptionsComponent {
     await this.cipherArchiveService.archiveWithServer(this.cipher.id as CipherId, activeUserId);
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("itemWasSentToArchive"),
+      message: this.i18nService.t("itemArchiveToast"),
     });
   }
 }

@@ -363,6 +363,9 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       ),
     );
 
+    // Defensive measure in case an existing notification appeared before the passkey popout
+    await BrowserApi.tabSendMessageData(this.tab, "closeNotificationBar");
+
     const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,
       fallbackSupported: this.fallbackSupported,

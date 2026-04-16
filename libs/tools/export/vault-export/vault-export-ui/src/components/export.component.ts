@@ -31,17 +31,16 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ClientType, EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { ClientType } from "@bitwarden/common/enums";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -55,6 +54,7 @@ import {
   BitSubmitDirective,
   ButtonModule,
   CalloutModule,
+  CopyClickDirective,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -64,6 +64,7 @@ import {
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   ExportedVault,
   ExportFormatMetadata,
@@ -82,7 +83,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    JslibModule,
+    I18nPipe,
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
@@ -93,6 +94,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     ExportScopeCalloutComponent,
     PasswordStrengthV2Component,
     GeneratorServicesModule,
+    CopyClickDirective,
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -549,6 +551,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.exportForm.clearValidators();
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("exportError"),
+      });
     }
   }
 

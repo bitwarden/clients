@@ -1,7 +1,5 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
-import { SharedModule } from "../shared/shared.module";
-
 import { SkeletonGroupComponent } from "./skeleton-group.component";
 import { SkeletonTextComponent } from "./skeleton-text.component";
 import { SkeletonComponent } from "./skeleton.component";
@@ -11,7 +9,7 @@ export default {
   component: SkeletonGroupComponent,
   decorators: [
     moduleMetadata({
-      imports: [SharedModule, SkeletonTextComponent, SkeletonComponent],
+      imports: [SkeletonTextComponent, SkeletonComponent],
     }),
   ],
 } as Meta<SkeletonGroupComponent>;

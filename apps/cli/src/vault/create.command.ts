@@ -170,7 +170,7 @@ export class CreateCommand {
       const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,
-        new Uint8Array(fileBuf).buffer,
+        new Uint8Array(fileBuf),
         activeUserId,
       );
       const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
@@ -204,6 +204,9 @@ export class CreateCommand {
     }
     if (options.organizationId !== req.organizationId) {
       return Response.badRequest("`organizationid` option does not match request object.");
+    }
+    if (req.name == null || req.name.trim() === "") {
+      return Response.badRequest("Collection name is required.");
     }
     try {
       const orgKey = await this.keyService.getOrgKey(req.organizationId);

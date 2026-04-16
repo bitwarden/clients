@@ -29,7 +29,7 @@
     "message": "Prijava pristupnim ključem"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Otključaj prisutupnim ključem"
   },
   "useSingleSignOn": {
     "message": "Jedinstvena prijava (SSO)"
@@ -573,29 +573,26 @@
   "noItemsInArchiveDesc": {
     "message": "Arhivirane stavke biti će prikazane ovdje i biti će izuzete iz rezultata općih pretraga i preporuka auto-ispune."
   },
-  "itemWasSentToArchive": {
-    "message": "Stavka poslana u arhivu"
+  "itemArchiveToast": {
+    "message": "Stavka arhivirana"
   },
-  "itemWasUnarchived": {
-    "message": "Stavka vraćena iz arhive"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Stavka vraćena iz arhive"
   },
   "archiveItem": {
     "message": "Arhiviraj stavku"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Nakon arhiviranja, stavka će biti izuzeta iz rezultata pretrage i prijedloga auto-ispune."
   },
   "archived": {
     "message": "Arhivirano"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Odarhiviraj i spremi"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Za korištenje arhive, potrebno je Premium članstvo."
   },
   "itemRestored": {
     "message": "Stavka je vraćena"
@@ -699,17 +696,11 @@
   "unlockMethods": {
     "message": "Mogućnosti otključavanja"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Za promjenu vremena isteka trezora, odredi način otključavanja."
-  },
   "unlockMethodNeeded": {
     "message": "Postavi način otključavanja u Postavkama"
   },
   "sessionTimeoutHeader": {
     "message": "Istek sesije"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Istek trezora"
   },
   "otherOptions": {
     "message": "Ostale postavke"
@@ -899,6 +890,9 @@
   "invalidVerificationCode": {
     "message": "Nevažeći kôd za provjeru"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Nevažeća e-pošta ili kôd za provjeru"
+  },
   "valueCopied": {
     "message": " kopirano",
     "description": "Value has been copied to the clipboard.",
@@ -991,10 +985,10 @@
     "message": "Ne"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Svatko s poveznicom"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Svatko s lozinkom"
   },
   "location": {
     "message": "Lokacija"
@@ -1489,10 +1483,10 @@
     "message": "Privitak spremljen"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Popravi šifriranje"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Ova datoteka koristi zastarjelu metodu šifriranja."
   },
   "attachmentUpdated": {
     "message": "Privitak ažuriran"
@@ -1507,7 +1501,7 @@
     "message": "Odaberi datoteku."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Stavke prenesene"
   },
   "maxFileSize": {
     "message": "Najveća veličina datoteke je 500 MB."
@@ -2055,7 +2049,7 @@
     "message": "E-pošta"
   },
   "emails": {
-    "message": "Emails"
+    "message": "e-pošte"
   },
   "phone": {
     "message": "Telefon"
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Odabrana glavna lozinka je slaba. Trebaš koristiti jaču glavnu lozinku (ili frazu) kako bi tvoj Bitwarden račun bio pravilno zaštićen. Sigurno želiš koristiti ovakvu, slabu glavnu lozinku?"
   },
+  "rotateAccountEncKey": {
+    "message": "Dodatno rotiraj ključ za šifriranje mojeg računa"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotiraj ključ za šifriranje"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Sigurno želiš rotirati ključ za šifriranje svojeg računa?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Jedno ili više organizacijskih pravila zahtijeva da glavna lozinka ispunjava sljedeće uvjete:"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Svi prethodni izvozi ograničeni ovim računom postati će nevažeći."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Postoje stari privitci u tvom trezoru koje je potrebno popraviti prije rotacije ključa za šifriranje."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Utjecaj rotiranja tvojeg ključa za šifriranje"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedno ili više organizacijskih pravila zahtijeva da glavna lozinka ispunjava sljedeće uvjete:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Nakon isteka trezora"
   },
-  "vaultTimeoutAction1": {
-    "message": "Radnja nakon isteka "
+  "showAtRiskPasswordNotifications": {
+    "message": "Prikaži obavijesti o ugroženim lozinkama"
   },
   "lock": {
     "message": "Zaključaj",
@@ -2486,7 +2504,7 @@
     "message": "Stavka trajno izbrisana"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Arhivirana stavka vraćena"
   },
   "restoreItem": {
     "message": "Vrati stavku"
@@ -2860,6 +2878,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Ilustracija liste rizičnih prijava."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Ilustracija izgleda stranice Bitwarden trezora."
+  },
   "generatePasswordSlideDesc": {
     "message": "Brzo generiraj jake, jedinstvene lozinke koristeći Bitwarden dijalog auto-ispune direktno na stranici.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3083,6 +3104,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ h",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiraj i podijeli ovu poveznicu za Send. Poveznica će biti dostupna svima s vezom ovoliko puta: $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopiraj i podijeli ovu poveznicu za Send. Poveznica će biti dostupna svima s vezom i lozinkom ovoliko puta: $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopiraj i podijeli ovu poveznicu za Send. Navedene je osobe mogu vidjeti ovoliko puta: $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Kopirana poveznica Senda",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3187,9 +3247,6 @@
   },
   "minutes": {
     "message": "minuta"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Pravila tvrtke primijenjena su na vrijeme isteka"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Pravilo tvoje organizacije podesilo je najveće dozvoljeno vrijeme isteka trezora na $HOURS$:$MINUTES$ h.",
@@ -3353,10 +3410,10 @@
     "message": "Pogreška"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Nije uspjelo otključavanje pristupnim ključem. Pokušaj ponovno ili koristi drugu metodu otključavanja."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Nema dostupnih PRF omogućenih lozinki za otključavanje. Prvo se prijavi lozinkom."
   },
   "decryptionError": {
     "message": "Pogreška pri dešifriranju"
@@ -4394,6 +4451,9 @@
   "exportSuccess": {
     "message": "Podaci iz trezora su izvezeni"
   },
+  "exportError": {
+    "message": "Došlo je do greške kod izvoza tvojih podataka trezora"
+  },
   "typePasskey": {
     "message": "Pristupni ključ"
   },
@@ -4734,7 +4794,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "Više mogućnosti"
   },
   "moreOptionsTitle": {
     "message": "Više mogućnosti - $ITEMNAME$",
@@ -4823,6 +4883,9 @@
   "copyAddress": {
     "message": "Kopiraj adresu"
   },
+  "myItems": {
+    "message": "Moje stavke"
+  },
   "adminConsole": {
     "message": "Konzola administratora"
   },
@@ -4830,31 +4893,31 @@
     "message": "Admin"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Automatska potvrda korisnika"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Automatski potvrdi korisnike na čekanju dok je ovaj uređaj otključan"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Uštedi vrijeme s automatskom potvrdom korisnika"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Ovo može utjecati na sigurnost podataka tvoje organizacije. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Više o rizicima"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Automatski potvrdi nove korisnike"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Novi će korisnici biti automatski potvrđeni dok god je ovaj uređaj otključan."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Koji su potencijalni sigurnosni rizici?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Uključena automatska potvrda"
   },
   "availableNow": {
     "message": "Dostupno sada"
@@ -4863,13 +4926,13 @@
     "message": "Sigurnost računa"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "Blokator krađe identiteta"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Otkrivanje krađe identiteta"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "Prikaži upozorenje prije pristupanja sumnjivim phishing stranicama"
   },
   "notifications": {
     "message": "Obavijesti"
@@ -4984,7 +5047,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "Preuzmi privitak"
   },
   "downloadBitwarden": {
     "message": "Preuzmi Bitwarden"
@@ -5020,7 +5083,7 @@
     "message": "Premium"
   },
   "unlockFeaturesWithPremium": {
-    "message": "Unlock reporting, emergency access, and more security features with Premium."
+    "message": "Otključaj izvještavanje, pristup u hitnim slučajevima i dodatne sigurnosne značajke uz Premium."
   },
   "freeOrgsCannotUseAttachments": {
     "message": "Besplatne organizacije ne mogu koristiti privitke"
@@ -5126,10 +5189,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Prikaži otkrivanje podudaranja"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Sarkrij otkrivanje podudaranja"
   },
   "autoFillOnPageLoad": {
     "message": "Auto-ispuna kod učitavanja?"
@@ -5933,16 +5996,16 @@
     "message": "I više!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Napredna online sigurnost"
   },
   "upgradeToPremium": {
     "message": " Nadogradi na Premium"
   },
   "unlockAdvancedSecurity": {
-    "message": "Unlock advanced security features"
+    "message": "Otključaj napredne sigurnosne značajke"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "A Premium subscription gives you more tools to stay secure and in control"
+    "message": "Premium paket daje ti više alata za sigurnost i nadzor"
   },
   "explorePremium": {
     "message": "Provjeri Premium"
@@ -5964,55 +6027,55 @@
     "message": "Broj kartice"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Greška: ne mogu dešifrirati"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
+    "message": "Tvoja organizacija više ne koristi glavne lozinke za prijavu u Bitwarden. Za nastavak, potvrdi orgnaizaciju i domenu."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Nastavi s prijavom"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Nemoj nastaviti"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Domena"
   },
   "keyConnectorDomainTooltip": {
-    "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
+    "message": "Ova će domena spremiti tvoj ključ šifriranja, pa joj moraš vjerovati. Ako nisi siguran/a provjeri sa svojim adminom."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Potvrdi svoju organizaciju za prijavu"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organizacija potvrđena"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Domena potvrđena"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Ako ne potvrdiš svoju organizaciju, tvoj pristup organizaciji biti će opozvan."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Napusti sada"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Za prijavu, potvrdi domenu"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Za nastavak prijave, potvrdi domenu."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Na nastavak s prijavom, potvrdi organizaciju i domenu."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Radnja kod isteka"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Ovom postavkom upravlja tvoja organizacija."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
+    "message": "Tvoja organizacija je postavila najveće dozvoljeno vrijeme isteka trezora na $HOURS$:$MINUTES$ h.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6025,16 +6088,16 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
-    "message": "Your organization has set the default session timeout to Immediately."
+    "message": "Tvoja organizacaija je postavila zadani istek sesije na odmah."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "Tvoja organizacaija je postavila zadani istek sesije na zaključavanje sustava."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On browser restart."
+    "message": "Tvoja organizacaija je postavila zadani istek sesije na ponovno pokretanje preglednika."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
+    "message": "Najveće vrijeme ne može biti veće od $HOURS$:$MINUTES$ h",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6047,25 +6110,25 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "Pri pokretanju preglednika"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
-    "message": "Set an unlock method to change your timeout action"
+    "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Nadogradnja"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Sigurno želiš napustiti?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Odbijanjem, tvoje osobne stavke ostat će na tvojem računu, ali ćeš izgubiti pristup dijeljenim stavkama i značajkama organizacije."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Za ponovni pristup kontaktiraj svog administratora."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Napusti $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6074,10 +6137,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Kako upravljam svojim trezorom?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Prenesi stavke u $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6085,14 +6148,20 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "Zbog sigurnosti i usklađenosti $ORGANIZATION$ zahtijeva da su sve stavke u vlasništvu organizacije.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
+  },
+  "transferItemsToOrganizationAction": {
+    "message": "Pristani na prijenos vlasništva svih tvojih stavki."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otvori pomoć vezano za prijenos stavki"
   },
   "acceptTransfer": {
     "message": "Prihvati prijenos"
@@ -6100,41 +6169,53 @@
   "declineAndLeave": {
     "message": "Odbij i napusti"
   },
-  "whyAmISeeingThis": {
-    "message": "Zašto ovo vidim?"
-  },
   "items": {
-    "message": "Items"
+    "message": "Stavke"
   },
   "searchResults": {
-    "message": "Search results"
+    "message": "Rezultati pretrage"
+  },
+  "simplifiedAutofill": {
+    "message": "Pojednostavljena auto-ispuna"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Kada klikneš predloženu stavku auto-ispune, ona se popunjava umjesto da te vodi do detalja. Stavke i dalje možeš vidjeti iz izbornika Više."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Otvori skočni prozor za pojednostavljenu auto-ispunu"
   },
   "resizeSideNavigation": {
-    "message": "Resize side navigation"
+    "message": "Promjeni veličinu bočne navigacije"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Tko može pogledati"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Određene osobe"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Nakon dijeljenja Send poveznice, osobe će za prikaz Senda morati potvrditi svoju adresu e-pošte pomoću kôda."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
+    "message": "Unesi više adresa, odvojenih zarezom."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "korisnik@bitwarden.com , korisnik@primjer.hr"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Preuzmi Bitwarden aplikaciju"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "Zaštićeno e-poštom"
   },
   "sendPasswordHelperText": {
-    "message": "Individuals will need to enter the password to view this Send",
+    "message": "Za pregled ovog Senda biti će potrebno unijeti lozinku",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Nije uspjela provjera korisnika."
+  },
+  "downloadFailed": {
+    "message": "Preuzimanje neuspjelo."
   }
 }

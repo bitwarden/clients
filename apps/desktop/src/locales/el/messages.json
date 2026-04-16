@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Αγαπημένα"
   },
+  "unfavorite": {
+    "message": "Unfavorite"
+  },
   "types": {
     "message": "Τύποι"
   },
@@ -114,7 +117,7 @@
     "message": "Hide your email address from viewers."
   },
   "limitSendViews": {
-    "message": "Limit views"
+    "message": "Περιορισμός προβολών"
   },
   "limitSendViewsCount": {
     "message": "$ACCESSCOUNT$ views left",
@@ -131,7 +134,7 @@
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Private note"
+    "message": "Ιδιωτική σημείωση"
   },
   "sendDetails": {
     "message": "Send details",
@@ -157,11 +160,11 @@
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Are you sure you want to permanently delete this Send?",
+    "message": "Θέλετε σίγουρα να διαγράψετε οριστικά αυτό το Send;",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
-    "message": "New",
+    "message": "Νέο",
     "description": "for adding new items"
   },
   "newUri": {
@@ -333,6 +336,22 @@
   },
   "premiumRequiredDesc": {
     "message": "Για να χρησιμοποιήσετε αυτή τη λειτουργία, απαιτείται η Premium συνδρομή."
+  },
+  "syncWithBrowser": {
+    "message": "Sync with browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Launch browser"
   },
   "errorOccurred": {
     "message": "Παρουσιάστηκε σφάλμα."
@@ -586,6 +605,12 @@
   "editedItem": {
     "message": "Το αντικείμενο αποθηκεύτηκε"
   },
+  "itemAddedToFavorites": {
+    "message": "Item added to favorites"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Item removed from favorites"
+  },
   "deleteItem": {
     "message": "Διαγραφή στοιχείου"
   },
@@ -776,7 +801,7 @@
     "message": "Items transferred"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Διόρθωση κρυπτογράφησης"
   },
   "fixEncryptionTooltip": {
     "message": "This file is using an outdated encryption method."
@@ -896,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Υπόδειξη κύριου κωδικού πρόσβασης"
   },
+  "masterPasswordChanged": {
+    "message": "Master password saved"
+  },
   "passwordStrengthScore": {
     "message": "Password strength score $SCORE$",
     "placeholders": {
@@ -985,7 +1013,7 @@
     "message": "Παρουσιάστηκε ένα μη αναμενόμενο σφάλμα."
   },
   "unexpectedErrorShort": {
-    "message": "Unexpected error"
+    "message": "Απρόσμενο σφάλμα"
   },
   "closeThisBitwardenWindow": {
     "message": "Close this Bitwarden window and try again."
@@ -1022,6 +1050,9 @@
   },
   "invalidVerificationCode": {
     "message": "Μη έγκυρος κωδικός επαλήθευσης"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "continue": {
     "message": "Συνέχεια"
@@ -1184,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
   },
@@ -1268,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Αλλαγή κύριου κωδικού πρόσβασης"
   },
+  "changeMasterPassword": {
+    "message": "Change master password"
+  },
   "continueToWebApp": {
     "message": "Συνέχεια στη διαδικτυακή εφαρμογή;"
   },
@@ -1346,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Σύνδεση δύο βημάτων"
   },
-  "vaultTimeoutHeader": {
-    "message": "Vault timeout"
-  },
   "vaultTimeout": {
     "message": "Χρονικό όριο λήξης κρύπτης"
   },
   "vaultTimeout1": {
     "message": "Χρονικό όριο"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Timeout action"
   },
   "vaultTimeoutDesc": {
     "message": "Επιλέξτε πότε η κρύπτη σας θα αναλάβει τη δράση χρονικού ορίου λήξης κρύπτης."
@@ -1552,6 +1601,18 @@
   "unknown": {
     "message": "Άγνωστο"
   },
+  "copyAddress": {
+    "message": "Copy address"
+  },
+  "copyPhone": {
+    "message": "Copy phone"
+  },
+  "copyNote": {
+    "message": "Copy note"
+  },
+  "copyVerificationCode": {
+    "message": "Copy verification code"
+  },
   "copyUsername": {
     "message": "Αντιγραφή ονόματος χρήστη"
   },
@@ -1567,7 +1628,7 @@
     "description": "Copy credit card security code (CVV)"
   },
   "cardNumber": {
-    "message": "card number"
+    "message": "αριθμός κάρτας"
   },
   "premiumMembership": {
     "message": "Συνδρομή Premium"
@@ -1634,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "month"
+  },
+  "monthly": {
+    "message": "Monthly"
+  },
+  "year": {
+    "message": "year"
+  },
+  "annually": {
+    "message": "Annually"
+  },
+  "annual": {
+    "message": "Annual"
   },
   "refreshComplete": {
     "message": "Επιτυχής ανανέωση"
@@ -1840,19 +1916,19 @@
     "message": "Εξαγωγή από"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Εξαγωγή",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Εισαγωγή",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -2050,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Μη αποθηκευμένες αλλαγές"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Κλώνος"
   },
@@ -2065,9 +2150,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Απαιτείται αυθεντικοποίηση για να αποκτήσετε ξανά πρόσβαση στη κρύπτη σας."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Ρυθμίστε μια μέθοδο ξεκλειδώματος για να αλλάξετε την ενέργεια χρονικού ορίου λήξης θησαυ/κίου."
-  },
   "lock": {
     "message": "Κλείδωμα",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2078,6 +2160,24 @@
   },
   "searchTrash": {
     "message": "Αναζήτηση κάδου απορριμμάτων"
+  },
+  "searchArchive": {
+    "message": "Search archive"
+  },
+  "searchLogin": {
+    "message": "Search login"
+  },
+  "searchCard": {
+    "message": "Search card"
+  },
+  "searchIdentity": {
+    "message": "Search identity"
+  },
+  "searchSecureNote": {
+    "message": "Search secure note"
+  },
+  "searchSshKey": {
+    "message": "Search SSH key"
   },
   "permanentlyDeleteItem": {
     "message": "Μόνιμη διαγραφή αντικειμένου"
@@ -2233,6 +2333,9 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ο νέος κύριος κωδικός δεν πληροί τις απαιτήσεις πολιτικής."
   },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "receiveMarketingEmailsV2": {
     "message": "Λάβετε συμβουλές, ανακοινώσεις και ευκαιρίες έρευνας από το Bitwarden στα εισερχόμενά σας."
   },
@@ -2374,6 +2477,9 @@
   "editSend": {
     "message": "Επεξεργασία Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Me"
   },
   "myVault": {
     "message": "Η κρύπτη μου"
@@ -2665,9 +2771,6 @@
   "vaultTimeoutTooLarge": {
     "message": "Το χρονικό όριο του vault σας υπερβαίνει τους περιορισμούς που έχει ορίσει ο οργανισμός σας."
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Enterprise policy requirements have been applied to your timeout options"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
     "placeholders": {
@@ -2722,7 +2825,7 @@
     "message": "Ο κύριος κωδικός αφαιρέθηκε"
   },
   "organizationName": {
-    "message": "Organization name"
+    "message": "Όνομα οργανισμού"
   },
   "keyConnectorDomain": {
     "message": "Key Connector domain"
@@ -3700,6 +3803,9 @@
   "exportSuccess": {
     "message": "Εξήχθησαν τα δεδομένα θησαυ/κίου"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Η αυθεντικοποίηση πολλών παραγόντων ακυρώθηκε"
   },
@@ -3800,7 +3906,7 @@
     "description": "Link to match detection docs on warning dialog for advance match strategy"
   },
   "uriAdvancedOption": {
-    "message": "Advanced options",
+    "message": "Σύνθετες επιλογές",
     "description": "Advanced option placeholder for uri option component"
   },
   "warningCapitalized": {
@@ -4033,7 +4139,7 @@
     "message": "No matching logins for this site"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "Αντικατάσταση κλειδιού πρόσβασης;"
   },
   "unableToSavePasskey": {
     "message": "Unable to save passkey"
@@ -4082,6 +4188,9 @@
   },
   "missingWebsite": {
     "message": "Missing website"
+  },
+  "missingPermissions": {
+    "message": "You lack the necessary permissions to perform this action."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "You cannot remove collections with View only permissions: $COLLECTIONS$",
@@ -4387,11 +4496,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
-  "itemWasSentToArchive": {
-    "message": "Item was sent to archive"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Item was unarchived"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Archive item"
@@ -4569,8 +4678,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4578,14 +4687,47 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Accept transfer"
   },
   "declineAndLeave": {
     "message": "Decline and leave"
   },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+  "organizationIsSuspended": {
+    "message": "Organization is suspended"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+  },
+  "noItemsInTrash": {
+    "message": "No items in trash"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
+  "emptyVaultDescription": {
+    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyFavorites": {
+    "message": "You haven't favorited any items"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Add frequently used items to favorites for quick access."
+  },
+  "noSearchResults": {
+    "message": "No search results returned"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Clear filters or try another search term"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -4617,5 +4759,8 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
   }
 }

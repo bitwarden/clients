@@ -14,6 +14,18 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FocusableElement } from "../shared/focusable-element";
 
 /**
+ * Helper function to query for descendents of a given el that have the AutofocusDirective
+ * applied to them
+ *
+ * @param el element that supports querySelectorAll
+ * @returns querySelectorAll results
+ */
+export function queryForAutofocusDescendents(el: Document | Element) {
+  // ensure selectors match the directive selectors
+  return el.querySelectorAll("[appAutofocus], [bitAutofocus]");
+}
+
+/**
  * Directive to focus an element.
  *
  * @remarks
@@ -21,9 +33,7 @@ import { FocusableElement } from "../shared/focusable-element";
  * Will focus the element once, when it becomes visible.
  *
  * If the component provides the `FocusableElement` interface, the `focus`
- * method will be called. Otherwise, the native element will be focused.
- *
- * If selector changes, `dialog.component.ts` must also be updated
+ * method will be called. Otherwise, the native element will be focused. *
  */
 @Directive({
   selector: "[appAutofocus], [bitAutofocus]",

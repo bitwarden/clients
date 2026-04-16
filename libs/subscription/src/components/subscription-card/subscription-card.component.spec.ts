@@ -44,9 +44,11 @@ describe("SubscriptionCardComponent", () => {
         unpaid: "Unpaid",
         weCouldNotProcessYourPayment: "We could not process your payment",
         contactSupportShort: "Contact support",
-        yourSubscriptionHasExpired: "Your subscription has expired",
+        yourSubscriptionIsExpired: "Your subscription is expired",
+        yourSubscriptionIsCanceled: "Your subscription is canceled",
         yourSubscriptionIsScheduledToCancel: `Your subscription is scheduled to cancel on ${params[0]}`,
         reinstateSubscription: "Reinstate subscription",
+        resubscribe: "Resubscribe",
         upgradeYourPlan: "Upgrade your plan",
         premiumShareEvenMore: "Premium share even more",
         upgradeNow: "Upgrade now",
@@ -253,7 +255,7 @@ describe("SubscriptionCardComponent", () => {
       expect(buttons[1].nativeElement.textContent.trim()).toBe("Contact support");
     });
 
-    it("should display incomplete_expired callout with contact support action", () => {
+    it("should display incomplete_expired callout with resubscribe action", () => {
       setupComponent({
         ...baseSubscription,
         status: "incomplete_expired",
@@ -265,18 +267,18 @@ describe("SubscriptionCardComponent", () => {
       expect(calloutData).toBeTruthy();
       expect(calloutData!.type).toBe("danger");
       expect(calloutData!.title).toBe("Expired");
-      expect(calloutData!.description).toContain("Your subscription has expired");
+      expect(calloutData!.description).toContain("Your subscription is expired");
       expect(calloutData!.callsToAction?.length).toBe(1);
 
       const callout = fixture.debugElement.query(By.css("bit-callout"));
       expect(callout).toBeTruthy();
 
       const description = callout.query(By.css("p"));
-      expect(description.nativeElement.textContent).toContain("Your subscription has expired");
+      expect(description.nativeElement.textContent).toContain("Your subscription is expired");
 
       const buttons = callout.queryAll(By.css("button"));
       expect(buttons.length).toBe(1);
-      expect(buttons[0].nativeElement.textContent.trim()).toBe("Contact support");
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Resubscribe");
     });
 
     it("should display pending cancellation callout for active status with cancelAt", () => {
@@ -364,15 +366,29 @@ describe("SubscriptionCardComponent", () => {
       expect(buttons[0].nativeElement.textContent.trim()).toBe("Manage invoices");
     });
 
-    it("should not display callout for canceled status", () => {
+    it("should display canceled callout with resubscribe action", () => {
       setupComponent({
         ...baseSubscription,
         status: "canceled",
         canceled: new Date("2025-01-15"),
       });
 
+      const calloutData = component.callout();
+      expect(calloutData).toBeTruthy();
+      expect(calloutData!.type).toBe("danger");
+      expect(calloutData!.title).toBe("Canceled");
+      expect(calloutData!.description).toContain("Your subscription is canceled");
+      expect(calloutData!.callsToAction?.length).toBe(1);
+
       const callout = fixture.debugElement.query(By.css("bit-callout"));
-      expect(callout).toBeFalsy();
+      expect(callout).toBeTruthy();
+
+      const description = callout.query(By.css("p"));
+      expect(description.nativeElement.textContent).toContain("Your subscription is canceled");
+
+      const buttons = callout.queryAll(By.css("button"));
+      expect(buttons.length).toBe(1);
+      expect(buttons[0].nativeElement.textContent.trim()).toBe("Resubscribe");
     });
 
     it("should display unpaid callout with manage invoices action", () => {
@@ -488,6 +504,39 @@ describe("SubscriptionCardComponent", () => {
       fixture.detectChanges();
 
       expect(emitSpy).toHaveBeenCalledWith("manage-invoices");
+    });
+
+    it("should emit resubscribe action when button is clicked for incomplete_expired status", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "incomplete_expired",
+        suspension: new Date("2025-01-15"),
+        gracePeriod: 7,
+      });
+
+      const emitSpy = jest.spyOn(component.callToActionClicked, "emit");
+
+      const button = fixture.debugElement.query(By.css("bit-callout button"));
+      button.triggerEventHandler("click", { button: 0 });
+      fixture.detectChanges();
+
+      expect(emitSpy).toHaveBeenCalledWith("resubscribe");
+    });
+
+    it("should emit resubscribe action when button is clicked for canceled status", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "canceled",
+        canceled: new Date("2025-01-15"),
+      });
+
+      const emitSpy = jest.spyOn(component.callToActionClicked, "emit");
+
+      const button = fixture.debugElement.query(By.css("bit-callout button"));
+      button.triggerEventHandler("click", { button: 0 });
+      fixture.detectChanges();
+
+      expect(emitSpy).toHaveBeenCalledWith("resubscribe");
     });
   });
 

@@ -12,6 +12,7 @@ import { ErrorResponse } from "@bitwarden/common/models/response/error.response"
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -161,6 +162,38 @@ describe("SendReceiveCommand", () => {
       const response = await command.run(testUrl, {});
 
       expect(response.success).toBe(false);
+    });
+
+    it("should remove leading directory components of File Send filename to prevent path traversal", async () => {
+      const fileName = "test.pdf";
+      const mockSendResponse = {
+        id: testSendId,
+        type: SendType.File,
+        file: {
+          id: "file-123",
+          fileName: `../../${fileName}`,
+          size: 1024,
+        },
+      };
+      sendApiService.postSendAccess.mockResolvedValue({} as any);
+      jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
+      const fileDownloadUrl = "https://example.com/download";
+      sendApiService.getSendFileDownloadData.mockResolvedValue({
+        url: fileDownloadUrl,
+      } as any);
+
+      const saveAttachmentToFileSpy = jest
+        .spyOn(command as any, "saveAttachmentToFile")
+        .mockResolvedValue(Response.success());
+
+      await command.run(testUrl, {});
+
+      expect(saveAttachmentToFileSpy).toHaveBeenCalledWith(
+        fileDownloadUrl,
+        fileName,
+        expect.any(Function),
+        undefined,
+      );
     });
   });
 
@@ -400,7 +433,8 @@ describe("SendReceiveCommand", () => {
           },
         };
 
-        sendApiService.postSendAccessV2.mockResolvedValue(mockSendResponse as any);
+        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
         sendApiService.getSendFileDownloadDataV2.mockResolvedValue({
           url: "https://example.com/download",
         } as any);
@@ -408,12 +442,50 @@ describe("SendReceiveCommand", () => {
         encryptService.decryptFileData.mockResolvedValue(new ArrayBuffer(1024) as any);
         jest.spyOn(command as any, "saveAttachmentToFile").mockResolvedValue(Response.success());
 
-        await command.run(testUrl, { output: "./test.pdf" });
+        const response = await command.run(testUrl, { output: "./test.pdf" });
 
+        expect(response.success).toBe(true);
         expect(sendApiService.getSendFileDownloadDataV2).toHaveBeenCalledWith(
           expect.any(Object),
           mockToken,
           "https://api.bitwarden.com",
+        );
+      });
+
+      it("should remove leading directory components of File Send filename to prevent path traversal", async () => {
+        const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+        sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+        const fileName = "test.pdf";
+        const mockSendResponse = {
+          id: testSendId,
+          type: SendType.File,
+          file: {
+            id: "file-123",
+            fileName: `../../${fileName}`,
+            size: 1024,
+          },
+        };
+
+        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
+        const fileDownloadUrl = "https://example.com/download";
+        sendApiService.getSendFileDownloadDataV2.mockResolvedValue({
+          url: fileDownloadUrl,
+        } as any);
+
+        encryptService.decryptFileData.mockResolvedValue(new ArrayBuffer(1024) as any);
+        const saveAttachmentToFileSpy = jest
+          .spyOn(command as any, "saveAttachmentToFile")
+          .mockResolvedValue(Response.success());
+
+        await command.run(testUrl, {});
+
+        expect(saveAttachmentToFileSpy).toHaveBeenCalledWith(
+          fileDownloadUrl,
+          fileName,
+          expect.any(Function),
+          undefined,
         );
       });
     });

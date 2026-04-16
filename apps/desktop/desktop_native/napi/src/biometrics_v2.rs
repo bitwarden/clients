@@ -20,22 +20,17 @@ pub mod biometrics_v2 {
         hwnd: napi::bindgen_prelude::Buffer,
         message: String,
     ) -> napi::Result<bool> {
-        biometric_lock_system
+        Ok(biometric_lock_system
             .inner
             .authenticate(hwnd.into(), message)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+            .await?)
     }
 
     #[napi]
     pub async fn authenticate_available(
         biometric_lock_system: &BiometricLockSystem,
     ) -> napi::Result<bool> {
-        biometric_lock_system
-            .inner
-            .authenticate_available()
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(biometric_lock_system.inner.authenticate_available().await?)
     }
 
     #[napi]
@@ -44,11 +39,10 @@ pub mod biometrics_v2 {
         user_id: String,
         key: napi::bindgen_prelude::Buffer,
     ) -> napi::Result<()> {
-        biometric_lock_system
+        Ok(biometric_lock_system
             .inner
             .enroll_persistent(&user_id, &key)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+            .await?)
     }
 
     #[napi]
@@ -70,12 +64,11 @@ pub mod biometrics_v2 {
         user_id: String,
         hwnd: napi::bindgen_prelude::Buffer,
     ) -> napi::Result<napi::bindgen_prelude::Buffer> {
-        biometric_lock_system
+        Ok(biometric_lock_system
             .inner
             .unlock(&user_id, hwnd.into())
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
-            .map(|v| v.into())
+            .await?
+            .into())
     }
 
     #[napi]
@@ -83,11 +76,10 @@ pub mod biometrics_v2 {
         biometric_lock_system: &BiometricLockSystem,
         user_id: String,
     ) -> napi::Result<bool> {
-        biometric_lock_system
+        Ok(biometric_lock_system
             .inner
             .unlock_available(&user_id)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+            .await?)
     }
 
     #[napi]
@@ -95,11 +87,7 @@ pub mod biometrics_v2 {
         biometric_lock_system: &BiometricLockSystem,
         user_id: String,
     ) -> napi::Result<bool> {
-        biometric_lock_system
-            .inner
-            .has_persistent(&user_id)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(biometric_lock_system.inner.has_persistent(&user_id).await?)
     }
 
     #[napi]
@@ -107,10 +95,6 @@ pub mod biometrics_v2 {
         biometric_lock_system: &BiometricLockSystem,
         user_id: String,
     ) -> napi::Result<()> {
-        biometric_lock_system
-            .inner
-            .unenroll(&user_id)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(biometric_lock_system.inner.unenroll(&user_id).await?)
     }
 }

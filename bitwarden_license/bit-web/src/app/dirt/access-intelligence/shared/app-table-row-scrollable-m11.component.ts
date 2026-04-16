@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { MenuModule, TableDataSource, TableModule, TooltipDirective } from "@bitwarden/components";
@@ -30,7 +30,8 @@ export class AppTableRowScrollableM11Component {
   readonly selectedUrls = input<Set<string>>();
   readonly openApplication = input<string>("");
   readonly showAppAtRiskMembers = input<(applicationName: string) => void>();
-  readonly checkboxChange = input<(applicationName: string, $event: Event) => void>();
+  readonly checkboxChange = output<{ applicationName: string; checked: boolean }>();
+  readonly selectAllChange = output<boolean>();
 
   allAppsSelected(): boolean {
     const tableData = this.dataSource()?.filteredData;
@@ -43,20 +44,13 @@ export class AppTableRowScrollableM11Component {
     return tableData.length > 0 && tableData.every((row) => selectedUrls.has(row.applicationName));
   }
 
+  checkboxChanged(target: HTMLInputElement, applicationName: string) {
+    const checked = target.checked;
+    this.checkboxChange.emit({ applicationName, checked });
+  }
+
   selectAllChanged(target: HTMLInputElement) {
     const checked = target.checked;
-
-    const tableData = this.dataSource()?.filteredData;
-    const selectedUrls = this.selectedUrls();
-
-    if (!tableData || !selectedUrls) {
-      return false;
-    }
-
-    if (checked) {
-      tableData.forEach((row) => selectedUrls.add(row.applicationName));
-    } else {
-      selectedUrls.clear();
-    }
+    this.selectAllChange.emit(checked);
   }
 }

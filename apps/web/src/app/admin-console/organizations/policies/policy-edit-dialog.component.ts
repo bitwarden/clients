@@ -1,21 +1,28 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  DestroyRef,
   Inject,
-  ViewChild,
+  Signal,
   ViewContainerRef,
+  inject,
+  signal,
+  viewChild,
 } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { Observable, map, firstValueFrom, switchMap, filter, of } from "rxjs";
+import { map, firstValueFrom, switchMap, filter } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
   DIALOG_DATA,
@@ -29,7 +36,6 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import { VNextPolicyRequest } from "./policy-edit-definitions/organization-data-ownership.component";
 
 export type PolicyEditDialogData = {
   /**
@@ -37,52 +43,46 @@ export type PolicyEditDialogData = {
    */
   policy: BasePolicyEditDefinition;
   /**
-   * The organization ID for the policy.
+   * The organization for the policy.
    */
-  organizationId: string;
+  organization: Organization;
 };
 
 export type PolicyEditDialogResult = "saved";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "policy-edit-dialog.component.html",
   imports: [SharedModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("policyForm", { read: ViewContainerRef, static: true })
-  policyFormRef: ViewContainerRef | undefined;
+  private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
+  private readonly destroyRef = inject(DestroyRef);
 
-  policyType = PolicyType;
-  loading = true;
-  enabled = false;
-  saveDisabled$: Observable<boolean> = of(false);
-  policyComponent: BasePolicyEditComponent | undefined;
+  protected readonly policyType = PolicyType;
+  protected readonly loading = signal(true);
+  protected readonly enabled = false;
+  private readonly _saveDisabled = signal(false);
+  protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
+  protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
 
-  formGroup = this.formBuilder.group({
+  readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
   constructor(
-    @Inject(DIALOG_DATA) protected data: PolicyEditDialogData,
-    protected accountService: AccountService,
-    protected policyApiService: PolicyApiServiceAbstraction,
-    protected i18nService: I18nService,
-    private cdr: ChangeDetectorRef,
-    private formBuilder: FormBuilder,
-    protected dialogRef: DialogRef<PolicyEditDialogResult>,
-    protected toastService: ToastService,
-    protected keyService: KeyService,
+    @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
+    protected readonly accountService: AccountService,
+    protected readonly policyApiService: PolicyApiServiceAbstraction,
+    protected readonly i18nService: I18nService,
+    private readonly cdr: ChangeDetectorRef,
+    private readonly formBuilder: FormBuilder,
+    protected readonly dialogRef: DialogRef<PolicyEditDialogResult>,
+    protected readonly toastService: ToastService,
+    protected readonly keyService: KeyService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
-  }
-
-  get isPolicyEnabled(): boolean {
-    return this.policyComponent?.policyResponse?.enabled ?? false;
   }
 
   /**
@@ -91,7 +91,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private hasVNextRequest(
     component: BasePolicyEditComponent,
   ): component is BasePolicyEditComponent & {
-    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
+    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextSavePolicyRequest>;
   } {
     return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
   }
@@ -101,21 +101,26 @@ export class PolicyEditDialogComponent implements AfterViewInit {
    */
   async ngAfterViewInit() {
     const policyResponse = await this.load();
-    this.loading = false;
+    this.loading.set(false);
 
-    if (!this.policyFormRef) {
+    const policyFormRef = this.policyFormRef();
+    if (!policyFormRef) {
       throw new Error("Template not initialized.");
     }
 
-    this.policyComponent = this.policyFormRef.createComponent(this.data.policy.component).instance;
-    this.policyComponent.policy = this.data.policy;
-    this.policyComponent.policyResponse = policyResponse;
+    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    componentRef.setInput("policy", this.data.policy);
+    componentRef.setInput("policyResponse", policyResponse);
+    const component = componentRef.instance;
+    this.policyComponent.set(component);
 
-    if (this.policyComponent.data) {
-      // If the policy has additional configuration, disable the save button if the form state is invalid
-      this.saveDisabled$ = this.policyComponent.data.statusChanges.pipe(
-        map((status) => status !== "VALID" || !policyResponse.canToggleState),
-      );
+    if (component.data) {
+      component.data.statusChanges
+        .pipe(
+          map((status) => status !== "VALID" || !policyResponse.canToggleState),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe((disabled) => this._saveDisabled.set(disabled));
     }
 
     this.cdr.detectChanges();
@@ -123,7 +128,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   async load() {
     try {
-      return await this.policyApiService.getPolicy(this.data.organizationId, this.data.policy.type);
+      return await this.policyApiService.getPolicy(
+        this.data.organization.id,
+        this.data.policy.type,
+      );
     } catch (e: any) {
       // No policy exists yet, instantiate an empty one
       if (e.statusCode === 404) {
@@ -134,22 +142,19 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   }
 
-  submit = async () => {
-    if (!this.policyComponent) {
+  readonly submit = async () => {
+    const policyComponent = this.policyComponent();
+    if (!policyComponent) {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await this.policyComponent.confirm()) == false) {
+    if ((await policyComponent.confirm?.()) == false) {
       this.dialogRef.close();
       return;
     }
 
     try {
-      if (this.hasVNextRequest(this.policyComponent)) {
-        await this.handleVNextSubmission(this.policyComponent);
-      } else {
-        await this.handleStandardSubmission();
-      }
+      await this.handleVNextSubmission(policyComponent);
 
       this.toastService.showToast({
         variant: "success",
@@ -164,26 +169,13 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
-  private async handleStandardSubmission(): Promise<void> {
-    if (!this.policyComponent) {
-      throw new Error("PolicyComponent not initialized.");
-    }
-
-    const request = await this.policyComponent.buildRequest();
-    await this.policyApiService.putPolicy(this.data.organizationId, this.data.policy.type, request);
-  }
-
-  private async handleVNextSubmission(
-    policyComponent: BasePolicyEditComponent & {
-      buildVNextRequest: (orgKey: OrgKey) => Promise<VNextPolicyRequest>;
-    },
-  ): Promise<void> {
+  private async handleVNextSubmission(policyComponent: BasePolicyEditComponent): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) => this.keyService.orgKeys$(userId)),
         filter((orgKeys) => orgKeys != null),
-        map((orgKeys) => orgKeys[this.data.organizationId as OrganizationId] ?? null),
+        map((orgKeys) => orgKeys[this.data.organization.id] ?? null),
       ),
     );
 
@@ -194,15 +186,15 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     const request = await policyComponent.buildVNextRequest(orgKey);
 
     await this.policyApiService.putPolicyVNext(
-      this.data.organizationId,
+      this.data.organization.id,
       this.data.policy.type,
       request,
     );
   }
-  static open = (dialogService: DialogService, config: DialogConfig<PolicyEditDialogData>) => {
-    return dialogService.openDrawer<PolicyEditDialogResult, PolicyEditDialogData>(
-      PolicyEditDialogComponent,
-      config,
-    );
+  static readonly open = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

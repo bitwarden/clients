@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Избранные"
   },
+  "unfavorite": {
+    "message": "Удалить из избранного"
+  },
   "types": {
     "message": "Типы элементов"
   },
@@ -131,7 +134,7 @@
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
-    "message": "Личная заметка"
+    "message": "Приватная заметка"
   },
   "sendDetails": {
     "message": "Информация о Send",
@@ -157,7 +160,7 @@
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
-    "message": "Вы действительно хотите безвозвратно удалить эту Send?",
+    "message": "Вы уверены, что хотите безвозвратно удалить эту Send?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "new": {
@@ -333,6 +336,22 @@
   },
   "premiumRequiredDesc": {
     "message": "Для использования этой функции требуется Премиум."
+  },
+  "syncWithBrowser": {
+    "message": "Синхронизация с браузером"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Чтобы подключиться к $VAULTURL$, необходимо синхронизировать ваш браузер по умолчанию с приложением Bitwarden. После синхронизации вы будете перенаправлены обратно в это приложение.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Запустить браузер"
   },
   "errorOccurred": {
     "message": "Произошла ошибка."
@@ -585,6 +604,12 @@
   },
   "editedItem": {
     "message": "Элемент сохранен"
+  },
+  "itemAddedToFavorites": {
+    "message": "Элемент добавлен в избранное"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Элемент удален из избранного"
   },
   "deleteItem": {
     "message": "Удалить элемент"
@@ -896,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
   },
+  "masterPasswordChanged": {
+    "message": "Мастер-пароль сохранен"
+  },
   "passwordStrengthScore": {
     "message": "Оценка надежности пароля $SCORE$",
     "placeholders": {
@@ -1022,6 +1050,9 @@
   },
   "invalidVerificationCode": {
     "message": "Неверный код подтверждения"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Неверный email или код подтверждения"
   },
   "continue": {
     "message": "Продолжить"
@@ -1184,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
   },
+  "rotateAccountEncKey": {
+    "message": "Также сменить ключ шифрования моего аккаунта"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия смены ключа шифрования"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Вы уверены, что хотите сменить ключ шифрования вашего аккаунта?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Любые сохраненные вами настройки ограничения экспорта для аккаунта утратят силу."
+  },
   "confirmIdentityToContinue": {
     "message": "Подтвердите вашу личность, чтобы продолжить"
   },
@@ -1268,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Изменить мастер-пароль"
   },
+  "changeMasterPassword": {
+    "message": "Изменить мастер-пароль"
+  },
   "continueToWebApp": {
     "message": "Перейти к веб-приложению?"
   },
@@ -1346,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Двухэтапная аутентификация"
   },
-  "vaultTimeoutHeader": {
-    "message": "Тайм-аут хранилища"
-  },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
   },
   "vaultTimeout1": {
     "message": "Тайм-аут"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Тайм-аут действия"
   },
   "vaultTimeoutDesc": {
     "message": "Выберите тайм-аут для хранилища и действие, которое необходимо предпринять."
@@ -1552,6 +1601,18 @@
   "unknown": {
     "message": "Неизвестно"
   },
+  "copyAddress": {
+    "message": "Скопировать адрес"
+  },
+  "copyPhone": {
+    "message": "Скопировать телефон"
+  },
+  "copyNote": {
+    "message": "Скопировать заметку"
+  },
+  "copyVerificationCode": {
+    "message": "Скопировать код подтверждения"
+  },
   "copyUsername": {
     "message": "Скопировать имя пользователя"
   },
@@ -1634,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "месяц"
+  },
+  "monthly": {
+    "message": "Ежемесячный"
+  },
+  "year": {
+    "message": "год"
+  },
+  "annually": {
+    "message": "Ежегодно"
+  },
+  "annual": {
+    "message": "Ежегодный"
   },
   "refreshComplete": {
     "message": "Обновление завершено"
@@ -2050,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Несохраненные изменения"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Если вы остановитесь сейчас, ваши изменения не будут сохранены. Установите обновление позже, чтобы вы могли остаться и сохранить свои изменения."
+  },
+  "installLater": {
+    "message": "Установить позднее"
+  },
+  "continueWithInstall": {
+    "message": "Продолжить установку"
+  },
   "clone": {
     "message": "Клонировать"
   },
@@ -2065,9 +2150,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Чтобы получить доступ к хранилищу после выхода из него требуется повторная авторизация."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
-  },
   "lock": {
     "message": "Блокировка",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2078,6 +2160,24 @@
   },
   "searchTrash": {
     "message": "Поиск в корзине"
+  },
+  "searchArchive": {
+    "message": "Поиск в архиве"
+  },
+  "searchLogin": {
+    "message": "Поиск логина"
+  },
+  "searchCard": {
+    "message": "Поиск карты"
+  },
+  "searchIdentity": {
+    "message": "Поиск личной информации"
+  },
+  "searchSecureNote": {
+    "message": "Поиск заметки"
+  },
+  "searchSshKey": {
+    "message": "Поиск ключа SSH"
   },
   "permanentlyDeleteItem": {
     "message": "Окончательно удалить элемент"
@@ -2233,6 +2333,9 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новый мастер-пароль не соответствует требованиям политики."
   },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
+  },
   "receiveMarketingEmailsV2": {
     "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
   },
@@ -2374,6 +2477,9 @@
   "editSend": {
     "message": "Изменить Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Мое"
   },
   "myVault": {
     "message": "Хранилище"
@@ -2664,9 +2770,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Тайм-аут вашего хранилища превышает ограничения, установленные вашей организацией."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
@@ -3700,6 +3803,9 @@
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
   },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Многофакторная аутентификация отменена"
   },
@@ -4083,6 +4189,9 @@
   "missingWebsite": {
     "message": "Отсутствует сайт"
   },
+  "missingPermissions": {
+    "message": "У вас нет необходимых разрешений для выполнения этого действия."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
@@ -4387,11 +4496,11 @@
   "noItemsInArchiveDesc": {
     "message": "Архивированные элементы появятся здесь и будут исключены из общих результатов поиска и предложений автозаполнения."
   },
-  "itemWasSentToArchive": {
-    "message": "Элемент был отправлен в архив"
+  "itemArchiveToast": {
+    "message": "Элемент архивирован"
   },
-  "itemWasUnarchived": {
-    "message": "Элемент был разархивирован"
+  "itemUnarchivedToast": {
+    "message": "Элемент разархивирован"
   },
   "archiveItem": {
     "message": "Архивировать элемент"
@@ -4569,8 +4678,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4578,14 +4687,47 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Открыть статью помощь по передаче элементов"
+  },
   "acceptTransfer": {
     "message": "Принять передачу"
   },
   "declineAndLeave": {
     "message": "Отклонить и покинуть"
   },
-  "whyAmISeeingThis": {
-    "message": "Почему я это вижу?"
+  "organizationIsSuspended": {
+    "message": "Организация приостановлена"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Доступ к элементам в отключенных организациях невозможен. Обратитесь за помощью к владельцу организации."
+  },
+  "noItemsInTrash": {
+    "message": "Нет элементов в корзине"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Элементы, которые вы удаляете, появятся здесь и будут удалены навсегда через 30 дней"
+  },
+  "noItemsInVault": {
+    "message": "В хранилище нет элементов"
+  },
+  "emptyVaultDescription": {
+    "message": "Хранилище защищает не только ваши пароли. Логины, идентификаторы, карты и заметки в нем надежно защищены."
+  },
+  "emptyFavorites": {
+    "message": "В избранном нет элементов"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Добавляйте часто используемые элементы в избранное для быстрого доступа."
+  },
+  "noSearchResults": {
+    "message": "Поиск не дал результатов"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
   "sendPasswordHelperText": {
     "message": "Пользователям необходимо будет ввести пароль для просмотра этой Send",
@@ -4617,5 +4759,8 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Проверка пользователя не удалась."
   }
 }

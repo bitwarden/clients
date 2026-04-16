@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriten"
   },
+  "unfavorite": {
+    "message": "Aus Favoriten entfernen"
+  },
   "types": {
     "message": "Typen"
   },
@@ -334,6 +337,22 @@
   "premiumRequiredDesc": {
     "message": "Für diese Funktion ist eine Premium-Mitgliedschaft notwendig."
   },
+  "syncWithBrowser": {
+    "message": "Mit Browser synchronisieren"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Um dich mit $VAULTURL$ zu verbinden, musst du deinen Standardbrowser mit der Bitwarden-App synchronisieren. Sobald die Synchronisierung abgeschlossen ist, wirst du zurück zu dieser App geleitet.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Browser starten"
+  },
   "errorOccurred": {
     "message": "Ein Fehler ist aufgetreten."
   },
@@ -585,6 +604,12 @@
   },
   "editedItem": {
     "message": "Eintrag gespeichert"
+  },
+  "itemAddedToFavorites": {
+    "message": "Eintrag zu Favoriten hinzugefügt"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Eintrag aus Favoriten entfernt"
   },
   "deleteItem": {
     "message": "Eintrag löschen"
@@ -896,6 +921,9 @@
   "masterPassHintLabel": {
     "message": "Master-Passwort-Hinweis"
   },
+  "masterPasswordChanged": {
+    "message": "Master-Passwort gespeichert"
+  },
   "passwordStrengthScore": {
     "message": "Bewertung der Passwortstärke $SCORE$",
     "placeholders": {
@@ -1022,6 +1050,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ungültige E-Mail-Adresse oder Verifizierungscode"
   },
   "continue": {
     "message": "Weiter"
@@ -1184,6 +1215,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren."
   },
+  "rotateAccountEncKey": {
+    "message": "Auch den Verschlüsselungsschlüssel meines Kontos erneuern"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Auswirkungen der Erneuerung deines Verschlüsselungsschlüssels"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Es gibt alte Dateianhänge in deinem Tresor, die repariert werden müssen, bevor du deinen Verschlüsselungsschlüssel erneuern kannst."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Verschlüsselungsschlüssel erneuern"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Bist du sicher, dass du deinen Verschlüsselungsschlüssel erneuern möchtest?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Nach der Aktualisierung deines Verschlüsselungsschlüssels musst du dich bei allen Bitwarden-Anwendungen, die du momentan benutzt, erneut anmelden (wie z.B. die mobile App oder die Browser-Erweiterungen). Fehler bei Ab- und Anmeldung (die deinen neuen Verschlüsselungsschlüssel herunterlädt) könnte zu einer Beschädigung der Daten führen. Wir werden versuchen dich automatisch abzumelden, was jedoch verzögert geschehen kann."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle von dir gespeicherten Exporte mit Konto-Beschränkungen werden ungültig."
+  },
   "confirmIdentityToContinue": {
     "message": "Bestätige deine Identität, um fortzufahren"
   },
@@ -1268,6 +1320,9 @@
   "changeMasterPass": {
     "message": "Master-Passwort ändern"
   },
+  "changeMasterPassword": {
+    "message": "Master-Passwort ändern"
+  },
   "continueToWebApp": {
     "message": "Weiter zur Web-App?"
   },
@@ -1346,17 +1401,11 @@
   "twoStepLogin": {
     "message": "Zwei-Faktor-Authentifizierung"
   },
-  "vaultTimeoutHeader": {
-    "message": "Tresor-Timeout"
-  },
   "vaultTimeout": {
     "message": "Tresor-Timeout"
   },
   "vaultTimeout1": {
     "message": "Timeout"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Timeout-Aktion"
   },
   "vaultTimeoutDesc": {
     "message": "Wähle, wann der Timeout deines Tresors aktiviert werden soll und welche Aktion er bewirken soll."
@@ -1552,6 +1601,18 @@
   "unknown": {
     "message": "Unbekannt"
   },
+  "copyAddress": {
+    "message": "Adresse kopieren"
+  },
+  "copyPhone": {
+    "message": "Telefonnummer kopieren"
+  },
+  "copyNote": {
+    "message": "Notiz kopieren"
+  },
+  "copyVerificationCode": {
+    "message": "Verifizierungscode kopieren"
+  },
   "copyUsername": {
     "message": "Benutzername kopieren"
   },
@@ -1634,6 +1695,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "Monat"
+  },
+  "monthly": {
+    "message": "Monatlich"
+  },
+  "year": {
+    "message": "Jahr"
+  },
+  "annually": {
+    "message": "Jährlich"
+  },
+  "annual": {
+    "message": "Jährlich"
   },
   "refreshComplete": {
     "message": "Aktualisierung abgeschlossen"
@@ -2050,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Nicht gespeicherte Änderungen"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Wenn du jetzt gehst, werden deine Änderungen nicht gespeichert. Installiere die Aktualisierung später, damit du deine Änderungen speichern kannst."
+  },
+  "installLater": {
+    "message": "Später installieren"
+  },
+  "continueWithInstall": {
+    "message": "Mit der Installation fortfahren"
+  },
   "clone": {
     "message": "Duplizieren"
   },
@@ -2065,9 +2150,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Um wieder auf deinen Tresor zugreifen zu können, ist eine erneute Authentifizierung erforderlich."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Timeout-Timeout zu ändern."
-  },
   "lock": {
     "message": "Sperren",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2078,6 +2160,24 @@
   },
   "searchTrash": {
     "message": "Papierkorb durchsuchen"
+  },
+  "searchArchive": {
+    "message": "Archiv durchsuchen"
+  },
+  "searchLogin": {
+    "message": "Zugangsdaten suchen"
+  },
+  "searchCard": {
+    "message": "Karte suchen"
+  },
+  "searchIdentity": {
+    "message": "Identität suchen"
+  },
+  "searchSecureNote": {
+    "message": "Sichere Notiz suchen"
+  },
+  "searchSshKey": {
+    "message": "SSH-Schlüssel suchen"
   },
   "permanentlyDeleteItem": {
     "message": "Eintrag dauerhaft löschen"
@@ -2233,6 +2333,9 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Dein neues Masterpasswort entspricht nicht den Anforderungen der Richtlinie."
   },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Eine oder mehrere Organisationsrichtlinien erfordern, dass dein Master-Passwort die folgenden Anforderungen erfüllt:"
+  },
   "receiveMarketingEmailsV2": {
     "message": "Erhalte Ratschläge, Ankündigungen und Marktforschungsumfragen von Bitwarden in deinem Posteingang."
   },
@@ -2374,6 +2477,9 @@
   "editSend": {
     "message": "Send bearbeiten",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Ich"
   },
   "myVault": {
     "message": "Mein Tresor"
@@ -2665,9 +2771,6 @@
   "vaultTimeoutTooLarge": {
     "message": "Dein Tresor-Timeout überschreitet die von deinem Unternehmen festgelegten Beschränkungen."
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
     "placeholders": {
@@ -2695,7 +2798,7 @@
     }
   },
   "vaultCustomTimeoutMinimum": {
-    "message": "Minimale benutzerdefinierte Timeout-Zeit beträgt 1 Minute."
+    "message": "Minimales benutzerdefiniertes Timeout beträgt 1 Minute."
   },
   "inviteAccepted": {
     "message": "Einladung angenommen"
@@ -3700,6 +3803,9 @@
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
   },
+  "exportError": {
+    "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktor-Authentifizierung abgebrochen"
   },
@@ -4083,6 +4189,9 @@
   "missingWebsite": {
     "message": "Fehlende Website"
   },
+  "missingPermissions": {
+    "message": "Dir fehlen die erforderlichen Berechtigungen, um diese Aktion auszuführen."
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "Du kannst Sammlungen mit Leseberechtigung nicht entfernen: $COLLECTIONS$",
     "placeholders": {
@@ -4387,11 +4496,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Auto-Ausfüllen-Vorschlägen ausgeschlossen."
   },
-  "itemWasSentToArchive": {
-    "message": "Eintrag wurde archiviert"
+  "itemArchiveToast": {
+    "message": "Eintrag archiviert"
   },
-  "itemWasUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+  "itemUnarchivedToast": {
+    "message": "Eintrag nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -4487,7 +4596,7 @@
     "message": "Timeout-Aktion"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Fehler: Entschlüsselung nicht möglich"
   },
   "sessionTimeoutHeader": {
     "message": "Sitzungs-Timeout"
@@ -4569,8 +4678,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4578,14 +4687,47 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
+  },
   "acceptTransfer": {
     "message": "Übertragung annehmen"
   },
   "declineAndLeave": {
     "message": "Ablehnen und verlassen"
   },
-  "whyAmISeeingThis": {
-    "message": "Warum wird mir das angezeigt?"
+  "organizationIsSuspended": {
+    "message": "Organisation ist deaktiviert"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Besitzer deiner Organisation, um Unterstützung zu erhalten."
+  },
+  "noItemsInTrash": {
+    "message": "Keine Einträge im Papierkorb"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Einträge, die du löschst, erscheinen hier und werden nach 30 Tagen dauerhaft gelöscht"
+  },
+  "noItemsInVault": {
+    "message": "Keine Einträge im Tresor"
+  },
+  "emptyVaultDescription": {
+    "message": "Der Tresor schützt mehr als nur deine Passwörter. Speicher hier sichere Zugangsdaten, Identitäten, Karten und Notizen."
+  },
+  "emptyFavorites": {
+    "message": "Du hast keine Einträge zu den Favoriten hinzugefügt"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Füge häufig verwendete Einträge zu den Favoriten hinzu, um schnell darauf zuzugreifen."
+  },
+  "noSearchResults": {
+    "message": "Keine Suchergebnisse gefunden"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Filter löschen oder es mit einem anderen Suchbegriff versuchen"
   },
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
@@ -4617,5 +4759,8 @@
   },
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "userVerificationFailed": {
+    "message": "Benutzerverifizierung fehlgeschlagen."
   }
 }

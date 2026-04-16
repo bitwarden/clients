@@ -20,7 +20,13 @@
       {{ "createdSendSuccessfully" | i18n }}
     </h3>
     <p class="tw-text-center">
-      {{ formatExpirationDate() }}
+      @let translationKey =
+        send.authType === AuthType.Email
+          ? "sendCreatedDescriptionEmail"
+          : send.authType === AuthType.Password
+            ? "sendCreatedDescriptionPassword"
+            : "sendCreatedDescriptionV2";
+      {{ translationKey | i18n: formattedExpirationTime }}
     </p>
     <button bitButton type="button" buttonType="primary" (click)="copyLink()">
       <b>{{ "copyLink" | i18n }}</b>

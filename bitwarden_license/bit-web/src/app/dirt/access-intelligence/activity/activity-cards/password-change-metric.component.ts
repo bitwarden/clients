@@ -24,7 +24,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { SecurityTask, SecurityTaskStatus } from "@bitwarden/common/vault/tasks";
 import {
   ButtonModule,
-  ProgressModule,
+  ProgressBarComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -43,13 +43,13 @@ export type PasswordChangeView = (typeof PasswordChangeView)[keyof typeof Passwo
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "dirt-password-change-metric",
-  imports: [TypographyModule, JslibModule, ProgressModule, ButtonModule],
+  imports: [TypographyModule, JslibModule, ProgressBarComponent, ButtonModule],
   templateUrl: "./password-change-metric.component.html",
 })
 export class PasswordChangeMetricComponent implements OnInit {
-  PasswordChangeViewEnum = PasswordChangeView;
+  readonly PasswordChangeViewEnum = PasswordChangeView;
 
-  private destroyRef = inject(DestroyRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Inputs
   // Prefer component input since route param controls UI state
@@ -100,11 +100,11 @@ export class PasswordChangeMetricComponent implements OnInit {
   });
 
   constructor(
-    private allActivitiesService: AllActivitiesService,
-    private i18nService: I18nService,
-    private riskInsightsDataService: RiskInsightsDataService,
-    protected securityTasksService: AccessIntelligenceSecurityTasksService,
-    private toastService: ToastService,
+    private readonly allActivitiesService: AllActivitiesService,
+    private readonly i18nService: I18nService,
+    private readonly riskInsightsDataService: RiskInsightsDataService,
+    protected readonly securityTasksService: AccessIntelligenceSecurityTasksService,
+    private readonly toastService: ToastService,
   ) {
     this._tasks = toSignal(this.securityTasksService.tasks$, { initialValue: [] });
     this._hasCriticalApplications = toSignal(

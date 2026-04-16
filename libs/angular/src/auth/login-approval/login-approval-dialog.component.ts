@@ -20,6 +20,7 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
@@ -35,7 +36,7 @@ export interface LoginApprovalDialogParams {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "login-approval-dialog.component.html",
-  imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, JslibModule],
+  imports: [AsyncActionsModule, ButtonModule, CommonModule, DialogModule, IconModule, JslibModule],
 })
 export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   authRequestId: string;

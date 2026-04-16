@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, model } from "@angular/core";
 
 export type BerryVariant =
   | "primary"
@@ -23,7 +23,7 @@ export type BerryVariant =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BerryComponent {
-  protected readonly variant = input<BerryVariant>("primary");
+  readonly variant = model<BerryVariant>("primary");
   protected readonly value = input<number>();
   protected readonly type = input<"status" | "count">("count");
 
@@ -38,7 +38,7 @@ export class BerryComponent {
   });
 
   protected readonly textColor = computed(() => {
-    return this.variant() === "contrast" ? "tw-text-fg-dark" : "tw-text-fg-white";
+    return this.variant() === "contrast" ? "tw-text-fg-heading" : "tw-text-fg-contrast";
   });
 
   protected readonly padding = computed(() => {
@@ -67,7 +67,7 @@ export class BerryComponent {
       warning: "tw-bg-bg-warning",
       danger: "tw-bg-bg-danger",
       accentPrimary: "tw-bg-fg-accent-primary-strong",
-      contrast: "tw-bg-bg-white",
+      contrast: "tw-bg-bg-primary",
     };
 
     return [

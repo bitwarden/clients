@@ -14,15 +14,20 @@ import {
 import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/dirt/event-logs";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs/services/event-collection.service";
 import { FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import {
   FakeStateProvider,
   FakeAccountService,
@@ -58,6 +63,7 @@ import {
   createGenerateFillScriptOptionsMock,
 } from "../spec/autofill-mocks";
 import { flushPromises, triggerTestFailure } from "../spec/testing-utils";
+import * as qualification from "../utils/qualification";
 
 import {
   AutoFillOptions,
@@ -96,6 +102,11 @@ describe("AutofillService", () => {
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
   let configService: MockProxy<ConfigService>;
+  let enableRoutingAnimationMock$: BehaviorSubject<boolean>;
+  let enableAutofillAnimationMock$: BehaviorSubject<boolean>;
+  let enableInlineMenuAnimationMock$: BehaviorSubject<boolean>;
+  let enableNotificationAnimationMock$: BehaviorSubject<boolean>;
+  let animationControlService: MockProxy<AnimationControlService>;
   let enableChangedPasswordPromptMock$: BehaviorSubject<boolean>;
   let enableAddedLoginPromptMock$: BehaviorSubject<boolean>;
   let userNotificationsSettings: MockProxy<UserNotificationSettingsServiceAbstraction>;
@@ -105,11 +116,22 @@ describe("AutofillService", () => {
     configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockImplementation(() => of(false));
 
+    const mockEnvironment = mock<Environment>();
+    mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
+    const environmentService = mock<EnvironmentService>();
+    environmentService.environment$ = new BehaviorSubject(mockEnvironment);
+
+    authService = mock<AuthService>();
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
     // Initialize domainSettingsService BEFORE it's used
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
+      environmentService,
+      authService,
     );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
 
@@ -130,6 +152,15 @@ describe("AutofillService", () => {
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
     messageListener = mock<MessageListener>();
+    enableRoutingAnimationMock$ = new BehaviorSubject(true);
+    enableAutofillAnimationMock$ = new BehaviorSubject(true);
+    enableInlineMenuAnimationMock$ = new BehaviorSubject(true);
+    enableNotificationAnimationMock$ = new BehaviorSubject(true);
+    animationControlService = mock<AnimationControlService>();
+    animationControlService.enableRoutingAnimation$ = enableRoutingAnimationMock$;
+    animationControlService.enableAutofillAnimation$ = enableAutofillAnimationMock$;
+    animationControlService.enableNotificationAnimation$ = enableNotificationAnimationMock$;
+    animationControlService.enableInlineMenuAnimation$ = enableInlineMenuAnimationMock$;
     enableChangedPasswordPromptMock$ = new BehaviorSubject(true);
     enableAddedLoginPromptMock$ = new BehaviorSubject(true);
     userNotificationsSettings = mock<UserNotificationSettingsServiceAbstraction>();
@@ -150,6 +181,7 @@ describe("AutofillService", () => {
       configService,
       userNotificationsSettings,
       messageListener,
+      animationControlService,
     );
     jest.spyOn(BrowserApi, "tabSendMessage");
   });
@@ -189,7 +221,7 @@ describe("AutofillService", () => {
           sender: AutofillMessageSender.collectPageDetailsFromTabObservable,
           tab,
         },
-        null,
+        undefined,
         true,
       );
     });
@@ -519,6 +551,7 @@ describe("AutofillService", () => {
         true,
         false,
         true,
+        undefined,
       );
       expect(formData).toStrictEqual([]);
     });
@@ -630,6 +663,25 @@ describe("AutofillService", () => {
           username: pageDetailsMock.fields[0],
         },
       ]);
+    });
+
+    it("includes forms with password but no detectable username field with username: null", () => {
+      const passwordInputField = createAutofillFieldMock({
+        opid: "password-field",
+        type: "password",
+        form: "validFormId",
+        elementNumber: 1,
+      });
+      pageDetailsMock.fields = [passwordInputField];
+      jest.spyOn(AutofillService, "loadPasswordFields").mockReturnValueOnce([passwordInputField]);
+
+      const formData = autofillService.getFormsWithPasswordFields(pageDetailsMock);
+
+      expect(formData).toHaveLength(1);
+      expect(formData[0].form).toBe(pageDetailsMock.forms.validFormId);
+      expect(formData[0].password).toBe(passwordInputField);
+      expect(formData[0].passwords).toEqual([passwordInputField]);
+      expect(formData[0].username).toBeNull();
     });
   });
 
@@ -796,6 +848,7 @@ describe("AutofillService", () => {
           },
           url: currentAutofillPageDetails.tab.url,
           pageDetailsUrl: "url",
+          showAnimations: true,
         },
         {
           frameId: currentAutofillPageDetails.frameId,
@@ -807,6 +860,23 @@ describe("AutofillService", () => {
         autofillOptions.cipher.id,
       );
       expect(autofillResult).toBeNull();
+    });
+
+    it("sends showAnimations as false when enableAutofillAnimation$ emits false", async () => {
+      enableAutofillAnimationMock$.next(false);
+
+      await autofillService.doAutoFill(autofillOptions);
+
+      const currentAutofillPageDetails = autofillOptions.pageDetails[0];
+      expect(chrome.tabs.sendMessage).toHaveBeenCalledWith(
+        currentAutofillPageDetails.tab.id,
+        expect.objectContaining({
+          command: "fillForm",
+          showAnimations: false,
+        }),
+        { frameId: currentAutofillPageDetails.frameId },
+        expect.any(Function),
+      );
     });
 
     it("will autofill card data for a page", async () => {
@@ -1159,9 +1229,7 @@ describe("AutofillService", () => {
         cipher.reprompt = CipherRepromptType.Password;
         jest.spyOn(autofillService, "doAutoFill");
         jest.spyOn(cipherService, "getNextCipherForUrl").mockResolvedValueOnce(cipher);
-        jest
-          .spyOn(userVerificationService, "hasMasterPasswordAndMasterKeyHash")
-          .mockResolvedValueOnce(true);
+        jest.spyOn(userVerificationService, "hasMasterPassword").mockResolvedValueOnce(true);
         jest
           .spyOn(autofillService as any, "openVaultItemPasswordRepromptPopout")
           .mockImplementation();
@@ -1169,7 +1237,7 @@ describe("AutofillService", () => {
         const result = await autofillService.doAutoFillOnTab(pageDetails, tab, true);
 
         expect(cipherService.getNextCipherForUrl).toHaveBeenCalledWith(tab.url, mockUserId);
-        expect(userVerificationService.hasMasterPasswordAndMasterKeyHash).toHaveBeenCalled();
+        expect(userVerificationService.hasMasterPassword).toHaveBeenCalled();
         expect(autofillService["openVaultItemPasswordRepromptPopout"]).toHaveBeenCalledWith(tab, {
           cipherId: cipher.id,
           action: "autofill",
@@ -1182,9 +1250,7 @@ describe("AutofillService", () => {
         cipher.reprompt = CipherRepromptType.Password;
         jest.spyOn(autofillService, "doAutoFill");
         jest.spyOn(cipherService, "getNextCipherForUrl").mockResolvedValueOnce(cipher);
-        jest
-          .spyOn(userVerificationService, "hasMasterPasswordAndMasterKeyHash")
-          .mockResolvedValueOnce(true);
+        jest.spyOn(userVerificationService, "hasMasterPassword").mockResolvedValueOnce(true);
         jest
           .spyOn(autofillService as any, "openVaultItemPasswordRepromptPopout")
           .mockImplementation();
@@ -1779,7 +1845,7 @@ describe("AutofillService", () => {
       jest.spyOn(autofillService as any, "inUntrustedIframe");
       jest.spyOn(AutofillService, "loadPasswordFields");
       jest.spyOn(autofillService as any, "findUsernameField");
-      jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
+      jest.spyOn(qualification, "fieldContainsKeyword");
       jest.spyOn(AutofillService, "fillByOpid");
       jest.spyOn(AutofillService, "setFillScriptForFocus");
 
@@ -1793,7 +1859,7 @@ describe("AutofillService", () => {
       expect(autofillService["inUntrustedIframe"]).not.toHaveBeenCalled();
       expect(AutofillService.loadPasswordFields).not.toHaveBeenCalled();
       expect(autofillService["findUsernameField"]).not.toHaveBeenCalled();
-      expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalled();
+      expect(qualification.fieldContainsKeyword).not.toHaveBeenCalled();
       expect(AutofillService.fillByOpid).not.toHaveBeenCalled();
       expect(AutofillService.setFillScriptForFocus).not.toHaveBeenCalled();
       expect(value).toBeNull();
@@ -1927,6 +1993,7 @@ describe("AutofillService", () => {
           false,
           options.onlyEmptyFields,
           options.fillNewPassword,
+          options.inlineMenuFillType,
         );
       });
 
@@ -2331,11 +2398,11 @@ describe("AutofillService", () => {
             totpFieldView,
             nonViewableFieldView,
           ];
-          jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
+          jest.spyOn(qualification, "fieldContainsKeyword");
           jest.spyOn(AutofillService, "fillByOpid");
         });
 
-        it("will attempt to fuzzy match a username to a viewable text, email or tel field if no password fields are found and the username fill is not being skipped", async () => {
+        it("will attempt to keyword match a username to a viewable text, email or tel field if no password fields are found and the username fill is not being skipped", async () => {
           await autofillService["generateLoginFillScript"](
             fillScript,
             pageDetails,
@@ -2343,35 +2410,40 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             usernameField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             emailField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             telephoneField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             totpField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).not.toHaveBeenCalledWith(
             nonViewableField,
             AutoFillConstants.UsernameFieldNames,
           );
-          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(2);
           expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
             fillScript,
             usernameField,
             options.cipher.login.username,
           );
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            emailField,
+            options.cipher.login.username,
+          );
         });
 
-        it("will not attempt to fuzzy match a username if the username fill is being skipped", async () => {
+        it("will not attempt to keyword match a username if the username fill is being skipped", async () => {
           options.skipUsernameOnlyFill = true;
 
           await autofillService["generateLoginFillScript"](
@@ -2381,13 +2453,13 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).not.toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).not.toHaveBeenCalledWith(
             expect.anything(),
             AutoFillConstants.UsernameFieldNames,
           );
         });
 
-        it("will attempt to fuzzy match a totp field if totp autofill is allowed", async () => {
+        it("will attempt to keyword match a totp field if totp autofill is allowed", async () => {
           options.allowTotpAutofill = true;
 
           await autofillService["generateLoginFillScript"](
@@ -2397,13 +2469,13 @@ describe("AutofillService", () => {
             options,
           );
 
-          expect(AutofillService.fieldIsFuzzyMatch).toHaveBeenCalledWith(
+          expect(qualification.fieldContainsKeyword).toHaveBeenCalledWith(
             expect.anything(),
             AutoFillConstants.TotpFieldNames,
           );
         });
 
-        it("will not attempt to fuzzy match a totp field if totp autofill is not allowed", async () => {
+        it("will not attempt to keyword match a totp field if totp autofill is not allowed", async () => {
           options.allowTotpAutofill = false;
           jest.spyOn(autofillService as any, "findMatchingFieldIndex");
 
@@ -2418,6 +2490,139 @@ describe("AutofillService", () => {
             expect.anything(),
             AutoFillConstants.TotpFieldNames,
           );
+        });
+
+        it("classifies a field matching TotpFieldNames as TOTP", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const totpField = createAutofillFieldMock({
+            opid: "reliable-totp",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.TotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [totpField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, totpField, totpCode);
+        });
+
+        it("classifies a field matching AmbiguousTotpFieldNames as username when it also matches username signals", async () => {
+          options.allowTotpAutofill = true;
+          // Simulates a username field whose label-left was contaminated with an
+          // ambiguous TOTP keyword.
+          const ambiguousField = createAutofillFieldMock({
+            opid: "ambiguous-totp",
+            type: "text",
+            form: "validFormId",
+            htmlName: "username",
+            htmlID: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            "label-left": AutoFillConstants.AmbiguousTotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [ambiguousField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledTimes(1);
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            ambiguousField,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field matching only AmbiguousTotpFieldNames as TOTP when there are no username signals", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const ambiguousField = createAutofillFieldMock({
+            opid: "ambiguous-totp-only",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            htmlID: AutoFillConstants.AmbiguousTotpFieldNames[0],
+            elementNumber: 5,
+          });
+          pageDetails.fields = [ambiguousField];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(
+            fillScript,
+            ambiguousField,
+            totpCode,
+          );
+        });
+
+        it("classifies a field matching TotpFieldNames as TOTP even when it also matches username signals", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "reliable-totp-with-username-signal",
+            type: "text",
+            form: "validFormId",
+            htmlName: AutoFillConstants.TotpFieldNames[0],
+            "label-left": "username",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            field,
+            options.cipher.login.username,
+          );
+        });
+
+        it("classifies a field with autocomplete=one-time-code as TOTP", async () => {
+          const totpCode = "123456";
+          options.allowTotpAutofill = true;
+          totpService.getCode$.mockReturnValue(of({ code: totpCode, period: 30 }));
+          const field = createAutofillFieldMock({
+            opid: "otp-autocomplete",
+            type: "text",
+            form: "validFormId",
+            autoCompleteType: "one-time-code",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [field];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).toHaveBeenCalledWith(fillScript, field, totpCode);
         });
       });
 
@@ -2438,7 +2643,6 @@ describe("AutofillService", () => {
         jest.spyOn(autofillService as any, "inUntrustedIframe");
         jest.spyOn(AutofillService, "loadPasswordFields");
         jest.spyOn(autofillService as any, "findUsernameField");
-        jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
         jest.spyOn(AutofillService, "fillByOpid");
         jest.spyOn(AutofillService, "setFillScriptForFocus");
 
@@ -2456,6 +2660,7 @@ describe("AutofillService", () => {
           false,
           options.onlyEmptyFields,
           options.fillNewPassword,
+          options.inlineMenuFillType,
         );
         expect(autofillService["findUsernameField"]).toHaveBeenCalledWith(
           pageDetails,
@@ -4110,6 +4315,35 @@ describe("AutofillService", () => {
       jest.spyOn(AutofillService, "forCustomFieldsOnly");
     });
 
+    describe("AutofillService.autoCompleteTypeIncludesToken", () => {
+      it("returns true when the token appears among space-separated autocomplete tokens", () => {
+        expect(
+          AutofillService.autoCompleteTypeIncludesToken(
+            "section-login current-password",
+            AutoFillConstants.AutocompleteCurrentPassword,
+          ),
+        ).toBe(true);
+      });
+
+      it("is case-insensitive and trims whitespace", () => {
+        expect(
+          AutofillService.autoCompleteTypeIncludesToken(
+            "  Section-Login CURRENT-PASSWORD ",
+            AutoFillConstants.AutocompleteCurrentPassword,
+          ),
+        ).toBe(true);
+      });
+
+      it("does not treat a substring inside one token as a match", () => {
+        expect(
+          AutofillService.autoCompleteTypeIncludesToken(
+            "not-new-password-token",
+            AutoFillConstants.AutocompleteNewPassword,
+          ),
+        ).toBe(false);
+      });
+    });
+
     it("returns an empty array if passed a field that is a `span` element", () => {
       const customField = createAutofillFieldMock({ tagName: "span" });
       pageDetails.fields = [customField];
@@ -4304,12 +4538,141 @@ describe("AutofillService", () => {
       });
     });
 
+    describe("change password sibling exclusion, current-password token in same form", () => {
+      const formId = "changePasswordForm";
+
+      const passwordTriple = (
+        opts: {
+          currentAc?: string | null;
+          middleAc?: string | null;
+          newAc?: string | null;
+        } = {},
+      ) => {
+        const currentAc = opts.currentAc ?? "current-password";
+        const middleAc = opts.middleAc !== undefined ? opts.middleAc : "off";
+        const newAc = opts.newAc ?? "new-password";
+        return [
+          createAutofillFieldMock({
+            opid: "current-password-field",
+            type: "password",
+            form: formId,
+            autoCompleteType: currentAc,
+            elementNumber: 0,
+          }),
+          createAutofillFieldMock({
+            opid: "ambiguous-password",
+            type: "password",
+            form: formId,
+            autoCompleteType: middleAc,
+            elementNumber: 1,
+          }),
+          createAutofillFieldMock({
+            opid: "new-password-field",
+            type: "password",
+            form: formId,
+            autoCompleteType: newAc,
+            elementNumber: 2,
+          }),
+        ] as const;
+      };
+
+      it.each([
+        ["current-password", "off"],
+        ["section-login current-password", "off"],
+      ] as const)(
+        "returns only the current field when it has %s and the middle field autocomplete is %s",
+        (currentAc, middleAc) => {
+          const triple = passwordTriple({ currentAc, middleAc });
+          pageDetails.fields = [...triple];
+
+          const result = AutofillService.loadPasswordFields(
+            pageDetails,
+            false,
+            false,
+            false,
+            false,
+          );
+
+          expect(result).toStrictEqual([triple[0]]);
+        },
+      );
+
+      it("returns every password field when none expose current-password", () => {
+        pageDetails.fields = [0, 1, 2].map((i) =>
+          createAutofillFieldMock({
+            opid: `pw-${i}`,
+            type: "password",
+            form: formId,
+            autoCompleteType: null,
+            elementNumber: i,
+          }),
+        );
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual(pageDetails.fields);
+      });
+
+      it.each([
+        {
+          label: "password generation",
+          fillNewPassword: true,
+          inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
+          wantAll: true,
+        },
+        {
+          label: "fillNewPassword without generation",
+          fillNewPassword: true,
+          inlineMenuFillType: undefined,
+          wantAll: false,
+        },
+      ])("$label", ({ fillNewPassword, inlineMenuFillType, wantAll }) => {
+        const triple = passwordTriple();
+        pageDetails.fields = [...triple];
+
+        const result = AutofillService.loadPasswordFields(
+          pageDetails,
+          false,
+          false,
+          false,
+          fillNewPassword,
+          inlineMenuFillType,
+        );
+
+        expect(result).toStrictEqual(wantAll ? [...triple] : [triple[0]]);
+      });
+    });
+
+    it("includes a lone password field with autocomplete off", () => {
+      pageDetails.fields = [
+        createAutofillFieldMock({
+          opid: "lone-password-field",
+          type: "password",
+          form: "loginForm",
+          autoCompleteType: "off",
+        }),
+      ];
+
+      expect(
+        AutofillService.loadPasswordFields(pageDetails, false, false, false, false),
+      ).toStrictEqual(pageDetails.fields);
+    });
+
     describe("given a field with a new password", () => {
       beforeEach(() => {
         passwordField.autoCompleteType = "new-password";
       });
 
       it("returns an empty array if not filling a new password and the autoCompleteType is `new-password`", () => {
+        pageDetails.fields = [passwordField];
+
+        const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
+
+        expect(result).toStrictEqual([]);
+      });
+
+      it("returns an empty array if not filling a new password when compound autocomplete includes new-password", () => {
+        passwordField.autoCompleteType = "section-account shipping new-password";
         pageDetails.fields = [passwordField];
 
         const result = AutofillService.loadPasswordFields(pageDetails, false, false, false, false);
@@ -4348,7 +4711,6 @@ describe("AutofillService", () => {
       });
       pageDetails.fields = [usernameField, passwordField];
       jest.spyOn(AutofillService, "forCustomFieldsOnly");
-      jest.spyOn(autofillService as any, "findMatchingFieldIndex");
     });
 
     it("returns null when passed a field that is a `span` element", () => {
@@ -4357,7 +4719,6 @@ describe("AutofillService", () => {
 
       const result = autofillService["findUsernameField"](pageDetails, field, false, false, false);
 
-      expect(AutofillService.forCustomFieldsOnly).toHaveBeenCalledWith(field);
       expect(result).toBe(null);
     });
 
@@ -4508,7 +4869,7 @@ describe("AutofillService", () => {
       expect(result).toBe(null);
     });
 
-    it("returns the username field whose attributes most closely describe the username of the password field", () => {
+    it("returns the field in the same form whose attributes most closely describe a username, stopping early at that match", () => {
       const usernameField2 = createAutofillFieldMock({
         opid: "username-field-2",
         type: "text",
@@ -4520,7 +4881,7 @@ describe("AutofillService", () => {
         opid: "username-field-3",
         type: "text",
         form: "validFormId",
-        elementNumber: 1,
+        elementNumber: 2,
       });
       passwordField.elementNumber = 3;
       pageDetails.fields = [usernameField, usernameField2, usernameField3, passwordField];
@@ -4533,12 +4894,10 @@ describe("AutofillService", () => {
         false,
       );
 
+      // usernameField2 matches username keywords and is in the same form, so it is
+      // returned early; usernameField3 (which has no username keywords) is never considered.
       expect(result).toBe(usernameField2);
-      expect(autofillService["findMatchingFieldIndex"]).toHaveBeenCalledTimes(2);
-      expect(autofillService["findMatchingFieldIndex"]).not.toHaveBeenCalledWith(
-        usernameField3,
-        AutoFillConstants.UsernameFieldNames,
-      );
+      expect(result).not.toBe(usernameField3);
     });
   });
 
@@ -4565,7 +4924,6 @@ describe("AutofillService", () => {
       pageDetails.fields = [passwordField, totpField];
       jest.spyOn(AutofillService, "forCustomFieldsOnly");
       jest.spyOn(autofillService as any, "findMatchingFieldIndex");
-      jest.spyOn(AutofillService, "fieldIsFuzzyMatch");
     });
 
     it("returns null when passed a field that is a `span` element", () => {
@@ -4910,107 +5268,6 @@ describe("AutofillService", () => {
 
         expect(result).toBe(true);
       });
-    });
-  });
-
-  describe("fieldIsFuzzyMatch", () => {
-    let field: AutofillField;
-    const fieldProperties = [
-      "htmlID",
-      "htmlName",
-      "label-aria",
-      "label-tag",
-      "label-top",
-      "label-left",
-      "placeholder",
-    ];
-
-    beforeEach(() => {
-      field = createAutofillFieldMock();
-      jest.spyOn(AutofillService, "hasValue");
-      jest.spyOn(AutofillService as any, "fuzzyMatch");
-    });
-
-    it("returns false if the field properties do not have any values", () => {
-      fieldProperties.forEach((property) => {
-        field[property] = "";
-      });
-
-      const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the field properties do not have a value that is a fuzzy match", () => {
-      fieldProperties.forEach((property) => {
-        field[property] = "some-false-value";
-
-        const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
-
-        expect(AutofillService.hasValue).toHaveBeenCalled();
-        expect(AutofillService["fuzzyMatch"]).toHaveBeenCalledWith(
-          ["some-value"],
-          "some-false-value",
-        );
-        expect(result).toBe(false);
-
-        field[property] = "";
-      });
-    });
-
-    it("returns true if the field property has a value that is a fuzzy match", () => {
-      fieldProperties.forEach((property) => {
-        field[property] = "some-value";
-
-        const result = AutofillService["fieldIsFuzzyMatch"](field, ["some-value"]);
-
-        expect(AutofillService.hasValue).toHaveBeenCalled();
-        expect(AutofillService["fuzzyMatch"]).toHaveBeenCalledWith(["some-value"], "some-value");
-        expect(result).toBe(true);
-
-        field[property] = "";
-      });
-    });
-  });
-
-  describe("fuzzyMatch", () => {
-    it("returns false if the passed options is null", () => {
-      const result = AutofillService["fuzzyMatch"](null, "some-value");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed options contains an empty array", () => {
-      const result = AutofillService["fuzzyMatch"]([], "some-value");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed value is null", () => {
-      const result = AutofillService["fuzzyMatch"](["some-value"], null);
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed value is an empty string", () => {
-      const result = AutofillService["fuzzyMatch"](["some-value"], "");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns false if the passed value is not present in the options array", () => {
-      const result = AutofillService["fuzzyMatch"](["some-value"], "some-other-value");
-
-      expect(result).toBe(false);
-    });
-
-    it("returns true if the passed value is within the options array", () => {
-      const result = AutofillService["fuzzyMatch"](
-        ["some-other-value", "some-value"],
-        "some-value",
-      );
-
-      expect(result).toBe(true);
     });
   });
 

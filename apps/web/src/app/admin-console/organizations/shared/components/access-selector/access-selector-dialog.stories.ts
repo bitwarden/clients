@@ -25,7 +25,7 @@ const render: Story["render"] = (args) => ({
     ...args,
   },
   template: `
-    <bit-dialog [dialogSize]="dialogSize" [disablePadding]="disablePadding" disableAnimations>
+    <bit-dialog disableAnimations>
       <span bitDialogTitle>Access selector</span>
       <span bitDialogContent>
         <bit-access-selector
@@ -48,7 +48,7 @@ const render: Story["render"] = (args) => ({
         <button
           class="tw-ml-auto"
           bitIconButton="bwi-trash"
-          buttonType="danger"
+          buttonType="dangerGhost"
           size="default"
           title="Delete"
           label="Delete"></button>

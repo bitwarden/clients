@@ -45,6 +45,14 @@ export class MasterPasswordUnlockData {
     );
   }
 
+  toSdk(): SdkMasterPasswordUnlockData {
+    return {
+      salt: this.salt,
+      kdf: this.kdf.toSdkConfig(),
+      masterKeyWrappedUserKey: this.masterKeyWrappedUserKey,
+    };
+  }
+
   toJSON(): any {
     return {
       salt: this.salt,

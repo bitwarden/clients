@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Az archivált elemek itt jelennek meg és kizárásra kerülnek az általános keresési eredményekből és az automatikus kitöltési javaslatokból."
   },
-  "itemWasSentToArchive": {
-    "message": "Az elem az archivumba került."
+  "itemArchiveToast": {
+    "message": "Az elem archiválásra került."
   },
-  "itemWasUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Az elem visszavételre került az archivumból."
-  },
-  "itemUnarchived": {
-    "message": "Az elemek visszavéelre kerültek az archivumból."
   },
   "archiveItem": {
     "message": "Elem archiválása"
@@ -699,17 +696,11 @@
   "unlockMethods": {
     "message": "Feloldási opciók"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
-  },
   "unlockMethodNeeded": {
     "message": "Feloldási mód beállítása a Beállításokban"
   },
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Széf időkifutás"
   },
   "otherOptions": {
     "message": "Egyéb opciók"
@@ -898,6 +889,9 @@
   },
   "invalidVerificationCode": {
     "message": "Érvénytelen ellenőrző kód"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Az email cím vagy az ellenőrző kód érvénytelen."
   },
   "valueCopied": {
     "message": "$VALUE$ másolásra került.",
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "A választott mesterjelszó gyenge. Erős jelszót (vagy kifejezést) kell használni a Bitwarden fiók megfelelő védelme érdekében. Biztosan ezt a mesterjelszót szeretnénk használni?"
   },
+  "rotateAccountEncKey": {
+    "message": "A felhasználói fiókom titkosítókódját is cseréljük le"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Titkosító kulcs cseréje"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Biztosan cserére kerüljön a fiók titkosító kulcsa?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "A titkosítási kulcs frissítése után ki kell jelentkezni és vissza kell jelentkezni az összes jelenleg használt Bitwarden alkalmazásba (például a mobilalkalmazás vagy a böngésző bővítmények). A kijelentkezés és a bejelentkezés elmulasztása (amely letölti az új titkosítási kulcsot) adatvesztést okozhat. Megkíséreljük az automatikusan kijelentkeztetést, azonban ez késhet."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "A fiókhoz korlátozottan mentett exportálások érvénytelenek lesznek."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "A széfben régi mellékletek vannak, amelyeket javítani kell a fiók titkosító kulcsának fordítása előtt."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "A titkosítási kulcs cseréjének hattása"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Egy vagy több szervezeti rendszabályhoz mesterjelszó szükséges a következő követelmények megfeleléséhez:"
+  },
   "pin": {
     "message": "Pinkód",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Széf időkifutás művelet"
   },
-  "vaultTimeoutAction1": {
-    "message": "Időkifutási művelet"
+  "showAtRiskPasswordNotifications": {
+    "message": "Kockázatos jelszó értesítések megjelenítése"
   },
   "lock": {
     "message": "Lezárás",
@@ -2860,6 +2878,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "A kockázatos bejelentkezések listájának illusztrációja."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "A Bitwarden széf oldal elrendezésének illusztrációja."
+  },
   "generatePasswordSlideDesc": {
     "message": "Gyorsan generálhatunk erős, egyedi jelszót a Bitwarden automatikus kitöltési menüjével a kockázatos webhelyen.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3083,6 +3104,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ óra",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Másoljuk és osszuk meg ezt a Send elem hivatkozást. A Send elem bárki számára elérhető lesz, aki rendelkezik a hivatkozással és a jelszóval a következő $TIME$ alatt.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Másoljuk és osszuk meg ezt a Send hivatkozást. Megtekinthetik a megadott személyek a következő $TIME$ intervallumban.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "A Send hivatkozás másolásra került.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3187,9 +3247,6 @@
   },
   "minutes": {
     "message": "Perc"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Erre a beállításra a vállalkozás rendszabály követelmények lettek alkalmazva."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "A szervezeti szabályzata $HOURS$ órára és $MINUTES$ percre állította be a maximálisan megengedett széf időtúllépést.",
@@ -4394,6 +4451,9 @@
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."
   },
+  "exportError": {
+    "message": "Hiba történt a széf adatainak exportálása közben."
+  },
   "typePasskey": {
     "message": "Hozzáférési kulcs"
   },
@@ -4822,6 +4882,9 @@
   },
   "copyAddress": {
     "message": "Cím másolása"
+  },
+  "myItems": {
+    "message": "Saját elemek"
   },
   "adminConsole": {
     "message": "Adminisztrátori konzol"
@@ -6085,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében. Kattintás az elfogadásra az elemek tulajdonjogának átruházásához.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ megköveteli, hogy minden elem a szervezet tulajdonában legyen a biztonság és a megfelelőség érdekében.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6094,20 +6157,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kattintsunk az elfogadás lehetőségre az elemek tulajdonjogának átruházásához."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Súgó cikk megnyitása az elemek átviteléről"
+  },
   "acceptTransfer": {
     "message": "Átvitel elfogadása"
   },
   "declineAndLeave": {
     "message": "Elutasítás és kilépés"
   },
-  "whyAmISeeingThis": {
-    "message": "Miért látható ez?"
-  },
   "items": {
     "message": "Elemek"
   },
   "searchResults": {
     "message": "Keresési eredmények"
+  },
+  "simplifiedAutofill": {
+    "message": "Egyszerűsített automatikus kitöltés"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Amikor rákattintunk egy javasolt automatikus kitöltési elemre, az kitölti, nem pedig a részleteket mutatja. Ezeket az elemek továbbra is megtekinthetők a Továbbiak menüből."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Egyszerűsített automatikus kitöltés felugró megnyitása"
   },
   "resizeSideNavigation": {
     "message": "Oldalnavigáció átméretezés"
@@ -6136,5 +6211,11 @@
   "sendPasswordHelperText": {
     "message": "A személyeknek meg kell adniuk a jelszót a Send elem megtekintéséhez.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "downloadFailed": {
+    "message": "A letöltés sikertelen volt."
   }
 }

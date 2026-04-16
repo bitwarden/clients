@@ -1,7 +1,15 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
-  enabledManagers: ["cargo", "github-actions", "npm"],
+  enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
+  customManagers: [
+    {
+      customType: "regex",
+      fileMatch: ["apps/desktop/desktop_native/cargo-tool-versions"],
+      matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
+      datasourceTemplate: "crate",
+    },
+  ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================
     {
@@ -9,7 +17,6 @@
       groupName: "Minor github-actions updates",
       matchManagers: ["github-actions"],
       matchUpdateTypes: ["minor"],
-      addLabels: ["hold"],
     },
     {
       // Enable support for Rust toolchain updates.
@@ -102,6 +109,12 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
+      matchPackageNames: ["mockall"],
+      description: "Autofill-Desktop owned dependencies",
+      commitMessagePrefix: "[deps] Desktop Native:",
+      reviewers: ["team:team-desktop-native-dev"],
+    },
+    {
       matchPackageNames: ["braintree-web-drop-in"],
       description: "Billing owned dependencies",
       commitMessagePrefix: "[deps] Billing:",
@@ -113,6 +126,7 @@
         "@babel/preset-env",
         "@bitwarden/sdk-internal",
         "@bitwarden/commercial-sdk-internal",
+        "@bitwarden/desktop-napi",
         "@electron/fuses",
         "@electron/notarize",
         "@electron/rebuild",
@@ -256,12 +270,14 @@
         "autoprefixer",
         "bootstrap",
         "chromatic",
+        "fantasticon",
         "ngx-toastr",
         "path-browserify",
         "react",
         "react-dom",
         "remark-gfm",
         "storybook",
+        "svgo",
         "tailwindcss",
         "vite-tsconfig-paths",
         "zone.js",
@@ -355,6 +371,12 @@
       description: "Key Management owned dependencies",
       commitMessagePrefix: "[deps] KM:",
       reviewers: ["team:team-key-management-dev"],
+    },
+    {
+      matchPackageNames: ["chart.js", "chartjs-adapter-date-fns"],
+      description: "DIRT owned dependencies",
+      commitMessagePrefix: "[deps] DIRT:",
+      reviewers: ["team:team-data-insights-and-reporting-dev"],
     },
 
     // ==================== Grouping Rules ====================

@@ -11,7 +11,6 @@ import { FormFieldModule } from "../../form-field";
 import { IconButtonModule } from "../../icon-button";
 import { InputModule } from "../../input";
 import { SectionComponent, SectionHeaderComponent } from "../../section";
-import { SharedModule } from "../../shared";
 import { TabsModule } from "../../tabs";
 import { TypographyModule } from "../../typography";
 import { I18nMockService } from "../../utils/i18n-mock.service";
@@ -28,7 +27,6 @@ export default {
         DialogModule,
         BadgeModule,
         ButtonModule,
-        SharedModule,
         IconButtonModule,
         TabsModule,
         NoopAnimationsModule,
@@ -104,7 +102,7 @@ export const Default: Story = {
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
-            buttonType="danger"
+            buttonType="dangerGhost"
             size="default"
             label="Delete"></button>
         </ng-container>
@@ -276,7 +274,7 @@ export const WithCards: Story = {
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
-            buttonType="danger"
+            buttonType="dangerGhost"
             size="default"
             label="Delete"></button>
         </ng-container>
@@ -289,6 +287,21 @@ export const WithCards: Story = {
     subtitle: "Subtitle",
     background: "alt",
     disableAnimations: true,
+  },
+};
+
+export const WithoutFooter: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations" background="alt">
+        <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
+      </bit-dialog>
+    `,
+  }),
+  args: {
+    dialogSize: "default",
+    title: "Without Footer",
   },
 };
 
@@ -317,7 +330,7 @@ export const HeaderEnd: Story = {
             [disabled]="loading"
             class="tw-ms-auto"
             bitIconButton="bwi-trash"
-            buttonType="danger"
+            buttonType="dangerGhost"
             size="default"
             label="Delete"></button>
         </ng-container>

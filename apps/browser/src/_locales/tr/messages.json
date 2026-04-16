@@ -573,13 +573,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünecek ve genel arama sonuçlarından ile otomatik doldurma önerilerinden hariç tutulacaktır."
   },
-  "itemWasSentToArchive": {
-    "message": "Kayıt arşive gönderildi"
+  "itemArchiveToast": {
+    "message": "Kayıt arşivlendi"
   },
-  "itemWasUnarchived": {
-    "message": "Kayıt arşivden çıkarıldı"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "archiveItem": {
@@ -699,17 +696,11 @@
   "unlockMethods": {
     "message": "Kilit açma seçenekleri"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Kasa zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın."
-  },
   "unlockMethodNeeded": {
     "message": "Ayarlar'da bir kilit açma yöntemi ayarlayın"
   },
   "sessionTimeoutHeader": {
     "message": "Oturum zaman aşımı"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Kasa zaman aşımı"
   },
   "otherOptions": {
     "message": "Diğer seçenekler"
@@ -898,6 +889,9 @@
   },
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-posta veya doğrulama kodu geçersiz"
   },
   "valueCopied": {
     "message": "$VALUE$ kopyalandı",
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Seçtiğiniz ana parola zayıf. Bitwarden hesabınızı korumak için daha güçlü bir ana parola seçmenizi öneririz. Bu ana parolayı kullanmak istediğinizden emin misiniz?"
   },
+  "rotateAccountEncKey": {
+    "message": "Hesabımın şifreleme anahtarını da yenile"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Şifreleme anahtarını yenile"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Hesabınızın şifreleme anahtarını yenilemek istediğinizden emin misiniz?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Hesabınızın şifreleme anahtarını yenilemeden önce kasanızdaki eski dosya eklerini düzeltmeniz gerekiyor."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Şifreleme anahtarınızı yenilemenin etkisi"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Bir veya daha fazla kuruluş ilkesi gereğince ana parola aşağıdaki gereksinimleri karşılamalıdır:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Kasa zaman aşımı eylemi"
   },
-  "vaultTimeoutAction1": {
-    "message": "Zaman aşımı eylemi"
+  "showAtRiskPasswordNotifications": {
+    "message": "Riskli parola bildirimlerini göster"
   },
   "lock": {
     "message": "Kilitle",
@@ -2860,6 +2878,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Risk altındaki hesap listesinin illüstrasyonu."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Bitwarden kasa sayfası düzeninin illüstrasyonu."
+  },
   "generatePasswordSlideDesc": {
     "message": "Riskli sitede Bitwarden otomatik doldurma menüsünü kullanarak hızlıca güçlü ve benzersiz bir parola oluştur.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3083,6 +3104,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ saat",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Bu Send'e önümüzdeki $TIME$ boyunca bağlantıya sahip herkes ulaşabilecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Bu Send'e önümüzdeki $TIME$ boyunca bağlantıya ve parolaya sahip herkes ulaşabilecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Belirlediğiniz kişiler bağlantıyı önümüzdeki $TIME$ boyunca kullanabilir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send bağlantısı kopyalandı",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3187,9 +3247,6 @@
   },
   "minutes": {
     "message": "Dakika"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zaman aşımı ayarlarınıza kurumsal ilke gereksinimleri uygulandı"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Kuruluş ilkeleriniz izin verilen maksimum kasa zaman aşımını $HOURS$ saat $MINUTES$ dakika olarak belirlemiş.",
@@ -4394,6 +4451,9 @@
   "exportSuccess": {
     "message": "Kasa verileri dışa aktarıldı"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Geçiş anahtarı"
   },
@@ -4823,6 +4883,9 @@
   "copyAddress": {
     "message": "Adresi kopyala"
   },
+  "myItems": {
+    "message": "Kayıtlarım"
+  },
   "adminConsole": {
     "message": "Yönetici Konsolu"
   },
@@ -4851,10 +4914,10 @@
     "message": "New users will be automatically confirmed while this device is unlocked."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Olası güvenlik riskleri neler?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Otomatik onay etkinleştirildi"
   },
   "availableNow": {
     "message": "Available now"
@@ -5345,7 +5408,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ aşağı taşındı, konum: $LENGTH$'in $INDEX$'i",
+    "message": "$LABEL$ aşağı taşındı. Konum: $LENGTH$/$INDEX$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5491,10 +5554,10 @@
     "message": "Kasanıza daha hızlı ulaşmak için kilit açma ve zaman aşımı ayarlarınızı özelleştirebilirsiniz."
   },
   "unlockPinSet": {
-    "message": "Kilit açma PIN seti"
+    "message": "Unlock PIN set"
   },
   "unlockWithBiometricSet": {
-    "message": "Biyometrik set ile kilidi aç"
+    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
@@ -5970,10 +6033,10 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Giriş yapmaya devam et"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Devam etme"
   },
   "domain": {
     "message": "Domain"
@@ -5994,7 +6057,7 @@
     "message": "If you don't verify your organization, your access to the organization will be revoked."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
     "message": "Verify your domain to log in"
@@ -6085,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, güvenlik ve mevzuata uyum amacıyla tüm kayıtların kuruluşa ait olmasını zorunlu kılıyor. Kayıtlarınızın sahipliğini devretmek için \"Kabul et\"e tıklayın.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6094,20 +6157,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Aktarımı kabul et"
   },
   "declineAndLeave": {
     "message": "Reddet ve ayrıl"
   },
-  "whyAmISeeingThis": {
-    "message": "Bunu neden görüyorum?"
-  },
   "items": {
     "message": "Kayıtlar"
   },
   "searchResults": {
     "message": "Arama sonuçları"
+  },
+  "simplifiedAutofill": {
+    "message": "Basit otomatik doldurma"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Önerilen otomatik doldurma öğelerinden birine tıkladığınızda ayrıntıları açmak yerine doğrudan bilgileri doldurur. Bu bilgilere istediğiniz zaman \"Diğer eylemler\" menüsünden ulaşabilirsiniz."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Basit otomatik doldurma kutusunu aç"
   },
   "resizeSideNavigation": {
     "message": "Kenar menüsünü yeniden boyutlandır"
@@ -6131,10 +6206,16 @@
     "message": "Bitwarden uygulamalarını indir"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "E-posta korumalı"
   },
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Kullanıcı doğrulaması başarısız oldu."
+  },
+  "downloadFailed": {
+    "message": "İndirilemedi."
   }
 }

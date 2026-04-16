@@ -10,6 +10,7 @@ import {
 } from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
 
+import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 
 import { NavBaseComponent } from "./nav-base.component";
@@ -25,7 +26,7 @@ export abstract class NavGroupAbstraction {
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  imports: [NgTemplateOutlet, IconButtonModule, RouterModule],
+  imports: [NgTemplateOutlet, IconButtonModule, RouterModule, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(focusin)": "onFocusIn($event.target)",
@@ -34,16 +35,16 @@ export abstract class NavGroupAbstraction {
 })
 export class NavItemComponent extends NavBaseComponent {
   /**
-   * Base padding for tree variant items (in rem)
-   * This provides the initial indentation for tree items before depth-based padding
+   * Base padding for nav items (in rem)
+   * This provides the initial indentation for nav items before depth-based padding
    */
-  protected readonly TREE_BASE_PADDING = 2.5;
+  protected readonly TREE_BASE_PADDING = 2.25;
 
   /**
    * Padding increment per tree depth level (in rem)
    * Each nested level adds this amount of padding to visually indicate hierarchy
    */
-  protected readonly TREE_DEPTH_PADDING = 1.75;
+  protected readonly TREE_DEPTH_PADDING = 1.5;
 
   /**
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
@@ -56,31 +57,29 @@ export class NavItemComponent extends NavBaseComponent {
   /**
    * Is `true` if `to` matches the current route
    */
-  private _isActive = false;
+  private readonly _isActive = signal(false);
   protected setIsActive(isActive: boolean) {
-    this._isActive = isActive;
-    if (this._isActive && this.parentNavGroup) {
+    this._isActive.set(isActive);
+    if (isActive && this.parentNavGroup) {
       this.parentNavGroup.setOpen(true);
     }
   }
-  protected get showActiveStyles() {
-    return this.forceActiveStyles() || (this._isActive && !this.hideActiveStyles());
-  }
+  protected readonly showActiveStyles = computed(
+    () => this.forceActiveStyles() || (this._isActive() && !this.hideActiveStyles()),
+  );
 
   /**
-   * adding calculation for tree variant due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
+   * Adding calculation for nav items due to needing visual alignment on different indentation levels needed between the first level and subsequent levels
    */
   protected readonly navItemIndentationPadding = computed(() => {
     const open = this.sideNavService.open();
     const depth = this.treeDepth() ?? 0;
 
-    if (open && this.variant() === "tree") {
-      return depth === 1
-        ? `${this.TREE_BASE_PADDING}rem`
-        : `${this.TREE_BASE_PADDING + (depth - 1) * this.TREE_DEPTH_PADDING}rem`;
+    if (open) {
+      return `${this.TREE_BASE_PADDING + depth * this.TREE_DEPTH_PADDING}rem`;
     }
 
-    return `${this.TREE_BASE_PADDING * depth}rem`;
+    return "0";
   });
 
   /**
@@ -90,6 +89,18 @@ export class NavItemComponent extends NavBaseComponent {
    * not be marked `current` while the child page is marked as `current`
    */
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
+
+  /**
+   * By default, a navigation will put the user's focus on the `main` element.
+   *
+   * If the user's focus should be moved to another element upon navigation end, pass a selector
+   * here (i.e. `#elementId`).
+   *
+   * Pass `false` to opt out of moving the focus entirely. Focus will stay on the nav item.
+   *
+   * See router-focus-manager.service for implementation of focus management
+   */
+  readonly focusAfterNavTarget = input<string | boolean>();
 
   /**
    * The design spec calls for the an outline to wrap the entire element when the template's
@@ -105,7 +116,7 @@ export class NavItemComponent extends NavBaseComponent {
   protected readonly focusVisibleWithin = signal(false);
   protected readonly fvwStyles = computed(() =>
     this.focusVisibleWithin()
-      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-focus"
+      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover"
       : "",
   );
 

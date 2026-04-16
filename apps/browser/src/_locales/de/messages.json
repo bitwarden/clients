@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Archivierte Einträge werden hier angezeigt und von allgemeinen Suchergebnissen sowie Vorschlägen zum automatischen Ausfüllen ausgeschlossen."
   },
-  "itemWasSentToArchive": {
-    "message": "Eintrag wurde archiviert"
+  "itemArchiveToast": {
+    "message": "Eintrag archiviert"
   },
-  "itemWasUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
-  },
-  "itemUnarchived": {
-    "message": "Eintrag wird nicht mehr archiviert"
+  "itemUnarchivedToast": {
+    "message": "Eintrag nicht mehr archiviert"
   },
   "archiveItem": {
     "message": "Eintrag archivieren"
@@ -699,17 +696,11 @@
   "unlockMethods": {
     "message": "Entsperroptionen"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Richte eine Entsperrmethode ein, um deine Aktion bei Timeout-Timeout zu ändern."
-  },
   "unlockMethodNeeded": {
     "message": "Lege eine Entsperrmethode in den Einstellungen fest"
   },
   "sessionTimeoutHeader": {
     "message": "Sitzungs-Timeout"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Tresor-Timeout"
   },
   "otherOptions": {
     "message": "Andere Optionen"
@@ -898,6 +889,9 @@
   },
   "invalidVerificationCode": {
     "message": "Ungültiger Verifizierungscode"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Ungültige E-Mail-Adresse oder Verifizierungscode"
   },
   "valueCopied": {
     "message": "$VALUE$ kopiert",
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Das Haupt-Passwort, das du gewählt hast ist schwach. Du solltest ein starkes Haupt-Passwort auswählen, um dein Bitwarden-Konto richtig zu schützen. Bist du sicher, dass du dieses Haupt-Passwort verwenden sollen?"
   },
+  "rotateAccountEncKey": {
+    "message": "Auch den Verschlüsselungsschlüssel meines Kontos erneuern"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Verschlüsselungsschlüssel erneuern"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Bist du sicher, dass du deinen Verschlüsselungsschlüssel erneuern möchtest?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Nach der Aktualisierung deines Verschlüsselungsschlüssels musst du dich bei allen Bitwarden-Anwendungen, die du momentan benutzt, erneut anmelden (wie z.B. die mobile App oder die Browser-Erweiterungen). Fehler bei Ab- und Anmeldung (die deinen neuen Verschlüsselungsschlüssel herunterlädt) könnte zu einer Beschädigung der Daten führen. Wir werden versuchen dich automatisch abzumelden, was jedoch verzögert geschehen kann."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle von dir gespeicherten Exporte mit Konto-Beschränkungen werden ungültig."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Es gibt alte Dateianhänge in deinem Tresor, die repariert werden müssen, bevor du deinen Verschlüsselungsschlüssel erneuern kannst."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Auswirkungen der Erneuerung deines Verschlüsselungsschlüssels"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Eine oder mehrere Organisationsrichtlinien erfordern, dass dein Master-Passwort die folgenden Anforderungen erfüllt:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Aktion bei Tresor-Timeout"
   },
-  "vaultTimeoutAction1": {
-    "message": "Timeout-Aktion"
+  "showAtRiskPasswordNotifications": {
+    "message": "Benachrichtigungen zu gefährdeten Passwörtern anzeigen"
   },
   "lock": {
     "message": "Sperren",
@@ -2860,6 +2878,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Illustration einer Liste gefährdeter Zugangsdaten."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration der Bitwarden-Tresor-Seite."
+  },
   "generatePasswordSlideDesc": {
     "message": "Generiere schnell ein starkes, einzigartiges Passwort mit dem Bitwarden Auto-Ausfüllen-Menü auf der gefährdeten Website.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3083,6 +3104,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ Stunden",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link für die nächsten $TIME$ verfügbar sein.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Kopiere und teile diesen Send-Link. Das Send wird für jeden mit dem Link und dem von dir festgelegten Passwort für die nächsten $TIME$ verfügbar sein.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Kopiere und teile diesen Send-Link. Er kann von den von dir angegebenen Personen für die nächsten $TIME$ angesehen werden.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Send-Link kopiert",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3187,9 +3247,6 @@
   },
   "minutes": {
     "message": "Minuten"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Die Unternehmens-Richtlinienanforderungen wurden auf deine Timeout-Optionen angewendet"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Deine Unternehmensrichtlinien haben das maximal zulässige Tresor-Timeout auf $HOURS$ Stunde(n) und $MINUTES$ Minute(n) festgelegt.",
@@ -4394,6 +4451,9 @@
   "exportSuccess": {
     "message": "Tresor-Daten exportiert"
   },
+  "exportError": {
+    "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
+  },
   "typePasskey": {
     "message": "Passkey"
   },
@@ -4822,6 +4882,9 @@
   },
   "copyAddress": {
     "message": "Adresse kopieren"
+  },
+  "myItems": {
+    "message": "Meine Einträge"
   },
   "adminConsole": {
     "message": "Administrator-Konsole"
@@ -5964,7 +6027,7 @@
     "message": "Kartennummer"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Fehler: Entschlüsselung nicht möglich"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Deine Organisation verwendet keine Master-Passwörter mehr, um sich bei Bitwarden anzumelden. Verifiziere die Organisation und Domain, um fortzufahren."
@@ -6085,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ erfordert zur Sicherheit und Compliance, dass alle Einträge der Organisation gehören. Klicke auf Akzeptieren, um den Besitz deiner Einträge zu übertragen.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ verlangt, dass alle Einträge aus Sicherheits- und Compliance-Gründen der Organisation gehören.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6094,20 +6157,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klicke auf Akzeptieren, um das Eigentum an deinen Einträgen zu übertragen."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Hilfe-Artikel über das Übertragen von Einträgen öffnen"
+  },
   "acceptTransfer": {
     "message": "Übertragung annehmen"
   },
   "declineAndLeave": {
     "message": "Ablehnen und verlassen"
   },
-  "whyAmISeeingThis": {
-    "message": "Warum wird mir das angezeigt?"
-  },
   "items": {
     "message": "Einträge"
   },
   "searchResults": {
     "message": "Suchergebnisse"
+  },
+  "simplifiedAutofill": {
+    "message": "Vereinfachtes Auto-Ausfüllen"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Wenn du auf einen vorgeschlagenen Auto-Ausfüllen-Eintrag klickst, wird dieser direkt ausgefüllt, anstatt dir die Details anzuzeigen. Du kannst diese Einträge weiterhin über das Mehr-Menü aufrufen."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Vereinfachtes Auto-Ausfüllen-Popover öffnen"
   },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
@@ -6128,7 +6203,7 @@
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
   "downloadBitwardenApps": {
-    "message": "Download Bitwarden apps"
+    "message": "Bitwarden-Apps herunterladen"
   },
   "emailProtected": {
     "message": "E-Mail-Adresse geschützt"
@@ -6136,5 +6211,11 @@
   "sendPasswordHelperText": {
     "message": "Personen müssen das Passwort eingeben, um dieses Send anzusehen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Benutzerverifizierung fehlgeschlagen."
+  },
+  "downloadFailed": {
+    "message": "Download fehlgeschlagen."
   }
 }

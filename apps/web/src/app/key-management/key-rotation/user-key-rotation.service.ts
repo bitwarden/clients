@@ -23,7 +23,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -39,6 +39,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
@@ -101,6 +102,7 @@ export class UserKeyRotationService {
     private sdkClientFactory: SdkClientFactory,
     private securityStateService: SecurityStateService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
+    private sdkUserKeyRotationService: UserKeyRotationServiceAbstraction,
   ) {}
 
   /**
@@ -116,6 +118,31 @@ export class UserKeyRotationService {
     user: Account,
     newMasterPasswordHint?: string,
   ): Promise<void> {
+    const useSdkKeyRotation = await this.configService.getFeatureFlag(FeatureFlag.SdkKeyRotation);
+    if (useSdkKeyRotation) {
+      this.logService.info(
+        "[UserKey Rotation] Using SDK-based key rotation service from user-crypto-management",
+      );
+      const success = await this.sdkUserKeyRotationService.changePasswordAndRotateUserKey(
+        currentMasterPassword,
+        newMasterPassword,
+        newMasterPasswordHint,
+        asUuid(user.id),
+      );
+
+      if (success) {
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("rotationCompletedTitle"),
+          message: this.i18nService.t("rotationCompletedDesc"),
+          timeout: 15000,
+        });
+
+        await this.logoutService.logout(user.id);
+      }
+      return;
+    }
+
     // Key-rotation uses the SDK, so we need to ensure that the SDK is loaded / the WASM initialized.
     await SdkLoadService.Ready;
 
@@ -580,11 +607,7 @@ export class UserKeyRotationService {
       masterKeySalt,
       masterKeyKdfConfig,
     );
-    return this.keyService.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.ServerAuthorization,
-    );
+    return this.keyService.hashMasterKey(masterPassword, masterKey);
   }
 
   /**

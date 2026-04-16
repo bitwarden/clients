@@ -1,17 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--suppress XmlUnusedNamespaceDeclaration -->
-<!-- <Package
-    xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
-    xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-    xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"> -->
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
     xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
-    xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-    xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
-    IgnorableNamespaces="uap rescap com uap10 build"
-    xmlns:build="http://schemas.microsoft.com/developer/appx/2015/build">
+    xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+    xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
     <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
     <Identity Name="${identityName}"
         ProcessorArchitecture="${arch}"
@@ -78,6 +70,7 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
         <Resource Language="sl" />
         <Resource Language="sr-cyrl" />
         <Resource Language="sv" />
+        <Resource Language="ta" />
         <Resource Language="te" />
         <Resource Language="th" />
         <Resource Language="tr" />
@@ -87,8 +80,9 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
         <Resource Language="zh-tw" />
     </Resources>
     <Dependencies>
-        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.26200.7019"
-            MaxVersionTested="10.0.26200.7171" />
+        <!-- MinVersion 10.0.14316.0 = Windows 10 2016 Anniversary Update (April 2016) -->
+        <TargetDeviceFamily Name="Windows.Desktop"
+          MinVersion="10.0.14316.0" MaxVersionTested="10.0.14316.0" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
@@ -106,6 +100,13 @@ xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/re
                 <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png" />
                 <uap:SplashScreen Image="assets\SplashScreen.png" />
             </uap:VisualElements>
+            <Extensions>
+                <uap:Extension Category="windows.protocol">
+                    <uap:Protocol Name="bitwarden">
+                        <uap:DisplayName>Bitwarden</uap:DisplayName>
+                    </uap:Protocol>
+                </uap:Extension>
+            </Extensions>
         </Application>
     </Applications>
 </Package>

@@ -57,11 +57,11 @@ export class SendProgram extends BaseProgram {
         new Option(
           "--password <password>",
           "optional password to access this Send. Can also be specified in JSON.",
-        ).conflicts("email"),
+        ).conflicts("emails"),
       )
       .addOption(
         new Option(
-          "--email <email>",
+          "--emails <emails>",
           "optional emails to access this Send. Can also be specified in JSON.",
         ).argParser(parseEmail),
       )
@@ -85,9 +85,11 @@ export class SendProgram extends BaseProgram {
       .addCommand(this.removePasswordCommand())
       .addCommand(this.deleteCommand())
       .action(async (data: string, options: OptionValues) => {
-        if (options.email) {
+        if (options.emails) {
           if (!emailAuthEnabled) {
-            this.processResponse(Response.error("The --email feature is not currently available."));
+            this.processResponse(
+              Response.error("The --emails feature is not currently available."),
+            );
             return;
           }
         }
@@ -225,11 +227,13 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         // subcommands inherit flags from their parent; they cannot override them
-        const { fullObject = false, email = undefined, password = undefined } = args.parent.opts();
+        const { fullObject = false, emails = undefined, password = undefined } = args.parent.opts();
 
-        if (email) {
+        if (emails) {
           if (!emailAuthEnabled) {
-            this.processResponse(Response.error("The --email feature is not currently available."));
+            this.processResponse(
+              Response.error("The --emails feature is not currently available."),
+            );
             return;
           }
         }
@@ -237,7 +241,7 @@ export class SendProgram extends BaseProgram {
         const mergedOptions = {
           ...options,
           fullObject: fullObject,
-          email,
+          emails,
           password,
         };
 
@@ -262,10 +266,12 @@ export class SendProgram extends BaseProgram {
       })
       .action(async (encodedJson: string, options: OptionValues, args: { parent: Command }) => {
         await this.exitIfLocked();
-        const { email = undefined, password = undefined } = args.parent.opts();
-        if (email) {
+        const { emails = undefined, password = undefined } = args.parent.opts();
+        if (emails) {
           if (!emailAuthEnabled) {
-            this.processResponse(Response.error("The --email feature is not currently available."));
+            this.processResponse(
+              Response.error("The --emails feature is not currently available."),
+            );
             return;
           }
         }
@@ -288,7 +294,7 @@ export class SendProgram extends BaseProgram {
 
         const mergedOptions = {
           ...options,
-          email,
+          emails,
           password,
         };
 
@@ -353,7 +359,7 @@ export class SendProgram extends BaseProgram {
       file: sendFile,
       text: sendText,
       type: type,
-      emails: options.email ?? undefined,
+      emails: options.emails ?? undefined,
     });
 
     return Buffer.from(JSON.stringify(template), "utf8").toString("base64");

@@ -16,6 +16,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorService } from "@bitwarden/generator-core";
 
+import { SendFormGenerationService } from "../../abstractions/send-form-generation.service";
 import { SendFormContainer } from "../../send-form-container";
 
 import {
@@ -87,6 +88,7 @@ describe("SendDetailsComponent", () => {
         { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: SendFormGenerationService, useValue: mock<SendFormGenerationService>() },
       ],
     }).compileComponents();
 
@@ -126,5 +128,43 @@ describe("SendDetailsComponent", () => {
     component.sendDetailsForm.patchValue({ authType: AuthType.None });
     expect(emailsControl?.validator).toBeNull();
     expect(passwordControl?.validator).toBeNull();
+  });
+
+  it("should show required error when emails are cleared while authType is Email", () => {
+    // Set authType to Email with valid emails
+    component.sendDetailsForm.patchValue({
+      authType: AuthType.Email,
+      emails: "test@example.com",
+    });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(true);
+
+    // Clear emails - should be invalid (required validator on emails)
+    component.sendDetailsForm.patchValue({ emails: "" });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
+  });
+
+  it("should show required error when emails contain only whitespace while authType is Email", () => {
+    component.sendDetailsForm.patchValue({
+      authType: AuthType.Email,
+      emails: "   ,  ,  ",
+    });
+    expect(component.sendDetailsForm.get("emails")?.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
+  });
+
+  it("should block form submission when emails are cleared while authType is Email", () => {
+    // Set up a send with email verification
+    component.sendDetailsForm.patchValue({
+      name: "Test Send",
+      authType: AuthType.Email,
+      emails: "user@example.com",
+    });
+    expect(component.sendDetailsForm.valid).toBe(true);
+
+    // User clears emails field - form is now invalid
+    component.sendDetailsForm.patchValue({ emails: "" });
+    expect(component.sendDetailsForm.valid).toBe(false);
+    expect(component.sendDetailsForm.get("emails")?.hasError("required")).toBe(true);
   });
 });

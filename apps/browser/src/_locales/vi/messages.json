@@ -573,14 +573,11 @@
   "noItemsInArchiveDesc": {
     "message": "Các mục đã lưu trữ sẽ hiển thị ở đây và sẽ bị loại khỏi kết quả tìm kiếm và gợi ý tự động điền."
   },
-  "itemWasSentToArchive": {
-    "message": "Mục đã được chuyển vào kho lưu trữ"
+  "itemArchiveToast": {
+    "message": "Item archived"
   },
-  "itemWasUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
-  },
-  "itemUnarchived": {
-    "message": "Mục đã được bỏ lưu trữ"
+  "itemUnarchivedToast": {
+    "message": "Item unarchived"
   },
   "archiveItem": {
     "message": "Lưu trữ mục"
@@ -699,17 +696,11 @@
   "unlockMethods": {
     "message": "Tùy chọn mở khóa"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Thiết lập phương thức mở khóa để thay đổi hành động sau khi đóng kho."
-  },
   "unlockMethodNeeded": {
     "message": "Thiết lập phương pháp mở khóa trong Cài đặt"
   },
   "sessionTimeoutHeader": {
     "message": "Thời gian hết phiên"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Thời gian mở kho"
   },
   "otherOptions": {
     "message": "Tùy chọn khác"
@@ -898,6 +889,9 @@
   },
   "invalidVerificationCode": {
     "message": "Mã xác minh không đúng"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "Invalid email or verification code"
   },
   "valueCopied": {
     "message": "Đã sao chép $VALUE$",
@@ -2372,6 +2366,30 @@
   "weakMasterPasswordDesc": {
     "message": "Mật khẩu chính bạn vừa chọn hơi yếu. Bạn nên chọn mật khẩu chính mạnh(hoặc một cụm mật khẩu) để bảo vệ tài khoản Bitwarden của mình một cách an toàn. Bạn có thực sự muốn dùng mật khẩu chính này không?"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "Mã PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2480,8 @@
   "vaultTimeoutAction": {
     "message": "Hành động sau khi đóng kho"
   },
-  "vaultTimeoutAction1": {
-    "message": "Hành động sau khi đóng kho"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Khóa",
@@ -2860,6 +2878,9 @@
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Minh họa danh sách các tài khoản đăng nhập có rủi ro."
   },
+  "welcomeDialogGraphicAlt": {
+    "message": "Illustration of the layout of the Bitwarden vault page."
+  },
   "generatePasswordSlideDesc": {
     "message": "Tạo nhanh một mật khẩu mạnh, duy nhất bằng menu tự động điền của Bitwarden trên trang web có nguy cơ.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
@@ -3083,6 +3104,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Đã sao chép liên kết Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3187,9 +3247,6 @@
   },
   "minutes": {
     "message": "Phút"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Các yêu cầu chính sách của doanh nghiệp đã được áp dụng cho các tùy chọn thời gian mở kho của bạn"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Tổ chức của bạn đã đặt thời gian mở kho tối đa là $HOURS$ giờ và $MINUTES$ phút.",
@@ -4394,6 +4451,9 @@
   "exportSuccess": {
     "message": "Đã xuất dữ liệu kho của bạn"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Mã khoá"
   },
@@ -4822,6 +4882,9 @@
   },
   "copyAddress": {
     "message": "Sao chép địa chỉ"
+  },
+  "myItems": {
+    "message": "My Items"
   },
   "adminConsole": {
     "message": "Bảng điều khiển dành cho quản trị viên"
@@ -6085,8 +6148,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ yêu cầu tất cả các mục phải thuộc sở hữu của tổ chức để đảm bảo an ninh và tuân thủ. Nhấp chấp nhận để chuyển quyền sở hữu các mục của bạn.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6094,20 +6157,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Chấp nhận chuyển"
   },
   "declineAndLeave": {
     "message": "Từ chối và rời đi"
   },
-  "whyAmISeeingThis": {
-    "message": "Tại sao tôi thấy điều này?"
-  },
   "items": {
     "message": "Items"
   },
   "searchResults": {
     "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Thay đổi kích thước thanh bên"
@@ -6136,5 +6211,11 @@
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
   }
 }

@@ -23,7 +23,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "39.2.6",
+  "electronVersion": "39.8.5",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -72,6 +72,7 @@
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
       {
         "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
@@ -93,8 +94,10 @@
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
+    "signExts": [".dll", ".node"],
     "signtoolOptions": {
-      "sign": "./sign.js"
+      "sign": "./sign.js",
+      "publisherName": "Bitwarden Inc."
     },
     "extraFiles": [
       {
@@ -131,6 +134,7 @@
   },
   "dmg": {
     "icon": "dmg.icns",
+    "background": "resources/background.png",
     "sign": false,
     "contents": [
       {
@@ -151,6 +155,7 @@
     }
   },
   "mas": {
+    "identity": "Bitwarden Inc",
     "entitlements": "resources/entitlements.mas.plist",
     "entitlementsInherit": "resources/entitlements.mas.inherit.plist",
     "entitlementsLoginHelper": "resources/entitlements.mas.loginhelper.plist",
@@ -176,7 +181,6 @@
   "appx": {
     "artifactName": "${productName}-${version}-${arch}.${ext}",
     "backgroundColor": "#175DDC",
-    "customManifestPath": "./custom-appx-manifest.xml",
     "applicationId": "bitwardendesktop",
     "identityName": "8bitSolutionsLLC.bitwardendesktop",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",

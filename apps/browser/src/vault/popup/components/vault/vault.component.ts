@@ -21,17 +21,18 @@ import {
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
+import { NudgesService, NudgeType, PremiumUpsellService } from "@bitwarden/angular/vault";
 import { DeactivatedOrg, NoResults, VaultOpen } from "@bitwarden/assets/svg";
 import {
   AutoConfirmExtensionSetupDialogComponent,
   AutoConfirmState,
   AutomaticUserConfirmationService,
-} from "@bitwarden/auto-confirm";
+} from "@bitwarden/auto-confirm/angular";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -48,6 +49,7 @@ import {
   ScrollLayoutService,
   ToastService,
   TypographyModule,
+  CalloutModule,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -107,7 +109,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     ScrollingModule,
     VaultHeaderComponent,
     AtRiskPasswordCalloutComponent,
-    SpotlightComponent,
+    CalloutModule,
     RouterModule,
     TypographyModule,
     VaultLoadingSkeletonComponent,
@@ -154,54 +156,25 @@ export class VaultComponent implements OnInit, OnDestroy {
     }),
   );
 
-  protected premiumSpotlightFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.BrowserPremiumSpotlight,
-  );
-
   protected readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
   protected readonly numberOfAppliedFilters$ =
     this.vaultPopupListFiltersService.numberOfAppliedFilters$;
 
   protected filteredCiphers$ = this.vaultPopupItemsService.filteredCiphers$;
   protected favoriteCiphers$ = this.vaultPopupItemsService.favoriteCiphers$;
-  protected remainingCiphers$ = this.vaultPopupItemsService.remainingCiphers$;
   protected allFilters$ = this.vaultPopupListFiltersService.allFilters$;
   protected cipherCount$ = this.vaultPopupItemsService.cipherCount$;
-  protected hasPremium$ = this.activeUserId$.pipe(
-    switchMap((userId) => this.billingAccountService.hasPremiumFromAnySource$(userId)),
-  );
-  protected accountAgeInDays$ = this.accountService.activeAccount$.pipe(
-    map((account) => {
-      if (!account || !account.creationDate) {
-        return 0;
-      }
-      const creationDate = account.creationDate;
-      const ageInMilliseconds = Date.now() - creationDate.getTime();
-      return Math.floor(ageInMilliseconds / (1000 * 60 * 60 * 24));
-    }),
-  );
 
   protected showPremiumSpotlight$ = combineLatest([
-    this.premiumSpotlightFeatureFlag$,
     this.activeUserId$.pipe(
       switchMap((userId) =>
         this.nudgesService.showNudgeSpotlight$(NudgeType.PremiumUpgrade, userId),
       ),
     ),
     this.showHasItemsVaultSpotlight$,
-    this.hasPremium$,
-    this.cipherCount$,
-    this.accountAgeInDays$,
   ]).pipe(
-    map(([featureFlagEnabled, showPremiumNudge, showHasItemsNudge, hasPremium, count, age]) => {
-      return (
-        featureFlagEnabled &&
-        showPremiumNudge &&
-        !showHasItemsNudge &&
-        !hasPremium &&
-        count >= 5 &&
-        age >= 7
-      );
+    map(([showPremiumNudge, showHasItemsNudge]) => {
+      return showPremiumNudge && !showHasItemsNudge && this.premiumUpsellService.showUpsell();
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
@@ -267,6 +240,9 @@ export class VaultComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private searchService: SearchService,
     private vaultItemsTransferService: VaultItemsTransferService,
+    private eventCollectionService: EventCollectionService,
+    private organizationService: InternalOrganizationServiceAbstraction,
+    private premiumUpsellService: PremiumUpsellService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -337,8 +313,12 @@ export class VaultComponent implements OnInit, OnDestroy {
         filter(([canManage, state]) => canManage && state.showBrowserNotification === undefined),
         take(1),
         switchMap(() => AutoConfirmExtensionSetupDialogComponent.open(this.dialogService).closed),
-        withLatestFrom(autoConfirmState$, this.accountService.activeAccount$.pipe(getUserId)),
-        switchMap(([result, state, userId]) => {
+        withLatestFrom(
+          autoConfirmState$,
+          this.accountService.activeAccount$.pipe(getUserId),
+          this.organizationService.organizations$(this.activeUserId),
+        ),
+        switchMap(async ([result, state, userId, organizations]) => {
           const newState: AutoConfirmState = {
             ...state,
             enabled: result ?? false,
@@ -350,6 +330,17 @@ export class VaultComponent implements OnInit, OnDestroy {
               message: this.i18nService.t("autoConfirmEnabled"),
               variant: "success",
             });
+
+            // Auto-confirm users can only belong to one organization
+            const organization = organizations[0];
+            if (organization?.id) {
+              await this.eventCollectionService.collect(
+                EventType.Organization_AutoConfirmEnabled_Admin,
+                undefined,
+                true,
+                organization.id,
+              );
+            }
           }
 
           return this.autoConfirmService.upsert(userId, newState);

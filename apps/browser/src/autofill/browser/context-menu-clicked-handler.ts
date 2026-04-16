@@ -1,6 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -21,7 +20,7 @@ import {
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
 } from "@bitwarden/common/autofill/constants";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -38,7 +37,6 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
 import { AutofillCipherTypeId } from "../types";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
@@ -87,20 +85,13 @@ export class ContextMenuClickedHandler {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsData = {
+      await openUnlockPopout(tab, {
         commandToRetry: {
           message: { command: ExtensionCommand.NoopCommand, contextMenuOnClickData: info },
           sender: { tab: tab },
         },
         target: "contextmenus.background",
-      };
-      await BrowserApi.tabSendMessageData(
-        tab,
-        "addToLockedVaultPendingNotifications",
-        retryMessage,
-      );
-
-      await openUnlockPopout(tab);
+      });
       return;
     }
 
@@ -247,7 +238,7 @@ export class ContextMenuClickedHandler {
   private async isPasswordRepromptRequired(cipher: CipherView): Promise<boolean> {
     return (
       cipher.reprompt === CipherRepromptType.Password &&
-      (await this.userVerificationService.hasMasterPasswordAndMasterKeyHash())
+      (await this.userVerificationService.hasMasterPassword())
     );
   }
 

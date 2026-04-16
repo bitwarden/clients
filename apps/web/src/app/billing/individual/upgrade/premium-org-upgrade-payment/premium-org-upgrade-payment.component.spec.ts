@@ -1,13 +1,6 @@
-import {
-  Component,
-  input,
-  ChangeDetectionStrategy,
-  CUSTOM_ELEMENTS_SCHEMA,
-  signal,
-  output,
-} from "@angular/core";
+import { Component, input, ChangeDetectionStrategy, signal, output } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
-import { FormControl, FormGroup, Validators } from "@angular/forms";
+import { FormControl, FormGroup } from "@angular/forms";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -21,6 +14,8 @@ import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierId,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
@@ -34,6 +29,7 @@ import { SubscriberBillingClient } from "../../../clients/subscriber-billing.cli
 import {
   EnterBillingAddressComponent,
   DisplayPaymentMethodInlineComponent,
+  EnterPaymentMethodComponent,
 } from "../../../payment/components";
 
 import {
@@ -46,8 +42,7 @@ import { PremiumOrgUpgradeService } from "./services/premium-org-upgrade.service
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "billing-cart-summary",
-  template: `<h1>Mock Cart Summary</h1>`,
-  providers: [{ provide: CartSummaryComponent, useClass: MockCartSummaryComponent }],
+  template: "",
 })
 class MockCartSummaryComponent {
   readonly cart = input.required<any>();
@@ -59,52 +54,18 @@ class MockCartSummaryComponent {
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-display-payment-method-inline",
-  template: `<h1>Mock Display Payment Method</h1>`,
-  providers: [
-    {
-      provide: DisplayPaymentMethodInlineComponent,
-      useClass: MockDisplayPaymentMethodInlineComponent,
-    },
-  ],
+  template: "",
 })
 class MockDisplayPaymentMethodInlineComponent {
   readonly subscriber = input.required<any>();
   readonly paymentMethod = input<any>();
+  readonly externalFormGroup = input<any>();
+  readonly showBankAccountOption = input<boolean>(false);
   readonly updated = output<any>();
   readonly changePaymentMethodClicked = output<void>();
-}
 
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-enter-billing-address",
-  template: `<h1>Mock Enter Billing Address</h1>`,
-  providers: [
-    {
-      provide: EnterBillingAddressComponent,
-      useClass: MockEnterBillingAddressComponent,
-    },
-  ],
-})
-class MockEnterBillingAddressComponent {
-  readonly scenario = input.required<any>();
-  readonly group = input.required<any>();
-
-  static getFormGroup = () =>
-    new FormGroup({
-      country: new FormControl<string>("", {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-      postalCode: new FormControl<string>("", {
-        nonNullable: true,
-        validators: [Validators.required],
-      }),
-      line1: new FormControl<string | null>(null),
-      line2: new FormControl<string | null>(null),
-      city: new FormControl<string | null>(null),
-      state: new FormControl<string | null>(null),
-      taxId: new FormControl<string | null>(null),
-    });
+  isChangingPayment = jest.fn().mockReturnValue(false);
+  getTokenizedPaymentMethod = jest.fn().mockResolvedValue({ token: "test-token" });
 }
 
 describe("PremiumOrgUpgradePaymentComponent", () => {
@@ -169,15 +130,14 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    mockAccountBillingClient.upgradePremiumToOrganization.mockResolvedValue(undefined);
-    mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue(undefined);
-    mockPremiumOrgUpgradeService.previewProratedInvoice.mockResolvedValue({
-      tax: 5.0,
-      total: 53.0,
-      credit: 10.0,
-      newPlanProratedMonths: 1,
-    });
-    mockOrganizationService.organizations$.mockReturnValue(of([]));
+
+    // Set up minimal mocks needed for component initialization
+    mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(
+      of([mockTeamsPlan]),
+    );
+    mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
+      of([mockFamiliesPlan]),
+    );
     mockAccountService.activeAccount$ = of(mockAccount);
     mockSubscriberBillingClient.getPaymentMethod.mockResolvedValue({
       type: "card",
@@ -185,18 +145,46 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       last4: "4242",
       expiration: "12/2025",
     });
+    mockOrganizationService.organizations$.mockReturnValue(of([]));
+    mockPremiumOrgUpgradeService.previewProratedInvoice.mockResolvedValue({
+      tax: 5.0,
+      total: 53.0,
+      credit: 10.0,
+      newPlanProratedMonths: 1,
+    });
 
-    mockSubscriptionPricingService.getBusinessSubscriptionPricingTiers$.mockReturnValue(
-      of([mockTeamsPlan]),
+    // Mock static form group methods (required for component creation)
+    jest.spyOn(EnterPaymentMethodComponent, "getFormGroup").mockReturnValue(
+      new FormGroup({
+        type: new FormControl<string>("card", { nonNullable: true }),
+        bankAccount: new FormGroup({
+          routingNumber: new FormControl<string>("", { nonNullable: true }),
+          accountNumber: new FormControl<string>("", { nonNullable: true }),
+          accountHolderName: new FormControl<string>("", { nonNullable: true }),
+          accountHolderType: new FormControl<string>("", { nonNullable: true }),
+        }),
+        billingAddress: new FormGroup({
+          country: new FormControl<string>("", { nonNullable: true }),
+          postalCode: new FormControl<string>("", { nonNullable: true }),
+        }),
+      }) as any,
     );
-    mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
-      of([mockFamiliesPlan]),
+
+    jest.spyOn(EnterBillingAddressComponent, "getFormGroup").mockReturnValue(
+      new FormGroup({
+        country: new FormControl<string>("", { nonNullable: true }),
+        postalCode: new FormControl<string>("", { nonNullable: true }),
+        line1: new FormControl<string | null>(null),
+        line2: new FormControl<string | null>(null),
+        city: new FormControl<string | null>(null),
+        state: new FormControl<string | null>(null),
+        taxId: new FormControl<string | null>(null),
+      }),
     );
 
     await TestBed.configureTestingModule({
       imports: [PremiumOrgUpgradePaymentComponent],
       providers: [
-        { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
         {
           provide: SubscriptionPricingServiceAbstraction,
           useValue: mockSubscriptionPricingService,
@@ -209,33 +197,35 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
         { provide: SubscriberBillingClient, useValue: mockSubscriberBillingClient },
         { provide: AccountService, useValue: mockAccountService },
         { provide: ApiService, useValue: mockApiService },
+        { provide: OrganizationService, useValue: mockOrganizationService },
         {
           provide: KeyService,
           useValue: {
             makeOrgKey: jest.fn().mockResolvedValue(["encrypted-key", "decrypted-key"]),
+            makeKeyPair: jest.fn().mockResolvedValue(["public-key", new EncString("private-key")]),
+          },
+        },
+        {
+          provide: EncryptService,
+          useValue: {
+            encryptString: jest.fn().mockResolvedValue(new EncString("encrypted-collection")),
           },
         },
         {
           provide: SyncService,
           useValue: { fullSync: jest.fn().mockResolvedValue(undefined) },
         },
-        { provide: OrganizationService, useValue: mockOrganizationService },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     })
       .overrideComponent(PremiumOrgUpgradePaymentComponent, {
-        add: {
-          imports: [
-            MockEnterBillingAddressComponent,
-            MockDisplayPaymentMethodInlineComponent,
-            MockCartSummaryComponent,
-          ],
-        },
         remove: {
-          imports: [
-            EnterBillingAddressComponent,
-            DisplayPaymentMethodInlineComponent,
-            CartSummaryComponent,
+          imports: [DisplayPaymentMethodInlineComponent, CartSummaryComponent],
+          providers: [PremiumOrgUpgradeService],
+        },
+        add: {
+          imports: [MockDisplayPaymentMethodInlineComponent, MockCartSummaryComponent],
+          providers: [
+            { provide: PremiumOrgUpgradeService, useValue: mockPremiumOrgUpgradeService },
           ],
         },
       })
@@ -248,7 +238,6 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     fixture.componentRef.setInput("account", mockAccount);
     fixture.detectChanges();
 
-    // Wait for ngOnInit to complete
     await fixture.whenStable();
   });
 
@@ -262,53 +251,66 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     expect(component["upgradeToMessage"]()).toContain("upgradeToTeams");
   });
 
-  it("should handle invalid plan id that doesn't exist in pricing tiers", async () => {
-    // Create a fresh component with an invalid plan ID from the start
-    const newFixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
-    const newComponent = newFixture.componentInstance;
+  describe("Component Initialization with Different Plans", () => {
+    it("should handle invalid plan id that doesn't exist in pricing tiers", async () => {
+      // Create a fresh component with an invalid plan ID from the start
+      const newFixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
+      const newComponent = newFixture.componentInstance;
 
-    newFixture.componentRef.setInput(
-      "selectedPlanId",
-      "non-existent-plan" as BusinessSubscriptionPricingTierId,
-    );
-    newFixture.componentRef.setInput("account", mockAccount);
-    newFixture.detectChanges();
+      newFixture.componentRef.setInput(
+        "selectedPlanId",
+        "non-existent-plan" as BusinessSubscriptionPricingTierId,
+      );
+      newFixture.componentRef.setInput("account", mockAccount);
+      newFixture.detectChanges();
 
-    await newFixture.whenStable();
+      await newFixture.whenStable();
 
-    expect(newComponent["selectedPlan"]()).toBeNull();
+      expect(newComponent["selectedPlan"]()).toBeNull();
+    });
+
+    it("should handle invoice preview errors gracefully", fakeAsync(() => {
+      mockPremiumOrgUpgradeService.previewProratedInvoice.mockRejectedValue(
+        new Error("Network error"),
+      );
+
+      // Component should still render and be usable even when invoice preview fails
+      fixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
+      component = fixture.componentInstance;
+      fixture.componentRef.setInput("selectedPlanId", "teams" as BusinessSubscriptionPricingTierId);
+      fixture.componentRef.setInput("account", mockAccount);
+      fixture.detectChanges();
+
+      expect(component).toBeTruthy();
+      expect(component["selectedPlan"]()).not.toBeNull();
+      expect(mockToastService.showToast).not.toHaveBeenCalled();
+    }));
   });
 
-  it("should handle invoice preview errors gracefully", fakeAsync(() => {
-    mockPremiumOrgUpgradeService.previewProratedInvoice.mockRejectedValue(
-      new Error("Network error"),
-    );
-
-    // Component should still render and be usable even when invoice preview fails
-    fixture = TestBed.createComponent(PremiumOrgUpgradePaymentComponent);
-    component = fixture.componentInstance;
-    fixture.componentRef.setInput("selectedPlanId", "teams" as BusinessSubscriptionPricingTierId);
-    fixture.componentRef.setInput("account", mockAccount);
-    fixture.detectChanges();
-    tick();
-
-    expect(component).toBeTruthy();
-    expect(component["selectedPlan"]()).not.toBeNull();
-    expect(mockToastService.showToast).not.toHaveBeenCalled();
-  }));
-
   describe("submit", () => {
+    beforeEach(() => {
+      // Set up upgrade service mock for submit tests
+      mockPremiumOrgUpgradeService.upgradeToOrganization.mockResolvedValue("new-org-id");
+    });
+
     it("should successfully upgrade to organization", async () => {
       const completeSpy = jest.spyOn(component["complete"], "emit");
 
-      // Mock processUpgrade to bypass form validation
-      jest.spyOn(component as any, "processUpgrade").mockResolvedValue({
-        status: PremiumOrgUpgradePaymentStatus.UpgradedToTeams,
-        organizationId: null,
-      });
-
       component["formGroup"].setValue({
         organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: {
+            country: "",
+            postalCode: "",
+          },
+        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -322,13 +324,25 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       await component["submit"]();
 
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalledWith(
+        mockAccount,
+        "My New Org",
+        "teams",
+        expect.objectContaining({
+          country: "US",
+          postalCode: "90210",
+          line1: "123 Main St",
+          city: "Beverly Hills",
+          state: "CA",
+        }),
+      );
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "plansUpdated",
       });
       expect(completeSpy).toHaveBeenCalledWith({
         status: PremiumOrgUpgradePaymentStatus.UpgradedToTeams,
-        organizationId: null,
+        organizationId: "new-org-id",
       });
     });
 
@@ -340,6 +354,19 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       component["formGroup"].setValue({
         organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: {
+            country: "",
+            postalCode: "",
+          },
+        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -359,6 +386,68 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       });
     });
 
+    it("should show an error toast and not upgrade when existing payment method is an unverified bank account", async () => {
+      component["paymentMethod"].set({
+        type: "bankAccount",
+        bankName: "Chase",
+        last4: "1234",
+        hostedVerificationUrl: "https://stripe.com/verify",
+      } as any);
+      mockPremiumOrgUpgradeService.isUnverifiedBankAccount.mockReturnValue(true);
+
+      component["formGroup"].patchValue({ organizationName: "My New Org" });
+
+      await component["submit"]();
+
+      expect(mockPremiumOrgUpgradeService.isUnverifiedBankAccount).toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "unverifiedBankAccountNotSupportedForUpgrade",
+      });
+    });
+
+    it("should not show toast and proceed with upgrade when existing payment method is a verified bank account", async () => {
+      component["paymentMethod"].set({
+        type: "bankAccount",
+        bankName: "Chase",
+        last4: "1234",
+      } as any);
+      mockPremiumOrgUpgradeService.isUnverifiedBankAccount.mockReturnValue(false);
+
+      component["formGroup"].setValue({
+        organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: { country: "", postalCode: "" },
+        },
+        billingAddress: {
+          country: "US",
+          postalCode: "90210",
+          line1: "123 Main St",
+          line2: "",
+          city: "Beverly Hills",
+          state: "CA",
+          taxId: "",
+        },
+      });
+
+      await component["submit"]();
+
+      expect(mockPremiumOrgUpgradeService.isUnverifiedBankAccount).toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalled();
+      expect(mockToastService.showToast).not.toHaveBeenCalledWith({
+        variant: "error",
+        message: "unverifiedBankAccountNotSupportedForUpgrade",
+      });
+    });
+
     it("should not submit if the form is invalid", async () => {
       const markAllAsTouchedSpy = jest.spyOn(component["formGroup"], "markAllAsTouched");
       component["formGroup"].get("organizationName")?.setValue("");
@@ -368,6 +457,108 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       expect(markAllAsTouchedSpy).toHaveBeenCalled();
       expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+    });
+
+    it("should throw when billing address is incomplete", async () => {
+      component["formGroup"].setValue({
+        organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: { country: "", postalCode: "" },
+        },
+        billingAddress: {
+          country: "",
+          postalCode: "",
+          line1: "",
+          line2: "",
+          city: "",
+          state: "",
+          taxId: "",
+        },
+      });
+
+      await expect(component["submit"]()).rejects.toThrow("Billing address is incomplete");
+    });
+
+    it("should call updatePaymentMethod and refresh payment method when isChangingPayment returns true", async () => {
+      const mockPaymentMethodComponent = {
+        isChangingPayment: jest.fn().mockReturnValue(true),
+        isFormValid: jest.fn().mockReturnValue(true),
+        getTokenizedPaymentMethod: jest.fn().mockResolvedValue({ token: "new-token-123" }),
+      };
+      jest
+        .spyOn(component, "paymentMethodComponent")
+        .mockReturnValue(mockPaymentMethodComponent as any);
+
+      const mockSubscriber = { id: "subscriber-123" };
+      component["subscriber"].set(mockSubscriber as any);
+
+      component["formGroup"].setValue({
+        organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: { country: "", postalCode: "" },
+        },
+        billingAddress: {
+          country: "US",
+          postalCode: "90210",
+          line1: "123 Main St",
+          line2: "",
+          city: "Beverly Hills",
+          state: "CA",
+          taxId: "",
+        },
+      });
+
+      await component["submit"]();
+
+      expect(mockSubscriberBillingClient.updatePaymentMethod).toHaveBeenCalledWith(
+        mockSubscriber,
+        { token: "new-token-123" },
+        expect.objectContaining({ country: "US", postalCode: "90210" }),
+      );
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).toHaveBeenCalled();
+    });
+
+    it("should throw when payment method is null and not changing payment", async () => {
+      component["paymentMethod"].set(null);
+
+      component["formGroup"].setValue({
+        organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: { country: "", postalCode: "" },
+        },
+        billingAddress: {
+          country: "US",
+          postalCode: "90210",
+          line1: "123 Main St",
+          line2: "",
+          city: "Beverly Hills",
+          state: "CA",
+          taxId: "",
+        },
+      });
+
+      await expect(component["submit"]()).rejects.toThrow("Payment method is required");
     });
   });
 
@@ -467,39 +658,46 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
     });
   });
 
-  describe("processUpgrade", () => {
+  describe("isFormValid", () => {
     beforeEach(() => {
-      // Set paymentMethod signal for these tests
+      component["formGroup"].patchValue({
+        organizationName: "Test Org",
+        billingAddress: { country: "US", postalCode: "12345" },
+      });
+    });
+
+    it("should return true when existing payment method is a card", () => {
       component["paymentMethod"].set({
         type: "card",
         brand: "visa",
         last4: "4242",
         expiration: "12/2025",
       });
+
+      expect(component["isFormValid"]()).toBe(true);
     });
 
-    it("should throw error when billing address is incomplete", async () => {
-      component["formGroup"].patchValue({
-        organizationName: "Test Org",
-        billingAddress: {
-          country: "",
-          postalCode: "",
-        },
-      });
+    it("should return true when existing payment method is a bank account (blocked in submit)", () => {
+      component["paymentMethod"].set({
+        type: "bankAccount",
+        bankName: "Chase",
+        last4: "1234",
+      } as any);
 
-      await expect(component["processUpgrade"]()).rejects.toThrow("Billing address is incomplete");
+      expect(component["isFormValid"]()).toBe(true);
     });
 
-    it("should throw error when organization name is missing", async () => {
-      component["formGroup"].patchValue({
-        organizationName: "",
-        billingAddress: {
-          country: "US",
-          postalCode: "12345",
-        },
-      });
+    it("should defer to payment method component form validity when changing payment", () => {
+      const mockPaymentMethodComponent = {
+        isChangingPayment: jest.fn().mockReturnValue(true),
+        isFormValid: jest.fn().mockReturnValue(true),
+      };
+      jest
+        .spyOn(component, "paymentMethodComponent")
+        .mockReturnValue(mockPaymentMethodComponent as any);
 
-      await expect(component["processUpgrade"]()).rejects.toThrow("Organization name is required");
+      expect(component["isFormValid"]()).toBe(true);
+      expect(mockPaymentMethodComponent.isFormValid).toHaveBeenCalled();
     });
   });
 
@@ -541,10 +739,25 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
   describe("Error Handling", () => {
     it("should log error and continue when submit fails", async () => {
-      jest.spyOn(component as any, "processUpgrade").mockRejectedValue(new Error("Network error"));
+      const networkError = new Error("Network error");
+      jest.spyOn(component as any, "processUpgrade").mockRejectedValue(networkError);
+      mockPremiumOrgUpgradeService.isBankAccountNotSupportedError.mockReturnValue(false);
 
       component["formGroup"].setValue({
         organizationName: "My New Org",
+        paymentMethodForm: {
+          type: "card",
+          bankAccount: {
+            routingNumber: "",
+            accountNumber: "",
+            accountHolderName: "",
+            accountHolderType: "",
+          },
+          billingAddress: {
+            country: "",
+            postalCode: "",
+          },
+        },
         billingAddress: {
           country: "US",
           postalCode: "90210",
@@ -558,7 +771,7 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
 
       await component["submit"]();
 
-      expect(mockLogService.error).toHaveBeenCalledWith("Upgrade failed:", expect.any(Error));
+      expect(mockLogService.error).toHaveBeenCalledWith("Upgrade failed:", networkError);
       expect(mockToastService.showToast).toHaveBeenCalledWith({
         variant: "error",
         message: "upgradeErrorMessage",
@@ -571,6 +784,27 @@ describe("PremiumOrgUpgradePaymentComponent", () => {
       const goBackSpy = jest.spyOn(component["goBack"], "emit");
       component["goBack"].emit();
       expect(goBackSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("Payment Method Initialization", () => {
+    it("should set subscriber and payment method signals on init", async () => {
+      const subscriber = component["subscriber"]();
+      expect(subscriber).toEqual(
+        expect.objectContaining({
+          type: "account",
+          data: expect.objectContaining({
+            id: mockAccount.id,
+            email: mockAccount.email,
+          }),
+        }),
+      );
+      expect(component["paymentMethod"]()).toEqual({
+        type: "card",
+        brand: "visa",
+        last4: "4242",
+        expiration: "12/2025",
+      });
     });
   });
 });

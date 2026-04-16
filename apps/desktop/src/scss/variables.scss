@@ -13,8 +13,6 @@ $list-icon-color: #c7c7cd;
 $border-radius: 3px;
 $line-height-base: 1.42857143;
 
-$mfaTypes: 0, 2, 3, 4, 6;
-
 $gray: #555;
 $gray-light: #777;
 $text-muted: $gray-light;
@@ -56,13 +54,15 @@ $themes: (
     backgroundColorAlt2: $background-color-alt2,
     scrollbarColor: rgba(100, 100, 100, 0.2),
     scrollbarHoverColor: rgba(100, 100, 100, 0.4),
+    scrollbarColorNav: rgba(226, 226, 226),
+    scrollbarHoverColorNav: rgba(197, 197, 197),
     boxBackgroundColor: $box-background-color,
     boxBackgroundHoverColor: $box-background-hover-color,
     boxBorderColor: $box-border-color,
-    headerBackgroundColor: rgb(var(--color-background-alt3)),
-    headerBorderColor: rgb(var(--color-background-alt4)),
-    headerInputBackgroundColor: darken($brand-primary, 8%),
-    headerInputBackgroundFocusColor: darken($brand-primary, 10%),
+    headerBackgroundColor: var(--color-nav-bg-primary),
+    headerBorderColor: var(--color-nav-bg-primary-strong),
+    headerInputBackgroundColor: darken($brand-primary, 20%),
+    headerInputBackgroundFocusColor: darken($brand-primary, 25%),
     headerInputColor: #ffffff,
     headerInputPlaceholderColor: lighten($brand-primary, 35%),
     listItemBackgroundColor: $background-color,
@@ -92,7 +92,6 @@ $themes: (
     infoColor: $brand-info,
     warningColor: $brand-warning,
     logoSuffix: "dark",
-    mfaLogoSuffix: ".png",
     passwordNumberColor: #007fde,
     passwordSpecialColor: #c40800,
     passwordCountText: #212529,
@@ -115,11 +114,13 @@ $themes: (
     backgroundColorAlt2: #15181e,
     scrollbarColor: #6e788a,
     scrollbarHoverColor: #8d94a5,
+    scrollbarColorNav: #6e788a,
+    scrollbarHoverColorNav: #8d94a5,
     boxBackgroundColor: #2f343d,
     boxBackgroundHoverColor: #3c424e,
     boxBorderColor: #4c525f,
-    headerBackgroundColor: rgb(var(--color-background-alt3)),
-    headerBorderColor: rgb(var(--color-background-alt4)),
+    headerBackgroundColor: var(--color-nav-bg-primary),
+    headerBorderColor: var(--color-nav-bg-primary-strong),
     headerInputBackgroundColor: #3c424e,
     headerInputBackgroundFocusColor: #4c525f,
     headerInputColor: #ffffff,
@@ -151,7 +152,6 @@ $themes: (
     infoColor: #a4b0c6,
     warningColor: #ffeb66,
     logoSuffix: "white",
-    mfaLogoSuffix: "-w.png",
     passwordNumberColor: #6f9df1,
     passwordSpecialColor: #ff8d85,
     passwordCountText: #ffffff,
