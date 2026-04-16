@@ -1013,9 +1013,27 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     this.mostRecentlyFocusedField = formFieldElement;
     const { paddingRight, paddingLeft } = globalThis.getComputedStyle(formFieldElement);
-    const { width, height, top, left } =
-      await this.getMostRecentlyFocusedFieldRects(formFieldElement);
+    const focusedFieldRects = await this.getMostRecentlyFocusedFieldRects(formFieldElement);
+    const { height, top } = focusedFieldRects;
+    let { width, left } = focusedFieldRects;
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
+
+    // Some TOTP forms (e.g. Stripe's CodePuncher) use a single hidden input that shrinks
+    // to single-digit-box width at focus time and physically moves to follow the active
+    // digit. Detect this by checking width <= height (normal inputs are always much wider
+    // than tall), then walk up to find the container spanning all digit boxes so the badge
+    // is positioned at the right edge of the full form rather than on the first digit.
+    if (
+      autofillFieldData &&
+      this.inlineMenuFieldQualificationService.isTotpField(autofillFieldData) &&
+      width <= height
+    ) {
+      const containerRect = this.getContainerRectForCursorFollowerInput(formFieldElement, height);
+      if (containerRect) {
+        left = containerRect.left;
+        width = containerRect.width;
+      }
+    }
 
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
@@ -1097,6 +1115,30 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       );
       intersectionObserver.observe(formFieldElement);
     });
+  }
+
+  /**
+   * Walks up the DOM from a cursor-following TOTP input to find the nearest ancestor
+   * whose width is large enough to span the full digit-box row (i.e., wider than twice
+   * the input's height). Returns that ancestor's bounding rect, or null if none is found
+   * before reaching the document body.
+   *
+   * @param element - The focused TOTP input element
+   * @param inputHeight - The measured height of the input, used as a width baseline
+   */
+  private getContainerRectForCursorFollowerInput(
+    element: HTMLElement,
+    inputHeight: number,
+  ): DOMRectReadOnly | null {
+    let parent = element.parentElement;
+    while (parent && parent !== element.ownerDocument.body) {
+      const rect = parent.getBoundingClientRect();
+      if (rect.width > inputHeight * 2) {
+        return rect;
+      }
+      parent = parent.parentElement;
+    }
+    return null;
   }
 
   /**
