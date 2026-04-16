@@ -83,12 +83,13 @@ export class IdentityTokenResponse extends BaseResponse {
     const kdfMemory = this.getResponseProperty("KdfMemory");
     const kdfParallelism = this.getResponseProperty("KdfParallelism");
 
-    if (kdf == KdfType.PBKDF2_SHA256) {
-      this.kdfConfig = new PBKDF2KdfConfig(kdfIterations);
-    }
-
-    if (kdf == KdfType.Argon2id) {
-      this.kdfConfig = new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+    switch (kdf) {
+      case KdfType.PBKDF2_SHA256:
+        this.kdfConfig = new PBKDF2KdfConfig(kdfIterations);
+        break;
+      case KdfType.Argon2id:
+        this.kdfConfig = new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+        break;
     }
 
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset");
