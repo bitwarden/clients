@@ -278,10 +278,10 @@ impl PluginAuthenticatorComObject {
         // Verify that we're talking about the same request.
         // If this is not true, then this is an internal library error.
         if request_transaction_id != ctx.transaction_id {
-            WinWebAuthnError::new(
-                ErrorKind::InvalidArguments,
+            return Err(WinWebAuthnError::new(
+                ErrorKind::WindowsInternal,
                 &format!("Request transaction ID {:?} does not match the transaction ID for the response {:?}.", request_transaction_id, ctx.transaction_id),
-            );
+            ));
         }
         ctx.response_buffer.write(data)?;
         Ok(())
