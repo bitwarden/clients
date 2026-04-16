@@ -44,6 +44,7 @@ const spinnerVariantStyles: Record<SpinnerVariant, { foreground: string; backgro
   selector: "bit-spinner",
   templateUrl: "spinner.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { class: "tw-inline-block" },
 })
 export class SpinnerComponent {
   private readonly i18nService = inject(I18nService);
