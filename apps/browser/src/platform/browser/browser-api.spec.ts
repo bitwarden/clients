@@ -1010,4 +1010,70 @@ describe("BrowserApi", () => {
       );
     },
   );
+
+  describe("isSidePanelApiSupported", () => {
+    it("returns true when chrome.sidePanel is defined", () => {
+      (chrome as any).sidePanel = {};
+
+      expect(BrowserApi.isSidePanelApiSupported).toBe(true);
+
+      delete (chrome as any).sidePanel;
+    });
+
+    it("returns false when chrome.sidePanel is undefined", () => {
+      const original = (chrome as any).sidePanel;
+      delete (chrome as any).sidePanel;
+
+      expect(BrowserApi.isSidePanelApiSupported).toBe(false);
+
+      if (original !== undefined) {
+        (chrome as any).sidePanel = original;
+      }
+    });
+  });
+
+  describe("openSidePanel", () => {
+    it("calls chrome.sidePanel.open with the provided tabId when the API is supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+      const openSpy = jest.fn().mockResolvedValue(undefined);
+      (chrome as any).sidePanel = { open: openSpy };
+
+      await BrowserApi.openSidePanel({ tabId: 42 });
+
+      expect(openSpy).toHaveBeenCalledWith({ tabId: 42 });
+    });
+
+    it("returns without calling chrome.sidePanel.open when the API is not supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+      const openSpy = jest.fn();
+      (chrome as any).sidePanel = { open: openSpy };
+
+      await BrowserApi.openSidePanel({ tabId: 42 });
+
+      expect(openSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("setSidePanelOptions", () => {
+    it("calls chrome.sidePanel.setOptions with the provided options when the API is supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(true);
+      const setOptionsSpy = jest.fn().mockResolvedValue(undefined);
+      (chrome as any).sidePanel = { setOptions: setOptionsSpy };
+      const options = { path: "sidepanel.html", enabled: true, tabId: 1 };
+
+      await BrowserApi.setSidePanelOptions(options);
+
+      expect(setOptionsSpy).toHaveBeenCalledWith(options);
+    });
+
+    it("returns without calling chrome.sidePanel.setOptions when the API is not supported", async () => {
+      jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+      const setOptionsSpy = jest.fn();
+      (chrome as any).sidePanel = { setOptions: setOptionsSpy };
+
+      await BrowserApi.setSidePanelOptions({ path: "sidepanel.html" });
+
+      expect(setOptionsSpy).not.toHaveBeenCalled();
+    });
+  });
 });
