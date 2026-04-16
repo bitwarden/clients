@@ -36,6 +36,9 @@ export class IdentityTokenResponse extends BaseResponse {
    */
   key?: EncString;
   twoFactorToken: string;
+  /**
+   * Absent when the token response is for an org API key or refresh token flow that does not include KDF fields
+   */
   kdfConfig?: KdfConfig;
   forcePasswordReset: boolean;
   masterPasswordPolicy: MasterPasswordPolicyResponse;
