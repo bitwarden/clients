@@ -44,9 +44,9 @@ export class VaultItemCopyActionsComponent {
   get singleCopyableLogin(): CipherItem | null {
     const cipher = this.cipher();
     const loginItems: CipherItem[] = [
-      { key: "copyUsername", field: "username" },
-      { key: "copyPassword", field: "password" },
-      { key: "copyVerificationCode", field: "totp" },
+      { key: "username", field: "username" },
+      { key: "password", field: "password" },
+      { key: "verificationCodeTotp", field: "totp" },
     ];
 
     // If both username and password are present but password is hidden and no TOTP exists,
@@ -58,7 +58,7 @@ export class VaultItemCopyActionsComponent {
       !CipherViewLikeUtils.hasCopyableValue(cipher, "totp")
     ) {
       return {
-        key: this.i18nService.t("copyUsername"),
+        key: this.i18nService.t("username"),
         field: "username" as const,
       };
     }

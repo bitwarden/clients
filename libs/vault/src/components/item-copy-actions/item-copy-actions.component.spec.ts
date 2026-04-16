@@ -152,10 +152,10 @@ describe("VaultItemCopyActionsComponent", () => {
       const result = component.singleCopyableLogin;
 
       expect(result).toEqual({
-        key: "translated-copyUsername",
+        key: "translated-username",
         field: "username",
       });
-      expect(i18nService.t).toHaveBeenCalledWith("copyUsername");
+      expect(i18nService.t).toHaveBeenCalledWith("username");
     });
 
     it("returns null when password is hidden but multiple fields exist, ensuring username and totp are shown in the menu UI", () => {
@@ -179,6 +179,23 @@ describe("VaultItemCopyActionsComponent", () => {
       void component.singleCopyableLogin;
 
       expect(findSingleCopyableItemSpy).toHaveBeenCalled();
+    });
+
+    it("returns a field-name-only key so copyFieldCipherName does not produce 'Copy copy'", () => {
+      (component.cipher() as CipherView).viewPassword = true;
+
+      (component.cipher() as any).__copyable = {
+        username: true,
+        password: false,
+        totp: false,
+      };
+
+      const result = component.singleCopyableLogin;
+
+      // The key should be the translated field name (e.g. "username"), NOT "Copy username",
+      // because the template wraps it in copyFieldCipherName = "Copy $FIELD$, $CIPHERNAME$".
+      expect(result?.key).toBe("translated-username");
+      expect(result?.key).not.toContain("copy");
     });
   });
 
