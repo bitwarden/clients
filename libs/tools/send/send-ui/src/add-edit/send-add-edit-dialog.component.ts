@@ -18,6 +18,7 @@ import {
   SearchModule,
   ToastService,
   DialogModule,
+  ButtonComponent,
 } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -75,6 +76,7 @@ export type SendItemDialogResult = {
 })
 export class SendAddEditDialogComponent {
   readonly sendFormComponent = viewChild(SendFormComponent);
+  readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
   /**
    * The header text for the component.
    */

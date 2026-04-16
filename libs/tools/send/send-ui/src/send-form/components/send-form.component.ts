@@ -155,15 +155,16 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   SendType = SendType;
 
   ngAfterViewInit(): void {
-    if (this.submitBtn) {
-      this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
+    this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
+      if (this.submitBtn) {
         this.submitBtn.loading.set(loading);
-      });
-
-      this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
+      }
+    });
+    this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
+      if (this.submitBtn) {
         this.submitBtn.disabled.set(disabled);
-      });
-    }
+      }
+    });
   }
 
   /**
