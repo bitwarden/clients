@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { SyncService } from "@bitwarden/common/platform/sync";
+
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
@@ -8,7 +10,6 @@ import {
   PBKDF2KdfConfig,
 } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
-import { SyncService } from "@bitwarden/common/platform/sync";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";

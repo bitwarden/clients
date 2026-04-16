@@ -1,3 +1,4 @@
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
@@ -8,9 +9,7 @@ import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { ChangeKdfService } from "../../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
-
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
-import { SyncService } from "@bitwarden/common/platform/sync";
 
 /**
  * @internal
