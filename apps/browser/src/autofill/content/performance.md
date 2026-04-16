@@ -16,37 +16,55 @@ Once enabled, instrumentation remains active for the lifetime of the content scr
 
 When disabled, `stopwatch` wrappers delegate directly to the original function and `measure` calls the function directly — no timestamps, no buffer writes.
 
-> [!WARNING]
-> Both `stopwatch` and `measure` only measure synchronous execution. If the wrapped function returns a Promise, the recorded duration is the time to _create_ the promise, not to _resolve_ it. Do not use these to instrument async functions.
+## Instrumentation
 
-## Instrumenting function boundaries
-
-Use `stopwatch` to wrap a function. The wrapper checks the enabled flag at call time, so `enableInstrumentation()` can be called before or after wrapping:
+Use `stopwatch` to **instrument a function call**. The function's return value, arguments, and `this` context are always preserved. This example assigns back to `this.handleMutation` so that the wrapper can forward the receiver when called as a method:
 
 ```ts
 import { stopwatch } from "./performance";
 
+// initialize
 this.handleMutation = stopwatch("handleMutation", this.handleMutation);
+
+// measurement occurs when called
+this.handleMutation();
 ```
 
-When enabled, the wrapper captures `performance.now()` timestamps before and after each call, writing them to a preallocated circular buffer. When disabled, it delegates directly to the original. The function's return value, arguments, and `this` context are always preserved — this is why the example assigns back to `this.handleMutation`, since the wrapper correctly forwards the receiver when called as a method.
+When enabled, the wrapper captures timestamps before and after each call. Timestamps are recorded only after the call. If measured code throws, the timing entry is silently dropped. The exception propagates normally, but the invocation will not appear in the performance timeline.
 
-> [!WARNING]
-> If the measured function throws, the timing entry is silently dropped. The exception propagates normally, but the invocation will not appear in the performance timeline.
+When disabled, it delegates directly to the original.
 
-## Instrumenting inline blocks
-
-Use `measure` for code that doesn't sit at a function boundary:
+Use `measure` to **instrument a block**:
 
 ```ts
 import { measure } from "./performance";
 
+// measurement occurs immediately
 const result = measure("shadowRootCheck", () => {
   return mutations.some((m) => m.target.getRootNode() instanceof ShadowRoot);
 });
 ```
 
 When disabled, this is equivalent to calling the arrow function directly.
+
+> [!WARNING]
+> Both `stopwatch` and `measure` only measure synchronous execution. If the wrapped function returns a Promise, the recorded duration is the time to _create_ the promise, not to _resolve_ it. Do not use these to instrument async functions.
+
+## Poisoning
+
+Use `poison(name)` to mark a measurement as unreliable — for example, when an unexpected error during processing means the timing data can't be trusted:
+
+```ts
+import { poison } from "./performance";
+
+try {
+  this.handleMutation();
+} catch (e: unknown) {
+  poison("handleMutation");
+}
+```
+
+Once poisoned, any call to `exportPerformanceEntries("handleMutation")` will throw rather than return misleading data.
 
 ## Extracting results
 
@@ -70,20 +88,6 @@ This returns a `PerformanceEntryList` filtered to measures matching the given na
 >
 > useTimeoutForFlush();
 > ```
-
-Use `poison(name)` to mark a measurement as unreliable — for example, when an unexpected error during processing means the timing data can't be trusted:
-
-```ts
-import { poison } from "./performance";
-
-try {
-  processResults();
-} catch {
-  poison("handleMutation");
-}
-```
-
-Once poisoned, any call to `exportPerformanceEntries("handleMutation")` will throw rather than return misleading data.
 
 ### After a test scenario
 
