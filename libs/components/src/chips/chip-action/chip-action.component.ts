@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, computed, input, inject } from "@angular/core";
+import { Component, ChangeDetectionStrategy, input, inject } from "@angular/core";
 
 import { BitwardenIcon } from "../../shared/icon";
 import { BaseChipDirective } from "../shared/base-chip.directive";
@@ -26,6 +26,4 @@ export class ChipActionComponent {
 
   readonly startIcon = input<BitwardenIcon>();
   readonly label = input<string>("");
-
-  protected readonly iconOnly = computed(() => !this.label());
 }

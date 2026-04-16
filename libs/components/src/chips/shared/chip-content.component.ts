@@ -27,9 +27,6 @@ export class ChipContentComponent {
 
   readonly size = input<ChipSize>("large");
 
-  /** When true, hides the label span and centers content (icon-only chips). */
-  readonly iconOnly = input<boolean>(false);
-
   protected readonly gapClass = computed(() => {
     const size = this.size() || "large";
     return size === "large" ? "tw-gap-1.5" : "tw-gap-1";
@@ -42,7 +39,7 @@ export class ChipContentComponent {
       "tw-w-full",
       "tw-max-w-full",
       "tw-items-center",
-      this.iconOnly() ? "tw-justify-center" : "tw-justify-between",
+      "tw-justify-between",
       this.gapClass(),
     ].join(" ");
   });
