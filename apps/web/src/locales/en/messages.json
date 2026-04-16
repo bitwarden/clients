@@ -13138,6 +13138,9 @@
     "message": "Enter multiple emails by separating with a comma."
   },
   "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
