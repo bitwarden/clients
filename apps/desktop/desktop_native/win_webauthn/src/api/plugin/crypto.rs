@@ -20,7 +20,7 @@ use windows::{
 };
 
 /// Parses a slice as a [BCRYPT_PUBLIC_KEY_BLOB].
-pub(super) fn parse_public_key(data: &[u8]) -> Result<NcryptKey, windows::core::Error> {
+pub(super) fn parse_public_key(data: &[u8]) -> Result<NCryptKey, windows::core::Error> {
     // BCRYPT_KEY_BLOB is a base structure for all types of keys used in the BCRYPT API.
     // Cf. https://learn.microsoft.com/en-us/windows/win32/api/bcrypt/ns-bcrypt-bcrypt_key_blob.
     //
@@ -55,28 +55,33 @@ pub(super) fn parse_public_key(data: &[u8]) -> Result<NcryptKey, windows::core::
     }
 
     tracing::debug!("Getting key handle");
-    let mut key_handle = MaybeUninit::<NCRYPT_KEY_HANDLE>::uninit();
     let provider_handle = unsafe {
-        let mut provider = MaybeUninit::uninit();
-        NCryptOpenStorageProvider(provider.as_mut_ptr(), PCWSTR::null(), 0)?;
-        provider.assume_init()
+        let mut handle = MaybeUninit::uninit();
+        NCryptOpenStorageProvider(handle.as_mut_ptr(), PCWSTR::null(), 0)
+            .inspect_err(|err| tracing::error!(%err, "Failed to open key storage provider"))?;
+        NCryptProvider {
+            handle: handle.assume_init(),
+        }
     };
-    unsafe {
+    let key_handle = unsafe {
+        let mut key_handle = MaybeUninit::<NCRYPT_KEY_HANDLE>::uninit();
         NCryptImportKey(
-            provider_handle,
+            provider_handle.handle,
             None,
             BCRYPT_PUBLIC_KEY_BLOB,
             None,
             key_handle.as_mut_ptr(),
             data,
             NCRYPT_FLAGS(0),
-        )?;
-    }
+        )
+        .inspect_err(|err| tracing::error!(%err, "Failed to load key blob"))?;
+        key_handle.assume_init()
+    };
 
-    Ok(NcryptKey {
+    Ok(NCryptKey {
         is_rsa,
-        key_handle: unsafe { key_handle.assume_init() },
-        provider_handle,
+        key_handle,
+        _provider_handle: provider_handle,
     })
 }
 /// Verify a public key signature over a SHA-256 hash using Windows Crypto APIs.
@@ -87,7 +92,7 @@ pub(super) fn parse_public_key(data: &[u8]) -> Result<NcryptKey, windows::core::
 /// Regardless of the key algorithm, the payload is always a SHA-256 hash (i.e., not SHA-384 for
 /// P-384 curve, etc.).
 pub(super) fn verify_signature(
-    public_key: &NcryptKey,
+    public_key: &NCryptKey,
     hash: RequestHash,
     signature: Signature,
 ) -> Result<(), windows::core::Error> {
@@ -232,25 +237,34 @@ impl Drop for BcryptHash {
     }
 }
 
-pub(super) struct NcryptKey {
-    is_rsa: bool,
-    key_handle: NCRYPT_KEY_HANDLE,
-    provider_handle: NCRYPT_PROV_HANDLE,
+struct NCryptProvider {
+    handle: NCRYPT_PROV_HANDLE,
 }
 
-impl Drop for NcryptKey {
+impl Drop for NCryptProvider {
+    fn drop(&mut self) {
+        if !self.handle.is_invalid() {
+            unsafe {
+                if let Err(err) = NCryptFreeObject(NCRYPT_HANDLE(self.handle.0)) {
+                    tracing::error!("Failed to clean up provider handle: {err}");
+                }
+            }
+        }
+    }
+}
+
+pub(super) struct NCryptKey {
+    is_rsa: bool,
+    key_handle: NCRYPT_KEY_HANDLE,
+    _provider_handle: NCryptProvider,
+}
+
+impl Drop for NCryptKey {
     fn drop(&mut self) {
         if !self.key_handle.is_invalid() {
             unsafe {
                 if let Err(err) = NCryptFreeObject(NCRYPT_HANDLE(self.key_handle.0)) {
                     tracing::error!("Failed to clean up key handle: {err}");
-                }
-            }
-        }
-        if !self.provider_handle.is_invalid() {
-            unsafe {
-                if let Err(err) = NCryptFreeObject(NCRYPT_HANDLE(self.provider_handle.0)) {
-                    tracing::error!("Failed to clean up provider handle: {err}");
                 }
             }
         }

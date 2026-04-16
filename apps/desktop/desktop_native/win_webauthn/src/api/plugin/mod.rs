@@ -46,7 +46,7 @@ use crate::{
     api::{
         plugin::{
             com::ComBufferExt,
-            crypto::{NcryptKey, OwnedRequestHash, RequestHash},
+            crypto::{NCryptKey, OwnedRequestHash, RequestHash},
         },
         sys::plugin::{
             webauthn_plugin_authenticator_remove_all_credentials,
@@ -1241,7 +1241,7 @@ pub(crate) struct VerifyingKey {
     /// Pointer to a [BCRYPT_KEY_BLOB] header and remaining data.
     key_blob: NonNull<BCRYPT_KEY_BLOB>,
     /// Handle to be used in the Windows BCrypt API.
-    key_handle: NcryptKey,
+    key_handle: NCryptKey,
 }
 
 impl VerifyingKey {
