@@ -534,6 +534,45 @@ export const InteractionStates: Story = {
         <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
         <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="successGhost" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
       </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center tw-bg-bg-contrast tw-p-4">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center tw-bg-bg-contrast tw-p-4">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrast" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center tw-bg-bg-contrast tw-p-4">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center tw-bg-bg-contrast tw-p-4">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastOutline" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
+
+      <div class="tw-flex tw-gap-4 tw-items-center tw-bg-bg-contrast tw-p-4">
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block">Button</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block" class="tw-test-hover">Button:hover</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Button:focus-visible</button>
+        <button type="button" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block" class="tw-test-active">Button:active</button>
+      </div>
+      <div class="tw-flex tw-gap-4 tw-items-center tw-bg-bg-contrast tw-p-4">
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block">Anchor</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block" class="tw-test-hover">Anchor:hover</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block" class="tw-test-focus-visible">Anchor:focus-visible</a>
+        <a href="#" bitButton [disabled]="disabled" [loading]="loading" buttonType="contrastGhost" [size]="size" [block]="block" class="tw-test-active">Anchor:active</a>
+      </div>
     </div>
     `,
   }),
