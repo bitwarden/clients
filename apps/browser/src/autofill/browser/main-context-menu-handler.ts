@@ -105,7 +105,7 @@ export class MainContextMenuHandler {
     {
       id: AUTOFILL_TRIAGE_ID,
       parentId: ROOT_ID,
-      title: this.i18nService.t("triageAutofill"),
+      title: "Triage Autofill Issues",
       requiresFeatureFlagKey: FeatureFlag.EnableAutofillTriage,
     },
   ];
