@@ -1,10 +1,6 @@
 <bit-dialog #dialog dialogSize="large" background="alt">
   <span bitDialogTitle>
-    @if (showGenerator()) {
-      {{ "passwordGenerator" | i18n }}
-    } @else {
-      {{ headerText }}
-    }
+    {{ headerText() | i18n }}
   </span>
   @if (showGenerator()) {
     <button

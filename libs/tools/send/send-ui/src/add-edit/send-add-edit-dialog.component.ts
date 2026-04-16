@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject, signal, viewChild } from "@angular/core";
+import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,7 +24,7 @@ import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
-import { SendFormConfig, SendFormMode, SendFormModule } from "../send-form";
+import { SendFormConfig, SendFormModule } from "../send-form";
 import { SendFormComponent } from "../send-form/components/send-form.component";
 
 export interface SendItemDialogParams {
@@ -78,9 +78,22 @@ export class SendAddEditDialogComponent {
   readonly sendFormComponent = viewChild(SendFormComponent);
   readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
   /**
-   * The header text for the component.
+   * The header text translation key for the component.
    */
-  headerText: string;
+  readonly headerText = computed(() => {
+    if (this.showGenerator()) {
+      return "passwordGenerator";
+    }
+    if (!this.editing()) {
+      return "viewSend";
+    }
+    const isEditMode = this.config.mode === "edit" || this.config.mode === "partial-edit";
+    const translation = {
+      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
+      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+    };
+    return translation[this.config.sendType];
+  });
 
   /**
    * The configuration for the send form.
@@ -117,7 +130,6 @@ export class SendAddEditDialogComponent {
   ) {
     this.config = params.formConfig;
     this.editing.set(this.config.mode === "add");
-    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
   }
 
   /**
@@ -224,21 +236,6 @@ export class SendAddEditDialogComponent {
 
     await this.onSendDeleted();
   };
-
-  /**
-   * Gets the header text based on the mode and type.
-   * @param mode The mode of the send form.
-   * @param type The type of the send
-   * @returns The header text.
-   */
-  private getHeaderText(mode: SendFormMode, type: SendType) {
-    const isEditMode = mode === "edit" || mode === "partial-edit";
-    const translation = {
-      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
-    };
-    return this.i18nService.t(translation[type]);
-  }
 
   protected editSend() {
     this.editing.set(true);
