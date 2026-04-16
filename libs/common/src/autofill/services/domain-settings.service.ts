@@ -1,12 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { combineLatest, map, Observable, switchMap, shareReplay } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, switchMap, shareReplay } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums/policy-type.enum";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 
 import {
   NeverDomains,
@@ -24,6 +29,8 @@ import {
   UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
+import { FormContent, Pathname, TargetingRulesByDomain } from "../types";
+import { punycodeToUnicode } from "../utils/punycode";
 
 const SHOW_FAVICONS = new KeyDefinition(DOMAIN_SETTINGS_DISK, "showFavicons", {
   deserializer: (value: boolean) => value ?? true,
@@ -56,6 +63,18 @@ const DEFAULT_URI_MATCH_STRATEGY = new UserKeyDefinition(
     clearOn: [],
   },
 );
+
+const SERVER_TARGETING_RULES = KeyDefinition.record<TargetingRulesByDomain, string>(
+  DOMAIN_SETTINGS_DISK,
+  "fillAssistTargetingRulesByServer",
+  {
+    deserializer: (value: TargetingRulesByDomain) => value ?? null,
+  },
+);
+
+const ENABLE_FILL_ASSIST = new KeyDefinition(DOMAIN_SETTINGS_DISK, "enableFillAssist", {
+  deserializer: (value: boolean) => value ?? false,
+});
 
 /**
  * The Domain Settings service; provides client settings state for "active client view" URI concerns
@@ -109,6 +128,33 @@ export abstract class DomainSettingsService {
    * Helper function for the common resolution of a given URL against equivalent domains
    */
   getUrlEquivalentDomains: (url: string) => Observable<Set<string>>;
+
+  /**
+   * User-controlled setting for whether or not fill assist targeting rules
+   * should be used
+   */
+  enableFillAssist$: Observable<boolean>;
+  setEnableFillAssist: (newValue: boolean) => Promise<void>;
+
+  /**
+   * Observable of all cached autofill targeting rules, keyed by normalized URL
+   */
+  targetingRules$: Observable<TargetingRulesByDomain | null>;
+
+  /**
+   * Update the cached targeting rules
+   */
+  setTargetingRules: (rules: TargetingRulesByDomain) => Promise<void>;
+
+  /**
+   * Look up targeting rules for a given URL. Checks pathname-specific
+   * rules first, then falls back to hostname-level forms.
+   *
+   * @returns `FormContent[]` with entries for targeted fill,
+   *          `[]` (empty) if the URL is blocklisted (suppress autofill),
+   *          `null` if no rules exist (fall through to heuristics)
+   */
+  getTargetingRulesForUrl: (url: string) => Promise<FormContent[] | null>;
 }
 
 export class DefaultDomainSettingsService implements DomainSettingsService {
@@ -131,10 +177,18 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
 
   readonly resolvedDefaultUriMatchStrategy$: Observable<UriMatchStrategySetting>;
 
+  private enableFillAssistState: GlobalState<boolean>;
+  readonly enableFillAssist$: Observable<boolean>;
+
+  readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
+
   constructor(
     private stateProvider: StateProvider,
     private policyService: PolicyService,
     private accountService: AccountService,
+    private configService: ConfigService,
+    private environmentService: EnvironmentService,
+    private authService: AuthService,
   ) {
     this.showFaviconsState = this.stateProvider.getGlobal(SHOW_FAVICONS);
     this.showFavicons$ = this.showFaviconsState.state$.pipe(map((x) => x ?? true));
@@ -154,6 +208,18 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     this.defaultUriMatchStrategyState = this.stateProvider.getActive(DEFAULT_URI_MATCH_STRATEGY);
     this.defaultUriMatchStrategy$ = this.defaultUriMatchStrategyState.state$.pipe(
       map((x) => x ?? UriMatchStrategy.Domain),
+    );
+
+    this.enableFillAssistState = this.stateProvider.getGlobal(ENABLE_FILL_ASSIST);
+    this.enableFillAssist$ = this.enableFillAssistState.state$.pipe(map((x) => x ?? false));
+
+    this.targetingRules$ = this.environmentService.environment$.pipe(
+      switchMap((env) =>
+        this.stateProvider
+          .getGlobal(SERVER_TARGETING_RULES)
+          .state$.pipe(map((records) => records?.[env.getApiUrl()] ?? null)),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     this.defaultUriMatchStrategyPolicy$ = this.accountService.activeAccount$.pipe(
@@ -217,5 +283,105 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
     );
 
     return domains$;
+  }
+
+  async setEnableFillAssist(newValue: boolean): Promise<void> {
+    await this.enableFillAssistState.update(() => newValue, {
+      shouldUpdate: (current) => current !== newValue,
+    });
+  }
+
+  async setTargetingRules(rules: TargetingRulesByDomain): Promise<void> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const apiUrl = env.getApiUrl();
+    await this.stateProvider
+      .getGlobal(SERVER_TARGETING_RULES)
+      .update((existing) => ({ ...existing, [apiUrl]: rules }), {
+        shouldUpdate: (existing) => existing?.[apiUrl] !== rules,
+      });
+  }
+
+  async getTargetingRulesForUrl(url: URL["href"]): Promise<FormContent[] | null> {
+    const fillAssistFeatureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.FillAssistTargetingRules,
+    );
+    if (!fillAssistFeatureEnabled) {
+      return null;
+    }
+
+    const enableFillAssist = await firstValueFrom(this.enableFillAssist$);
+    if (!enableFillAssist) {
+      return null;
+    }
+
+    // Fill Assist requires an unlocked vault
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      return null;
+    }
+    const authStatus = await firstValueFrom(this.authService.authStatusFor$(activeAccount.id));
+    if (authStatus !== AuthenticationStatus.Unlocked) {
+      return null;
+    }
+
+    const rules = await firstValueFrom(this.targetingRules$);
+    if (!rules || Object.keys(rules).length === 0) {
+      return null;
+    }
+
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      return null;
+    }
+
+    let hostRules = rules[parsed.host];
+
+    // www subdomain equivalence: if no entry for www.example.com, try example.com
+    if (hostRules === undefined && parsed.host.startsWith("www.")) {
+      hostRules = rules[parsed.host.slice(4)];
+    }
+
+    // If the direct punycode lookup missed, try the unicode form of the host.
+    // This handles rule providers that use unicode host keys (e.g. "münchen.de"
+    // instead of "xn--mnchen-3ya.de").
+    if (hostRules === undefined && parsed.host.includes("xn--")) {
+      const unicodeHost = punycodeToUnicode(parsed.host);
+      hostRules = rules[unicodeHost];
+
+      // www subdomain equivalence on the unicode form
+      if (hostRules === undefined && unicodeHost.startsWith("www.")) {
+        hostRules = rules[unicodeHost.slice(4)];
+      }
+    }
+
+    // No rules for this host; fall through to heuristics
+    if (hostRules === undefined) {
+      return null;
+    }
+
+    // Hostname blocklisted (null or empty): suppress autofill on all paths
+    if (hostRules === null || (!hostRules.forms?.length && !hostRules.pathnames)) {
+      return [];
+    }
+
+    // Check for pathname-specific rules
+    // Fall back to root path `/` to enable checking cases where
+    // a rule signals a form that is ONLY on the domain's root page
+    const pathname = (parsed.pathname.replace(/\/+$/, "") || "/") as Pathname;
+    if (hostRules.pathnames != null && pathname in hostRules.pathnames) {
+      const pathnameEntry = hostRules.pathnames[pathname];
+
+      // Pathname blocklisted (null/undefined/empty): suppress autofill on this path
+      if (!pathnameEntry?.forms?.length) {
+        return [];
+      }
+
+      return pathnameEntry.forms;
+    }
+
+    // No pathname-specific rule; fall back to hostname-level forms
+    return hostRules.forms?.length ? hostRules.forms : null;
   }
 }
