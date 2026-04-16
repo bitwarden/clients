@@ -54,6 +54,7 @@ describe("VaultTimeoutService", () => {
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
       vaultTimeoutActionSubject,
     );
+    vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
 
     availableVaultTimeoutActionsSubject = new BehaviorSubject<VaultTimeoutAction[]>([]);
 
@@ -152,6 +153,8 @@ describe("VaultTimeoutService", () => {
         ],
       );
     });
+
+    vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
   };
 
   const expectUserToHaveLocked = (userId: string) => {
@@ -332,6 +335,55 @@ describe("VaultTimeoutService", () => {
       await vaultTimeoutService.checkVaultTimeout();
 
       expectNoAction("1");
+    });
+
+    it("should not run timeout actions for a user while vault timeout is suppressed", async () => {
+      setupAccounts(
+        {
+          1: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+          2: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+        },
+        { isViewFocused: false },
+      );
+
+      vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockImplementation((userId) =>
+        Promise.resolve(userId === "1"),
+      );
+
+      await vaultTimeoutService.checkVaultTimeout();
+
+      expectNoAction("1");
+      expectUserToHaveLocked("2");
+    });
+
+    it("should run timeout action when suppression has expired", async () => {
+      setupAccounts(
+        {
+          1: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+        },
+        { isViewFocused: false },
+      );
+
+      vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
+
+      await vaultTimeoutService.checkVaultTimeout();
+
+      expectUserToHaveLocked("1");
     });
   });
 });
