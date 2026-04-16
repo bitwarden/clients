@@ -184,7 +184,7 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             if (filter != null) {
               filteredCiphers = filteredCiphers.filter(filter);
             }
-            
+
             return filteredCiphers;
           },
         ),
