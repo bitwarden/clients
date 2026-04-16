@@ -30,7 +30,7 @@ export class OnboardingComponent {
     return this.tasks.filter((task) => task.completed).length;
   }
 
-  protected get barWidth(): number {
+  protected get value(): number {
     return this.tasks.length === 0 ? 0 : (this.amountCompleted / this.tasks.length) * 100;
   }
 

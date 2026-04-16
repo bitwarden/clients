@@ -1,5 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  output,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -29,6 +38,7 @@ import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
+import { CoachmarkComponent, CoachmarkService } from "../../components/coachmark";
 import { PipesModule } from "../pipes/pipes.module";
 
 @Component({
@@ -43,6 +53,7 @@ import { PipesModule } from "../pipes/pipes.module";
     PipesModule,
     JslibModule,
     NewCipherMenuComponent,
+    CoachmarkComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -51,6 +62,13 @@ export class VaultHeaderComponent {
   protected readonly All = All;
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
   protected readonly CipherType = CipherType;
+
+  protected readonly coachmarkService = inject(CoachmarkService);
+
+  /** Computed signal for add item coachmark open state */
+  protected readonly addItemCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "addItem",
+  );
 
   /**
    * Boolean to determine the loading state of the header.
@@ -104,6 +122,9 @@ export class VaultHeaderComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeleteCollection = new EventEmitter<void>();
+
+  /** Emits an event when the add item dialog should be opened */
+  readonly onOpenAddItemDialog = output<void>();
 
   constructor(
     private readonly i18nService: I18nService,
@@ -238,6 +259,10 @@ export class VaultHeaderComponent {
 
   protected addCipher(cipherType?: CipherType) {
     this.onAddCipher.emit(cipherType);
+  }
+
+  protected openAddItemDialog(): void {
+    this.onOpenAddItemDialog.emit();
   }
 
   async addFolder(): Promise<void> {

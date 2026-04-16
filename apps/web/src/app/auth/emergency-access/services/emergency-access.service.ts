@@ -313,8 +313,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       case KdfType.Argon2id:
         config = new Argon2KdfConfig(
           takeoverResponse.kdfIterations,
-          takeoverResponse.kdfMemory,
-          takeoverResponse.kdfParallelism,
+          takeoverResponse.kdfMemory!,
+          takeoverResponse.kdfParallelism!,
         );
         break;
     }
@@ -325,6 +325,13 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     );
 
     if (newApisWithInputPasswordFlagEnabled) {
+      // Determine salt. In the Emergency Access Takeover flow, the grantee is setting a new
+      // master password for the grantor. The grantor's UserId is not available in this context
+      // (activeUserId is the grantee's), so salt is always derived from the grantor's email
+      // via emailToSalt().
+      //
+      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
+      // a userId-independent salt for the grantor rather than email derivation.
       const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
 
       const authenticationData: MasterPasswordAuthenticationData =

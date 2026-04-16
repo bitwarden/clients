@@ -1,37 +1,37 @@
-<td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-flex tw-items-center tw-gap-2">
+<td bitCell [ngClass]="RowHeightClass" class="tw-flex tw-items-center tw-gap-2">
   <app-vault-icon [cipher]="cipher()"></app-vault-icon>
-  <div class="tw-flex tw-flex-col tw-w-full">
-    <button
-      bitLink
-      class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
-      [disabled]="disabled()"
-      (click)="viewCipher()"
-      title="{{ 'editItemWithName' | i18n: cipher().name }}"
-      type="button"
-      appStopProp
-      aria-haspopup="true"
-    >
-      {{ cipher().name }}
-    </button>
-    @if (hasAttachments()) {
-      <i
-        class="bwi bwi-paperclip tw-ml-2 tw-leading-normal"
-        appStopProp
-        title="{{ 'attachments' | i18n }}"
-        aria-hidden="true"
-      ></i>
-      <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
-      @if (showFixOldAttachments()) {
+  <div class="tw-truncate">
+    <div class="tw-inline-flex tw-w-full">
+      <button
+        bitLink
+        class="tw-overflow-hidden tw-text-ellipsis tw-text-start tw-leading-snug"
+        [disabled]="disabled()"
+        (click)="viewCipher()"
+        title="{{ 'editItemWithName' | i18n: cipher().name }}"
+        type="button"
+        aria-haspopup="true"
+      >
+        {{ cipher().name }}
+      </button>
+      @if (hasAttachments()) {
         <i
-          class="bwi bwi-exclamation-triangle tw-ml-2 tw-leading-normal tw-text-warning"
-          appStopProp
-          title="{{ 'attachmentsNeedFix' | i18n }}"
+          class="bwi bwi-paperclip tw-ml-2 tw-leading-normal"
+          title="{{ 'attachments' | i18n }}"
           aria-hidden="true"
         ></i>
-        <span class="tw-sr-only">{{ "attachmentsNeedFix" | i18n }}</span>
+        <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
+        @if (showFixOldAttachments()) {
+          <i
+            class="bwi bwi-exclamation-triangle tw-ml-2 tw-leading-normal tw-text-warning"
+            title="{{ 'attachmentsNeedFix' | i18n }}"
+            aria-hidden="true"
+          ></i>
+          <span class="tw-sr-only">{{ "attachmentsNeedFix" | i18n }}</span>
+        }
       }
-    }
-    <span class="tw-text-sm tw-text-muted" appStopProp>{{ subtitle() }}</span>
+    </div>
+    <br />
+    <span class="tw-text-sm tw-text-muted">{{ subtitle() }}</span>
   </div>
 </td>
 @if (showOwner()) {
@@ -40,7 +40,6 @@
       [disabled]="disabled()"
       [organizationId]="cipher().organizationId"
       [organizationName]="cipher().organizationId | orgNameFromId: organizations()"
-      appStopProp
     >
     </app-org-badge>
   </td>
@@ -54,7 +53,6 @@
       bitIconButton="bwi-ellipsis-v"
       type="button"
       label="{{ 'options' | i18n }}"
-      appStopProp
     ></button>
     <bit-menu #corruptedCipherOptions>
       @if (canDeleteCipher()) {
@@ -72,7 +70,6 @@
         [disabled]="disabled()"
         bitIconButton="bwi-external-link"
         type="button"
-        appStopProp
         label="{{ 'launch' | i18n }}"
         (click)="handleLaunch()"
       ></button>
@@ -83,7 +80,6 @@
         [disabled]="disabled()"
         bitIconButton="bwi-clone"
         type="button"
-        appStopProp
         label="{{ 'copyValue' | i18n }}"
       ></button>
       <bit-menu #copyOptions>
@@ -97,11 +93,11 @@
     }
 
     <button
+      #optionsMenuTrigger="menuTrigger"
       [bitMenuTriggerFor]="cipherOptions"
       [disabled]="disabled()"
       bitIconButton="bwi-ellipsis-v"
       type="button"
-      appStopProp
       label="{{ 'options' | i18n }}"
     ></button>
     <bit-menu #cipherOptions>

@@ -3,7 +3,7 @@
     <span bitDialogTitle class="tw-font-medium">{{ upgradeToMessage() }}</span>
     <ng-container bitDialogContent>
       <section>
-        @if (isFamiliesPlan) {
+        @if (isFamiliesPlan()) {
           @if (userIsOwnerOfFreeOrg$ | async) {
             <div class="tw-pb-2">
               <bit-callout type="info">
@@ -33,8 +33,8 @@
         <div class="tw-pb-8 !tw-mx-0">
           <h5 bitTypography="h5">{{ "paymentMethod" | i18n }}</h5>
           <app-enter-payment-method
-            [showBankAccount]="isFamiliesPlan"
-            [showAccountCredit]="!isFamiliesPlan"
+            [showBankAccount]="isFamiliesPlan()"
+            [showAccountCredit]="!isFamiliesPlan()"
             [group]="formGroup.controls.paymentForm"
             [includeBillingAddress]="false"
             [hasEnoughAccountCredit]="hasEnoughAccountCredit$ | async"
@@ -50,8 +50,12 @@
       </section>
 
       <section>
-        <billing-cart-summary #cartSummaryComponent [cart]="cart()"></billing-cart-summary>
-        @if (isFamiliesPlan) {
+        <billing-cart-summary
+          #cartSummaryComponent
+          [cart]="cart()"
+          [showDiscountBadges]="true"
+        ></billing-cart-summary>
+        @if (isFamiliesPlan()) {
           <p bitTypography="helper" class="tw-italic tw-text-muted !tw-mb-0">
             {{ "paymentChargedWithTrial" | i18n }}
           </p>

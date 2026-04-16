@@ -5,6 +5,7 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { canAccessReportingTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { EventsComponent } from "@bitwarden/web-vault/app/dirt/event-logs";
 
 // eslint-disable-next-line no-restricted-imports
 import { ExposedPasswordsReportComponent } from "../../../dirt/reports/pages/organizations/exposed-passwords-report.component";
@@ -19,7 +20,6 @@ import { WeakPasswordsReportComponent } from "../../../dirt/reports/pages/organi
 import { isPaidOrgGuard } from "../guards/is-paid-org.guard";
 import { organizationPermissionsGuard } from "../guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../guards/org-redirect.guard";
-import { EventsComponent } from "../manage/events.component";
 
 import { ReportsHomeComponent } from "./reports-home.component";
 
