@@ -25,7 +25,7 @@ describe("AutofillTriageComponent", () => {
 
   const mockTriageResult: AutofillTriagePageResult = {
     pageUrl: "https://example.com/login",
-    analyzedAt: "2026-03-26T10:30:00.000Z",
+    analyzedAt: new Date("2026-03-26T10:30:00.000Z"),
     targetElementRef: "username",
     tabId: 123,
     fields: [
@@ -209,7 +209,7 @@ describe("AutofillTriageComponent", () => {
 
       const newTriageResult: AutofillTriagePageResult = {
         ...mockTriageResult,
-        analyzedAt: "2026-04-02T15:00:00.000Z",
+        analyzedAt: new Date("2026-04-02T15:00:00.000Z"),
       };
 
       jest

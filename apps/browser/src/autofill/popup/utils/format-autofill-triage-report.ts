@@ -14,7 +14,7 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
   lines.push("AutoFill Triage Report");
   lines.push("=".repeat(50));
   lines.push(`URL: ${result.pageUrl}`);
-  lines.push(`Analyzed: ${result.analyzedAt}`);
+  lines.push(`Analyzed: ${result.analyzedAt.toISOString()}`);
 
   // Version Information
   if (result.extensionVersion || result.browserInfo) {
@@ -137,10 +137,18 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
     // Form Context
     if (field.formContext) {
       lines.push(`  Form Information:`);
-      lines.push(`    Form ID: ${field.formContext.htmlId}`);
-      lines.push(`    Form Name: ${field.formContext.htmlName}`);
-      lines.push(`    Form Action: ${field.formContext.htmlAction}`);
-      lines.push(`    Form Method: ${field.formContext.htmlMethod}`);
+      if (field.formContext.htmlId) {
+        lines.push(`    Form ID: ${field.formContext.htmlId}`);
+      }
+      if (field.formContext.htmlName) {
+        lines.push(`    Form Name: ${field.formContext.htmlName}`);
+      }
+      if (field.formContext.htmlAction) {
+        lines.push(`    Form Action: ${field.formContext.htmlAction}`);
+      }
+      if (field.formContext.htmlMethod) {
+        lines.push(`    Form Method: ${field.formContext.htmlMethod}`);
+      }
       lines.push(`    Fields in Form: ${field.formContext.fieldCount}`);
     }
 

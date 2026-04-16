@@ -95,9 +95,9 @@ export interface AutofillTriagePageResult {
   pageUrl: string;
 
   /**
-   * ISO timestamp of when the triage was performed.
+   * When the triage was performed.
    */
-  analyzedAt: string;
+  analyzedAt: Date;
 
   /**
    * The htmlID or htmlName of the field that was right-clicked, if scope is a single field.
@@ -130,29 +130,24 @@ export interface AutofillTriagePageResult {
  */
 export interface AutofillTriageFormContext {
   /**
-   * The form's unique identifier.
+   * The form's HTML ID attribute, if present.
    */
-  opid: string;
+  htmlId?: string;
 
   /**
-   * The form's HTML ID attribute.
+   * The form's HTML name attribute, if present.
    */
-  htmlId: string;
+  htmlName?: string;
 
   /**
-   * The form's HTML name attribute.
+   * The form's action URL, if present.
    */
-  htmlName: string;
+  htmlAction?: string;
 
   /**
-   * The form's action URL.
+   * The form's HTTP method (GET, POST, etc.), if present.
    */
-  htmlAction: string;
-
-  /**
-   * The form's HTTP method (GET, POST, etc.).
-   */
-  htmlMethod: string;
+  htmlMethod?: string;
 
   /**
    * Number of fields in this form.

@@ -305,7 +305,7 @@ export class ContextMenuClickedHandler {
     this._triageResult = {
       tabId: tab.id,
       pageUrl: tab.url ?? "",
-      analyzedAt: new Date().toISOString(),
+      analyzedAt: new Date(),
       targetElementRef: response.targetFieldRef,
       fields,
       pageContext: {

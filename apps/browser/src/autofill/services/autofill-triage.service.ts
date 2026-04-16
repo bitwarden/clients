@@ -473,11 +473,10 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
     const fieldsInForm = pageDetails.fields.filter((f) => f.form === field.form);
 
     return {
-      opid: form.opid,
-      htmlId: form.htmlID || "(none)",
-      htmlName: form.htmlName || "(none)",
-      htmlAction: form.htmlAction || "(none)",
-      htmlMethod: form.htmlMethod || "(none)",
+      htmlId: form.htmlID || undefined,
+      htmlName: form.htmlName || undefined,
+      htmlAction: form.htmlAction || undefined,
+      htmlMethod: form.htmlMethod || undefined,
       fieldCount: fieldsInForm.length,
     };
   }

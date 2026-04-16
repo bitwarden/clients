@@ -30,7 +30,7 @@ describe("ContextMenusBackground", () => {
     const mockResult: AutofillTriagePageResult = {
       tabId,
       pageUrl: "https://example.com",
-      analyzedAt: "2026-01-01T00:00:00.000Z",
+      analyzedAt: new Date("2026-01-01T00:00:00.000Z"),
       fields: [],
     };
 

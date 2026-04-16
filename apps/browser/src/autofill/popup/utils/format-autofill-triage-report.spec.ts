@@ -5,7 +5,7 @@ import { formatAutofillTriageReport } from "./format-autofill-triage-report";
 const baseResult: AutofillTriagePageResult = {
   tabId: 1,
   pageUrl: "https://example.com/login",
-  analyzedAt: "2026-01-01T00:00:00.000Z",
+  analyzedAt: new Date("2026-01-01T00:00:00.000Z"),
   fields: [],
 };
 
@@ -259,7 +259,6 @@ describe("formatAutofillTriageReport", () => {
             qualifiedAs: "login",
             conditions: [],
             formContext: {
-              opid: "f1",
               htmlId: "login-form",
               htmlName: "login",
               htmlAction: "/auth",

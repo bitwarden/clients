@@ -239,10 +239,18 @@
               @if (field.formContext) {
                 <div class="tw-mb-3 tw-text-sm tw-text-muted">
                   <h4 class="tw-font-semibold tw-mb-1">Form Information</h4>
-                  <p><strong>Form ID:</strong> {{ field.formContext.htmlId }}</p>
-                  <p><strong>Form Name:</strong> {{ field.formContext.htmlName }}</p>
-                  <p><strong>Form Action:</strong> {{ field.formContext.htmlAction }}</p>
-                  <p><strong>Form Method:</strong> {{ field.formContext.htmlMethod }}</p>
+                  @if (field.formContext.htmlId) {
+                    <p><strong>Form ID:</strong> {{ field.formContext.htmlId }}</p>
+                  }
+                  @if (field.formContext.htmlName) {
+                    <p><strong>Form Name:</strong> {{ field.formContext.htmlName }}</p>
+                  }
+                  @if (field.formContext.htmlAction) {
+                    <p><strong>Form Action:</strong> {{ field.formContext.htmlAction }}</p>
+                  }
+                  @if (field.formContext.htmlMethod) {
+                    <p><strong>Form Method:</strong> {{ field.formContext.htmlMethod }}</p>
+                  }
                   <p><strong>Fields in Form:</strong> {{ field.formContext.fieldCount }}</p>
                 </div>
               }
