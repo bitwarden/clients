@@ -2794,6 +2794,15 @@
   "noFileChosen": {
     "message": "No file chosen"
   },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "or copy/paste the import file contents"
   },

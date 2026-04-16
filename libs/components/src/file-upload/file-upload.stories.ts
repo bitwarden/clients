@@ -24,6 +24,7 @@ export default {
               chooseFile: "Choose File",
               clickToUploadOrDragAndDrop: "Click to upload or drag and drop",
               noFileChosen: "No file chosen",
+              fileChosen: "File chosen __$1__",
               delete: "Delete",
               loading: "Loading",
             }),
@@ -50,7 +51,7 @@ export const Default: Story = {
   render: (args) => ({
     props: { ...args, files: [] as File[] },
     template: /*html*/ `
-      <bit-file-upload variant="button" [accept]="accept" [errorMessage]="errorMessage" [(files)]="files">
+      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(files)]="files">
         <bit-label>Upload file</bit-label>
         <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
       </bit-file-upload>

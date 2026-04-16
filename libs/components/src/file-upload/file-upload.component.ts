@@ -1,14 +1,19 @@
+import { NgTemplateOutlet } from "@angular/common";
 import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
+  contentChild,
+  ElementRef,
   input,
   model,
+  viewChild,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { BitHintDirective } from "../form-control/hint.directive";
 import { BitFieldContainerDirective } from "../form-field";
 import { BitErrorComponent } from "../form-field/error.component";
 
@@ -22,6 +27,7 @@ let nextId = 0;
   templateUrl: "./file-upload.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    NgTemplateOutlet,
     DropzoneComponent,
     FileListComponent,
     BitFieldContainerDirective,
@@ -77,6 +83,23 @@ export class FileUploadComponent {
 
   protected readonly inputId = `bit-file-upload-${nextId++}`;
 
+  protected readonly isDropzone = computed(() => this.variant() === "dropzone" || this.multiple());
+
+  protected readonly labelId = `${this.inputId}-label`;
+  protected readonly statusId = `${this.inputId}-status`;
+  protected readonly ariaLabelledBy = `${this.inputId}-label ${this.inputId}-status`;
+
+  private readonly hint = contentChild(BitHintDirective);
+  private readonly errorEl = viewChild(BitErrorComponent);
+  private readonly fileInput = viewChild<ElementRef<HTMLInputElement>>("fileInput");
+
+  protected readonly ariaDescribedBy = computed(() => {
+    if (this.errorMessage()) {
+      return this.errorEl()?.id ?? null;
+    }
+    return this.hint()?.id ?? null;
+  });
+
   protected readonly fileLabel = computed(() => {
     const files = this.files();
     if (files.length) {
@@ -96,12 +119,19 @@ export class FileUploadComponent {
     this.files.update((current) => current.filter((f) => f !== file));
   }
 
+  protected openFilePicker(): void {
+    const input = this.fileInput()?.nativeElement;
+    if (input) {
+      input.value = ""; // clear before opening so the same file can be re-selected
+      input.click();
+    }
+  }
+
   protected onButtonFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
 
     if (input.files?.length) {
       this.onFilesSelected(Array.from(input.files));
-      input.value = ""; // allow re-selecting same file
     }
   }
 }
