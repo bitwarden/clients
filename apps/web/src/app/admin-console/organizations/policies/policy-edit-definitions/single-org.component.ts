@@ -4,11 +4,14 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class SingleOrgPolicy extends BasePolicyEditDefinition {
   name = "singleOrg";
   description = "singleOrgPolicyDesc";
   type = PolicyType.SingleOrg;
+  category = PolicyCategory.DataControl;
+  priority = 10;
   component = SingleOrgPolicyComponent;
 }
 
@@ -22,10 +25,10 @@ export class SingleOrgPolicyComponent extends BasePolicyEditComponent implements
   async ngOnInit() {
     super.ngOnInit();
 
-    if (!this.policyResponse) {
+    if (!this.policyResponse()) {
       throw new Error("Policies not found");
     }
-    if (!this.policyResponse.canToggleState) {
+    if (!this.policyResponse()!.canToggleState) {
       this.enabled.disable();
     }
   }

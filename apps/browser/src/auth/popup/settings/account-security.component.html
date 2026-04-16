@@ -5,13 +5,16 @@
     </ng-container>
   </popup-header>
 
-  <bit-spotlight
-    *ngIf="showAccountSecurityNudge$ | async"
-    [title]="'unlockVault' | i18n"
-    [subtitle]="'unlockVaultDesc' | i18n"
-    (onDismiss)="dismissAccountSecurityNudge()"
-    class="tw-mb-6"
-  ></bit-spotlight>
+  @if (showAccountSecurityNudge$ | async) {
+    <bit-callout
+      [title]="'unlockVault' | i18n"
+      [icon]="null"
+      (dismiss)="dismissAccountSecurityNudge()"
+      class="tw-mb-6"
+    >
+      {{ "unlockVaultDesc" | i18n }}
+    </bit-callout>
+  }
   @if (loading()) {
     <div class="tw-h-full tw-place-content-center"><bit-spinner></bit-spinner></div>
   } @else {
@@ -128,7 +131,11 @@
         <bit-item *ngIf="showChangeMasterPass">
           <button bit-item-content type="button" appStopClick (click)="changePassword()">
             {{ "changeMasterPassword" | i18n }}
-            <bit-icon slot="end" name="bwi-external-link"></bit-icon>
+            @if (multiClientPasswordManagement$ | async) {
+              <bit-icon slot="end" name="bwi-angle-right" class="tw-text-lg"></bit-icon>
+            } @else {
+              <bit-icon slot="end" name="bwi-external-link"></bit-icon>
+            }
           </button>
         </bit-item>
       </bit-section>

@@ -1,6 +1,6 @@
 <div class="tw-flex tw-flex-col">
   <div class="tw-flex tw-gap-4 tw-items-baseline">
-    <bit-icon-tile size="large" icon="bwi-exclamation-triangle" variant="danger"></bit-icon-tile>
+    <bit-icon-tile size="lg" icon="bwi-exclamation-triangle" variant="danger"></bit-icon-tile>
     <h1 bitTypography="h2" noMargin class="!tw-mb-0">{{ "phishingPageTitleV2" | i18n }}</h1>
   </div>
 
@@ -12,7 +12,7 @@
     <span class="tw-font-mono tw-break-all">{{ phishingHostname$ | async }}</span>
   </bit-callout>
 
-  <bit-callout class="tw-mt-2" [icon]="null" type="default">
+  <bit-callout class="tw-mt-2" [icon]="null" type="subtle">
     <p bitTypography="body2">
       {{ "phishingPageExplanation1" | i18n }}<b>Phishing.Database</b
       >{{ "phishingPageExplanation2" | i18n }}

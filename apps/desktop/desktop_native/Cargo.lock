@@ -139,7 +139,7 @@ dependencies = [
  "enumflags2",
  "futures-channel",
  "futures-util",
- "rand 0.9.2",
+ "rand 0.9.3",
  "serde",
  "serde_repr",
  "tokio",
@@ -359,8 +359,8 @@ dependencies = [
  "mockall",
  "serial_test",
  "tracing",
- "windows 0.61.1",
- "windows-core 0.61.0",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
@@ -454,7 +454,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
- "windows 0.61.1",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -640,7 +640,7 @@ dependencies = [
  "hex",
  "oo7",
  "pbkdf2",
- "rand 0.9.2",
+ "rand 0.9.3",
  "rusqlite",
  "security-framework",
  "serde",
@@ -649,7 +649,7 @@ dependencies = [
  "tokio",
  "tracing",
  "verifysign",
- "windows 0.61.1",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -940,7 +940,7 @@ dependencies = [
  "memsec",
  "oo7",
  "pin-project",
- "rand 0.9.2",
+ "rand 0.9.3",
  "rsa",
  "scopeguard",
  "secmem-proc",
@@ -957,8 +957,8 @@ dependencies = [
  "tracing",
  "typenum",
  "widestring",
- "windows 0.61.1",
- "windows-future 0.2.0",
+ "windows 0.62.2",
+ "windows-future 0.3.2",
  "zbus",
  "zbus_polkit",
  "zeroizing-alloc",
@@ -969,6 +969,7 @@ name = "desktop_napi"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "autotype",
  "chromium_importer",
  "desktop_core",
@@ -977,6 +978,7 @@ dependencies = [
  "napi-derive",
  "serde",
  "serde_json",
+ "ssh_agent",
  "tokio",
  "tracing",
  "tracing-subscriber",
@@ -1613,7 +1615,7 @@ dependencies = [
  "js-sys",
  "log",
  "wasm-bindgen",
- "windows-core 0.61.0",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
@@ -2347,7 +2349,7 @@ dependencies = [
  "num",
  "num-bigint-dig",
  "pbkdf2",
- "rand 0.9.2",
+ "rand 0.9.3",
  "serde",
  "sha2",
  "subtle",
@@ -2765,9 +2767,9 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.9.2"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6db2770f06117d490610c7488547d543617b21bfa07796d7a12f6f1bd53850d1"
+checksum = "7ec095654a25171c2124e9e3393a930bddbffdc939556c914957a4c3e0a87166"
 dependencies = [
  "rand_chacha 0.9.0",
  "rand_core 0.9.3",
@@ -3461,11 +3463,16 @@ name = "ssh_agent"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "async-trait",
  "base64",
  "desktop_core",
  "mockall",
  "rkyv",
  "ssh-key",
+ "thiserror 2.0.17",
+ "tokio",
+ "tokio-util",
+ "tracing",
 ]
 
 [[package]]
@@ -4702,8 +4709,8 @@ name = "windows_plugin_authenticator"
 version = "0.0.0"
 dependencies = [
  "hex",
- "windows 0.61.1",
- "windows-core 0.61.0",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
 ]
 
 [[package]]

@@ -27,6 +27,7 @@
       (onEditCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
       (onDeleteCollection)="deleteCollection(selectedCollection?.node)"
       (searchTextChanged)="filterSearchText($event)"
+      (onOpenAddItemDialog)="openAddItemDialog()"
     ></app-org-vault-header>
   }
 
@@ -38,6 +39,7 @@
           [organization]="organization"
           [activeFilter]="activeFilter"
           [searchText]="currentSearchText$ | async"
+          [ciphers$]="allCiphers$"
           (searchTextChanged)="filterSearchText($event)"
         ></app-organization-vault-filter>
       </div>
@@ -120,8 +122,9 @@
                 (click)="addCipher()"
                 buttonType="primary"
                 type="button"
+                startIcon="bwi-plus"
               >
-                <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
+                {{ "newItem" | i18n }}
               </button>
             }
           </bit-no-items>

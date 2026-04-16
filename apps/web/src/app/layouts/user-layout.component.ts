@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, OnInit, Signal } from "@angular/core";
+import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { map, Observable, switchMap } from "rxjs";
@@ -10,15 +10,15 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { SvgModule } from "@bitwarden/components";
+import { PopoverModule, SvgModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { WebLayoutModule } from "./web-layout.module";
 
@@ -34,31 +34,44 @@ import { WebLayoutModule } from "./web-layout.module";
     WebLayoutModule,
     SvgModule,
     BillingFreeFamiliesNavItemComponent,
+    PopoverModule,
+    CoachmarkComponent,
   ],
 })
 export class UserLayoutComponent implements OnInit {
   protected readonly logo = PasswordManagerLogo;
   protected readonly showEmergencyAccess: Signal<boolean>;
-  protected readonly sendEnabled$: Observable<boolean> = this.accountService.activeAccount$.pipe(
-    getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.DisableSend, userId)),
-    map((isDisabled) => !isDisabled),
+  protected readonly sendEnabled$: Observable<boolean> = this.sendPolicyService.disableSend$.pipe(
+    map((disableSend) => !disableSend),
   );
   protected subscriptionRoute$: Observable<string | null>;
+
+  protected readonly coachmarkService = inject(CoachmarkService);
+
+  protected readonly importCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "importData",
+  );
+
+  protected readonly reportsCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "monitorSecurity",
+  );
+
+  /** Expand tools nav group when import coachmark is active */
+  protected readonly toolsNavGroupOpen = computed(
+    () => this.coachmarkService.activeStepId() === "importData",
+  );
 
   constructor(
     private syncService: SyncService,
     private accountService: AccountService,
     private policyService: PolicyService,
-    private configService: ConfigService,
+    private sendPolicyService: SendPolicyService,
     private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
   ) {
     this.showEmergencyAccess = toSignal(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          canAccessEmergencyAccess(userId, this.configService, this.policyService),
-        ),
+        switchMap((userId) => canAccessEmergencyAccess(userId, this.policyService)),
       ),
     );
 
