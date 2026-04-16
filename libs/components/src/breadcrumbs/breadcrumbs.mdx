@@ -44,12 +44,11 @@ When a user is 2 or more levels deep into a tree, the top level is displayed fol
 
 ### Overflow
 
-When a user is several levels deep into a tree, the top level or 2 are displayed followed by an
+When a user is more than 4 levels deep into a tree or if there is not enough available space, the
+top level is displayed followed by an
 
-<i class="bwi bwi-ellipsis-h"> </i> icon button, and then the page directly above the current page.
-
-When the user selects the <i class="bwi bwi-ellipsis-h"></i> icon button, a menu opens displaying
-the pages between the top level and the previous page.
+<i class="bwi bwi-ellipsis-h"> </i> icon button that contains an overflow menu of breadcrumbs
+exceeding the display limit/available space.
 
 <Canvas of={stories.Overflow} />
 
