@@ -1,6 +1,15 @@
-@if (variant() === "dropzone" || multiple()) {
+<ng-template #labelContent>
+  <ng-content select="bit-label"></ng-content>
+</ng-template>
+
+@if (isDropzone()) {
   <div class="tw-flex-col tw-flex tw-gap-2 [&_bit-hint]:tw-m-0">
-    <ng-content select="bit-label"></ng-content>
+    <label
+      [id]="labelId"
+      class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
+    >
+      <ng-container *ngTemplateOutlet="labelContent"></ng-container>
+    </label>
 
     <bit-dropzone
       [accept]="accept()"
@@ -20,10 +29,11 @@
   </div>
 } @else {
   <label
+    [id]="labelId"
     [attr.for]="inputId"
     class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full tw-mb-1"
   >
-    <ng-content select="bit-label"></ng-content>
+    <ng-container *ngTemplateOutlet="labelContent"></ng-container>
   </label>
 
   <div bitFieldContainer class="tw-relative" [hasError]="!!errorMessage()">
@@ -32,23 +42,36 @@
     >
       <span class="tw-text-sm tw-pointer-events-none">{{ "chooseFile" | i18n }}</span>
     </div>
-    <input
+    <!-- Button overlay: accessible control with no native file-input value to announce -->
+    <button
       [id]="inputId"
-      type="file"
+      type="button"
+      [attr.aria-labelledby]="ariaLabelledBy"
+      [attr.aria-describedby]="ariaDescribedBy()"
       class="tw-absolute tw-inset-0 tw-size-full tw-opacity-0 tw-cursor-pointer"
+      (click)="openFilePicker()"
+    ></button>
+    <!-- Hidden file input: triggers the OS file picker, kept out of the AT -->
+    <input
+      #fileInput
+      type="file"
+      aria-hidden="true"
+      tabindex="-1"
+      class="tw-sr-only"
       [accept]="accept()"
       [multiple]="multiple()"
       (change)="onButtonFileChange($event)"
     />
-    <!-- Filename display: aria-live announces updates after file selection -->
     <span
       class="tw-flex-1 tw-min-w-0 tw-px-3 tw-py-2 tw-text-sm tw-truncate"
       [class.tw-text-fg-body-subtle]="!fileLabel()"
       [class.tw-text-fg-heading]="!!fileLabel()"
-      aria-live="polite"
-      aria-atomic="true"
     >
       {{ fileLabel() ?? ("noFileChosen" | i18n) }}
+    </span>
+    <!-- sr-only status: aria-labelledby target + aria-live for change announcements -->
+    <span [id]="statusId" class="tw-sr-only" aria-live="polite" aria-atomic="true">
+      {{ fileLabel() ? ("fileChosen" | i18n: fileLabel()) : ("chooseFile" | i18n) }}
     </span>
   </div>
   @if (errorMessage()) {
