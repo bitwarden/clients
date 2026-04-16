@@ -6250,6 +6250,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Download Bitwarden apps"
   },

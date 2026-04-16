@@ -13140,6 +13140,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
