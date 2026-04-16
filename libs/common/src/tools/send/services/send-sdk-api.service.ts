@@ -487,34 +487,34 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   private sdkSendViewToSendData(view: SdkSendView): SendData {
     const data = new SendData();
     data.id = view.id as unknown as string;
-    data.accessId = view.accessId ?? null;
+    data.accessId = (view.accessId ?? null) as unknown as string;
     data.type = view.type === "Text" ? SendType.Text : SendType.File;
     data.name = view.name;
-    data.notes = view.notes ?? null;
-    data.key = view.key ?? null;
-    data.maxAccessCount = view.maxAccessCount ?? null;
+    data.notes = (view.notes ?? null) as unknown as string;
+    data.key = (view.key ?? null) as unknown as string;
+    data.maxAccessCount = view.maxAccessCount ?? undefined;
     data.accessCount = view.accessCount;
     data.revisionDate = view.revisionDate;
     data.deletionDate = view.deletionDate;
-    data.expirationDate = view.expirationDate ?? null;
+    data.expirationDate = (view.expirationDate ?? null) as unknown as string;
     data.disabled = view.disabled;
     data.hideEmail = view.hideEmail;
     data.authType = this.sdkAuthTypeToAuthType(view.authType);
-    data.emails = view.emails?.join(",") ?? null;
-    data.password = null;
+    data.emails = (view.emails?.join(",") ?? null) as unknown as string;
+    data.password = null as unknown as string;
 
     if (view.type === "Text" && view.text != null) {
       data.text = new SendTextData();
-      data.text.text = view.text.text ?? null;
+      data.text.text = (view.text.text ?? null) as unknown as string;
       data.text.hidden = view.text.hidden;
     }
 
     if (view.type === "File" && view.file != null) {
       data.file = new SendFileData();
-      data.file.id = view.file.id ?? null;
+      data.file.id = (view.file.id ?? null) as unknown as string;
       data.file.fileName = view.file.fileName;
-      data.file.size = view.file.size ?? null;
-      data.file.sizeName = view.file.sizeName ?? null;
+      data.file.size = (view.file.size ?? null) as unknown as string;
+      data.file.sizeName = (view.file.sizeName ?? null) as unknown as string;
     }
 
     return data;
