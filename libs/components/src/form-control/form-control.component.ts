@@ -1,4 +1,3 @@
-import { NgClass } from "@angular/common";
 import { Component, inject } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -19,7 +18,7 @@ import { FormControlBaseDirective } from "./form-control-base.directive";
       inputs: ["label", "inline", "disableMargin"],
     },
   ],
-  imports: [NgClass, TypographyDirective, I18nPipe, IconComponent],
+  imports: [TypographyDirective, I18nPipe, IconComponent],
 })
 export class FormControlComponent {
   protected base = inject(FormControlBaseDirective);
