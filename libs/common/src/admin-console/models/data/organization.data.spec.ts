@@ -67,6 +67,7 @@ describe("ORGANIZATIONS state", () => {
         useDisableSMAdsForUsers: false,
         usePhishingBlocker: false,
         useMyItems: false,
+        exemptFromBillingAutomation: false,
       },
     };
     const result = sut.deserializer(JSON.parse(JSON.stringify(expectedResult)));
