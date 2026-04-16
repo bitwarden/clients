@@ -7119,6 +7119,9 @@
   "sessionTimeoutAction": {
     "message": "Session timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
+  },
   "immediately": {
     "message": "Immediately"
   },
