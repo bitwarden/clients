@@ -1,7 +1,7 @@
 import {
   booleanAttribute,
   Component,
-  ElementRef,
+  computed,
   HostBinding,
   inject,
   input,
@@ -11,6 +11,8 @@ import {
 import { NgControl, Validators } from "@angular/forms";
 
 import { BitFormControlAbstraction } from "../form-control";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
+import { FormControlGroupComponent } from "../form-control/form-control-group.component";
 
 let nextId = 0;
 
@@ -22,13 +24,33 @@ let nextId = 0;
   providers: [{ provide: BitFormControlAbstraction, useExisting: RadioInputComponent }],
   host: {
     "[id]": "this.id()",
+    "[checked]": "isGroupChecked()",
     "[disabled]": "disabled",
+    "[attr.name]": "groupName",
+    "[attr.aria-labelledby]": "cardLabelledBy()",
+    "[attr.aria-describedby]": "cardDescribedBy()",
+    "(change)": "onGroupChange()",
+    "(blur)": "onGroupBlur()",
   },
 })
 export class RadioInputComponent implements BitFormControlAbstraction {
-  readonly inputEl = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  protected readonly group = inject(FormControlGroupComponent, { optional: true });
+  private readonly card = inject(FormControlCardComponent, { optional: true });
+
+  protected readonly isGroupChecked = computed(
+    () => this.group?.selectedValues().includes(this.value()) ?? false,
+  );
+
+  protected readonly cardLabelledBy = computed(() => this.card?.labelId ?? null);
+  protected readonly cardDescribedBy = computed(() => {
+    if (!this.card) {return null;}
+    return (
+      [this.card.effectiveErrorId, this.card.effectiveHintId()].filter(Boolean).join(" ") || null
+    );
+  });
 
   readonly id = input(`bit-radio-input-${nextId++}`);
+  readonly value = input<unknown>();
 
   @HostBinding("class")
   protected inputClasses = [
@@ -97,14 +119,30 @@ export class RadioInputComponent implements BitFormControlAbstraction {
     "checked:disabled:hover:before:tw-border-border-base",
   ];
 
-  constructor(@Optional() @Self() private ngControl?: NgControl) {}
+  constructor(@Optional() @Self() private ngControl?: NgControl) {
+    this.group?.registerRadioChild();
+  }
+
+  get groupName(): string | null {
+    return this.group?.name ?? null;
+  }
+
+  protected onGroupChange() {
+    if (this.group) {
+      this.group.onItemChange(this.value());
+    }
+  }
+
+  protected onGroupBlur() {
+    this.group?.onBlur();
+  }
 
   readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
 
   // TODO migrate to computed signal when Angular adds signal support to reactive forms
   // https://bitwarden.atlassian.net/browse/CL-819
   get disabled() {
-    return this.disabledInput() || this.ngControl?.disabled || false;
+    return this.disabledInput() || this.ngControl?.disabled || this.group?.groupDisabled() || false;
   }
 
   get required() {

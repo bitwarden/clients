@@ -2,6 +2,7 @@ import {
   booleanAttribute,
   Component,
   computed,
+  effect,
   inject,
   Injector,
   input,
@@ -11,6 +12,7 @@ import {
 import { ControlValueAccessor, NgControl, NG_VALUE_ACCESSOR, Validators } from "@angular/forms";
 
 import { AriaDisableDirective } from "../a11y";
+import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { BitFormControlAbstraction } from "../form-control/form-control.abstraction";
 import { IconComponent } from "../icon";
 
@@ -41,11 +43,12 @@ let nextId = 0;
 })
 export class SwitchComponent implements ControlValueAccessor, BitFormControlAbstraction {
   private readonly injector = inject(Injector);
+  private readonly card = inject(FormControlCardComponent, { optional: true });
   private get ngControl(): NgControl | null {
     return this.injector.get(NgControl, null, { self: true, optional: true });
   }
 
-  readonly size = signal<"base" | "large">("base");
+  readonly size = signal<"base" | "large">(this.card ? "large" : "base");
 
   readonly ariaLabelledBy = signal<string | undefined>(undefined);
   readonly ariaDescribedBy = signal<string | undefined>(undefined);
@@ -188,6 +191,19 @@ export class SwitchComponent implements ControlValueAccessor, BitFormControlAbst
     this._formsDisabled.set(isDisabled);
   }
   // end ControlValueAccessor functions
+
+  constructor() {
+    if (this.card) {
+      effect(() => {
+        const ariaDescribedBy = [this.card!.effectiveErrorId, this.card!.effectiveHintId()]
+          .filter(Boolean)
+          .join(" ");
+
+        this.ariaLabelledBy.set(this.card!.labelId);
+        this.ariaDescribedBy.set(ariaDescribedBy || undefined);
+      });
+    }
+  }
 
   readonly id = input(`bit-switch-${nextId++}`);
 

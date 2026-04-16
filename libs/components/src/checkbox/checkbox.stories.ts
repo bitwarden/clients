@@ -337,20 +337,20 @@ export const FormControlCardGroup: Story = {
           <bit-form-control-group formControlName="features">
             <bit-label>Checkbox group</bit-label>
 
-            <bit-form-control-card [value]="'featureA'">
-              <input type="checkbox" bitCheckbox />
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureA'" />
               <bit-label>Feature A</bit-label>
               <bit-hint>Enables Feature A for your account</bit-hint>
             </bit-form-control-card>
 
-            <bit-form-control-card [value]="'featureB'">
-              <input type="checkbox" bitCheckbox />
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureB'" />
               <bit-label>Feature B</bit-label>
               <bit-hint>Enables Feature B for your account</bit-hint>
             </bit-form-control-card>
 
-            <bit-form-control-card [value]="'featureC'">
-              <input type="checkbox" bitCheckbox />
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureC'" />
               <bit-label>Feature C</bit-label>
             </bit-form-control-card>
             <bit-hint>Choose which features to enable.</bit-hint>
@@ -374,20 +374,20 @@ export const FormControlCardGroupWithValidation: Story = {
           <bit-form-control-group formControlName="features">
             <bit-label>Checkbox group</bit-label>
 
-            <bit-form-control-card [value]="'featureA'">
-              <input type="checkbox" bitCheckbox />
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureA'" />
               <bit-label>Feature A</bit-label>
               <bit-hint>Enables Feature A for your account</bit-hint>
             </bit-form-control-card>
 
-            <bit-form-control-card [value]="'featureB'">
-              <input type="checkbox" bitCheckbox />
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureB'" />
               <bit-label>Feature B</bit-label>
               <bit-hint>Enables Feature B for your account</bit-hint>
             </bit-form-control-card>
 
-            <bit-form-control-card [value]="'featureC'">
-              <input type="checkbox" bitCheckbox />
+            <bit-form-control-card>
+              <input type="checkbox" bitCheckbox [value]="'featureC'" />
               <bit-label>Feature C</bit-label>
             </bit-form-control-card>
             <bit-hint>Choose which features to enable.</bit-hint>

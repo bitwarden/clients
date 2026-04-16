@@ -3,8 +3,6 @@ import {
   computed,
   contentChild,
   Directive,
-  effect,
-  ElementRef,
   inject,
   input,
   signal,
@@ -42,55 +40,22 @@ export class FormControlBaseDirective {
   ]);
 
   readonly formControl = contentChild.required(BitFormControlAbstraction);
-  readonly formControlEl = contentChild.required(BitFormControlAbstraction, { read: ElementRef });
   readonly ngControl = contentChild(NgControl);
 
-  readonly inputId = signal(this.id);
+  readonly inputId = computed(() => this.formControl().inputId);
 
   private i18nService = inject(I18nService);
 
-  constructor() {
-    effect(() => {
-      const control = this.formControl();
-      const el = this.formControlEl().nativeElement;
-
-      if (control.inputId != null) {
-        this.inputId.set(control.inputId);
-        return;
-      }
-
-      const existingId = el.getAttribute("id");
-      if (existingId) {
-        this.inputId.set(existingId);
-      } else {
-        el.id = this.id;
-      }
-    });
-  }
-
-  get required() {
-    return this.formControl().required;
-  }
-
-  get hasError() {
-    return this.formControl().hasError;
-  }
-
-  get error() {
-    return this.formControl().error;
-  }
-
   get displayError() {
-    switch (this.error[0]) {
+    const error = this.formControl().error;
+    switch (error[0]) {
       case "required":
         return this.i18nService.t("inputRequired");
       default:
-        // Attempt to show a custom error message.
-        if (this.error[1]?.message) {
-          return this.error[1]?.message;
+        if (error[1]?.message) {
+          return error[1]?.message;
         }
-
-        return this.error;
+        return error;
     }
   }
 }
