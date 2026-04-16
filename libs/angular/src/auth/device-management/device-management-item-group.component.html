@@ -1,67 +1,149 @@
-<bit-item-group>
-  <bit-item *ngFor="let device of devices">
-    @if (device.pendingAuthRequest) {
-      <button
-        class="tw-relative"
-        bit-item-content
-        type="button"
-        [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
-        (click)="answerAuthRequest(device.pendingAuthRequest)"
-      >
-        <!-- Default Content -->
-        <span class="tw-text-base">{{ device.displayName }}</span>
-
-        <!-- Default Trailing Content -->
-        <span class="tw-absolute tw-top-[6px] tw-right-3" slot="default-trailing">
-          <span bitBadge variant="warning">
-            {{ "requestPending" | i18n }}
-          </span>
-        </span>
-
-        <!-- Secondary Content -->
-        <span slot="secondary" class="tw-text-sm">
-          @if (device.isTrusted) {
-            <span>{{ "trusted" | i18n }}</span>
-          } @else {
-            <br />
-          }
-
-          <div>
-            <span class="tw-font-medium"> {{ "firstLogin" | i18n }}: </span>
-            <span>{{ device.firstLogin | date: "medium" }}</span>
-          </div>
-        </span>
-      </button>
-    } @else {
-      <bit-item-content ngClass="tw-relative">
-        <!-- Default Content -->
-        <span class="tw-text-base">{{ device.displayName }}</span>
-
-        <!-- Default Trailing Content -->
-        <div
-          *ngIf="device.isCurrentDevice"
-          class="tw-absolute tw-top-[6px] tw-right-3"
-          slot="default-trailing"
+<!-- TODO: PM-34091 - Remove this @if/@else and keep only the @if branch (rename to remove the condition). -->
+@if (showRecentlyActive) {
+  <bit-item-group>
+    <bit-item *ngFor="let device of devices">
+      @if (device.pendingAuthRequest) {
+        <button
+          bit-item-content
+          type="button"
+          [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
+          (click)="answerAuthRequest(device.pendingAuthRequest)"
         >
-          <span bitBadge variant="primary">
-            {{ "currentSession" | i18n }}
-          </span>
-        </div>
+          <!-- Default Content -->
+          <span class="tw-text-base">{{ device.displayName }}</span>
 
-        <!-- Secondary Content -->
-        <div slot="secondary" class="tw-text-sm">
-          @if (device.isTrusted) {
-            <span>{{ "trusted" | i18n }}</span>
-          } @else {
-            <br />
-          }
-
-          <div>
-            <span class="tw-font-medium">{{ "firstLogin" | i18n }}: </span>
-            <span>{{ device.firstLogin | date: "medium" }}</span>
+          <!-- Secondary Content -->
+          <div slot="secondary" class="tw-flex tw-flex-col tw-gap-1 tw-mt-1">
+            <div>
+              <span bitBadge variant="warning">{{ "requestPending" | i18n }}</span>
+            </div>
+            @if (device.isTrusted) {
+              <span>{{ "trusted" | i18n }}</span>
+            }
+            <div>
+              <span class="tw-font-medium">{{ "firstLogin" | i18n }}: </span>
+              <span>{{ device.firstLogin | date: "medium" }}</span>
+            </div>
           </div>
-        </div>
-      </bit-item-content>
-    }
-  </bit-item>
-</bit-item-group>
+        </button>
+      } @else {
+        <bit-item-content>
+          <!-- Default Content -->
+          <span class="tw-text-base">{{ device.displayName }}</span>
+
+          <!-- Secondary Content -->
+          <div slot="secondary" class="tw-flex tw-flex-col tw-gap-1 tw-mt-1">
+            @if (device.isTrusted) {
+              <span>{{ "trusted" | i18n }}</span>
+            }
+
+            <div *ngIf="device.isCurrentDevice">
+              <span bitBadge variant="primary">{{ "currentSession" | i18n }}</span>
+            </div>
+
+            <div *ngIf="!device.isCurrentDevice && device.recentlyActiveText">
+              <span class="tw-font-medium">{{ "recentlyActive" | i18n }}: </span>
+              <span>{{ device.recentlyActiveText }}</span>
+            </div>
+            <div>
+              <span class="tw-font-medium">{{ "firstLogin" | i18n }}: </span>
+              <span>{{ device.firstLogin | date: "medium" }}</span>
+            </div>
+          </div>
+        </bit-item-content>
+      }
+
+      <!-- Eventually, we want to add a 3 dot menu to allow for taking specific actions on a device. This will kickstart that work.  -->
+      <!-- End slot and menu must be at bit-item top level so slot projection works correctly -->
+      <!-- add class="tw-self-start tw-mt-2" on button if we need to meet figma reqs for top right aligment vs vert centered -->
+      <!-- Add IconButtonModule, IconModule, to imports for this section -->
+      <!-- <ng-container slot="end">
+        <button
+          type="button"
+          bitIconButton="bwi-ellipsis-v"
+          size="small"
+          [label]="'options' | i18n"
+          [bitMenuTriggerFor]="deviceMenu"
+        ></button>
+
+        <bit-menu #deviceMenu>
+          <button type="button" bitMenuItem>
+            <bit-icon name="bwi-sign-out" slot="start"></bit-icon>
+            {{ "logOut" | i18n }}
+          </button>
+          <button type="button" bitMenuItem>
+            <bit-icon name="bwi-minus-circle" class="tw-text-danger" slot="start"></bit-icon>
+            <span class="tw-text-danger">{{ "removeDevice" | i18n }}</span>
+          </button>
+        </bit-menu>
+      </ng-container> -->
+    </bit-item>
+  </bit-item-group>
+} @else {
+  <bit-item-group>
+    <bit-item *ngFor="let device of devices">
+      @if (device.pendingAuthRequest) {
+        <button
+          class="tw-relative"
+          bit-item-content
+          type="button"
+          [attr.tabindex]="device.pendingAuthRequest != null ? 0 : null"
+          (click)="answerAuthRequest(device.pendingAuthRequest)"
+        >
+          <!-- Default Content -->
+          <span class="tw-text-base">{{ device.displayName }}</span>
+
+          <!-- Default Trailing Content -->
+          <span class="tw-absolute tw-top-[6px] tw-right-3" slot="default-trailing">
+            <span bitBadge variant="warning">
+              {{ "requestPending" | i18n }}
+            </span>
+          </span>
+
+          <!-- Secondary Content -->
+          <span slot="secondary" class="tw-text-sm">
+            @if (device.isTrusted) {
+              <span>{{ "trusted" | i18n }}</span>
+            } @else {
+              <br />
+            }
+            <div>
+              <span class="tw-font-medium"> {{ "firstLogin" | i18n }}: </span>
+              <span>{{ device.firstLogin | date: "medium" }}</span>
+            </div>
+          </span>
+        </button>
+      } @else {
+        <bit-item-content ngClass="tw-relative">
+          <!-- Default Content -->
+          <span class="tw-text-base">{{ device.displayName }}</span>
+
+          <!-- Default Trailing Content -->
+          <div
+            *ngIf="device.isCurrentDevice"
+            class="tw-absolute tw-top-[6px] tw-right-3"
+            slot="default-trailing"
+          >
+            <span bitBadge variant="primary">
+              {{ "currentSession" | i18n }}
+            </span>
+          </div>
+
+          <!-- Secondary Content -->
+          <div slot="secondary" class="tw-text-sm">
+            @if (device.isTrusted) {
+              <span>{{ "trusted" | i18n }}</span>
+            } @else {
+              <br />
+            }
+
+            <div>
+              <span class="tw-font-medium">{{ "firstLogin" | i18n }}: </span>
+              <span>{{ device.firstLogin | date: "medium" }}</span>
+            </div>
+          </div>
+        </bit-item-content>
+      }
+    </bit-item>
+  </bit-item-group>
+}

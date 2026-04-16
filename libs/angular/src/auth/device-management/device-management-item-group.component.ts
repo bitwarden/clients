@@ -21,6 +21,10 @@ export class DeviceManagementItemGroupComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() devices: DeviceDisplayData[] = [];
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // TODO: PM-34091 - Remove this input and always show the recently active row.
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showRecentlyActive = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onAuthRequestAnswered = new EventEmitter<DevicePendingAuthRequest>();
 
