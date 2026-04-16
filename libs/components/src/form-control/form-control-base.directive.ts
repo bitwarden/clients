@@ -46,29 +46,16 @@ export class FormControlBaseDirective {
 
   private i18nService = inject(I18nService);
 
-  get required() {
-    return this.formControl().required;
-  }
-
-  get hasError() {
-    return this.formControl().hasError;
-  }
-
-  get error() {
-    return this.formControl().error;
-  }
-
   get displayError() {
-    switch (this.error[0]) {
+    const error = this.formControl().error;
+    switch (error[0]) {
       case "required":
         return this.i18nService.t("inputRequired");
       default:
-        // Attempt to show a custom error message.
-        if (this.error[1]?.message) {
-          return this.error[1]?.message;
+        if (error[1]?.message) {
+          return error[1]?.message;
         }
-
-        return this.error;
+        return error;
     }
   }
 }
