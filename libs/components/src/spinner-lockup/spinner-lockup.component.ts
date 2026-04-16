@@ -30,7 +30,7 @@ const spinnerLockupOrientationStyles: Record<
 
 /**
  * Combines a spinner with a title and body text lockup.
- * Title and body content are projected via named slots: `[slot=title]` and `[slot=body]`.
+ * Title and body content are projected via named slots: `[slot=title]` and `[slot=description]`.
  * Supports horizontal and vertical orientations, all spinner size variants, and all color variants.
  */
 @Component({

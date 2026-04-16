@@ -81,10 +81,9 @@ module.exports = {
       bg: {
         white: "var(--color-bg-white)",
         dark: "var(--color-bg-dark)",
-        "contrast-soft": "var(--color-bg-contrast-soft)",
         contrast: "var(--color-bg-contrast)",
-        "contrast-strong": "var(--color-bg-contrast-strong)",
         "contrast-soft": "var(--color-bg-contrast-soft)",
+        "contrast-strong": "var(--color-bg-contrast-strong)",
         primary: "var(--color-bg-primary)",
         secondary: "var(--color-bg-secondary)",
         tertiary: "var(--color-bg-tertiary)",
