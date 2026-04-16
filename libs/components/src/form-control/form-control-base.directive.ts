@@ -3,8 +3,6 @@ import {
   computed,
   contentChild,
   Directive,
-  effect,
-  ElementRef,
   inject,
   input,
   signal,
@@ -42,31 +40,11 @@ export class FormControlBaseDirective {
   ]);
 
   readonly formControl = contentChild.required(BitFormControlAbstraction);
-  readonly formControlEl = contentChild.required(BitFormControlAbstraction, { read: ElementRef });
   readonly ngControl = contentChild(NgControl);
 
-  readonly inputId = signal(this.id);
+  readonly inputId = computed(() => this.formControl().inputId);
 
   private i18nService = inject(I18nService);
-
-  constructor() {
-    effect(() => {
-      const control = this.formControl();
-      const el = this.formControlEl().nativeElement;
-
-      if (control.inputId != null) {
-        this.inputId.set(control.inputId);
-        return;
-      }
-
-      const existingId = el.getAttribute("id");
-      if (existingId) {
-        this.inputId.set(existingId);
-      } else {
-        el.id = this.id;
-      }
-    });
-  }
 
   get required() {
     return this.formControl().required;

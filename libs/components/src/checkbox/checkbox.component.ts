@@ -9,6 +9,8 @@ import {
 } from "@angular/core";
 import { NgControl, Validators } from "@angular/forms";
 
+let nextId = 0;
+
 import { BitFormControlAbstraction } from "../form-control";
 import { FormControlCardComponent } from "../form-control/form-control-card.component";
 import { FormControlGroupComponent } from "../form-control/form-control-group.component";
@@ -19,6 +21,7 @@ import { FormControlGroupComponent } from "../form-control/form-control-group.co
   providers: [{ provide: BitFormControlAbstraction, useExisting: CheckboxComponent }],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    "[id]": "id()",
     "[checked]": "isGroupChecked()",
     "[disabled]": "disabled",
     "[class]": "inputClasses",
@@ -33,6 +36,11 @@ export class CheckboxComponent implements BitFormControlAbstraction {
   readonly inputEl = inject<ElementRef<HTMLInputElement>>(ElementRef);
   protected readonly group = inject(FormControlGroupComponent, { optional: true });
   private readonly card = inject(FormControlCardComponent, { optional: true });
+
+  readonly id = input(`bit-checkbox-${nextId++}`);
+  get inputId(): string {
+    return this.id();
+  }
 
   protected readonly cardLabelledBy = computed(() => this.card?.labelId ?? null);
   protected readonly cardDescribedBy = computed(() => {
