@@ -272,7 +272,7 @@ describe("AutofillTriageComponent", () => {
       await component.ngOnInit();
       component.ngOnDestroy();
 
-      expect(setSidePanelOptionsSpy).toHaveBeenCalledWith({ enabled: false });
+      expect(setSidePanelOptionsSpy).toHaveBeenCalledWith({ enabled: false, tabId: mockTab.id });
     });
 
     it("should not disable side panel when destroyed outside side panel context", async () => {

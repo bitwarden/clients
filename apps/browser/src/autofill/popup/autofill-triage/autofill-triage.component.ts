@@ -127,7 +127,7 @@ export class AutofillTriageComponent implements OnInit, OnDestroy {
     BrowserApi.removeListener(chrome.runtime.onMessage, this.messageListener);
 
     if (BrowserPopupUtils.inSidePanel(window)) {
-      void BrowserApi.setSidePanelOptions({ enabled: false });
+      void BrowserApi.setSidePanelOptions({ enabled: false, tabId: this.currentTabId() });
     }
   }
 
