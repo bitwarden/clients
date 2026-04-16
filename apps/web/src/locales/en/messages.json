@@ -10393,26 +10393,6 @@
     "message": "Switching to free organization",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
-  "cancelSurveyMissingFeatures": {
-    "message": "Missing features or functionality - Something we needed wasn't available",
-    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
-  },
-  "cancelSurveyTooComplex": {
-    "message": "Too difficult to set up or manage - Onboarding, admin, or day-to-day use was too complex",
-    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
-  },
-  "cancelSurveyNotEnoughValue": {
-    "message": "We're not getting enough value for the cost - The price doesn't match what we're getting out of it",
-    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
-  },
-  "cancelSurveyNotEnoughUsage": {
-    "message": "Not enough usage by our team - We couldn't get people to actually use it",
-    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
-  },
-  "cancelSurveyNeedsChanged": {
-    "message": "Our needs changed - Reorg, acquisition, shift in priorities, or we no longer need a password manager",
-    "description": "An option for the offboarding survey shown when a Teams or Enterprise organization cancels their subscription."
-  },
   "freeForOneYear": {
     "message": "Free for 1 year"
   },
