@@ -282,22 +282,24 @@ export class VaultComponent implements OnInit, OnDestroy {
       switchMap(() => combineLatest([this.organizationId$, this.userId$])),
       switchMap(
         ([orgId, userId]) =>
-          // Run collection decryption outside Angular's zone so the setTimeout yields
-          // in our chunked decryptMany loop don't each trigger a full CD pass.
+          // Subscribe to collectionAdminViews$ outside Angular's zone so the setTimeout
+          // yields in our chunked decryptMany loop don't each trigger a full CD pass.
+          // We subscribe directly (rather than firstValueFrom) to preserve re-emissions
+          // from upstream sources such as orgKeys$ — e.g. on key rotation the collections
+          // are re-decrypted automatically. ngZone.run() re-enters the zone exactly once
+          // per emission so Angular gets a single CD pass when new data is ready.
           new Observable<CollectionAdminView[]>((observer) => {
-            void this.ngZone.runOutsideAngular(async () => {
-              try {
-                const result = await firstValueFrom(
-                  this.collectionAdminService.collectionAdminViews$(orgId, userId),
-                );
-                this.ngZone.run(() => {
-                  observer.next(result);
-                  observer.complete();
-                });
-              } catch (e) {
-                this.ngZone.run(() => observer.error(e));
-              }
-            });
+            const sub = this.ngZone.runOutsideAngular(() =>
+              this.collectionAdminService
+                .collectionAdminViews$(orgId, userId)
+                .pipe(takeUntil(this.destroy$))
+                .subscribe({
+                  next: (result) => this.ngZone.run(() => observer.next(result)),
+                  error: (e: unknown) => this.ngZone.run(() => observer.error(e)),
+                  complete: () => this.ngZone.run(() => observer.complete()),
+                }),
+            );
+            return () => sub.unsubscribe();
           }),
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),

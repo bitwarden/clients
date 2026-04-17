@@ -89,9 +89,16 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() allOrganizations: Organization[] = [];
+  private _allCollections: CollectionView[] = [];
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() allCollections: CollectionView[] = [];
+  @Input() get allCollections(): CollectionView[] {
+    return this._allCollections;
+  }
+  set allCollections(value: CollectionView[] | undefined) {
+    this._allCollections = value ?? [];
+    this.refreshItems();
+  }
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() allGroups: GroupView[] = [];

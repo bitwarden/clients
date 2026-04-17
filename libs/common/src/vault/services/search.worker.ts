@@ -84,8 +84,18 @@ function createBuilder(): lunr.Builder {
   builder.field("name", { boost: 10 });
   builder.field("subtitle", { boost: 5 });
   builder.field("notes");
-  builder.field("login.username");
-  builder.field("login.uris", { boost: 2 });
+  // "login.username" and "login.uris" use dot-notation field names to match the main-thread
+  // index so query strings (e.g. `login.username:alice`) work identically in both paths.
+  // Without explicit extractors, Lunr reads doc["login.username"] (a literal key lookup)
+  // which is always undefined because the data is stored as a nested object. The extractors
+  // traverse doc.login.username / doc.login.uris explicitly.
+  builder.field("login.username", {
+    extractor: (doc: unknown) => (doc as LunrDocumentData).login?.username ?? null,
+  });
+  builder.field("login.uris", {
+    boost: 2,
+    extractor: (doc: unknown) => (doc as LunrDocumentData).login?.uris ?? null,
+  });
   builder.field("fields");
   builder.field("fields_joined");
   builder.field("attachments");
