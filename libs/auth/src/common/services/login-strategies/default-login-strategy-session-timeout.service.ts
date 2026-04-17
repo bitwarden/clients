@@ -11,9 +11,7 @@ import { ScheduledTaskNames, TaskSchedulerService } from "@bitwarden/common/plat
 import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
 import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 
-// TODO: Revert to 5 minutes before merging
-// const SESSION_TIMEOUT_LENGTH = 5 * 60 * 1000; // 5 minutes
-const SESSION_TIMEOUT_LENGTH = 30 * 1000; // 30 seconds (temp)
+const LOGIN_SESSION_TIMEOUT_LENGTH = 5 * 60 * 1000; // 5 minutes
 
 export const LOGIN_SESSION_EXPIRED = new CommandDefinition("loginSessionExpired");
 
@@ -55,11 +53,11 @@ export class DefaultLoginStrategySessionTimeoutService implements LoginStrategyS
     await this.cancelSessionTimeout();
 
     await this.loginStrategyCacheService.setCacheExpiration(
-      new Date(Date.now() + SESSION_TIMEOUT_LENGTH),
+      new Date(Date.now() + LOGIN_SESSION_TIMEOUT_LENGTH),
     );
     this.sessionTimeoutSubscription = this.taskSchedulerService.setTimeout(
       ScheduledTaskNames.loginStrategySessionTimeout,
-      SESSION_TIMEOUT_LENGTH,
+      LOGIN_SESSION_TIMEOUT_LENGTH,
     );
   }
 
