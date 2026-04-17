@@ -44,19 +44,6 @@ operations.
 
 <Canvas of={stories.ActionMenu} />
 
-## Input Menus
-
-Input menus set the value of a form input. Selected values are displayed right away in their parent
-field, so these menus do not typically require iterative in-menu scanning. Subtle checkmarks and
-background highlights reinforce the field’s value rather than compete with it.
-
-- Used as the options list for both single-select and multi-select input fields.
-- Their width should match the width of the parent input field or form.
-- Max height is 400px.
-- Scrolling may occur at sizes below 400px due to screen height or other vertical size limitations.
-
-<Canvas of={stories.InputMenu} />
-
 ## Why do we have different affordances for filter menus and input menus?
 
 Filter menus refine the data visible in the current view, while input menus set the value of a form
@@ -69,16 +56,6 @@ rules and active state.
 Input menus, on the other hand, display selected values in the field itself and do not typically
 require iterative in-menu scanning. Subtle checkmarks and background highlights reinforce the
 field’s value rather than compete with it.
-
-## Nested Menu Items
-
-Nested menu items support hierarchical navigation within a dropdown, allowing a parent item to
-reveal a submenu of child options.
-
-Nested menus are currently used exclusively to support the filter pattern on the browser extension,
-unless adopted elsewhere. They are considered part of the input menu type for now.
-
-<Canvas of={stories.NestedMenu} />
 
 ## Accessibility
 
