@@ -4,8 +4,13 @@ import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { AccessReportApi } from "./access-report.api";
 
 /**
+<<<<<<< dirt/file-persistence/pm-31942
  * Response model returned when creating a report with the Access Intelligence V2 feature flag
  * enabled. Contains a presigned upload URL for the report file along with the created report.
+=======
+ * Response model returned when creating an Access Intelligence report to be stored as a file.
+ * Contains a presigned URL that is used to upload the file for the report.
+>>>>>>> main
  *
  * - See {@link AccessReportApi} for the nested report response model
  */

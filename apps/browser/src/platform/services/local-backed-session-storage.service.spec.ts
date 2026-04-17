@@ -145,9 +145,9 @@ describe("LocalBackedSessionStorage", () => {
     });
 
     it("returns the cached value when cache is populated during storage retrieval", async () => {
-      localStorage.get.mockImplementation(async () => {
+      localStorage.get.mockImplementation(<T>(): Promise<T> => {
         sut["cache"]["test"] = "cached-during-read";
-        return encString.encryptedString;
+        return Promise.resolve(encString.encryptedString) as Promise<T>;
       });
       encryptService.decryptString.mockResolvedValue(JSON.stringify("decrypted-from-storage"));
 
@@ -157,9 +157,9 @@ describe("LocalBackedSessionStorage", () => {
     });
 
     it("returns the cached value when storage returns null but cache was filled", async () => {
-      localStorage.get.mockImplementation(async () => {
+      localStorage.get.mockImplementation(<T>(): Promise<T> => {
         sut["cache"]["test"] = "cached-during-read";
-        return null;
+        return Promise.resolve(null) as Promise<T>;
       });
 
       const result = await sut.get("test");

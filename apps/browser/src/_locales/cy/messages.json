@@ -297,13 +297,13 @@
     "message": "Newid y prif gyfrinair"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Parhau i'r ap gwe?"
   },
   "continueToWebAppDesc": {
     "message": "Explore more features of your Bitwarden account on the web app."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "Parhau i'r ganolfan gymorth?"
   },
   "continueToHelpCenterDesc": {
     "message": "Learn more about how to use Bitwarden on the Help Center."
@@ -592,7 +592,7 @@
     "message": "Unarchive and save"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Mae angen aelodaeth uwch i ddefnyddio'r nodwedd hon."
   },
   "itemRestored": {
     "message": "Item has been restored"
@@ -700,7 +700,7 @@
     "message": "Set up an unlock method in Settings"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Dod â sesiynau i ben"
   },
   "otherOptions": {
     "message": "Dewisiadau eraill"
@@ -764,7 +764,7 @@
     "message": "Cloi'r gell"
   },
   "vaultTimeout1": {
-    "message": "Timeout"
+    "message": "Daw'r sesiwn i ben"
   },
   "lockNow": {
     "message": "Cloi nawr"
@@ -1148,6 +1148,15 @@
     "message": "Automatically clear copied values from your clipboard.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "A ddylai Bitwarden gofio'r cyfrinair hwn i chi?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Dewisiadau ychwanegol"
+  },
+  "enableFillAssist": {
+    "message": "Use fill assist"
   },
   "enableContextMenuItem": {
     "message": "Show context menu options"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "Note"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "Hanes cyfrineiriau"
@@ -2478,7 +2514,7 @@
     "message": "Addasu'r gell"
   },
   "vaultTimeoutAction": {
-    "message": "Vault timeout action"
+    "message": "Gweithred pan ddaw sesiwn y gell i ben"
   },
   "showAtRiskPasswordNotifications": {
     "message": "Show at-risk password notifications"
@@ -2516,10 +2552,10 @@
     "message": "Oes gennych chi gyfrif eisoes?"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Logging out will remove all access to your vault and requires online authentication after the timeout period. Are you sure you want to use this setting?"
+    "message": "Bydd allgofnodi yn tynnu pob mynediad i'ch cell a gorfodi dilysu ar lein ar ôl i'r sesiwn ddod i ben. Ydych chi'n siŵr yr hoffech chi ddefnyddio'r gosodiad hwn?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
-    "message": "Timeout action confirmation"
+    "message": "Cadarnhau'r weithred"
   },
   "autoFillAndSave": {
     "message": "Llenwi'n awtomatig a chadw"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3353,7 +3389,7 @@
     "message": "Toggle character count"
   },
   "sessionTimeout": {
-    "message": "Your session has timed out. Please go back and try logging in again."
+    "message": "Mae eich sesiwn wedi dod i ben. Ewch yn ôl a cheisio mewngofnodi eto."
   },
   "exportingPersonalVaultTitle": {
     "message": "Exporting individual vault"
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Login status"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "Master password saved"
@@ -4752,7 +4806,7 @@
     "message": "Suggested items"
   },
   "autofillSuggestionsTip": {
-    "message": "Save a login item for this site to autofill"
+    "message": "Cadwch eitem fewngofnodi i'w llewni'n awtomatig ar y wefan hon"
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"
@@ -5978,7 +6032,7 @@
     "message": "Great job securing your at-risk logins!"
   },
   "upgradeNow": {
-    "message": "Uwchraddio nawr"
+    "message": "Uwchraddiwch nawr"
   },
   "builtInAuthenticator": {
     "message": "Built-in authenticator"
@@ -6069,7 +6123,7 @@
     "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Gweithred pan ddaw i ben"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "This setting is managed by your organization."
@@ -6110,13 +6164,25 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser restart"
+    "message": "wrth ailgychwyn y porwr"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Uwchraddio"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Download Bitwarden apps"

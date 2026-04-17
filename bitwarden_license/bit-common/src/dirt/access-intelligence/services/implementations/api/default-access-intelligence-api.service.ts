@@ -7,10 +7,22 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 import {
   AccessReportApi,
   AccessReportFileApi,
+<<<<<<< dirt/file-persistence/pm-31942
   AccessReportSummaryApi,
   AccessReportCreateApi,
 } from "../../../models";
 import { AccessIntelligenceApiService } from "../../abstractions/access-intelligence-api.service";
+=======
+  AccessReportMetricsApi,
+  AccessReportSummaryApi,
+} from "../../../models";
+import {
+  AccessIntelligenceApiService,
+  AccessReportCreateRequest,
+  AccessReportLegacyCreateRequest,
+  AccessReportSettingsUpdateRequest,
+} from "../../abstractions/access-intelligence-api.service";
+>>>>>>> main
 
 export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiService {
   constructor(private apiService: ApiService) {
@@ -30,7 +42,11 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
   createReport$(
     orgId: OrganizationId,
+<<<<<<< dirt/file-persistence/pm-31942
     request: AccessReportCreateApi,
+=======
+    request: AccessReportCreateRequest,
+>>>>>>> main
   ): Observable<AccessReportFileApi> {
     const response = this.apiService.send(
       "POST",
@@ -42,11 +58,32 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     return from(response).pipe(map((response) => new AccessReportFileApi(response)));
   }
 
+<<<<<<< dirt/file-persistence/pm-31942
+=======
+  createLegacyReport$(
+    orgId: OrganizationId,
+    request: AccessReportLegacyCreateRequest,
+  ): Observable<AccessReportApi> {
+    const response = this.apiService.send(
+      "POST",
+      `/reports/organizations/${orgId.toString()}`,
+      request,
+      true,
+      true,
+    );
+    return from(response).pipe(map((res) => new AccessReportApi(res)));
+  }
+
+>>>>>>> main
   updateSummaryData$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
     summaryData: string,
+<<<<<<< dirt/file-persistence/pm-31942
     metrics?: Record<string, number>,
+=======
+    metrics?: AccessReportMetricsApi,
+>>>>>>> main
   ): Observable<AccessReportApi> {
     const response = this.apiService.send(
       "PATCH",
@@ -139,7 +176,11 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
     const response = this.apiService.send(
       "POST",
+<<<<<<< dirt/file-persistence/pm-31942
       `/reports/organizations/${orgId}/${reportId}/file/report-data?reportFileId=${reportFileId}`,
+=======
+      `/reports/organizations/${orgId}/${reportId}/file?reportFileId=${reportFileId}`,
+>>>>>>> main
       formData,
       true,
       false,
@@ -148,6 +189,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
     return from(response);
   }
 
+<<<<<<< dirt/file-persistence/pm-31942
   downloadReportFile$(url: string): Observable<string> {
     return from(
       this.apiService
@@ -172,5 +214,36 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
         true,
       ) as Promise<string>,
     );
+=======
+  downloadReportFile$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+  ): Observable<{ blob: Blob; fileName: string }> {
+    const response = this.apiService.send(
+      "GET",
+      `/reports/organizations/${orgId}/${reportId}/file/download`,
+      null,
+      true,
+      true,
+    );
+
+    return from(response);
+  }
+
+  updateReportSettings$(
+    orgId: OrganizationId,
+    reportId: OrganizationReportId,
+    request: AccessReportSettingsUpdateRequest,
+  ): Observable<AccessReportApi> {
+    const response = this.apiService.send(
+      "PATCH",
+      `/reports/organizations/${orgId}/${reportId}`,
+      request,
+      true,
+      true,
+    );
+
+    return from(response).pipe(map((response) => new AccessReportApi(response)));
+>>>>>>> main
   }
 }

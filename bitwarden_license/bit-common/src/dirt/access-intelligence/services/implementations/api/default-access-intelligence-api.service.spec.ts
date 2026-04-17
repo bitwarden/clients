@@ -8,10 +8,22 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 import {
   AccessReportApi,
+<<<<<<< dirt/file-persistence/pm-31942
   AccessReportCreateApi,
   AccessReportFileApi,
   AccessReportSummaryApi,
 } from "../../../models";
+=======
+  AccessReportFileApi,
+  AccessReportMetricsApi,
+  AccessReportSummaryApi,
+} from "../../../models";
+import {
+  AccessReportCreateRequest,
+  AccessReportLegacyCreateRequest,
+  AccessReportSettingsUpdateRequest,
+} from "../../abstractions/access-intelligence-api.service";
+>>>>>>> main
 
 import { DefaultAccessIntelligenceApiService } from "./default-access-intelligence-api.service";
 
@@ -22,6 +34,23 @@ describe("DefaultAccessIntelligenceApiService", () => {
   const orgId = "org-123" as OrganizationId;
   const reportId = "report-456" as OrganizationReportId;
   const reportFileId = "file-789";
+<<<<<<< dirt/file-persistence/pm-31942
+=======
+  const mockMetrics = new AccessReportMetricsApi({
+    totalApplicationCount: 10,
+    totalAtRiskApplicationCount: 3,
+    totalCriticalApplicationCount: 2,
+    totalCriticalAtRiskApplicationCount: 1,
+    totalMemberCount: 50,
+    totalAtRiskMemberCount: 12,
+    totalCriticalMemberCount: 5,
+    totalCriticalAtRiskMemberCount: 2,
+    totalPasswordCount: 200,
+    totalAtRiskPasswordCount: 40,
+    totalCriticalPasswordCount: 15,
+    totalCriticalAtRiskPasswordCount: 5,
+  });
+>>>>>>> main
 
   beforeEach(() => {
     mockApiService = mock<ApiService>();
@@ -81,9 +110,19 @@ describe("DefaultAccessIntelligenceApiService", () => {
       };
       mockApiService.send.mockResolvedValue(rawResponse);
 
+<<<<<<< dirt/file-persistence/pm-31942
       const request = new AccessReportCreateApi();
       request.fileSize = 1024;
       request.contentEncryptionKey = "enc-key";
+=======
+      const request: AccessReportCreateRequest = {
+        fileSize: 1024,
+        contentEncryptionKey: "enc-key",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        metrics: mockMetrics,
+      };
+>>>>>>> main
 
       const result = await firstValueFrom(service.createReport$(orgId, request));
 
@@ -103,9 +142,57 @@ describe("DefaultAccessIntelligenceApiService", () => {
     it("should propagate API errors", async () => {
       mockApiService.send.mockRejectedValue(new Error("API error"));
 
+<<<<<<< dirt/file-persistence/pm-31942
       const request = new AccessReportCreateApi();
 
       await expect(firstValueFrom(service.createReport$(orgId, request))).rejects.toThrow(
+=======
+      await expect(firstValueFrom(service.createReport$(orgId, {} as any))).rejects.toThrow(
+        "API error",
+      );
+    });
+  });
+
+  describe("createLegacyReport$", () => {
+    it("should call POST /reports/organizations/{orgId} and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        reportData: "encrypted-report-data",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        contentEncryptionKey: "enc-key",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const request: AccessReportLegacyCreateRequest = {
+        reportData: "encrypted-report-data",
+        contentEncryptionKey: "enc-key",
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        metrics: mockMetrics,
+      };
+
+      const result = await firstValueFrom(service.createLegacyReport$(orgId, request));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "POST",
+        `/reports/organizations/${orgId}`,
+        request,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+      expect(result.organizationId).toBe(orgId);
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("API error"));
+
+      await expect(firstValueFrom(service.createLegacyReport$(orgId, {} as any))).rejects.toThrow(
+>>>>>>> main
         "API error",
       );
     });
@@ -123,7 +210,11 @@ describe("DefaultAccessIntelligenceApiService", () => {
       mockApiService.send.mockResolvedValue(rawResponse);
 
       const summaryData = "encrypted-summary-data";
+<<<<<<< dirt/file-persistence/pm-31942
       const metrics = { totalApplicationCount: 5, totalAtRiskApplicationCount: 2 };
+=======
+      const metrics = mockMetrics;
+>>>>>>> main
 
       const result = await firstValueFrom(
         service.updateSummaryData$(orgId, reportId, summaryData, metrics),
@@ -315,7 +406,11 @@ describe("DefaultAccessIntelligenceApiService", () => {
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
+<<<<<<< dirt/file-persistence/pm-31942
         `/reports/organizations/${orgId}/${reportId}/file/report-data?reportFileId=${reportFileId}`,
+=======
+        `/reports/organizations/${orgId}/${reportId}/file?reportFileId=${reportFileId}`,
+>>>>>>> main
         expect.any(FormData),
         true,
         false,
@@ -336,4 +431,73 @@ describe("DefaultAccessIntelligenceApiService", () => {
       ).rejects.toThrow("Upload failed");
     });
   });
+<<<<<<< dirt/file-persistence/pm-31942
+=======
+
+  describe("downloadReportFile$", () => {
+    it("should call GET /reports/organizations/{orgId}/{reportId}/file/download and return blob with fileName", async () => {
+      const blob = new Blob(["file content"], { type: "application/octet-stream" });
+      const sendResponse = { blob, fileName: "report.bin" };
+      mockApiService.send.mockResolvedValue(sendResponse);
+
+      const result = await firstValueFrom(service.downloadReportFile$(orgId, reportId));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "GET",
+        `/reports/organizations/${orgId}/${reportId}/file/download`,
+        null,
+        true,
+        true,
+      );
+      expect(result.blob).toBe(blob);
+      expect(result.fileName).toBe("report.bin");
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Download failed"));
+
+      await expect(firstValueFrom(service.downloadReportFile$(orgId, reportId))).rejects.toThrow(
+        "Download failed",
+      );
+    });
+  });
+
+  describe("updateReportSettings$", () => {
+    it("should call PATCH /reports/organizations/{orgId}/{reportId} and return AccessReportApi", async () => {
+      const rawResponse = {
+        id: reportId,
+        organizationId: orgId,
+        creationDate: "2024-01-01T00:00:00Z",
+        summaryData: "encrypted-summary",
+      };
+      mockApiService.send.mockResolvedValue(rawResponse);
+
+      const request: AccessReportSettingsUpdateRequest = {
+        summaryData: "encrypted-summary",
+        applicationData: "encrypted-apps",
+        metrics: mockMetrics,
+      };
+
+      const result = await firstValueFrom(service.updateReportSettings$(orgId, reportId, request));
+
+      expect(mockApiService.send).toHaveBeenCalledWith(
+        "PATCH",
+        `/reports/organizations/${orgId}/${reportId}`,
+        request,
+        true,
+        true,
+      );
+      expect(result).toBeInstanceOf(AccessReportApi);
+      expect(result.id).toBe(reportId);
+    });
+
+    it("should propagate API errors", async () => {
+      mockApiService.send.mockRejectedValue(new Error("Update failed"));
+
+      await expect(
+        firstValueFrom(service.updateReportSettings$(orgId, reportId, {} as any)),
+      ).rejects.toThrow("Update failed");
+    });
+  });
+>>>>>>> main
 });

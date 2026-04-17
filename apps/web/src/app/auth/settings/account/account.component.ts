@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { firstValueFrom, lastValueFrom, map, Observable, Subject, takeUntil } from "rxjs";
 
+import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -14,7 +15,6 @@ import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.compone
 import { ChangeEmailComponent } from "./change-email.component";
 import { DangerZoneComponent } from "./danger-zone.component";
 import { DeauthorizeSessionsComponent } from "./deauthorize-sessions.component";
-import { DeleteAccountDialogComponent } from "./delete-account-dialog.component";
 import { ProfileComponent } from "./profile.component";
 import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 

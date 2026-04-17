@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivita"
   },
-  "applicationsAtRisk": {
-    "message": "Ohrožené aplikace"
+  "criticalAppsAtRisk": {
+    "message": "Kritické rizikové aplikace"
+  },
+  "allCriticalApps": {
+    "message": "Všechny kritické aplikace"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -324,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Nepodařilo se označit aplikace jako kritické"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Nepodařilo se zrušit označení aplikace jako kritické"
   },
   "application": {
     "message": "Aplikace"
@@ -4301,6 +4307,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 nebo více e-mailů patří odvolaným členům. Pro opětovné pozvání obnovte jejich přístup."
+  },
   "restoredUserId": {
     "message": "Byl obnoven přístup do organizace uživateli $ID$.",
     "placeholders": {
@@ -6238,6 +6247,16 @@
     "message": "Z důvodu podnikových zásad můžete smazat pouze existující Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Ovládání Send"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Nastavte volby pro vytváření a úpravu Send, včetně možnosti odebrat Send.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Uživatelé organizace, kteří mohou spravovat zásady organizace, jsou od prosazování těchto zásad osvobozeni."
+  },
   "sendOptions": {
     "message": "Volby Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6593,6 +6612,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Hlavní heslo uživatele $ID$ bylo resetováno.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Reset dvoufázového přihlášení pro uživatele $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8203,6 +8231,10 @@
     "message": "Kopírovat klíč SCIM API do schránky",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Zobrazit klíč SCIM API",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Měnit klíč SCIM API",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8233,6 +8265,28 @@
   "scimSettingsSaved": {
     "message": "Nastavení SCIM bylo uloženo",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Je povolena jen jedna integrace tohoto typu ($TYPE$). Konfliktní integrace je: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Již existuje jiná integrace se stejným typem ($TYPE$). Obnovte prohlížeč a zkuste to znovu.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Je vyžadován vstup."
@@ -8395,6 +8449,15 @@
   },
   "pink": {
     "message": "Růžová"
+  },
+  "coral": {
+    "message": "Korálová"
+  },
+  "purple": {
+    "message": "Fialová"
+  },
+  "blue": {
+    "message": "Modrá"
   },
   "customColor": {
     "message": "Vlastní barva"
@@ -9690,6 +9753,30 @@
   },
   "recoverAccount": {
     "message": "Obnovit účet"
+  },
+  "recoverAccountWarning": {
+    "message": "Po resetování hesla nebo dvoufázového přihlášení pro tohoto člena, budou informováni o změně a odhlášeni."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Obnoví účty, když je zapomenuto nebo ztraceno hlavní heslo, dvoufázové přihlášení nebo důvěryhodná zařízení."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existující účty s hlavním heslem vyžadují, aby se členové sami přihlásili před tím, než budou moci správci obnovit své účty."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automaticky zapsat nové členy do obnovy účtu"
+  },
+  "resetMasterPassword": {
+    "message": "Obnovit hlavní heslo"
+  },
+  "resetTwoStepLogin": {
+    "message": "Resetovat dvoufázové přihlášení"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Přístup člena bude odvolán, dokud nenastaví dvoufázové přihlášení"
+  },
+  "recoverAccountSuccess": {
+    "message": "Účet byl úspěšně obnoven!"
   },
   "updatedTempPassword": {
     "message": "Uživatel aktualizoval heslo vydané prostřednictvím obnovení účtu."

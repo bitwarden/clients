@@ -6,15 +6,13 @@ export default {
       f.replace(/^.*apps\/desktop\/desktop_native\//, ""),
     );
     return [
-      `sh -c 'cd apps/desktop/desktop_native && cargo +nightly fmt -- ${relativeFiles.join(" ")}'`,
-      `sh -c 'cd apps/desktop/desktop_native && cargo clippy --all-features --all-targets --tests -- -D warnings'`,
+      `node scripts/run-cargo-tool.mjs +nightly fmt -- ${relativeFiles.join(" ")}`,
+      "node scripts/run-cargo-tool.mjs clippy --all-features --all-targets --tests -- -D warnings",
     ];
   },
-  "apps/desktop/desktop_native/**/Cargo.toml": () => {
-    return [
-      `sh -c 'cd apps/desktop/desktop_native && cargo sort --workspace --check'`,
-      `sh -c 'cd apps/desktop/desktop_native && cargo +nightly udeps --workspace --all-features --all-targets'`,
-      `sh -c 'cd apps/desktop/desktop_native && cargo deny --log-level error --all-features check all'`,
-    ];
-  },
+  "apps/desktop/desktop_native/**/Cargo.toml": () => [
+    "node scripts/run-cargo-tool.mjs sort --workspace --check",
+    "node scripts/run-cargo-tool.mjs +nightly udeps --workspace --all-features --all-targets",
+    "node scripts/run-cargo-tool.mjs deny --log-level error --all-features check all",
+  ],
 };

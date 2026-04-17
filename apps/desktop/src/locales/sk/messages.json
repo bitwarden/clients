@@ -2126,6 +2126,15 @@
   "unsavedChangesTitle": {
     "message": "Neuložené zmeny"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Ak teraz odídete, zmeny sa neuložia. Aktualizáciu nainštalujte neskôr, aby ste mohli zostať na stránke a uložiť zmeny."
+  },
+  "installLater": {
+    "message": "Inštalovať neskôr"
+  },
+  "continueWithInstall": {
+    "message": "Pokračovať v inštalácii"
+  },
   "clone": {
     "message": "Klonovať"
   },

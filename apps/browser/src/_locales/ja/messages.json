@@ -1148,6 +1148,15 @@
     "message": "選択した時間が経過した後、自動的にクリップボードを消去します。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "クリップボードの設定を更新しました"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "クリップボードのタイムアウトはデフォルトに設定されており、セキュリティ強化のために5分に更新されました。"
+  },
+  "jumpToSetting": {
+    "message": "設定へ移動"
+  },
   "notificationAddDesc": {
     "message": "このパスワードを Bitwarden に保存しますか？"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "追加オプション"
+  },
+  "enableFillAssist": {
+    "message": "入力補助を使用する"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -1483,10 +1495,10 @@
     "message": "添付ファイルを保存しました。"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "暗号化を修正"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "このファイルは古い暗号化方法を使用しています。"
   },
   "attachmentUpdated": {
     "message": "Attachment updated"
@@ -1549,7 +1561,7 @@
     "message": "YubiKey、Duo などのプロプライエタリな2段階認証オプション。"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "プレミアム サブスクリプションが終了しました"
   },
   "archivePremiumRestart": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "メモ"
   },
+  "typeLoginSubtitle": {
+    "message": "ウェブサイトまたはアプリ"
+  },
+  "typeCardSubtitle": {
+    "message": "クレジットまたはデビットカード"
+  },
+  "typeIdentitySubtitle": {
+    "message": "個人情報"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要なテキスト"
+  },
+  "typeSshKeySubtitle": {
+    "message": "サーバーのログイントークン"
+  },
+  "folderSubtitle": {
+    "message": "アイテムを整理する"
+  },
+  "collectionSubtitle": {
+    "message": "共有アイテムを整理する"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "追加するアイテムを選択"
   },
   "passwordHistory": {
     "message": "パスワードの履歴"
@@ -2481,7 +2517,7 @@
     "message": "保管庫タイムアウト時のアクション"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "リスクの高いパスワードの通知を表示する"
   },
   "lock": {
     "message": "ロック",
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+  "atRiskNavigatePromptV2": {
+    "message": "このサイトのパスワードは危険です。 $ORGANIZATION$ はアカウント設定に移動して変更するよう要求しています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3105,7 +3141,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ 時間",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "ログイン状態"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "マスターパスワードが保存されました"
@@ -4890,7 +4944,7 @@
     "message": "管理コンソール"
   },
   "admin": {
-    "message": "Admin"
+    "message": "管理者"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -4905,7 +4959,7 @@
     "message": "This could impact your organization’s data security. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "リスクについて学ぶ"
   },
   "autoConfirmSetup": {
     "message": "Automatically confirm new users"
@@ -4926,7 +4980,7 @@
     "message": "アカウントのセキュリティ"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "フィッシングブロッカー"
   },
   "enablePhishingDetection": {
     "message": "Phishing detection"
@@ -5047,7 +5101,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "添付ファイルをダウンロード"
   },
   "downloadBitwarden": {
     "message": "Bitwarden をダウンロード"
@@ -5554,7 +5608,7 @@
     "message": "You can customize your unlock and timeout settings to more quickly access your vault."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "PIN のロックを解除"
   },
   "unlockWithBiometricSet": {
     "message": "生体認証でロック解除を設定しました"
@@ -5952,7 +6006,7 @@
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "このページを表示する権限がありません。別のアカウントでログインしてください。"
   },
   "wasmNotSupported": {
     "message": "WebAssembly はお使いのブラウザでサポートされていないか、有効になっていません。WebAssembly は Bitwarden アプリを使用するために必要です。",
@@ -6027,7 +6081,7 @@
     "message": "カード番号"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "エラー: 復号できません"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -6036,10 +6090,10 @@
     "message": "Continue with log in"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "続行しない"
   },
   "domain": {
-    "message": "Domain"
+    "message": "ドメイン"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -6114,6 +6168,18 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden デスクトップアプリで管理されています。編集するにはデスクトップアプリを開いてください。"
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
   },
   "upgrade": {
     "message": "アップグレード"
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Bitwarden アプリをダウンロード"
