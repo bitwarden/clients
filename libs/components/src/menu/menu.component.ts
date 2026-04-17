@@ -1,11 +1,10 @@
 import { FocusKeyManager, CdkTrapFocus } from "@angular/cdk/a11y";
 import {
   Component,
-  Output,
   TemplateRef,
-  EventEmitter,
   effect,
   input,
+  output,
   signal,
   viewChild,
   contentChildren,
@@ -23,9 +22,7 @@ import { MenuItemComponent } from "./menu-item.component";
 })
 export class MenuComponent {
   readonly templateRef = viewChild.required(TemplateRef);
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() closed = new EventEmitter<void>();
+  readonly closed = output<void>();
   readonly menuItems = contentChildren(MenuItemComponent, { descendants: true });
   readonly keyManager = signal<FocusKeyManager<MenuItemComponent> | undefined>(undefined);
 
