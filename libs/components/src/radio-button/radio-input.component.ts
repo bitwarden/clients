@@ -43,7 +43,9 @@ export class RadioInputComponent implements BitFormControlAbstraction {
 
   protected readonly cardLabelledBy = computed(() => this.card?.labelId ?? null);
   protected readonly cardDescribedBy = computed(() => {
-    if (!this.card) {return null;}
+    if (!this.card) {
+      return null;
+    }
     return (
       [this.card.effectiveErrorId, this.card.effectiveHintId()].filter(Boolean).join(" ") || null
     );
