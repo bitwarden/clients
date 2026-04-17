@@ -90,11 +90,11 @@ function createBuilder(): lunr.Builder {
   // which is always undefined because the data is stored as a nested object. The extractors
   // traverse doc.login.username / doc.login.uris explicitly.
   builder.field("login.username", {
-    extractor: (doc: unknown) => (doc as LunrDocumentData).login?.username ?? null,
+    extractor: (doc: object) => (doc as LunrDocumentData).login?.username ?? "",
   });
   builder.field("login.uris", {
     boost: 2,
-    extractor: (doc: unknown) => (doc as LunrDocumentData).login?.uris ?? null,
+    extractor: (doc: object) => (doc as LunrDocumentData).login?.uris ?? [],
   });
   builder.field("fields");
   builder.field("fields_joined");
