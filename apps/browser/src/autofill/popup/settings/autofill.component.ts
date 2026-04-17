@@ -1,13 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
   concatMap,
@@ -23,7 +17,6 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -42,6 +35,7 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -54,6 +48,8 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  ButtonModule,
+  CalloutModule,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -65,8 +61,6 @@ import {
   SectionHeaderComponent,
   SelectModule,
   TypographyModule,
-  CalloutModule,
-  ButtonModule,
 } from "@bitwarden/components";
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
@@ -81,6 +75,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   templateUrl: "autofill.component.html",
   imports: [
+    ButtonModule,
+    CalloutModule,
     CardComponent,
     CheckboxModule,
     CommonModule,
@@ -99,8 +95,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SelectModule,
     TypographyModule,
     ReactiveFormsModule,
-    CalloutModule,
-    ButtonModule,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -130,6 +124,12 @@ export class AutofillComponent implements OnInit {
       map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+  protected showClipboardNotification$: Observable<boolean> =
+    this.autofillSettingsService.showClipboardSettingUpdateNotification$;
+  protected showClipboardNotificationThisSession = false;
+  protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.FillAssistTargetingRules,
+  );
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -137,6 +137,7 @@ export class AutofillComponent implements OnInit {
   });
 
   protected additionalOptionsForm = new FormGroup({
+    enableFillAssist: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
     clearClipboard: new FormControl(),
@@ -167,6 +168,7 @@ export class AutofillComponent implements OnInit {
   accountSwitcherEnabled: boolean = false;
 
   constructor(
+    private configService: ConfigService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private domainSettingsService: DomainSettingsService,
@@ -174,14 +176,11 @@ export class AutofillComponent implements OnInit {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
-    private configService: ConfigService,
-    private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
     private nudgesService: NudgesService,
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private policyService: PolicyService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -299,6 +298,18 @@ export class AutofillComponent implements OnInit {
 
     /** Additional options form */
 
+    const enableFillAssist = await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+
+    this.additionalOptionsForm.controls.enableFillAssist.patchValue(enableFillAssist, {
+      emitEvent: false,
+    });
+
+    this.additionalOptionsForm.controls.enableFillAssist.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.domainSettingsService.setEnableFillAssist(value);
+      });
+
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,
     );
@@ -367,6 +378,17 @@ export class AutofillComponent implements OnInit {
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
+
+    // Show clipboard notification on first visit, mark as dismissed for future visits
+    const shouldShowNotification = await firstValueFrom(this.showClipboardNotification$);
+
+    if (shouldShowNotification) {
+      // Show it for THIS page session
+      this.showClipboardNotificationThisSession = true;
+
+      // Mark as dismissed in storage (so it won't show on future visits)
+      await this.autofillSettingsService.setClipboardSettingUpdatedNotificationDismissed(true);
+    }
   }
 
   get browserClientVendorExtended() {
@@ -663,5 +685,16 @@ export class AutofillComponent implements OnInit {
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }
+  }
+
+  async dismissClipboardNotification() {
+    this.showClipboardNotificationThisSession = false;
+    await this.autofillSettingsService.setClipboardSettingUpdatedNotificationDismissed(true);
+
+    // Scroll to the clear clipboard field
+    setTimeout(() => {
+      const element = document.getElementById("clearClipboardField");
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
   }
 }

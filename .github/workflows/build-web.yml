@@ -70,7 +70,7 @@ jobs:
           inputs: "${{ toJson(inputs) }}"
 
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -151,7 +151,7 @@ jobs:
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
@@ -181,7 +181,7 @@ jobs:
           echo "server_ref=$SERVER_REF" >> "$GITHUB_OUTPUT"
 
       - name: Check out Server repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           path: server
           repository: bitwarden/server
@@ -248,10 +248,10 @@ jobs:
             }
 
       - name: Set up QEMU emulators
-        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4.0.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
+        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4.0.0
 
       ########## ACRs ##########
       - name: Log in to Azure
@@ -312,10 +312,12 @@ jobs:
           PROJECT_NAME: ${{ matrix.image_name }}
         run: |
           ACR_NAME="$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
-          GHCR_NAME="$_GHCR_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
           echo "name=$ACR_NAME" >> "$GITHUB_OUTPUT"
-          echo "ghcr_name=$GHCR_NAME" >> "$GITHUB_OUTPUT"
-          echo "tags=$ACR_NAME,$GHCR_NAME" >> "$GITHUB_OUTPUT"
+          if [[ "$IMAGE_TAG" == "dev" || "$IMAGE_TAG" == "rc" || "$IMAGE_TAG" == "hotfix-rc-web" ]]; then
+            echo "tags=$ACR_NAME,$_GHCR_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tags=$ACR_NAME" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Build Docker image
         id: build-container
@@ -418,7 +420,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false

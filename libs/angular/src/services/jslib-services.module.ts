@@ -559,7 +559,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      UnlockService,
       KeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -586,6 +585,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       AccountCryptographicStateService,
       PasswordPreloginService,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -601,7 +601,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService],
+    deps: [
+      StateProvider,
+      PolicyServiceAbstraction,
+      AccountService,
+      ConfigService,
+      EnvironmentService,
+      AuthServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: CipherSdkService,
@@ -939,6 +946,9 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       LogService,
       BiometricsService,
+      PlatformUtilsServiceAbstraction,
+      StateServiceAbstraction,
+      BiometricStateService,
     ],
   }),
   safeProvider({
