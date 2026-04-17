@@ -4493,6 +4493,24 @@
   "loginStatus": {
     "message": "Login status"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "First login"
   },
@@ -7119,6 +7137,9 @@
   "sessionTimeoutAction": {
     "message": "Session timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
+  },
   "immediately": {
     "message": "Immediately"
   },
@@ -9549,6 +9570,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "User attempted to access known phishing site"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "User exited phishing warning page"
+  },
+  "phishingBlockerBypassed": {
+    "message": "User bypassed phishing warning"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -11958,6 +11988,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "An invoice for your subscription was issued on $ISSUED_DATE$. To ensure uninterrupted service, contact $RESELLER$ to confirm your renewal before $DUE_DATE$.",
     "placeholders": {
@@ -11984,6 +12023,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13119,6 +13167,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
@@ -13292,5 +13343,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

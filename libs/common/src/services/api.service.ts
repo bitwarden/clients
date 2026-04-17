@@ -64,6 +64,7 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
+import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
@@ -1565,7 +1566,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status === 200) {
       const responseJson = await response.json();
-      const tokenResponse = new IdentityTokenResponse(responseJson);
+      const tokenResponse = new RefreshTokenResponse(responseJson);
 
       const newDecodedAccessToken = await this.tokenService.decodeAccessToken(
         tokenResponse.accessToken,
