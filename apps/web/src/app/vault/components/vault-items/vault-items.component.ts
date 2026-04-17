@@ -156,6 +156,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
+  /**
+   * A Set of collection IDs where the current user has the "manage" permission. Built once per
+   * refreshItems() call (O(K)) so that canManageCollection() lookups are O(1) instead of O(K)
+   * per cipher row, which would otherwise be O(ciphers × collections) on every change-detection
+   * cycle.
+   */
+  private manageableCollectionIds = new Set<string>();
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
@@ -507,12 +514,17 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       return this.activeCollection.manage === true;
     }
 
-    return this.allCollections
-      .filter((c) => cipher.collectionIds.includes(c.id as any))
-      .some((collection) => collection.manage);
+    // Use the pre-computed Set for an O(1) lookup instead of scanning allCollections
+    // (O(K) per cipher). The set is rebuilt in refreshItems() whenever inputs change.
+    return cipher.collectionIds.some((id) => this.manageableCollectionIds.has(id as string));
   }
 
   private refreshItems() {
+    // Rebuild the manageable-collection lookup Set so canManageCollection() calls are O(1).
+    this.manageableCollectionIds = new Set(
+      (this.allCollections ?? []).filter((c) => c.manage).map((c) => c.id as string),
+    );
+
     const collections: VaultItem<C>[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem<C>[] = this.ciphers
       .filter(

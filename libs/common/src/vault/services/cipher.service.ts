@@ -795,7 +795,9 @@ export class CipherService implements CipherServiceAbstraction {
 
       const [cipherViews] = await this.cipherEncryptionService.decryptManyLegacy(ciphers, userId);
 
-      // Sort by locale (matching existing behavior)
+      // Yield one macrotask before the sort so the browser can paint and respond to input
+      // (e.g. a sidebar click) before the O(N log N) locale-sort blocks the main thread.
+      await new Promise<void>((r) => setTimeout(r, 0));
       cipherViews.sort(this.getLocaleSortingFunction());
 
       return cipherViews;
@@ -827,12 +829,23 @@ export class CipherService implements CipherServiceAbstraction {
 
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
     const key = await this.keyService.getOrgKey(organizationId);
-    const decCiphers: CipherView[] = await Promise.all(
-      ciphers.map(async (cipher) => {
-        return await cipher.decrypt(key);
-      }),
-    );
 
+    // Promise.all(80K) floods the microtask queue — decrypt in chunks with event-loop
+    // yields so the browser can paint and handle input between each batch.
+    const DECRYPT_CHUNK_SIZE = 2_000;
+    const decCiphers: CipherView[] = [];
+    for (let i = 0; i < ciphers.length; i += DECRYPT_CHUNK_SIZE) {
+      const chunk = ciphers.slice(i, i + DECRYPT_CHUNK_SIZE);
+      const decrypted = await Promise.all(chunk.map((c) => c.decrypt(key)));
+      decCiphers.push(...decrypted);
+      if (i + DECRYPT_CHUNK_SIZE < ciphers.length) {
+        await new Promise<void>((r) => setTimeout(r, 0));
+      }
+    }
+
+    // Yield one macrotask before the sort so the browser can paint and respond to input
+    // before the O(N log N) locale-sort blocks the main thread.
+    await new Promise<void>((r) => setTimeout(r, 0));
     decCiphers.sort(this.getLocaleSortingFunction());
     return decCiphers;
   }

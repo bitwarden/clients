@@ -134,24 +134,28 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionAdminView[]> {
-    const promises = collections.map(async (c) => {
-      if (isCollectionAccessDetailsResponse(c)) {
-        return CollectionAdminView.fromCollectionAccessDetails(
-          c,
-          this.encryptService,
-          orgKeys[organizationId as OrganizationId],
-        );
-      }
+    const orgKey = orgKeys[organizationId as OrganizationId];
 
-      return await CollectionAdminView.fromCollectionResponse(
-        c,
-        this.encryptService,
-        orgKeys[organizationId as OrganizationId],
+    // Promise.all(8K) floods the microtask queue — decrypt in chunks with event-loop
+    // yields so the browser can paint and handle input between each batch.
+    const DECRYPT_CHUNK_SIZE = 2_000;
+    const results: CollectionAdminView[] = [];
+    for (let i = 0; i < collections.length; i += DECRYPT_CHUNK_SIZE) {
+      const chunk = collections.slice(i, i + DECRYPT_CHUNK_SIZE);
+      const decrypted = await Promise.all(
+        chunk.map(async (c) => {
+          if (isCollectionAccessDetailsResponse(c)) {
+            return CollectionAdminView.fromCollectionAccessDetails(c, this.encryptService, orgKey);
+          }
+          return await CollectionAdminView.fromCollectionResponse(c, this.encryptService, orgKey);
+        }),
       );
-    });
-
-    const r = await Promise.all(promises);
-    return r;
+      results.push(...decrypted);
+      if (i + DECRYPT_CHUNK_SIZE < collections.length) {
+        await new Promise<void>((r) => setTimeout(r, 0));
+      }
+    }
+    return results;
   }
 
   private async encrypt(

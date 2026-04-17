@@ -14,7 +14,6 @@ import {
 } from "rxjs";
 import {
   catchError,
-  concatMap,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -25,6 +24,7 @@ import {
   switchMap,
   take,
   takeUntil,
+  tap,
 } from "rxjs/operators";
 
 import { CollectionAdminService, CollectionService } from "@bitwarden/admin-console/common";
@@ -280,8 +280,25 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.allCollectionsWithoutUnassigned$ = this.refreshingSubject$.pipe(
       filter((refreshing) => refreshing),
       switchMap(() => combineLatest([this.organizationId$, this.userId$])),
-      switchMap(([orgId, userId]) =>
-        this.collectionAdminService.collectionAdminViews$(orgId, userId),
+      switchMap(
+        ([orgId, userId]) =>
+          // Run collection decryption outside Angular's zone so the setTimeout yields
+          // in our chunked decryptMany loop don't each trigger a full CD pass.
+          new Observable<CollectionAdminView[]>((observer) => {
+            void this.ngZone.runOutsideAngular(async () => {
+              try {
+                const result = await firstValueFrom(
+                  this.collectionAdminService.collectionAdminViews$(orgId, userId),
+                );
+                this.ngZone.run(() => {
+                  observer.next(result);
+                  observer.complete();
+                });
+              } catch (e) {
+                this.ngZone.run(() => observer.error(e));
+              }
+            });
+          }),
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -304,7 +321,27 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.nestedCollections$ = this.allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections)),
+      // Run the O(N²) nestedTraverse outside Angular's zone so:
+      // 1. The deferred setTimeout does not trigger a spurious CD run when it fires.
+      // 2. The tree-build itself (potentially hundreds of ms for 8K collections) does
+      //    not block Angular's CD scheduler.
+      // ngZone.run() re-enters the zone exactly once when the result is ready.
+      switchMap(
+        (collections) =>
+          new Observable<TreeNode<CollectionAdminView>[]>((observer) => {
+            const cancel = this.ngZone.runOutsideAngular(() => {
+              const id = setTimeout(() => {
+                const result = getNestedCollectionTree(collections);
+                this.ngZone.run(() => {
+                  observer.next(result);
+                  observer.complete();
+                });
+              }, 0);
+              return () => clearTimeout(id);
+            });
+            return cancel;
+          }),
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -325,7 +362,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         if (!this.showAddAccessToggle || organization) {
           this.addAccessToggle(0);
         }
-        let ciphers;
 
         // Restricted providers (who are not members) do not have access org cipher endpoint below
         // Return early to avoid 404 response
@@ -333,21 +369,43 @@ export class VaultComponent implements OnInit, OnDestroy {
           return [];
         }
 
-        // If the user can edit all ciphers for the organization then fetch them ALL.
-        if (organization.canEditAllCiphers) {
-          ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-          ciphers.forEach((c) => (c.edit = true));
-        } else {
-          // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
-          ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
-        }
+        // Run the heavy fetch → decrypt → index pipeline outside Angular's zone.
+        //
+        // Our chunked decryption and indexing loops yield via setTimeout(0) between
+        // batches to keep the browser responsive. However, zone.js intercepts every
+        // setTimeout callback and triggers a full Angular change-detection pass. With
+        // Default CD strategy that can mean 40+ full-tree scans during loading — each
+        // one blocking the main thread for tens of milliseconds. Running outside the
+        // zone means the yields genuinely free the browser without triggering CD.
+        // Angular gets a single CD run when this promise resolves and the observable
+        // emits the completed cipher array.
+        const ciphers = await new Promise<CipherView[]>((resolve, reject) => {
+          void this.ngZone.runOutsideAngular(async () => {
+            try {
+              let result: CipherView[];
 
-        // Filter out restricted ciphers before indexing
-        ciphers = ciphers.filter(
-          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
-        );
+              // If the user can edit all ciphers for the organization then fetch them ALL.
+              if (organization.canEditAllCiphers) {
+                result = await this.cipherService.getAllFromApiForOrganization(organization.id);
+                result.forEach((c) => (c.edit = true));
+              } else {
+                // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
+                result = await this.cipherService.getManyFromApiForOrganization(organization.id);
+              }
 
-        await this.searchService.indexCiphers(userId, ciphers, organization.id);
+              // Filter out restricted ciphers before indexing
+              result = result.filter(
+                (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
+              );
+
+              await this.searchService.indexCiphers(userId, result, organization.id);
+              resolve(result);
+            } catch (e) {
+              reject(e);
+            }
+          });
+        });
+
         return ciphers;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -391,7 +449,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.userId$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showCollectionAccessRestricted, userId]) => {
+      switchMap(async ([ciphers, filter, searchText, showCollectionAccessRestricted, userId]) => {
         if (filter.collectionId === undefined && filter.type === undefined) {
           return [];
         }
@@ -405,6 +463,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         const filterFunction = createFilterFunction(filter);
 
         if (await this.searchService.isSearchable(userId, searchText)) {
+          // Search results are already ranked by Lunr relevance — preserve that order.
           return await this.searchService.searchCiphers<CipherView>(
             userId,
             searchText,
@@ -413,7 +472,11 @@ export class VaultComponent implements OnInit, OnDestroy {
           );
         }
 
-        return ciphers.filter(filterFunction);
+        // Sort the filtered subset here rather than relying solely on the pre-sorted
+        // allCiphers$ array. The filtered set is a small fraction of allCiphers$ (one
+        // collection's worth, not all 80K), so this sort costs <1ms and ensures correct
+        // display order even during the allCiphers$ sort phase.
+        return ciphers.filter(filterFunction).sort(this.cipherService.getLocaleSortingFunction());
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -455,16 +518,15 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.organization$,
     ]).pipe(
       filter(([collections, filter]) => collections != undefined && filter != undefined),
-      concatMap(
+      switchMap(
         async ([collections, filter, searchText, addAccessStatus, userId, organization]) => {
           if (
             filter.collectionId === Unassigned ||
             (filter.collectionId === undefined && filter.type !== undefined)
           ) {
-            return [];
+            return { collections: [] as CollectionAdminView[], showToggle: false };
           }
 
-          this.showAddAccessToggle = false;
           let searchableCollectionNodes: TreeNode<CollectionAdminView>[] = [];
           if (filter.collectionId === undefined || filter.collectionId === All) {
             searchableCollectionNodes = collections;
@@ -496,17 +558,24 @@ export class VaultComponent implements OnInit, OnDestroy {
           }
 
           // Add access toggle is only shown if allowAdminAccessToAllCollectionItems is false and there are unmanaged collections the user can edit
-          this.showAddAccessToggle =
+          const showToggle =
             !organization.allowAdminAccessToAllCollectionItems &&
             organization.canEditUnmanagedCollections &&
             collectionsToReturn.some((c) => c.unmanaged);
 
-          if (addAccessStatus === 1 && this.showAddAccessToggle) {
+          if (addAccessStatus === 1 && showToggle) {
             collectionsToReturn = collectionsToReturn.filter((c) => c.unmanaged);
           }
-          return collectionsToReturn;
+          return { collections: collectionsToReturn, showToggle };
         },
       ),
+      // Separate the side effect (updating component state) from the data computation above.
+      // tap is the designated operator for side effects in RxJS pipelines, making the data
+      // flow explicit and preventing accidental change-detection triggers mid-pipeline.
+      tap(({ showToggle }) => {
+        this.showAddAccessToggle = showToggle;
+      }),
+      map(({ collections }) => collections),
       takeUntil(this.destroy$),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );

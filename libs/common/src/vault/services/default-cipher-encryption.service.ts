@@ -209,6 +209,14 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           const successful: CipherView[] = [];
           const failed: CipherView[] = [];
 
+          // Each SDK decrypt() call resolves synchronously (WASM), so each `await` only
+          // queues a microtask — never yielding to the browser event loop. For large
+          // org vaults (80 K ciphers) this blocks painting and input for several seconds.
+          // Yielding via setTimeout(0) every CHUNK_SIZE ciphers converts the flood of
+          // microtasks into discrete macrotasks the browser event loop can schedule around.
+          const DECRYPT_CHUNK_SIZE = 2_000;
+          let processed = 0;
+
           for (const cipher of ciphers) {
             try {
               const sdkCipherView = await ref.value.vault().ciphers().decrypt(cipher.toSdkCipher());
@@ -245,6 +253,11 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
               failedView.name = "[error: cannot decrypt]";
               failedView.decryptionFailure = true;
               failed.push(failedView);
+            }
+
+            processed++;
+            if (processed % DECRYPT_CHUNK_SIZE === 0) {
+              await new Promise<void>((r) => setTimeout(r, 0));
             }
           }
 

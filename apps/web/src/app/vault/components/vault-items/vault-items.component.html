@@ -123,7 +123,7 @@
       </tr>
     </ng-container>
     <ng-template body let-rows$>
-      <ng-container *cdkVirtualFor="let item of rows$; templateCacheSize: 0">
+      <ng-container *cdkVirtualFor="let item of rows$; templateCacheSize: 20">
         @if (item.collection) {
           <tr
             bitRow
