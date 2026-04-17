@@ -17,6 +17,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
   CardExpiryDateDelimiters,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -772,6 +773,13 @@ export default class AutofillService implements AutofillServiceInterface {
       return null;
     }
 
+    // Check if page details contain targeted fields from targeting rules
+    // This operation is mutually-exclusive from heuristic data-gathering
+    const hasTargetedFields = pageDetails.fields.some((f) => f.targeted === true);
+    if (hasTargetedFields) {
+      return this.generateTargetedFillScript(pageDetails, options);
+    }
+
     const fillScript = new AutofillScript();
     const filledFields: { [id: string]: AutofillField } = {};
     const fields = options.cipher.fields;
@@ -853,6 +861,143 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     return result;
+  }
+
+  /**
+   * Generates fill script actions for targeted fields, mapping cipher values
+   * directly to field types identified by targeting rules. Reuses the standard
+   * fill_by_opid actions since targeted elements are cached with synthetic opids.
+   */
+  private async generateTargetedFillScript(
+    pageDetails: AutofillPageDetails,
+    options: GenerateFillScriptOptions,
+  ): Promise<AutofillScript | null> {
+    const fillScript = new AutofillScript();
+    const cipher = options.cipher;
+
+    fillScript.savedUrls =
+      cipher.login?.uris
+        ?.filter((u) => u.match != UriMatchStrategy.Never && u.uri != null)
+        .map((u) => u.uri!) ?? [];
+
+    // Note; targeted fields intentionally skip the untrusted iframe check. The
+    // presence of targeting rules represents explicit expectations of the target
+
+    for (const field of pageDetails.fields) {
+      if (!field.targeted || !field.fieldQualifier) {
+        continue;
+      }
+
+      const value = this.getValueForTargetedFieldType(field.fieldQualifier, cipher);
+      if (!value) {
+        continue;
+      }
+
+      AutofillService.fillByOpid(fillScript, field, value);
+    }
+
+    if (!fillScript.script.length) {
+      return null;
+    }
+
+    return fillScript;
+  }
+
+  /**
+   * Maps a targeting rule field type to the corresponding cipher value.
+   */
+  private getValueForTargetedFieldType(fieldType: string, cipher: CipherView): string | null {
+    // Login fields
+    if (fieldType === AutofillTargetingRuleTypes.username) {
+      return cipher.login?.username ?? null;
+    }
+    if (
+      fieldType === AutofillTargetingRuleTypes.password ||
+      fieldType === AutofillTargetingRuleTypes.newPassword
+    ) {
+      return cipher.login?.password ?? null;
+    }
+
+    // Card fields
+    if (fieldType === AutofillTargetingRuleTypes.cardholderName) {
+      return cipher.card?.cardholderName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardNumber) {
+      return cipher.card?.number ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationMonth) {
+      return cipher.card?.expMonth ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationYear) {
+      return cipher.card?.expYear ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardExpirationDate) {
+      // FIXME combined expiry format is presumed and should be informed by
+      // the target format expectation
+      return cipher.card?.expMonth && cipher.card?.expYear
+        ? `${cipher.card.expMonth}/${cipher.card.expYear}`
+        : null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardCvv) {
+      return cipher.card?.code ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.cardType) {
+      return cipher.card?.brand ?? null;
+    }
+
+    // Identity fields
+    if (fieldType === AutofillTargetingRuleTypes.honorificPrefix) {
+      return cipher.identity?.title ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.firstName) {
+      return cipher.identity?.firstName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.middleName) {
+      return cipher.identity?.middleName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.lastName) {
+      return cipher.identity?.lastName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.fullName) {
+      return cipher.identity?.fullName ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.streetAddress) {
+      return cipher.identity?.fullAddress ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLine1) {
+      return cipher.identity?.address1 ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLine2) {
+      return cipher.identity?.address2 ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLine3) {
+      return cipher.identity?.address3 ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLevel2) {
+      return cipher.identity?.city ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.addressLevel1) {
+      return cipher.identity?.state ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.postalCode) {
+      return cipher.identity?.postalCode ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.country) {
+      return cipher.identity?.country ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.organization) {
+      return cipher.identity?.company ?? null;
+    }
+    if (fieldType === AutofillTargetingRuleTypes.phone) {
+      return cipher.identity?.phone ?? null;
+    }
+    // FIXME phone sub-parts (phoneCountryCode, phoneAreaCode, phoneLocal,
+    // phoneExtension) can be derived by parsing cipher.identity?.phone
+    if (fieldType === AutofillTargetingRuleTypes.email) {
+      return cipher.identity?.email ?? null;
+    }
+
+    return null;
   }
 
   /**
