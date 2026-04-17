@@ -18,11 +18,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import {
   AvatarDefaultColors,
+  defaultAvatarColors,
   DIALOG_DATA,
   DialogConfig,
   DialogRef,
   DialogService,
-  isAvatarColor,
   ToastService,
 } from "@bitwarden/components";
 
@@ -52,7 +52,7 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
 
   defaultColorPalette: NamedAvatarColor[] = AvatarDefaultColors.map((color) => {
     return {
-      color,
+      color: defaultAvatarColors[color],
       name: this.i18nService.t(color === "brand" ? "blue" : color),
     };
   });
@@ -99,9 +99,8 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
   }
 
   submit = async () => {
-    const defaultColorSelected = isAvatarColor(this.currentSelection);
     const isValidHex = Utils.validateHexColor(this.currentSelection);
-    const isValidSelection = this.currentSelection == null || defaultColorSelected || isValidHex;
+    const isValidSelection = this.currentSelection == null || isValidHex;
 
     if (isValidSelection) {
       await this.avatarService.setAvatarColor(this.currentSelection);

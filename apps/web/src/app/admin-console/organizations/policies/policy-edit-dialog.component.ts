@@ -117,7 +117,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     if (component.data) {
       component.data.statusChanges
         .pipe(
-          map((status) => status !== "VALID" || !policyResponse.canToggleState),
+          map((status) => status === "INVALID" || !policyResponse.canToggleState),
           takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((disabled) => this._saveDisabled.set(disabled));
