@@ -185,6 +185,14 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
     }
   };
 
+  onPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
+    if (!pastedText) {return;}
+    event.preventDefault();
+    this.formGroup.get("code")?.setValue(pastedText);
+    void this.submit();
+  }
+
   protected goBack() {
     this.location.back();
   }
