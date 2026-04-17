@@ -183,9 +183,65 @@ export class TrendWidgetComponent {
     return getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
   }
 
-  protected readonly lineChartConfiguration: ChartConfig = {
-    xAxisType: "datetime",
-  };
+  protected readonly lineChartConfiguration = computed<ChartConfig>(() => {
+    const timespan = this.selectedTimespan();
+    let xMax = this.getXMaxForTimespan(timespan);
+    let xMin = this.getXMinForTimespan(timespan);
+
+    // ensure x-axis shows labels when all data points fall on the same date
+    const dataPoints = this.data().dataPoints;
+    if (
+      timespan === TimePeriod.AllTime &&
+      dataPoints.length > 0 &&
+      dataPoints.every((p) => {
+        const d = new Date(p.timestamp);
+        const first = new Date(dataPoints[0].timestamp);
+        return (
+          d.getFullYear() === first.getFullYear() &&
+          d.getMonth() === first.getMonth() &&
+          d.getDate() === first.getDate()
+        );
+      })
+    ) {
+      const date = new Date(dataPoints[0].timestamp);
+      xMin = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
+      xMax = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+    }
+
+    return { xAxisType: "datetime", xMin, xMax };
+  });
+
+  private getXMaxForTimespan(timespan: TimePeriod): Date | undefined {
+    const now = new Date();
+    switch (timespan) {
+      case TimePeriod.PastMonth:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      case TimePeriod.Past3Months:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2);
+      case TimePeriod.Past6Months:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3);
+      case TimePeriod.PastYear:
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 4);
+      case TimePeriod.AllTime:
+        return now;
+    }
+  }
+
+  private getXMinForTimespan(timespan: TimePeriod): Date | undefined {
+    const now = new Date();
+    switch (timespan) {
+      case TimePeriod.PastMonth:
+        return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      case TimePeriod.Past3Months:
+        return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      case TimePeriod.Past6Months:
+        return new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      case TimePeriod.PastYear:
+        return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+      case TimePeriod.AllTime:
+        return undefined;
+    }
+  }
 
   protected downloadAsPNG(): void {
     const chart = this.lineChart()?.chart();

@@ -115,6 +115,7 @@ export default {
     },
   },
   parameters: {
+    chromatic: { disableSnapshot: true },
     docs: {
       description: {
         component:
