@@ -1,6 +1,6 @@
 /**
  * include structuredClone in test environment.
- * @jest-environment ../../../../shared/test.environment.ts
+ * @jest-environment ../../libs/shared/test.environment.ts
  */
 // @ts-strict-ignore this file explicitly tests what happens when types are ignored
 import { of, firstValueFrom, Subject, tap, EmptyError, BehaviorSubject } from "rxjs";
