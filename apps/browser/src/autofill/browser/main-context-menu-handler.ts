@@ -211,25 +211,30 @@ export class MainContextMenuHandler {
         await firstValueFrom(this.restrictedItemTypesService.restricted$)
       ).some((rt) => rt.cipherType === CipherType.Card);
 
-      const visibleItems = (
-        await Promise.all(
-          this.initContextMenuItems.map(async (item) => {
-            if (item.requiresPremiumAccess && !hasPremium) {
-              return null;
-            }
-            if (item.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
-              return null;
-            }
-            if (
-              item.requiresFeatureFlag &&
-              !(await this.configService.getFeatureFlag(item.requiresFeatureFlag))
-            ) {
-              return null;
-            }
-            return item;
-          }),
-        )
-      ).filter((item): item is InitContextMenuItems => item !== null);
+      const uniqueFlags = [
+        ...new Set(
+          this.initContextMenuItems
+            .map((i) => i.requiresFeatureFlag)
+            .filter((f): f is FeatureFlag => f != null),
+        ),
+      ];
+      const flagResults = await Promise.all(
+        uniqueFlags.map((flag) => this.configService.getFeatureFlag(flag)),
+      );
+      const enabledFlags = new Set(uniqueFlags.filter((_, i) => flagResults[i]));
+
+      let items = this.initContextMenuItems;
+      if (!hasPremium) {
+        items = items.filter((i) => !i.requiresPremiumAccess);
+      }
+      if (isCardRestricted) {
+        items = items.filter((i) => !i.id?.startsWith(AUTOFILL_CARD_ID));
+      }
+      if (uniqueFlags.length) {
+        items = items.filter(
+          (i) => !i.requiresFeatureFlag || enabledFlags.has(i.requiresFeatureFlag),
+        );
+      }
 
       for (const {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -239,7 +244,7 @@ export class MainContextMenuHandler {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         requiresFeatureFlag,
         ...otherOptions
-      } of visibleItems) {
+      } of items) {
         await MainContextMenuHandler.create({ ...otherOptions, contexts: ["all"] });
       }
     } catch (error) {
