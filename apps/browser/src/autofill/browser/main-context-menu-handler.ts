@@ -214,8 +214,12 @@ export class MainContextMenuHandler {
       const visibleItems = (
         await Promise.all(
           this.initContextMenuItems.map(async (item) => {
-            if (item.requiresPremiumAccess && !hasPremium) {return null;}
-            if (item.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {return null;}
+            if (item.requiresPremiumAccess && !hasPremium) {
+              return null;
+            }
+            if (item.id?.startsWith(AUTOFILL_CARD_ID) && isCardRestricted) {
+              return null;
+            }
             if (
               item.requiresFeatureFlag &&
               !(await this.configService.getFeatureFlag(item.requiresFeatureFlag))
