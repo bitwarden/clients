@@ -197,4 +197,11 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
+
+  static readonly openDrawer = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
+  };
 }

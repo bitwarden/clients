@@ -163,4 +163,14 @@ export class MultiStepPolicyEditDialogComponent
       config,
     );
   };
+
+  static override readonly openDrawer = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return dialogService.openDrawer<PolicyEditDialogResult, PolicyEditDialogData>(
+      MultiStepPolicyEditDialogComponent,
+      config,
+    );
+  };
 }
