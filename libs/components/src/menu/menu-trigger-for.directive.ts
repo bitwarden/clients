@@ -10,6 +10,7 @@ import {
   ViewContainerRef,
   input,
 } from "@angular/core";
+import { outputToObservable } from "@angular/core/rxjs-interop";
 import { merge, Subscription } from "rxjs";
 import { filter, skip, takeUntil } from "rxjs/operators";
 
@@ -198,7 +199,7 @@ export class MenuTriggerForDirective implements OnDestroy {
         return keys.includes(event.key);
       }),
     );
-    const menuClosed = this.menu().closed;
+    const menuClosed = outputToObservable(this.menu().closed);
     const detachments = this.overlayRef.detachments();
 
     const closeEvents = isContextMenu
