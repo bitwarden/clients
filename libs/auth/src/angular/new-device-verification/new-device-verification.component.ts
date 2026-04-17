@@ -1,6 +1,6 @@
 import { CommonModule, Location } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Component, OnDestroy, OnInit, viewChild } from "@angular/core";
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
@@ -59,6 +59,8 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
       },
     ],
   });
+
+  private readonly formGroupDirective = viewChild(FormGroupDirective);
 
   protected disableRequestOTP = false;
   private destroy$ = new Subject<void>();
@@ -187,10 +189,12 @@ export class NewDeviceVerificationComponent implements OnInit, OnDestroy {
 
   onPaste(event: ClipboardEvent) {
     const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
-    if (!pastedText) {return;}
+    if (!pastedText) {
+      return;
+    }
     event.preventDefault();
     this.formGroup.get("code")?.setValue(pastedText);
-    void this.submit();
+    this.formGroupDirective()?.onSubmit(new Event("submit"));
   }
 
   protected goBack() {
