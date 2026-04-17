@@ -1,3 +1,5 @@
+pub(crate) mod cbor;
+
 pub struct ArrayPointerIterator<'a, T> {
     pos: usize,
     list: Option<&'a [T]>,

@@ -5,7 +5,6 @@
 
 use std::{collections::HashSet, marker::PhantomData, ptr::NonNull};
 
-use ciborium::Value;
 use windows::core::PCWSTR;
 
 use super::{
@@ -16,7 +15,7 @@ use super::{
     },
     util::ArrayPointerIterator,
 };
-use crate::{ErrorKind, WinWebAuthnError};
+use crate::{api::util::cbor::CborWriter, ErrorKind, WinWebAuthnError};
 
 /// List of its supported protocol versions and extensions, its AAGUID, and
 /// other aspects of its overall capabilities.
@@ -57,67 +56,95 @@ pub struct AuthenticatorInfo {
 
 impl AuthenticatorInfo {
     pub fn as_ctap_bytes(&self) -> Result<Vec<u8>, WinWebAuthnError> {
+        self.write_cbor().map_err(|err| {
+            WinWebAuthnError::with_cause(
+                ErrorKind::Serialization,
+                "Failed to serialize authenticator info as CBOR",
+                err,
+            )
+        })
+    }
+
+    fn write_cbor(&self) -> Result<Vec<u8>, std::io::Error> {
         // Create the authenticator info map according to CTAP2 spec
-        // Using Vec<(Value, Value)> because that's what ciborium::Value::Map expects
+        // Note that we sort some set fields where order doesn't matter in order
+        // to make output stable so we don't have to implement a CBOR reader for
+        // the tests.
         let mut authenticator_info = Vec::new();
 
+        let mut writer = CborWriter::new(&mut authenticator_info);
+
+        // calculate map len based on presence of optional fields.
+        let mut map_len = 3; // required fields: versions, extensions, AAGUID
+        if self.options.is_some() {
+            map_len += 1;
+        }
+        if self.transports.is_some() {
+            map_len += 1;
+        }
+        if self.algorithms.is_some() {
+            map_len += 1;
+        }
+        writer.write_map_start(map_len)?;
+
         // 1: versions - Array of supported FIDO versions
-        let versions = self
+        writer.write_number(1)?;
+        writer.write_array_start(self.versions.len())?;
+        let mut versions = self
             .versions
             .iter()
-            .map(|v| Value::Text(v.into()))
-            .collect();
-        authenticator_info.push((Value::Integer(1.into()), Value::Array(versions)));
+            .map(|v| v.into())
+            .collect::<Vec<&str>>();
+        versions.sort();
+        for v in versions.iter() {
+            writer.write_text(v)?;
+        }
 
         // 2: extensions - Array of supported extensions (empty for now)
-        authenticator_info.push((Value::Integer(2.into()), Value::Array(vec![])));
+        writer.write_number(2)?;
+        writer.write_array_start(0)?;
 
         // 3: aaguid - 16-byte AAGUID
-        authenticator_info.push((
-            Value::Integer(3.into()),
-            Value::Bytes(self.aaguid.0.to_vec()),
-        ));
+        writer.write_number(3)?;
+        writer.write_bytes(self.aaguid.0)?;
 
         // 4: options - Map of supported options
         if let Some(options) = &self.options {
-            let options = options
-                .iter()
-                .map(|o| (Value::Text(o.into()), Value::Bool(true)))
-                .collect();
-            authenticator_info.push((Value::Integer(4.into()), Value::Map(options)));
+            let mut sorted: Vec<_> = options.iter().collect();
+            sorted.sort();
+            writer.write_number(4)?;
+            writer.write_map_start(sorted.len())?;
+            for o in sorted.iter() {
+                writer.write_text(o)?;
+                writer.write_bool(true)?;
+            }
         }
 
         // 9: transports - Array of supported transports
         if let Some(transports) = &self.transports {
-            let transports = transports.iter().map(|t| Value::Text(t.clone())).collect();
-            authenticator_info.push((Value::Integer(9.into()), Value::Array(transports)));
+            writer.write_number(9)?;
+            writer.write_array_start(transports.len())?;
+            let mut sorted: Vec<_> = transports.iter().collect();
+            sorted.sort();
+            for t in sorted.iter() {
+                writer.write_text(t)?;
+            }
         }
 
         // 10: algorithms - Array of supported algorithms
         if let Some(algorithms) = &self.algorithms {
-            let algorithms: Vec<Value> = algorithms
-                .iter()
-                .map(|a| {
-                    Value::Map(vec![
-                        (Value::Text("alg".to_string()), Value::Integer(a.alg.into())),
-                        (Value::Text("type".to_string()), Value::Text(a.typ.clone())),
-                    ])
-                })
-                .collect();
-            authenticator_info.push((Value::Integer(10.into()), Value::Array(algorithms)));
+            writer.write_number(10)?;
+            writer.write_array_start(algorithms.len())?;
+            for a in algorithms.iter() {
+                writer.write_map_start(2)?;
+                writer.write_text("alg")?;
+                writer.write_number(a.alg.into())?;
+                writer.write_text("type")?;
+                writer.write_text(&a.typ)?;
+            }
         }
 
-        // Encode to CBOR
-        let mut buffer = Vec::new();
-        ciborium::ser::into_writer(&Value::Map(authenticator_info), &mut buffer).map_err(|e| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::Serialization,
-                "Failed to serialize authenticator info into CBOR",
-                e,
-            )
-        })?;
-
-        Ok(buffer)
+        Ok(authenticator_info)
     }
 }
 
@@ -163,21 +190,22 @@ impl TryFrom<&str> for Uuid {
 pub enum CtapVersion {
     Fido2_0,
     Fido2_1,
+    Fido2_3,
+}
+
+impl From<&CtapVersion> for &str {
+    fn from(value: &CtapVersion) -> Self {
+        match value {
+            CtapVersion::Fido2_0 => "FIDO_2_0",
+            CtapVersion::Fido2_1 => "FIDO_2_1",
+            CtapVersion::Fido2_3 => "FIDO_2_3",
+        }
+    }
 }
 
 pub struct PublicKeyCredentialParameters {
     pub alg: i32,
     pub typ: String,
-}
-
-impl From<&CtapVersion> for String {
-    fn from(value: &CtapVersion) -> Self {
-        match value {
-            CtapVersion::Fido2_0 => "FIDO_2_0",
-            CtapVersion::Fido2_1 => "FIDO_2_1",
-        }
-        .to_string()
-    }
 }
 
 /// A wrapper around [WEBAUTHN_RP_ENTITY_INFORMATION].
@@ -562,44 +590,21 @@ mod tests {
             }]),
         };
         let result = authenticator_info.as_ctap_bytes();
+
         assert!(result.is_ok(), "CBOR generation should succeed");
 
         let cbor_bytes = result.unwrap();
-        assert!(!cbor_bytes.is_empty(), "CBOR bytes should not be empty");
 
-        // Verify the CBOR can be decoded back
-        let decoded: Result<Value, _> = ciborium::de::from_reader(&cbor_bytes[..]);
-        assert!(decoded.is_ok(), "Generated CBOR should be valid");
-
-        // Verify it's a map with expected keys
-        if let Value::Map(map) = decoded.unwrap() {
-            assert!(
-                map.iter().any(|(k, _)| k == &Value::Integer(1.into())),
-                "Should contain versions (key 1)"
-            );
-            assert!(
-                map.iter().any(|(k, _)| k == &Value::Integer(2.into())),
-                "Should contain extensions (key 2)"
-            );
-            assert!(
-                map.iter().any(|(k, _)| k == &Value::Integer(3.into())),
-                "Should contain aaguid (key 3)"
-            );
-            assert!(
-                map.iter().any(|(k, _)| k == &Value::Integer(4.into())),
-                "Should contain options (key 4)"
-            );
-            assert!(
-                map.iter().any(|(k, _)| k == &Value::Integer(9.into())),
-                "Should contain transports (key 9)"
-            );
-            assert!(
-                map.iter().any(|(k, _)| k == &Value::Integer(10.into())),
-                "Should contain algorithms (key 10)"
-            );
-        } else {
-            panic!("CBOR should decode to a map");
-        }
+        let expected = &[
+            0xa6, 0x01, 0x82, 0x68, 0x46, 0x49, 0x44, 0x4f, 0x5f, 0x32, 0x5f, 0x30, 0x68, 0x46,
+            0x49, 0x44, 0x4f, 0x5f, 0x32, 0x5f, 0x31, 0x02, 0x80, 0x03, 0x50, 0xd5, 0x48, 0x82,
+            0x6e, 0x79, 0xb4, 0xdb, 0x40, 0xa3, 0xd8, 0x11, 0x11, 0x6f, 0x7e, 0x83, 0x49, 0x04,
+            0xa3, 0x62, 0x72, 0x6b, 0xf5, 0x62, 0x75, 0x70, 0xf5, 0x62, 0x75, 0x76, 0xf5, 0x09,
+            0x82, 0x66, 0x68, 0x79, 0x62, 0x72, 0x69, 0x64, 0x68, 0x69, 0x6e, 0x74, 0x65, 0x72,
+            0x6e, 0x61, 0x6c, 0x0a, 0x81, 0xa2, 0x63, 0x61, 0x6c, 0x67, 0x26, 0x64, 0x74, 0x79,
+            0x70, 0x65, 0x6a, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x2d, 0x6b, 0x65, 0x79,
+        ];
+        assert_eq!(expected, cbor_bytes.as_slice());
     }
 
     #[test]
