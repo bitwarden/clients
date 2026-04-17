@@ -146,7 +146,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
       this.showResultToast(loginResponse);
     }
 
-    this.dialogRef.close(approve);
+    await this.dialogRef.close(approve);
   }
 
   showResultToast(loginResponse: AuthRequestResponse) {
@@ -206,7 +206,7 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
       );
     } else {
       clearInterval(this.interval);
-      this.dialogRef.close();
+      void this.dialogRef.close();
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("loginRequestHasAlreadyExpired"),

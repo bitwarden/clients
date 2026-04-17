@@ -127,7 +127,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   }
 
   private close(result: UnifiedUpgradeDialogResult): void {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 
   protected nextStep() {

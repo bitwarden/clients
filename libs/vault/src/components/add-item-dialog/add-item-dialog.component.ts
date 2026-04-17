@@ -25,7 +25,7 @@ export class AddItemDialogComponent {
   protected readonly data = inject<AddItemDialogData>(DIALOG_DATA);
 
   protected onItemSelected(closeResult: AddItemDialogCloseResult): void {
-    this.dialogRef.close(closeResult);
+    void this.dialogRef.close(closeResult);
   }
 
   static open(

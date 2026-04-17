@@ -70,7 +70,7 @@ export class UserConfirmComponent implements OnInit {
       await this.organizationManagementPreferencesService.autoConfirmFingerPrints.set(true);
     }
 
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 
   static open(dialogService: DialogService, config: DialogConfig<UserConfirmDialogData>) {

@@ -71,7 +71,7 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
           );
         }
       }
-      this.dialogRef.close(UpdateLicenseDialogResult.Updated);
+      await this.dialogRef.close(UpdateLicenseDialogResult.Updated);
     }
   }
 
@@ -81,7 +81,7 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
 
   cancel = async () => {
     this.onCanceled.emit();
-    this.dialogRef.close(UpdateLicenseDialogResult.Cancelled);
+    await this.dialogRef.close(UpdateLicenseDialogResult.Cancelled);
   };
   static open(dialogService: DialogService, config?: DialogConfig<UpdateLicenseDialogData>) {
     return dialogService.open<UpdateLicenseDialogResult>(UpdateLicenseDialogComponent, config);

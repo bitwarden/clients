@@ -766,7 +766,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       } catch {
         enabled = false;
       } finally {
-        dialogRef.close();
+        await dialogRef.close();
       }
 
       if (!enabled) {

@@ -47,7 +47,7 @@ export class WebVaultExtensionPromptDialogComponent implements OnInit {
   async dismissPrompt() {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     await this.webVaultExtensionPromptService.getDialogDismissedState(userId).update(() => true);
-    this.dialogRef.close();
+    await this.dialogRef.close();
   }
 
   /** Opens the web extension prompt generator dialog. */

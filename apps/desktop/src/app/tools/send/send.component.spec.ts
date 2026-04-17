@@ -29,6 +29,7 @@ import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
   SendFormConfig,
+  SendFormService,
 } from "@bitwarden/send-ui";
 
 import { DesktopHeaderComponent } from "../../layout/header";
@@ -59,6 +60,7 @@ describe("SendComponent", () => {
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
+  let sendFormService: MockProxy<SendFormService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -73,6 +75,7 @@ describe("SendComponent", () => {
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
     configService = mock<ConfigService>();
+    sendFormService = mock<SendFormService>();
 
     // Setup configService mock - feature flag returns true to test the new drawer mode
     configService.getFeatureFlag$.mockReturnValue(of(true));
@@ -138,6 +141,10 @@ describe("SendComponent", () => {
             data: of({}),
           },
         },
+        {
+          provide: SendFormService,
+          useValue: sendFormService,
+        },
       ],
     })
       .overrideComponent(SendComponent, {
@@ -184,6 +191,7 @@ describe("SendComponent", () => {
       expect(openDrawerSpy).toHaveBeenCalled();
       expect(openDrawerSpy.mock.calls[0][1]).toEqual({
         formConfig: mockConfig,
+        closePredicate: expect.any(Function),
       });
     });
 
@@ -206,6 +214,7 @@ describe("SendComponent", () => {
       expect(openDrawerSpy).toHaveBeenCalled();
       expect(openDrawerSpy.mock.calls[0][1]).toEqual({
         formConfig: mockConfig,
+        closePredicate: expect.any(Function),
       });
     });
   });
@@ -230,6 +239,7 @@ describe("SendComponent", () => {
       expect(openDrawerSpy).toHaveBeenCalled();
       expect(openDrawerSpy.mock.calls[0][1]).toEqual({
         formConfig: mockConfig,
+        closePredicate: expect.any(Function),
       });
     });
   });

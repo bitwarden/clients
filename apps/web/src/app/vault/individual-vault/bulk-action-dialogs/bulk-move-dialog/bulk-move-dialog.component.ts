@@ -106,6 +106,6 @@ export class BulkMoveDialogComponent implements OnInit {
   };
 
   private close(result: BulkMoveDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 }

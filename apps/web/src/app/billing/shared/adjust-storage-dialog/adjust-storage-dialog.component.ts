@@ -102,7 +102,7 @@ export class AdjustStorageDialogComponent {
       message: this.i18nService.t("adjustedStorage", request.storageGbAdjustment.toString()),
     });
 
-    this.dialogRef.close(this.ResultType.Submitted);
+    await this.dialogRef.close(this.ResultType.Submitted);
   };
 
   static open = (

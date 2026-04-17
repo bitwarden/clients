@@ -128,7 +128,7 @@ export class AddSponsorshipDialogComponent {
 
     this.loading = false;
 
-    this.dialogRef.close();
+    await this.dialogRef.close();
   }
 
   private async resetForm() {

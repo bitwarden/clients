@@ -39,7 +39,7 @@ export class BulkStatusDialogComponent implements OnInit {
       !this.data.message ||
       !(this.data.details?.length >= 1)
     ) {
-      this.dialogRef.close();
+      void this.dialogRef.close();
       throw new Error(
         "The bulk status dialog was not called with the appropriate operation values.",
       );

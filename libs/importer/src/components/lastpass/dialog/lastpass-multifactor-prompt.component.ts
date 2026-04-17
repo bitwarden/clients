@@ -69,7 +69,7 @@ export class LastPassMultifactorPromptComponent {
     if (!this.formGroup.valid) {
       return;
     }
-    this.dialogRef.close(this.formGroup.value.passcode);
+    void this.dialogRef.close(this.formGroup.value.passcode);
   };
 
   static open(dialogService: DialogService, data: LastPassMultifactorPromptData) {

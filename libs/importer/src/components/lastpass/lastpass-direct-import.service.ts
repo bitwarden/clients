@@ -118,7 +118,7 @@ export class LastPassDirectImportService {
       oidcCode: string;
       oidcState: string;
     }>([cancelled, ssoCallbackPromise]).finally(() => {
-      cancelDialogRef.close();
+      void cancelDialogRef.close();
     });
   }
 

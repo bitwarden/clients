@@ -24,6 +24,7 @@ import {
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogService } from "@bitwarden/logging";
 
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
@@ -59,7 +60,7 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   abstract readonly isDrawer?: boolean;
 
   // --- From CdkDialogRef ---
-  abstract close(result?: R, options?: DialogCloseOptions): void;
+  abstract close(result?: R, options?: DialogCloseOptions): Promise<DialogCloseRef>;
   abstract readonly closed: Observable<R | undefined>;
   abstract disableClose: boolean | undefined;
   /**
@@ -79,7 +80,14 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
   | "width"
   | "restoreFocus"
   | "closeOnNavigation"
->;
+> & {
+  closePredicate?: (result?: R) => Promise<boolean>;
+};
+
+export type DialogCloseRef = {
+  /** A boolean indicating whether the close succeeded */
+  closed: boolean;
+};
 
 /**
  * A responsive position strategy that adjusts the dialog position based on the screen size.
@@ -155,17 +163,28 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 
   constructor(
     private drawerService: DrawerService,
-    /** Whether to close this drawer when navigating to a different route */
-    readonly closeOnNavigation = false,
+    private logService: LogService | null,
+    readonly config?: DialogConfig<unknown, R>,
   ) {}
 
-  close(result?: R, _options?: DialogCloseOptions): void {
+  async close(result?: R, _options?: DialogCloseOptions): Promise<DialogCloseRef> {
     if (this.disableClose) {
-      return;
+      return { closed: false };
+    }
+    if (this.config?.closePredicate) {
+      try {
+        const canClose = await this.config.closePredicate(result);
+        if (!canClose) {
+          return { closed: false };
+        }
+      } catch (err) {
+        this.logService?.error(err);
+      }
     }
     this.drawerService.close(this.portal!);
     this._closed.next(result);
     this._closed.complete();
+    return { closed: true };
   }
 
   componentInstance: C | null = null;
@@ -177,13 +196,29 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = false;
 
+  constructor(
+    private logService: LogService | null,
+    private closePredicate?: (result?: R) => Promise<boolean>,
+  ) {}
+
   /** This is not available until after construction, @see DialogService.open. */
   cdkDialogRefBase!: CdkDialogRefBase<R, C>;
 
   // --- Delegated to CdkDialogRefBase ---
 
-  close(result?: R, options?: DialogCloseOptions): void {
+  async close(result?: R, options?: DialogCloseOptions): Promise<DialogCloseRef> {
+    if (this.closePredicate) {
+      try {
+        const canClose = await this.closePredicate(result);
+        if (!canClose) {
+          return { closed: false };
+        }
+      } catch (err) {
+        this.logService?.error(err);
+      }
+    }
     this.cdkDialogRefBase.close(result, options);
+    return { closed: true };
   }
 
   get closed(): Observable<R | undefined> {
@@ -210,6 +245,7 @@ export class DialogService {
   private injector = inject(Injector);
   private router = inject(Router);
   private authService = inject(AuthService, { optional: true });
+  private logService = inject(LogService, { optional: true });
 
   private backDropClasses = ["tw-fixed", "tw-bg-bg-overlay", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
@@ -244,7 +280,7 @@ export class DialogService {
           map((event) => event.urlAfterRedirects.split("?")[0]),
           startWith(this.router.url.split("?")[0]),
           distinctUntilChanged(),
-          filter(() => this.activeDrawer?.closeOnNavigation === true),
+          filter(() => this.activeDrawer?.config?.closeOnNavigation === true),
           takeUntilDestroyed(),
         )
         .subscribe(() => this.closeDrawer());
@@ -253,8 +289,11 @@ export class DialogService {
 
   open<R = unknown, D = unknown, C = unknown>(
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
-    config?: DialogConfig<D, DialogRef<R, C>>,
+    config?: DialogConfig<D, R>,
   ): DialogRef<R, C> {
+    // We need to split out our async closePredicate here because the CDK's closePredicate is sync
+    const { closePredicate, ...otherConfig } = config ?? {};
+
     /**
      * This is a bit circular in nature:
      * We need the DialogRef instance for the DI injector that is passed *to* `Dialog.open`,
@@ -263,7 +302,7 @@ export class DialogService {
      * To break the circle, we define CDKDialogRef as a wrapper for the CDKDialogRefBase.
      * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
-    const ref = new CdkDialogRef<R, C>();
+    const ref = new CdkDialogRef<R, C>(this.logService, closePredicate);
     const injector = this.createInjector({
       data: config?.data,
       dialogRef: ref,
@@ -276,7 +315,7 @@ export class DialogService {
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
       closeOnNavigation: config?.closeOnNavigation,
       injector,
-      ...config,
+      ...otherConfig,
     };
 
     ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
@@ -288,23 +327,34 @@ export class DialogService {
     return ref;
   }
 
-  /** Opens a dialog in the side drawer */
-  openDrawer<R = unknown, D = unknown, C = unknown>(
+  /** Opens a dialog in the side drawer. Returns `undefined` if the currently-open drawer has a
+   * closePredicate that prevented it from closing, otherwise a DialogRef for the newly opened drawer. */
+  async openDrawer<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
-    config?: DialogConfig<D, DialogRef<R, C>>,
-  ): DialogRef<R, C> {
-    this.activeDrawer?.close();
+    config?: DialogConfig<D, R>,
+  ): Promise<DialogRef<R, C> | undefined> {
+    const closeResult = await this.activeDrawer?.close();
+    // We only want to abort here if we have an active drawer that has failed to close. We
+    // specifically check for false instead of falsy values to avoid false (ha) positives.
+    if (closeResult?.closed === false) {
+      return;
+    }
     /**
      * This is also circular. When creating the DrawerDialogRef, we do not yet have a portal instance to provide to the injector.
      * Similar to `this.open`, we get around this with mutability.
      */
-    this.activeDrawer = new DrawerDialogRef(this.drawerService, config?.closeOnNavigation ?? false);
+    this.activeDrawer = new DrawerDialogRef(this.drawerService, this.logService, config);
     const portal = new ComponentPortal(
       component,
       null,
       this.createInjector({ data: config?.data, dialogRef: this.activeDrawer }),
     );
     this.activeDrawer.portal = portal;
+    this.activeDrawer.closed.subscribe({
+      complete: () => {
+        this.activeDrawer = null;
+      },
+    });
     this.drawerService.open(portal);
     return this.activeDrawer;
   }
@@ -315,7 +365,7 @@ export class DialogService {
    * @param {SimpleDialogOptions} simpleDialogOptions - An object containing options for the dialog.
    * @returns `boolean` - True if the user accepted the dialog, false otherwise.
    */
-  async openSimpleDialog(simpleDialogOptions: SimpleDialogOptions): Promise<boolean> {
+  openSimpleDialog(simpleDialogOptions: SimpleDialogOptions): Promise<boolean> {
     const dialogRef = this.openSimpleDialogRef(simpleDialogOptions);
     return firstValueFrom(dialogRef.closed.pipe(map((v: boolean | undefined) => !!v)));
   }
@@ -338,14 +388,14 @@ export class DialogService {
     });
   }
 
-  /** Close all open dialogs */
+  /** Close all open dialogs. Note that this will ignore any and all dialog closePredicates */
   closeAll(): void {
     return this.dialog.closeAll();
   }
 
   /** Close the open drawer */
-  closeDrawer(): void {
-    return this.activeDrawer?.close();
+  async closeDrawer(): Promise<DialogCloseRef> {
+    return this.activeDrawer?.close() ?? { closed: true };
   }
 
   /**

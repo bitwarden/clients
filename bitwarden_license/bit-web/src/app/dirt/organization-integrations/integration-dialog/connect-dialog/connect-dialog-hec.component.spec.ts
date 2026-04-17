@@ -164,7 +164,7 @@ describe("ConnectDialogHecComponent", () => {
 describe("openCrowdstrikeConnectDialog", () => {
   it("should call dialogService.open with correct params", () => {
     const dialogServiceMock = mock<DialogService>();
-    const config: DialogConfig<HecConnectDialogParams, DialogRef<HecConnectDialogResult>> = {
+    const config: DialogConfig<HecConnectDialogParams, HecConnectDialogResult> = {
       data: { settings: { name: "Test" } as Integration },
     } as any;
 

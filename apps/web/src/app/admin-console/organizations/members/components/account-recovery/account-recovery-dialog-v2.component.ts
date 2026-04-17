@@ -147,7 +147,7 @@ export class AccountRecoveryDialogV2Component {
       message: this.i18nService.t("recoverAccountSuccess"),
     });
 
-    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
+    await this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
   };
 
   /**
@@ -157,10 +157,7 @@ export class AccountRecoveryDialogV2Component {
    */
   static readonly open = (
     dialogService: DialogService,
-    dialogConfig: DialogConfig<
-      AccountRecoveryDialogData,
-      DialogRef<AccountRecoveryDialogResultType, unknown>
-    >,
+    dialogConfig: DialogConfig<AccountRecoveryDialogData, AccountRecoveryDialogResultType>,
   ) => {
     return dialogService.open<AccountRecoveryDialogResultType, AccountRecoveryDialogData>(
       AccountRecoveryDialogV2Component,

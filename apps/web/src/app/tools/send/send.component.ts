@@ -1,12 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { AsyncPipe } from "@angular/common";
-import { Component, OnDestroy } from "@angular/core";
+import { AsyncPipe, CommonModule } from "@angular/common";
+import { Component, OnDestroy, HostListener, viewChildren } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { lastValueFrom, Observable, switchMap, combineLatest, map, firstValueFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NoSendsIcon } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,13 +26,14 @@ import { SendFilterType } from "@bitwarden/common/tools/send/types/send-filter-t
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
+  AsyncActionsModule,
+  CalloutComponent,
   DialogRef,
   DialogService,
   NoItemsModule,
   SearchModule,
   ToastService,
   ToggleGroupModule,
-  CalloutComponent,
   IconComponent,
 } from "@bitwarden/components";
 import {
@@ -38,6 +41,8 @@ import {
   SendFormConfig,
   SendAddEditDialogComponent,
   SendItemDialogResult,
+  SendFormService,
+  SendFormModule,
   SendItemsService,
   SendListComponent,
   SendListState,
@@ -55,23 +60,48 @@ import { SendSuccessDrawerDialogComponent } from "./shared";
 @Component({
   selector: "app-send",
   imports: [
-    FormsModule,
-    AsyncPipe,
     I18nPipe,
+    AsyncPipe,
+    CalloutComponent,
+    CommonModule,
+    AsyncActionsModule,
+    FormsModule,
+    JslibModule,
+    IconComponent,
     SearchModule,
     NoItemsModule,
     HeaderModule,
     NewSendDropdownComponent,
     ToggleGroupModule,
+    SendFormModule,
     SendListComponent,
-    CalloutComponent,
-    IconComponent,
   ],
   templateUrl: "send.component.html",
   providers: [DefaultSendFormConfigService],
 })
 export class SendComponent implements OnDestroy {
-  private sendItemDialogRef?: DialogRef<SendItemDialogResult> | undefined;
+  /**
+   * Prevent browser tab from closing/refreshing if the Send form has unsaved edits.
+   * Shows a confirmation dialog if user tries to leave.
+   * This provides additional protection beyond dialogRef.disableClose.
+   * Using arrow function to preserve 'this' context when used as event listener.
+   */
+  @HostListener("window:beforeunload", ["$event"])
+  private handleBeforeUnloadEvent = (event: BeforeUnloadEvent): string | undefined => {
+    if (this.sendFormService.sendFormHasEdits()) {
+      event.preventDefault();
+      // The custom message is not displayed in modern browsers, but MDN docs still recommend setting it for legacy support.
+      const message = this.i18nService.t("sendHasUnsavedEdits");
+      event.returnValue = message;
+      return message;
+    }
+    return undefined;
+  };
+
+  private sendItemDialogRef?:
+    | DialogRef<SendItemDialogResult, SendAddEditDialogComponent>
+    | undefined;
+  noItemIcon = NoSendsIcon;
   selectedToggleValue?: SendFilterType;
   SendUIRefresh$: Observable<boolean>;
 
@@ -117,6 +147,8 @@ export class SendComponent implements OnDestroy {
   SendFilterType = SendFilterType;
   SendType = SendType;
 
+  private readonly newSendDropdowns = viewChildren(NewSendDropdownComponent);
+
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
@@ -131,6 +163,7 @@ export class SendComponent implements OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private configService: ConfigService,
+    private sendFormService: SendFormService,
     private sendItemsService: SendItemsService,
     private sendItemsFiltersService: SendListFiltersService,
     private validationService: ValidationService,
@@ -156,7 +189,7 @@ export class SendComponent implements OnDestroy {
 
   ngOnDestroy() {
     this.dialogService.closeAll();
-    this.dialogService.closeDrawer();
+    void this.dialogService.closeDrawer();
   }
 
   async addSend() {
@@ -190,17 +223,27 @@ export class SendComponent implements OnDestroy {
       return;
     }
 
+    let sendItemDialogRef: DialogRef<SendItemDialogResult, SendAddEditDialogComponent> | undefined;
     if (useRefresh) {
-      this.sendItemDialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      sendItemDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     } else {
-      this.sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
+      sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
         formConfig,
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     }
 
-    const result: SendItemDialogResult = await lastValueFrom(this.sendItemDialogRef.closed);
+    // If we were unable to open the dialog (because the previous drawer failed to close, for example) exit immediately
+    if (!sendItemDialogRef) {
+      return;
+    } else {
+      this.sendItemDialogRef = sendItemDialogRef;
+    }
+
+    const result = await lastValueFrom(this.sendItemDialogRef.closed);
     this.sendItemDialogRef = undefined;
 
     if (
@@ -208,7 +251,7 @@ export class SendComponent implements OnDestroy {
       result?.send &&
       (await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh))
     ) {
-      this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+      await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
         data: result.send,
       });
     }
@@ -226,6 +269,23 @@ export class SendComponent implements OnDestroy {
       .catch((err) => {
         this.logService.error("Failed to update route query params:", err);
       });
+  }
+
+  async saveUnsavedSendEdits() {
+    if (this.sendItemDialogRef) {
+      const closeResult = await this.sendItemDialogRef.close();
+      return closeResult.closed;
+    }
+    // This check is necessary to prevent navigation away from the Send page when the
+    // Send edit drawer was opened by either the header button or the button that shows
+    // in the Send table when there are no existing Sends.
+    for (const newSendDropdown of this.newSendDropdowns()) {
+      const closed = await newSendDropdown.saveUnsavedSendEdits();
+      if (!closed) {
+        return false;
+      }
+    }
+    return true;
   }
 
   async deleteSend(s: SendView): Promise<boolean> {

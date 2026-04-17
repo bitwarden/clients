@@ -42,6 +42,6 @@ export class FilePasswordPromptComponent {
     if (!this.formGroup.valid) {
       return;
     }
-    this.dialogRef.close(this.formGroup.value.filePassword);
+    void this.dialogRef.close(this.formGroup.value.filePassword);
   };
 }

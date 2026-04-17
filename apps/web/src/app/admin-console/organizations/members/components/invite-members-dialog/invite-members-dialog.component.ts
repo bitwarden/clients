@@ -290,7 +290,7 @@ export class InviteMembersDialogComponent {
   }
 
   private close(result: MemberDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 
   static readonly open = (

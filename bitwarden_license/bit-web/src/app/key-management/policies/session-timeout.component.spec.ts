@@ -15,7 +15,7 @@ import {
 } from "@bitwarden/common/key-management/session-timeout";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogCloseRef, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-confirmation-never.component";
@@ -23,7 +23,12 @@ import { SessionTimeoutPolicyComponent } from "./session-timeout.component";
 
 // Mock DialogRef, so we can mock "readonly closed" property.
 class MockDialogRef extends DialogRef {
-  close(result: unknown | undefined, options: DialogCloseOptions | undefined): void {}
+  async close(
+    result: unknown | undefined,
+    options: DialogCloseOptions | undefined,
+  ): Promise<DialogCloseRef> {
+    return { closed: true };
+  }
 
   closed: Observable<unknown | undefined> = of();
   componentInstance: unknown | null;

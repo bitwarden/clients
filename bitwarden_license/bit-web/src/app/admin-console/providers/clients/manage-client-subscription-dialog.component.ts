@@ -115,7 +115,7 @@ export class ManageClientSubscriptionDialogComponent implements OnInit {
 
       this.billingNotificationService.showSuccess(this.i18nService.t("subscriptionUpdated"));
 
-      this.dialogRef.close(this.ResultType.Submitted);
+      await this.dialogRef.close(this.ResultType.Submitted);
     } catch (error) {
       this.billingNotificationService.handleError(error);
     } finally {

@@ -81,7 +81,7 @@ export class EnableEncryptionDialogComponent implements OnInit, OnDestroy {
       throw error;
     }
 
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   ngOnDestroy(): void {

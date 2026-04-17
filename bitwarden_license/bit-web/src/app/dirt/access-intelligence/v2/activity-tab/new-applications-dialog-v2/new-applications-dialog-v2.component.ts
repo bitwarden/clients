@@ -302,7 +302,7 @@ export class NewApplicationsDialogV2Component {
         });
 
         this.saving.set(false);
-        this.dialogRef.close(NewApplicationsDialogResultType.Complete);
+        void this.dialogRef.close(NewApplicationsDialogResultType.Complete);
       });
   }
 
@@ -311,7 +311,7 @@ export class NewApplicationsDialogV2Component {
    * Closes the dialog without saving.
    */
   protected handleCancel() {
-    this.dialogRef.close(NewApplicationsDialogResultType.Close);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Close);
   }
 
   /**

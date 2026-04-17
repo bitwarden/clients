@@ -74,7 +74,7 @@ export class TwoFactorVerifyComponent {
       });
 
       const response = await this.formPromise;
-      this.dialogRef.close({
+      await this.dialogRef.close({
         response: response,
         secret: secret.secret,
         verificationType: secret.type,
@@ -134,7 +134,7 @@ export class TwoFactorVerifyComponent {
   static open(dialogService: DialogService, config: DialogConfig<TwoFactorVerifyDialogData>) {
     return dialogService.open<AuthResponse<any>, TwoFactorVerifyDialogData>(
       TwoFactorVerifyComponent,
-      config as DialogConfig<TwoFactorVerifyDialogData, DialogRef<AuthResponse<any>>>,
+      config as DialogConfig<TwoFactorVerifyDialogData, AuthResponse<any>>,
     );
   }
 }

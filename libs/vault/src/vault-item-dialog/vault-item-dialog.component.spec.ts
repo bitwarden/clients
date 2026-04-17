@@ -464,10 +464,10 @@ describe("VaultItemDialogComponent", () => {
   });
 
   describe("static openDrawer()", () => {
-    it("calls dialogService.openDrawer with VaultItemDialogComponent", () => {
+    it("calls dialogService.openDrawer with VaultItemDialogComponent", async () => {
       const fakeDialogService = { openDrawer: jest.fn() } as any;
 
-      VaultItemDialogComponent.openDrawer(fakeDialogService, baseParams);
+      await VaultItemDialogComponent.openDrawer(fakeDialogService, baseParams);
 
       expect(fakeDialogService.openDrawer).toHaveBeenCalledWith(VaultItemDialogComponent, {
         data: baseParams,

@@ -834,7 +834,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.onSuccess.emit({ organizationId: organizationId });
     // TODO: No one actually listening to this message?
     this.messagingService.send("organizationCreated", { organizationId });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private async restartSubscription() {

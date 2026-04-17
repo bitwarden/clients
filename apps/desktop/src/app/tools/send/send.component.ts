@@ -23,6 +23,9 @@ import {
   DefaultSendFormConfigService,
   SendItemDialogResult,
   SendPolicyService,
+  SendFormService,
+  SendFormModule,
+  SendFormConfig,
 } from "@bitwarden/send-ui";
 
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
@@ -32,7 +35,13 @@ import { DesktopHeaderComponent } from "../../layout/header";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-send",
-  imports: [ButtonModule, SendListComponent, NewSendDropdownV2Component, DesktopHeaderComponent],
+  imports: [
+    ButtonModule,
+    SendListComponent,
+    NewSendDropdownV2Component,
+    DesktopHeaderComponent,
+    SendFormModule,
+  ],
   providers: [
     DefaultSendFormConfigService,
     {
@@ -53,6 +62,7 @@ export class SendComponent {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
+  private sendFormService = inject(SendFormService);
   private destroyRef = inject(DestroyRef);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
@@ -91,27 +101,32 @@ export class SendComponent {
 
   constructor() {
     this.destroyRef.onDestroy(() => {
-      this.activeDrawerRef?.close();
+      void this.activeDrawerRef?.close();
     });
   }
 
   protected async addSend(type: SendType): Promise<void> {
     const formConfig = await this.sendFormConfigService.buildConfig("add", undefined, type);
-
-    this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
-      formConfig,
-    });
-
-    await lastValueFrom(this.activeDrawerRef.closed);
-    this.activeDrawerRef = null;
+    await this.openSendDialog(formConfig);
   }
 
   protected async selectSend(sendId: string): Promise<void> {
     const formConfig = await this.sendFormConfigService.buildConfig("edit", sendId as SendId);
+    await this.openSendDialog(formConfig);
+  }
 
-    this.activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
+  private async openSendDialog(formConfig: SendFormConfig) {
+    const activeDrawerRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
       formConfig,
+      closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
     });
+
+    // If we were unable to open the dialog (because the previous drawer failed to close, for example) exit immediately
+    if (!activeDrawerRef) {
+      return;
+    } else {
+      this.activeDrawerRef = activeDrawerRef;
+    }
 
     await lastValueFrom(this.activeDrawerRef.closed);
     this.activeDrawerRef = null;
@@ -177,5 +192,13 @@ export class SendComponent {
       title: null,
       message: this.i18nService.t("deletedSend"),
     });
+  }
+
+  async saveUnsavedSendEdits() {
+    if (this.activeDrawerRef) {
+      const closeResult = await this.activeDrawerRef.close();
+      return closeResult.closed;
+    }
+    return true;
   }
 }

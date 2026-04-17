@@ -1,11 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   ButtonModule,
@@ -13,9 +11,9 @@ import {
   SectionComponent,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -25,7 +23,7 @@ import { SendFormContainer } from "../../send-form-container";
   imports: [
     ButtonModule,
     CommonModule,
-    JslibModule,
+    I18nPipe,
     ReactiveFormsModule,
     FormFieldModule,
     SectionComponent,
@@ -34,8 +32,8 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendFileDetailsComponent implements OnInit {
-  readonly config = input.required<SendFormConfig>();
-  readonly originalSendView = input<SendView>();
+  protected sendFormService = inject(SendFormService);
+  private formBuilder = inject(FormBuilder);
 
   sendFileDetailsForm = this.formBuilder.group({
     file: this.formBuilder.control<SendFileView | null>(null, Validators.required),
@@ -44,14 +42,11 @@ export class SendFileDetailsComponent implements OnInit {
   FileSendType = SendType.File;
   fileName = "";
 
-  constructor(
-    private formBuilder: FormBuilder,
-    protected sendFormContainer: SendFormContainer,
-  ) {
-    this.sendFormContainer.registerChildForm("sendFileDetailsForm", this.sendFileDetailsForm);
+  constructor() {
+    this.sendFormService.registerChildForm("sendFileDetailsForm", this.sendFileDetailsForm);
 
     this.sendFileDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormContainer.patchSend((send) => {
+      this.sendFormService.patchSend((send) => {
         return Object.assign(send, {
           file: value.file,
         });
@@ -65,17 +60,17 @@ export class SendFileDetailsComponent implements OnInit {
       return;
     }
     this.fileName = file.name;
-    this.sendFormContainer.onFileSelected(file);
+    this.sendFormService.setFile(file);
   };
 
   ngOnInit() {
-    if (this.originalSendView()) {
+    if (this.sendFormService.originalSendView) {
       this.sendFileDetailsForm.patchValue({
-        file: this.originalSendView()?.file,
+        file: this.sendFormService.originalSendView?.file,
       });
     }
 
-    if (!this.config().areSendsAllowed) {
+    if (!this.sendFormService.sendFormConfig?.areSendsAllowed) {
       this.sendFileDetailsForm.disable();
     }
   }

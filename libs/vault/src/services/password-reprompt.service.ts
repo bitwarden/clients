@@ -39,7 +39,7 @@ export class PasswordRepromptService {
       return true;
     }
 
-    const dialog = this.dialogService.open<boolean>(PasswordRepromptComponent, {
+    const dialog = await this.dialogService.open<boolean>(PasswordRepromptComponent, {
       ariaModal: true,
     });
 
