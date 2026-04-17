@@ -570,6 +570,7 @@ describe("UpgradePaymentService", () => {
         mockTokenizedPaymentMethod,
         mockBillingAddress,
         undefined,
+        undefined,
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
@@ -589,6 +590,7 @@ describe("UpgradePaymentService", () => {
         accountCreditPaymentMethod,
         mockBillingAddress,
         undefined,
+        undefined,
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
@@ -605,6 +607,7 @@ describe("UpgradePaymentService", () => {
         mockTokenizedPaymentMethod,
         mockBillingAddress,
         ["coupon-abc"],
+        undefined,
       );
     });
 
@@ -620,6 +623,28 @@ describe("UpgradePaymentService", () => {
         mockTokenizedPaymentMethod,
         mockBillingAddress,
         undefined,
+        undefined,
+      );
+    });
+
+    it("passes fromMarketing to purchaseSubscription when provided", async () => {
+      // Arrange
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
+
+      // Act
+      await sut.upgradeToPremium(
+        mockTokenizedPaymentMethod,
+        mockBillingAddress,
+        undefined,
+        "premium",
+      );
+
+      // Assert
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
+        mockTokenizedPaymentMethod,
+        mockBillingAddress,
+        undefined,
+        "premium",
       );
     });
 
