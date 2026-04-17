@@ -32,11 +32,6 @@ export abstract class SearchService {
   /**
    * Searches the passed in ciphers using basic substring matching.
    */
-  abstract searchCiphersBasic<C extends CipherViewLike>(
-    ciphers: C[],
-    query: string,
-    deleted?: boolean,
-    archived?: boolean,
-  ): C[];
+  abstract searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string): C[];
   abstract searchSends(sends: SendView[], query: string): SendView[];
 }
