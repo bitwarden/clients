@@ -10273,6 +10273,46 @@
     "message": "Switching to free organization",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Missing features or functionality",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Something we needed wasn't available",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Too difficult to set up or manage",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "We're not getting enough value for the cost",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "The price doesn't match what we're getting out of it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Not enough usage by our team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "We couldn't get people to actually use it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Our needs changed",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Free for 1 year"
   },
