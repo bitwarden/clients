@@ -2,4 +2,6 @@
 mod sys;
 mod util;
 
+pub(crate) mod plugin;
+
 pub(crate) use util::WindowsString;
