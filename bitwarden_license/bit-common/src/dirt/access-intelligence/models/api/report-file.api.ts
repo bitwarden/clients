@@ -4,7 +4,7 @@ import { BaseResponse } from "@bitwarden/common/models/response/base.response";
  * Metadata for an uploaded report file.
  */
 export class ReportFileApi extends BaseResponse {
-  id: string | undefined;
+  id: string;
   fileName: string = "";
   /** File size in bytes. Serialized as a string by the server. */
   size: number = 0;
@@ -12,7 +12,7 @@ export class ReportFileApi extends BaseResponse {
 
   constructor(data: any) {
     super(data);
-    this.id = this.getResponseProperty("id") ?? undefined;
+    this.id = this.getResponseProperty("id");
     this.fileName = this.getResponseProperty("fileName") ?? "";
     this.size = Number(this.getResponseProperty("size") ?? 0);
     this.validated = this.getResponseProperty("validated") ?? false;
