@@ -14,7 +14,16 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { concat, EMPTY, firstValueFrom, of } from "rxjs";
-import { concatMap, delay, distinctUntilChanged, filter, map, skip, switchMap, tap } from "rxjs/operators";
+import {
+  concatMap,
+  delay,
+  distinctUntilChanged,
+  filter,
+  map,
+  skip,
+  switchMap,
+  tap,
+} from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
