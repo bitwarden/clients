@@ -18,12 +18,12 @@
         (click)="applyFilter($event, organization)"
       >
         @if (!organization.node.enabled) {
-          <i
+          <bit-icon
             slot="end"
-            class="bwi bwi-fw bwi-exclamation-triangle text-danger mr-auto"
-            [attr.aria-label]="'organizationIsDisabled' | i18n"
+            name="bwi-exclamation-triangle"
+            [ariaLabel]="'organizationIsDisabled' | i18n"
             [appA11yTitle]="'organizationIsDisabled' | i18n"
-          ></i>
+          />
         }
       </bit-nav-item>
     }

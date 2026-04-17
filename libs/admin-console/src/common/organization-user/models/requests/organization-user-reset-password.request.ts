@@ -7,19 +7,24 @@ import {
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 
 export class OrganizationUserResetPasswordRequest {
-  newMasterPasswordHash: string;
-  key: string;
-
-  // This will eventually be changed to be an actual constructor, once all callers are updated.
-  // The body of this request will be changed to carry the authentication data and unlock data.
   // https://bitwarden.atlassian.net/browse/PM-23234
+  constructor(
+    public resetMasterPassword: boolean = true,
+    public resetTwoFactor: boolean = false,
+    public newMasterPasswordHash?: string,
+    public key?: string,
+  ) {}
+
   static newConstructor(
     authenticationData: MasterPasswordAuthenticationData,
     unlockData: MasterPasswordUnlockData,
+    resetTwoFactor: boolean = false,
   ): OrganizationUserResetPasswordRequest {
-    const request = new OrganizationUserResetPasswordRequest();
-    request.newMasterPasswordHash = authenticationData.masterPasswordAuthenticationHash;
-    request.key = unlockData.masterKeyWrappedUserKey;
-    return request;
+    return new OrganizationUserResetPasswordRequest(
+      true,
+      resetTwoFactor,
+      authenticationData.masterPasswordAuthenticationHash,
+      unlockData.masterKeyWrappedUserKey,
+    );
   }
 }
