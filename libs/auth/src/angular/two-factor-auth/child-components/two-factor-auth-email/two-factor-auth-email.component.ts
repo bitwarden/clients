@@ -56,6 +56,9 @@ export class TwoFactorAuthEmailComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() tokenChange = new EventEmitter<{ token: string }>();
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
+  @Output() submitOnPaste = new EventEmitter<void>();
 
   twoFactorEmail: string | undefined = undefined;
   emailPromise: Promise<any> | undefined;
@@ -105,6 +108,14 @@ export class TwoFactorAuthEmailComponent implements OnInit {
   onTokenChange(event: Event) {
     const tokenValue = (event.target as HTMLInputElement).value || "";
     this.tokenChange.emit({ token: tokenValue });
+  }
+
+  onPaste(event: ClipboardEvent) {
+    const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
+    if (!pastedText) {return;}
+    event.preventDefault();
+    this.tokenFormControl?.setValue(pastedText);
+    this.submitOnPaste.emit();
   }
 
   async sendEmail(doToast: boolean) {

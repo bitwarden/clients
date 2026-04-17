@@ -8,6 +8,7 @@
       appInputVerbatim
       [formControl]="tokenFormControl"
       (keyup)="onTokenChange($event)"
+      (paste)="onPaste($event)"
     />
   </bit-form-field>
 </ng-container>
