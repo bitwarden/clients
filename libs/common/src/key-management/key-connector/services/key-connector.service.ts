@@ -131,40 +131,22 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   }
 
   async migrateUser(keyConnectorUrl: string, userId: UserId) {
-    const sdkKeyConnectorMigration = await firstValueFrom(
-      this.configService.getFeatureFlag$(FeatureFlag.SdkKeyConnectorMigration),
-    );
-    if (sdkKeyConnectorMigration) {
-      try {
-        await firstValueFrom(
-          this.sdkService.userClient$(userId).pipe(
-            map((sdk) => {
-              if (!sdk) {
-                throw new Error("SDK not available");
-              }
+    try {
+      await firstValueFrom(
+        this.sdkService.userClient$(userId).pipe(
+          map((sdk) => {
+            if (!sdk) {
+              throw new Error("SDK not available");
+            }
 
-              using ref = sdk.take();
+            using ref = sdk.take();
 
-              return ref.value.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
-            }),
-          ),
-        );
-      } catch (e) {
-        this.handleKeyConnectorError(e);
-      }
-    } else {
-      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
+            return ref.value.user_crypto_management().migrate_to_key_connector(keyConnectorUrl);
+          }),
+        ),
       );
-
-      try {
-        await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
-      } catch (e) {
-        this.handleKeyConnectorError(e);
-      }
-
-      await this.apiService.postConvertToKeyConnector();
+    } catch (e) {
+      this.handleKeyConnectorError(e);
     }
 
     await this.setUsesKeyConnector(true, userId);
@@ -183,18 +165,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       userId,
       userDecryptionOptions,
     );
-  }
-
-  // TODO: UserKey should be renamed to MasterKey and typed accordingly
-  async setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId) {
-    try {
-      const masterKeyResponse = await this.apiService.getMasterKeyFromKeyConnector(keyConnectorUrl);
-      const keyArr = Utils.fromB64ToArray(masterKeyResponse.key);
-      const masterKey = new SymmetricCryptoKey(keyArr) as MasterKey;
-      await this.masterPasswordService.setMasterKey(masterKey, userId);
-    } catch (e) {
-      this.handleKeyConnectorError(e);
-    }
   }
 
   async getManagingOrganization(userId: UserId): Promise<Organization> {
@@ -265,10 +235,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       throw new Error(`Unexpected account cryptographic state version ${version}`);
     }
 
-    await this.masterPasswordService.setMasterKey(
-      SymmetricCryptoKey.fromString(result.key_connector_key) as MasterKey,
-      userId,
-    );
     await this.keyService.setUserKey(
       SymmetricCryptoKey.fromString(result.user_key) as UserKey,
       userId,
@@ -300,7 +266,6 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(
       Utils.fromBufferToB64(masterKey.inner().encryptionKey),
     );
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
 
     const userKey = await this.keyService.makeUserKey(masterKey);
     await this.keyService.setUserKey(userKey[0], userId);

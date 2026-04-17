@@ -31,7 +31,6 @@ export class UserApiLoginStrategy extends LoginStrategy {
 
   constructor(
     data: UserApiLoginStrategyData,
-    private keyConnectorService: KeyConnectorService,
     private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
@@ -54,47 +53,18 @@ export class UserApiLoginStrategy extends LoginStrategy {
     return authResult;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    const sdkHandledKeyConnector =
-      response.canUnlockWithKeyConnector() &&
-      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
-
-    if (!sdkHandledKeyConnector && response.apiUseKeyConnector) {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const keyConnectorUrl = env.getKeyConnectorUrl();
-      await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
-    }
-  }
+  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
 
   protected override async setUserKey(
     response: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
-    const sdkHandledKeyConnector =
-      response.canUnlockWithKeyConnector() &&
-      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
-
-    if (sdkHandledKeyConnector) {
+    if (response.canUnlockWithKeyConnector()) {
       await this.unlockService.unlockWithKeyConnector(
         userId,
         response.intoKeyConnectorUnlockData(),
       );
       return;
-    }
-
-    if (response.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    if (response.apiUseKeyConnector) {
-      const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-      if (masterKey) {
-        const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-          masterKey,
-          userId,
-        );
-        await this.keyService.setUserKey(userKey, userId);
-      }
     }
   }
 

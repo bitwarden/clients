@@ -310,7 +310,6 @@ describe("DefaultChangeEmailService", () => {
           .mockResolvedValueOnce(existingAuthData)
           .mockResolvedValueOnce(newAuthData);
         masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(newUnlockData);
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockResolvedValue(undefined);
         apiService.send.mockResolvedValue(undefined);
 
         // Act
@@ -403,7 +402,6 @@ describe("DefaultChangeEmailService", () => {
           .mockResolvedValueOnce(existingAuthData)
           .mockResolvedValueOnce(newAuthData);
         masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(newUnlockData);
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockResolvedValue(undefined);
         apiService.send.mockResolvedValue(undefined);
       });
 
@@ -474,7 +472,6 @@ describe("DefaultChangeEmailService", () => {
           .mockResolvedValueOnce(existingAuthData)
           .mockResolvedValueOnce(newAuthData);
         masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(newUnlockData);
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockResolvedValue(undefined);
         apiService.send.mockResolvedValue(undefined);
 
         // Act
@@ -583,104 +580,10 @@ describe("DefaultChangeEmailService", () => {
           .mockResolvedValueOnce(existingAuthData)
           .mockResolvedValueOnce(newAuthData);
         masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(newUnlockData);
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockResolvedValue(undefined);
         apiService.send.mockResolvedValue(undefined);
 
         // Act
         await sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId);
-
-        // Assert: Sets legacy master key for backwards compat (remove in PM-30676)
-        expect(masterPasswordService.mock.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-          mockMasterPassword,
-          newUnlockData,
-          mockUserId,
-        );
-      });
-
-      /**
-       * The legacy master key MUST be set AFTER the API call succeeds.
-       * If set before and the API fails, local state would be inconsistent with the server,
-       * making the operation non-retry-able without logging out.
-       */
-      it("should set legacy master key AFTER the API call succeeds", async () => {
-        // Arrange
-        configService.getFeatureFlag.mockResolvedValue(true);
-        kdfConfigService.getKdfConfig$.mockReturnValue(of(kdfConfig));
-
-        const mockUserKey = new SymmetricCryptoKey(
-          new Uint8Array(64).fill(3) as CsprngArray,
-        ) as UserKey;
-        keyService.userKey$.mockReturnValue(of(mockUserKey));
-
-        const newSalt = "new@example.com" as MasterPasswordSalt;
-        masterPasswordService.mock.saltForUser$.mockReturnValue(of(existingSalt));
-        masterPasswordService.mock.emailToSalt.mockReturnValue(newSalt);
-
-        masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue({
-          salt: existingSalt,
-          kdf: kdfConfig,
-          masterPasswordAuthenticationHash: "auth-hash" as MasterPasswordAuthenticationHash,
-        });
-        masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue({
-          salt: newSalt,
-          kdf: kdfConfig,
-          masterKeyWrappedUserKey: "wrapped-key" as MasterKeyWrappedUserKey,
-        } as MasterPasswordUnlockData);
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockResolvedValue(undefined);
-        apiService.send.mockResolvedValue(undefined);
-
-        // Track call order
-        const callOrder: string[] = [];
-        apiService.send.mockImplementation(async () => {
-          callOrder.push("apiService.send");
-        });
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockImplementation(async () => {
-          callOrder.push("setLegacyMasterKeyFromUnlockData");
-        });
-
-        // Act
-        await sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId);
-
-        // Assert: API call must happen BEFORE legacy key update
-        expect(callOrder).toEqual(["apiService.send", "setLegacyMasterKeyFromUnlockData"]);
-      });
-
-      it("should NOT set legacy master key if API call fails", async () => {
-        // Arrange
-        configService.getFeatureFlag.mockResolvedValue(true);
-        kdfConfigService.getKdfConfig$.mockReturnValue(of(kdfConfig));
-
-        const mockUserKey = new SymmetricCryptoKey(
-          new Uint8Array(64).fill(3) as CsprngArray,
-        ) as UserKey;
-        keyService.userKey$.mockReturnValue(of(mockUserKey));
-
-        const newSalt = "new@example.com" as MasterPasswordSalt;
-        masterPasswordService.mock.saltForUser$.mockReturnValue(of(existingSalt));
-        masterPasswordService.mock.emailToSalt.mockReturnValue(newSalt);
-
-        masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue({
-          salt: existingSalt,
-          kdf: kdfConfig,
-          masterPasswordAuthenticationHash: "auth-hash" as MasterPasswordAuthenticationHash,
-        });
-        masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue({
-          salt: newSalt,
-          kdf: kdfConfig,
-          masterKeyWrappedUserKey: "wrapped-key" as MasterKeyWrappedUserKey,
-        } as MasterPasswordUnlockData);
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockResolvedValue(undefined);
-
-        // API call fails
-        apiService.send.mockRejectedValue(new Error("Server error"));
-
-        // Act & Assert
-        await expect(
-          sut.confirmEmailChange(mockMasterPassword, mockNewEmail, mockToken, mockUserId),
-        ).rejects.toThrow("Server error");
-
-        // Legacy key should NOT have been set (preserves retry-ability)
-        expect(masterPasswordService.mock.setLegacyMasterKeyFromUnlockData).not.toHaveBeenCalled();
       });
     });
 
@@ -786,7 +689,6 @@ describe("DefaultChangeEmailService", () => {
           kdf: kdfConfig,
           masterKeyWrappedUserKey: "wrapped-key" as MasterKeyWrappedUserKey,
         } as MasterPasswordUnlockData);
-        masterPasswordService.mock.setLegacyMasterKeyFromUnlockData.mockResolvedValue(undefined);
         apiService.send.mockResolvedValue(undefined);
 
         // Act

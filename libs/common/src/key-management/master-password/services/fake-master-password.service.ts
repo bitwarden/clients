@@ -45,14 +45,6 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     return this.mock.saltForUser$(userId);
   }
 
-  masterKey$(userId: UserId): Observable<MasterKey> {
-    return this.masterKeySubject.asObservable();
-  }
-
-  setMasterKey(masterKey: MasterKey, userId: UserId): Promise<void> {
-    return this.mock.setMasterKey(masterKey, userId);
-  }
-
   getMasterKeyEncryptedUserKey(userId: UserId): Promise<EncString> {
     return this.mock.getMasterKeyEncryptedUserKey(userId);
   }
@@ -114,13 +106,5 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
 
   masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
     return this.mock.masterPasswordUnlockData$(userId);
-  }
-
-  setLegacyMasterKeyFromUnlockData(
-    password: string,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-    userId: UserId,
-  ): Promise<void> {
-    return this.mock.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
   }
 }

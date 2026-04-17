@@ -45,7 +45,7 @@ describe("DefaultMasterPasswordUnlockService", () => {
     keyService = mock<KeyService>();
     logService = mock<LogService>();
 
-    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, keyService, logService);
+    sut = new DefaultMasterPasswordUnlockService(masterPasswordService, logService);
 
     masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
       of(mockMasterPasswordUnlockData),
@@ -122,7 +122,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData.salt,
         mockMasterPasswordUnlockData.kdf,
       );
-      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
     });
 
     it("throws an error if masterKey construction fails", async () => {
@@ -144,7 +143,6 @@ describe("DefaultMasterPasswordUnlockService", () => {
         mockMasterPasswordUnlockData.kdf,
       );
       expect(keyService.hashMasterKey).not.toHaveBeenCalled();
-      expect(masterPasswordService.setMasterKey).not.toHaveBeenCalled();
     });
   });
 

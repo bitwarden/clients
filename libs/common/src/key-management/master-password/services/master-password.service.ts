@@ -37,12 +37,6 @@ import {
   MasterPasswordUnlockData,
 } from "../types/master-password.types";
 
-/** Memory since master key shouldn't be available on lock */
-export const MASTER_KEY = new UserKeyDefinition<MasterKey>(MASTER_PASSWORD_MEMORY, "masterKey", {
-  deserializer: (masterKey) => SymmetricCryptoKey.fromJSON(masterKey) as MasterKey,
-  clearOn: ["lock", "logout"],
-});
-
 /** Disk to persist through lock */
 export const MASTER_KEY_ENCRYPTED_USER_KEY = new UserKeyDefinition<EncryptedString>(
   MASTER_PASSWORD_DISK,
@@ -140,13 +134,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     );
   }
 
-  masterKey$(userId: UserId): Observable<MasterKey> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    return this.stateProvider.getUser(userId, MASTER_KEY).state$;
-  }
-
   forceSetPasswordReason$(userId: UserId): Observable<ForceSetPasswordReason> {
     if (userId == null) {
       throw new Error("User ID is required.");
@@ -169,23 +156,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
 
   emailToSalt(email: string): MasterPasswordSalt {
     return email.toLowerCase().trim() as MasterPasswordSalt;
-  }
-
-  async setMasterKey(masterKey: MasterKey, userId: UserId): Promise<void> {
-    if (masterKey == null) {
-      throw new Error("Master key is required.");
-    }
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    await this.stateProvider.getUser(userId, MASTER_KEY).update((_) => masterKey);
-  }
-
-  async clearMasterKey(userId: UserId): Promise<void> {
-    if (userId == null) {
-      throw new Error("User ID is required.");
-    }
-    await this.stateProvider.getUser(userId, MASTER_KEY).update((_) => null);
   }
 
   async setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
@@ -227,7 +197,6 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     userKey?: EncString,
   ): Promise<UserKey | null> {
     userKey ??= await this.getMasterKeyEncryptedUserKey(userId);
-    masterKey ??= await firstValueFrom(this.masterKey$(userId));
 
     if (masterKey == null) {
       throw new Error("No master key found.");
@@ -352,23 +321,5 @@ export class MasterPasswordService implements InternalMasterPasswordServiceAbstr
     assertNonNullish(userId, "userId");
 
     return this.stateProvider.getUser(userId, MASTER_PASSWORD_UNLOCK_KEY).state$;
-  }
-
-  async setLegacyMasterKeyFromUnlockData(
-    password: string,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-    userId: UserId,
-  ): Promise<void> {
-    assertNonNullish(password, "password");
-    assertNonNullish(masterPasswordUnlockData, "masterPasswordUnlockData");
-    assertNonNullish(userId, "userId");
-
-    const masterKey = (await this.keyGenerationService.deriveKeyFromPassword(
-      password,
-      masterPasswordUnlockData.salt,
-      masterPasswordUnlockData.kdf,
-    )) as MasterKey;
-
-    await this.setMasterKey(masterKey, userId);
   }
 }

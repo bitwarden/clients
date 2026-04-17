@@ -201,7 +201,6 @@ describe("SsoLoginStrategy", () => {
 
     await ssoLoginStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
@@ -490,30 +489,14 @@ describe("SsoLoginStrategy", () => {
       tokenResponse.apiUseKeyConnector = true;
     });
 
-    it("gets and sets the master key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-
+    it("uses unlock service", async () => {
       apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
-    });
-
-    it("uses unlock service when SDK key connector feature flag is enabled", async () => {
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.UnlockKeyConnectorWithSdk)
-        .mockResolvedValue(true);
-
       await ssoLoginStrategy.logIn(credentials);
 
       expect(unlockService.unlockWithKeyConnector).toHaveBeenCalledWith(userId, {
         url: keyConnectorUrl,
         keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
       });
-      expect(keyConnectorService.setMasterKeyFromUrl).not.toHaveBeenCalled();
     });
 
     it("converts new SSO user with no master password to Key Connector on first login", async () => {

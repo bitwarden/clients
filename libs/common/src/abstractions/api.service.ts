@@ -168,7 +168,6 @@ export abstract class ApiService {
     id: string,
     request: SecretVerificationRequest,
   ): Promise<ApiKeyResponse>;
-  abstract postConvertToKeyConnector(): Promise<void>;
   //passwordless
   abstract getAuthRequest(id: string): Promise<AuthRequestResponse>;
   abstract putAuthRequest(

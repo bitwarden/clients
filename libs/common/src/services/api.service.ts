@@ -371,10 +371,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new ApiKeyResponse(r);
   }
 
-  postConvertToKeyConnector(): Promise<void> {
-    return this.send("POST", "/accounts/convert-to-key-connector", null, true, false);
-  }
-
   // Account Billing APIs
 
   async getUserBillingHistory(): Promise<BillingHistoryResponse> {

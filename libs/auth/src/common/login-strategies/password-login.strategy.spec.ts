@@ -209,7 +209,6 @@ describe("PasswordLoginStrategy", () => {
 
     await passwordLoginStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(masterKey, userId);
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
       tokenResponse.key,
       userId,
@@ -222,14 +221,7 @@ describe("PasswordLoginStrategy", () => {
   });
 
   it("uses master password unlock service when feature flag is enabled", async () => {
-    configService.getFeatureFlag.mockImplementation(async (flag: FeatureFlag) => {
-      if (flag === FeatureFlag.UseUnlockServiceForPasswordLogin) {
-        return true;
-      }
-      return false;
-    });
-
-    // Re-create he strategy and wait a bit to settle the feature flag
+    // Re-create the strategy and wait a bit to settle the feature flag
     passwordLoginStrategy = new PasswordLoginStrategy(
       new PasswordLoginStrategyData(),
       passwordStrengthService,
@@ -262,10 +254,6 @@ describe("PasswordLoginStrategy", () => {
 
     await passwordLoginStrategy.logIn(credentials);
 
-    expect(configService.getFeatureFlag).toHaveBeenCalledWith(
-      FeatureFlag.UseUnlockServiceForPasswordLogin,
-    );
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
     expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(userId, masterPassword);
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();

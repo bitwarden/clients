@@ -20,7 +20,6 @@ export enum FeatureFlag {
   SafariAccountSwitching = "pm-5594-safari-account-switching",
   PM30811_ChangeEmailNewAuthenticationApis = "pm-30811-change-email-new-authentication-apis",
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
-  UseUnlockServiceForPasswordLogin = "use-unlock-service-for-password-login",
   PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
 
   /* Autofill */
@@ -52,8 +51,6 @@ export enum FeatureFlag {
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
-  UnlockKeyConnectorWithSdk = "use-unlock-service-for-key-connector-login",
-  SdkKeyConnectorMigration = "use-sdk-for-key-connector-migration",
   UnlockViaSDK = "unlock-via-sdk",
 
   /* Tools */
@@ -163,7 +160,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SafariAccountSwitching]: FALSE,
   [FeatureFlag.PM30811_ChangeEmailNewAuthenticationApis]: FALSE,
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
-  [FeatureFlag.UseUnlockServiceForPasswordLogin]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
 
   /* Billing */
@@ -187,8 +183,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
-  [FeatureFlag.UnlockKeyConnectorWithSdk]: FALSE,
-  [FeatureFlag.SdkKeyConnectorMigration]: FALSE,
   [FeatureFlag.UnlockViaSDK]: FALSE,
 
   /* Platform */

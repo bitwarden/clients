@@ -7,8 +7,6 @@ import { UserId } from "../../../types/guid";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
 
 export abstract class KeyConnectorService {
-  abstract setMasterKeyFromUrl(keyConnectorUrl: string, userId: UserId): Promise<void>;
-
   abstract getManagingOrganization(userId: UserId): Promise<Organization>;
 
   abstract getUsesKeyConnector(userId: UserId): Promise<boolean>;

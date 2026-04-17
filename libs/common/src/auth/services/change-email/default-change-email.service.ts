@@ -148,16 +148,5 @@ export class DefaultChangeEmailService implements ChangeEmailService {
     }
 
     await this.apiService.send("POST", "/accounts/email", request, userId, false);
-
-    // Set legacy master key only AFTER successful API call to prevent inconsistent state on failure.
-    // This ensures the operation is retry-able if the server request fails.
-    // Remove in PM-30676.
-    if (unlockDataForLegacyUpdate != null) {
-      await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
-        masterPassword,
-        unlockDataForLegacyUpdate,
-        userId,
-      );
-    }
   }
 }

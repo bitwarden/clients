@@ -110,7 +110,6 @@ describe("UserApiLoginStrategy", () => {
 
     apiLogInStrategy = new UserApiLoginStrategy(
       cache,
-      keyConnectorService,
       unlockService,
       accountService,
       masterPasswordService,
@@ -202,37 +201,6 @@ describe("UserApiLoginStrategy", () => {
     );
   });
 
-  it("gets and sets the master key if Key Connector is enabled", async () => {
-    const tokenResponse = identityTokenResponseFactory();
-    tokenResponse.apiUseKeyConnector = true;
-
-    const env = mock<Environment>();
-    env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
-    environmentService.environment$ = new BehaviorSubject(env);
-
-    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-    await apiLogInStrategy.logIn(credentials);
-
-    expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
-  });
-
-  it("uses the legacy Key Connector master key path when SDK handling is disabled", async () => {
-    const tokenResponse = identityTokenResponseFactory();
-    tokenResponse.apiUseKeyConnector = true;
-    tokenResponse.canUnlockWithKeyConnector = jest.fn().mockReturnValue(false);
-
-    const env = mock<Environment>();
-    env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
-    environmentService.environment$ = new BehaviorSubject(env);
-
-    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-    await apiLogInStrategy.logIn(credentials);
-
-    expect(keyConnectorService.setMasterKeyFromUrl).toHaveBeenCalledWith(keyConnectorUrl, userId);
-  });
-
   it("uses unlock service when SDK key connector feature flag is enabled", async () => {
     const tokenResponse = identityTokenResponseFactory(undefined, {
       HasMasterPassword: false,
@@ -243,9 +211,6 @@ describe("UserApiLoginStrategy", () => {
     const env = mock<Environment>();
     env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
     environmentService.environment$ = new BehaviorSubject(env);
-    configService.getFeatureFlag
-      .calledWith(FeatureFlag.UnlockKeyConnectorWithSdk)
-      .mockResolvedValue(true);
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
@@ -255,7 +220,6 @@ describe("UserApiLoginStrategy", () => {
       url: keyConnectorUrl,
       keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
     });
-    expect(keyConnectorService.setMasterKeyFromUrl).not.toHaveBeenCalled();
   });
 
   it("decrypts and sets the user key if Key Connector is enabled", async () => {

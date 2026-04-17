@@ -24,8 +24,6 @@ import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
   tokenRequest: SsoTokenRequest;
-  /** Whether unlock service should be used for Key Connector in this login flow. */
-  unlockServiceForKeyConnectorLogin = false;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
    */
@@ -87,9 +85,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   async logIn(credentials: SsoLoginCredentials): Promise<AuthResult> {
     const data = new SsoLoginStrategyData();
-    data.unlockServiceForKeyConnectorLogin = await this.configService.getFeatureFlag(
-      FeatureFlag.UnlockKeyConnectorWithSdk,
-    );
     data.orgId = credentials.orgId;
 
     data.userEnteredEmail = credentials.email;
@@ -140,11 +135,6 @@ export class SsoLoginStrategy extends LoginStrategy {
           },
           userId,
         );
-      } else {
-        const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-        if (!this.cache.value.unlockServiceForKeyConnectorLogin) {
-          await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
-        }
       }
     }
   }
@@ -195,10 +185,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
-    if (
-      tokenResponse.canUnlockWithKeyConnector() &&
-      this.cache.value.unlockServiceForKeyConnectorLogin
-    ) {
+    if (tokenResponse.canUnlockWithKeyConnector()) {
       await this.unlockService.unlockWithKeyConnector(
         userId,
         tokenResponse.intoKeyConnectorUnlockData(),
@@ -222,13 +209,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
-    } else if (
-      masterKeyEncryptedUserKey != null &&
-      this.getKeyConnectorUrl(tokenResponse) != null &&
-      !this.cache.value.unlockServiceForKeyConnectorLogin
-    ) {
-      // Key connector enabled for user
-      await this.trySetUserKeyWithMasterKey(userId);
     }
 
     // Note: In the traditional SSO flow with MP without key connector, the lock component
@@ -324,23 +304,6 @@ export class SsoLoginStrategy extends LoginStrategy {
     if (userKey) {
       await this.keyService.setUserKey(userKey, userId);
     }
-  }
-
-  private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-
-    // There are two scenarios in which the master key is not set here:
-    // 1. If the user has a master password and is using Key Connector. In that case, we cannot set the master key
-    // because the user hasn't entered their master password yet.
-    // 2. For new users with Key Connector, we will not have a master key yet, since Key Connector domain
-    // has to be confirmed first.
-    // In both cases, we'll return here and let the migration to Key Connector handle setting the master key.
-    if (!masterKey) {
-      return;
-    }
-
-    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(userKey, userId);
   }
 
   protected override async setAccountCryptographicState(

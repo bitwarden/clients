@@ -507,8 +507,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(
       masterKeyEncryptedUserKey[1],
       userId,
@@ -538,13 +536,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.kdfConfigService.setKdfConfig(userId, kdfConfig);
     // TODO Remove master key memory state https://bitwarden.atlassian.net/browse/PM-23477
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(masterKeyWrappedUserKey, userId);
-
-    // TODO Removed with https://bitwarden.atlassian.net/browse/PM-30676
-    await this.masterPasswordService.setLegacyMasterKeyFromUnlockData(
-      newPassword,
-      masterPasswordUnlockData,
-      userId,
-    );
   }
 
   /**

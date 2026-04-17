@@ -410,10 +410,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
-            userId,
-          );
           expect(keyService.setUserKey).toHaveBeenCalledWith(masterKeyEncryptedUserKey[0], userId);
         });
 
@@ -644,10 +640,6 @@ describe("DefaultSetInitialPasswordService", () => {
             userDecryptionOptions,
           );
           expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
-          expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(
-            credentials.newMasterKey,
-            userId,
-          );
           expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
             masterKeyEncryptedUserKey[1],
             userId,
@@ -1144,12 +1136,6 @@ describe("DefaultSetInitialPasswordService", () => {
         new EncString(sdkRegistrationResult.master_password_unlock.masterKeyWrappedUserKey),
         userId,
       );
-
-      expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-        credentials.newPassword,
-        MasterPasswordUnlockData.fromSdk(sdkRegistrationResult.master_password_unlock),
-        userId,
-      );
     });
 
     describe("input validation", () => {
@@ -1431,11 +1417,6 @@ describe("DefaultSetInitialPasswordService", () => {
         expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(userId, credentials.kdfConfig);
         expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
           new EncString(unlockData.masterKeyWrappedUserKey),
-          userId,
-        );
-        expect(masterPasswordService.setLegacyMasterKeyFromUnlockData).toHaveBeenCalledWith(
-          credentials.newPassword,
-          unlockData,
           userId,
         );
       });

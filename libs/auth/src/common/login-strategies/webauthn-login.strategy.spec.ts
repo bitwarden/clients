@@ -267,9 +267,6 @@ describe("WebAuthnLoginStrategy", () => {
       { V1: { private_key: idTokenResponse.privateKey } },
       userId,
     );
-
-    // Master key and private key should not be set
-    expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
   });
 
   it("does not try to set the user key when prfKey is missing", async () => {

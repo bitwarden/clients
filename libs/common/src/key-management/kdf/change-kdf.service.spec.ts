@@ -51,12 +51,7 @@ describe("ChangeKdfService", () => {
 
   beforeEach(() => {
     sdkService.userClient$ = jest.fn((userId: UserId) => of(mockSdk)) as any;
-    sut = new DefaultChangeKdfService(
-      changeKdfApiService,
-      sdkService,
-      keyService,
-      masterPasswordService,
-    );
+    sut = new DefaultChangeKdfService(changeKdfApiService, sdkService);
   });
 
   afterEach(() => {
@@ -169,19 +164,6 @@ describe("ChangeKdfService", () => {
       });
 
       expect(changeKdfApiService.updateUserKdfParams).toHaveBeenCalledWith(expectedRequest);
-    });
-
-    it("should set master key and hash after KDF update", async () => {
-      const masterPassword = "masterPassword";
-      const mockMasterKey = {} as any;
-      const mockHash = "localHash";
-
-      keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-      keyService.hashMasterKey.mockResolvedValue(mockHash);
-
-      await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
-
-      expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
     });
 
     it("should properly dispose of SDK resources", async () => {

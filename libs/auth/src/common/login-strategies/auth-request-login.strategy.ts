@@ -86,25 +86,8 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
     }
 
-    if (authRequestCredentials.decryptedUserKey) {
-      await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
-    } else {
-      await this.trySetUserKeyWithMasterKey(userId);
-
-      // Establish trust if required after setting user key
-      await this.deviceTrustService.trustDeviceIfRequired(userId);
-    }
-  }
-
-  private async trySetUserKeyWithMasterKey(userId: UserId): Promise<void> {
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-        masterKey,
-        userId,
-      );
-      await this.keyService.setUserKey(userKey, userId);
-    }
+    await this.keyService.setUserKey(authRequestCredentials.decryptedUserKey, userId);
+    await this.deviceTrustService.trustDeviceIfRequired(userId);
   }
 
   protected override async setAccountCryptographicState(

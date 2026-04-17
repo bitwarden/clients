@@ -49,13 +49,6 @@ export abstract class MasterPasswordServiceAbstraction {
    */
   abstract emailToSalt(email: string): MasterPasswordSalt;
   /**
-   * An observable that emits the master key for the user.
-   * @deprecated Interacting with the master-key directly is deprecated. Please use {@link makeMasterPasswordUnlockData}, {@link makeMasterPasswordAuthenticationData} or {@link unwrapUserKeyFromMasterPasswordUnlockData} instead.
-   * @param userId The user ID.
-   * @throws If the user ID is missing.
-   */
-  abstract masterKey$: (userId: UserId) => Observable<MasterKey>;
-  /**
    * Returns the master key encrypted user key for the user.
    * @param userId The user ID.
    * @throws If the user ID is missing.
@@ -122,35 +115,9 @@ export abstract class MasterPasswordServiceAbstraction {
    * @throws If the user ID is missing.
    */
   abstract userHasMasterPassword(userId: UserId): Promise<boolean>;
-
-  /**
-   * Derives a master key from the provided password and master password unlock data,
-   * then sets it to state for the specified user. This is a temporary backwards compatibility function
-   * to support existing code that relies on direct master key access.
-   * Note: This will be removed in https://bitwarden.atlassian.net/browse/PM-30676
-   *
-   * @param password The master password.
-   * @param masterPasswordUnlockData The master password unlock data containing the KDF settings and salt.
-   * @param userId The user ID.
-   * @throws If the password, master password unlock data, or user ID is missing.
-   */
-  abstract setLegacyMasterKeyFromUnlockData(
-    password: string,
-    masterPasswordUnlockData: MasterPasswordUnlockData,
-    userId: UserId,
-  ): Promise<void>;
 }
 
 export abstract class InternalMasterPasswordServiceAbstraction extends MasterPasswordServiceAbstraction {
-  /**
-   * Set the master key for the user.
-   * Note: Use {@link clearMasterKey} to clear the master key.
-   * @deprecated Interacting with the master-key directly is deprecated.
-   * @param masterKey The master key.
-   * @param userId The user ID.
-   * @throws If the user ID or master key is missing.
-   */
-  abstract setMasterKey: (masterKey: MasterKey, userId: UserId) => Promise<void>;
   /**
    * Set the master key encrypted user key for the user.
    * @param encryptedKey The master key encrypted user key.

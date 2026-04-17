@@ -223,11 +223,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       throw new Error("User ID is required.");
     }
 
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey != null) {
-      return masterKey;
-    }
-
     const email = await firstValueFrom(
       this.accountService.accounts$.pipe(map((accounts) => accounts[userId]?.email)),
     );
