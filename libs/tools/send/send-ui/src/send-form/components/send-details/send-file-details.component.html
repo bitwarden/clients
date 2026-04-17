@@ -1,10 +1,14 @@
 <bit-section [formGroup]="sendFileDetailsForm">
-  @if (config().mode === "edit") {
-    <div bitTypography="body2" class="tw-text-muted">{{ "file" | i18n }}</div>
-    <div class="tw-text-wrap tw-break-all" data-testid="file-name">
-      {{ originalSendView().file.fileName }}
+  @if (sendFormService.sendFormConfig.mode === "edit") {
+    <div>
+      <div bitTypography="body2" class="tw-text-muted">{{ "file" | i18n }}</div>
+      <div class="tw-text-wrap tw-break-all" data-testid="file-name">
+        {{ sendFormService.originalSendView.file.fileName }}
+      </div>
+      <div data-testid="file-size" class="tw-text-muted">
+        {{ sendFormService.originalSendView.file.sizeName }}
+      </div>
     </div>
-    <div data-testid="file-size" class="tw-text-muted">{{ originalSendView().file.sizeName }}</div>
   } @else {
     <bit-form-field>
       <bit-label for="file">{{ "fileToShare" | i18n }}</bit-label>
@@ -14,8 +18,7 @@
         </button>
         <span
           class="tw-flex tw-items-center tw-pl-3"
-          [class.tw-text-main]="fileName()"
-          [class.tw-text-muted]="!fileName()"
+          [ngClass]="fileName ? 'tw-text-main' : 'tw-text-muted'"
         >
           {{ fileName() || ("noFileChosen" | i18n) }}</span
         >

@@ -12,6 +12,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { UserId } from "@bitwarden/user-core";
 
+import { SendFormService } from "../../abstractions/send-form.service";
 import { SendFormContainer } from "../../send-form-container";
 
 import { SendOptionsComponent } from "./send-options.component";
@@ -22,6 +23,7 @@ describe("SendOptionsComponent", () => {
   const mockSendFormContainer = mock<SendFormContainer>();
   const mockAccountService = mock<AccountService>();
   const mockPolicyService = mock<PolicyService>();
+  const mockSendFormService = mock<SendFormService>();
 
   beforeAll(() => {
     mockAccountService.activeAccount$ = of({ id: "myTestAccount" } as Account);
@@ -40,17 +42,18 @@ describe("SendOptionsComponent", () => {
         { provide: SendFormContainer, useValue: mockSendFormContainer },
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: AccountService, useValue: mockAccountService },
+        { provide: SendFormService, useValue: mockSendFormService },
         { provide: SendPolicyService, useValue: { disableHideEmail$: of(false) } },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(SendOptionsComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput("config", {
+    mockSendFormService.sendFormConfig = {
       areSendsAllowed: true,
       mode: "add",
       sendType: SendType.Text,
-    });
-    await fixture.whenStable();
+    };
     fixture.detectChanges();
   });
 

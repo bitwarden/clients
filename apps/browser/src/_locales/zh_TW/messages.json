@@ -1148,6 +1148,15 @@
     "message": "自動清除剪貼簿中已複製的值。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "是否要讓 Bitwarden 記住此密碼？"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "其他選項"
+  },
+  "enableFillAssist": {
+    "message": "Use fill assist"
   },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "備註"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "newItemHeaderLogin": {
     "message": "新增登入資料",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "檢視 SSH 金鑰",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "密碼歷史記錄"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ 要求你變更此密碼，因為它存在風險。請前往帳號設定以變更密碼。",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "登入狀態"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "主密碼已儲存"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "升級"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "下載 Bitwarden 應用程式"

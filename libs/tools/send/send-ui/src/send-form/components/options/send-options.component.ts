@@ -31,10 +31,10 @@ import {
   SectionHeaderComponent,
   SelectModule,
 } from "@bitwarden/components";
-import { SendPolicyService, SendFormConfig } from "@bitwarden/send-ui";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 
 @Component({
   selector: "tools-send-options",
@@ -58,11 +58,10 @@ import { SendFormContainer } from "../../send-form-container";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendOptionsComponent implements OnInit {
-  private readonly sendFormContainer = inject(SendFormContainer);
   private readonly policyService = inject(PolicyService);
   private readonly accountService = inject(AccountService);
+  protected readonly sendFormService = inject(SendFormService);
 
-  readonly config = input.required<SendFormConfig>();
   readonly originalSendView = input<SendView>();
   readonly editing = input<boolean>(false);
 
@@ -79,7 +78,10 @@ export class SendOptionsComponent implements OnInit {
   private readonly sendPolicyService = inject(SendPolicyService);
 
   get shouldShowCount(): boolean {
-    return this.config().mode === "edit" && this.sendOptionsForm.value.maxAccessCount !== null;
+    return (
+      this.sendFormService.sendFormConfig.mode === "edit" &&
+      this.sendOptionsForm.value.maxAccessCount !== null
+    );
   }
 
   readonly maxAccessCountVisible = computed(
@@ -114,7 +116,7 @@ export class SendOptionsComponent implements OnInit {
   );
 
   constructor() {
-    this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
+    this.sendFormService.registerChildForm("sendOptionsForm", this.sendOptionsForm);
 
     effect(() => {
       if (!this.editing() && this.originalSendView()) {
@@ -131,7 +133,7 @@ export class SendOptionsComponent implements OnInit {
     });
 
     this.sendOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormContainer.patchSend((send) => {
+      this.sendFormService.patchSend((send) => {
         Object.assign(send, {
           maxAccessCount: value.maxAccessCount,
           accessCount: value.accessCount,
@@ -144,11 +146,16 @@ export class SendOptionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.sendFormContainer.originalSendView) {
-      this.initializeFormFromOriginal(this.sendFormContainer.originalSendView);
+    if (this.sendFormService.originalSendView) {
+      this.sendOptionsForm.patchValue({
+        maxAccessCount: this.sendFormService.originalSendView.maxAccessCount,
+        accessCount: this.sendFormService.originalSendView.accessCount,
+        hideEmail: this.sendFormService.originalSendView.hideEmail,
+        notes: this.sendFormService.originalSendView.notes,
+      });
     }
 
-    if (!this.config().areSendsAllowed) {
+    if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
       this.sendOptionsForm.disable();
     }
   }

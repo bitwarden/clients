@@ -1,13 +1,19 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnInit,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, Validators, ReactiveFormsModule } from "@angular/forms";
 
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { CheckboxModule, FormFieldModule, SectionComponent } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 
 @Component({
   selector: "tools-send-text-details",
@@ -15,12 +21,9 @@ import { SendFormContainer } from "../../send-form-container";
   imports: [CheckboxModule, I18nPipe, ReactiveFormsModule, FormFieldModule, SectionComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendTextDetailsComponent {
-  readonly formBuilder = inject(FormBuilder);
-  readonly sendFormContainer = inject(SendFormContainer);
-
-  readonly config = input.required<SendFormConfig>();
-  readonly originalSendView = input<SendView>();
+export class SendTextDetailsComponent implements OnInit {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly sendFormService = inject(SendFormService);
   readonly editing = input<boolean>(false);
 
   readonly sendTextDetailsForm = this.formBuilder.group({
@@ -28,13 +31,15 @@ export class SendTextDetailsComponent {
     hidden: new FormControl(false),
   });
 
-  readonly formDisabled = computed(() => !this.editing() || !this.config().areSendsAllowed);
+  readonly formDisabled = computed(
+    () => !this.editing() || !this.sendFormService.sendFormConfig?.areSendsAllowed,
+  );
   readonly showHiddenCheckbox = computed(
-    () => this.editing() || this.config().originalSend?.text?.hidden,
+    () => this.editing() || this.sendFormService.sendFormConfig?.originalSend?.text?.hidden,
   );
 
   constructor() {
-    this.sendFormContainer.registerChildForm("sendTextDetailsForm", this.sendTextDetailsForm);
+    this.sendFormService.registerChildForm("sendTextDetailsForm", this.sendTextDetailsForm);
 
     effect(() => {
       if (this.formDisabled()) {
@@ -46,13 +51,13 @@ export class SendTextDetailsComponent {
 
     effect(() => {
       this.sendTextDetailsForm.patchValue({
-        text: this.originalSendView()?.text?.text || "",
-        hidden: this.originalSendView()?.text?.hidden || false,
+        text: this.sendFormService.originalSendView?.text?.text || "",
+        hidden: this.sendFormService.originalSendView?.text?.hidden || false,
       });
     });
 
     this.sendTextDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormContainer.patchSend((send) => {
+      this.sendFormService.patchSend((send) => {
         return Object.assign(send, {
           text: {
             text: value.text,
@@ -61,5 +66,16 @@ export class SendTextDetailsComponent {
         });
       });
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    this.sendTextDetailsForm.patchValue({
+      text: this.sendFormService.originalSendView?.text?.text || "",
+      hidden: this.sendFormService.originalSendView?.text?.hidden || false,
+    });
+
+    if (!this.sendFormService.sendFormConfig?.areSendsAllowed) {
+      this.sendTextDetailsForm.disable();
+    }
   }
 }

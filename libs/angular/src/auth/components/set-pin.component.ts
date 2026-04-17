@@ -50,6 +50,6 @@ export class SetPinComponent implements OnInit {
       requireMasterPasswordOnClientRestart ? "EPHEMERAL" : "PERSISTENT",
       userId,
     );
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 }

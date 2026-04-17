@@ -24,8 +24,7 @@ import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
-import { SendFormConfig, SendFormModule } from "../send-form";
-import { SendFormComponent } from "../send-form/components/send-form.component";
+import { SendFormComponent, SendFormConfig, SendFormModule } from "../send-form";
 
 export interface SendItemDialogParams {
   /**
@@ -37,6 +36,12 @@ export interface SendItemDialogParams {
    * If true, the "edit" button will be disabled in the dialog.
    */
   disableForm?: boolean;
+
+  /**
+   * A function that is called to determine whether the dialog is allowed
+   * to close. Used to trigger the "unsaved edits" dialog.
+   */
+  closePredicate?: () => Promise<boolean>;
 }
 
 /** A result of the Send add/edit dialog. */
@@ -105,9 +110,7 @@ export class SendAddEditDialogComponent {
     return translation[this.config.sendType][sendAction];
   });
 
-  /**
-   * The configuration for the send form.
-   */
+  /** The configuration for the Send form. */
   config: SendFormConfig;
 
   /**
@@ -196,21 +199,21 @@ export class SendAddEditDialogComponent {
    */
   async onSendCreated(send: SendView) {
     // FIXME Add dialogService.open send-created dialog
-    this.dialogRef.close({ result: SendItemDialogResult.Created, send });
+    await this.dialogRef.close({ result: SendItemDialogResult.Created, send });
   }
 
   /**
    * Handles the event when the send is updated.
    */
   async onSendUpdated(send: SendView) {
-    this.dialogRef.close({ result: SendItemDialogResult.Updated, send });
+    await this.dialogRef.close({ result: SendItemDialogResult.Updated });
   }
 
   /**
    * Handles the event when the send is deleted.
    */
   async onSendDeleted() {
-    this.dialogRef.close({ result: SendItemDialogResult.Deleted });
+    await this.dialogRef.close({ result: SendItemDialogResult.Deleted });
 
     this.toastService.showToast({
       variant: "success",
@@ -253,7 +256,7 @@ export class SendAddEditDialogComponent {
 
   protected cancelEditSend() {
     if (this.config.mode === "add") {
-      this.dialogRef.close();
+      void this.dialogRef.close();
     } else {
       this.editing.set(false);
     }
@@ -266,12 +269,14 @@ export class SendAddEditDialogComponent {
    * @returns The dialog result.
    */
   static open(dialogService: DialogService, params: SendItemDialogParams) {
-    return dialogService.open<SendItemDialogResult, SendItemDialogParams>(
-      SendAddEditDialogComponent,
-      {
-        data: params,
-      },
-    );
+    return dialogService.open<
+      SendItemDialogResult,
+      SendItemDialogParams,
+      SendAddEditDialogComponent
+    >(SendAddEditDialogComponent, {
+      data: params,
+      closePredicate: params.closePredicate,
+    });
   }
 
   /**
@@ -281,11 +286,13 @@ export class SendAddEditDialogComponent {
    * @returns The drawer result.
    */
   static openDrawer(dialogService: DialogService, params: SendItemDialogParams) {
-    return dialogService.openDrawer<SendItemDialogResult, SendItemDialogParams>(
-      SendAddEditDialogComponent,
-      {
-        data: params,
-      },
-    );
+    return dialogService.openDrawer<
+      SendItemDialogResult,
+      SendItemDialogParams,
+      SendAddEditDialogComponent
+    >(SendAddEditDialogComponent, {
+      data: params,
+      closePredicate: params.closePredicate,
+    });
   }
 }
