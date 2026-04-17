@@ -189,6 +189,9 @@ export const SimpleDialogOpen: Story = {
 };
 
 export const EmptyTab: Story = {
+  parameters: {
+    chromatic: { viewports: [1280] },
+  },
   play: async (context) => {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
