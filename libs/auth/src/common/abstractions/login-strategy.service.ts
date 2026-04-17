@@ -62,10 +62,6 @@ export abstract class LoginStrategyServiceAbstraction {
    */
   abstract logInTwoFactor(twoFactor: TokenTwoFactorRequest): Promise<AuthResult>;
   /**
-   * Emits true if the authentication session has expired.
-   */
-  abstract get authenticationSessionTimeout$(): Observable<boolean>;
-  /**
    * Sends a token request to the server with the provided device verification OTP.
    */
   abstract logInNewDeviceVerification(deviceVerificationOtp: string): Promise<AuthResult>;
