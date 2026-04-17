@@ -1,4 +1,4 @@
-// Lunr search is used for advanced querys which most users do not use. It is preformance heavy and should only be built when needed.
+// Lunr search is used for advanced queries which most users do not use. It is performance heavy and should only be built when needed.
 
 import * as lunr from "lunr";
 import { Opaque } from "type-fest";
@@ -81,7 +81,7 @@ export class LunrSearchService {
       this.logService.info("Starting Lunr index build");
 
       // Only build one index concurrently
-      await this.aquireIndexLock();
+      await this.acquireIndexLock();
       const index = await buildCipherIndex(ciphers);
       this.lunrIndices.set(indexId, {
         lunrIndex: index,
@@ -128,7 +128,7 @@ export class LunrSearchService {
     return indexState.revisionDate >= latestCipherDate;
   }
 
-  private async aquireIndexLock(): Promise<boolean> {
+  private async acquireIndexLock(): Promise<boolean> {
     while (this.isIndexing) {
       await new Promise((resolve) => setTimeout(resolve, 20));
     }
