@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "autoFillOnPageLoad": {
     "message": "பக்கத்தை ஏற்றியவுடன் தானாக நிரப்ப வேண்டுமா?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden ஆனது 2-படி சரிபார்ப்பு குறியீடுகளை சேமித்து நிரப்ப முடியும். இந்த இணையதளத்தின் அங்கீகரிப்பு QR குறியீட்டின் ஸ்கிரீன்ஷாட்டை எடுக்க கேமரா ஐகானைத் தேர்ந்தெடுக்கவும், அல்லது விசையை நகலெடுத்து இந்த புலத்தில் ஒட்டவும்."
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
     "message": "அங்கீகரிப்பாளர்கள் பற்றி மேலும் அறிக"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH விசை"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "உள்நுழைவுகள்"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "பொருளைச் சேர்"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "பொருளைத் திருத்து"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "உள்நுழைவு நிலை"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "முதல் உள்நுழைவு"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "எந்த நேரத்திலும்."
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "தொடர்ந்து செல்வதன் மூலம், நீங்கள்"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Session timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "Immediately"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "உங்கள் சந்தாவிற்கான விலைப்பட்டியல் $ISSUED_DATE$ அன்று வழங்கப்பட்டது. தடையற்ற சேவையை உறுதிப்படுத்த, $DUE_DATE$-க்கு முன் உங்கள் புதுப்பித்தலை உறுதிப்படுத்த $RESELLER$-ஐத் தொடர்பு கொள்ளவும்.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini göster"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini gizle"
+  },
   "autoFillOnPageLoad": {
     "message": "Sayfa yüklendiğinde otomatik doldur"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "totpCapture": {
+    "message": "Mevcut web sayfasındaki kimlik doğrulayıcı QR kodunu tarayın"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Kimlik doğrulayıcılar hakkında bilgi alın"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH anahtarı"
   },
+  "typeLoginSubtitle": {
+    "message": "Web sitesi veya uygulama"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredi veya banka kartı"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Kişisel bilgiler"
+  },
+  "typeNoteSubtitle": {
+    "message": "Önemli metinler"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Sunucu giriş token'ı"
+  },
+  "folderSubtitle": {
+    "message": "Kayıtlarınızı organize edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan kayıtları organize edin"
+  },
   "typeLoginPlural": {
     "message": "Hesaplar"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Kayıt ekle"
+  },
+  "chooseItemToAdd": {
+    "message": "Eklenecek kaydı seçin"
   },
   "editItem": {
     "message": "Kaydı düzenle"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Oturum açma durumu"
   },
+  "recentlyActive": {
+    "message": "Yakın zamanda aktif"
+  },
+  "recentlyActiveToday": {
+    "message": "Bugün"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Son 7 gün"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Son 14 gün"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Son 30 gün"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 günden önce"
+  },
   "firstLogin": {
     "message": "İlk giriş"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "aboneliğinizi iptal edebilirsiniz."
+  },
+  "byEmail": {
+    "message": "E-posta ile"
+  },
+  "byLink": {
+    "message": "Bağlantı ile"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Devam ederek şunları kabul etmiş olursunuz:"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Oturum zaman aşımı eylemi"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden tarayıcı uzantısı tarafından yönetiliyor. Düzenlemek için tarayıcı uygulamasını açın."
   },
   "immediately": {
     "message": "Hemen"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Aboneliğiniz için fatura $ISSUED_DATE$ tarihinde düzenlenmiştir. Hizmetin kesintisiz devam etmesi için, $DUE_DATE$ tarihinden önce $RESELLER$ ile iletişime geçerek yenileme işleminizi onaylatın.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "kullanici@bitwarden.com, kullanici@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

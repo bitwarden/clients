@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Prikaži otkrivanje podudaranja"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Sarkrij otkrivanje podudaranja"
+  },
   "autoFillOnPageLoad": {
     "message": "Auto-ispuna kod učitavanja"
   },
@@ -662,7 +668,7 @@
     "message": "Tvrtka"
   },
   "ssn": {
-    "message": "Broj zdravstvenog osiguranja"
+    "message": "OIB"
   },
   "passportNumber": {
     "message": "Broj putovnice"
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden može pohraniti i ispuniti kodove provjeru dvostruke autentifikacije. Odaberi ikonu kamere i označi QR kôd za provjeru autentičnosti ove web stranice ili kopiraj i zalijepi ključ u ovo polje."
+  },
+  "totpCapture": {
+    "message": "Skeniraj QR kôd autentifikatora s trenutne web stranice"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Više o autentifikatorima"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH ključ"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "Prijave"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Dodaj stavku"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "Uredi stavku"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Status prijave"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "Prva prijava"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "bilo kada."
+  },
+  "byEmail": {
+    "message": "E-poštom"
+  },
+  "byLink": {
+    "message": "Poveznicom"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ako nastaviš, slažeš se s"
@@ -7080,6 +7137,9 @@
   "sessionTimeoutAction": {
     "message": "Radnja kod isteka sesije"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
+  },
   "immediately": {
     "message": "Odmah"
   },
@@ -8267,7 +8327,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
-    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "message": "Samo jedna integracija ove vrste ($TYPE$) je dozvoljena. Sukobljena integracija je: $NAME$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8280,7 +8340,7 @@
     }
   },
   "anotherIntegrationWithSameTypeExists": {
-    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "message": "Druga integracija iste vrste ($TYPE$) već postoji. Osvježi i pokušaj ponovno.",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Za tvoju je pretplatu $ISSUED_DATE$ izdana faktura. Za neprekinutu uslugu, kontaktiraj $RESELLER$ za potvrdu obnove prije $DUE_DATE$.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "korisnik@bitwarden.com , korisnik@primjer.hr"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Kada ukloniš prostor za pohranu, proporcionalna razlika će se automatski koristiti za umanjennje tvog sljedećeg računa."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Tvoj bankovni račun mora biti potvrđen prije no što se može koristiti za ovu nadogradnju. Molimo, potvrdi svoj bankovni račun ili odaberi drugi način plaćanja."
   }
 }

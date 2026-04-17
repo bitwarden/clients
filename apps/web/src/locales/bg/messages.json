@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показване на откриването на съвпадения"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скриване на откриването на съвпадения"
+  },
   "autoFillOnPageLoad": {
     "message": "Автоматично попълване при зареждане на страницата?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Битуорден може да съхранява и попълва кодовете за 2-стъпково потвърждаване. Изберете иконката с камера, за да направите екранна снимка на QR-кода от този уеб сайт или копирайте ключа в това поле."
+  },
+  "totpCapture": {
+    "message": "Сканирайте QR-кода за удостоверяване от текущата страница"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Научете повече за средствата за удостоверяване"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeLoginSubtitle": {
+    "message": "Уеб сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитна или дебитна карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Лична информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важен текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Идентификатор за вписване в сървъра"
+  },
+  "folderSubtitle": {
+    "message": "Организирайте данните си"
+  },
+  "collectionSubtitle": {
+    "message": "Организирайте споделените данни"
+  },
   "typeLoginPlural": {
     "message": "Записи"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Добавяне на елемент"
+  },
+  "chooseItemToAdd": {
+    "message": "Изберете елемент за добавяне"
   },
   "editItem": {
     "message": "Редактиране на елемента"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Състояние на вписването"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "Първо вписване"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "по всяко време."
+  },
+  "byEmail": {
+    "message": "Чрез е-поща"
+  },
+  "byLink": {
+    "message": "Чрез връзка"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ако продължите, Вие се съгласявате с"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Действие при изтичане на времето за сесията"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Управлява се от добавката за браузър на Битуорден. Отворете нея, ако искате да правите промени."
   },
   "immediately": {
     "message": "Незабавно"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Вашият абонамент ще бъде подновен скоро. За да подсигурите, че услугата няма да има прекъсвания, свържете се със своя доставчик за Битуорден и потвърдете подновяването преди $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Фактура за абонамента Ви беше издадена на $ISSUED_DATE$. За да подсигурите, че услугата няма да има прекъсвания, свържете се с $RESELLER$ и потвърдете подновяването преди $DUE_DATE$.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "Фактурата за абонамента Ви не е била платена. За да подсигурите, че услугата няма да има прекъсвания, свържете се със своя доставчик за Битуорден преди $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "потребител@bitwarden.com, потребител@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Когато премахнете съхранението, ще получите пропорционално задължение към акаунта си, което ще бъде включено автоматично в следващата Ви сметка."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Банковата Ви сметка трябва да бъде потвърдена, преди да може да се използва за това надграждане. Моля, потвърдете банковата си сметка или изберете друг начин за разплащане."
   }
 }

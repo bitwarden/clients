@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie weergeven"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie verbergen"
+  },
   "autoFillOnPageLoad": {
     "message": "Automatisch invullen bij laden van pagina?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden kan tweestapsaanmeldingscodes opslaan en invullen. Selecteer het camerapictogram om een schermafbeelding van de QR-code van deze website te maken of kopieer en plak de sleutel in dit veld."
+  },
+  "totpCapture": {
+    "message": "Scan de authenticatie-QR-code van de huidige webpagina"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Meer informatie over authenticatoren"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH-sleutel"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "Logins"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Item toevoegen"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "Item bewerken"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Loginstatus"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "Eerst inloggen"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "op ieder moment."
+  },
+  "byEmail": {
+    "message": "Via e-mail"
+  },
+  "byLink": {
+    "message": "Via link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Door verder te gaan, ga je akkoord met de"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Actie voor sessie time-out"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Beheerd door de Bitwarden browser-extensie-app. Open de browser-app om te bewerken."
   },
   "immediately": {
     "message": "Onmiddellijk"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Je abonnement wordt binnenkort verlengd. Neem voor $RENEWAL_DATE$ contact op met je Bitwarden-provider om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Er is een factuur voor je abonnement aangemaakt op $ISSUED_DATE$. Neem contact op met $RESELLER$ voor $DUE_DATE$ om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "De factuur voor je abonnement is niet betaald. Neem contact op met je Bitwarden-provider voor $GRACE_PERIOD_END$ om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Je bankrekening moet worden geverifieerd voordat deze kan worden gebruikt voor deze upgrade. Verifieer je bankrekening of kies een andere betaalmethode."
   }
 }
