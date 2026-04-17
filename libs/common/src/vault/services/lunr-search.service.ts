@@ -137,10 +137,7 @@ export class LunrSearchService {
   private async acquireIndexLock(): Promise<boolean> {
     const lockWaitStart = performance.now();
     while (this.isIndexing) {
-      if (
-        performance.now() - lockWaitStart >=
-        LunrSearchService.indexLockForceAcquireTimeoutMs
-      ) {
+      if (performance.now() - lockWaitStart >= LunrSearchService.indexLockForceAcquireTimeoutMs) {
         // In case somehow the index build threw previously and did not release the lock.
         this.logService.info(
           "Lunr index lock acquisition timed out after 10 seconds, forcing lock acquisition",
@@ -148,7 +145,9 @@ export class LunrSearchService {
         break;
       }
 
-      await new Promise((resolve) => setTimeout(resolve, LunrSearchService.indexLockPollIntervalMs));
+      await new Promise((resolve) =>
+        setTimeout(resolve, LunrSearchService.indexLockPollIntervalMs),
+      );
     }
 
     this.isIndexing = true;
