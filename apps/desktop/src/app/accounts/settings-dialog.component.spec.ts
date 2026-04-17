@@ -4,7 +4,6 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 
-
 // Passthrough tab components so all tab content renders regardless of active tab
 @Component({
   selector: "bit-tab-group",
@@ -49,7 +48,7 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { TabsModule , DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { TabsModule, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
