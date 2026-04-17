@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,12 +19,10 @@ type CipherItem = {
   /** Property key on `CipherView` to retrieve the copy value */
   field: CopyFieldAction;
 };
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-item-copy-actions",
   templateUrl: "./item-copy-actions.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ItemModule, IconButtonModule, JslibModule, MenuModule, CopyCipherFieldDirective],
 })
 export class VaultItemCopyActionsComponent {
@@ -32,10 +30,10 @@ export class VaultItemCopyActionsComponent {
 
   readonly showQuickCopyActions = input(false);
 
-  protected CipherViewLikeUtils = CipherViewLikeUtils;
-  protected CipherType = CipherType;
+  protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
+  protected readonly CipherType = CipherType;
 
-  constructor(private i18nService: I18nService) {}
+  constructor(private readonly i18nService: I18nService) {}
 
   /*
    * singleCopyableLogin uses appCopyField instead of appCopyClick. This allows for the TOTP
