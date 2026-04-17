@@ -486,7 +486,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
-    this.activeDrawerRef?.close();
+    void this.activeDrawerRef?.close();
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<C>) {
@@ -885,9 +885,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       if (keepChanges) {
         return;
       }
-      this.activeDrawerRef.close();
+      await this.activeDrawerRef.close();
     }
-    this.activeDrawerRef = VaultItemDialogComponent.openDrawer(this.dialogService, {
+    this.activeDrawerRef = await VaultItemDialogComponent.openDrawer(this.dialogService, {
       mode,
       formConfig,
       restore: this.restore,
