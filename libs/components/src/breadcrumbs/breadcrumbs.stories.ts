@@ -157,29 +157,16 @@ export const Overflow: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <h3 class="tw-text-main">Router links</h3>
-      <p>
-        <bit-breadcrumbs>
-          <bit-breadcrumb route="">Acme Vault</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared" route="collection">Collection</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-1">Middle-Collection 1</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-2">Middle-Collection 2</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-3">Middle-Collection 3</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared" route="middle-collection-4">Middle-Collection 4</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared" route="end-collection">End Collection</bit-breadcrumb>
-        </bit-breadcrumbs>
-      </p>
-  
       <h3 class="tw-text-main">Click emit</h3>
       <p>
-        <bit-breadcrumbs>
-          <bit-breadcrumb route="">Acme Vault</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared">Collection</bit-breadcrumb>
+        <bit-breadcrumbs [show]="10">
+          <bit-breadcrumb icon="bwi-collection-shared">First Collection</bit-breadcrumb>
           <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 1</bit-breadcrumb>
           <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 2</bit-breadcrumb>
           <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 3</bit-breadcrumb>
           <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 4</bit-breadcrumb>
-          <bit-breadcrumb icon="bwi-collection-shared">End Collection</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">Middle-Collection 5</bit-breadcrumb>
+          <bit-breadcrumb icon="bwi-collection-shared">Active Collection</bit-breadcrumb>
         </bit-breadcrumbs>
       </p>
     `,
