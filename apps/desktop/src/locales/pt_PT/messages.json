@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Site ou app"
+  },
+  "typeCardSubtitle": {
+    "message": "Cartão de crédito ou débito"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informações pessoais"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texto importante"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Token de início de sessão no servidor"
+  },
+  "folderSubtitle": {
+    "message": "Organize os seus itens"
+  },
+  "collectionSubtitle": {
+    "message": "Organize itens partilhados"
+  },
+  "chooseItemToAdd": {
+    "message": "Escolher item a adicionar"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Selecione o tipo de item que pretende adicionar ao seu cofre."
+  },
   "folders": {
     "message": "Pastas"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Ver item"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Ver credencial",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Ver cartão",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Ver identidade",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Ver nota",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Ver chave SSH",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Nova credencial",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Novo cartão",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Nova identidade",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nova nota",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nova chave SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Editar credencial",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Editar cartão",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Editar identidade",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Editar nota",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Editar chave SSH",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Nome"
@@ -2243,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Copiar Chave de autenticação (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Copiar notas"
   },
   "totpHelperTitle": {
     "message": "Torne a verificação de dois passos simples"
@@ -4705,6 +4795,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Não é possível aceder aos itens de organizações suspensas. Contacte o proprietário da organização para obter assistência."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Nenhum item no lixo"
   },
@@ -4759,6 +4858,9 @@
   },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."

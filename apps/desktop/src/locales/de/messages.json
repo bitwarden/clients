@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "typeLoginSubtitle": {
+    "message": "Website oder App"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit- oder Debitkarte"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Persönliche Informationen"
+  },
+  "typeNoteSubtitle": {
+    "message": "Wichtiger Text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server-Anmeldetoken"
+  },
+  "folderSubtitle": {
+    "message": "Organisiere deine Einträge"
+  },
+  "collectionSubtitle": {
+    "message": "Geteilte Einträge organisieren"
+  },
+  "chooseItemToAdd": {
+    "message": "Wähle einen Eintrag zum Hinzufügen aus"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Wähle den Eintrags-Typ aus, den du zu deinem Tresor hinzufügen möchtest."
+  },
   "folders": {
     "message": "Ordner"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Eintrag anzeigen"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zugangsdaten anzeigen",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karte anzeigen",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identität anzeigen",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notiz anzeigen",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-Schlüssel anzeigen",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Neue Zugangsdaten",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Neue Karte",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Neue Identität",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Neue Notiz",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Neuer SSH-Schlüssel",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Zugangsdaten bearbeiten",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karte bearbeiten",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identität bearbeiten",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notiz bearbeiten",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-Schlüssel bearbeiten",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Name"
@@ -2243,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Authenticator-Schlüssel kopieren (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Notizen kopieren"
   },
   "totpHelperTitle": {
     "message": "Zwei-Faktor-Authentifizierung nahtlos gestalten"
@@ -4705,6 +4795,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Besitzer deiner Organisation, um Unterstützung zu erhalten."
   },
+  "percentageCompleted": {
+    "message": "Zu $PERCENT$% abgeschlossen",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Keine Einträge im Papierkorb"
   },
@@ -4758,6 +4857,9 @@
     "message": "Gib mehrere E-Mail-Adressen ein, indem du sie mit einem Komma trennst."
   },
   "emailPlaceholder": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "emailPlaceholderMultiple": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
   "userVerificationFailed": {

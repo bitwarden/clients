@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH anahtarı"
   },
+  "typeLoginSubtitle": {
+    "message": "Web sitesi veya uygulama"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredi veya banka kartı"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Kişisel bilgiler"
+  },
+  "typeNoteSubtitle": {
+    "message": "Önemli metinler"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Sunucu giriş token'ı"
+  },
+  "folderSubtitle": {
+    "message": "Kayıtlarınızı organize edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan kayıtları organize edin"
+  },
+  "chooseItemToAdd": {
+    "message": "Eklenecek kaydı seçin"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Kasanıza eklemek istediğiniz kayıt türünü seçin."
+  },
   "folders": {
     "message": "Klasörler"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Kaydı göster"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Hesabı göster",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kartı göster",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Kimliği göster",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notu göster",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH anahtarını göster",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Yeni hesap",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Yeni kart",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Yeni kimlik",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Yeni not",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Yeni SSH anahtarı",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Hesabı düzenle",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kartı düzenle",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Kimliği düzenle",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notu düzenle",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH anahtarını düzenle",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Ad"
@@ -2243,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Kimlik doğrulama anahtarını kopyala (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Notları kopyala"
   },
   "totpHelperTitle": {
     "message": "2 adımlı doğrulamayı sorunsuz hale getirin"
@@ -4705,6 +4795,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
   },
+  "percentageCompleted": {
+    "message": "%$PERCENT$ tamamlandı",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Çöp kutusunda hiç kayıt yok"
   },
@@ -4759,6 +4858,9 @@
   },
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "kullanici@bitwarden.com, kullanici@acme.com"
   },
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
