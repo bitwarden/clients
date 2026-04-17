@@ -175,7 +175,7 @@
     "@bitwarden/commercial-sdk-internal": "0.2.0-main.689",
     "@bitwarden/desktop-napi": "file:apps/desktop/desktop_native/napi",
     "@bitwarden/sdk-internal": "0.2.0-main.689",
-    "@electron/fuses": "1.8.0",
+    "@electron/fuses": "2.1.1",
     "@emotion/css": "11.13.5",
     "@koa/multer": "4.0.0",
     "@koa/router": "15.4.0",
