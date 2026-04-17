@@ -15,6 +15,7 @@ export class PlanResponse extends BaseResponse {
   hasSelfHost: boolean;
   hasPolicies: boolean;
   hasMyItems: boolean;
+  hasInviteLinks: boolean;
   hasGroups: boolean;
   hasDirectory: boolean;
   hasEvents: boolean;
@@ -44,6 +45,7 @@ export class PlanResponse extends BaseResponse {
     this.hasSelfHost = this.getResponseProperty("HasSelfHost");
     this.hasPolicies = this.getResponseProperty("HasPolicies");
     this.hasMyItems = this.getResponseProperty("HasMyItems");
+    this.hasInviteLinks = this.getResponseProperty("HasInviteLinks") ?? false;
     this.hasGroups = this.getResponseProperty("HasGroups");
     this.hasDirectory = this.getResponseProperty("HasDirectory");
     this.hasEvents = this.getResponseProperty("HasEvents");
