@@ -122,12 +122,21 @@ export const DefaultColors: Story = {
         </div>
 
         <span class="tw-font-bold">Interactive</span>
-        <div class="tw-flex tw-gap-2">
+        <div class="tw-flex tw-gap-2 tw-mb-10">
           <button bit-avatar [color]="'brand'" [text]="'Walt Walterson'"></button>
           <button bit-avatar [color]="'teal'" [text]="'Walt Walterson'"></button>
           <button bit-avatar [color]="'coral'" [text]="'Walt Walterson'"></button>
           <button bit-avatar [color]="'green'" [text]="'Walt Walterson'"></button>
           <button bit-avatar [color]="'purple'" [text]="'Walt Walterson'"></button>
+        </div>
+
+        <span class="tw-font-bold">Interactive (Defaults as Hexes)</span>
+        <div class="tw-flex tw-gap-2">
+          <button bit-avatar [color]="'#175ddc'" [text]="'Walt Walterson'"></button>
+          <button bit-avatar [color]="'#007c95'" [text]="'Walt Walterson'"></button>
+          <button bit-avatar [color]="'#c71800'" [text]="'Walt Walterson'"></button>
+          <button bit-avatar [color]="'#008236'" [text]="'Walt Walterson'"></button>
+          <button bit-avatar [color]="'#8200db'" [text]="'Walt Walterson'"></button>
         </div>
       `,
     };
