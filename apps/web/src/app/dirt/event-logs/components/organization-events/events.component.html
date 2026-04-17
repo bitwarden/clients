@@ -54,11 +54,11 @@
         class="tw-mt-1"
         bitButton
         bitFormButton
+        endIcon="bwi-sign-in"
         [bitAction]="exportEvents"
         [disabled]="dirtyDates || usePlaceHolderEvents"
       >
-        <span>{{ "export" | i18n }}</span>
-        <bit-icon name="bwi-sign-in" fixedWidth></bit-icon>
+        {{ "export" | i18n }}
       </button>
     </form>
   </div>

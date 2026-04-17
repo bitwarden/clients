@@ -54,13 +54,13 @@
           bitButton
           buttonType="secondary"
           type="button"
+          startIcon="bwi-envelope"
           [disabled]="!enableRequestPasswordChange()"
           [bitTooltip]="!enableRequestPasswordChange() ? ('allTasksAssigned' | i18n) : null"
           [addTooltipToDescribedby]="!enableRequestPasswordChange()"
           (click)="requestPasswordChange()"
           data-testid="assign-tasks-button"
         >
-          <bit-icon class="tw-mr-2" name="bwi-envelope" />
           {{ "assignTasks" | i18n }}
         </button>
 

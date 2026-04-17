@@ -7,9 +7,14 @@
       [placeholder]="'searchMembers' | i18n"
       class="tw-grow"
     ></bit-search>
-    <button type="button" bitButton buttonType="primary" [bitAction]="exportReportAction">
-      <span>{{ "export" | i18n }}</span>
-      <bit-icon name="bwi-sign-in" class="bwi-fw" aria-hidden="true"></bit-icon>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      endIcon="bwi-sign-in"
+      [bitAction]="exportReportAction"
+    >
+      {{ "export" | i18n }}
     </button>
   }
 </app-header>
