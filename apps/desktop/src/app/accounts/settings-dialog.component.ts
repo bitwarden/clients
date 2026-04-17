@@ -783,7 +783,7 @@ export class SettingsDialogComponent implements OnInit {
       } catch {
         enabled = false;
       } finally {
-        dialogRef.close();
+        await dialogRef.close();
       }
 
       if (!enabled) {
