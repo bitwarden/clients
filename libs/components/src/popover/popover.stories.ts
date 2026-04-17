@@ -70,7 +70,7 @@ type Story = StoryObj<PopoverAnchorForDirective>;
 
 const withHeaderAndFooterContent = /*html*/ `
   <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
-    <img bitPopoverHeader src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" style="width:100%;height:100%;object-fit:cover;" />
+    <img bitPopoverHeader src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" class="tw-w-full" />
     A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
     <div bitPopoverFooter>
       <button type="button" bitButton class="tw-mr-3" buttonType="secondary">Read more <bit-icon name="bwi-arrow-right"></bit-icon></button>
@@ -159,7 +159,7 @@ export const WithHeader: Story = {
         </button>
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
-        <img bitPopoverHeader src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" style="width:100%;height:100%;object-fit:cover;" />
+        <img bitPopoverHeader src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" class="tw-w-full" />
         A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
       </bit-popover>
       `,
@@ -224,7 +224,7 @@ export const Stepper: Story = {
         </button>
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
-        <img bitPopoverHeader src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" style="width:100%;height:100%;object-fit:cover;" />
+        <img bitPopoverHeader src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" class="tw-w-full" />
         <p class="tw-mb-2 tw-mt-0">A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.</p>
         <ul class="tw-list-none tw-ps-0 tw-mb-2 tw-mt-0">
           <li class="tw-flex tw-items-center tw-gap-2 tw-mb-1">

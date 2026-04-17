@@ -11,11 +11,11 @@
     <div
       class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg tw-border tw-border-solid tw-border-border-base"
     >
-      <div class="tw-relative tw-z-20 tw-w-[352px] tw-break-words tw-bg-background tw-text-fg-body">
+      <div
+        class="tw-relative tw-z-20 tw-max-w-[352px] tw-break-words tw-bg-background tw-text-fg-body"
+      >
         @if (headerSlot()) {
-          <div
-            class="tw-h-[160px] tw-mt-2 tw-mx-2 tw-overflow-hidden tw-rounded-lg tw-bg-bg-secondary tw-flex tw-items-center tw-justify-center"
-          >
+          <div class="tw-mt-2 tw-mx-2 tw-overflow-hidden tw-rounded-lg">
             <ng-content select="[bitPopoverHeader]"></ng-content>
           </div>
         }
