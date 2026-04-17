@@ -5,8 +5,6 @@ import {
   map,
   Observable,
   shareReplay,
-  Subscription,
-  BehaviorSubject,
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -34,13 +32,14 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { TaskSchedulerService, ScheduledTaskNames } from "@bitwarden/common/platform/scheduling";
 import { GlobalState, GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction, LoginStrategyServiceAbstraction } from "../../abstractions";
+import { LoginStrategyCacheService } from "../../abstractions/login-strategy-cache.service";
+import { LoginStrategySessionTimeoutService } from "../../abstractions/login-strategy-session-timeout.service";
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../../abstractions/user-decryption-options.service.abstraction";
 import {
   AuthRequestLoginStrategy,
@@ -68,26 +67,10 @@ import {
   WebAuthnLoginCredentials,
 } from "../../models";
 
-import {
-  AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
-  CURRENT_LOGIN_STRATEGY_KEY,
-  CacheData,
-  CACHE_EXPIRATION_KEY,
-  CACHE_KEY,
-} from "./login-strategy.state";
-
-const sessionTimeoutLength = 5 * 60 * 1000; // 5 minutes
+import { AUTH_REQUEST_PUSH_NOTIFICATION_KEY, CacheData } from "./login-strategy.state";
 
 export class LoginStrategyService implements LoginStrategyServiceAbstraction {
-  private sessionTimeoutSubscription: Subscription | undefined;
-  private currentAuthnTypeState: GlobalState<AuthenticationType | null>;
-  private loginStrategyCacheState: GlobalState<CacheData | null>;
-  private loginStrategyCacheExpirationState: GlobalState<Date | null>;
   private authRequestPushNotificationState: GlobalState<string | null>;
-  private authenticationTimeoutSubject = new BehaviorSubject<boolean>(false);
-
-  authenticationSessionTimeout$: Observable<boolean> =
-    this.authenticationTimeoutSubject.asObservable();
 
   private loginStrategy$: Observable<
     | UserApiLoginStrategy
@@ -125,34 +108,21 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private kdfConfigService: KdfConfigService,
-    private taskSchedulerService: TaskSchedulerService,
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
     private passwordPreloginService: PasswordPreloginService,
     private unlockService: UnlockService,
+    private loginStrategyCacheService: LoginStrategyCacheService,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {
-    this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
-    this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
-    this.loginStrategyCacheExpirationState = this.stateProvider.get(CACHE_EXPIRATION_KEY);
     this.authRequestPushNotificationState = this.stateProvider.get(
       AUTH_REQUEST_PUSH_NOTIFICATION_KEY,
     );
-    this.taskSchedulerService.registerTaskHandler(
-      ScheduledTaskNames.loginStrategySessionTimeout,
-      async () => {
-        this.authenticationTimeoutSubject.next(true);
-        try {
-          await this.clearCache();
-        } catch (e) {
-          this.logService.error("Failed to clear cache during session timeout", e);
-        }
-      },
-    );
 
-    this.currentAuthType$ = this.currentAuthnTypeState.state$;
-    this.loginStrategy$ = this.currentAuthnTypeState.state$.pipe(
+    this.currentAuthType$ = this.loginStrategyCacheService.currentAuthType$;
+    this.loginStrategy$ = this.loginStrategyCacheService.currentAuthType$.pipe(
       distinctUntilChanged(),
-      combineLatestWith(this.loginStrategyCacheState.state$),
+      combineLatestWith(this.loginStrategyCacheService.cacheData$),
       this.initializeLoginStrategy.bind(this),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -212,9 +182,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       | WebAuthnLoginCredentials,
   ): Promise<AuthResult> {
     await this.clearCache();
-    this.authenticationTimeoutSubject.next(false);
 
-    await this.currentAuthnTypeState.update((_) => credentials.type);
+    await this.loginStrategyCacheService.setCurrentAuthType(credentials.type);
 
     const strategy = await firstValueFrom(this.loginStrategy$);
 
@@ -231,8 +200,8 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       await this.clearCache();
     } else {
       // Cache the strategy data so we can attempt again later with 2fa or device verification
-      await this.loginStrategyCacheState.update((_) => strategy?.exportCache() ?? null);
-      await this.startSessionTimeout();
+      await this.loginStrategyCacheService.setCacheData(strategy?.exportCache() ?? null);
+      await this.loginStrategySessionTimeoutService.startSessionTimeout();
     }
 
     if (!result) {
@@ -306,42 +275,19 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   }
 
   private async clearCache(): Promise<void> {
-    await this.currentAuthnTypeState.update((_) => null);
-    await this.loginStrategyCacheState.update((_) => null);
-    this.authenticationTimeoutSubject.next(false);
-    await this.clearSessionTimeout();
-  }
-
-  private async startSessionTimeout(): Promise<void> {
-    await this.clearSessionTimeout();
-
-    // This Login Strategy Cache Expiration State value set here is used to clear the cache on re-init
-    // of the application in the case where the timeout is terminated due to a closure of the application
-    // window. The browser extension popup in particular is susceptible to this concern, as the user
-    // is almost always likely to close the popup window before the session timeout is reached.
-    await this.loginStrategyCacheExpirationState.update(
-      (_) => new Date(Date.now() + sessionTimeoutLength),
-    );
-    this.sessionTimeoutSubscription = this.taskSchedulerService.setTimeout(
-      ScheduledTaskNames.loginStrategySessionTimeout,
-      sessionTimeoutLength,
-    );
-  }
-
-  private async clearSessionTimeout(): Promise<void> {
-    await this.loginStrategyCacheExpirationState.update((_) => null);
-    this.sessionTimeoutSubscription?.unsubscribe();
+    await this.loginStrategyCacheService.clearCache();
+    await this.loginStrategySessionTimeoutService.cancelSessionTimeout();
   }
 
   private async isSessionValid(): Promise<boolean> {
-    const cache = await firstValueFrom(this.loginStrategyCacheState.state$);
+    const cache = await firstValueFrom(this.loginStrategyCacheService.cacheData$);
     if (cache == null) {
       return false;
     }
 
     // If the Login Strategy Cache Expiration State value is less than the current
     // datetime stamp, then the cache is invalid and should be cleared.
-    const expiration = await firstValueFrom(this.loginStrategyCacheExpirationState.state$);
+    const expiration = await firstValueFrom(this.loginStrategyCacheService.cacheExpiration$);
     if (expiration != null && expiration < new Date()) {
       await this.clearCache();
       return false;
