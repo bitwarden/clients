@@ -1,13 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
   concatMap,
@@ -23,7 +17,6 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -42,6 +35,7 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -133,6 +127,9 @@ export class AutofillComponent implements OnInit {
   protected showClipboardNotification$: Observable<boolean> =
     this.autofillSettingsService.showClipboardSettingUpdateNotification$;
   protected showClipboardNotificationThisSession = false;
+  protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.FillAssistTargetingRules,
+  );
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -140,6 +137,7 @@ export class AutofillComponent implements OnInit {
   });
 
   protected additionalOptionsForm = new FormGroup({
+    enableFillAssist: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
     clearClipboard: new FormControl(),
@@ -170,6 +168,7 @@ export class AutofillComponent implements OnInit {
   accountSwitcherEnabled: boolean = false;
 
   constructor(
+    private configService: ConfigService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private domainSettingsService: DomainSettingsService,
@@ -177,14 +176,11 @@ export class AutofillComponent implements OnInit {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
-    private configService: ConfigService,
-    private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
     private nudgesService: NudgesService,
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private policyService: PolicyService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -301,6 +297,18 @@ export class AutofillComponent implements OnInit {
       });
 
     /** Additional options form */
+
+    const enableFillAssist = await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+
+    this.additionalOptionsForm.controls.enableFillAssist.patchValue(enableFillAssist, {
+      emitEvent: false,
+    });
+
+    this.additionalOptionsForm.controls.enableFillAssist.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.domainSettingsService.setEnableFillAssist(value);
+      });
 
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,

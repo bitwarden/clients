@@ -833,6 +833,11 @@ export class AppComponent implements OnInit, OnDestroy {
       if (userId == null) {
         continue;
       }
+      // Skip if vault timeout is suppressed by shared unlock
+      if (await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)) {
+        continue;
+      }
+
       const options = await this.getVaultTimeoutOptions(userId);
       if (options[0] === timeout) {
         options[1] === "logOut"
