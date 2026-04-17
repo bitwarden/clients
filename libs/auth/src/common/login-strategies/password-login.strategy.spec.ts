@@ -125,7 +125,7 @@ describe("PasswordLoginStrategy", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(new PBKDF2KdfConfig())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
     );
     keyService.makeMasterKey.mockResolvedValue(masterKey);
 
@@ -281,7 +281,7 @@ describe("PasswordLoginStrategy", () => {
     });
 
     it("does not call getPreloginData$ when preFetchedPreloginData is provided", async () => {
-      const preloginData = new PasswordPreloginData(new PBKDF2KdfConfig());
+      const preloginData = new PasswordPreloginData(PBKDF2KdfConfig.createDefault());
       const credentialsWithPrefetch = new PasswordLoginCredentials(
         email,
         masterPassword,
