@@ -31,6 +31,8 @@ describe("ContextMenusBackground", () => {
       tabId,
       pageUrl: "https://example.com",
       analyzedAt: new Date("2026-01-01T00:00:00.000Z"),
+      extensionVersion: "2024.1.0",
+      browserInfo: { name: "Chrome", version: "120.0" },
       fields: [],
     };
 
