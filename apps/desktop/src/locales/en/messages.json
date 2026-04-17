@@ -229,19 +229,19 @@
    },
   "newItemHeaderTextSend": {
     "message": "New text",
-    "description": "Header for new text Send"
+    "description": "Header for new text send"
   },
   "newItemHeaderFileSend": {
     "message": "New file",
-    "description": "Header for new file Send"
+    "description": "Header for new file send"
   },
   "editItemHeaderTextSend": {
     "message": "Edit text",
-    "description": "Header for edit text Send"
+    "description": "Header for edit text send"
   },
   "editItemHeaderFileSend": {
     "message": "Edit file",
-    "description": "Header for edit file Send"
+    "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
     "message": "Are you sure you want to permanently delete this Send?",
