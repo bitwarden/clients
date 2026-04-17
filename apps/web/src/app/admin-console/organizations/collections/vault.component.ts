@@ -1382,6 +1382,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async bulkAssignToCollections(items: CipherView[]) {
+    if (!(await this.repromptCipher(items))) {
+      return;
+    }
+
     if (items.length === 0) {
       this.toastService.showToast({
         variant: "error",
