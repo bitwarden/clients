@@ -1,6 +1,6 @@
 /**
  * include structuredClone in test environment.
- * @jest-environment ../../../../shared/test.environment.ts
+ * @jest-environment ../../libs/shared/test.environment.ts
  */
 import { mock } from "jest-mock-extended";
 import { of, firstValueFrom } from "rxjs";

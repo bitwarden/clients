@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`WebRegistrationFinishService finishRegistration() when feature flag is OFF (old API) it registers the user with org invite when given an org invite 1`] = `
 RegisterFinishRequest {
