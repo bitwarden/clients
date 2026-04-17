@@ -6668,7 +6668,7 @@
     }
   },
   "eventAdminPasswordReset": {
-    "message": "Master password reset for user $ID$.",
+    "message": "Account recovery with master password initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6677,7 +6677,7 @@
     }
   },
   "eventAdminResetTwoFactor": {
-    "message": "Two-step login reset for user $ID$.",
+    "message": "Account recovery with two-step login initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -9849,7 +9849,7 @@
     "message": "Account recovery success!"
   },
   "updatedTempPassword": {
-    "message": "User updated a password issued through account recovery."
+    "message": "User reset their master password through account recovery."
   },
   "activatedAccessToSecretsManager": {
     "message": "Activated access to Secrets Manager",
