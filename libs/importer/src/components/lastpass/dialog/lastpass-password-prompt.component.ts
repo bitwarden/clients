@@ -46,7 +46,7 @@ export class LastPassPasswordPromptComponent {
     if (!this.formGroup.valid) {
       return;
     }
-    this.dialogRef.close(this.formGroup.controls.password.value);
+    void this.dialogRef.close(this.formGroup.controls.password.value);
   };
 
   static open(dialogService: DialogService) {
