@@ -5,7 +5,6 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -25,10 +24,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -184,24 +181,20 @@ describe("UserApiLoginStrategy", () => {
     expect(environmentService.seedUserEnvironment).toHaveBeenCalled();
   });
 
-  it("sets the encrypted user key and private key from the identity token response", async () => {
+  it("sets account cryptographic state from the identity token response", async () => {
     const tokenResponse = identityTokenResponseFactory();
 
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      userId,
-    );
     expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
       { V1: { private_key: tokenResponse.privateKey } },
       userId,
     );
   });
 
-  it("uses unlock service when SDK key connector feature flag is enabled", async () => {
+  it("unlocks with key connector when the identity token response supports it", async () => {
     const tokenResponse = identityTokenResponseFactory(undefined, {
       HasMasterPassword: false,
       KeyConnectorOption: { KeyConnectorUrl: keyConnectorUrl },
@@ -220,61 +213,6 @@ describe("UserApiLoginStrategy", () => {
       url: keyConnectorUrl,
       keyConnectorKeyWrappedUserKey: tokenResponse.key!.encryptedString!,
     });
-  });
-
-  it("decrypts and sets the user key if Key Connector is enabled", async () => {
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
-
-    const tokenResponse = identityTokenResponseFactory();
-    tokenResponse.apiUseKeyConnector = true;
-
-    const env = mock<Environment>();
-    env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
-    environmentService.environment$ = new BehaviorSubject(env);
-
-    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-    await apiLogInStrategy.logIn(credentials);
-
-    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-      masterKey,
-      userId,
-      undefined,
-    );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
-  });
-
-  it("uses the legacy Key Connector user key path when SDK handling is disabled", async () => {
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-    const masterKey = new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey;
-
-    const tokenResponse = identityTokenResponseFactory();
-    tokenResponse.apiUseKeyConnector = true;
-    tokenResponse.canUnlockWithKeyConnector = jest.fn().mockReturnValue(false);
-
-    const env = mock<Environment>();
-    env.getKeyConnectorUrl.mockReturnValue(keyConnectorUrl);
-    environmentService.environment$ = new BehaviorSubject(env);
-
-    apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-    await apiLogInStrategy.logIn(credentials);
-
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      userId,
-    );
-    expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-      masterKey,
-      userId,
-      undefined,
-    );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

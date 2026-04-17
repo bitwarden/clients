@@ -17,7 +17,6 @@ import {
   PasswordPreloginData,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -38,8 +37,6 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
   masterKey: MasterKey;
   /** The user's master password */
   masterPassword: string;
-  /** Whether unlock service should be used for this login flow. */
-  unlockServiceForPasswordLogin = false;
   /**
    * Tracks if the user needs to update their password due to
    * a password that does not meet an organization's master password policy.

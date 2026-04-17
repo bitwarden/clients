@@ -172,7 +172,7 @@ describe("AuthRequestLoginStrategy", () => {
     );
 
     // trustDeviceIfRequired should be called
-    expect(deviceTrustService.trustDeviceIfRequired).not.toHaveBeenCalled();
+    expect(deviceTrustService.trustDeviceIfRequired).toHaveBeenCalledWith(mockUserId);
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

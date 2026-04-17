@@ -103,7 +103,7 @@ export class IdentityTokenResponse extends BaseResponse {
   }
 
   canUnlockWithKeyConnector(): boolean {
-    return this.userDecryptionOptions?.keyConnectorOption != null;
+    return this.userDecryptionOptions?.keyConnectorOption != null && this.key != null;
   }
 
   intoKeyConnectorUnlockData(): KeyConnectorUnlockData {

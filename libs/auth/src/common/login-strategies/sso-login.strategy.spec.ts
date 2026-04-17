@@ -10,7 +10,6 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { IUserDecryptionOptionsServerResponse } from "@bitwarden/common/auth/models/response/user-decryption-options/user-decryption-options.response";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -33,7 +32,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DeviceKey, MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { DeviceKey, UserKey } from "@bitwarden/common/types/key";
 import { Argon2KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -517,23 +516,6 @@ describe("SsoLoginStrategy", () => {
       );
     });
 
-    it("decrypts and sets the user key if Key Connector is enabled and the user doesn't have a master password", async () => {
-      const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      const masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
-
-      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-      masterPasswordService.masterKeySubject.next(masterKey);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-
-      await ssoLoginStrategy.logIn(credentials);
-
-      expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        masterKey,
-        userId,
-        undefined,
-      );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
-    });
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

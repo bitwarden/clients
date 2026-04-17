@@ -711,16 +711,6 @@ describe("keyService", () => {
       },
     );
 
-    it("returns the master key if it is already available", async () => {
-      const masterKey = makeSymmetricCryptoKey(32) as MasterKey;
-      masterPasswordService.masterKeySubject.next(masterKey);
-
-      const result = await keyService.getOrDeriveMasterKey("password", mockUserId);
-
-      expect(kdfConfigService.getKdfConfig$).not.toHaveBeenCalledWith(mockUserId);
-      expect(result).toEqual(masterKey);
-    });
-
     it("throws an error if user's email is not available", async () => {
       accountService.accounts$ = of({});
 

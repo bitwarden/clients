@@ -770,7 +770,6 @@ export default class MainBackground {
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.keyService,
       this.logService,
     );
 

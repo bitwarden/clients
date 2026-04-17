@@ -17,7 +17,6 @@ import {
 } from "@bitwarden/common/auth/password-prelogin";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
@@ -200,64 +199,20 @@ describe("PasswordLoginStrategy", () => {
     );
   });
 
-  it("sets keys after a successful authentication", async () => {
-    const userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-
-    masterPasswordService.masterKeySubject.next(masterKey);
-    masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(userKey);
-    tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
-
-    await passwordLoginStrategy.logIn(credentials);
-
-    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-      tokenResponse.key,
-      userId,
-    );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
-    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
-      { V1: { private_key: tokenResponse.privateKey } },
-      userId,
-    );
-  });
-
-  it("uses master password unlock service when feature flag is enabled", async () => {
-    // Re-create the strategy and wait a bit to settle the feature flag
-    passwordLoginStrategy = new PasswordLoginStrategy(
-      new PasswordLoginStrategyData(),
-      passwordStrengthService,
-      policyService,
-      passwordPreloginService,
-      unlockService,
-      accountService,
-      masterPasswordService,
-      keyService,
-      encryptService,
-      apiService,
-      tokenService,
-      appIdService,
-      platformUtilsService,
-      messagingService,
-      logService,
-      stateService,
-      twoFactorService,
-      userDecryptionOptionsService,
-      billingAccountProfileStateService,
-      vaultTimeoutSettingsService,
-      kdfConfigService,
-      environmentService,
-      configService,
-      accountCryptographicStateService,
-    );
-
+  it("unlocks with the master password and sets account cryptographic state after a successful authentication", async () => {
     unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
     tokenService.decodeAccessToken.mockResolvedValue({ sub: userId });
 
     await passwordLoginStrategy.logIn(credentials);
 
     expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(userId, masterPassword);
+    expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
-    expect(passwordLoginStrategy.exportCache().password.unlockServiceForPasswordLogin).toBe(true);
+    expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+      { V1: { private_key: tokenResponse.privateKey } },
+      userId,
+    );
   });
 
   describe("makePasswordPreloginMasterKey", () => {

@@ -227,24 +227,35 @@ describe("KeyConnectorService", () => {
   });
 
   describe("migrateUser", () => {
+    let migrateToKeyConnector: jest.Mock;
+    let mockSdkRef: any;
+    let mockSdk: any;
+
     beforeEach(() => {
       configService.getFeatureFlag$.mockReturnValue(of(false));
+
+      migrateToKeyConnector = jest.fn().mockResolvedValue(undefined);
+      mockSdkRef = {
+        value: {
+          user_crypto_management: jest.fn().mockReturnValue({
+            migrate_to_key_connector: migrateToKeyConnector,
+          }),
+        },
+        [Symbol.dispose]: jest.fn(),
+      };
+      mockSdk = {
+        take: jest.fn().mockReturnValue(mockSdkRef),
+      };
+      sdkService.userClient$.mockReturnValue(of(mockSdk));
     });
 
     it("should migrate the user to the key connector", async () => {
       // Arrange
-      const masterKey = getMockMasterKey();
-      masterPasswordService.masterKeySubject.next(masterKey);
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
-      );
-
       const mockUserDecryptionOptions = {
         hasMasterPassword: true,
         keyConnectorOption: undefined,
       } as UserDecryptionOptions;
 
-      jest.spyOn(apiService, "postUserKeyToKeyConnector").mockResolvedValue();
       userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
         of(mockUserDecryptionOptions),
       );
@@ -253,10 +264,8 @@ describe("KeyConnectorService", () => {
       await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
 
       // Assert
-      expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-        keyConnectorUrl,
-        keyConnectorRequest,
-      );
+      expect(sdkService.userClient$).toHaveBeenCalledWith(mockUserId);
+      expect(migrateToKeyConnector).toHaveBeenCalledWith(keyConnectorUrl);
       expect(masterPasswordService.mock.clearMasterPasswordUnlockData).toHaveBeenCalledWith(
         mockUserId,
       );
@@ -276,29 +285,21 @@ describe("KeyConnectorService", () => {
 
     it("should handle errors thrown during migration", async () => {
       // Arrange
-      const masterKey = getMockMasterKey();
-      const keyConnectorRequest = new KeyConnectorUserKeyRequest(
-        Utils.fromBufferToB64(masterKey.inner().encryptionKey),
-      );
-      masterPasswordService.masterKeySubject.next(masterKey);
-      const error = new Error("Failed to post user key to key connector");
-      jest.spyOn(apiService, "postUserKeyToKeyConnector").mockRejectedValue(error);
+      const error = new Error("Failed to migrate to key connector");
+      migrateToKeyConnector.mockRejectedValue(error);
       jest.spyOn(logService, "error");
 
-      try {
-        // Act
-        await keyConnectorService.migrateUser(keyConnectorUrl, mockUserId);
-      } catch {
-        // Assert
-        expect(logService.error).toHaveBeenCalledWith(error);
-        expect(apiService.postUserKeyToKeyConnector).toHaveBeenCalledWith(
-          keyConnectorUrl,
-          keyConnectorRequest,
-        );
-        // Verify state clearing operations were not called due to error
-        expect(masterPasswordService.mock.clearMasterPasswordUnlockData).not.toHaveBeenCalled();
-        expect(userDecryptionOptionsService.setUserDecryptionOptionsById).not.toHaveBeenCalled();
-      }
+      // Act
+      await expect(
+        keyConnectorService.migrateUser(keyConnectorUrl, mockUserId),
+      ).rejects.toThrow("Key Connector error");
+
+      // Assert
+      expect(logService.error).toHaveBeenCalledWith(error);
+      expect(migrateToKeyConnector).toHaveBeenCalledWith(keyConnectorUrl);
+      // Verify state clearing operations were not called due to error
+      expect(masterPasswordService.mock.clearMasterPasswordUnlockData).not.toHaveBeenCalled();
+      expect(userDecryptionOptionsService.setUserDecryptionOptionsById).not.toHaveBeenCalled();
     });
   });
 
