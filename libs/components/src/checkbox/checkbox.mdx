@@ -43,8 +43,8 @@ import { CheckboxModule } from "@bitwarden/components";
 ## Using in a group
 
 Use `bit-form-control-group` when you have multiple related checkboxes that should be validated
-together as a single form field. The group binds to an array form control — each card's `[value]`
-input is added to or removed from the array when checked.
+together as a single form field. The group binds to an array form control — each checkbox input's
+`[value]` is added to or removed from the array when checked.
 
 Choose checkboxes in a group when:
 
@@ -57,12 +57,12 @@ NOTE: Use switches instead when each option should take effect immediately witho
 
 ```html
 <bit-form-control-group formControlName="features">
-  <bit-form-control-card [value]="'featureA'">
-    <input type="checkbox" bitCheckbox />
+  <bit-form-control-card>
+    <input type="checkbox" bitCheckbox [value]="'featureA'" />
     <bit-label>Feature A</bit-label>
   </bit-form-control-card>
-  <bit-form-control-card [value]="'featureB'">
-    <input type="checkbox" bitCheckbox />
+  <bit-form-control-card>
+    <input type="checkbox" bitCheckbox [value]="'featureB'" />
     <bit-label>Feature B</bit-label>
   </bit-form-control-card>
 </bit-form-control-group>
