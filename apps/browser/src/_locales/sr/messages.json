@@ -29,7 +29,7 @@
     "message": "Пријавите се са приступним кључем"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Откључај помоћу приступног кључа"
   },
   "useSingleSignOn": {
     "message": "Употребити једнократну пријаву"
@@ -574,28 +574,28 @@
     "message": "Архивиране ставке ће се овде појавити и бити искључени из општих резултата претраге и сугестија о ауто-пуњењу."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Ставка је архивирана"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Ставка враћене из архиве"
   },
   "archiveItem": {
     "message": "Архивирај ставку"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Након што се архивира, ова ставка ће бити искључена из резултата претраге и предлога за аутоматско попуњавање."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Архивирано"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Дерархивирај и сачувај"
   },
   "upgradeToUseArchive": {
     "message": "Премијум чланство је неопходно за употребу Архиве."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Ставка је враћена"
   },
   "edit": {
     "message": "Уреди"
@@ -891,7 +891,7 @@
     "message": "Неисправан верификациони код"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Неисправна имејл адреса или верификациони кôд"
   },
   "valueCopied": {
     "message": "$VALUE$ копиран(а/о)",
@@ -985,10 +985,10 @@
     "message": "Не"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Свако са везом"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Свако са лозинком коју сте ви поставили"
   },
   "location": {
     "message": "Локација"
@@ -1148,6 +1148,15 @@
     "message": "Аутоматски обришите копиране вредности из привремене меморије.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "Да ли Bitwarden треба да запамти ову лозинку?"
   },
@@ -1301,6 +1310,9 @@
   "additionalOptions": {
     "message": "Додатне опције"
   },
+  "enableFillAssist": {
+    "message": "Use fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Прикажи контекстни мени"
   },
@@ -1338,19 +1350,19 @@
     "message": "Извоз од"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Извези",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Извези",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Увези",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Увези",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1549,13 +1561,13 @@
     "message": "Приоритарне опције пријаве у два корака као што су YubiKey и Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Ваша Премијум претплата је завршена"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Да бисте поново добили приступ својој архиви, обновите Премијум претплату. Ако уредите детаље архивиране ставке пре обнављања, она ће бити враћена у ваш сеф."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Обнови Премијум"
   },
   "ppremiumSignUpReports": {
     "message": "Извештаји о хигијени лозинки, здравственом стању налога и кршењу података да бисте заштитили сеф."
@@ -2049,7 +2061,7 @@
     "message": "Имејл"
   },
   "emails": {
-    "message": "Emails"
+    "message": "Е-поште"
   },
   "phone": {
     "message": "Телефон"
@@ -2101,6 +2113,27 @@
   },
   "typeNote": {
     "message": "Белешка"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
   },
   "newItemHeaderLogin": {
     "message": "Ново пријављивање",
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "Преглед SSH кључа",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "Историја Лозинке"
@@ -2367,28 +2403,28 @@
     "message": "Главна лозинка коју сте одабрали је слаба. Требали бисте користити јаку главну лозинку (или фразу лозинке) да бисте правилно заштитили свој налог. Да ли сте сигурни да желите да користите ову главну лозинку?"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Такође променити кључ за шифровање мог налога"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Ротирај кључ за шифровање"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Да ли сте сигурни да желите да промените кључ за шифровање свог налога?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Након ажурирања кључа за шифровање, мораћете да се одјавите и вратите у све Bitwarden апликације које тренутно користите (као што су мобилна апликација или додаци прегледача). Ако се не одјавите и поново пријавите (чиме се преузима ваш нови кључ за шифровање), може доћи до оштећења података. Покушаћемо аутоматски да се одјавимо, али може доћи до одлагања."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Сваки рачун са ограничен извоз који сте сачували постаће неважећи."
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "У вашем сефу постоје стари прилози који треба поправити да бисте могли да промените кључ за шифровање свог налога."
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Утицај ротирања кључа за шифровање"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Једна или више смерница организације захтевају главну лозинку да би испуњавали следеће захтеве:"
   },
   "pin": {
     "message": "ПИН",
@@ -2481,7 +2517,7 @@
     "message": "Акција на тајмаут сефа"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "Приказуј обавештења за угрожене лозинке"
   },
   "lock": {
     "message": "Закључај",
@@ -2504,7 +2540,7 @@
     "message": "Трајно избрисана ставка"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Архивирана ставка је обновљена"
   },
   "restoreItem": {
     "message": "Врати ставку"
@@ -2552,7 +2588,7 @@
     }
   },
   "topLayerHijackWarning": {
-    "message": "This page is interfering with the Bitwarden experience. The Bitwarden inline menu has been temporarily disabled as a safety measure."
+    "message": "Ова страница омета искуство коришћења Bitwarden-а. Bitwarden inline мени је привремено онемогућен као безбедносна мера."
   },
   "setMasterPassword": {
     "message": "Постави Главну Лозинку"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ жели да промените ову лозинку јер је ризична. Идите до поставки вашег налога да бисте променили лозинку.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2879,7 +2915,7 @@
     "message": "Илустрација листе пријаве које су ризичне."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Илустрација изгледа странице Bitwarden сефа."
   },
   "generatePasswordSlideDesc": {
     "message": "Брзо генеришите снажну, јединствену лозинку са Bitwarden менијем аутопуњења за коришћење на ризичном сајту.",
@@ -3105,7 +3141,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ сати",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3114,7 +3150,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "message": "Копирајте и поделите овај Send линк. Send ће бити доступан свима који имају линк у наредних $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3124,7 +3160,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "message": "Копирајте и поделите овај Send линк. Send ће бити доступан свима који имају линк и лозинку коју сте поставили у наредних $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3134,7 +3170,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "Копирајте и поделите овај Send линк. Људи које сте одредили моћи ће да га виде у наредних $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3410,10 +3446,10 @@
     "message": "Грешка"
   },
   "prfUnlockFailed": {
-    "message": "Failed to unlock with passkey. Please try again or use another unlock method."
+    "message": "Није успело откључавање помоћу приступног кључа. Покушајте поново или користите други метод за откључавање."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Нема доступних приступних кључева са PRF-ом за откључавање. Прво се пријавите помоћу приступног кључа."
   },
   "decryptionError": {
     "message": "Грешка при декрипцији"
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Статус пријаве"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "Главна лозинка сачувана"
@@ -4452,7 +4506,7 @@
     "message": "Подаци из сефа су извезени"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Појавила се грешка током извожења података из вашег трезора"
   },
   "typePasskey": {
     "message": "Приступни кључ"
@@ -4794,7 +4848,7 @@
     }
   },
   "moreOptionsLabelNoPlaceholder": {
-    "message": "More options"
+    "message": "Још опција"
   },
   "moreOptionsTitle": {
     "message": "Више опција - $ITEMNAME$",
@@ -4884,43 +4938,43 @@
     "message": "Копирај адресу"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Моји предмети"
   },
   "adminConsole": {
     "message": "Администраторска конзола"
   },
   "admin": {
-    "message": "Admin"
+    "message": "Админ"
   },
   "automaticUserConfirmation": {
-    "message": "Automatic user confirmation"
+    "message": "Аутоматска потврда корисника"
   },
   "automaticUserConfirmationHint": {
-    "message": "Automatically confirm pending users while this device is unlocked"
+    "message": "Аутоматски потврђуј кориснике на чекању док је овај уређај откључан"
   },
   "autoConfirmOnboardingCallout": {
-    "message": "Save time with automatic user confirmation"
+    "message": "Уштедите време аутоматском потврдом корисника"
   },
   "autoConfirmWarning": {
-    "message": "This could impact your organization’s data security. "
+    "message": "Ово може утицати на безбедност података ваше организације, "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "Сазнајте више о ризицима"
   },
   "autoConfirmSetup": {
-    "message": "Automatically confirm new users"
+    "message": "Аутоматски потврђуј нове кориснике"
   },
   "autoConfirmSetupDesc": {
-    "message": "New users will be automatically confirmed while this device is unlocked."
+    "message": "Нови корисници ће бити аутоматски потврђени док је овај уређај откључан."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Који су потенцијални безбедносни ризици?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Укључена аутоматска потврда"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Доступно сада"
   },
   "accountSecurity": {
     "message": "Безбедност налога"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Подесите метод откључавања да бисте променили радњу временског ограничења"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Надогради"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Download Bitwarden apps"

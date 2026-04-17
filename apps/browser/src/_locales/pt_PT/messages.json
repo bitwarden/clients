@@ -1148,6 +1148,15 @@
     "message": "Limpar automaticamente os valores copiados da sua área de transferência.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Definição da área de transferência atualizada"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "O tempo limite da área de transferência está definido para o valor predefinido, que foi atualizado para 5 minutos para maior segurança."
+  },
+  "jumpToSetting": {
+    "message": "Ir para a definição"
+  },
   "notificationAddDesc": {
     "message": "Deve o Bitwarden memorizar esta palavra-passe por si?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Opções adicionais"
+  },
+  "enableFillAssist": {
+    "message": "Utilizar assistência de preenchimento"
   },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "Nota"
   },
+  "typeLoginSubtitle": {
+    "message": "Site ou app"
+  },
+  "typeCardSubtitle": {
+    "message": "Cartão de crédito ou débito"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informações pessoais"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texto importante"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Token de início de sessão no servidor"
+  },
+  "folderSubtitle": {
+    "message": "Organize os seus itens"
+  },
+  "collectionSubtitle": {
+    "message": "Organize itens partilhados"
+  },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "Ver chave SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Escolher item a adicionar"
   },
   "passwordHistory": {
     "message": "Histórico de palavras-passe"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "A $ORGANIZATION$ pretende que altere esta palavra-passe porque está em risco. Navegue até às definições da sua conta para alterar a palavra-passe.",
+  "atRiskNavigatePromptV2": {
+    "message": "A sua palavra-passe para este site está em risco. A organização $ORGANIZATION$ solicitou que aceda às definições da sua conta e a altere.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Estado do início de sessão"
+  },
+  "recentlyActive": {
+    "message": "Ativo recentemente"
+  },
+  "recentlyActiveToday": {
+    "message": "Hoje"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Últimos 7 dias"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Últimos 14 dias"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Últimos 30 dias"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Há mais de 30 dias"
   },
   "masterPasswordChanged": {
     "message": "Palavra-passe mestra guardada"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Configure um método de desbloqueio para alterar a sua ação de tempo limite"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Gerido pela app para computador Bitwarden. Abra a app para editar."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% concluído",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Atualizar"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "utilizador@bitwarden.com, utilizador@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Descarregar as apps Bitwarden"

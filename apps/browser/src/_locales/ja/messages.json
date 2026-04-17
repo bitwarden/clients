@@ -1148,6 +1148,15 @@
     "message": "選択した時間が経過した後、自動的にクリップボードを消去します。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "クリップボードの設定を更新しました"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "クリップボードのタイムアウトはデフォルトに設定されており、セキュリティ強化のために5分に更新されました。"
+  },
+  "jumpToSetting": {
+    "message": "設定へ移動"
+  },
   "notificationAddDesc": {
     "message": "このパスワードを Bitwarden に保存しますか？"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "追加オプション"
+  },
+  "enableFillAssist": {
+    "message": "入力補助を使用する"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "メモ"
   },
+  "typeLoginSubtitle": {
+    "message": "ウェブサイトまたはアプリ"
+  },
+  "typeCardSubtitle": {
+    "message": "クレジットまたはデビットカード"
+  },
+  "typeIdentitySubtitle": {
+    "message": "個人情報"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要なテキスト"
+  },
+  "typeSshKeySubtitle": {
+    "message": "サーバーのログイントークン"
+  },
+  "folderSubtitle": {
+    "message": "アイテムを整理する"
+  },
+  "collectionSubtitle": {
+    "message": "共有アイテムを整理する"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "追加するアイテムを選択"
   },
   "passwordHistory": {
     "message": "パスワードの履歴"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+  "atRiskNavigatePromptV2": {
+    "message": "このサイトのパスワードは危険です。 $ORGANIZATION$ はアカウント設定に移動して変更するよう要求しています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "ログイン状態"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "マスターパスワードが保存されました"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden デスクトップアプリで管理されています。編集するにはデスクトップアプリを開いてください。"
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "アップグレード"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Bitwarden アプリをダウンロード"

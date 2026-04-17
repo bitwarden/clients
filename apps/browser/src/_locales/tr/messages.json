@@ -1148,6 +1148,15 @@
     "message": "Kopyalanan değerleri otomatik olarak panodan sil.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Pano ayarı güncellendi"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "Bitwarden bu parolayı sizin için hatırlasın mı?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Ek seçenekler"
+  },
+  "enableFillAssist": {
+    "message": "Doldurma yardımcısını kullan"
   },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "Not"
   },
+  "typeLoginSubtitle": {
+    "message": "Web sitesi veya uygulama"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredi veya banka kartı"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Kişisel bilgiler"
+  },
+  "typeNoteSubtitle": {
+    "message": "Önemli metinler"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Sunucu giriş token'ı"
+  },
+  "folderSubtitle": {
+    "message": "Kayıtlarınızı organize edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan kayıtları organize edin"
+  },
   "newItemHeaderLogin": {
     "message": "Yeni hesap",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH anahtarını göster",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Eklenecek kaydı seçin"
   },
   "passwordHistory": {
     "message": "Parola geçmişi"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$, risk altındaki bu parolayı değiştirmenizi istiyor. Parolayı değiştirmek için hesap ayarlarınıza gidin.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Oturum açma durumu"
+  },
+  "recentlyActive": {
+    "message": "Yakın zamanda aktif"
+  },
+  "recentlyActiveToday": {
+    "message": "Bugün"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Son 7 gün"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Son 14 gün"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Son 30 gün"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 günden önce"
   },
   "masterPasswordChanged": {
     "message": "Ana parola kaydedildi"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden masaüstü uygulaması tarafından yönetiliyor. Düzenlemek için masaüstü uygulamasını açın."
+  },
+  "percentageCompleted": {
+    "message": "%$PERCENT$ tamamlandı",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Yükselt"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "kullanici@bitwarden.com, kullanici@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Bitwarden uygulamalarını indir"

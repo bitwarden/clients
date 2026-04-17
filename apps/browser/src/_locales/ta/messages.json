@@ -1148,6 +1148,15 @@
     "message": "உங்கள் கிளிப்போர்டிலிருந்து நகலெடுக்கப்பட்ட மதிப்புகளை தானாகவே அழிக்கவும்.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "இந்த கடவுச்சொல்லை Bitwarden உங்களுக்காக நினைவில் வைத்திருக்க வேண்டுமா?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "கூடுதல் விருப்பத்தேர்வுகள்"
+  },
+  "enableFillAssist": {
+    "message": "Use fill assist"
   },
   "enableContextMenuItem": {
     "message": "சூழல் மெனு விருப்பத்தேர்வுகளைக் காட்டு"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "குறிப்பு"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "newItemHeaderLogin": {
     "message": "புதிய உள்நுழைவு",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH விசையைக் காண்க",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "கடவுச்சொல் வரலாறு"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ இந்த கடவுச்சொல் ஆபத்தில் இருப்பதால் அதை மாற்ற விரும்புகிறது. கடவுச்சொல்லை மாற்ற உங்கள் கணக்கு அமைப்புகளுக்குச் செல்லவும்.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "உள்நுழைவு நிலை"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "மாஸ்டர் கடவுச்சொல் சேமிக்கப்பட்டது"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "உங்கள் காலாவதி செயலை மாற்ற ஒரு திறத்தல் முறையை அமைக்கவும்"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Upgrade"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Download Bitwarden apps"

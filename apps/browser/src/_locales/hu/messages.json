@@ -1148,6 +1148,15 @@
     "message": "Automatikusan törli a vágólapra másolt értékeket.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "A vágólap beállítása frissításre került."
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "A vágólap időkifutása alapértelmezettre van állítva, amely 5 percre frissült a nagyobb biztonság érdekében."
+  },
+  "jumpToSetting": {
+    "message": "Ugrás a beállításhoz"
+  },
   "notificationAddDesc": {
     "message": "A Bitwarden megjegyezze ezt a jelszót?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Kiegészítő opciók"
+  },
+  "enableFillAssist": {
+    "message": "Kitöltési segédlet használata"
   },
   "enableContextMenuItem": {
     "message": "Helyi menü opciók megjelenítése"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "Jegyzet"
   },
+  "typeLoginSubtitle": {
+    "message": "Webhely vagy alkalmazás"
+  },
+  "typeCardSubtitle": {
+    "message": "Hitelkártya vagy bankkártya"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Személyes adatok"
+  },
+  "typeNoteSubtitle": {
+    "message": "Fontos szöveg"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Szerver bejelentkezési token"
+  },
+  "folderSubtitle": {
+    "message": "Elemek szervezése"
+  },
+  "collectionSubtitle": {
+    "message": "Megosztott elemek szervezése"
+  },
   "newItemHeaderLogin": {
     "message": "Új bejelentkezés",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH kulcs megtekintése",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Válasszuk ki a hozzáadandó elemet"
   },
   "passwordHistory": {
     "message": "Jelszó előzmények"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ azt akarja, hogy változtassuk meg ezt a jelszót, mert veszélyben van. A jelszó módosításához navigáljunk fiók beállításokhoz.",
+  "atRiskNavigatePromptV2": {
+    "message": "A webhelyhez tartozó jelszó veszélyben van. $ORGANIZATION$ kérte, hogy navigáljunk a fiók beállításokhoz és módosítsuk azokat.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Bejelentkezési állapot"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "A mesterjelszó mentésre került."
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "A Bitwarden böngésző bővítmény alkalmazás kezeli. Nyissuk meg a böngésző alkalmazást szerkesztésre."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% kész",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Áttérés"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Bitwarden alkalmazások letöltése"
