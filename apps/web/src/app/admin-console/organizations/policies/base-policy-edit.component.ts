@@ -212,7 +212,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
    */
   protected buildRequestData() {
     if (this.data != null) {
-      return this.data.value;
+      return this.data.getRawValue();
     }
 
     return null;
