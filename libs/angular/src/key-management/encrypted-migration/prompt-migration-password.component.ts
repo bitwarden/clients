@@ -85,6 +85,6 @@ export class PromptMigrationPasswordComponent {
     }
 
     // Return the master password to the caller
-    this.dialogRef.close(masterPasswordControl.value);
+    await this.dialogRef.close(masterPasswordControl.value);
   };
 }
