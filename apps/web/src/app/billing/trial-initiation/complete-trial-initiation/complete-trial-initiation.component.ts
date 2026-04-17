@@ -23,7 +23,6 @@ import {
   PlanInformation,
 } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
