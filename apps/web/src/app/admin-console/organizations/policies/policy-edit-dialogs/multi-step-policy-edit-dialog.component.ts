@@ -140,7 +140,7 @@ export class MultiStepPolicyEditDialogComponent
           variant: "success",
           message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
         });
-        this.dialogRef.close("saved");
+        await this.dialogRef.close("saved");
         return;
       }
 

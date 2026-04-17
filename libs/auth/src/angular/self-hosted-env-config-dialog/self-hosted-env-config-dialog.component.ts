@@ -202,11 +202,11 @@ export class SelfHostedEnvConfigDialogComponent implements OnInit, OnDestroy {
       notifications: this.notificationsUrl.value,
     });
 
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 
   async cancel() {
-    this.dialogRef.close(false);
+    await this.dialogRef.close(false);
   }
 
   ngOnDestroy() {
