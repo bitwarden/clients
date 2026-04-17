@@ -1,12 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, inject, Input, OnInit } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
   TypographyModule,
   AsyncActionsModule,
@@ -19,9 +17,10 @@ import {
   SectionHeaderComponent,
   SelectModule,
 } from "@bitwarden/components";
-import { SendPolicyService, SendFormConfig } from "@bitwarden/send-ui";
+import { SendPolicyService } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -37,7 +36,7 @@ import { SendFormContainer } from "../../send-form-container";
     CommonModule,
     FormFieldModule,
     IconButtonModule,
-    JslibModule,
+    I18nPipe,
     ReactiveFormsModule,
     SectionComponent,
     SectionHeaderComponent,
@@ -46,14 +45,9 @@ import { SendFormContainer } from "../../send-form-container";
   ],
 })
 export class SendOptionsComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true })
-  config: SendFormConfig;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  originalSendView: SendView;
+  protected sendFormService = inject(SendFormService);
+  private formBuilder = inject(FormBuilder);
+
   disableHideEmail = false;
 
   sendOptionsForm = this.formBuilder.group({
@@ -66,7 +60,10 @@ export class SendOptionsComponent implements OnInit {
   private sendPolicyService = inject(SendPolicyService);
 
   get shouldShowCount(): boolean {
-    return this.config.mode === "edit" && this.sendOptionsForm.value.maxAccessCount !== null;
+    return (
+      this.sendFormService.sendFormConfig.mode === "edit" &&
+      this.sendOptionsForm.value.maxAccessCount !== null
+    );
   }
 
   get viewsLeft() {
@@ -77,11 +74,8 @@ export class SendOptionsComponent implements OnInit {
     );
   }
 
-  constructor(
-    private sendFormContainer: SendFormContainer,
-    private formBuilder: FormBuilder,
-  ) {
-    this.sendFormContainer.registerChildForm("sendOptionsForm", this.sendOptionsForm);
+  constructor() {
+    this.sendFormService.registerChildForm("sendOptionsForm", this.sendOptionsForm);
 
     this.sendPolicyService.disableHideEmail$
       .pipe(takeUntilDestroyed())
@@ -90,7 +84,7 @@ export class SendOptionsComponent implements OnInit {
       });
 
     this.sendOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormContainer.patchSend((send) => {
+      this.sendFormService.patchSend((send) => {
         Object.assign(send, {
           maxAccessCount: value.maxAccessCount,
           accessCount: value.accessCount,
@@ -103,16 +97,16 @@ export class SendOptionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.sendFormContainer.originalSendView) {
+    if (this.sendFormService.originalSendView) {
       this.sendOptionsForm.patchValue({
-        maxAccessCount: this.sendFormContainer.originalSendView.maxAccessCount,
-        accessCount: this.sendFormContainer.originalSendView.accessCount,
-        hideEmail: this.sendFormContainer.originalSendView.hideEmail,
-        notes: this.sendFormContainer.originalSendView.notes,
+        maxAccessCount: this.sendFormService.originalSendView.maxAccessCount,
+        accessCount: this.sendFormService.originalSendView.accessCount,
+        hideEmail: this.sendFormService.originalSendView.hideEmail,
+        notes: this.sendFormService.originalSendView.notes,
       });
     }
 
-    if (!this.config.areSendsAllowed) {
+    if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
       this.sendOptionsForm.disable();
     }
   }

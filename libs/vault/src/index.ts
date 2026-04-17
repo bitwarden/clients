@@ -28,6 +28,8 @@ export { DecryptionFailureDialogComponent } from "./components/decryption-failur
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
+export * from "./components/add-item-grid/add-item-grid.component";
+export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
@@ -55,3 +57,9 @@ export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstracti
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
+export {
+  VaultItemDialogComponent,
+  VaultItemDialogParams,
+  VaultItemDialogResult,
+  VaultItemDialogMode,
+} from "./vault-item-dialog/vault-item-dialog.component";
