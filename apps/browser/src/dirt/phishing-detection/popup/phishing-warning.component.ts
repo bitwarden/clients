@@ -1,10 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, inject, OnInit } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -17,6 +21,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { MessageSender } from "@bitwarden/messaging";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   PHISHING_DETECTION_CANCEL_COMMAND,
@@ -32,7 +37,6 @@ import {
   imports: [
     CommonModule,
     SvgModule,
-    JslibModule,
     LinkModule,
     FormFieldModule,
     AsyncActionsModule,
@@ -42,32 +46,57 @@ import {
     IconTileComponent,
     CalloutComponent,
     TypographyModule,
+    I18nPipe,
   ],
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
 // eslint-disable-next-line @angular-eslint/component-class-suffix
-export class PhishingWarning {
+export class PhishingWarning implements OnInit {
   private activatedRoute = inject(ActivatedRoute);
   private messageSender = inject(MessageSender);
+  private eventCollectionService = inject(EventCollectionService);
+  private organizationService = inject(OrganizationService);
+  private accountService = inject(AccountService);
 
   private phishingUrl$ = this.activatedRoute.queryParamMap.pipe(
     map((params) => params.get("phishingUrl") || ""),
   );
   protected phishingHostname$ = this.phishingUrl$.pipe(map((url) => new URL(url).hostname));
 
-  async closeTab() {
-    const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, {
-      tabId,
-    });
+  async ngOnInit() {
+    await this.recordEvents(EventType.PhishingBlocker_SiteAccessed, false);
   }
+
+  async closeTab() {
+    await this.recordEvents(EventType.PhishingBlocker_SiteExited, false);
+    const tabId = await this.getTabId();
+    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, { tabId });
+  }
+
   async continueAnyway() {
+    await this.recordEvents(EventType.PhishingBlocker_Bypassed, true);
     const url = await firstValueFrom(this.phishingUrl$);
     const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, {
-      tabId,
-      url,
-    });
+    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, { tabId, url });
+  }
+
+  private async recordEvents(eventType: EventType, uploadImmediately: boolean): Promise<void> {
+    try {
+      const orgs = await this.getOrgsToNotify();
+
+      // keep this sequential, using a Promise.all causes a race condition
+      for (const org of orgs) {
+        await this.eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id);
+      }
+    } catch {
+      // Event collection failure should not block the user action
+    }
+  }
+
+  private async getOrgsToNotify(): Promise<Organization[]> {
+    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const orgs = await firstValueFrom(this.organizationService.organizations$(userId));
+    return orgs.filter((o) => o.useEvents && o.usePhishingBlocker);
   }
 
   private async getTabId() {
