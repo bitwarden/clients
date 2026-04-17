@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
   GenerateInviteLink = "pm-32497-generate-invite-link",
+  PolicyDrawers = "pm-34804-policy-drawers",
 
   /* Auth */
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
@@ -117,6 +118,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AdminResetTwoFactor]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
+  [FeatureFlag.PolicyDrawers]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,

@@ -31,6 +31,10 @@ export interface PolicyDialogComponent {
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => DialogRef<PolicyEditDialogResult>;
+  openDrawer?: (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => DialogRef<PolicyEditDialogResult>;
 }
 
 /**
