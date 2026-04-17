@@ -1,5 +1,8 @@
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
+import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 /**
@@ -349,6 +352,29 @@ export function getAttributeBoolean(
   }
 
   return Boolean(getPropertyOrAttribute(element, attributeName));
+}
+
+/**
+ * Checks if a form field element is currently readonly or disabled.
+ *
+ * @param formFieldElement - The form field element to evaluate.
+ * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
+ */
+export function isReadonlyOrDisabledFormFieldElement(
+  formFieldElement: FormFieldElement,
+  autofillFieldData?: AutofillFieldReadonlyDisabledState,
+): boolean {
+  const readOnlyByProperty =
+    (elementIsInputElement(formFieldElement) || elementIsTextAreaElement(formFieldElement)) &&
+    formFieldElement.readOnly;
+
+  return (
+    getAttributeBoolean(formFieldElement, AUTOFILL_ATTRIBUTES.DISABLED) ||
+    readOnlyByProperty ||
+    getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
+    autofillFieldData?.readonly === true ||
+    autofillFieldData?.disabled === true
+  );
 }
 
 /**
