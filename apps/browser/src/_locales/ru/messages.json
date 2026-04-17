@@ -1148,6 +1148,15 @@
     "message": "Автоматически очищать скопированные значения в вашем буфере обмена.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Настройки буфера обмена обновлены"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Время ожидания буфера обмена установлено по умолчанию; в целях повышения безопасности оно было увеличено до 5 минут."
+  },
+  "jumpToSetting": {
+    "message": "Перейти к настройкам"
+  },
   "notificationAddDesc": {
     "message": "Должен ли Bitwarden запомнить этот пароль?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Дополнительные настройки"
+  },
+  "enableFillAssist": {
+    "message": "Использовать помощник по заполнению"
   },
   "enableContextMenuItem": {
     "message": "Показать опции контекстного меню"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "Заметка"
   },
+  "typeLoginSubtitle": {
+    "message": "Веб-сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитная или дебетовая карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Личная информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важный текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Токен входа на сервер"
+  },
+  "folderSubtitle": {
+    "message": "Организуйте свои элементы"
+  },
+  "collectionSubtitle": {
+    "message": "Организуйте общие элементы"
+  },
   "newItemHeaderLogin": {
     "message": "Новый логин",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "Просмотр ключа SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "История паролей"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "Организация $ORGANIZATION$ просит вас изменить этот пароль, поскольку он подвержен риску. Перейдите в настройки аккаунта для изменения пароля.",
+  "atRiskNavigatePromptV2": {
+    "message": "Ваш пароль для этого сайта подвержен риску. Организация $ORGANIZATION$ просит вас перейти в настройки аккаунта и изменить его.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Статус авторизации"
+  },
+  "recentlyActive": {
+    "message": "Недавняя активность"
+  },
+  "recentlyActiveToday": {
+    "message": "Сегодня"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Последние 7 дней"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Последние 14 дней"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Последние 30 дней"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Более 30 дней назад"
   },
   "masterPasswordChanged": {
     "message": "Мастер-пароль сохранен"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Установите способ разблокировки для изменения действия при истечении тайм-аута"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Управление осуществляется через приложение Bitwarden для компьютера. Для изменения откройте это приложение."
+  },
+  "percentageCompleted": {
+    "message": "Завершено: $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Перейти"
   },
@@ -6201,6 +6267,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Скачать приложения Bitwarden"
