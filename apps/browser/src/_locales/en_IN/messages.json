@@ -2123,12 +2123,12 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
-    "description": "Header for new text send"
+    "message": "New text",
+    "description": "Header for new text Send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
-    "description": "Header for new file send"
+    "message": "New file",
+    "description": "Header for new file Send"
   },
   "editItemHeaderLogin": {
     "message": "Edit Login",
@@ -2151,12 +2151,12 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
-    "description": "Header for edit text send"
+    "message": "Edit text",
+    "description": "Header for edit text Send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
-    "description": "Header for edit file send"
+    "message": "Edit file",
+    "description": "Header for edit file Send"
   },
   "viewItemHeaderLogin": {
     "message": "View Login",

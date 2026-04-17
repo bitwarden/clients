@@ -5,13 +5,12 @@ import {
   Component,
   computed,
   DestroyRef,
+  effect,
   EventEmitter,
   forwardRef,
   inject,
   input,
   Input,
-  OnChanges,
-  OnInit,
   output,
   Output,
   viewChild,
@@ -70,13 +69,12 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     CardComponent,
   ],
 })
-export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, SendFormContainer {
+export class SendFormComponent implements AfterViewInit, SendFormContainer {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective)
   private bitSubmit: BitSubmitDirective;
   private destroyRef = inject(DestroyRef);
-  private _firstInitialized = false;
   private file: File | null = null;
 
   /**
@@ -89,9 +87,8 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   /**
    * The configuration for the add/edit form. Used to determine which controls are shown and what values are available.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) config: SendFormConfig;
+  readonly configInput = input.required<SendFormConfig>();
+  config: SendFormConfig;
 
   /**
    * Optional submit button that will be disabled or marked as loading when the form is submitting.
@@ -188,21 +185,6 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     this.updatedSendView = updateFn(this.updatedSendView);
   }
 
-  /**
-   * We need to re-initialize the form when the config is updated.
-   */
-  async ngOnChanges() {
-    // Avoid re-initializing the form on the first change detection cycle.
-    if (this._firstInitialized) {
-      await this.init();
-    }
-  }
-
-  async ngOnInit() {
-    await this.init();
-    this._firstInitialized = true;
-  }
-
   async init() {
     this.loading = true;
     this.updatedSendView = new SendView();
@@ -234,7 +216,13 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
     private toastService: ToastService,
     private i18nService: I18nService,
     private envService: EnvironmentService,
-  ) {}
+  ) {
+    // We need to reinitialize the form any time the config input changes
+    effect(() => {
+      this.config = this.configInput();
+      void this.init();
+    });
+  }
 
   onFileSelected(file: File): void {
     this.file = file;

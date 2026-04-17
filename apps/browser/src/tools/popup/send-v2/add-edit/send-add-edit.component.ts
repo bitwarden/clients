@@ -220,15 +220,25 @@ export class SendAddEditComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
+    let sendAction: "view" | "edit" | "add" = "add";
     if (!this.editing()) {
-      return this.i18nService.t("viewSend");
+      sendAction = "view";
+    } else if (mode === "edit" || mode === "partial-edit") {
+      sendAction = "edit";
     }
-    const isEditMode = mode === "edit" || mode === "partial-edit";
     const translation = {
-      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+      [SendType.Text]: {
+        view: "viewTextSendHeader",
+        edit: "editItemHeaderTextSend",
+        add: "newItemHeaderTextSend",
+      },
+      [SendType.File]: {
+        view: "viewFileSendHeader",
+        edit: "editItemHeaderFileSend",
+        add: "newItemHeaderFileSend",
+      },
     };
-    return this.i18nService.t(translation[type]);
+    return this.i18nService.t(translation[type][sendAction]);
   }
 
   protected editSend() {

@@ -84,15 +84,25 @@ export class SendAddEditDialogComponent {
     if (this.showGenerator()) {
       return "passwordGenerator";
     }
+    let sendAction: "view" | "edit" | "add" = "add";
     if (!this.editing()) {
-      return "viewSend";
+      sendAction = "view";
+    } else if (this.config.mode === "edit" || this.config.mode === "partial-edit") {
+      sendAction = "edit";
     }
-    const isEditMode = this.config.mode === "edit" || this.config.mode === "partial-edit";
     const translation = {
-      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+      [SendType.Text]: {
+        view: "viewTextSendHeader",
+        edit: "editItemHeaderTextSend",
+        add: "newItemHeaderTextSend",
+      },
+      [SendType.File]: {
+        view: "viewFileSendHeader",
+        edit: "editItemHeaderFileSend",
+        add: "newItemHeaderFileSend",
+      },
     };
-    return translation[this.config.sendType];
+    return translation[this.config.sendType][sendAction];
   });
 
   /**

@@ -25,7 +25,7 @@
     <div [hidden]="showGenerator()">
       <tools-send-form
         formId="sendForm"
-        [config]="config"
+        [configInput]="config"
         (onSendCreated)="onSendCreated($event)"
         (onSendUpdated)="onSendUpdated($event)"
         (openPasswordGenerator)="openGenerator()"

@@ -228,20 +228,20 @@
      "message": "Text to share"
    },
   "newItemHeaderTextSend": {
-    "message": "New Text Send",
-    "description": "Header for new text send"
+    "message": "New text",
+    "description": "Header for new text Send"
   },
   "newItemHeaderFileSend": {
-    "message": "New File Send",
-    "description": "Header for new file send"
+    "message": "New file",
+    "description": "Header for new file Send"
   },
   "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
-    "description": "Header for edit text send"
+    "message": "Edit text",
+    "description": "Header for edit text Send"
   },
   "editItemHeaderFileSend": {
-    "message": "Edit File Send",
-    "description": "Header for edit file send"
+    "message": "Edit file",
+    "description": "Header for edit file Send"
   },
   "deleteSendPermanentConfirmation": {
     "message": "Are you sure you want to permanently delete this Send?",
@@ -4862,8 +4862,10 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
-  "viewSend": {
-    "message": "View Send",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
   }
 }

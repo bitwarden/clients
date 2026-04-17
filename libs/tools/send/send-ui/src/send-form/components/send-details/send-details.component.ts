@@ -205,6 +205,14 @@ export class SendDetailsComponent implements OnInit {
         }
       }
     });
+    // When we change editing state we want to update the password field's disabled status
+    effect(() => {
+      if (this.editing() && this.hasPassword) {
+        this.sendDetailsForm.get("password").disable();
+      } else {
+        this.sendDetailsForm.get("password").enable();
+      }
+    });
     this.sendDetailsForm.valueChanges
       .pipe(
         tap((value) => {
