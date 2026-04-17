@@ -21,6 +21,8 @@ export enum FeatureFlag {
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
   UseUnlockServiceForPasswordLogin = "use-unlock-service-for-password-login",
   PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
+  // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
+  PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
@@ -164,6 +166,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
   [FeatureFlag.UseUnlockServiceForPasswordLogin]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
+  // TODO: PM-34091 - Remove this default value entry.
+  [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
