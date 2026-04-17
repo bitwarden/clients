@@ -25,6 +25,8 @@ type IndexState = {
 
 export class LunrSearchService {
   private static registeredPipeline = false;
+  private static readonly indexLockPollIntervalMs = 20;
+  private static readonly indexLockForceAcquireTimeoutMs = 10_000;
 
   private isIndexing = false;
   // Index caching lives in memory of the service, not as a state provider.
@@ -82,13 +84,17 @@ export class LunrSearchService {
 
       // Only build one index concurrently
       await this.acquireIndexLock();
-      const index = await buildCipherIndex(ciphers);
-      this.lunrIndices.set(indexId, {
-        lunrIndex: index,
-        numberOfCiphers: ciphers.length,
-        revisionDate: new Date(),
-      });
-      await this.releaseIndexLock();
+      let index: lunr.Index;
+      try {
+        index = await buildCipherIndex(ciphers);
+        this.lunrIndices.set(indexId, {
+          lunrIndex: index,
+          numberOfCiphers: ciphers.length,
+          revisionDate: new Date(),
+        });
+      } finally {
+        await this.releaseIndexLock();
+      }
 
       this.logService.info("Lunr index build complete");
       this.logService.measure(start, "Vault", "LunrSearchService", "index build complete", [
@@ -129,9 +135,22 @@ export class LunrSearchService {
   }
 
   private async acquireIndexLock(): Promise<boolean> {
+    const lockWaitStart = performance.now();
     while (this.isIndexing) {
-      await new Promise((resolve) => setTimeout(resolve, 20));
+      if (
+        performance.now() - lockWaitStart >=
+        LunrSearchService.indexLockForceAcquireTimeoutMs
+      ) {
+        // In case somehow the index build threw previously and did not release the lock.
+        this.logService.info(
+          "Lunr index lock acquisition timed out after 10 seconds, forcing lock acquisition",
+        );
+        break;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, LunrSearchService.indexLockPollIntervalMs));
     }
+
     this.isIndexing = true;
     return true;
   }
