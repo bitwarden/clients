@@ -288,7 +288,9 @@ export class SearchService implements SearchServiceAbstraction {
       if (workerRefs !== null) {
         workerRefs.forEach((r) => {
           const cipher = ciphersMap.get(r.ref);
-          if (cipher) {results.push(cipher);}
+          if (cipher) {
+            results.push(cipher);
+          }
         });
         this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
         this._isCipherSearching$.next(false);
@@ -326,7 +328,9 @@ export class SearchService implements SearchServiceAbstraction {
 
     if (searchResults != null) {
       searchResults.forEach((r) => {
-        if (ciphersMap.has(r.ref)) {results.push(ciphersMap.get(r.ref));}
+        if (ciphersMap.has(r.ref)) {
+          results.push(ciphersMap.get(r.ref));
+        }
       });
     }
     this.logService.measure(searchStartTime, "Vault", "SearchService", "search complete");
