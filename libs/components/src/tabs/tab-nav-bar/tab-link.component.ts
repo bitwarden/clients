@@ -4,7 +4,7 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ContentChild,
+  contentChild,
   DestroyRef,
   ElementRef,
   HostListener,
@@ -62,8 +62,7 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   readonly berryValue = input<number>();
   readonly trailingIcon = input<BitwardenIcon>();
 
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ContentChild(TabLabelDirective) templateLabel?: TabLabelDirective;
+  readonly templateLabel = contentChild(TabLabelDirective);
 
   // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field

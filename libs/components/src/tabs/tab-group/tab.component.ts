@@ -1,7 +1,7 @@
 import { TemplatePortal } from "@angular/cdk/portal";
 import {
   Component,
-  ContentChild,
+  contentChild,
   OnInit,
   TemplateRef,
   ViewContainerRef,
@@ -44,9 +44,7 @@ export class TabComponent implements OnInit {
   readonly contentTabIndex = input<number | undefined>();
 
   readonly implicitContent = viewChild.required(TemplateRef);
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ContentChild(TabLabelDirective) templateLabel?: TabLabelDirective;
+  readonly templateLabel = contentChild(TabLabelDirective);
 
   private readonly _contentPortal = signal<TemplatePortal | null>(null);
 

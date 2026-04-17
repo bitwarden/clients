@@ -1,8 +1,8 @@
 <ng-template #tabLabelContent let-tab="tab" let-truncate="truncate">
   <span [class]="tabLabelContentClasses">
     <span [class]="truncate ? 'tw-min-w-0 tw-truncate' : ''">
-      @if (tab.templateLabel) {
-        <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
+      @if (tab.templateLabel()) {
+        <ng-container [ngTemplateOutlet]="tab.templateLabel()!.templateRef"></ng-container>
       } @else {
         {{ tab.textLabel() }}
       }

@@ -37,8 +37,8 @@
       ariaCurrentWhenActive="page"
     >
       <span [class]="tabLabelContentClasses">
-        @if (tab.templateLabel) {
-          <ng-container [ngTemplateOutlet]="tab.templateLabel.templateRef"></ng-container>
+        @if (tab.templateLabel()) {
+          <ng-container [ngTemplateOutlet]="tab.templateLabel()!.templateRef"></ng-container>
         } @else {
           {{ tab.displayText() }}
         }
