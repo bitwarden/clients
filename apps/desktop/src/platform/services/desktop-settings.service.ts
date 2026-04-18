@@ -19,6 +19,7 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
+import { isDev } from "../../utils";
 import { ModalModeState, WindowState } from "../models/domain/window-state";
 
 export const HARDWARE_ACCELERATION = new KeyDefinition<boolean>(
@@ -120,7 +121,7 @@ export class DesktopSettingsService {
   /**
    * The applications setting for whether or not to close the application into the system tray.
    */
-  closeToTray$ = this.closeToTrayState.state$.pipe(map(Boolean));
+  closeToTray$ = this.closeToTrayState.state$.pipe(map((v) => v ?? !isDev()));
 
   private readonly minimizeToTrayState = this.stateProvider.getGlobal(MINIMIZE_TO_TRAY_KEY);
   /**
@@ -132,19 +133,19 @@ export class DesktopSettingsService {
   /**
    * The application setting for whether or not to start the application into the system tray.
    */
-  startToTray$ = this.startToTrayState.state$.pipe(map(Boolean));
+  startToTray$ = this.startToTrayState.state$.pipe(map((v) => v ?? !isDev()));
 
   private readonly trayEnabledState = this.stateProvider.getGlobal(TRAY_ENABLED_KEY);
   /**
    * Whether or not the system tray has been enabled.
    */
-  trayEnabled$ = this.trayEnabledState.state$.pipe(map(Boolean));
+  trayEnabled$ = this.trayEnabledState.state$.pipe(map((v) => v ?? !isDev()));
 
   private readonly openAtLoginState = this.stateProvider.getGlobal(OPEN_AT_LOGIN_KEY);
   /**
    * The application setting for whether or not the application should open at system login.
    */
-  openAtLogin$ = this.openAtLoginState.state$.pipe(map(Boolean));
+  openAtLogin$ = this.openAtLoginState.state$.pipe(map((v) => v ?? !isDev()));
 
   private readonly alwaysShowDockState = this.stateProvider.getGlobal(ALWAYS_SHOW_DOCK_KEY);
   /**

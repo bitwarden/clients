@@ -10,7 +10,7 @@ import { autostart } from "@bitwarden/desktop-napi";
 
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { isFlatpak, isLinux, isSnapStore } from "../utils";
+import { isFlatpak } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
@@ -26,15 +26,16 @@ export class MessagingMain {
 
   async init() {
     this.scheduleNextSync();
-    if (isLinux()) {
-      // Flatpak and snap don't have access to or use the startup file. On flatpak, the autostart portal is used
-      if (!isFlatpak() && !isSnapStore()) {
-        await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
-      }
+
+    // On app start, regenerate the configurations needed to autostart or not auto-start
+    // depending on the setting provided in the settings file.
+    const openAtLogin = await firstValueFrom(this.desktopSettingsService.openAtLogin$);
+    if (openAtLogin) {
+      this.addOpenAtLogin();
     } else {
-      const loginSettings = app.getLoginItemSettings();
-      await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
+      this.removeOpenAtLogin();
     }
+
     ipcMain.on(
       "messagingService",
       async (event: any, message: any) => await this.onMessage(message),
