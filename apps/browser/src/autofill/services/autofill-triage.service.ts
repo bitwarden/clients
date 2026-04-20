@@ -11,7 +11,16 @@ import { AutofillTriageService as AutofillTriageServiceInterface } from "./abstr
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 
 const VALUE_PREVIEW_MAX_LENGTH = 50;
-const SENSITIVE_AUTOCOMPLETE_TYPES = ["cc-number", "cc-csc", "cc-exp", "ssn", "tax-id"];
+const SENSITIVE_AUTOCOMPLETE_TYPES = [
+  "cc-number",
+  "cc-csc",
+  "cc-exp",
+  "ssn",
+  "tax-id",
+  "current-password",
+  "new-password",
+  "one-time-code",
+];
 
 export class AutofillTriageService implements AutofillTriageServiceInterface {
   constructor(private qualificationService: InlineMenuFieldQualificationService) {}

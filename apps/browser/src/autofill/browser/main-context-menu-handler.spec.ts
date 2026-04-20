@@ -17,7 +17,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlag , FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -190,8 +190,8 @@ describe("context-menu", () => {
 
     it("adds triage separator and menu item when EnableAutofillTriage flag is enabled", async () => {
       billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
-      configService.getFeatureFlag.mockImplementation((flag) =>
-        Promise.resolve(flag === FeatureFlag.EnableAutofillTriage ? true : false),
+      configService.getFeatureFlag.mockImplementation(
+        async (flag) => (flag === FeatureFlag.EnableAutofillTriage) as FeatureFlagValueType<any>,
       );
 
       const createdMenu = await sut.init();
