@@ -221,21 +221,23 @@ export class AccessReportView implements View {
    * @param applicationNames - Names of the applications to mark as critical
    */
   markApplicationsAsCritical(applicationNames: string[]): void {
-    for (const applicationName of applicationNames) {
-      const app = this.applications.find((a) => a.applicationName === applicationName);
+    const knownNames = new Set(this.reports.map((r) => r.applicationName));
 
-      if (app) {
-        app.isCritical = true;
-        if (!app.reviewedDate) {
-          app.reviewedDate = new Date();
-        }
-      } else {
-        // Application not in list, add it
-        const newApp = new AccessReportSettingsView();
-        newApp.applicationName = applicationName;
-        newApp.isCritical = true;
-        newApp.reviewedDate = new Date();
-        this.applications.push(newApp);
+    for (const applicationName of applicationNames) {
+      if (!knownNames.has(applicationName)) {
+        continue;
+      }
+
+      let app = this.applications.find((a) => a.applicationName === applicationName);
+      if (!app) {
+        app = new AccessReportSettingsView();
+        app.applicationName = applicationName;
+        this.applications.push(app);
+      }
+
+      app.isCritical = true;
+      if (!app.reviewedDate) {
+        app.reviewedDate = new Date();
       }
     }
 
@@ -269,16 +271,19 @@ export class AccessReportView implements View {
    * @param reviewedDate - Date of review (defaults to current date)
    */
   markApplicationAsReviewed(applicationName: string, reviewedDate?: Date): void {
-    const app = this.applications.find((a) => a.applicationName === applicationName);
-
-    if (app) {
-      app.reviewedDate = reviewedDate ?? new Date();
-    } else {
-      const newApp = new AccessReportSettingsView();
-      newApp.applicationName = applicationName;
-      newApp.reviewedDate = reviewedDate ?? new Date();
-      this.applications.push(newApp);
+    const knownNames = new Set(this.reports.map((r) => r.applicationName));
+    if (!knownNames.has(applicationName)) {
+      return;
     }
+
+    let app = this.applications.find((a) => a.applicationName === applicationName);
+    if (!app) {
+      app = new AccessReportSettingsView();
+      app.applicationName = applicationName;
+      this.applications.push(app);
+    }
+
+    app.reviewedDate = reviewedDate ?? new Date();
   }
 
   // === Computation Methods ===

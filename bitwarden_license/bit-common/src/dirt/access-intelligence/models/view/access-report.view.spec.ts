@@ -385,15 +385,26 @@ describe("AccessReportView", () => {
       expect(app?.isCritical).toBe(true);
     });
 
-    it("should add new application if not in list", () => {
+    it("should create settings entry when app is in reports but not yet in applications", () => {
       const view = new AccessReportView();
       view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
 
       view.markApplicationsAsCritical(["github.com"]);
 
       expect(view.applications).toHaveLength(1);
       expect(view.applications[0].applicationName).toBe("github.com");
       expect(view.applications[0].isCritical).toBe(true);
+    });
+
+    it("should no-op when application name is not in reports (no ghost entry)", () => {
+      const view = new AccessReportView();
+      view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
+
+      view.markApplicationsAsCritical(["unknown.com"]);
+
+      expect(view.applications).toHaveLength(0);
     });
 
     it("should trigger summary recomputation once for multiple apps", () => {
@@ -473,6 +484,7 @@ describe("AccessReportView", () => {
     it("should mark existing application as reviewed with current date", () => {
       const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
+      view.reports = [createReport("github.com", {}, {})];
 
       const beforeDate = new Date();
       view.markApplicationAsReviewed("github.com");
@@ -487,6 +499,7 @@ describe("AccessReportView", () => {
     it("should mark application with specific date", () => {
       const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
+      view.reports = [createReport("github.com", {}, {})];
 
       const specificDate = new Date("2024-01-15");
       view.markApplicationAsReviewed("github.com", specificDate);
@@ -495,9 +508,10 @@ describe("AccessReportView", () => {
       expect(app?.reviewedDate).toEqual(specificDate);
     });
 
-    it("should add new application if not in list", () => {
+    it("should create settings entry when app is in reports but not yet in applications", () => {
       const view = new AccessReportView();
       view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
 
       view.markApplicationAsReviewed("github.com");
 
@@ -506,9 +520,20 @@ describe("AccessReportView", () => {
       expect(view.applications[0].reviewedDate).toBeDefined();
     });
 
+    it("should no-op when application name is not in reports (no ghost entry)", () => {
+      const view = new AccessReportView();
+      view.applications = [];
+      view.reports = [createReport("github.com", {}, {})];
+
+      view.markApplicationAsReviewed("unknown.com");
+
+      expect(view.applications).toHaveLength(0);
+    });
+
     it("should not trigger summary recomputation", () => {
       const view = new AccessReportView();
       view.applications = [createApplication("github.com", false)];
+      view.reports = [createReport("github.com", {}, {})];
 
       // Manually set summary to verify it doesn't change
       view.summary.totalApplicationCount = 99;
