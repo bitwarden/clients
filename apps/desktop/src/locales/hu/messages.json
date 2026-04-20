@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "typeLoginSubtitle": {
+    "message": "Webhely vagy alkalmazás"
+  },
+  "typeCardSubtitle": {
+    "message": "Hitelkártya vagy bankkártya"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Személyes adatok"
+  },
+  "typeNoteSubtitle": {
+    "message": "Fontos szöveg"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Szerver bejelentkezési token"
+  },
+  "folderSubtitle": {
+    "message": "Elemek szervezése"
+  },
+  "collectionSubtitle": {
+    "message": "Megosztott elemek szervezése"
+  },
+  "chooseItemToAdd": {
+    "message": "Válasszuk ki a hozzáadandó elemet"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Válasszuk ki azt az elemtípust, amelyet hozzá szeretnénk adni a széfhez."
+  },
   "folders": {
     "message": "Mappák"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Elem megtekintése"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Bejelentkezés megtekintése",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kártya megtekintése",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Személyazonosság megtekintése",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Jegyzet megtekintése",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH kulcs megtekintése",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Új bejelentkezés",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Új kártya",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Új személyazonosság",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Új jegyzet",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Új SSH kulcs",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Bejelentkezés szerkesztése",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kártya szerkesztése",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Személyazonossság szerkesztése",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Jegyzet szerkesztése",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH kulcs szerkesztése",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Név"
@@ -2126,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "Mentetlen változtatások"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Ha most elmegyünk, a módosítások nem kerülnek mentésre. Telepítsük a frissítést később, így maradhatunk és menthetjük a módosításokat."
+  },
+  "installLater": {
+    "message": "Telepítés később"
+  },
+  "continueWithInstall": {
+    "message": "Folytatás telepítéssel"
+  },
   "clone": {
     "message": "Klónozás"
   },
@@ -2234,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Hitelesítő kód másolása (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Jegyzetek másolása"
   },
   "totpHelperTitle": {
     "message": "Tegyük zökkenőmentessé a kétlépcsős azonosítást."
@@ -4696,6 +4795,15 @@
   "organizationIsSuspendedDesc": {
     "message": "A felfüggesztett szervezetek elemei nem érhetők el. Vegyük fel a kapcsolatot a szervezet tulajdonosával segítségért."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% kész",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Nincs elem a lomtárban."
   },
@@ -4751,7 +4859,27 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "discardEdits": {
+    "message": "Szerkesztések elvetése"
+  },
+  "discardEditsMessage": {
+    "message": "A nézetet bezárva a nem mentett szerkesztések elvetésre kerülnek."
+  },
+  "backToEditing": {
+    "message": "Vissza a szerkesztéshez"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "A Send elem szerkesztések mentése nem sikerült.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

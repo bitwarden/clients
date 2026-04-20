@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   ButtonModule,
   CardComponent,
-  ProgressModule,
+  ProgressBarComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { Storage, StorageCardComponent } from "@bitwarden/subscription";
@@ -22,7 +22,7 @@ export default {
         CommonModule,
         ButtonModule,
         CardComponent,
-        ProgressModule,
+        ProgressBarComponent,
         TypographyModule,
         I18nPipe,
       ],
