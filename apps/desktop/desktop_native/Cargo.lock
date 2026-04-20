@@ -3466,13 +3466,19 @@ dependencies = [
  "async-trait",
  "base64",
  "desktop_core",
+ "homedir",
+ "libc",
  "mockall",
+ "rand 0.9.2",
  "rkyv",
+ "serial_test",
  "ssh-key",
+ "sysinfo",
  "thiserror 2.0.17",
  "tokio",
  "tokio-util",
  "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]

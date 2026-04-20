@@ -58,10 +58,12 @@ pub struct PublicKey {
 }
 
 impl PublicKey {
+    #[must_use]
     pub fn alg(&self) -> &str {
         &self.alg
     }
 
+    #[must_use]
     pub fn blob(&self) -> &[u8] {
         &self.blob
     }
