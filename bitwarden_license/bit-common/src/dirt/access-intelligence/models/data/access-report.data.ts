@@ -17,10 +17,6 @@ export class AccessReportData {
   reports: string = "";
   applications: string = "";
   summary: string = "";
-  //  [TODO] Update types when individual values are encrypted instead of the entire object
-  //  reports: ApplicationHealthData[]; // Previously ApplicationHealthReportDetail Data type
-  //  applications: AccessReportSettingsData[]; // Previously OrganizationReportApplication Data type
-  //  summary: AccessReportSummaryData; // Previously OrganizationReportSummary Data type
   creationDate: string = "";
   contentEncryptionKey: string = "";
 
@@ -36,14 +32,5 @@ export class AccessReportData {
     this.summary = response.summary;
     this.creationDate = response.creationDate;
     this.contentEncryptionKey = response.contentEncryptionKey;
-
-    //  [TODO] Update types when individual values are encrypted instead of the entire object
-    //  this.summary = new AccessReportSummaryData(response.summaryData);
-    //  if (response.reports != null) {
-    //    this.reports = response.reports.map((r) => new ApplicationHealthData(r));
-    //  }
-    //  if (response.applications != null) {
-    //    this.applications = response.applications.map((a) => new AccessReportSettingsData(a));
-    //  }
   }
 }

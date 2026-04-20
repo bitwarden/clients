@@ -39,20 +39,5 @@ export class AccessReportApi extends BaseResponse {
     this.summary = this.getResponseProperty("summaryData");
     this.memberRegistry = this.getResponseProperty("memberRegistry") ?? "";
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
-
-    // Use when individual values are encrypted
-    // const summary = this.getResponseProperty("summaryData");
-    // if (summary != null) {
-    //   this.summary = new AccessReportSummaryApi(summary);
-    // }
-
-    // const reports = this.getResponseProperty("reportData");
-    // if (reports != null) {
-    //   this.reports = reports.map((r: any) => new ApplicationHealthApi(r));
-    // }
-    // const applications = this.getResponseProperty("applicationData");
-    // if (applications != null) {
-    //   this.applications = applications.map((f: any) => new AccessReportSettingsApi(f));
-    // }
   }
 }
