@@ -16,6 +16,7 @@ import {
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 import { ChangeKdfService } from "./change-kdf.service.abstraction";
+import { EncString } from "../crypto/models/enc-string";
 
 export class DefaultChangeKdfService implements ChangeKdfService {
   constructor(
@@ -67,5 +68,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
       unlockData.kdf,
     );
     await this.masterPasswordService.setMasterKey(masterKey, userId);
+    await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(new EncString(unlockData.masterKeyWrappedUserKey), userId);
   }
 }
