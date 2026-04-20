@@ -81,7 +81,6 @@ import {
   AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  ChangeLoginPasswordService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -91,7 +90,6 @@ import {
   CollectionAssignmentResult,
   createFilterFunction,
   DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   CipherFormComponent,
@@ -136,10 +134,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     {
       provide: CipherFormConfigService,
       useClass: DefaultCipherFormConfigService,
-    },
-    {
-      provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
     },
     {
       provide: ViewPasswordHistoryService,

@@ -49,10 +49,8 @@ import {
 } from "@bitwarden/components";
 import {
   ArchiveCipherUtilitiesService,
-  ChangeLoginPasswordService,
   CipherViewComponent,
   CopyCipherFieldService,
-  DefaultChangeLoginPasswordService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
@@ -113,7 +111,6 @@ type LoadAction =
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class ViewComponent {

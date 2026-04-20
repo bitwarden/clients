@@ -13,7 +13,6 @@ export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
-export { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
 
 export * from "./cipher-view";
 export * from "./cipher-form";
@@ -41,10 +40,8 @@ export * from "./components/organization-name-badge/organization-name-badge.comp
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
-export * from "./abstractions/change-login-password.service";
 export * from "./abstractions/vault-items-transfer.service";
 export * from "./services/default-vault-items-transfer.service";
-export * from "./services/default-change-login-password.service";
 export * from "./services/archive-cipher-utilities.service";
 
 export * from "./models/vault-filter.type";

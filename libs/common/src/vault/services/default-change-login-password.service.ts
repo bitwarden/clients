@@ -1,17 +1,14 @@
-import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { ChangePasswordUriResponse } from "@bitwarden/common/vault/models/response/change-password-uri.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
-
-@Injectable()
 export class DefaultChangeLoginPasswordService implements ChangeLoginPasswordService {
   constructor(
     private apiService: ApiService,

@@ -17,11 +17,7 @@ import {
   DialogModule,
   DialogService,
 } from "@bitwarden/components";
-import {
-  ChangeLoginPasswordService,
-  CipherViewComponent,
-  DefaultChangeLoginPasswordService,
-} from "@bitwarden/vault";
+import { CipherViewComponent } from "@bitwarden/vault";
 
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */
@@ -46,7 +42,6 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: PremiumUpgradePromptNoop },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class EmergencyViewDialogComponent {
