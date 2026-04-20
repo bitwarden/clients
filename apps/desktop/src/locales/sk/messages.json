@@ -4864,5 +4864,22 @@
   },
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
+  },
+  "discardEdits": {
+    "message": "Zahodiť úpravy"
+  },
+  "discardEditsMessage": {
+    "message": "Ak toto zobrazenie zavriete, neuložené zmeny budú zahodené"
+  },
+  "backToEditing": {
+    "message": "Späť na úpravy"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "V Sende sú neuložené úpravy. Naozaj chcete odísť?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Uloženie úprav Sendu zlyhalo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
