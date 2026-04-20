@@ -17,7 +17,7 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag , FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
