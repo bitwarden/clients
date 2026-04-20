@@ -86,6 +86,8 @@ export default {
               selectAll: "Select all",
               deselectAll: "Deselect all",
               select: "Select",
+              all: "All",
+              selectApplication: "Select application",
             });
           },
         },

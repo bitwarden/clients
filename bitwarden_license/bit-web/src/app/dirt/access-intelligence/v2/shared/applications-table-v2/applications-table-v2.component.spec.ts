@@ -84,6 +84,7 @@ describe("ApplicationsTableV2Component", () => {
               selectAll: "Select all",
               deselectAll: "Deselect all",
               select: "Select",
+              all: "All",
             }),
         },
       ],
