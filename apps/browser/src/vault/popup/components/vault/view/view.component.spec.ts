@@ -26,6 +26,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -247,6 +248,10 @@ describe("ViewComponent", () => {
         {
           provide: CipherRiskService,
           useValue: mock<CipherRiskService>(),
+        },
+        {
+          provide: ChangeLoginPasswordService,
+          useValue: mock<ChangeLoginPasswordService>(),
         },
       ],
     })
