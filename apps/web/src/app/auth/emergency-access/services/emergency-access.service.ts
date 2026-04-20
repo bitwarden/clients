@@ -325,14 +325,16 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     );
 
     if (newApisWithInputPasswordFlagEnabled) {
-      // Determine salt. In the Emergency Access Takeover flow, the grantee is setting a new
-      // master password for the grantor. The grantor's UserId is not available in this context
-      // (activeUserId is the grantee's), so salt is always derived from the grantor's email
-      // via emailToSalt().
+      // Prefer server-provided salt from the takeover response.
+      // Falls back to email-derived salt for backward compatibility with servers
+      // that don't yet include Salt in the response (PM-31636).
       //
-      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
-      // a userId-independent salt for the grantor rather than email derivation.
-      const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
+      // TODO: PM-32059 — When salt is fully disconnected from email (Stage 3),
+      // the email fallback will be removed and server salt becomes mandatory.
+      const salt: MasterPasswordSalt =
+        typeof takeoverResponse.salt === "string"
+          ? (takeoverResponse.salt as MasterPasswordSalt)
+          : this.masterPasswordService.emailToSalt(email);
 
       const authenticationData: MasterPasswordAuthenticationData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
