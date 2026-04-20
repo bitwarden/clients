@@ -57,17 +57,18 @@
             [block]="true"
             (click)="upgrade()"
             type="button"
+            [startIcon]="
+              cardDetails.button.icon?.position === 'before'
+                ? $any(cardDetails.button.icon.type)
+                : undefined
+            "
+            [endIcon]="
+              cardDetails.button.icon && cardDetails.button.icon.position !== 'before'
+                ? $any(cardDetails.button.icon.type)
+                : undefined
+            "
           >
-            @if (cardDetails.button.icon?.position === "before") {
-              <i class="bwi {{ cardDetails.button.icon.type }} tw-me-2" aria-hidden="true"></i>
-            }
             {{ cardDetails.button.text }}
-            @if (
-              cardDetails.button.icon &&
-              (cardDetails.button.icon.position === "after" || !cardDetails.button.icon.position)
-            ) {
-              <i class="bwi {{ cardDetails.button.icon.type }} tw-ms-2" aria-hidden="true"></i>
-            }
           </button>
         </div>
 
