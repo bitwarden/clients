@@ -46,20 +46,23 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
   private parentFormField = inject(BitFormFieldComponent, { optional: true });
 
   protected classList() {
+    const isReadonlyTextarea =
+      this.elementRef.nativeElement.tagName.toLowerCase() === "textarea" && this.readOnly;
+
     const classes = [
       "tw-block",
       "tw-w-full",
       "[&:is(input,select)]:tw-h-full",
       "[&:is(textarea)]:tw-h-auto",
       "[&:is(textarea)]:tw-min-h-[80px]",
-      "[&:is(textarea)]:tw-overflow-hidden",
+      ...(isReadonlyTextarea ? [] : ["tw-max-h-[50vh]", "tw-overflow-scroll"]),
+      "[&:is(textarea)]:tw-resize-none",
       "tw-px-1",
       "tw-placeholder-fg-body-subtle",
       "tw-border-none",
       "focus:tw-outline-none",
       "tw-bg-transparent",
       "tw-text-fg-heading",
-      "[&:is(textarea)]:tw-resize-none",
       "[&:is(input,textarea):disabled]:tw-bg-bg-secondary",
       "[&:is(input,textarea):disabled]:!tw-placeholder-fg-inactive",
       "[&:is(input,textarea):disabled]:!tw-text-fg-inactive",
