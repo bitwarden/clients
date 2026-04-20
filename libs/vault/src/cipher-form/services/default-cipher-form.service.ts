@@ -61,7 +61,7 @@ export class DefaultCipherFormService implements CipherFormService {
         organizationId,
         cipher.collectionIds,
         activeUserId,
-        config.originalCipher,
+        originalCipherView,
       );
       // If the collectionIds are the same, update the cipher normally
     } else if (isSetEqual(originalCollectionIds, newCollectionIds)) {
