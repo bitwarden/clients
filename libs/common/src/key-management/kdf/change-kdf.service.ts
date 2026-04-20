@@ -7,6 +7,7 @@ import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-manageme
 
 import { KdfRequest } from "../../models/request/kdf.request";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
+import { EncString } from "../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 import {
   fromSdkAuthenticationData,
@@ -16,7 +17,6 @@ import {
 
 import { ChangeKdfApiService } from "./change-kdf-api.service.abstraction";
 import { ChangeKdfService } from "./change-kdf.service.abstraction";
-import { EncString } from "../crypto/models/enc-string";
 
 export class DefaultChangeKdfService implements ChangeKdfService {
   constructor(
