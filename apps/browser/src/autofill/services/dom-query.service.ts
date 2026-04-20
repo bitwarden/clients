@@ -12,6 +12,15 @@ export class DomQueryService implements DomQueryServiceInterface {
   /** Non-null asserted. */
   private pageContainsShadowDom!: boolean;
   private observedShadowRoots = new WeakSet<ShadowRoot>();
+  /**
+   * An iterable mirror of `observedShadowRoots` used by `deepQueryElements`
+   * so it can reuse already-discovered shadow roots without a costly full-page
+   * re-scan on every intersection / page-detail event.
+   *
+   * Stale entries (roots removed from the DOM) are harmless: querying them
+   * returns an empty NodeList.  The set is cleared on `resetObservedShadowRoots`.
+   */
+  private knownShadowRoots = new Set<ShadowRoot>();
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -110,6 +119,12 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @returns True if any new shadow roots are found that aren't being observed
    */
   checkForNewShadowRoots = (): boolean => {
+    // Short-circuit: if we have already confirmed the page has no shadow DOM,
+    // skip the expensive querySelectorAll(":defined") + getShadowRoot scan entirely.
+    if (!this.pageContainsShadowDom) {
+      return false;
+    }
+
     let currentRoots: ShadowRoot[];
     try {
       currentRoots = this.recursivelyQueryShadowRoots(globalThis.document.body);
@@ -132,6 +147,7 @@ export class DomQueryService implements DomQueryServiceInterface {
    */
   resetObservedShadowRoots = (): void => {
     this.observedShadowRoots = new WeakSet<ShadowRoot>();
+    this.knownShadowRoots.clear();
   };
 
   /**
@@ -203,7 +219,19 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     let elements = this.queryElements<T>(root, queryString);
 
-    const shadowRoots = this.pageContainsShadowDom ? this.recursivelyQueryShadowRoots(root) : [];
+    if (!this.pageContainsShadowDom) {
+      return elements;
+    }
+
+    // Re-use the already-discovered shadow roots when possible to avoid the
+    // expensive querySelectorAll("*") + tag-name scan on every call.  The set
+    // is populated during the first scan and cleared only on
+    // `resetObservedShadowRoots` (i.e. when the mutation observer is rebuilt).
+    const shadowRoots =
+      this.knownShadowRoots.size > 0
+        ? Array.from(this.knownShadowRoots)
+        : this.recursivelyQueryShadowRoots(root);
+
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
@@ -216,6 +244,8 @@ export class DomQueryService implements DomQueryServiceInterface {
         });
         this.observedShadowRoots.add(shadowRoot);
       }
+      // Always keep the iterable set current.
+      this.knownShadowRoots.add(shadowRoot);
     }
 
     return elements;
@@ -228,10 +258,8 @@ export class DomQueryService implements DomQueryServiceInterface {
    * @param queryString - The query string to match elements against
    */
   private queryElements<T>(root: Document | ShadowRoot | Element, queryString: string): T[] {
-    if (!root.querySelector(queryString)) {
-      return [];
-    }
-
+    // Avoid a redundant pre-check querySelector — querySelectorAll already
+    // returns an empty NodeList when nothing matches, at no extra cost.
     return Array.from(root.querySelectorAll(queryString)) as T[];
   }
 
@@ -275,9 +303,19 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
 
     const shadowRoots: ShadowRoot[] = [];
-    const potentialShadowRoots = root.querySelectorAll(":defined");
+
+    // Previously used querySelectorAll(":defined") which matches ALL registered/built-in
+    // elements — potentially thousands on complex pages like Jira. Only custom elements
+    // (tag names containing a hyphen) can host a shadow root per the spec, so querying
+    // "*" and filtering by tag name avoids getShadowRoot calls on standard HTML elements.
+    const potentialShadowRoots = root.querySelectorAll("*");
     for (let index = 0; index < potentialShadowRoots.length; index++) {
-      const shadowRoot = this.getShadowRoot(potentialShadowRoots[index]);
+      const element = potentialShadowRoots[index];
+      if (!element.tagName.includes("-")) {
+        continue;
+      }
+
+      const shadowRoot = this.getShadowRoot(element);
       if (!shadowRoot) {
         continue;
       }
@@ -376,24 +414,43 @@ export class DomQueryService implements DomQueryServiceInterface {
         treeWalkerQueryResults.push(currentNode as T);
       }
 
-      const nodeShadowRoot = this.getShadowRoot(currentNode);
-      if (nodeShadowRoot) {
-        if (mutationObserver) {
-          mutationObserver.observe(nodeShadowRoot, {
-            attributes: true,
-            childList: true,
-            subtree: true,
-          });
-          this.observedShadowRoots.add(nodeShadowRoot);
-        }
+      // Only probe for a shadow root when:
+      // 1. The page is known to contain shadow DOM at all, AND
+      // 2. The element is a custom element (tag name contains a hyphen) —
+      //    only custom elements and a small set of built-ins can host shadow
+      //    roots, so calling the expensive chrome.dom.openOrClosedShadowRoot
+      //    on every plain HTML element (div, span, input…) is pure waste.
+      //    This is the primary cause of the long task reported in the trace:
+      //    getShadowRoot was called for every node on the Jira page, invoking
+      //    a synchronous Chrome extension API crossing the JS/browser boundary
+      //    thousands of times per mutation cycle.
+      if (
+        this.pageContainsShadowDom &&
+        nodeIsElement(currentNode) &&
+        (currentNode as Element).tagName.includes("-")
+      ) {
+        const nodeShadowRoot = this.getShadowRoot(currentNode);
+        if (nodeShadowRoot) {
+          if (mutationObserver) {
+            mutationObserver.observe(nodeShadowRoot, {
+              attributes: true,
+              childList: true,
+              subtree: true,
+            });
+            this.observedShadowRoots.add(nodeShadowRoot);
+          }
+          // Keep the iterable cache current so deepQueryElements can avoid
+          // a full re-scan on subsequent calls.
+          this.knownShadowRoots.add(nodeShadowRoot);
 
-        this.buildTreeWalkerNodesQueryResults(
-          nodeShadowRoot,
-          treeWalkerQueryResults,
-          filterCallback,
-          ignoredTreeWalkerNodes,
-          mutationObserver,
-        );
+          this.buildTreeWalkerNodesQueryResults(
+            nodeShadowRoot,
+            treeWalkerQueryResults,
+            filterCallback,
+            ignoredTreeWalkerNodes,
+            mutationObserver,
+          );
+        }
       }
 
       currentNode = treeWalker?.nextNode();

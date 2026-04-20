@@ -1164,8 +1164,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.mutationObserver.observe(document.documentElement, {
       attributes: true,
-      /** Mutations to node attributes NOT on this list will not be observed! */
-      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
+      /**
+       * Mutations to node attributes NOT on this list will not be observed!
+       * `class` is intentionally excluded: it changes extremely frequently on
+       * modern pages (animations, hover states, framework re-renders) and fires
+       * the handler for every element in the entire subtree. The cached
+       * `htmlClass` value is refreshed on the next full page-detail collection.
+       */
+      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES).filter(
+        (attr) => attr !== AUTOFILL_ATTRIBUTES.CLASS,
+      ),
       childList: true,
       subtree: true,
     });
@@ -1237,25 +1245,34 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Handles the processing of all mutations in the mutations queue. Will trigger
-   * within an idle callback to help with performance and prevent excessive updates.
+   * within a single idle callback to help with performance and prevent excessive updates.
+   *
+   * Previously this scheduled one idle callback per queue batch, and each batch
+   * callback scheduled yet another idle callback per individual MutationRecord —
+   * creating a 3-level async chain that flooded the idle queue on dynamic pages.
+   * Now all pending work is flattened and processed in a single idle callback.
    */
   private processMutations = () => {
-    const queueLength = this.mutationsQueue.length;
+    // Flatten all pending batches into one array and clear the queue immediately
+    // so that any new mutations arriving during processing go into a fresh queue.
+    const allMutations = this.mutationsQueue.flat();
+    this.mutationsQueue = [];
 
-    for (let queueIndex = 0; queueIndex < queueLength; queueIndex++) {
-      const mutations = this.mutationsQueue[queueIndex];
-      const processMutationRecords = () => {
-        this.processMutationRecords(mutations);
-
-        if (queueIndex === queueLength - 1 && this.domRecentlyMutated) {
-          this.updateAutofillElementsAfterMutation();
-        }
-      };
-
-      requestIdleCallbackPolyfill(processMutationRecords, { timeout: 500 });
+    if (!allMutations.length) {
+      return;
     }
 
-    this.mutationsQueue = [];
+    requestIdleCallbackPolyfill(
+      () => {
+        for (const mutation of allMutations) {
+          this.processMutationRecord(mutation);
+        }
+        if (this.domRecentlyMutated) {
+          this.updateAutofillElementsAfterMutation();
+        }
+      },
+      { timeout: 500 },
+    );
   };
 
   /**
@@ -1290,18 +1307,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.debouncedRequirePageDetailsUpdate();
     }
   };
-  /**
-   * Processes all mutation records encountered by the mutation observer.
-   *
-   * @param mutations - The mutation record to process
-   */
-  private processMutationRecords(mutations: MutationRecord[]) {
-    for (let mutationIndex = 0; mutationIndex < mutations.length; mutationIndex++) {
-      const mutation: MutationRecord = mutations[mutationIndex];
-      const processMutationRecord = () => this.processMutationRecord(mutation);
-      requestIdleCallbackPolyfill(processMutationRecord, { timeout: 500 });
-    }
-  }
 
   /**
    * Processes a single mutation record and updates the autofill elements if necessary.
@@ -1622,7 +1627,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       },
       name: () => updateAttribute("htmlName"),
       id: () => updateAttribute("htmlID"),
-      class: () => updateAttribute("htmlClass"),
+      // Note: `class` is intentionally omitted — it is excluded from the
+      // MutationObserver attributeFilter to avoid callback storms on dynamic pages.
+      // htmlClass is refreshed on the next full page-detail collection.
       method: () => updateAttribute("htmlMethod"),
     };
 
@@ -1681,6 +1688,9 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       class: () => updateAttribute("htmlClass"),
       checked: () =>
         (dataTarget.checked = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.CHECKED)),
+      // Note: `class` is intentionally omitted — it is excluded from the
+      // MutationObserver attributeFilter to avoid callback storms on dynamic pages.
+      // htmlClass is refreshed on the next full page-detail collection.
       "data-label": () => updateAttribute("label-data"),
       "data-stripe": () => updateAttribute(AUTOFILL_ATTRIBUTES.DATA_STRIPE),
       disabled: () =>

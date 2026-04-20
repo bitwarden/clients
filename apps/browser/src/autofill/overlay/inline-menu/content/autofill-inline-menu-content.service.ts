@@ -351,14 +351,28 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   /**
    * Sets up mutation observers to verify that the page `html` and `body` attributes
    * are not altered in a way that would impact safe display of the inline menu.
+   *
+   * Only `style` and `hidden` are observed — these are the only attributes that can
+   * affect the computed opacity/visibility of the inline menu container. Observing
+   * ALL attributes (the previous behaviour) caused `checkPageRisks` → `getComputedStyle`
+   * to fire on every `class`, `data-*`, or framework attribute change on `<html>` and
+   * `<body>`, which forced synchronous layout recalculations and froze the browser.
    */
   private observePageAttributes() {
+    const attributeFilter = ["style", "hidden"];
+
     if (document.documentElement) {
-      this.htmlMutationObserver?.observe(document.documentElement, { attributes: true });
+      this.htmlMutationObserver?.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter,
+      });
     }
 
     if (document.body) {
-      this.bodyMutationObserver?.observe(document.body, { attributes: true });
+      this.bodyMutationObserver?.observe(document.body, {
+        attributes: true,
+        attributeFilter,
+      });
     }
   }
 
