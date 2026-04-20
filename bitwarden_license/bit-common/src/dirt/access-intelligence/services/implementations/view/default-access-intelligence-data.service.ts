@@ -167,7 +167,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
 
         // Generate report
         return this.reportGenerationService
-          .generateReport(
+          .generateReport$(
             orgData.ciphers,
             members,
             collectionAccess,

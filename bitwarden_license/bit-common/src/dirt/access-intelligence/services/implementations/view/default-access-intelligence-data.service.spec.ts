@@ -45,7 +45,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     } as any;
 
     reportGenerationService = {
-      generateReport: jest.fn(),
+      generateReport$: jest.fn(),
     } as any;
 
     reportPersistenceService = {
@@ -142,7 +142,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
           } as OrganizationUserUserDetailsResponse,
         ],
       } as any);
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
       reportPersistenceService.loadReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
@@ -165,7 +165,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
         includeCollections: true,
         includeGroups: true,
       });
-      expect(reportGenerationService.generateReport).toHaveBeenCalled();
+      expect(reportGenerationService.generateReport$).toHaveBeenCalled();
       expect(reportPersistenceService.saveReport$).toHaveBeenCalledWith(testReport, orgId);
     });
 
@@ -184,7 +184,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       await firstValueFrom(service.generateNewReport$(orgId));
 
-      expect(reportGenerationService.generateReport).toHaveBeenCalledWith(
+      expect(reportGenerationService.generateReport$).toHaveBeenCalledWith(
         testCiphers,
         expect.anything(),
         expect.anything(),
@@ -206,7 +206,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
-      reportGenerationService.generateReport.mockReturnValue(
+      reportGenerationService.generateReport$.mockReturnValue(
         throwError(() => new Error("Generation failed")),
       );
 
@@ -252,7 +252,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should reset reportProgress$ to null on generation error", async () => {
-      reportGenerationService.generateReport.mockReturnValue(
+      reportGenerationService.generateReport$.mockReturnValue(
         throwError(() => new Error("Generation failed")),
       );
 
@@ -383,7 +383,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
           contentEncryptionKey: new EncString(""),
         }),
       );
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
 
       await firstValueFrom(service.generateNewReport$(orgId));
       await firstValueFrom(service.markApplicationsAsCritical$(["test-app.com"]));
@@ -457,7 +457,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     it("should expose ciphers$ for UI icon display", async () => {
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
       reportPersistenceService.loadReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
@@ -511,7 +511,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: apiUsers } as any);
-      reportGenerationService.generateReport.mockReturnValue(of(testReport));
+      reportGenerationService.generateReport$.mockReturnValue(of(testReport));
       reportPersistenceService.loadReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
@@ -519,7 +519,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       await firstValueFrom(service.generateNewReport$(orgId));
 
-      expect(reportGenerationService.generateReport).toHaveBeenCalledWith(
+      expect(reportGenerationService.generateReport$).toHaveBeenCalledWith(
         testCiphers,
         expect.arrayContaining([
           { id: "user-1", name: "Alice", email: "alice@example.com" },

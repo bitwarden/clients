@@ -38,7 +38,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
     return getUserId(this.accountService.activeAccount$).pipe(
       take(1),
       switchMap((userId) =>
-        AccessReport.fromView(view, this.riskInsightsEncryptionService, {
+        AccessReport.fromView$(view, this.riskInsightsEncryptionService, {
           organizationId,
           userId,
         }).pipe(
@@ -87,7 +87,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
     return getUserId(this.accountService.activeAccount$).pipe(
       take(1),
       switchMap((userId) =>
-        AccessReport.fromView(view, this.riskInsightsEncryptionService, {
+        AccessReport.fromView$(view, this.riskInsightsEncryptionService, {
           organizationId: view.organizationId,
           userId,
         }).pipe(
@@ -163,7 +163,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
 
             // Domain handles its own decryption
             return domain
-              .decrypt(this.riskInsightsEncryptionService, { organizationId, userId })
+              .decrypt$(this.riskInsightsEncryptionService, { organizationId, userId })
               .pipe(map(({ view, hadLegacyBlobs }) => ({ report: view, hadLegacyBlobs })));
           }),
         ),

@@ -52,7 +52,7 @@ export class AccessReport extends Domain {
    *   when any blob was in the V1 format. The flag is a migration signal — callers that persist
    *   reports should re-save when this is `true` to upgrade the blobs to V2 format.
    */
-  decrypt(
+  decrypt$(
     encryptionService: AccessReportEncryptionService,
     context: { organizationId: OrganizationId; userId: UserId },
   ): Observable<{ view: AccessReportView; hadLegacyBlobs: boolean }> {
@@ -118,7 +118,7 @@ export class AccessReport extends Domain {
    * @param encryptionService - Service to handle encryption operations.
    * @param context - The organization and user identifiers for key lookup.
    */
-  static fromView(
+  static fromView$(
     view: AccessReportView,
     encryptionService: AccessReportEncryptionService,
     context: { organizationId: OrganizationId; userId: UserId },
