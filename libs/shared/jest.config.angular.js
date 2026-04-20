@@ -1,5 +1,7 @@
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-require-imports */
+const path = require("path");
+
 const { createCjsPreset } = require("jest-preset-angular/presets");
 
 const presetConfig = createCjsPreset({
@@ -16,6 +18,8 @@ const presetConfig = createCjsPreset({
 module.exports = {
   ...presetConfig,
   testMatch: ["**/+(*.)+(spec).+(ts)"],
+
+  setupFiles: [path.resolve(__dirname, "polyfill-node-globals.ts")],
 
   testPathIgnorePatterns: [
     "/node_modules/", // default value
