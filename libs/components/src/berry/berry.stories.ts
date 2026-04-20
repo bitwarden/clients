@@ -40,7 +40,7 @@ export default {
     value: {
       control: "number",
       description:
-        "Optional value to display for berries with type 'count'. Maximum displayed is 999, values above show '999+'. If undefined, a small small berry is shown. If 0 or negative, the berry is hidden.",
+        "Optional value to display for berries with type 'count'. If undefined, a small berry is shown. If 0 or negative, the berry is hidden.",
       table: {
         category: "Inputs",
         type: { summary: "number | undefined" },

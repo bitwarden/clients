@@ -15,7 +15,8 @@ export type BerryVariant =
  * like a navigation item, button, or icon button.
  * They draw users’ attention to status changes or new notifications.
  *
- * > `NOTE:` The maximum displayed value is 999. If the value is over 999, a “+” character is appended to indicate more.
+ * `NOTE:` By default, the full numeric value is displayed. Use `maxDigits` to cap the number of
+ * digits shown — values at or above `10^maxDigits` display as `(10^maxDigits - 1)+` (e.g., `maxDigits=2` shows `99+`).
  */
 @Component({
   selector: "bit-berry",
