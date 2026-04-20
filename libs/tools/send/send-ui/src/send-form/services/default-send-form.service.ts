@@ -100,6 +100,7 @@ export class DefaultSendFormService implements SendFormService {
       );
       const newSend = await this.sendApiService.save(sendData);
       const sendView = await this.decryptSend(newSend);
+      this.originalSendView = this.updatedSendView = null;
       this._submitting.set(false);
       return sendView;
     } catch (err) {
