@@ -144,6 +144,7 @@ export class ListCommand {
     }
 
     if (options.search != null && options.search.trim() !== "") {
+      ciphers = ciphers.filter((c) => this.matchesStateOptions(c, options));
       ciphers = this.searchService.searchCiphersBasic(ciphers, options.search);
     }
 
