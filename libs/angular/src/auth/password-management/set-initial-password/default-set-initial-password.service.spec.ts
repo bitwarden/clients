@@ -1386,7 +1386,7 @@ describe("DefaultSetInitialPasswordService", () => {
 
         it("should throw if orgPublicKeyEncryptedUserKey.encryptedString is not found", async () => {
           // Arrange
-          orgPublicKeyEncryptedUserKey.encryptedString = null as unknown as EncryptedString;
+          orgPublicKeyEncryptedUserKey.encryptedString = null as unknown as any;
 
           // Act
           const promise = sut.setInitialPasswordTdeUserWithPermission(credentials, userId);
