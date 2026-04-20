@@ -29,9 +29,9 @@ export class BerryComponent {
    * @example
    * maxDigits=2 shows 99+ for values ≥ 100. If undefined, the full value is shown.
    */
-  protected readonly maxDigits = input<number>(undefined);
-  protected readonly value = input<number>();
-  protected readonly type = input<"status" | "count">("count");
+  readonly maxDigits = input<number>(undefined);
+  readonly value = input<number>();
+  readonly type = input<"status" | "count">("count");
 
   protected readonly content = computed(() => {
     const value = this.value();
@@ -48,7 +48,7 @@ export class BerryComponent {
     if (maxDigits && value >= 10 ** maxDigits) {
       return `${(10 ** maxDigits - 1).toLocaleString()}+`;
     }
-    return `${value}`;
+    return `${value.toLocaleString()}`;
   });
 
   protected readonly textColor = computed(() => {
@@ -56,7 +56,7 @@ export class BerryComponent {
   });
 
   protected readonly padding = computed(() => {
-    return (this.content()?.toString().length ?? 0) > 2 ? "tw-px-1.5 tw-py-0.5" : "";
+    return (this.content()?.toString().length ?? 0) > 1 ? "tw-px-1.5 tw-py-0.5" : "";
   });
 
   protected readonly containerClasses = computed(() => {

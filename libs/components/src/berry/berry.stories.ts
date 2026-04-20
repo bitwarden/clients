@@ -14,6 +14,7 @@ export default {
     type: "count",
     variant: "primary",
     value: 5,
+    maxDigits: undefined,
   },
   argTypes: {
     type: {
@@ -110,8 +111,11 @@ export const countType: Story = {
 export const WithMaxDigits: Story = {
   render: (args) => ({
     props: args,
-    template: `<bit-berry [maxDigits]="2" [type]="type" [variant]="variant" [value]="value"></bit-berry>`,
+    template: `<bit-berry [maxDigits]="maxDigits" [type]="type" [variant]="variant" [value]="value"></bit-berry>`,
   }),
+  args: {
+    maxDigits: 2,
+  },
 };
 
 export const AllVariants: Story = {
