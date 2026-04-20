@@ -1,4 +1,4 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -7,9 +7,8 @@ import { DialogService } from "../../../dialog";
 import { I18nMockService } from "../../../utils/i18n-mock.service";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-kitchen-sink-form",
   imports: [KitchenSinkSharedModule],
   providers: [
@@ -135,12 +134,10 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
   `,
 })
 export class KitchenSinkFormComponent {
-  constructor(
-    public dialogService: DialogService,
-    public formBuilder: FormBuilder,
-  ) {}
+  protected readonly dialogService = inject(DialogService);
+  private readonly formBuilder = inject(FormBuilder);
 
-  formObj = this.formBuilder.group({
+  protected readonly formObj = this.formBuilder.group({
     favFeature: ["", [Validators.required]],
     favColor: [undefined as string | undefined, [Validators.required]],
     topWorstPasswords: [undefined as string | undefined],
@@ -150,7 +147,7 @@ export class KitchenSinkFormComponent {
     password: ["", [Validators.required]],
   });
 
-  submit = async () => {
+  protected readonly submit = async () => {
     await this.dialogService.openSimpleDialog({
       title: "Confirm",
       content: "Are you sure you want to submit?",
@@ -166,13 +163,13 @@ export class KitchenSinkFormComponent {
     this.dialogService.closeAll();
   }
 
-  colors = [
+  protected readonly colors = [
     { value: "blue", name: "Blue" },
     { value: "white", name: "White" },
     { value: "gray", name: "Gray" },
   ];
 
-  worstPasswords = [
+  protected readonly worstPasswords = [
     { id: "1", listName: "1234", labelName: "1234" },
     { id: "2", listName: "admin", labelName: "admin" },
     { id: "3", listName: "password", labelName: "password" },
