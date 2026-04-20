@@ -17,7 +17,7 @@
   </bit-radio-group>
   <div [hidden]="!sendFeatureAllowed()">
     <bit-form-field>
-      <bit-label>{{ "sendRestrictSendType" | i18n }}</bit-label>
+      <bit-label>{{ "sendType" | i18n }}</bit-label>
       <bit-select formControlName="restrictSendType" [disabled]="!enabled.value">
         @for (option of restrictSendTypeOptions(); track option.value) {
           <bit-option [value]="option.value" [label]="option.label"></bit-option>

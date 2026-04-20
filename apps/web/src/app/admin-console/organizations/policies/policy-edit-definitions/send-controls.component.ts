@@ -122,6 +122,17 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         this.data.enable();
       }
     });
+    this.data.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
+      // If the policy has no settings that change default behavior, the policy can be disabled
+      this.enabled.patchValue(
+        !(
+          !value.disableSend &&
+          value.restrictSendType == null &&
+          value.whoCanAccess === WhoCanAccessType.Any &&
+          !value.disableHideEmail
+        ),
+      );
+    });
     this.restrictSendTypeOptions.set([
       { label: this.i18nService.t("sendRestrictSendTypeNoRestriction"), value: null },
       { label: this.i18nService.t("sendRestrictSendTypeTextOnly"), value: SendType.Text },
