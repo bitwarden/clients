@@ -126,8 +126,7 @@ export class DefaultReportPersistenceService extends ReportPersistenceService {
     );
   }
 
-  // TODO Rename to loadLastReport$
-  loadReport$(
+  loadLastReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
     this.logService.debug("[DefaultReportPersistenceService] Loading report", { organizationId });
