@@ -4494,22 +4494,22 @@
     "message": "Състояние на вписването"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Активно наскоро"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Днес"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Последните 7 дни"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Последните 14 дни"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Последните 30 дни"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Преди повече от 30 дни"
   },
   "firstLogin": {
     "message": "Първо вписване"
@@ -9569,6 +9569,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "Потребителят направи опит за достъп до уеб сайт, който е познат като измамен"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Потребителят напусна страницата с предупреждението за измама"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Потребителят прескочи предупреждението за измамен уеб сайт"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -10391,6 +10400,46 @@
   "switchToFreeOrg": {
     "message": "Превключване към безплатна организация",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Липсващи функционалности",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Нещо, което ни е необходимо, не беше налично",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Твърде сложно за настройка или управление",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Обучението, администрирането или начина на ползване беше твърде сложен",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Не получаваме достатъчно стойност за цената",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "Цената не отговаря на това, което получаваме",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Не се използва достатъчно от екипа ни",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Не успяхме да накараме хората наистина да го ползват",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Нуждите ни се промениха",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Реорганизация, сливане, промяна в приоритетите или просто вече не ни трябва управител на пароли",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "Безплатно за 1 година"
@@ -13333,5 +13382,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Банковата Ви сметка трябва да бъде потвърдена, преди да може да се използва за това надграждане. Моля, потвърдете банковата си сметка или изберете друг начин за разплащане."
+  },
+  "discardEdits": {
+    "message": "Отхвърляне на промените"
+  },
+  "discardEditsMessage": {
+    "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани"
+  },
+  "backToEditing": {
+    "message": "Назад към редактирането"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Запазването на промените по Изпращането беше неуспешно",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

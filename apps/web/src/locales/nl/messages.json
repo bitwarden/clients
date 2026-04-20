@@ -9569,6 +9569,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "Gebruiker probeerde toegang te krijgen tot bekende phishingsite"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Gebruiker heeft phishing-waarschuwingspagina afgesloten"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Gebruiker omzeilde phishing-waarschuwing"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -10391,6 +10400,46 @@
   "switchToFreeOrg": {
     "message": "Overstappen naar gratis organisatie",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Ontbrekende functies of functionaliteit",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Iets wat we nodig hadden was niet beschikbaar",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Te moeilijk om in te stellen of te beheren",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, beheer of dagelijks gebruik was te ingewikkeld",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "We krijgen niet genoeg waarde voor het geld",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "De prijs komt niet overeen met wat we eruit krijgen",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Niet genoeg gebruik door ons team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "We konden mensen er niet toe zetten het echt te gebruiken",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Onze behoeften zijn veranderd",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "1 jaar gratis"
@@ -13333,5 +13382,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Je bankrekening moet worden geverifieerd voordat deze kan worden gebruikt voor deze upgrade. Verifieer je bankrekening of kies een andere betaalmethode."
+  },
+  "discardEdits": {
+    "message": "Bewerkingen verwerpen"
+  },
+  "discardEditsMessage": {
+    "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt"
+  },
+  "backToEditing": {
+    "message": "Terug naar bewerken"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Bewerkingen Send opslaan mislukt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

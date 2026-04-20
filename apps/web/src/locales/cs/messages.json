@@ -9569,6 +9569,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "Uživatel se pokusil vstoupit na známý phishingový web"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Uživatel opustil stránku s varováním o phishingu"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Uživatel obešel varování o phishingu"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -10391,6 +10400,46 @@
   "switchToFreeOrg": {
     "message": "Přepínání na bezplatnou organizaci",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Chybějící funkce nebo funkčnost",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Něco, co jsme potřebovali, nebylo k dispozici",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Příliš obtížné vytvořit nebo spravovat",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, správa nebo každodenní používání bylo příliš složité",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Poměr cena/výkon není dostatečný",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "Cena neodpovídá tomu, co za ni dostaneme",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "V našem týmu nevyužijeme",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Nemohli jsme přesvědčit lidi, aby jej skutečně používali",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Naše potřeby se změnily",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorganizace, prodej/nákup společnosti, posun priorit, nebo již nepotřebujeme správce hesel",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "Zdarma na 1 rok"
@@ -13333,5 +13382,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Váš bankovní účet musí být pro ověření tohoto upgradu ověřen. Ověřte svůj bankovní účet nebo vyberte jiný způsob platby."
+  },
+  "discardEdits": {
+    "message": "Zahodit úpravy"
+  },
+  "discardEditsMessage": {
+    "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny"
+  },
+  "backToEditing": {
+    "message": "Zpět k úpravám"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Ukládání úprav Send selhalo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

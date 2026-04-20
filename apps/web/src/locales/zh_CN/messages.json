@@ -60,7 +60,7 @@
     "message": "密码"
   },
   "riskOverTime": {
-    "message": "随时间推移的风险趋势"
+    "message": "风险趋势"
   },
   "passwordsAtRisk": {
     "message": "存在风险的密码"
@@ -4497,19 +4497,19 @@
     "message": "Recently active"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "今天"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "过去 7 天"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "过去 14 天"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "过去 30 天"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "30 天以前"
   },
   "firstLogin": {
     "message": "首次登录"
@@ -5004,7 +5004,7 @@
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "maxSeatCost": {
-    "message": "最大潜在的席位费用"
+    "message": "最大潜在的席位成本"
   },
   "addSeats": {
     "message": "添加席位",
@@ -5238,10 +5238,10 @@
     "message": "随时。"
   },
   "byEmail": {
-    "message": "By email"
+    "message": "通过电子邮箱"
   },
   "byLink": {
-    "message": "By link"
+    "message": "通过链接"
   },
   "byContinuingYouAgreeToThe": {
     "message": "若继续，表示您同意"
@@ -7899,7 +7899,7 @@
     "message": "密钥"
   },
   "billingHistory": {
-    "message": "费用历史记录"
+    "message": "计费历史记录"
   },
   "backToReports": {
     "message": "返回到报告"
@@ -9343,7 +9343,7 @@
     "message": "激活用户对 Secrets Manager 的访问权限。"
   },
   "userAccessSecretsManagerGA": {
-    "message": "此用户可以 Secrets Manager"
+    "message": "此用户可以访问 Secrets Manager"
   },
   "important": {
     "message": "重要："
@@ -9568,6 +9568,15 @@
         "example": "4d34e8a8"
       }
     }
+  },
+  "phishingBlockerSiteAccessed": {
+    "message": "用户试图访问已知的网络钓鱼站点"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "用户退出了网络钓鱼警告页面"
+  },
+  "phishingBlockerBypassed": {
+    "message": "用户忽略了网络钓鱼警告"
   },
   "sdk": {
     "message": "SDK",
@@ -10129,7 +10138,7 @@
     "message": "服务账户限制（可选）"
   },
   "maxServiceAccountCost": {
-    "message": "最大潜在的服务账户费用"
+    "message": "最大潜在的服务账户成本"
   },
   "loggedInExclamation": {
     "message": "已登录！"
@@ -10357,7 +10366,7 @@
     "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
   },
   "selectCancellationReason": {
-    "message": "选择取消的原因",
+    "message": "请选择取消的原因",
     "description": "Used as a form field label for a select input on the offboarding survey."
   },
   "anyOtherFeedback": {
@@ -10365,19 +10374,19 @@
     "description": "Used as a form field label for a textarea input on the offboarding survey."
   },
   "missingFeatures": {
-    "message": "功能缺失",
+    "message": "缺少某些功能",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "movingToAnotherTool": {
-    "message": "迁移到其他工具",
+    "message": "准备转用其他工具",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooDifficultToUse": {
-    "message": "太难使用",
+    "message": "使用起来太难了",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "notUsingEnough": {
-    "message": "未充分使用",
+    "message": "使用率不高",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooExpensive": {
@@ -10385,12 +10394,52 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreePlan": {
-    "message": "正在切换到免费方案",
+    "message": "准备切换到免费方案",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreeOrg": {
-    "message": "正在切换到免费组织",
+    "message": "准备切换到免费组织",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "缺少某些功能或特性",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "未提供我们需要的某些功能",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "设置或管理起来太难了",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "上手、管理或日常使用过于复杂",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "我们没有获得足够的与成本对应的价值",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "定价与我们获得的价值不匹配",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "我们团队的使用率不高",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "我们无法让人们真正使用它",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "我们的需求发生变化",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "重组、并购、优先级调整，或我们已不再需要密码管理器",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "免费 1 年"
@@ -10450,7 +10499,7 @@
     "message": "成功分配了集合"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，您将无法更新它们。",
+    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -10714,7 +10763,7 @@
     "message": "机器账户限制（可选）"
   },
   "maxMachineAccountCost": {
-    "message": "最大潜在的机器账户费用"
+    "message": "最大潜在的机器账户成本"
   },
   "machineAccountAccessUpdated": {
     "message": "机器账户访问权限已更新"
@@ -10995,7 +11044,7 @@
     "message": "选择集合项目"
   },
   "manageBillingFromProviderPortalMessage": {
-    "message": "从提供商门户管理账单"
+    "message": "从提供商门户管理计费"
   },
   "continueSettingUp": {
     "message": "继续设置 Bitwarden"
@@ -11266,7 +11315,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "通知：本月晚些时候，客户密码库隐私将进行升级，提供商成员将不再能够直接访问客户密码库项目。如有疑问，",
+    "message": "注意：本月晚些时候，客户密码库隐私将得到改进，提供商成员将不再能够直接访问客户密码库项目。如有疑问，",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
@@ -11635,7 +11684,7 @@
     "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
   },
   "toHostBitwardenOnYourOwnServer": {
-    "message": "要在您自己的服务器上托管 Bitwarden，您需要上传许可证文件。要支持自托管组织的免费版家庭版方案和高级计费功能，您需要在自托管组织中设置自动同步。"
+    "message": "要在您自己的服务器上托管 Bitwarden，您需要上传您的许可证文件。要支持自托管组织的免费家庭版方案和高级计费功能，您需要在您的自托管组织中设置计费同步。"
   },
   "selfHostingTitleProper": {
     "message": "自托管"
@@ -12775,7 +12824,7 @@
     "message": "卡号"
   },
   "startFreeFamiliesTrial": {
-    "message": "开始家庭版免费试用"
+    "message": "开始免费家庭版试用"
   },
   "blockClaimedDomainAccountCreation": {
     "message": "阻止使用已声明的域名创建账户"
@@ -13333,5 +13382,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
+  },
+  "discardEdits": {
+    "message": "放弃编辑"
+  },
+  "discardEditsMessage": {
+    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
+  },
+  "backToEditing": {
+    "message": "返回继续编辑"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send 有未保存的编辑内容。确定要离开吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "保存 Send 的编辑内容失败",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

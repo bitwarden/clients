@@ -4494,22 +4494,22 @@
     "message": "Bejelentkezési állapot"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Legutóbb aktív"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Ma"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Az elmúlt 7 nap"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Az elmúlt 14 nap"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Az elmúlt 30 nap"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Több, mint 30 napja"
   },
   "firstLogin": {
     "message": "Első bejelentkezés"
@@ -9569,6 +9569,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "A felhasználó ismert adathalász webhelyhez próbált hozzáférni."
+  },
+  "phishingBlockerSiteExited": {
+    "message": "A felhasználó kilépett az adathalász figyelmeztető oldalról."
+  },
+  "phishingBlockerBypassed": {
+    "message": "Felhasználó megkerülte az adathalász figyelmeztetést."
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -10391,6 +10400,46 @@
   "switchToFreeOrg": {
     "message": "Váltás ingyenes szervezetre",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Hiányzó funkciók vagy működés",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Valami, amire szükség van, nem volt elérhető.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Túl nehéz beüzemelni vagy kezelni.",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "A beüzemelés, az adminisztráció vagy napi használat túl bonyolult volt.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Nincs elég érték a költségekhez képest.",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "Az ár nem egyezik azzal, amit ki lehet hozni belőle.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "A csapat nem használja eleget.",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Nem lehetett rávenni az embereket, hogy jelenleg használják.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Változtak az igények.",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Újraszervezés, beszerzés, prioritásváltás vagy már nincs szükség jelszókezelőre.",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "Díjmentes 1 évre"
@@ -13333,5 +13382,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "A bankszámlát ellenőrizni kell, mielőtt felhasználható lenne ehhez a frissítéshez. Ellenőrizzük a bankszámlát vagy válasszunk más fizetési módot."
+  },
+  "discardEdits": {
+    "message": "Szerkesztések elvetése"
+  },
+  "discardEditsMessage": {
+    "message": "A nézetet bezárva a nem mentett szerkesztések elvetésre kerülnek."
+  },
+  "backToEditing": {
+    "message": "Vissza a szerkesztéshez"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "A Send elem szerkesztések mentése nem sikerült.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

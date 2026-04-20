@@ -4494,22 +4494,22 @@
     "message": "Statut de connexion"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Actif récemment"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Aujourd'hui"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "7 derniers jours"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "14 derniers jours"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "30 derniers jours"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Il y a plus de 30 jours"
   },
   "firstLogin": {
     "message": "Première connexion"
@@ -9569,6 +9569,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "L'utilisateur a tenté d'accéder à un site d'hameçonnage connu"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "L'utilisateur a quitté la page d'avertissement d'hameçonnage"
+  },
+  "phishingBlockerBypassed": {
+    "message": "L'utilisateur a contourné l'avertissement d'hameçonnage"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -10391,6 +10400,46 @@
   "switchToFreeOrg": {
     "message": "Passage à l'organisation gratuite",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Caractéristiques ou fonctionnalités manquantes",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Quelque chose dont nous avions besoin n'était pas disponible",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Trop difficile à configurer ou à gérer",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "L'intégration, l'admininistration, ou l'utilisation quotidienne était trop complexe",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Nous n'en n'avons pas pour notre argent",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "Le prix ne correspond pas à ce que nous en tirons",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Pas assez d'utilisation par notre équipe",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Nous étions incapables de faire en sorte que les personnes l'utilisent",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Nos besoins ont changé",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorganisation, acquisition, changement de priorités, ou nous n'avons plus besoin d'un gestionnaire de mots de passe",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "Gratuit pour 1 an"
@@ -13158,7 +13207,7 @@
     "message": "user@bitwarden.com , user@acme.com"
   },
   "emailPlaceholderMultiple": {
-    "message": "user@bitwarden.com, user@acme.com"
+    "message": "utilisateur@bitwarden.com, utilisateur@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
@@ -13333,5 +13382,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Votre compte bancaire doit être vérifié avant de pouvoir être utilisé pour cette mise à niveau. Veuillez vérifier votre compte bancaire ou choisir un autre mode de paiement."
+  },
+  "discardEdits": {
+    "message": "Annuler les modifications"
+  },
+  "discardEditsMessage": {
+    "message": "Si vous fermez cette vue, vos modifications non enregistrées seront annulées"
+  },
+  "backToEditing": {
+    "message": "Retour à l’édition"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "L'envoi a des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "La sauvegarde des modifications du Send a échouée",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
