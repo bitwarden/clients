@@ -1,4 +1,5 @@
 import { inject } from "@angular/core";
+import { EMPTY, Observable } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -9,6 +10,8 @@ import { DialogService } from "@bitwarden/components";
  */
 export class DesktopPremiumUpgradePromptService implements PremiumUpgradePromptService {
   private dialogService = inject(DialogService);
+
+  readonly upgradeConfirmed$: Observable<boolean> = EMPTY;
 
   async promptForPremium() {
     PremiumUpgradeDialogComponent.open(this.dialogService);

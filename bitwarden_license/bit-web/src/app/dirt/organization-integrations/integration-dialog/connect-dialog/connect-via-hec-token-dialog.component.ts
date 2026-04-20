@@ -42,7 +42,7 @@ export class ConnectViaHecTokenDialogComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected connectInfo: ConnectViaHecTokenDialogParams,
     protected formBuilder: FormBuilder,
-    private dialogRef: DialogRef<ConnectViaHecTokenDialogResult>,
+    private dialogRef: DialogRef<ConnectViaHecTokenDialogResult, ConnectViaHecTokenDialogComponent>,
     private dialogService: DialogService,
   ) {}
 
@@ -77,7 +77,7 @@ export class ConnectViaHecTokenDialogComponent implements OnInit {
     }
     const result = this.getDialogResult(IntegrationDialogResultStatus.Edited);
 
-    this.dialogRef.close(result);
+    await this.dialogRef.close(result);
 
     return;
   };
@@ -93,7 +93,7 @@ export class ConnectViaHecTokenDialogComponent implements OnInit {
 
     if (confirmed) {
       const result = this.getDialogResult(IntegrationDialogResultStatus.Delete);
-      this.dialogRef.close(result);
+      await this.dialogRef.close(result);
     }
   };
 
@@ -114,7 +114,7 @@ export class ConnectViaHecTokenDialogComponent implements OnInit {
 
 export function openConnectViaHecTokenDialog(
   dialogService: DialogService,
-  config: DialogConfig<ConnectViaHecTokenDialogParams, DialogRef<ConnectViaHecTokenDialogResult>>,
+  config: DialogConfig<ConnectViaHecTokenDialogParams, ConnectViaHecTokenDialogResult>,
 ) {
   return dialogService.open<ConnectViaHecTokenDialogResult>(
     ConnectViaHecTokenDialogComponent,
