@@ -62,6 +62,8 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
+import { ConfigureSshAgentAutoConfigDialogComponent } from "./configure-ssh-agent-auto-config-dialog.component";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -112,6 +114,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   isWindows: boolean;
   isLinux: boolean;
   isMac: boolean;
+  showShellAutoConfigButton = false;
 
   enableTrayText: string;
   enableTrayDescText: string;
@@ -279,6 +282,15 @@ export class SettingsComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe((enabled) => {
           this.showEnableAutotype = enabled;
+        });
+    }
+
+    if (!isWindows) {
+      this.configService
+        .getFeatureFlag$(FeatureFlag.SshAgentAutoConfig)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((enabled) => {
+          this.showShellAutoConfigButton = enabled;
         });
     }
 
@@ -754,6 +766,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopSettingsService.setSshAgentPromptBehavior(
       this.form.value.sshAgentPromptBehavior,
     );
+  }
+
+  openShellAutoConfigDialog() {
+    ConfigureSshAgentAutoConfigDialogComponent.open(this.dialogService);
   }
 
   async savePreventScreenshots() {

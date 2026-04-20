@@ -41,7 +41,7 @@ ssh-key = { workspace = true, features = [
 ] }
 sysinfo = { workspace = true, features = ["windows"] }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["io-util", "sync", "macros", "net"] }
+tokio = { workspace = true, features = ["io-util", "sync", "macros", "net", "process", "time"] }
 tokio-util = { workspace = true, features = ["codec"] }
 tracing = { workspace = true }
 typenum = { workspace = true }

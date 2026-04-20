@@ -99,6 +99,32 @@ const localhostCallbackService = {
   },
 };
 
+const gitSigning = {
+  apply: (
+    commands: { args: string[] }[],
+  ): Promise<{
+    success: boolean;
+    steps: { args: string[]; exitCode: number; stdout: string; stderr: string }[];
+  }> => ipcRenderer.invoke("gitSigning.apply", { commands }),
+};
+
+type SshAgentAutoConfigFileStatus =
+  | "missing"
+  | "already-present"
+  | "conflict"
+  | "written"
+  | "error";
+type SshAgentAutoConfigResult = {
+  supported: boolean;
+  socketPath?: string;
+  files: { path: string; status: SshAgentAutoConfigFileStatus; message?: string }[];
+};
+const sshAgentAutoConfig = {
+  preview: (): Promise<SshAgentAutoConfigResult> =>
+    ipcRenderer.invoke("sshAgentAutoConfig.preview"),
+  apply: (): Promise<SshAgentAutoConfigResult> => ipcRenderer.invoke("sshAgentAutoConfig.apply"),
+};
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -178,6 +204,8 @@ export default {
   crypto,
   ephemeralStore,
   localhostCallbackService,
+  gitSigning,
+  sshAgentAutoConfig,
 };
 
 function deviceType(): DeviceType {

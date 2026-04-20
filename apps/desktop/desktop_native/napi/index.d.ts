@@ -248,11 +248,43 @@ export declare namespace processisolations {
   export function isolateProcess(): Promise<void>
 }
 
+export declare namespace script_runner {
+  /** Run a single command and return its result. */
+  export function run(command: ScriptCommand): Promise<ScriptResult>
+  /**
+   * Run a batch of commands sequentially. Stops at the first non-zero exit
+   * and returns the partial result set up to and including the failing command.
+   */
+  export function runBatch(commands: Array<ScriptCommand>): Promise<Array<ScriptResult>>
+  /**
+   * A single command to execute. `program` is passed verbatim to the OS;
+   * `args` are passed as argv with no shell interpolation.
+   */
+  export interface ScriptCommand {
+    program: string
+    args: Array<string>
+    cwd?: string
+    timeoutSecs?: number
+  }
+  /** Result of running a command. */
+  export interface ScriptResult {
+    exitCode: number
+    stdout: string
+    stderr: string
+  }
+}
+
 export declare namespace sshagent {
   export class SshAgentState {
 
   }
   export function clearKeys(agentState: SshAgentState): void
+  /**
+   * Returns the filesystem path the Bitwarden SSH agent listens on, or
+   * `null` on platforms (e.g. Windows) where a filesystem path is not
+   * applicable.
+   */
+  export function getSocketPath(): string | null
   export function isRunning(agentState: SshAgentState): boolean
   export function lock(agentState: SshAgentState): void
   export interface PrivateKey {

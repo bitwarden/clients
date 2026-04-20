@@ -81,7 +81,7 @@ impl BitwardenDesktopAgent {
 // one of the following:
 //   - only the env var socket path if it is defined
 //   - the $HOME path and our well known extension
-fn get_socket_path() -> Result<PathBuf, anyhow::Error> {
+pub fn get_socket_path() -> Result<PathBuf, anyhow::Error> {
     if let Ok(path) = std::env::var(ENV_BITWARDEN_SSH_AUTH_SOCK) {
         Ok(PathBuf::from(path))
     } else {

@@ -62,4 +62,5 @@ export {
   VaultItemDialogParams,
   VaultItemDialogResult,
   VaultItemDialogMode,
+  VaultItemViewAction,
 } from "./vault-item-dialog/vault-item-dialog.component";

@@ -61,6 +61,17 @@
       </button>
     }
 
+    @for (action of visibleExtraViewActions; track action.labelKey) {
+      <button
+        bitButton
+        buttonType="secondary"
+        type="button"
+        (click)="runExtraViewAction(action)"
+      >
+        {{ action.labelKey | i18n }}
+      </button>
+    }
+
     <button
       bitButton
       type="submit"

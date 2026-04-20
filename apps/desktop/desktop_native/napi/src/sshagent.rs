@@ -152,4 +152,12 @@ pub mod sshagent {
         let bitwarden_agent_state = &mut agent_state.state;
         Ok(bitwarden_agent_state.clear_keys()?)
     }
+
+    /// Returns the filesystem path the Bitwarden SSH agent listens on, or
+    /// `null` on platforms (e.g. Windows) where a filesystem path is not
+    /// applicable.
+    #[napi]
+    pub fn get_socket_path() -> Option<String> {
+        desktop_core::ssh_agent::ssh_auth_sock_path()
+    }
 }

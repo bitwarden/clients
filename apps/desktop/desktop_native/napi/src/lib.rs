@@ -21,6 +21,7 @@ pub mod passkey_authenticator;
 pub mod passwords;
 pub mod powermonitors;
 pub mod processisolations;
+pub mod script_runner;
 pub mod sshagent; // deprecated
 pub mod sshagent_v2;
 pub mod windows_registry;

@@ -31,7 +31,19 @@
         <div class="inner-content">
           <div class="box">
             @if (action === "view") {
-              <app-cipher-view [cipher]="cipher()" [collections]="collections"> </app-cipher-view>
+              <app-cipher-view [cipher]="cipher()" [collections]="collections">
+                @if (cipher()?.type === CipherType.SshKey && gitSigningEnabled()) {
+                  <button
+                    slot="button"
+                    type="button"
+                    bitButton
+                    buttonType="primary"
+                    (click)="openConfigureGitSigning(cipher()!)"
+                  >
+                    {{ "gitSigningConfigureButton" | i18n }}
+                  </button>
+                }
+              </app-cipher-view>
             }
             @if (action === "add" || action === "edit" || action === "clone") {
               <vault-cipher-form

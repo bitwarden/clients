@@ -1,0 +1,22 @@
+<bit-dialog>
+  <span bitDialogTitle>{{ "gitSigningConfirmTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <p>{{ "gitSigningConfirmIntro" | i18n }}</p>
+    <pre
+      class="tw-whitespace-pre-wrap tw-break-all tw-bg-background-alt tw-p-2 tw-text-sm tw-rounded"
+      >{{ displayBlock }}</pre
+    >
+    <p class="tw-text-xs tw-text-muted">{{ "gitSigningRunsAsCurrentUser" | i18n }}</p>
+  </div>
+  <ng-container bitDialogFooter>
+    <button type="button" bitButton buttonType="primary" [bitAction]="apply">
+      {{ "gitSigningApply" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" [bitAction]="copy">
+      {{ "gitSigningCopy" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" [bitDialogClose]>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

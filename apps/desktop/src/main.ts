@@ -53,7 +53,9 @@ import { NativeAutofillMain } from "./platform/main/autofill/native-autofill.mai
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
+import { GitSigningMainService } from "./platform/main/git-signing.main";
 import { SafeShell } from "./platform/main/safe-shell.main";
+import { SshAgentAutoConfigMainService } from "./platform/main/ssh-agent-auto-config.main";
 import { CachedBackend } from "./platform/main/storage/cached-backend";
 import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
 import { VersionMain } from "./platform/main/version.main";
@@ -95,6 +97,8 @@ export class Main {
   versionMain: VersionMain;
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
+  gitSigningService: GitSigningMainService;
+  sshAgentAutoConfigService: SshAgentAutoConfigMainService;
   sdkLoadService: SdkLoadService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
@@ -320,6 +324,10 @@ export class Main {
     this.clipboardMain.init();
 
     this.sshAgentService = new MainSshAgentService(this.logService, this.messagingService);
+
+    this.gitSigningService = new GitSigningMainService(this.logService);
+
+    this.sshAgentAutoConfigService = new SshAgentAutoConfigMainService(this.logService);
 
     new EphemeralValueStorageService();
 

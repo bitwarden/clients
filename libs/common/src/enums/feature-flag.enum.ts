@@ -99,6 +99,8 @@ export enum FeatureFlag {
   /* Desktop */
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
+  GitSshSigningAutoConfig = "pm-xxxxx-git-ssh-signing-auto-config",
+  SshAgentAutoConfig = "pm-xxxxx-ssh-agent-auto-config",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -204,6 +206,8 @@ export const DefaultFeatureFlagValue = {
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
+  [FeatureFlag.GitSshSigningAutoConfig]: true as boolean,
+  [FeatureFlag.SshAgentAutoConfig]: true as boolean,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

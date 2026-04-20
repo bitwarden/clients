@@ -29,6 +29,22 @@ use tracing::{error, info};
 #[cfg_attr(target_os = "linux", path = "unix.rs")]
 mod platform_ssh_agent;
 
+/// Returns the filesystem path the SSH agent listens on, if applicable on this
+/// platform. Unix: respects `BITWARDEN_SSH_AUTH_SOCK`, Flatpak sandbox, or the
+/// default `$HOME/.bitwarden-ssh-agent.sock`. Windows: `None` (uses a named
+/// pipe, not a filesystem path suitable for `SSH_AUTH_SOCK`).
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+pub fn ssh_auth_sock_path() -> Option<String> {
+    platform_ssh_agent::get_socket_path()
+        .ok()
+        .map(|p| p.to_string_lossy().into_owned())
+}
+
+#[cfg(target_os = "windows")]
+pub fn ssh_auth_sock_path() -> Option<String> {
+    None
+}
+
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 mod peercred_unix_listener_stream;
 

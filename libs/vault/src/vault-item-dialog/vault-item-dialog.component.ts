@@ -62,6 +62,19 @@ import { DefaultChangeLoginPasswordService } from "../services/default-change-lo
 
 export type VaultItemDialogMode = "view" | "form";
 
+/**
+ * Platform-specific action shown in the dialog footer while viewing a cipher.
+ * Intended for callers (e.g. desktop) to inject actions that don't belong in the shared dialog.
+ */
+export interface VaultItemViewAction {
+  /** i18n key used for the button label. */
+  labelKey: string;
+  /** Invoked with the cipher currently being viewed. */
+  handler: (cipher: CipherView) => void | Promise<void>;
+  /** Optional predicate; when it returns false the action is hidden. */
+  visible?: (cipher: CipherView) => boolean;
+}
+
 export interface VaultItemDialogParams {
   /**
    * The mode of the dialog.
@@ -89,6 +102,12 @@ export interface VaultItemDialogParams {
    * Function to restore a cipher from the trash.
    */
   restore?: (c: CipherViewLike) => Promise<void>;
+
+  /**
+   * Extra footer actions to show while viewing a cipher. Used by platform-specific
+   * callers to add actions that aren't part of the shared dialog.
+   */
+  extraViewActions?: VaultItemViewAction[];
 }
 
 export const VaultItemDialogResult = {
@@ -262,6 +281,22 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   protected get showCipherView() {
     return this.cipher != undefined && (this.params.mode === "view" || this.loadingForm);
+  }
+
+  protected get visibleExtraViewActions(): VaultItemViewAction[] {
+    if (!this.showCipherView || this.cipher == null) {
+      return [];
+    }
+    return (this.params.extraViewActions ?? []).filter(
+      (action) => action.visible?.(this.cipher) ?? true,
+    );
+  }
+
+  protected async runExtraViewAction(action: VaultItemViewAction) {
+    if (this.cipher == null) {
+      return;
+    }
+    await action.handler(this.cipher);
   }
 
   protected get submitButtonText$(): Observable<string> {

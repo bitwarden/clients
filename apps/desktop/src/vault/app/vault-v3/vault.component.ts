@@ -99,6 +99,7 @@ import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
+  VaultItemViewAction,
   createFilterFunction,
   All,
   VaultItemsTransferService,
@@ -107,6 +108,7 @@ import {
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 import { SearchBarService } from "../../../app/layout/search/search-bar.service";
+import { ConfigureGitSigningDialogComponent } from "../../components/configure-git-signing-dialog.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { VaultItemEvent } from "./vault-items/vault-item-event";
@@ -192,6 +194,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         this.cipherArchiveService.showSubscriptionEndedMessaging$(userId),
       ]).pipe(map(([activeFilter, showMessaging]) => activeFilter.isArchived && showMessaging)),
     ),
+  );
+
+  private readonly gitSigningEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.GitSshSigningAutoConfig),
+    { initialValue: false },
   );
 
   readonly userHasPremium = toSignal(
@@ -879,6 +886,19 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     return !confirmed;
   }
 
+  private buildExtraViewActions(): VaultItemViewAction[] {
+    return [
+      {
+        labelKey: "gitSigningConfigureButton",
+        visible: (cipher) =>
+          cipher.type === CipherType.SshKey && this.gitSigningEnabled(),
+        handler: (cipher) => {
+          ConfigureGitSigningDialogComponent.open(this.dialogService, { cipher });
+        },
+      },
+    ];
+  }
+
   private async openDialog(mode: VaultItemDialogMode, formConfig: CipherFormConfig) {
     if (this.activeDrawerRef != null && this.dirtyInput()) {
       const keepChanges = await this.wantsToSaveChanges();
@@ -891,6 +911,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       mode,
       formConfig,
       restore: this.restore,
+      extraViewActions: this.buildExtraViewActions(),
     });
     this.activeDrawerRef.closed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result) => {
       this.activeDrawerRef = undefined;

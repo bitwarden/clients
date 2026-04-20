@@ -1,0 +1,48 @@
+<bit-dialog>
+  <span bitDialogTitle>{{ "sshAgentAutoConfigTitle" | i18n }}</span>
+  <div bitDialogContent>
+    <ng-container *ngIf="!loading && supported">
+      <p>{{ "sshAgentAutoConfigIntro" | i18n }}</p>
+      <pre
+        class="tw-whitespace-pre-wrap tw-break-all tw-bg-background-alt tw-p-2 tw-text-sm tw-rounded"
+        >{{ exportLine }}</pre
+      >
+      <h4 class="tw-text-sm tw-font-semibold tw-mt-4">
+        {{ "sshAgentAutoConfigFilesHeading" | i18n }}
+      </h4>
+      <ul class="tw-list-none tw-p-0 tw-m-0">
+        <li *ngFor="let file of files" class="tw-py-1">
+          <code>{{ file.path }}</code>
+          <span class="tw-block tw-text-xs tw-text-muted">{{ statusLabel(file.status) }}</span>
+        </li>
+      </ul>
+      <p class="tw-text-xs tw-text-muted tw-mt-3">
+        {{ "sshAgentAutoConfigRunsAsCurrentUser" | i18n }}
+      </p>
+    </ng-container>
+    <p *ngIf="!loading && !supported">{{ "sshAgentAutoConfigUnsupported" | i18n }}</p>
+  </div>
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="apply"
+      [disabled]="loading || !supported"
+    >
+      {{ "sshAgentAutoConfigApply" | i18n }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      [bitAction]="copy"
+      [disabled]="loading || !supported"
+    >
+      {{ "sshAgentAutoConfigCopy" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" [bitDialogClose]>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

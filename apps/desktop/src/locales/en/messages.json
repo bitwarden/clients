@@ -4881,5 +4881,86 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "gitSigningConfigureButton": {
+    "message": "Configure git signing"
+  },
+  "gitSigningConfirmTitle": {
+    "message": "Configure git signing"
+  },
+  "gitSigningConfirmIntro": {
+    "message": "The following commands will be run:"
+  },
+  "gitSigningRunsAsCurrentUser": {
+    "message": "These run as your current user with no elevation."
+  },
+  "gitSigningApply": {
+    "message": "Apply"
+  },
+  "gitSigningCopy": {
+    "message": "Copy"
+  },
+  "gitSigningCopiedToast": {
+    "message": "Commands copied to clipboard."
+  },
+  "gitSigningApplySuccess": {
+    "message": "Git signing configured."
+  },
+  "gitSigningApplyFailed": {
+    "message": "Failed to configure git signing. Make sure git is installed and on your PATH."
+  },
+  "sshAgentAutoConfigButton": {
+    "message": "Configure shell for SSH agent"
+  },
+  "sshAgentAutoConfigButtonDesc": {
+    "message": "Append an SSH_AUTH_SOCK export to your shell config files so terminals use the Bitwarden SSH agent."
+  },
+  "sshAgentAutoConfigTitle": {
+    "message": "Configure shell to use Bitwarden SSH agent"
+  },
+  "sshAgentAutoConfigIntro": {
+    "message": "The following line will be appended to each shell config file if not already present:"
+  },
+  "sshAgentAutoConfigFilesHeading": {
+    "message": "Target files"
+  },
+  "sshAgentAutoConfigStatusWillWrite": {
+    "message": "Will append the export line."
+  },
+  "sshAgentAutoConfigStatusAlreadyPresent": {
+    "message": "Already configured."
+  },
+  "sshAgentAutoConfigStatusConflict": {
+    "message": "A different SSH_AUTH_SOCK is already set — will be skipped."
+  },
+  "sshAgentAutoConfigStatusMissing": {
+    "message": "File does not exist — will be skipped."
+  },
+  "sshAgentAutoConfigStatusError": {
+    "message": "Could not read or write this file."
+  },
+  "sshAgentAutoConfigRunsAsCurrentUser": {
+    "message": "These files are edited as your current user with no elevation."
+  },
+  "sshAgentAutoConfigApply": {
+    "message": "Apply"
+  },
+  "sshAgentAutoConfigCopy": {
+    "message": "Copy"
+  },
+  "sshAgentAutoConfigCopiedToast": {
+    "message": "Export line copied to clipboard."
+  },
+  "sshAgentAutoConfigSuccess": {
+    "message": "Shell configured to use the Bitwarden SSH agent."
+  },
+  "sshAgentAutoConfigConflict": {
+    "message": "Skipped one or more files because a different SSH_AUTH_SOCK is already set."
+  },
+  "sshAgentAutoConfigFailed": {
+    "message": "Failed to configure shell for the Bitwarden SSH agent."
+  },
+  "sshAgentAutoConfigUnsupported": {
+    "message": "Shell auto-configuration is not available on this platform."
   }
 }

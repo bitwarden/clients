@@ -108,6 +108,7 @@ import { SearchBarService } from "../../../app/layout/search/search-bar.service"
 import { DesktopCredentialGenerationService } from "../../../services/desktop-cipher-form-generator.service";
 import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
 import { invokeMenu, RendererMenuItem } from "../../../utils";
+import { ConfigureGitSigningDialogComponent } from "../../components/configure-git-signing-dialog.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 import { ItemFooterComponent } from "../vault/item-footer.component";
 import { VaultItemsV2Component } from "../vault/vault-items-v2.component";
@@ -208,6 +209,12 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     { initialValue: false },
   );
   protected itemTypesIcon = ItemTypes;
+  protected readonly CipherType = CipherType;
+
+  protected readonly gitSigningEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.GitSshSigningAutoConfig),
+    { initialValue: false },
+  );
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -466,6 +473,10 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
    */
   onCopy() {
     this.messagingService.send("minimizeOnCopy");
+  }
+
+  openConfigureGitSigning(cipher: CipherView) {
+    ConfigureGitSigningDialogComponent.open(this.dialogService, { cipher });
   }
 
   async viewCipher(c: CipherViewLike) {

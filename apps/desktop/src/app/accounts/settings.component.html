@@ -395,6 +395,15 @@
                   "sshAgentPromptBehaviorDesc" | i18n
                 }}</small>
               </div>
+              <div
+                class="form-group"
+                *ngIf="this.form.value.enableSshAgent && showShellAutoConfigButton"
+              >
+                <button type="button" (click)="openShellAutoConfigDialog()">
+                  {{ "sshAgentAutoConfigButton" | i18n }}
+                </button>
+                <small class="help-block">{{ "sshAgentAutoConfigButtonDesc" | i18n }}</small>
+              </div>
               <div class="form-group" *ngIf="!isLinux">
                 <div class="checkbox">
                   <label for="allowScreenshots">
