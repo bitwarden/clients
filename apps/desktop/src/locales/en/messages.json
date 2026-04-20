@@ -3627,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Device trusted"
   },
+  "device": {
+    "message": "Device"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "trustOrganization": {
     "message": "Trust organization"
   },
@@ -4795,6 +4852,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "No items in trash"
   },
@@ -4849,6 +4915,9 @@
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "userVerificationFailed": {
     "message": "User verification failed."
@@ -4906,5 +4975,22 @@
   },
   "allowedDomainsAutopopulateAlert": {
     "message": "Domains have been auto populated based off of claimed domains. You can edit these at any time"
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

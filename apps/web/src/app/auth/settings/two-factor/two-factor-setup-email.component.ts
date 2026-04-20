@@ -151,7 +151,7 @@ export class TwoFactorSetupEmailComponent
   }
 
   onClose = () => {
-    this.dialogRef.close(this.enabled);
+    void this.dialogRef.close(this.enabled);
   };
 
   private async processResponse(response: TwoFactorEmailResponse) {
@@ -175,7 +175,7 @@ export class TwoFactorSetupEmailComponent
   ) {
     return dialogService.open<boolean, AuthResponse<TwoFactorEmailResponse>>(
       TwoFactorSetupEmailComponent,
-      config as DialogConfig<AuthResponse<TwoFactorEmailResponse>, DialogRef<boolean>>,
+      config as DialogConfig<AuthResponse<TwoFactorEmailResponse>, boolean>,
     );
   }
 }

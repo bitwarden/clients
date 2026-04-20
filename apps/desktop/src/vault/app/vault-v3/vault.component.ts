@@ -486,7 +486,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.destroy$.next();
     this.destroy$.complete();
     this.vaultFilterService.clearOrganizationFilter();
-    this.activeDrawerRef?.close();
+    void this.activeDrawerRef?.close();
   }
 
   async onVaultItemsEvent(event: VaultItemEvent<C>) {
@@ -521,7 +521,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       case "archive":
         if (event.items.length === 1) {
           const cipher = await this.cipherService.getFullCipherView(event.items[0]);
-          if (!cipher.organizationId && !cipher.isDeleted && !cipher.isArchived) {
+          if (!cipher.isDeleted && !cipher.isArchived) {
             if (!(await firstValueFrom(this.userCanArchive$))) {
               await this.premiumUpgradePromptService.promptForPremium();
               return;
@@ -594,7 +594,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return;
     }
     const formConfig = await this.cipherFormConfigService.buildConfig(
-      "edit",
+      cipher.edit ? "edit" : "partial-edit",
       cipher.id as CipherId,
       cipher.type,
     );
@@ -885,9 +885,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       if (keepChanges) {
         return;
       }
-      this.activeDrawerRef.close();
+      await this.activeDrawerRef.close();
     }
-    this.activeDrawerRef = VaultItemDialogComponent.openDrawer(this.dialogService, {
+    this.activeDrawerRef = await VaultItemDialogComponent.openDrawer(this.dialogService, {
       mode,
       formConfig,
       restore: this.restore,
