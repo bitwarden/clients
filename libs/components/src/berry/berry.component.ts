@@ -24,6 +24,12 @@ export type BerryVariant =
 })
 export class BerryComponent {
   readonly variant = model<BerryVariant>("primary");
+  /**
+   * Limits the number of digits displayed in a count berry. When the value reaches or exceeds 10^maxDigits, it displays the maximum representable value followed by +
+   * @example
+   * maxDigits=2 shows 99+ for values ≥ 100. If undefined, the full value is shown.
+   */
+  protected readonly maxDigits = input<number>(undefined);
   protected readonly value = input<number>();
   protected readonly type = input<"status" | "count">("count");
 
@@ -34,7 +40,15 @@ export class BerryComponent {
     if (type === "status" || !value || value < 0) {
       return undefined;
     }
-    return value > 999 ? "999+" : `${value}`;
+
+    const maxDigits = this.maxDigits();
+
+    // 10 ** maxDigits means 10 raised to the power of maxDigits.
+    // Same as Math.pow(10, maxDigits). So 10 ** 3 === 1000, 10 ** 4 === 10000, etc.
+    if (maxDigits && value >= 10 ** maxDigits) {
+      return `${(10 ** maxDigits - 1).toLocaleString()}+`;
+    }
+    return `${value}`;
   });
 
   protected readonly textColor = computed(() => {
@@ -42,7 +56,7 @@ export class BerryComponent {
   });
 
   protected readonly padding = computed(() => {
-    return (this.value()?.toString().length ?? 0) > 2 ? "tw-px-1.5 tw-py-0.5" : "";
+    return (this.content()?.toString().length ?? 0) > 2 ? "tw-px-1.5 tw-py-0.5" : "";
   });
 
   protected readonly containerClasses = computed(() => {

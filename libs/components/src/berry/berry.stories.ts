@@ -46,6 +46,16 @@ export default {
         defaultValue: { summary: "undefined" },
       },
     },
+    maxDigits: {
+      control: "number",
+      description:
+        "Limits the number of digits displayed in a count berry. When the value reaches or exceeds 10^maxDigits, it displays the maximum representable value followed by + (e.g., maxDigits=2 shows 99+ for values ≥ 100). If undefined, the full value is shown.",
+      table: {
+        category: "Inputs",
+        type: { summary: "number | undefined" },
+        defaultValue: { summary: "undefined" },
+      },
+    },
   },
   parameters: {
     design: {
@@ -94,6 +104,13 @@ export const countType: Story = {
             <bit-berry [value]="5000"></bit-berry>
         </div>
     `,
+  }),
+};
+
+export const WithMaxDigits: Story = {
+  render: (args) => ({
+    props: args,
+    template: `<bit-berry [maxDigits]="2" [type]="type" [variant]="variant" [value]="value"></bit-berry>`,
   }),
 };
 
