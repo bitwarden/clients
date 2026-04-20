@@ -67,7 +67,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   ) {}
 
   /**
-   * @deprecated use `setInitialPasswordJitMPUserV2Encryption()` instead
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    */
   async setInitialPassword(
     credentials: SetInitialPasswordCredentials,

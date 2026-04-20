@@ -57,7 +57,7 @@ export class WebSetInitialPasswordService
   }
 
   /**
-   * @deprecated use `setInitialPasswordJitMPUserV2Encryption()` instead
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    */
   override async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
