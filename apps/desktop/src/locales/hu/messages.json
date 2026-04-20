@@ -4796,7 +4796,7 @@
     "message": "A felfüggesztett szervezetek elemei nem érhetők el. Vegyük fel a kapcsolatot a szervezet tulajdonosával segítségért."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% kész",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -4864,5 +4864,22 @@
   },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "discardEdits": {
+    "message": "Szerkesztések elvetése"
+  },
+  "discardEditsMessage": {
+    "message": "A nézetet bezárva a nem mentett szerkesztések elvetésre kerülnek."
+  },
+  "backToEditing": {
+    "message": "Vissza a szerkesztéshez"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "A Send elem nem mentett szerkesztéseket tartalmaz. Biztos, hogy el akarunk navigálni?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "A Send elem szerkesztések mentése nem sikerült.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

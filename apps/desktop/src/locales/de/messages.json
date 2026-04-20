@@ -4864,5 +4864,22 @@
   },
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
+  },
+  "discardEdits": {
+    "message": "Änderungen verwerfen"
+  },
+  "discardEditsMessage": {
+    "message": "Wenn du diese Ansicht schließt, werden deine ungespeicherten Änderungen verworfen"
+  },
+  "backToEditing": {
+    "message": "Zurück zur Bearbeitung"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Speichern der Send-Änderungen fehlgeschlagen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
