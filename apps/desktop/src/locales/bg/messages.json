@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeLoginSubtitle": {
+    "message": "Уеб сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитна или дебитна карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Лична информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важен текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Идентификатор за вписване в сървъра"
+  },
+  "folderSubtitle": {
+    "message": "Организирайте данните си"
+  },
+  "collectionSubtitle": {
+    "message": "Организирайте споделените данни"
+  },
+  "chooseItemToAdd": {
+    "message": "Изберете елемент за добавяне"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Изберете вида на елемента, който искате да добавите в трезора си."
+  },
   "folders": {
     "message": "Папки"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Преглед на елемента"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Преглед на елемента за вписване",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Преглед на картата",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Преглед на самоличността",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Преглед на бележката",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Преглед на SSH ключа",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Нов елемент за вписване",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Нова карта",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Нова самоличност",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Нова бележка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Нов SSH ключ",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Редактиране на елемента за вписване",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактиране на картата",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактиране на самоличността",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактиране на бележката",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактиране на SSH ключа",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Наименование"
@@ -2243,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Копиране на удостоверителния ключ (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Копиране на бележките"
   },
   "totpHelperTitle": {
     "message": "Направете 2-стъпковото удостоверяване безпроблемно и незабележимо"
@@ -4705,6 +4795,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Записите в организации с преустановен достъп не са достъпни. Свържете се със собственика на организацията си за помощ."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% завършено",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Няма елементи в кошчето"
   },
@@ -4759,6 +4858,9 @@
   },
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "потребител@bitwarden.com, потребител@acme.com"
   },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
