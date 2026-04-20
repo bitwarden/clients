@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, computed, inject, input, signal } from "@angular/core";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 import { toSignal } from "@angular/core/rxjs-interop";
-import { fromEvent, map, startWith } from "rxjs";
+import { fromEvent, map, of, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
@@ -95,8 +95,10 @@ export class ItemDetailsV2Component {
 
   private readonly platformUtilsService = inject(PlatformUtilsService);
 
+  private readonly configService = inject(ConfigService);
+
   private readonly desktopMilestone3Enabled = toSignal(
-    inject(ConfigService).getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone3),
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone3) ?? of(false),
   );
 
   protected readonly showArchiveBadge = computed(() => {
