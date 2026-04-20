@@ -13,6 +13,7 @@ export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
+export { CreditCardNumberPipe } from "./pipes/credit-card-number.pipe";
 
 export * from "./cipher-view";
 export * from "./cipher-form";
@@ -56,3 +57,9 @@ export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstracti
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
+export {
+  VaultItemDialogComponent,
+  VaultItemDialogParams,
+  VaultItemDialogResult,
+  VaultItemDialogMode,
+} from "./vault-item-dialog/vault-item-dialog.component";

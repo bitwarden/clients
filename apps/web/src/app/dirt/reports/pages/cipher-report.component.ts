@@ -24,13 +24,11 @@ import {
   CipherFormConfig,
   CipherFormConfigService,
   PasswordRepromptService,
-} from "@bitwarden/vault";
-
-import {
   VaultItemDialogComponent,
   VaultItemDialogMode,
   VaultItemDialogResult,
-} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
+} from "@bitwarden/vault";
+
 import { AdminConsoleCipherFormConfigService } from "../../../vault/org-vault/services/admin-console-cipher-form-config.service";
 
 @Directive()
