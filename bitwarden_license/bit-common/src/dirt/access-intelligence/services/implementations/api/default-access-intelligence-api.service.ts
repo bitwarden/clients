@@ -197,4 +197,38 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
 
     return from(response).pipe(map((response) => new AccessReportApi(response)));
   }
+
+  downloadReportFileAzure$(url: string): Observable<{ blob: Blob; fileName: string }> {
+    return from(
+      this.apiService
+        .nativeFetch(new Request(url, { cache: "no-store" }))
+        .then(async (response) => {
+          if (response.status !== 200) {
+            throw new Error(`Failed to download report file: ${response.status}`);
+          }
+
+          const reader = response.body!.getReader();
+          const chunks: Uint8Array<ArrayBuffer>[] = [];
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) {
+              break;
+            }
+            if (value) {
+              chunks.push(value);
+            }
+          }
+
+          const blob = new Blob(chunks);
+          const contentDisposition = response.headers.get("Content-Disposition");
+          const fileName =
+            contentDisposition?.match(/filename="?([^";\n]+)"?/i)?.[1]?.trim() ??
+            url.split("/").pop() ??
+            "report";
+
+          return { blob, fileName };
+        }),
+    );
+  }
 }

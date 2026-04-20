@@ -153,6 +153,13 @@ export abstract class AccessIntelligenceApiService {
   ): Observable<{ blob: Blob; fileName: string }>;
 
   /**
+   * Azure only. Downloads the file for an Access Intelligence report directly from Azure Blob Storage using a pre-signed SAS URL.
+   * @param url - the pre-signed Azure Blob Storage URL (SAS token included) for the report file
+   * @returns observable emitting the file blob and its filename
+   */
+  abstract downloadReportFileAzure$(url: string): Observable<{ blob: Blob; fileName: string }>;
+
+  /**
    * Update the settings properties for an existing Access Intelligence report.
    * @param orgId - the ID of the Organization the report belongs to
    * @param reportId - the ID of the report to update
