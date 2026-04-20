@@ -78,11 +78,11 @@ export class ScimApiKeyDialogComponent {
       ? await this.organizationApiService.rotateApiKey(this.data.organizationId, request)
       : await this.organizationApiService.getOrCreateApiKey(this.data.organizationId, request);
 
-    this.dialogRef.close({ apiKey: response.apiKey });
+    await this.dialogRef.close({ apiKey: response.apiKey });
   };
 
   close() {
-    this.dialogRef.close(undefined);
+    void this.dialogRef.close(undefined);
   }
 
   static open(dialogService: DialogService, data: ScimApiKeyDialogData) {

@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés megjelenítése"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés elrejtése"
+  },
   "autoFillOnPageLoad": {
     "message": "Automatikus kitöltés oldalbetöltésnél?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "A Bitwarden képes tárolni és kitölteni a kétlépcsős ellenőrző kódokat. Válasszuk a kamera ikont, hogy képernyőképet készítsünk a webhely hitelesítő QR kódjáról vagy másoljuk ki és illesszük be a kulcsot ebbe a mezőbe."
+  },
+  "totpCapture": {
+    "message": "Hitelesítő QR kód szkennelése az aktuális weboldalról"
   },
   "learnMoreAboutAuthenticators": {
     "message": "További információ a hitelesítőkről"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "typeLoginSubtitle": {
+    "message": "Webhely vagy alkalmazás"
+  },
+  "typeCardSubtitle": {
+    "message": "Hitelkártya vagy bankkártya"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Személyes adatok"
+  },
+  "typeNoteSubtitle": {
+    "message": "Fontos szöveg"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Szerver bejelentkezési token"
+  },
+  "folderSubtitle": {
+    "message": "Elemek szervezése"
+  },
+  "collectionSubtitle": {
+    "message": "Megosztott elemek szervezése"
+  },
   "typeLoginPlural": {
     "message": "Bejelentkezések"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Elem hozzáadása"
+  },
+  "chooseItemToAdd": {
+    "message": "Válasszuk ki a hozzáadandó elemet"
   },
   "editItem": {
     "message": "Elem szerkesztése"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Bejelentkezési állapot"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "Első bejelentkezés"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "bármikor."
+  },
+  "byEmail": {
+    "message": "Email címmel"
+  },
+  "byLink": {
+    "message": "Hivakozással"
   },
   "byContinuingYouAgreeToThe": {
     "message": "A folytatással elfogadjuk"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Munkamenet időkifutási művelet"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "A Bitwarden böngésző bővítmény alkalmazás kezeli. Nyissuk meg a böngésző alkalmazást szerkesztésre."
   },
   "immediately": {
     "message": "Azonnal"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Az előfizetés hamarosan megújul. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba a Bitwarden szolgáltatóval és erősítsük meg a megújítást $RENEWAL_DATE$ előtt.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Az előfizetésről szóló számla kiállítása $ISSUED_DATE$ napon történt. A megszakítás nélküli szolgáltatás biztosítása érdekében lépjünk kapcsolatba $RESELLER$ viszonteladóval és erősítsük meg a megújítást $DUE_DATE$ előtt.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "Az előfizetésről szóló számla nem lett kfizetve. A folyamatos szolgáltatás biztosítása érdekében lépjünk kapcsolatba Bitwarden szolgáltatóval és erősítsük meg a megújítást $GRACE_PERIOD_END$ előtt.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "A tárhely eltávolításakor arányos számlajóváírást kapunk, amely automatikusan a következő számlára kerül."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "A bankszámlát ellenőrizni kell, mielőtt felhasználható lenne ehhez a frissítéshez. Ellenőrizzük a bankszámlát vagy válasszunk más fizetési módot."
   }
 }

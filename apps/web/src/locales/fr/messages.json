@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Afficher la détection de correspondance"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Masquer la détection de correspondance"
+  },
   "autoFillOnPageLoad": {
     "message": "Remplissage automatique lors du chargement de la page ?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden peut stocker et remplir des codes de vérification en 2 étapes. Sélectionnez l'icône caméra pour prendre une capture d'écran du code QR de l'authentificateur de ce site Web, ou copiez et collez la clé dans ce champ."
+  },
+  "totpCapture": {
+    "message": "Scannez le code QR de l'authentificateur à partir de la page web actuelle"
   },
   "learnMoreAboutAuthenticators": {
     "message": "En savoir plus sur les authentificateurs"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "Clé SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Site Web ou application"
+  },
+  "typeCardSubtitle": {
+    "message": "Carte de crédit ou de débit"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informations personnelles"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texte important"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Jeton de connexion au serveur"
+  },
+  "folderSubtitle": {
+    "message": "Organisez vos éléments"
+  },
+  "collectionSubtitle": {
+    "message": "Organiser les éléments partagés"
+  },
   "typeLoginPlural": {
     "message": "Identifiants"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Ajouter un élément"
+  },
+  "chooseItemToAdd": {
+    "message": "Choisir un élément à ajouter"
   },
   "editItem": {
     "message": "Éditer l'élément"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Statut de connexion"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "Première connexion"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "à tout moment."
+  },
+  "byEmail": {
+    "message": "Par courriel"
+  },
+  "byLink": {
+    "message": "Par lien"
   },
   "byContinuingYouAgreeToThe": {
     "message": "En continuant, vous acceptez les"
@@ -7080,6 +7137,9 @@
   "sessionTimeoutAction": {
     "message": "Action après délai d'expiration de la session"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Géré par l'extension de navigateur Bitwarden. Ouvrez l'application du navigateur pour l'éditer."
+  },
   "immediately": {
     "message": "Immédiatement"
   },
@@ -8267,7 +8327,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
-    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "message": "Une seule intégration de ce type ($TYPE$) est autorisée. L'intégration en conflit est : $NAME$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8280,7 +8340,7 @@
     }
   },
   "anotherIntegrationWithSameTypeExists": {
-    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "message": "Une autre intégration avec le même type ($TYPE$) existe déjà. Rafraîchissez le navigateur et réessayez.",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Votre abonnement sera renouvelé bientôt. Pour assurer un service ininterrompu, contactez votre fournisseur Bitwarden pour confirmer votre renouvellement avant $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Une facture pour votre abonnement a été émise le $ISSUED_DATE$. Pour assurer un service ininterrompu, contactez $RESELLER$ pour confirmer votre renouvellement avant le $DUE_DATE$.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "La facture de votre abonnement n'a pas été payée. Pour assurer un service ininterrompu, contactez votre fournisseur Bitwarden avant $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Lorsque vous supprimez le stockage, vous recevrez un crédit de compte au prorata qui sera automatiquement appliqué à votre prochaine facture."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Votre compte bancaire doit être vérifié avant de pouvoir être utilisé pour cette mise à niveau. Veuillez vérifier votre compte bancaire ou choisir un autre mode de paiement."
   }
 }
