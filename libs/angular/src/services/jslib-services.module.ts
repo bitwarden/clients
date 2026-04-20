@@ -14,6 +14,8 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import {
   ChangePasswordService,
   DefaultChangePasswordService,
@@ -48,8 +50,12 @@ import {
   LockService,
   LoginEmailService,
   LoginEmailServiceAbstraction,
+  LoginStrategyCacheService,
+  DefaultLoginStrategyCacheService,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
+  LoginStrategySessionTimeoutService,
+  DefaultLoginStrategySessionTimeoutService,
   LoginSuccessHandlerService,
   LogoutReason,
   LogoutService,
@@ -554,12 +560,27 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: LoginStrategyCacheService,
+    useClass: DefaultLoginStrategyCacheService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: LoginStrategySessionTimeoutService,
+    useClass: DefaultLoginStrategySessionTimeoutService,
+    deps: [
+      TaskSchedulerService,
+      LoginStrategyCacheService,
+      LogService,
+      MessageSender,
+      MessageListener,
+    ],
+  }),
+  safeProvider({
     provide: LoginStrategyServiceAbstraction,
     useClass: LoginStrategyService,
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      UnlockService,
       KeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -582,10 +603,12 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       VaultTimeoutSettingsService,
       KdfConfigService,
-      TaskSchedulerService,
       ConfigService,
       AccountCryptographicStateService,
       PasswordPreloginService,
+      UnlockService,
+      LoginStrategyCacheService,
+      LoginStrategySessionTimeoutService,
     ],
   }),
   safeProvider({
@@ -601,7 +624,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DomainSettingsService,
     useClass: DefaultDomainSettingsService,
-    deps: [StateProvider, PolicyServiceAbstraction, AccountService],
+    deps: [
+      StateProvider,
+      PolicyServiceAbstraction,
+      AccountService,
+      ConfigService,
+      EnvironmentService,
+      AuthServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: CipherSdkService,
@@ -1826,6 +1856,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherEncryptionService,
     useClass: DefaultCipherEncryptionService,
     deps: [SdkService, LogService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DefaultDeviceManagementComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: ChangePasswordService,

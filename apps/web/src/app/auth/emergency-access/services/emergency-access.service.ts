@@ -313,8 +313,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       case KdfType.Argon2id:
         config = new Argon2KdfConfig(
           takeoverResponse.kdfIterations,
-          takeoverResponse.kdfMemory,
-          takeoverResponse.kdfParallelism,
+          takeoverResponse.kdfMemory!,
+          takeoverResponse.kdfParallelism!,
         );
         break;
     }

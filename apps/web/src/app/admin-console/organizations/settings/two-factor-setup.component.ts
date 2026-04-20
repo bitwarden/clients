@@ -111,7 +111,7 @@ export class TwoFactorSetupComponent extends BaseTwoFactorSetupComponent impleme
         this.twoFactorSetupSubscription = duoComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            duoComp.close();
+            void duoComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.OrganizationDuo);
           });
 
