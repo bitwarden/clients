@@ -8,7 +8,7 @@ const sharedConfig = require("../../libs/shared/jest.config.angular");
 module.exports = {
   ...sharedConfig,
   displayName: "logging-angular",
-  testEnvironment: "node",
+  setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths ?? {}, {
     prefix: "<rootDir>/../../",
   }),
