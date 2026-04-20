@@ -24,9 +24,9 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, DialogRef, DIALOG_DATA } from "@bitwarden/components";
-import { ChangeLoginPasswordService } from "@bitwarden/vault";
 
 import { EmergencyViewDialogComponent } from "./emergency-view-dialog.component";
 
@@ -89,20 +89,13 @@ describe("EmergencyViewDialogComponent", () => {
         remove: {
           providers: [
             { provide: PlatformUtilsService, useValue: PlatformUtilsService },
-            {
-              provide: ChangeLoginPasswordService,
-              useValue: ChangeLoginPasswordService,
-            },
             { provide: CipherService, useValue: mock<CipherService>() },
           ],
         },
         add: {
           providers: [
             { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-            {
-              provide: ChangeLoginPasswordService,
-              useValue: mock<ChangeLoginPasswordService>(),
-            },
+            { provide: ChangeLoginPasswordService, useValue: mock<ChangeLoginPasswordService>() },
             { provide: CipherService, useValue: mock<CipherService>() },
           ],
         },
