@@ -30,11 +30,11 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
-  private static _ignoredHostnames = new Set<string>();
-  private static _didInit = false;
+  private _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
+  private _ignoredHostnames = new Set<string>();
+  private _didInit = false;
 
-  static initialize(
+  constructor(
     logService: LogService,
     phishingDataService: PhishingDataService,
     phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
@@ -105,7 +105,7 @@ export class PhishingDetectionService {
 
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
-    const initSub = phishingDetectionActive$
+    phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
@@ -128,24 +128,9 @@ export class PhishingDetectionService {
       .subscribe();
 
     this._didInit = true;
-    return () => {
-      // Dispose phishing data service resources
-      phishingDataService.dispose();
-
-      initSub.unsubscribe();
-      this._didInit = false;
-
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
-    };
   }
 
-  private static _handleTabUpdated(
+  private _handleTabUpdated(
     tabId: number,
     changeInfo: chrome.tabs.OnUpdatedInfo,
     tab: chrome.tabs.Tab,
@@ -156,7 +141,7 @@ export class PhishingDetectionService {
     return true;
   }
 
-  private static _isExtensionPage(url: string): boolean {
+  private _isExtensionPage(url: string): boolean {
     // Check against all common extension protocols
     return (
       url.startsWith("chrome-extension://") ||
