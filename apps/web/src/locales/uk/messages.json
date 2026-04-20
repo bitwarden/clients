@@ -998,25 +998,25 @@
     "message": "Ключ SSH"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Вебсайт або програма"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Кредитна або дебетова картка"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Особисті дані"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Важливий текст"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Токен входу на сервер"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Організуйте свої записи"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Організуйте спільні записи"
   },
   "typeLoginPlural": {
     "message": "Записи"
@@ -1088,7 +1088,7 @@
     "message": "Додати запис"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Виберіть запис, щоб додати"
   },
   "editItem": {
     "message": "Редагування"
@@ -4494,22 +4494,22 @@
     "message": "Стан входу в систему"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Нещодавно активний"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Сьогодні"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Минулі 7 днів"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Минулі 14 днів"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Минулі 30 днів"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Понад 30 днів тому"
   },
   "firstLogin": {
     "message": "Перший вхід"
@@ -7138,7 +7138,7 @@
     "message": "Дія після часу очікування сеансу"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
+    "message": "Керується розширенням для браузера Bitwarden. Щоб редагувати, відкрийте браузер."
   },
   "immediately": {
     "message": "Негайно"
@@ -8511,13 +8511,13 @@
     "message": "Рожевий"
   },
   "coral": {
-    "message": "Coral"
+    "message": "Кораловий"
   },
   "purple": {
-    "message": "Purple"
+    "message": "Бузковий"
   },
   "blue": {
-    "message": "Blue"
+    "message": "Блакитний"
   },
   "customColor": {
     "message": "Власний колір"
@@ -8749,11 +8749,11 @@
     "description": "Title for creating a new project."
   },
   "clickToRenameProject": {
-    "message": "Click to rename this project",
+    "message": "Натисніть, щоб перейменувати цей проєкт",
     "description": "Tooltip text for corrupted project names that can be clicked to rename."
   },
   "cannotDecryptProjectName": {
-    "message": "Cannot decrypt project name - click project to rename",
+    "message": "Не вдається розшифрувати назву проєкту. Натисніть на проєкт, щоб перейменувати.",
     "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
@@ -9410,7 +9410,7 @@
     }
   },
   "permanentlyDeletedSecretWithId": {
-    "message": "Permanently deleted a secret with identifier: $SECRET_ID$",
+    "message": "Остаточно видалено секрет з ідентифікатором: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -9419,7 +9419,7 @@
     }
   },
   "restoredSecretWithId": {
-    "message": "Restored a secret with identifier: $SECRET_ID$",
+    "message": "Відновлено секрет з ідентифікатором: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -9437,7 +9437,7 @@
     }
   },
   "accessedProjectWithIdentifier": {
-    "message": "Accessed a project with identifier: $PROJECT_ID$.",
+    "message": "Доступ до проєкту з ідентифікатором: $PROJECT_ID$.",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -9446,7 +9446,7 @@
     }
   },
   "nameUnavailableProjectDeleted": {
-    "message": "Deleted project Id: $PROJECT_ID$",
+    "message": "Ідентифікатор видаленого проєкту: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -9455,7 +9455,7 @@
     }
   },
   "nameUnavailableSecretDeleted": {
-    "message": "Deleted secret Id: $SECRET_ID$",
+    "message": "Ідентифікатор видаленого секрету: $SECRET_ID$",
     "placeholders": {
       "secret_id": {
         "content": "$1",
@@ -9464,7 +9464,7 @@
     }
   },
   "nameUnavailableServiceAccountDeleted": {
-    "message": "Deleted machine account Id: $SERVICE_ACCOUNT_ID$",
+    "message": "Ідентифікатор видаленого машинного облікового запису: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -9473,7 +9473,7 @@
     }
   },
   "editedProjectWithId": {
-    "message": "Edited a project with identifier: $PROJECT_ID$",
+    "message": "Редаговано проєкт з ідентифікатором: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -9482,7 +9482,7 @@
     }
   },
   "addedUserToServiceAccountWithId": {
-    "message": "Added user: $USER_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Додано користувача: $USER_ID$ до машинного облікового запису з ідентифікатором: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "user_id": {
         "content": "$1",
@@ -9495,7 +9495,7 @@
     }
   },
   "removedUserToServiceAccountWithId": {
-    "message": "Removed user: $USER_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Вилучено користувача: $USER_ID$ з машинного облікового запису з ідентифікатором: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "user_id": {
         "content": "$1",
@@ -9508,7 +9508,7 @@
     }
   },
   "removedGroupFromServiceAccountWithId": {
-    "message": "Removed group: $GROUP_ID$ from machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Вилучено групу: $GROUP_ID$ з машинного облікового запису з ідентифікатором: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "group_id": {
         "content": "$1",
@@ -9521,7 +9521,7 @@
     }
   },
   "serviceAccountCreatedWithId": {
-    "message": "Created machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Створено машинний обліковий запис з ідентифікатором: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -9530,7 +9530,7 @@
     }
   },
   "addedGroupToServiceAccountId": {
-    "message": "Added group: $GROUP_ID$ to machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Додано групу: $GROUP_ID$ до машинного облікового запису з ідентифікатором: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "group_id": {
         "content": "$1",
@@ -9543,7 +9543,7 @@
     }
   },
   "serviceAccountDeletedWithId": {
-    "message": "Deleted machine account with identifier: $SERVICE_ACCOUNT_ID$",
+    "message": "Видалено машинний обліковий запис з ідентифікатором: $SERVICE_ACCOUNT_ID$",
     "placeholders": {
       "service_account_id": {
         "content": "$1",
@@ -9552,7 +9552,7 @@
     }
   },
   "deletedProjectWithId": {
-    "message": "Deleted a project with identifier: $PROJECT_ID$",
+    "message": "Видалено проєкт з ідентифікатором: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
@@ -9561,13 +9561,22 @@
     }
   },
   "createdProjectWithId": {
-    "message": "Created a new project with identifier: $PROJECT_ID$",
+    "message": "Створено новий проєкт з ідентифікатором: $PROJECT_ID$",
     "placeholders": {
       "project_id": {
         "content": "$1",
         "example": "4d34e8a8"
       }
     }
+  },
+  "phishingBlockerSiteAccessed": {
+    "message": "Користувач намагався отримати доступ до відомого шахрайського сайту"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Користувач вийшов зі сторінки попередження про шахрайство"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Користувач обійшов попередження про шахрайство"
   },
   "sdk": {
     "message": "SDK",
@@ -9815,28 +9824,28 @@
     "message": "Відновити обліковий запис"
   },
   "recoverAccountWarning": {
-    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+    "message": "Коли ви скинете пароль або двоетапну перевірку для цього учасника, його буде про це повідомлено і виконано вихід з системи."
   },
   "accountRecoveryPolicyDescV2": {
-    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+    "message": "Відновлення облікових записів у разі втрати головного пароля, довірених пристроїв, або можливості двоетапної перевірки."
   },
   "accountRecoveryPolicyWarningV2": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+    "message": "Учасники наявних облікових записів з головним паролем мають виконати розгортання власноруч, перш ніж адміністратори зможуть відновити їхні облікові записи."
   },
   "resetPasswordPolicyAutoEnrollCheckboxV2": {
-    "message": "Automatically enroll new members in account recovery"
+    "message": "Автоматичне розгортання нових учасників на відновлення облікового запису"
   },
   "resetMasterPassword": {
-    "message": "Reset master password"
+    "message": "Скинути головний пароль"
   },
   "resetTwoStepLogin": {
-    "message": "Reset two-step login"
+    "message": "Скинути двоетапну перевірку"
   },
   "resetTwoStepLoginDesc": {
-    "message": "The member's access will be revoked until they set up two-step login"
+    "message": "Доступ учасника буде відкликано, доки він не налаштує двоетапну перевірку"
   },
   "recoverAccountSuccess": {
-    "message": "Account recovery success!"
+    "message": "Відновлення облікового запису пройшло успішно!"
   },
   "updatedTempPassword": {
     "message": "Користувач оновив пароль під час відновлення облікового запису."
@@ -10085,23 +10094,23 @@
     "message": "Керування збіркою"
   },
   "collectionManagementDescription": {
-    "message": "Configure the collection behavior for the organization"
+    "message": "Керувати налаштуваннями збірок для організації"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Allow owners and admins to manage all collections and items from the Admin Console"
+    "message": "Дозволити власникам та адміністраторам керувати всіма збірками та записами з консолі адміністрування"
   },
   "restrictCollectionCreationDescription": {
-    "message": "Restrict collection creation to owners and admins"
+    "message": "Дозволити створення збірок лише власникам та адміністраторам"
   },
   "restrictCollectionDeletionDescription": {
-    "message": "Restrict collection deletion to owners and admins"
+    "message": "Дозволити видалення збірок лише власникам та адміністраторам"
   },
   "restrictItemDeletionDescriptionStart": {
-    "message": "Restrict item deletion to members with the ",
+    "message": "Дозволити видалення записів лише учасникам з дозволом ",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "restrictItemDeletionDescriptionEnd": {
-    "message": " permission",
+    "message": "",
     "description": "This will be used as part of a larger sentence, broken up to allow styling of the middle portion. Full sentence: 'Restrict item deletion to members with the [Manage collection] permission'"
   },
   "updatedCollectionManagement": {
@@ -10392,6 +10401,46 @@
     "message": "Switching to free organization",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Missing features or functionality",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Something we needed wasn't available",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Too difficult to set up or manage",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "We're not getting enough value for the cost",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "The price doesn't match what we're getting out of it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Not enough usage by our team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "We couldn't get people to actually use it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Our needs changed",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Безплатно на 1 рік"
   },
@@ -10402,7 +10451,7 @@
     "message": "Читати блог випусків"
   },
   "adminConsole": {
-    "message": "консолі адміністратора,"
+    "message": "консолі адміністрування,"
   },
   "providerPortal": {
     "message": "Портал провайдера"
@@ -10983,7 +11032,7 @@
     "message": "Немає доступу"
   },
   "collectionAdminConsoleManaged": {
-    "message": "Ця збірка доступна тільки з консолі адміністратора"
+    "message": "Ця збірка доступна тільки з консолі адміністрування"
   },
   "organizationOptionsMenu": {
     "message": "Перемкнути меню організації"
@@ -12730,7 +12779,7 @@
     "message": "Upgrade now"
   },
   "formWillCreateNewFamiliesOrgMessage": {
-    "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
+    "message": "Заповнення цієї форми призведе до створення нової родинної організації. Ви можете оновити безплатну організацію з консолі адміністрування."
   },
   "upgradeErrorMessage": {
     "message": "We encountered an error while processing your upgrade. Please try again."
@@ -13333,5 +13382,22 @@
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }
