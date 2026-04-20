@@ -58,7 +58,7 @@ export class AutotypeShortcutComponent {
       return;
     }
 
-    this.dialogRef.close(this.shortcutArray);
+    await this.dialogRef.close(this.shortcutArray);
   };
 
   static open(dialogService: DialogService) {

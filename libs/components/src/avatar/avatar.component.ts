@@ -32,11 +32,11 @@ const sizeClasses: Record<AvatarSize, string[]> = {
  * dark mode.
  */
 export const defaultAvatarColors: Record<AvatarColor, string> = {
-  teal: "var(--color-bg-avatar-teal)",
-  coral: "var(--color-bg-avatar-coral)",
-  brand: "var(--color-bg-avatar-brand)",
-  green: "var(--color-bg-avatar-green)",
-  purple: "var(--color-bg-avatar-purple)",
+  teal: "#007c95",
+  coral: "#c71800",
+  brand: "#175ddc",
+  green: "#008236",
+  purple: "#8200db",
 };
 
 /**
@@ -45,11 +45,11 @@ export const defaultAvatarColors: Record<AvatarColor, string> = {
  * dark mode.
  */
 export const defaultAvatarHoverColors: Record<AvatarColor, string> = {
-  teal: "var(--color-bg-avatar-teal-hover)",
-  coral: "var(--color-bg-avatar-coral-hover)",
-  brand: "var(--color-bg-avatar-brand-hover)",
-  green: "var(--color-bg-avatar-green-hover)",
-  purple: "var(--color-bg-avatar-purple-hover)",
+  teal: "#006278",
+  coral: "#a81400",
+  brand: "#0d43af",
+  green: "#016630",
+  purple: "#6e11b0",
 };
 
 // Typeguard to check if a given color is an AvatarColor
