@@ -35,7 +35,7 @@ export class DefaultReportGenerationService extends ReportGenerationService {
     super();
   }
 
-  generateReport(
+  generateReport$(
     ciphers: CipherView[],
     members: OrganizationUserView[],
     collectionAccess: CollectionAccessDetails[],
@@ -94,7 +94,7 @@ export class DefaultReportGenerationService extends ReportGenerationService {
 
     return forkJoin({
       healthMap: this.cipherHealthService.checkCipherHealth(ciphers),
-      mappingResult: this.memberCipherMappingService.mapCiphersToMembers(
+      mappingResult: this.memberCipherMappingService.mapCiphersToMembers$(
         ciphers,
         members,
         collectionAccess,

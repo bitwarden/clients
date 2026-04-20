@@ -41,12 +41,12 @@ export abstract class ReportGenerationService {
    * // ... load collections and groups, transform to access details
    *
    * this.reportGenerationService
-   *   .generateReport(ciphers, members, collectionAccess, groupMemberships, previousApps)
+   *   .generateReport$(ciphers, members, collectionAccess, groupMemberships, previousApps)
    *   .pipe(switchMap(report => this.persistenceService.save(report)))
    *   .subscribe();
    * ```
    */
-  abstract generateReport(
+  abstract generateReport$(
     ciphers: CipherView[],
     members: OrganizationUserView[],
     collectionAccess: CollectionAccessDetails[],

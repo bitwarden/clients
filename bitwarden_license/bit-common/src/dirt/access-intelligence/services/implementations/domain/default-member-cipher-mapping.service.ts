@@ -24,7 +24,7 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
    * This is a synchronous operation wrapped in an Observable for consistency
    * with the service pattern. No async operations are performed.
    */
-  mapCiphersToMembers(
+  mapCiphersToMembers$(
     ciphers: CipherView[],
     members: OrganizationUserView[],
     collectionAccess: CollectionAccessDetails[],
@@ -76,7 +76,7 @@ export class DefaultMemberCipherMappingService extends MemberCipherMappingServic
   /**
    * Builds a member registry from an array of members.
    */
-  buildMemberRegistry(members: OrganizationUserView[]): Observable<MemberRegistry> {
+  buildMemberRegistry$(members: OrganizationUserView[]): Observable<MemberRegistry> {
     const registry: MemberRegistry = {};
 
     members.forEach((member) => {
