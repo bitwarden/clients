@@ -114,6 +114,7 @@ export const WithMaxDigits: Story = {
     template: `<bit-berry [maxDigits]="maxDigits" [type]="type" [variant]="variant" [value]="value"></bit-berry>`,
   }),
   args: {
+    value: 100,
     maxDigits: 2,
   },
 };
