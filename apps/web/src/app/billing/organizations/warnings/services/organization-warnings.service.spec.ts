@@ -9,13 +9,16 @@ jest.mock("@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.com
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
@@ -34,12 +37,17 @@ import { TaxIdWarningTypes } from "@bitwarden/web-vault/app/billing/warnings/typ
 
 describe("OrganizationWarningsService", () => {
   let service: OrganizationWarningsService;
+  let accountService: MockProxy<AccountService>;
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
+  let logService: MockProxy<LogService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationBillingClient: MockProxy<OrganizationBillingClient>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let router: MockProxy<Router>;
+  let tokenService: MockProxy<TokenService>;
+
+  const activeAccount = { id: "active-user-id" } as Account;
 
   const organization = {
     id: "org-id-123",
@@ -56,16 +64,31 @@ describe("OrganizationWarningsService", () => {
     });
 
   beforeEach(() => {
+    accountService = mock<AccountService>();
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
+    logService = mock<LogService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationBillingClient = mock<OrganizationBillingClient>();
     platformUtilsService = mock<PlatformUtilsService>();
     router = mock<Router>();
+    tokenService = mock<TokenService>();
 
     (openChangePlanDialog as jest.Mock).mockReset();
 
     platformUtilsService.isSelfHost.mockReturnValue(false);
+
+    // Default: an authenticated user with an access token that carries a grant for the
+    // test organization so the preflight in readThroughWarnings$ allows the API call.
+    // Tests for the preflight itself override these in their own describe block.
+    Object.defineProperty(accountService, "activeAccount$", {
+      value: of(activeAccount),
+      configurable: true,
+    });
+    tokenService.hasAccessToken$.mockReturnValue(of(true));
+    tokenService.decodeAccessToken.mockResolvedValue({
+      orguser: [organization.id],
+    } as any);
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {
@@ -99,12 +122,15 @@ describe("OrganizationWarningsService", () => {
     TestBed.configureTestingModule({
       providers: [
         OrganizationWarningsService,
+        { provide: AccountService, useValue: accountService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nService },
+        { provide: LogService, useValue: logService },
         { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
         { provide: OrganizationBillingClient, useValue: organizationBillingClient },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: Router, useValue: router },
+        { provide: TokenService, useValue: tokenService },
       ],
     });
 
@@ -700,6 +726,132 @@ describe("OrganizationWarningsService", () => {
           done();
         },
       });
+    });
+  });
+
+  describe("readThroughWarnings$ access-token preflight", () => {
+    it.each([["orgowner"], ["orgadmin"], ["orgcustom"], ["orguser"]])(
+      "fetches warnings when the access token has a %s grant for the org (array shape)",
+      async (claim) => {
+        tokenService.decodeAccessToken.mockResolvedValue({
+          [claim]: [organization.id],
+        } as any);
+        organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);
+
+        await firstValueFrom(service.getFreeTrialWarning$(organization));
+
+        expect(organizationBillingClient.getWarnings).toHaveBeenCalledWith(organization.id);
+      },
+    );
+
+    it.each([["orgowner"], ["orgadmin"], ["orgcustom"], ["orguser"]])(
+      "fetches warnings when the access token has a %s grant for the org (string shape)",
+      async (claim) => {
+        // Real JWTs emit single-value org-role claims as a string rather than a one-element
+        // array — the preflight must accept either shape.
+        tokenService.decodeAccessToken.mockResolvedValue({
+          [claim]: organization.id,
+        } as any);
+        organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);
+
+        await firstValueFrom(service.getFreeTrialWarning$(organization));
+
+        expect(organizationBillingClient.getWarnings).toHaveBeenCalledWith(organization.id);
+      },
+    );
+
+    it("skips the fetch when the access token has no organization grants", (done) => {
+      tokenService.decodeAccessToken.mockResolvedValue({} as any);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("skips the fetch when grants are only present for a different org", (done) => {
+      tokenService.decodeAccessToken.mockResolvedValue({
+        orgowner: ["some-other-org-id"],
+      } as any);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("does not cache the empty short-circuit so a later call with a grant hits the API", async () => {
+      tokenService.decodeAccessToken
+        .mockResolvedValueOnce({} as any)
+        .mockResolvedValueOnce({ orguser: [organization.id] } as any);
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      const first = await firstValueFrom(service.getFreeTrialWarning$(organization));
+
+      expect(first).toBeNull();
+      expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+
+      const second = await firstValueFrom(service.getFreeTrialWarning$(organization));
+      expect(second).not.toBeNull();
+      expect(organizationBillingClient.getWarnings).toHaveBeenCalledTimes(1);
+    });
+
+    it("falls open and proceeds with the fetch when decoding the access token throws", async () => {
+      tokenService.decodeAccessToken.mockRejectedValue(new Error("bad token"));
+      organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);
+
+      await firstValueFrom(service.getFreeTrialWarning$(organization));
+
+      expect(organizationBillingClient.getWarnings).toHaveBeenCalledWith(organization.id);
+      expect(logService.warning).toHaveBeenCalled();
+    });
+
+    it("skips the fetch without proceeding when no active account is present", (done) => {
+      Object.defineProperty(accountService, "activeAccount$", {
+        value: of(null),
+        configurable: true,
+      });
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(tokenService.decodeAccessToken).not.toHaveBeenCalled();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        expect(logService.info).toHaveBeenCalledWith(expect.stringContaining("no active account"));
+        done();
+      });
+    });
+
+    it("skips the fetch without proceeding when the active user has no access token", (done) => {
+      tokenService.hasAccessToken$.mockReturnValue(of(false));
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(tokenService.decodeAccessToken).not.toHaveBeenCalled();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        expect(logService.info).toHaveBeenCalledWith(
+          expect.stringContaining("active user has no access token"),
+        );
+        done();
+      });
+    });
+
+    it("skips the preflight and fetches directly for provider-user orgs", async () => {
+      const providerManagedOrganization = {
+        ...organization,
+        isProviderUser: true,
+      } as Organization;
+      organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);
+
+      await firstValueFrom(service.getFreeTrialWarning$(providerManagedOrganization));
+
+      expect(tokenService.decodeAccessToken).not.toHaveBeenCalled();
+      expect(organizationBillingClient.getWarnings).toHaveBeenCalledWith(
+        providerManagedOrganization.id,
+      );
     });
   });
 });
