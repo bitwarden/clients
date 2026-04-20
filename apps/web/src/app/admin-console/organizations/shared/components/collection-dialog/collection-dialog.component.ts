@@ -528,7 +528,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {
-    this.dialogRef.close({ action, collection } as CollectionDialogResult);
+    void this.dialogRef.close({ action, collection } as CollectionDialogResult);
   }
 }
 
@@ -626,7 +626,7 @@ function mapUserToAccessItemView(
  */
 export function openCollectionDialog(
   dialogService: DialogService,
-  config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
+  config: DialogConfig<CollectionDialogParams, CollectionDialogResult>,
 ) {
   return dialogService.open<CollectionDialogResult>(CollectionDialogComponent, config);
 }
