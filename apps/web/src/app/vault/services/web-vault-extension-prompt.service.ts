@@ -41,6 +41,11 @@ export class WebVaultExtensionPromptService {
       return false;
     }
 
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
+      return false;
+    }
+
     // Extension check takes time, trigger it early
     const hasExtensionInstalled = firstValueFrom(
       this.webBrowserInteractionService.extensionInstalled$,

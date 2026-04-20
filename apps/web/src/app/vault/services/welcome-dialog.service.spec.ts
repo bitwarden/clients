@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -22,6 +23,7 @@ describe("WelcomeDialogService", () => {
   const mockDialogOpen = jest.spyOn(VaultWelcomeDialogComponent, "open");
 
   let activeAccount$: BehaviorSubject<Account | null>;
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
 
   function createAccount(overrides: Partial<Account> = {}): Account {
     return {
@@ -36,12 +38,16 @@ describe("WelcomeDialogService", () => {
     mockDialogOpen.mockReset();
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
         WelcomeDialogService,
         { provide: AccountService, useValue: { activeAccount$ } },
-        { provide: ConfigService, useValue: { getFeatureFlag } },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag, serverSettings$: serverSettings$.asObservable() },
+        },
         { provide: DialogService, useValue: {} },
         { provide: StateProvider, useValue: { getUserState$ } },
       ],
@@ -118,6 +124,15 @@ describe("WelcomeDialogService", () => {
       await service.conditionallyShowWelcomeDialog();
 
       expect(mockDialogOpen).toHaveBeenCalled();
+    });
+
+    it("should not show dialog when suppressOnboardingInterstitials is enabled", async () => {
+      getFeatureFlag.mockResolvedValueOnce(true);
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      await service.conditionallyShowWelcomeDialog();
+
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
   });
 });

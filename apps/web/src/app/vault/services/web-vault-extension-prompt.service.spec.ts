@@ -4,6 +4,7 @@ import { BehaviorSubject } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -28,12 +29,15 @@ describe("WebVaultExtensionPromptService", () => {
   });
   const getUser = jest.fn().mockReturnValue({ state$: mockStateSubject.asObservable() });
 
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
+
   beforeEach(() => {
     jest.clearAllMocks();
     getFeatureFlag.mockResolvedValue(false);
     extensionInstalled$.next(false);
     mockStateSubject.next(false);
     activeAccountSubject.next({ id: mockUserId, creationDate: mockAccountCreationDate });
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -60,6 +64,7 @@ describe("WebVaultExtensionPromptService", () => {
           provide: ConfigService,
           useValue: {
             getFeatureFlag,
+            serverSettings$: serverSettings$.asObservable(),
           },
         },
         {
@@ -84,6 +89,15 @@ describe("WebVaultExtensionPromptService", () => {
       expect(getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt,
       );
+    });
+
+    it("returns false when suppressOnboardingInterstitials is enabled", async () => {
+      getFeatureFlag.mockResolvedValueOnce(true);
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      const result = await service.conditionallyPromptUserForExtension(mockUserId);
+
+      expect(result).toBe(false);
     });
 
     it("returns false when dialog has been dismissed", async () => {

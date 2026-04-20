@@ -4,8 +4,10 @@ import { of, BehaviorSubject } from "rxjs";
 import { PremiumUpsellService } from "@bitwarden/angular/vault";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -31,6 +33,7 @@ describe("UnifiedUpgradePromptService", () => {
   const mockStateProvider = mock<StateProvider>();
   const mockLogService = mock<LogService>();
   const mockPremiumUpsellService = mock<PremiumUpsellService>();
+  const mockConfigService = mock<ConfigService>();
 
   /**
    * Creates a mock DialogRef that implements the required properties for testing
@@ -61,6 +64,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockStateProvider,
       mockLogService,
       mockPremiumUpsellService,
+      mockConfigService,
     );
   }
 
@@ -74,6 +78,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockAccountService.activeAccount$ = accountSubject.asObservable();
       mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       mockStateProvider.getUserState$.mockReturnValue(of(false));
+      mockConfigService.serverSettings$ = of(new ServerSettings());
 
       setupTestService();
     });
@@ -103,6 +108,9 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Default: showUpsell returns false
       mockPremiumUpsellService.showUpsell.mockReturnValue(false);
+
+      // Default: server settings do not suppress onboarding interstitials
+      mockConfigService.serverSettings$ = of(new ServerSettings());
     });
     it("should subscribe to account observables when checking display conditions", async () => {
       // Arrange
@@ -275,6 +283,21 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Assert
       expect(mockStateProvider.setUserState).not.toHaveBeenCalled();
+    });
+
+    it("should not show dialog when suppressOnboardingInterstitials is enabled", async () => {
+      // Arrange
+      mockConfigService.serverSettings$ = of(
+        new ServerSettings({ suppressOnboardingInterstitials: true }),
+      );
+      setupTestService();
+
+      // Act
+      const result = await sut.displayUpgradePromptConditionally();
+
+      // Assert
+      expect(result).toBeNull();
+      expect(mockDialogOpen).not.toHaveBeenCalled();
     });
   });
 });

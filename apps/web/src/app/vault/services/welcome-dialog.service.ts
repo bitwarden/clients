@@ -43,6 +43,11 @@ export class WelcomeDialogService {
       return;
     }
 
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
+      return;
+    }
+
     const createdAt = account.creationDate;
     if (!createdAt) {
       return;

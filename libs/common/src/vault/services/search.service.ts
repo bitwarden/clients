@@ -86,6 +86,16 @@ export class SearchService implements SearchServiceAbstraction {
   private _isSendSearching$ = new BehaviorSubject<boolean>(false);
   isSendSearching$: Observable<boolean> = this._isSendSearching$.asObservable();
 
+  /**
+   * Holds the latest pending index request per user that arrived while indexing was already in
+   * progress. After the in-flight indexing run completes, the pending request is processed
+   * immediately so the index always reflects the most recent cipher data.
+   */
+  private pendingIndexRequests = new Map<
+    UserId,
+    { ciphers: CipherViewLike[]; indexedEntityId?: string }
+  >();
+
   constructor(
     private logService: LogService,
     private i18nService: I18nService,
@@ -146,6 +156,7 @@ export class SearchService implements SearchServiceAbstraction {
     await this.searchIndexEntityIdState(userId).update(() => null);
     await this.searchIndexState(userId).update(() => null);
     await this.searchIsIndexingState(userId).update(() => null);
+    this.pendingIndexRequests.delete(userId);
   }
 
   async isSearchable(userId: UserId, query: string | null): Promise<boolean> {
@@ -172,6 +183,10 @@ export class SearchService implements SearchServiceAbstraction {
     indexedEntityId?: string,
   ): Promise<void> {
     if (await this.getIsIndexing(userId)) {
+      // A newer cipher list arrived while indexing is in progress. Save it so it can be
+      // processed immediately after the current run completes, ensuring the index stays
+      // up-to-date (e.g. after a background sync).
+      this.pendingIndexRequests.set(userId, { ciphers, indexedEntityId });
       return;
     }
 
@@ -233,6 +248,13 @@ export class SearchService implements SearchServiceAbstraction {
     this.logService.measure(indexingStartTime, "Vault", "SearchService", "index complete", [
       ["Items", ciphers.length],
     ]);
+
+    // If a newer request arrived while we were indexing, process it now.
+    const pending = this.pendingIndexRequests.get(userId);
+    if (pending != null) {
+      this.pendingIndexRequests.delete(userId);
+      await this.indexCiphers(userId, pending.ciphers, pending.indexedEntityId);
+    }
   }
 
   async searchCiphers<C extends CipherViewLike>(

@@ -8,6 +8,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
@@ -27,6 +28,7 @@ export class WebVaultPromptService {
   private vaultItemTransferService = inject(VaultItemsTransferService);
   private policyService = inject(PolicyService);
   private accountService = inject(AccountService);
+  private configService = inject(ConfigService);
   private autoConfirmService = inject(AutomaticUserConfirmationService);
   private organizationService = inject(OrganizationService);
   private dialogService = inject(DialogService);
@@ -46,6 +48,11 @@ export class WebVaultPromptService {
    * the user seeing multiple onboarding prompts at different times.
    */
   async conditionallyPromptUser() {
+    const serverSettings = await firstValueFrom(this.configService.serverSettings$);
+    if (serverSettings?.suppressOnboardingInterstitials) {
+      return;
+    }
+
     const userId = await firstValueFrom(this.userId$);
 
     if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
