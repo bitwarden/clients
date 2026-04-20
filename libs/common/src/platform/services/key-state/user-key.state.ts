@@ -1,3 +1,4 @@
+import { UserKeyState } from "@bitwarden/sdk-internal";
 import { UserKey } from "../../../types/key";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { CRYPTO_DISK, CRYPTO_MEMORY, UserKeyDefinition } from "../../state";
@@ -22,7 +23,7 @@ export const USER_EVER_HAD_USER_KEY = new UserKeyDefinition<boolean>(
   },
 );
 
-export const USER_KEY = UserKeyDefinition.record<UserKey>(CRYPTO_MEMORY, "userKey", {
+export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
   // Prevents the state from caching and rxjs observable becoming hot observable.

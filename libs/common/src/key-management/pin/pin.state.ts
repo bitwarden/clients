@@ -23,7 +23,7 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
  * The ephemeral (stored in memory) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
-  UserKeyDefinition.record<EphemeralPinEnvelopeState>(
+  new UserKeyDefinition<EphemeralPinEnvelopeState>(
     PIN_MEMORY,
     "pinProtectedUserKeyEnvelopeEphemeral",
     {
