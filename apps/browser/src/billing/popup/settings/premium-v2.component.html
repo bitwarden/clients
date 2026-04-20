@@ -47,7 +47,7 @@
     >
       <b>{{ "premiumPurchase" | i18n }}</b>
     </button>
-    <button type="button" (click)="refresh()" [appApiAction]="refreshPromise" bitButton>
+    <button type="button" (click)="refresh()" [loading]="refreshing" bitButton>
       {{ "premiumRefresh" | i18n }}
     </button>
   </div>

@@ -18,7 +18,7 @@ export class PremiumComponent implements OnInit {
   isPremium$: Observable<boolean>;
   price = 10;
   storageProvidedGb = 0;
-  refreshPromise: Promise<any>;
+  refreshing = false;
   cloudWebVaultUrl: string;
 
   constructor(
@@ -48,9 +48,9 @@ export class PremiumComponent implements OnInit {
   }
 
   async refresh() {
+    this.refreshing = true;
     try {
-      this.refreshPromise = this.apiService.refreshIdentityToken();
-      await this.refreshPromise;
+      await this.apiService.refreshIdentityToken();
       this.toastService.showToast({
         variant: "success",
         title: null,
@@ -58,6 +58,8 @@ export class PremiumComponent implements OnInit {
       });
     } catch (e) {
       this.logService.error(e);
+    } finally {
+      this.refreshing = false;
     }
   }
 
