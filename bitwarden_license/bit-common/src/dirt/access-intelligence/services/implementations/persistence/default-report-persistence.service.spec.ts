@@ -340,7 +340,7 @@ describe("DefaultReportPersistenceService", () => {
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
       mockEncryptionService.decryptReport$.mockReturnValue(of(decryptedData));
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result!.report).toBeInstanceOf(AccessReportView);
       expect(result!.report.id).toBe(reportId);
@@ -358,7 +358,7 @@ describe("DefaultReportPersistenceService", () => {
     it("should return null if no report exists", async () => {
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(null));
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result).toBeNull();
       expect(mockEncryptionService.decryptReport$).not.toHaveBeenCalled();
@@ -377,7 +377,7 @@ describe("DefaultReportPersistenceService", () => {
 
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Report encryption key not found",
       );
     });
@@ -385,7 +385,7 @@ describe("DefaultReportPersistenceService", () => {
     it("should throw error if user ID not found", async () => {
       mockAccountService.activeAccount$ = of(null as any);
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Null or undefined account",
       );
     });
@@ -406,7 +406,7 @@ describe("DefaultReportPersistenceService", () => {
         throwError(() => new Error("Decryption failed")),
       );
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Decryption failed",
       );
     });
@@ -466,7 +466,7 @@ describe("DefaultReportPersistenceService", () => {
       mockApiService.getRiskInsightsReport$.mockReturnValue(of(apiResponse));
       mockEncryptionService.decryptReport$.mockReturnValue(of(decryptedData));
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result!.report.reports[0].applicationName).toBe("gitlab.com");
       expect(result!.report.reports[0].passwordCount).toBe(3);

@@ -49,7 +49,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     } as any;
 
     reportPersistenceService = {
-      loadReport$: jest.fn(),
+      loadLastReport$: jest.fn(),
       saveReport$: jest.fn(),
       saveApplicationMetadata$: jest.fn(),
     } as any;
@@ -71,7 +71,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Initialization", () => {
     it("should load existing report and emit via report$", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
 
@@ -79,11 +79,11 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const report = await firstValueFrom(service.report$);
       expect(report).toBe(testReport);
-      expect(reportPersistenceService.loadReport$).toHaveBeenCalledWith(orgId);
+      expect(reportPersistenceService.loadLastReport$).toHaveBeenCalledWith(orgId);
     });
 
     it("should emit null if no report exists", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
 
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
@@ -98,7 +98,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       const newId = "report-id-123" as OrganizationReportId;
       const newKey = new EncString("new-key");
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: legacyReport, hadLegacyBlobs: true }),
       );
       reportPersistenceService.saveReport$.mockReturnValue(
@@ -114,7 +114,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should handle load errors gracefully", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         throwError(() => new Error("Load failed")),
       );
 
@@ -143,7 +143,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
         ],
       } as any);
       reportGenerationService.generateReport$.mockReturnValue(of(testReport));
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
@@ -177,7 +177,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       });
 
       // Prime in-memory report state via initialize so generateNewReport$ can read it
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: previousReport, hadLegacyBlobs: false }),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
@@ -201,7 +201,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should handle generation errors and keep previous report", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
@@ -267,7 +267,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Load Existing Report", () => {
     it("should load and emit report", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
 
@@ -278,7 +278,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should emit null if no report exists", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
 
       await firstValueFrom(service.loadExistingReport$(orgId));
 
@@ -300,7 +300,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       mockReport.unmarkApplicationsAsCritical = jest.fn();
       mockReport.markApplicationAsReviewed = jest.fn();
 
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: mockReport, hadLegacyBlobs: false }),
       );
       reportPersistenceService.saveApplicationMetadata$.mockReturnValue(of(undefined as void));
@@ -337,7 +337,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     });
 
     it("should throw error if no report loaded", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       await firstValueFrom(service.initializeForOrganization$(orgId));
 
       await expect(
@@ -376,7 +376,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
     it("should use correct organizationId when marking critical after report generation", async () => {
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({
           id: "report-id-123" as OrganizationReportId,
@@ -435,7 +435,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Organization Switching", () => {
     it("should reset state when switching organizations", async () => {
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
 
@@ -445,7 +445,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       // Switch to different org
       const newOrgId = "org-456" as OrganizationId;
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
 
       await firstValueFrom(service.initializeForOrganization$(newOrgId));
       const secondReport = await firstValueFrom(service.report$);
@@ -458,7 +458,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: [] } as any);
       reportGenerationService.generateReport$.mockReturnValue(of(testReport));
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
       );
@@ -471,7 +471,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
     it("should clear error after successful operation", async () => {
       // First operation fails
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         throwError(() => new Error("Load failed")),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
@@ -480,7 +480,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(error).toBe("Failed to initialize");
 
       // Second operation succeeds
-      reportPersistenceService.loadReport$.mockReturnValue(
+      reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );
       await firstValueFrom(service.initializeForOrganization$(orgId));
@@ -512,7 +512,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
       organizationUserApiService.getAllUsers.mockResolvedValue({ data: apiUsers } as any);
       reportGenerationService.generateReport$.mockReturnValue(of(testReport));
-      reportPersistenceService.loadReport$.mockReturnValue(of(null));
+      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
       reportPersistenceService.saveReport$.mockReturnValue(
         of({ id: "report-id" as OrganizationReportId, contentEncryptionKey: new EncString("") }),
       );
