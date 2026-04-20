@@ -254,7 +254,22 @@ describe("AccessReportView", () => {
       expect(count).toBe(0);
     });
 
-    it("should count passwords for specific application when applicationName provided", () => {
+    it("should return 0 when member not in any application", () => {
+      const view = new AccessReportView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [createReport("github.com", { u2: true }, { c1: true })];
+
+      const count = view.getAtRiskPasswordCountForMember("u1");
+
+      expect(count).toBe(0);
+    });
+  });
+
+  describe("getAtRiskPasswordCountForMemberInApplication", () => {
+    it("should count passwords for specific application", () => {
       const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
@@ -265,7 +280,7 @@ describe("AccessReportView", () => {
         createReport("gitlab.com", { u1: true }, { c4: true }), // 1 at-risk
       ];
 
-      const count = view.getAtRiskPasswordCountForMember("u1", "github.com");
+      const count = view.getAtRiskPasswordCountForMemberInApplication("u1", "github.com");
 
       expect(count).toBe(3); // Only github.com
     });
@@ -281,7 +296,7 @@ describe("AccessReportView", () => {
         createReport("gitlab.com", { u1: true }, { c3: true }), // At-risk
       ];
 
-      const count = view.getAtRiskPasswordCountForMember("u1", "github.com");
+      const count = view.getAtRiskPasswordCountForMemberInApplication("u1", "github.com");
 
       expect(count).toBe(0); // Not at-risk in github
     });
@@ -294,20 +309,63 @@ describe("AccessReportView", () => {
 
       view.reports = [createReport("github.com", { u1: true }, { c1: true })];
 
-      const count = view.getAtRiskPasswordCountForMember("u1", "nonexistent.com");
+      const count = view.getAtRiskPasswordCountForMemberInApplication("u1", "nonexistent.com");
 
       expect(count).toBe(0);
     });
+  });
 
-    it("should return 0 when member not in any application", () => {
+  describe("getCriticalAtRiskPasswordCountForMember", () => {
+    it("should count at-risk passwords only across critical applications", () => {
       const view = new AccessReportView();
       view.memberRegistry = createMemberRegistry([
         { id: "u1", name: "Alice", email: "alice@example.com" },
       ]);
 
-      view.reports = [createReport("github.com", { u2: true }, { c1: true })];
+      view.reports = [
+        createReport("critical-app.com", { u1: true }, { c1: true, c2: true }), // critical, 2 at-risk
+        createReport("non-critical.com", { u1: true }, { c3: true }), // non-critical, 1 at-risk
+      ];
+      view.applications = [
+        createApplication("critical-app.com", true),
+        createApplication("non-critical.com", false),
+      ];
 
-      const count = view.getAtRiskPasswordCountForMember("u1");
+      const count = view.getCriticalAtRiskPasswordCountForMember("u1");
+
+      expect(count).toBe(2); // only critical-app.com
+    });
+
+    it("should return 0 when member has no at-risk ciphers in any critical application", () => {
+      const view = new AccessReportView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [
+        createReport("critical-app.com", { u1: false }, { c1: true }), // critical but not at-risk
+        createReport("non-critical.com", { u1: true }, { c2: true }), // at-risk but not critical
+      ];
+      view.applications = [
+        createApplication("critical-app.com", true),
+        createApplication("non-critical.com", false),
+      ];
+
+      const count = view.getCriticalAtRiskPasswordCountForMember("u1");
+
+      expect(count).toBe(0);
+    });
+
+    it("should return 0 when there are no critical applications", () => {
+      const view = new AccessReportView();
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+
+      view.reports = [createReport("github.com", { u1: true }, { c1: true })];
+      view.applications = [createApplication("github.com", false)];
+
+      const count = view.getCriticalAtRiskPasswordCountForMember("u1");
 
       expect(count).toBe(0);
     });
