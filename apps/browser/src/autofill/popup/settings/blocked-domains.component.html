@@ -60,8 +60,15 @@
             />
           </bit-form-field>
         </bit-card>
-        <button bitLink class="tw-pt-2" type="button" linkType="primary" (click)="addNewDomain()">
-          <i class="bwi bwi-plus-circle bwi-fw" aria-hidden="true"></i> {{ "addDomain" | i18n }}
+        <button
+          bitLink
+          class="tw-pt-2"
+          type="button"
+          linkType="primary"
+          (click)="addNewDomain()"
+          startIcon="bwi-plus-circle"
+        >
+          {{ "addDomain" | i18n }}
         </button>
       </form>
     </bit-section>
