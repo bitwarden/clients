@@ -42,6 +42,9 @@ export const SetInitialPasswordUserType: Readonly<{
   [K in keyof typeof _SetInitialPasswordUserType]: SetInitialPasswordUserType;
 }> = Object.freeze(_SetInitialPasswordUserType);
 
+/**
+ * @deprecated along with `setInitialPassword()` deprecation
+ */
 export interface SetInitialPasswordCredentials {
   newMasterKey: MasterKey;
   newServerMasterKeyHash: string;

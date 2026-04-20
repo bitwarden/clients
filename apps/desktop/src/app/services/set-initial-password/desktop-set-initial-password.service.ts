@@ -56,7 +56,10 @@ export class DesktopSetInitialPasswordService
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
+   *
+   * When you remove this, check also if there are any imports/properties
+   * in the test setup above that are now un-used and can also be removed.
    */
   override async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
