@@ -24,7 +24,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType, toCipherTypeName } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
-import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
+import { FolderWithOptionalIdRequest } from "@bitwarden/common/vault/models/request/folder-with-optional-id.request";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -56,7 +56,7 @@ import {
   KeePass2XmlImporter,
   KeePassXCsvImporter,
   KeeperCsvImporter,
-  // KeeperJsonImporter,
+  KeeperJsonImporter,
   LastPassCsvImporter,
   LogMeOnceCsvImporter,
   MSecureCsvImporter,
@@ -285,8 +285,8 @@ export class ImportService implements ImportServiceAbstraction {
         return new OnePasswordMacCsvImporter();
       case "keepercsv":
         return new KeeperCsvImporter();
-      // case "keeperjson":
-      //   return new KeeperJsonImporter();
+      case "keeperjson":
+        return new KeeperJsonImporter();
       case "passworddragonxml":
         return new PasswordDragonXmlImporter();
       case "enpasscsv":
@@ -388,7 +388,7 @@ export class ImportService implements ImportServiceAbstraction {
     if (importResult.folders != null) {
       for (let i = 0; i < importResult.folders.length; i++) {
         const f = await this.folderService.encrypt(importResult.folders[i], userKey);
-        request.folders.push(new FolderWithIdRequest(f));
+        request.folders.push(new FolderWithOptionalIdRequest(f));
       }
     }
     if (importResult.folderRelationships != null) {

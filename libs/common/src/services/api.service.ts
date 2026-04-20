@@ -64,6 +64,7 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
+import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
@@ -91,6 +92,7 @@ import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
+import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-middleware";
@@ -629,7 +631,25 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentUploadDataResponse(r);
   }
 
-  postAttachmentFile(id: string, attachmentId: string, data: FormData): Promise<any> {
+  async postAttachmentFile(
+    id: string,
+    attachmentId: string,
+    data: FormData,
+    options?: UploadOptions,
+  ): Promise<any> {
+    if (typeof XMLHttpRequest !== "undefined" && options?.onProgress) {
+      const userId = await this.getActiveUser();
+      const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+      const apiUrl = environment.getApiUrl();
+      const headers = await this.buildRequestHeaders();
+      const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
+        method: "POST",
+        body: data,
+        headers,
+      });
+      return this.nativeXMLHttpRequest(request, options.onProgress);
+    }
+
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
   }
 
@@ -1324,16 +1344,7 @@ export class ApiService implements ApiServiceAbstraction {
       request.headers.set("Cache-Control", "no-store");
       request.headers.set("Pragma", "no-cache");
     }
-    request.headers.set("Bitwarden-Client-Name", this.platformUtilsService.getClientType());
-    request.headers.set(
-      "Bitwarden-Client-Version",
-      await this.platformUtilsService.getApplicationVersionNumber(),
-    );
-
-    const packageType = await this.platformUtilsService.packageType();
-    if (packageType != null) {
-      request.headers.set("Bitwarden-Package-Type", packageType);
-    }
+    await this.applyPlatformHeaders(request.headers);
 
     const pipeline = buildFetchPipeline(this.middlewares, (req) => this.nativeFetch(req));
     return pipeline(request);
@@ -1341,6 +1352,58 @@ export class ApiService implements ApiServiceAbstraction {
 
   nativeFetch(request: Request): Promise<Response> {
     return fetch(request);
+  }
+
+  nativeXMLHttpRequest(
+    request: Request,
+    onProgress: (percentage: number) => void,
+  ): Promise<Response> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(request.method, request.url);
+      request.headers.forEach((value, key) => xhr.setRequestHeader(key, value));
+      xhr.responseType = "arraybuffer";
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      };
+      xhr.onload = () => resolve(new Response(xhr.response, { status: xhr.status }));
+      xhr.onerror = () => reject(new Error("Network error during upload"));
+      void request
+        .arrayBuffer()
+        .then((body) => xhr.send(body))
+        .catch(reject);
+    });
+  }
+
+  private async applyPlatformHeaders(headers: Headers): Promise<void> {
+    headers.set("Bitwarden-Client-Name", this.platformUtilsService.getClientType());
+    headers.set(
+      "Bitwarden-Client-Version",
+      await this.platformUtilsService.getApplicationVersionNumber(),
+    );
+    const packageType = await this.platformUtilsService.packageType();
+    if (packageType != null) {
+      headers.set("Bitwarden-Package-Type", packageType);
+    }
+  }
+
+  protected async buildRequestHeaders(): Promise<Headers> {
+    const userId = await this.getActiveUser();
+    const accessToken = await this.getActiveBearerToken(userId);
+    const headers = new Headers({
+      "Device-Type": this.deviceType,
+      Authorization: "Bearer " + accessToken,
+    });
+    if (this.customUserAgent != null) {
+      headers.set("User-Agent", this.customUserAgent);
+    }
+    if (flagEnabled("prereleaseBuild")) {
+      headers.set("Is-Prerelease", "1");
+    }
+    await this.applyPlatformHeaders(headers);
+    return headers;
   }
 
   async preValidateSso(identifier: string): Promise<SsoPreValidateResponse> {
@@ -1503,7 +1566,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status === 200) {
       const responseJson = await response.json();
-      const tokenResponse = new IdentityTokenResponse(responseJson);
+      const tokenResponse = new RefreshTokenResponse(responseJson);
 
       const newDecodedAccessToken = await this.tokenService.decodeAccessToken(
         tokenResponse.accessToken,
@@ -1631,11 +1694,19 @@ export class ApiService implements ApiServiceAbstraction {
     const responseType = response.headers.get("content-type");
     const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
     const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    const responseIsBlob =
+      responseType != null && responseType.indexOf("application/octet-stream") !== -1;
     if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
       const responseJson = await response.json();
       return responseJson;
     } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
       return await response.text();
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsBlob) {
+      const disposition = response.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const fileName = match ? match[1].replace(/['"]/g, "") : "download";
+      const blob = await response.blob();
+      return { blob, fileName };
     } else if (
       response.status !== HttpStatusCode.Ok &&
       response.status !== HttpStatusCode.NoContent

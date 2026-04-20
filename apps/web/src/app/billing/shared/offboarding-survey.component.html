@@ -5,16 +5,32 @@
     </span>
     <div bitDialogContent>
       <p>{{ "sorryToSeeYouGo" | i18n }}</p>
-      <bit-form-field>
-        <bit-label>
-          {{ "selectCancellationReason" | i18n }}
-        </bit-label>
-        <select bitInput formControlName="reason">
-          <option *ngFor="let reason of reasons" [ngValue]="reason.value">
-            {{ reason.text }}
-          </option>
-        </select>
-      </bit-form-field>
+      @if (isBusiness) {
+        <bit-radio-group formControlName="reason" [block]="true">
+          <bit-label>
+            {{ "selectCancellationReason" | i18n }}
+          </bit-label>
+          @for (reason of businessReasons; track reason.value) {
+            <bit-radio-button [value]="reason.value">
+              <bit-label>{{ reason.labelKey | i18n }}</bit-label>
+              @if (reason.hintKey) {
+                <bit-hint>{{ reason.hintKey | i18n }}</bit-hint>
+              }
+            </bit-radio-button>
+          }
+        </bit-radio-group>
+      } @else {
+        <bit-form-field>
+          <bit-label>
+            {{ "selectCancellationReason" | i18n }}
+          </bit-label>
+          <select bitInput formControlName="reason">
+            <option *ngFor="let reason of reasons" [ngValue]="reason.value">
+              {{ reason.text }}
+            </option>
+          </select>
+        </bit-form-field>
+      }
       <bit-form-field>
         <bit-label>
           {{ "anyOtherFeedback" | i18n }}
