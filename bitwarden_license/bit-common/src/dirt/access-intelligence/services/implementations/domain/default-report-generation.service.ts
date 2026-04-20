@@ -1,6 +1,7 @@
 import { forkJoin, map, Observable } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
 import { getTrimmedCipherUris } from "../../../../reports/risk-insights/helpers";
@@ -165,7 +166,7 @@ export class DefaultReportGenerationService extends ReportGenerationService {
       if (cipherGroup.length > 0) {
         const firstCipher = cipherGroup[0];
         report.iconCipherId = firstCipher.id;
-        report.iconUri = firstCipher.login?.uris?.[0]?.uri ?? applicationName;
+        report.iconUri = CipherViewLikeUtils.uri(firstCipher) ?? applicationName;
       }
 
       reports.push(report);
