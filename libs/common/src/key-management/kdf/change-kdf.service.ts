@@ -70,7 +70,10 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     );
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
-    await this.masterPasswordService.setMasterKeyEncryptedUserKey(new EncString(unlockData.masterKeyWrappedUserKey), userId);
+    await this.masterPasswordService.setMasterKeyEncryptedUserKey(
+      new EncString(unlockData.masterKeyWrappedUserKey),
+      userId,
+    );
     await this.kdfConfigService.setKdfConfig(userId, kdf);
   }
 }
