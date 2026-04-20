@@ -274,9 +274,7 @@ describe("VaultPopupItemsService", () => {
       };
 
       // Assume all ciphers are autofill ciphers to test sorting
-      cipherServiceMock.filterCiphersForUrl.mockImplementation(async () =>
-        Object.values(allCiphers),
-      );
+      cipherServiceMock.filterCiphersForUrl.mockResolvedValue(Object.values(allCiphers));
 
       service.autoFillCiphers$.subscribe((ciphers) => {
         expect(ciphers.length).toBe(10);
@@ -317,11 +315,10 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
+      const searchResult = cipherList.filter((cipher) => {
+        return cipher.name.includes(searchText);
       });
+      searchService.searchCiphers.mockResolvedValue(searchResult);
 
       service.filteredCiphers$.subscribe((ciphers) => {
         // There are 10 ciphers but only 3 with "Login" in the name
@@ -344,11 +341,10 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Card 2";
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
-          return cipher.name === searchText;
-        });
+      const searchResult = cipherList.filter((cipher) => {
+        return cipher.name.includes(searchText);
       });
+      searchService.searchCiphers.mockResolvedValue(searchResult);
 
       service.favoriteCiphers$.subscribe((ciphers) => {
         // There are 2 favorite items but only one Card 2
@@ -404,7 +400,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return true when there are zero filteredResults", (done) => {
-      searchService.searchCiphers.mockImplementation(async () => []);
+      searchService.searchCiphers.mockResolvedValue([]);
       service.noFilteredResults$.subscribe((noResults) => {
         expect(noResults).toBe(true);
         done();
