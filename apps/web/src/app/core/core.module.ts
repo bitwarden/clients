@@ -495,14 +495,12 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      KeyServiceAbstraction,
       InternalUserDecryptionOptionsServiceAbstraction,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
       WINDOW,
       LogService,
-      ConfigService,
     ],
   }),
   safeProvider({
