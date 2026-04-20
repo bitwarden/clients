@@ -21,7 +21,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 
-
 import { CipherViewComponent } from "./cipher-view.component";
 
 describe("CipherViewComponent", () => {

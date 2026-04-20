@@ -35,7 +35,6 @@ import {
   LinkComponent,
 } from "@bitwarden/components";
 
-
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
