@@ -3,7 +3,7 @@ import { firstValueFrom, map } from "rxjs";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KdfConfig, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
 import { KdfRequest } from "../../models/request/kdf.request";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
@@ -24,6 +24,7 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     private sdkService: SdkService,
     private keyService: KeyService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private kdfConfigService: KdfConfigService,
   ) {}
 
   async updateUserKdfParams(masterPassword: string, kdf: KdfConfig, userId: UserId): Promise<void> {
@@ -70,5 +71,6 @@ export class DefaultChangeKdfService implements ChangeKdfService {
     await this.masterPasswordService.setMasterKey(masterKey, userId);
     await this.masterPasswordService.setMasterPasswordUnlockData(unlockData, userId);
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(new EncString(unlockData.masterKeyWrappedUserKey), userId);
+    await this.kdfConfigService.setKdfConfig(userId, kdf);
   }
 }
