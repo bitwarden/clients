@@ -4,7 +4,7 @@
 >
   <ng-container *ngIf="collapsibleKey()">
     <button
-      class="tw-group/vault-section-header hover:tw-bg-primary-100 tw-rounded-md tw-pl-1 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
+      class="tw-group/vault-section-header hover:tw-bg-primary-100 tw-rounded-md tw-pl-1 tw-mb-0.5 tw-w-full tw-border-x-0 tw-border-t-0 tw-border-b tw-border-solid focus-visible:tw-outline-none focus-visible:tw-ring-inset focus-visible:tw-ring-2 focus-visible:tw-ring-primary-600"
       [ngClass]="{
         'tw-border-b-secondary-300 tw-rounded-b-none [&:is(:hover,:focus-visible)]:tw-border-b-transparent [&:is(:hover,:focus-visible)]:tw-rounded-b-md':
           !sectionOpenState(),
@@ -23,7 +23,7 @@
   </ng-container>
 
   <ng-container *ngIf="!collapsibleKey()">
-    <div class="tw-pl-1">
+    <div class="tw-pl-1 tw-mb-0.5">
       <ng-container *ngTemplateOutlet="sectionHeader"></ng-container>
     </div>
     <ng-container *ngTemplateOutlet="descriptionText"></ng-container>
@@ -56,15 +56,17 @@
         {{ ciphers().length }}
       </span>
       <span class="tw-pr-1" *ngIf="collapsibleKey()">
-        <i
-          class="bwi tw-text-main"
+        <bit-icon
+          [name]="sectionOpenState() ? 'bwi-angle-up' : 'bwi-angle-down'"
+          class="tw-text-main"
           [ngClass]="{
-            'bwi-angle-down tw-inline-block': !sectionOpenState(),
-            'bwi-angle-up tw-hidden group-hover/vault-section-header:tw-inline-block group-focus-visible/vault-section-header:tw-inline-block':
+            'tw-inline-block': !sectionOpenState(),
+            'tw-hidden group-hover/vault-section-header:tw-inline-block group-focus-visible/vault-section-header:tw-inline-block':
               sectionOpenState(),
           }"
           aria-hidden="true"
-        ></i>
+        >
+        </bit-icon>
       </span>
     </span>
   </bit-section-header>
@@ -122,11 +124,13 @@
                 [size]="'small'"
                 [appA11yTitle]="orgIconTooltip(cipher)"
               ></i>
-              <i
-                *ngIf="CipherViewLikeUtils.hasAttachments(cipher)"
-                class="bwi bwi-paperclip bwi-sm"
-                [appA11yTitle]="'attachments' | i18n"
-              ></i>
+              @if (CipherViewLikeUtils.hasAttachments(cipher)) {
+                <bit-icon
+                  name="bwi-paperclip"
+                  class="bwi-sm"
+                  [appA11yTitle]="'attachments' | i18n"
+                ></bit-icon>
+              }
             </div>
             <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
           </button>
@@ -137,7 +141,8 @@
                 <button
                   type="button"
                   (click)="doAutofill(cipher)"
-                  class="tw-opacity-0 tw-text-primary-600 tw-px-2 tw-bg-transparent tw-border-0 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
+                  class="tw-opacity-0 tw-text-primary-600 tw-font-semibold tw-px-2 tw-bg-transparent tw-border-0 group-hover/vault-item:tw-opacity-100 group-focus-within/vault-item:tw-opacity-100"
+                  bitTypography="body2"
                 >
                   {{ "fill" | i18n }}
                 </button>
