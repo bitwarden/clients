@@ -79,6 +79,7 @@ import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
+import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
@@ -297,6 +298,9 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "openChangePasswordDialog":
             this.dialogService.open(ChangePasswordDialogComponent);
+            break;
+          case "openDevicesDialog":
+            this.dialogService.open(DeviceManagementDialogComponent);
             break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
@@ -606,6 +610,10 @@ export class AppComponent implements OnInit, OnDestroy {
             // TODO: PM-32419 - remove multiClientPasswordManagement flag and logic once the feature is fully rolled out
             multiClientPasswordManagement: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
+            ),
+            // TODO: PM-34438 - remove desktopAddDevices flag read and MenuAccount field population
+            desktopAddDevices: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),
             ),
           };
         }
