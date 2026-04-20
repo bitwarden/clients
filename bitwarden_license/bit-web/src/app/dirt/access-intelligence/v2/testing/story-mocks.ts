@@ -42,6 +42,7 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     close: "Close",
     cancel: "Cancel",
     back: "Back",
+    all: "All",
 
     // --- Applications toolbar ---
     critical: (n: string | undefined) => `Critical (${n})`,
