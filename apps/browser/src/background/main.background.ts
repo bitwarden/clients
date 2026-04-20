@@ -38,6 +38,8 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LockService,
   LoginEmailServiceAbstraction,
+  DefaultLoginStrategyCacheService,
+  DefaultLoginStrategySessionTimeoutService,
   LogoutReason,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
@@ -1003,6 +1005,15 @@ export default class MainBackground {
       this.accountService,
     );
 
+    // Instantiated for its constructor side-effect: registers the login session timeout
+    // task handler with the task scheduler in the background
+    new DefaultLoginStrategySessionTimeoutService(
+      this.taskSchedulerService,
+      new DefaultLoginStrategyCacheService(this.globalStateProvider),
+      this.logService,
+      this.messagingService,
+      messageListener,
+    );
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
     );

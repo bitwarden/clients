@@ -62,9 +62,8 @@
               href="https://bitwarden.com/help/about-key-connector/"
               slot="end"
               bitLink
-            >
-              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-            </a>
+              startIcon="bwi-question-circle"
+            ></a>
           </bit-label>
           <bit-hint>
             {{ "memberDecryptionKeyConnectorDescStart" | i18n }}
@@ -265,16 +264,8 @@
             aria-controls="customizations"
             [attr.aria-expanded]="showOpenIdCustomizations"
             aria-labelledby="customizations-header"
-          >
-            <i
-              class="bwi"
-              aria-hidden="true"
-              [ngClass]="{
-                'bwi-angle-right': !showOpenIdCustomizations,
-                'bwi-angle-down': showOpenIdCustomizations,
-              }"
-            ></i>
-          </button>
+            [startIcon]="showOpenIdCustomizations ? 'bwi-angle-down' : 'bwi-angle-right'"
+          ></button>
         </div>
         <div id="customizations" [hidden]="!showOpenIdCustomizations">
           <bit-form-field>

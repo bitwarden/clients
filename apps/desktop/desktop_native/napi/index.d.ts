@@ -288,7 +288,8 @@ export declare namespace sshagent_v2 {
      * * `unlock_callback` - Allows agent to vault unlock
      * * `sign_callback` - Allows agent to get approval for sign requests
      */
-    static serve(unlockCallback: ((err: Error | null, ) => boolean), signCallback: ((err: Error | null, arg: SignRequestData) => boolean)): Promise<SshAgentState>
+    static serve(unlockCallback: () => Promise<boolean>,
+    signCallback: (data: SignRequestData) => Promise<boolean>): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
     setKeys(newKeys: Array<SshKeyData>): void

@@ -15,6 +15,7 @@ export type ActionButtonProps = {
   theme: Theme;
   handleClick: (e: Event) => void;
   fullWidth?: boolean;
+  title?: string;
 };
 
 export function ActionButton({
@@ -25,6 +26,7 @@ export function ActionButton({
   theme,
   handleClick,
   fullWidth = true,
+  title,
 }: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
     if (EventSecurity.isEventTrusted(event) && !disabled && !isLoading) {
@@ -36,7 +38,7 @@ export function ActionButton({
     <button
       class=${actionButtonStyles({ disabled, fullWidth, isLoading, theme })}
       data-testid="${dataTestId}"
-      title=${buttonText}
+      title=${title ?? buttonText}
       type="button"
       @click=${handleButtonClick}
     >

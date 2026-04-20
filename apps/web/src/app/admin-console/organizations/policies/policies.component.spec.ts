@@ -496,7 +496,9 @@ describe("PoliciesComponent", () => {
   });
 
   describe("edit", () => {
-    it("should call dialogService.open with correct parameters when no custom dialog is specified", () => {
+    it("should call dialogService.open with correct parameters when no custom dialog is specified", async () => {
+      mockConfigService.getFeatureFlag.mockResolvedValue(false);
+
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
         description: "Test Description",
@@ -510,7 +512,7 @@ describe("PoliciesComponent", () => {
 
       const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
 
-      component.edit(mockPolicy, mockOrg);
+      await component.edit(mockPolicy, mockOrg);
 
       expect(openSpy).toHaveBeenCalled();
       const callArgs = openSpy.mock.calls[0];
@@ -522,7 +524,9 @@ describe("PoliciesComponent", () => {
       });
     });
 
-    it("should call custom dialog open method when specified", () => {
+    it("should call custom dialog open method when specified", async () => {
+      mockConfigService.getFeatureFlag.mockResolvedValue(false);
+
       const mockDialogRef = { close: jest.fn() };
       const mockCustomDialog = {
         open: jest.fn().mockReturnValue(mockDialogRef),
@@ -540,7 +544,7 @@ describe("PoliciesComponent", () => {
         display$: () => of(true),
       };
 
-      component.edit(mockPolicy, mockOrg);
+      await component.edit(mockPolicy, mockOrg);
 
       expect(mockCustomDialog.open).toHaveBeenCalled();
       const callArgs = mockCustomDialog.open.mock.calls[0];
@@ -553,7 +557,9 @@ describe("PoliciesComponent", () => {
       expect(PolicyEditDialogComponent.open).not.toHaveBeenCalled();
     });
 
-    it("should pass organization to dialog", () => {
+    it("should pass organization to dialog", async () => {
+      mockConfigService.getFeatureFlag.mockResolvedValue(false);
+
       const customOrg = { id: newGuid() as OrganizationId, name: "Custom Org" } as Organization;
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
@@ -568,7 +574,7 @@ describe("PoliciesComponent", () => {
 
       const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
 
-      component.edit(mockPolicy, customOrg);
+      await component.edit(mockPolicy, customOrg);
 
       expect(openSpy).toHaveBeenCalled();
       const callArgs = openSpy.mock.calls[0];
@@ -578,6 +584,40 @@ describe("PoliciesComponent", () => {
           organization: customOrg,
         },
       });
+    });
+
+    it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
+      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+
+      const mockDrawerRef = { close: jest.fn() };
+      const mockDrawerDialog = {
+        open: jest.fn(),
+        openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
+      };
+
+      const mockPolicy: BasePolicyEditDefinition = {
+        name: "Drawer Policy",
+        description: "Drawer Description",
+        type: PolicyType.TwoFactorAuthentication,
+        category: PolicyCategory.Authentication,
+        priority: 10,
+        component: {} as any,
+        editDialogComponent: mockDrawerDialog as any,
+        showDescription: true,
+        display$: () => of(true),
+      };
+
+      await component.edit(mockPolicy, mockOrg);
+
+      expect(mockDrawerDialog.openDrawer).toHaveBeenCalled();
+      const callArgs = mockDrawerDialog.openDrawer.mock.calls[0];
+      expect(callArgs[1]).toEqual({
+        data: {
+          policy: mockPolicy,
+          organization: mockOrg,
+        },
+      });
+      expect(mockDrawerDialog.open).not.toHaveBeenCalled();
     });
   });
 });
