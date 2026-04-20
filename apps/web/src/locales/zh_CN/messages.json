@@ -12,7 +12,7 @@
     "message": "活动"
   },
   "criticalAppsAtRisk": {
-    "message": "关键 App 存在风险"
+    "message": "存在风险的关键 App"
   },
   "allCriticalApps": {
     "message": "所有关键 App"
@@ -24,7 +24,7 @@
     "message": "关键应用程序"
   },
   "noCriticalAppsAtRisk": {
-    "message": "没有关键应用程序存在风险"
+    "message": "没有存在风险的关键应用程序"
   },
   "critical": {
     "message": "关键 ($COUNT$)",
@@ -60,10 +60,10 @@
     "message": "密码"
   },
   "riskOverTime": {
-    "message": "随时间变化的风险"
+    "message": "随时间推移的风险趋势"
   },
   "passwordsAtRisk": {
-    "message": "密码存在风险"
+    "message": "存在风险的密码"
   },
   "noEditPermissions": {
     "message": "您没有编辑此项目的权限"
@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "显示匹配检测"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "隐藏匹配检测"
+  },
   "autoFillOnPageLoad": {
     "message": "页面加载时自动填充吗？"
   },
@@ -752,10 +758,13 @@
     "message": "无缝两步验证"
   },
   "totpHelper": {
-    "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。复制并粘贴密钥到此字段中。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或复制并粘贴密钥到此字段中。"
+  },
+  "totpCapture": {
+    "message": "从当前网页扫描验证器二维码"
   },
   "learnMoreAboutAuthenticators": {
     "message": "进一步了解验证器"
@@ -922,7 +931,7 @@
     "message": "搜索文件夹"
   },
   "searchFavorites": {
-    "message": "搜索收藏"
+    "message": "搜索收藏夹"
   },
   "searchLogin": {
     "message": "搜索登录",
@@ -987,6 +996,27 @@
   },
   "typeSshKey": {
     "message": "SSH 密钥"
+  },
+  "typeLoginSubtitle": {
+    "message": "网站或 App"
+  },
+  "typeCardSubtitle": {
+    "message": "信用卡或借记卡"
+  },
+  "typeIdentitySubtitle": {
+    "message": "个人信息"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要的文本"
+  },
+  "typeSshKeySubtitle": {
+    "message": "服务器登录令牌"
+  },
+  "folderSubtitle": {
+    "message": "组织您的项目"
+  },
+  "collectionSubtitle": {
+    "message": "组织共享的项目"
   },
   "typeLoginPlural": {
     "message": "登录"
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "添加项目"
+  },
+  "chooseItemToAdd": {
+    "message": "选择要添加的项目"
   },
   "editItem": {
     "message": "编辑项目"
@@ -1721,7 +1754,7 @@
     "message": "必须填写主密码。"
   },
   "confirmMasterPasswordRequired": {
-    "message": "必须再次输入主密码。"
+    "message": "必须填写确认主密码。"
   },
   "masterPasswordMinlength": {
     "message": "主密码长度必须至少为 $VALUE$ 个字符。",
@@ -1894,7 +1927,7 @@
     "message": "通知已发送到您的设备"
   },
   "versionNumber": {
-    "message": "版本: $VERSION_NUMBER$",
+    "message": "版本 $VERSION_NUMBER$",
     "placeholders": {
       "version_number": {
         "content": "$1",
@@ -2551,7 +2584,7 @@
     "message": "域名规则"
   },
   "domainRulesDesc": {
-    "message": "如果您在多个不同网站域名中使用同一个登录信息，您可以把这些网站标记为「等效」。「全局」域名是由 Bitwarden 为您预先创建的域名。"
+    "message": "如果您在多个不同网站域名中使用同一个登录，您可以把这些网站标记为「等效」。「全局」域名是由 Bitwarden 为您预先创建的域名。"
   },
   "globalEqDomains": {
     "message": "全局等效域名"
@@ -2698,13 +2731,13 @@
     "message": "撤销"
   },
   "twoStepLoginProviderEnabled": {
-    "message": "您的账户已启用此两步登录提供程序。"
+    "message": "您的账户已激活此两步登录提供程序。"
   },
   "twoStepLoginAuthDesc": {
     "message": "输入您的主密码以修改两步登录设置。"
   },
   "twoStepAuthenticatorInstructionPrefix": {
-    "message": "下载验证器 App，例如："
+    "message": "下载验证器 App，例如"
   },
   "twoStepAuthenticatorInstructionInfix1": {
     "message": "，"
@@ -2907,7 +2940,7 @@
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "orgsReportsDesc": {
-    "message": "点击下面的报告，找出并消除您的组织账户中的安全漏洞。",
+    "message": "点击下面的报告，识别并消除您的组织账户中的安全漏洞。",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -3156,7 +3189,7 @@
     "message": "付款处理完毕后，添加的信用额度将出现在您的账户上。某些付款方式会延迟，并且可能比其他方式需要更长的时间来处理。"
   },
   "makeSureEnoughCredit": {
-    "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
+    "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您存档的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
   },
   "notEnoughAccountCredit": {
     "message": "您没有足够的账户信用额度来用于此购买。您可以从「计费」页面向您的账户添加信用额度。"
@@ -3187,7 +3220,7 @@
     }
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
+    "message": "专有的两步登录选项，例如 YubiKey 和 Duo。"
   },
   "premiumSignUpEmergency": {
     "message": "紧急访问"
@@ -3321,7 +3354,7 @@
     }
   },
   "paymentChargedWithUnpaidSubscription": {
-    "message": "任何未付费订阅都将通过您的付款方式收取费用。"
+    "message": "任何未支付的订阅都将通过您的付款方式扣款。"
   },
   "paymentChargedWithTrial": {
     "message": "您的方案包含了 7 天的免费试用。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
@@ -3501,13 +3534,13 @@
     }
   },
   "gbStorageAdd": {
-    "message": "GB 存储空间将增加"
+    "message": "要添加的存储空间 (GB)"
   },
   "gbStorageRemove": {
-    "message": "GB 存储空间将移除"
+    "message": "要移除的存储空间 (GB)"
   },
   "storageAddNote": {
-    "message": "添加存储空间将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
+    "message": "添加存储空间将会调整计费总金额，并立即通过您存档的付款方式扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "storageRemoveNote": {
     "message": "移除存储空间将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
@@ -3773,7 +3806,7 @@
     "message": "每年"
   },
   "basePrice": {
-    "message": "基本价格"
+    "message": "基础价格"
   },
   "organizationCreated": {
     "message": "组织已创建"
@@ -3857,10 +3890,10 @@
     "message": "确定要移除此用户吗？"
   },
   "removeOrgUserConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
+    "message": "成员被移除后，他们将不再拥有组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
   },
   "revokeUserConfirmation": {
-    "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复此成员的访问权限，请转到「已撤销」标签页。"
+    "message": "成员被撤销后，他们将不再拥有组织数据的访问权限。要快速恢复此成员的访问权限，请前往「已撤销」选项卡。"
   },
   "removeUserConfirmationKeyConnector": {
     "message": "警告！此用户需要 Key Connector 来管理他们的加密。从您的组织中移除此用户将永久停用他们的账户。此操作无法撤消。要继续吗？"
@@ -3908,7 +3941,7 @@
     "message": "编辑成员"
   },
   "fieldOnTabRequiresAttention": {
-    "message": "「$TAB$」标签页上的字段需要您注意。",
+    "message": "「$TAB$」选项卡上的字段需要您注意。",
     "placeholders": {
       "tab": {
         "content": "$1",
@@ -4459,6 +4492,24 @@
   },
   "loginStatus": {
     "message": "登录状态"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "firstLogin": {
     "message": "首次登录"
@@ -5072,7 +5123,7 @@
     "message": "要移除的席位数"
   },
   "seatsAddNote": {
-    "message": "添加用户席位将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
+    "message": "添加用户席位将会调整计费总金额，并立即通过您存档的付款方式扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "seatsRemoveNote": {
     "message": "移除用户席位将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "随时。"
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "若继续，表示您同意"
@@ -5620,7 +5677,7 @@
     "message": "企业单点登录"
   },
   "ssoHandOff": {
-    "message": "您现在可以在扩展中关闭此标签页并继续。"
+    "message": "您现在可以关闭此标签页然后在扩展中继续。"
   },
   "youSuccessfullyLoggedIn": {
     "message": "您已成功登录"
@@ -6069,7 +6126,7 @@
     "message": "集中化组织所有权"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "所有成员项目都将由组织拥有和管理。管理员和所有者不受此约束。"
+    "message": "所有成员项目都将由组织拥有和管理。管理员和所有者不受此策略的约束。"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "进一步了解集中化所有权",
@@ -6085,7 +6142,7 @@
     "message": "在成员离职或岗位交接时，轻松转移项目，确保不会出现访问空档。"
   },
   "centralizeDataOwnershipBenefit3": {
-    "message": "为所有用户提供一个专用的「我的项目」空间，用于管理他们自己的登录信息。"
+    "message": "为所有用户提供一个专用的「我的项目」空间，用于管理他们自己的登录。"
   },
   "centralizeDataOwnershipWarningTitle": {
     "message": "提示成员转移他们的项目"
@@ -6276,7 +6333,7 @@
     "message": "默认 URI 匹配检测"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "确定何时建议登录用于自动填充。管理员和所有者不受此策略的约束。"
+    "message": "确定何时将登录建议用于自动填充。管理员和所有者不受此策略的约束。"
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "默认 URI 匹配检测"
@@ -6376,10 +6433,10 @@
     }
   },
   "personalOwnershipPolicyInEffect": {
-    "message": "组织策略正在影响您的所有权选项。"
+    "message": "某个组织策略正影响您的所有权选项。"
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "组织策略已阻止将项目导入您的个人密码库。"
+    "message": "某个组织策略已阻止将项目导入您的个人密码库。"
   },
   "personalOwnershipCheckboxDesc": {
     "message": "禁用组织用户的个人所有权"
@@ -6737,10 +6794,10 @@
     "message": "确定要移除以下用户吗？该过程可能需要几秒钟才能完成，并且不能中断或取消。"
   },
   "removeOrgUsersConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
+    "message": "成员被移除后，他们将不再拥有组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
   },
   "revokeUsersWarning": {
-    "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复成员的访问权限，请转到「已撤销」标签页。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
+    "message": "成员被撤销后，他们将不再拥有组织数据的访问权限。要快速恢复此成员的访问权限，请前往「已撤销」选项卡。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
   },
   "theme": {
     "message": "主题"
@@ -7080,6 +7137,9 @@
   "sessionTimeoutAction": {
     "message": "会话超时动作"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "由 Bitwarden 浏览器扩展 App 管理。打开浏览器 App 进行编辑。"
+  },
   "immediately": {
     "message": "立即"
   },
@@ -7108,7 +7168,7 @@
     "message": "「系统锁定时」只适用于浏览器和桌面 App"
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
-    "message": "由于不支持该选项，移动端和网页 App 将使用「App 重启时」作为其最大允许的超时。"
+    "message": "由于移动端和网页 App 不支持该选项，将使用「App 重启时」作为其最大允许的超时。"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
@@ -7691,10 +7751,10 @@
     "message": "自动同步将解锁家庭版赞助功能，并允许您同步许可证而无需上传文件。在 Bitwarden 云服务器中进行更新后，选择「同步许可证」以应用更改。"
   },
   "active": {
-    "message": "已生效"
+    "message": "已激活"
   },
   "inactive": {
-    "message": "已失效"
+    "message": "未激活"
   },
   "sentAwaitingSync": {
     "message": "已发送（等待同步）"
@@ -7827,7 +7887,7 @@
     "message": "访问被拒绝。您没有权限查看此页面。"
   },
   "noPageAccess": {
-    "message": "您没有访问该页面的权限"
+    "message": "您没有该页面的访问权限"
   },
   "masterPassword": {
     "message": "主密码"
@@ -8267,7 +8327,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
-    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "message": "仅允许一个此类型 ($TYPE$) 的集成。存在冲突的集成是：$NAME$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8280,7 +8340,7 @@
     }
   },
   "anotherIntegrationWithSameTypeExists": {
-    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "message": "已存在同类型 ($TYPE$) 的其他集成。请刷新浏览器然后重试。",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8406,7 +8466,7 @@
     "message": "成员"
   },
   "membersAtRisk": {
-    "message": "成员存在风险"
+    "message": "存在风险的成员"
   },
   "reporting": {
     "message": "报告"
@@ -8971,7 +9031,7 @@
     "message": "DNS TXT 记录"
   },
   "dnsTxtRecordInputHint": {
-    "message": "复制并粘贴 TXT 记录到您的 DNS 提供商。"
+    "message": "复制并粘贴 TXT 记录到您的 DNS 提供程序中。"
   },
   "removeDomain": {
     "message": "移除域名"
@@ -10197,7 +10257,7 @@
     "message": "安装浏览器扩展"
   },
   "installBrowserExtensionDetails": {
-    "message": "使用扩展快速保存登录信息以及自动填充表单，而无需打开网页 App。"
+    "message": "使用扩展快速保存登录以及自动填充表单，而无需打开网页 App。"
   },
   "projectAccessUpdated": {
     "message": "工程访问权限已更新"
@@ -11105,7 +11165,7 @@
     "message": "成员访问权限"
   },
   "memberAccessReportDesc": {
-    "message": "确保成员具有对合适的凭据的访问权限，以及他们的账户是安全的。使用此报告获取包含会员访问权限和账户配置的 CSV 文件 。"
+    "message": "确保成员拥有对合适的凭据的访问权限，以及他们的账户是安全的。使用此报告获取包含会员访问权限和账户配置的 CSV 文件 。"
   },
   "memberAccessReportPageDesc": {
     "message": "审计组织成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
@@ -11293,7 +11353,7 @@
     "message": "进一步了解主密码重新提示"
   },
   "learnMoreAboutSearchingYourVault": {
-    "message": "进一步了解搜索密码库"
+    "message": "进一步了解关于搜索密码库"
   },
   "learnMoreAboutYourAccountFingerprintPhrase": {
     "message": "了解您的账户指纹短语"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "您的订阅即将续期。为确保服务不会中断，请在 $RENEWAL_DATE$ 之前联系您的 Bitwarden 提供商确认您的续订。",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "您的订阅账单已于 $ISSUED_DATE$ 开具。为确保服务不会中断，请在 $DUE_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "您的订阅账单尚未支付。为确保服务不会中断，请在 $GRACE_PERIOD_END$ 之前联系您的 Bitwarden 提供商。",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -12195,7 +12273,7 @@
     "message": "使用身份，快速自动填充冗长的注册或联系表单。"
   },
   "newNoteNudgeTitle": {
-    "message": "保持您的敏感数据的安全"
+    "message": "保护您的敏感数据的安全"
   },
   "newNoteNudgeBody": {
     "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
@@ -13053,7 +13131,7 @@
     "message": "获取扩展以轻松访问密码库"
   },
   "extensionPromptBody": {
-    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，让您只需单击一下即可登录您的账户。"
+    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填充密码，只需单击一下即可登录您的账户。"
   },
   "extensionPromptImageAlt": {
     "message": "一个显示 Bitwarden 扩展的网页浏览器，该扩展为当前网页提供了自动填充项目。"
@@ -13077,6 +13155,9 @@
     "message": "输入多个电子邮箱（使用逗号分隔）。"
   },
   "emailPlaceholder": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
@@ -13217,7 +13298,7 @@
     "message": "快速导入您的密码"
   },
   "coachmarkImportDescription": {
-    "message": "您以前用过密码管理器吗？您可以将现有的登录信息和其他数据的 CSV 文件导入到您的密码库中。"
+    "message": "您以前拥有过密码管理器吗？您可以将包含现有登录和其他数据的 CSV 文件导入您的密码库。"
   },
   "coachmarkAddItemTitle": {
     "message": "添加项目"
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
   }
 }

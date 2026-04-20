@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını göstər"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Uyuşma aşkarlamasını gizlət"
+  },
   "autoFillOnPageLoad": {
     "message": "Səhifə yüklənəndə avto-doldurulsun?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden, 2 addımlı doğrulama kodlarını saxlaya və doldura bilər. Bu veb sayt kimlik doğrulayıcı QR kodunun ekran şəklini çəkmək üçün kamera ikonunu seçin, ya da açarı kopyalayıb bu xanaya yapışdırın."
+  },
+  "totpCapture": {
+    "message": "Hazırkı veb sahifədən kimlik doğrulayıcı QR kodunu skan et"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Kimlik doğrulayıcılar haqqında daha ətraflı"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH açarı"
   },
+  "typeLoginSubtitle": {
+    "message": "Veb sayt və ya tətbiq"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit və ya debet kart"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Fərdi məlumatlar"
+  },
+  "typeNoteSubtitle": {
+    "message": "Mühüm mətn"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server giriş tokeni"
+  },
+  "folderSubtitle": {
+    "message": "Elementlərinizi təşkil edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan elementləri təşkil edin"
+  },
   "typeLoginPlural": {
     "message": "Girişlər"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Element əlavə et"
+  },
+  "chooseItemToAdd": {
+    "message": "Əlavə olunacaq elementi seç"
   },
   "editItem": {
     "message": "Elementə düzəliş et"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Giriş statusu"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "İlk giriş"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "istənilən vaxt."
+  },
+  "byEmail": {
+    "message": "E-poçt ilə"
+  },
+  "byLink": {
+    "message": "Keçidlə"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Davam edərək, bunlarla razılaşırsınız"
@@ -6620,7 +6677,7 @@
     }
   },
   "eventAdminResetTwoFactor": {
-    "message": "Two-step login reset for user $ID$.",
+    "message": "$ID$ istifadəçisi üçün iki addımlı girişi sıfırlama.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Seans vaxt bitmə əməliyyatı"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "Dərhal"
@@ -8232,7 +8292,7 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "viewScimApiKey": {
-    "message": "View the SCIM API key",
+    "message": "SCIM API açarına bax",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
@@ -8267,7 +8327,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
-    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "message": "Bu növdə ($TYPE$) olan yalnız bir inteqrasiyaya icazə verilir. Ziddiyyətli inteqrasiya: $NAME$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8280,7 +8340,7 @@
     }
   },
   "anotherIntegrationWithSameTypeExists": {
-    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "message": "Eyni növdə ($TYPE$) başqa bir inteqrasiya artıq mövcuddur. Brauzeri təzələyin və yenidən sınayın.",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -9755,28 +9815,28 @@
     "message": "Hesabı geri qaytar"
   },
   "recoverAccountWarning": {
-    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+    "message": "Bu üzvün parolunu və ya iki addımlı girişini sıfırladığınız zaman, ona dəyişiklik barədə məlumat veriləcək və hesabdan çıxarılacaq."
   },
   "accountRecoveryPolicyDescV2": {
-    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+    "message": "Ana parol, iki addımlı giriş və ya güvənilən cihazlar unudulduğu və ya itdiyi zaman hesabları geri qaytar."
   },
   "accountRecoveryPolicyWarningV2": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+    "message": "Ana parolu olan mövcud hesablarda, inzibatçıların öz hesablarını geri qaytara bilməsi üçün üzvlərin özlərini qeydiyyatdan keçirməsi tələb olunacaq."
   },
   "resetPasswordPolicyAutoEnrollCheckboxV2": {
-    "message": "Automatically enroll new members in account recovery"
+    "message": "Yeni üzvləri avtomatik olaraq hesabın geri qaytarılmasına yazdır"
   },
   "resetMasterPassword": {
-    "message": "Reset master password"
+    "message": "Ana parolu sıfırla"
   },
   "resetTwoStepLogin": {
-    "message": "Reset two-step login"
+    "message": "İki addımlı girişi sıfırla"
   },
   "resetTwoStepLoginDesc": {
-    "message": "The member's access will be revoked until they set up two-step login"
+    "message": "İki addımlı girişi qurana qədər üzvün erişimi ləğv ediləcək"
   },
   "recoverAccountSuccess": {
-    "message": "Account recovery success!"
+    "message": "Hesabın geri qaytarılması uğurlu oldu!"
   },
   "updatedTempPassword": {
     "message": "İstifadəçi, hesab geri qaytarılması vasitəsilə verilən bir parolu güncəllədi."
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Abunəliyinizə aid faktura $ISSUED_DATE$ tarixində təqdim edildi. Kəsintisiz xidməti təmin etmək və yeniləməni $DUE_DATE$ tarixindən əvvəl təsdiqləmək üçün $RESELLER$ ilə əlaqə saxlayın.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Anbar sahəsini xaric etdiyiniz zaman, növbəti hesabınıza avtomatik olaraq köçürüləcək mütənasib hesab krediti alacaqsınız."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Bu yüksəltmə üçün bank hesabınızın doğrulanması lazımdır. Lütfən bank hesabınızı doğrulayın və ya fərqli bir ödəniş üsulu seçin."
   }
 }

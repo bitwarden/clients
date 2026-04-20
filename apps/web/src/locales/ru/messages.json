@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показать обнаружение совпадений"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скрыть обнаружение совпадений"
+  },
   "autoFillOnPageLoad": {
     "message": "Автозаполнение при загрузке страницы?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden может хранить и заполнять коды двухэтапной аутентификации. Выберите значок камеры, чтобы сделать скриншот QR-кода этого сайта, или скопируйте и вставьте ключ в это поле."
+  },
+  "totpCapture": {
+    "message": "Сканировать QR-код аутентификатора с текущей веб-страницы"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Узнайте больше об аутентификаторах"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Веб-сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитная или дебетовая карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Личная информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важный текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Токен входа на сервер"
+  },
+  "folderSubtitle": {
+    "message": "Организуйте свои элементы"
+  },
+  "collectionSubtitle": {
+    "message": "Организуйте общие элементы"
+  },
   "typeLoginPlural": {
     "message": "Логины"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Добавить элемент"
+  },
+  "chooseItemToAdd": {
+    "message": "Выберите элемент для добавления"
   },
   "editItem": {
     "message": "Изменение элемента"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Статус авторизации"
   },
+  "recentlyActive": {
+    "message": "Недавняя активность"
+  },
+  "recentlyActiveToday": {
+    "message": "Сегодня"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Последние 7 дней"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Последние 14 дней"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Последние 30 дней"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Более 30 дней назад"
+  },
   "firstLogin": {
     "message": "Первый вход"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "в любое время."
+  },
+  "byEmail": {
+    "message": "По email"
+  },
+  "byLink": {
+    "message": "По ссылке"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Продолжая, вы соглашаетесь с"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Действие при тайм-ауте сессии"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Управление осуществляется через расширение Bitwarden для браузера. Для изменения откройте приложение в браузере."
   },
   "immediately": {
     "message": "Немедленно"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Ваша подписка скоро будет продлена. Чтобы обеспечить непрерывность сервиса, свяжитесь с вашим провайдером Bitwarden и подтвердите продление до $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Счет за вашу подписку был выставлен $ISSUED_DATE$. Чтобы обеспечить непрерывность сервиса, свяжитесь с $RESELLER$, чтобы подтвердить продление подписки до $DUE_DATE$.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "Счет за вашу подписку не оплачен. Чтобы обеспечить бесперебойную работу сервиса, свяжитесь с вашим провайдером Bitwarden до $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "При удалении хранилища вы получите пропорциональную сумму на свой счет, которая автоматически пойдет на оплату вашего следующего счета."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Прежде чем использовать этот способ оплаты, необходимо подтвердить ваш банковский счет. Пожалуйста, подтвердите его, либо выберите другой способ оплаты."
   }
 }

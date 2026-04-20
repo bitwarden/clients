@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "autoFillOnPageLoad": {
     "message": "要在頁面載入時自動填寫嗎？"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden 可以儲存並填入兩步驟驗證碼。選擇相機圖示來截取此網站的驗證器QR code，或手動複製金鑰並貼上到此欄位。"
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
     "message": "瞭解更多關於驗證器的資訊"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH 金鑰"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "登入資料"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "新增項目"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "編輯項目"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "登入狀態"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "首次登入"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "於任何時間。"
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "若是繼續，則代表您同意"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "工作階段逾時動作"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "立即"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "你的訂閱已於 $ISSUED_DATE$ 開立發票。為確保服務不中斷，請於 $DUE_DATE$ 前聯絡 $RESELLER$ 確認續約。",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "當您移除儲存空間時，將會獲得按比例計算的帳戶抵扣金額，並自動套用至下一期帳單。"
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

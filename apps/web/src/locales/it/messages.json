@@ -3,10 +3,10 @@
     "message": "Tutte le applicazioni"
   },
   "allMembers": {
-    "message": "All members"
+    "message": "Tutti i membri"
   },
   "allPasswords": {
-    "message": "All passwords"
+    "message": "Tutte le password"
   },
   "activity": {
     "message": "Attività"
@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "autoFillOnPageLoad": {
     "message": "Riempi automaticamente al caricamento della pagina?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden può memorizzare e autocompletare codici di verifica 2FA. Selezionare l'icona della fotocamera per creare uno screenshot del codice QR dell'autenticatore di questo sito web, oppure copia e incolla la chiave in questo campo."
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Ulteriori informazioni sugli autenticatori"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "Chiave SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "Login"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Aggiungi elemento"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "Modifica elemento"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Stato accesso"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "Primo accesso"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "in qualsiasi momento."
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Continuando accetti le"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Azione al timeout della sessione"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "Subito"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "La ricevuta per l'abbonamento è stata emessa il $ISSUED_DATE$. Per assicurarti un servizio continuativo, contatta $RESELLER$ e conferma il tuo rinnovo prima del $DUE_DATE$.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Quando rimuovi spazio di archiviazione, riceverai un credito che sarà automaticamente applicato al tuo prossimo pagamento."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

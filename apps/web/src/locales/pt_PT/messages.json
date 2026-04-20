@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar deteção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar deteção de correspondência"
+  },
   "autoFillOnPageLoad": {
     "message": "Preencher automaticamente ao carregar a página?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "O Bitwarden pode armazenar e preencher códigos de verificação de dois passos. Selecione o ícone da câmara para tirar uma captura de ecrã do código QR do autenticador deste site ou copie e cole a chave neste campo."
+  },
+  "totpCapture": {
+    "message": "Digitalize o código QR do autenticador a partir da página Web atual"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Saiba mais sobre os autenticadores"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Site ou app"
+  },
+  "typeCardSubtitle": {
+    "message": "Cartão de crédito ou débito"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informações pessoais"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texto importante"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Token de início de sessão no servidor"
+  },
+  "folderSubtitle": {
+    "message": "Organize os seus itens"
+  },
+  "collectionSubtitle": {
+    "message": "Organize itens partilhados"
+  },
   "typeLoginPlural": {
     "message": "Credenciais"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Adicionar item"
+  },
+  "chooseItemToAdd": {
+    "message": "Escolher item a adicionar"
   },
   "editItem": {
     "message": "Editar item"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Estado do início de sessão"
   },
+  "recentlyActive": {
+    "message": "Ativo recentemente"
+  },
+  "recentlyActiveToday": {
+    "message": "Hoje"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Últimos 7 dias"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Últimos 14 dias"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Últimos 30 dias"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Há mais de 30 dias"
+  },
   "firstLogin": {
     "message": "Primeiro início de sessão"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "a qualquer altura."
+  },
+  "byEmail": {
+    "message": "Por e-mail"
+  },
+  "byLink": {
+    "message": "Por link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ao continuar, concorda com os"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Ação de tempo limite da sessão"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Gerido pela extensão do navegador Bitwarden. Abra a app do navegador para editar."
   },
   "immediately": {
     "message": "Imediatamente"
@@ -10449,7 +10509,7 @@
     "description": "A subscription status label."
   },
   "pastDue": {
-    "message": "Vencida",
+    "message": "Caducada",
     "description": "A subscription status label"
   },
   "subscriptionExpired": {
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "A sua subscrição será renovada em breve. Para garantir um serviço ininterrupto, contacte o seu fornecedor do Bitwarden para confirmar a renovação antes de $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "A fatura da sua subscrição foi emitida a $ISSUED_DATE$. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $DUE_DATE$.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "A fatura da sua subscrição não foi paga. Para garantir a continuidade do serviço, contacte o seu fornecedor do Bitwarden para confirmar a sua renovação antes de $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "utilizador@bitwarden.com, utilizador@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Ao remover espaço de armazenamento, receberá um crédito proporcional na conta, que será automaticamente aplicado na sua próxima fatura."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "A sua conta bancária tem de ser verificada antes de poder ser utilizada para esta atualização. Por favei, verifique a sua conta bancária ou escolha outro método de pagamento."
   }
 }

@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "autoFillOnPageLoad": {
     "message": "Preencher ao carregar a página?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "O Bitwarden pode armazenar e preencher códigos de verificação em 2 etapas. Selecione o ícone da câmera e tire uma captura de tela do código QR do autenticador nesse site, ou copie e cole a chave nesse campo."
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Saiba mais sobre autenticadores"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "Credenciais"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Adicionar item"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "Editar item"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Estado de autenticação"
   },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
   "firstLogin": {
     "message": "Primeiro acesso"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "a qualquer momento."
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ao continuar, você concorda com os"
@@ -7079,6 +7136,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Ação do limite de tempo da sessão"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "Imediatamente"
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Uma fatura para sua assinatura foi emitida em $ISSUED_DATE$. Para garantir o serviço sem interrupções, entre em contato com $RESELLER$ para confirmar a sua renovação antes de $DUE_DATE$.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "usuário@bitwarden.com , usuário@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Quando você remover o armazenamento, você receberá um crédito de conta proporcional que irá automaticamente para sua próxima fatura."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   }
 }

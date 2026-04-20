@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
+  },
   "autoFillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden einer Seite?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden kann Zwei-Faktor-Authentifizierungsscodes speichern und ausfüllen. Wähle das Kamerasymbol aus, um einen Screenshot des Authenticator-QR-Codes dieser Website zu machen oder kopiere und füge den Schlüssel in dieses Feld ein."
+  },
+  "totpCapture": {
+    "message": "Den Authenticator-QR-Code von der aktuellen Website scannen"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Erfahre mehr über Authenticator-Apps"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "typeLoginSubtitle": {
+    "message": "Website oder App"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit- oder Debitkarte"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Persönliche Informationen"
+  },
+  "typeNoteSubtitle": {
+    "message": "Wichtiger Text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server-Anmeldetoken"
+  },
+  "folderSubtitle": {
+    "message": "Organisiere deine Einträge"
+  },
+  "collectionSubtitle": {
+    "message": "Geteilte Einträge organisieren"
+  },
   "typeLoginPlural": {
     "message": "Zugangsdaten"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "Eintrag hinzufügen"
+  },
+  "chooseItemToAdd": {
+    "message": "Wähle einen Eintrag zum Hinzufügen aus"
   },
   "editItem": {
     "message": "Eintrag bearbeiten"
@@ -4460,6 +4493,24 @@
   "loginStatus": {
     "message": "Anmeldestatus"
   },
+  "recentlyActive": {
+    "message": "Kürzlich aktiv"
+  },
+  "recentlyActiveToday": {
+    "message": "Heute"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Letzte 7 Tage"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Letzte 14 Tage"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Letzte 30 Tage"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Vor mehr als 30 Tagen"
+  },
   "firstLogin": {
     "message": "Erste Anmeldung"
   },
@@ -5185,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "jederzeit."
+  },
+  "byEmail": {
+    "message": "Per E-Mail"
+  },
+  "byLink": {
+    "message": "Über einen Link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Indem du fortfährst, stimmst du den"
@@ -7080,6 +7137,9 @@
   "sessionTimeoutAction": {
     "message": "Aktion bei Sitzungs-Timeout"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Verwaltet von der Bitwarden Browser-Erweiterungsapp. Öffne die Browser-App zum Bearbeiten."
+  },
   "immediately": {
     "message": "Sofort"
   },
@@ -8267,7 +8327,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
-    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "message": "Es ist nur eine Integration dieses Typs ($TYPE$) zulässig. Die in Konflikt stehende Integration ist: $NAME$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8280,7 +8340,7 @@
     }
   },
   "anotherIntegrationWithSameTypeExists": {
-    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "message": "Es gibt bereits eine andere Integration desselben Typs ($TYPE$). Aktualisiere den Browser und versuche es erneut.",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -11918,6 +11978,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Dein Abonnement wird sich in Kürze erneuern. Um eine unterbrechungsfreie Nutzung zu gewährleisten, wende dich bitte vor dem $RENEWAL_DATE$ an deinen Bitwarden-Anbieter, um die Verlängerung zu bestätigen.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Eine Rechnung für dein Abonnement wurde am $ISSUED_DATE$ ausgestellt. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$, um deine Verlängerung vor dem $DUE_DATE$ zu bestätigen.",
     "placeholders": {
@@ -11944,6 +12013,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "Die Rechnung für dein Abonnement wurde nicht bezahlt. Um eine unterbrechungsfreie Nutzung zu gewährleisten, kontaktiere deinen Bitwarden-Anbieter vor dem $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13157,9 @@
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wenn du Speicherplatz entfernst, erhältst du eine anteilige Gutschrift, die automatisch mit deiner nächsten Rechnung verrechnet wird."
   },
@@ -13249,5 +13330,8 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Dein Bankkonto muss verifiziert werden, bevor es für dieses Upgrade verwendet werden kann. Bitte verifiziere dein Bankkonto oder wähle eine andere Zahlungsmethode."
   }
 }
