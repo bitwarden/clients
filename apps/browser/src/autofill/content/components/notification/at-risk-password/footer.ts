@@ -11,24 +11,22 @@ import { spacing } from "../../constants/styles";
 export type AtRiskNotificationFooterProps = {
   i18n: I18n;
   theme: Theme;
-  passwordChangeUri: string;
+  handleChangePasswordClick: (e: Event) => void;
 };
 
 export function AtRiskNotificationFooter({
   i18n,
   theme,
-  passwordChangeUri,
+  handleChangePasswordClick,
 }: AtRiskNotificationFooterProps) {
   return html`<div class=${atRiskNotificationFooterStyles}>
-    ${passwordChangeUri &&
-    ActionButton({
-      handleClick: () => {
-        open(passwordChangeUri, "_blank");
-      },
+    ${ActionButton({
+      handleClick: handleChangePasswordClick,
       buttonText: AdditionalTasksButtonContent({ buttonText: i18n.changePassword, theme }),
       dataTestId: "change-password-button",
       theme,
       fullWidth: false,
+      title: i18n.changePassword,
     })}
   </div>`;
 }

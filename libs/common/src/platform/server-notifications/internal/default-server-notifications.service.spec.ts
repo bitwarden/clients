@@ -80,7 +80,7 @@ describe("NotificationsService", () => {
     autoConfirmService = mock<AutomaticUserConfirmationService>();
 
     // For these tests, use the active-user implementation (feature flag disabled)
-    configService.getFeatureFlag$.mockImplementation(() => of(true));
+    configService.getFeatureFlag$.mockReturnValue(of(true));
 
     activeAccount = new BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>(null);
     accountService.activeAccount$ = activeAccount.asObservable();

@@ -15,9 +15,7 @@ import { PreValidateSponsorshipResponse } from "@bitwarden/common/admin-console/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanSponsorshipType, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -59,7 +57,6 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
-    private configService: ConfigService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
     private apiService: ApiService,
@@ -120,12 +117,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
         this.badToken = !this.preValidateSponsorshipResponse.isTokenValid;
       }
 
-      const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM26462_Milestone_3,
-      );
-      this.familyPlan = milestone3FeatureEnabled
-        ? PlanType.FamiliesAnnually
-        : PlanType.FamiliesAnnually2025;
+      this.familyPlan = PlanType.FamiliesAnnually;
 
       this.loading = false;
     });

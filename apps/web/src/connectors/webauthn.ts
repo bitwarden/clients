@@ -1,6 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { b64Decode, buildMobileDeeplinkUriFromParam, getQsParam, navigateToUrl } from "./common";
+import {
+  b64Decode,
+  buildMobileDeeplinkUriFromParam,
+  getQsParam,
+  isKnownCloudOrigin,
+  navigateToUrl,
+  resolvePostMessageOrigin,
+} from "./common";
 import { buildDataString, parseWebauthnJson } from "./common-webauthn";
 
 const mobileCallbackUri = "bitwarden://webauthn-callback";
@@ -32,6 +39,7 @@ let btnAwaitingInteractionText: string = null;
 let btnReturnText: string = null;
 let parentUrl: string = null;
 let parentOrigin: string = null;
+let postMessageOrigin: string = null;
 let callbackUri: string = null;
 let mobileResponse = false;
 let stopWebAuthn = false;
@@ -108,6 +116,7 @@ function parseParameters() {
     parentUrl = decodeURIComponent(parentUrl);
     parentOrigin = new URL(parentUrl).origin;
   }
+  postMessageOrigin = resolvePostMessageOrigin(parentUrl);
 
   const version = getQsParam("v");
 
@@ -227,7 +236,13 @@ function onMessage() {
   window.addEventListener(
     "message",
     (event) => {
-      if (parentOrigin && (!event.origin || event.origin === "" || event.origin !== parentOrigin)) {
+      const isFileParent = parentUrl && parentUrl.startsWith("file:");
+      const expectedOrigin =
+        !isFileParent && isKnownCloudOrigin() ? window.location.origin : parentOrigin;
+      if (
+        expectedOrigin &&
+        (!event.origin || event.origin === "" || event.origin !== expectedOrigin)
+      ) {
         return;
       }
 
@@ -248,7 +263,7 @@ function error(message: string) {
     navigateToUrl(uri);
     returnButton(uri);
   } else if (parentUrl) {
-    parent.postMessage("error|" + message, parentUrl);
+    parent.postMessage("error|" + message, postMessageOrigin);
     setDefaultWebAuthnButtonState();
   }
 }
@@ -265,7 +280,7 @@ function success(assertedCredential: PublicKeyCredential) {
     navigateToUrl(uri);
     returnButton(uri);
   } else if (parentUrl) {
-    parent.postMessage("success|" + dataString, parentUrl);
+    parent.postMessage("success|" + dataString, postMessageOrigin);
     sentSuccess = true;
   }
 }
@@ -275,7 +290,7 @@ function info(message: string) {
     return;
   }
 
-  parent.postMessage("info|" + message, parentUrl);
+  parent.postMessage("info|" + message, postMessageOrigin);
 }
 
 function returnButton(uri: string) {
