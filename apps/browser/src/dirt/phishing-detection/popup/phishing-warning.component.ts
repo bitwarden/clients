@@ -49,13 +49,12 @@ import {
     I18nPipe,
   ],
 })
-
-export class PhishingWarning implements OnInit {
-  private activatedRoute = inject(ActivatedRoute);
-  private messageSender = inject(MessageSender);
-  private eventCollectionService = inject(EventCollectionService);
-  private organizationService = inject(OrganizationService);
-  private accountService = inject(AccountService);
+export class PhishingWarningComponent implements OnInit {
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly messageSender = inject(MessageSender);
+  private readonly eventCollectionService = inject(EventCollectionService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
 
   private readonly phishingUrl = toSignal(
     this.activatedRoute.queryParamMap.pipe(map((params) => params.get("phishingUrl") || "")),
