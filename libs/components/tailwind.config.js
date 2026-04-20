@@ -6,7 +6,6 @@ config.content = [
   "libs/assets/src/**/*.{html,ts,mdx}",
   "libs/auth/src/**/*.{html,ts,mdx}",
   "libs/vault/src/**/*.{html,ts,mdx}",
-  "libs/pricing/src/**/*.{html,ts,mdx}",
   "apps/web/src/**/*.{html,ts,mdx}",
   "apps/browser/src/**/*.{html,ts,mdx}",
   "bitwarden_license/bit-web/src/**/*.{html,ts,mdx}",
