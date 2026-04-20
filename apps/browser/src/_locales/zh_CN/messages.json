@@ -1798,7 +1798,7 @@
     "message": "确认自动填充"
   },
   "confirmAutofillDesc": {
-    "message": "此网站与您保存的登录信息不匹配。在填充您的登录凭据之前，请确保它是一个可信的网站。"
+    "message": "此站点与您保存的登录信息不匹配。在填充您的登录凭据之前，请确保它是一个可信的站点。"
   },
   "showInlineMenuLabel": {
     "message": "在表单字段上显示自动填充建议"
@@ -2864,7 +2864,7 @@
     }
   },
   "atRiskChangePrompt": {
-    "message": "该网站密码存在风险，$ORGANIZATION$ 要求您更改此密码。",
+    "message": "您的此站点密码存在风险，$ORGANIZATION$ 已要求您更改此密码。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2874,7 +2874,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "您在此网站的密码存在风险。$ORGANIZATION$ 已要求您进入账户设置并更改此密码。",
+    "message": "您的此站点密码存在风险，$ORGANIZATION$ 已要求您进入账户设置更改此密码。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2918,7 +2918,7 @@
     "message": "Bitwarden 密码库页面布局示意图。"
   },
   "generatePasswordSlideDesc": {
-    "message": "在存在风险的网站上，使用 Bitwarden 自动填充菜单快速生成强大且唯一的密码。",
+    "message": "在存在风险的站点上，使用 Bitwarden 自动填充菜单快速生成强大且唯一的密码。",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
@@ -3805,22 +3805,22 @@
     "message": "登录状态"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "最近活跃"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "今天"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "过去 7 天"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "过去 14 天"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "过去 30 天"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "30 天以前"
   },
   "masterPasswordChanged": {
     "message": "主密码已保存"
@@ -4536,7 +4536,7 @@
     "message": "您没有匹配此站点的登录。"
   },
   "noMatchingLoginsForSite": {
-    "message": "此站点没有匹配的登录"
+    "message": "没有匹配此站点的登录"
   },
   "searchSavePasskeyNewLogin": {
     "message": "搜索或将通行密钥保存为新的登录"
@@ -4806,7 +4806,7 @@
     "message": "建议的项目"
   },
   "autofillSuggestionsTip": {
-    "message": "为这个站点保存一个登录项目以自动填充"
+    "message": "为此站点保存一个登录项目以自动填充"
   },
   "yourVaultIsEmpty": {
     "message": "您的密码库是空的"
@@ -4980,13 +4980,13 @@
     "message": "账户安全"
   },
   "phishingBlocker": {
-    "message": "网络钓鱼拦截器"
+    "message": "Phishing Blocker"
   },
   "enablePhishingDetection": {
     "message": "网络钓鱼检测"
   },
   "enablePhishingDetectionDesc": {
-    "message": "在访问疑似钓鱼网站前显示警告"
+    "message": "在访问疑似网络钓鱼站点前显示警告"
   },
   "notifications": {
     "message": "通知"
@@ -5303,7 +5303,7 @@
     "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，您将无法更新它们。",
+    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -5893,23 +5893,23 @@
     "message": "欢迎来到您的密码库！"
   },
   "phishingPageTitleV2": {
-    "message": "检测到钓鱼尝试"
+    "message": "检测到网络钓鱼尝试"
   },
   "phishingPageSummary": {
-    "message": "您尝试访问的网站是一个已知的恶意网站，存在安全风险。"
+    "message": "您尝试访问的站点是一个已知的恶意站点，存在安全风险。"
   },
   "phishingPageCloseTabV2": {
     "message": "关闭此标签页"
   },
   "phishingPageContinueV2": {
-    "message": "继续访问此网站（不推荐）"
+    "message": "继续访问此站点（不推荐）"
   },
   "phishingPageExplanation1": {
-    "message": "该网站被发现于 ",
+    "message": "该站点被发现于 ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": "，一个已知的用于窃取个人和敏感信息的钓鱼网站的开源列表。",
+    "message": "，一个已知的窃取个人信息和敏感信息的网络钓鱼站点的开源列表。",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
@@ -6173,7 +6173,7 @@
     "message": "由 Bitwarden 桌面 App 管理。打开桌面 App 进行编辑。"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "完成 $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",

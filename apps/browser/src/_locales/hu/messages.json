@@ -3805,22 +3805,22 @@
     "message": "Bejelentkezési állapot"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Legutóbb aktív"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Ma"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Az elmúlt 7 nap"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Az elmúlt 14 nap"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Elmúlt 30 nap"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Több mint 30 napja"
   },
   "masterPasswordChanged": {
     "message": "A mesterjelszó mentésre került."
