@@ -570,6 +570,7 @@ describe("UpgradePaymentService", () => {
         mockTokenizedPaymentMethod,
         mockBillingAddress,
         undefined,
+        undefined,
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
@@ -589,6 +590,7 @@ describe("UpgradePaymentService", () => {
         accountCreditPaymentMethod,
         mockBillingAddress,
         undefined,
+        undefined,
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
@@ -605,6 +607,7 @@ describe("UpgradePaymentService", () => {
         mockTokenizedPaymentMethod,
         mockBillingAddress,
         ["coupon-abc"],
+        undefined,
       );
     });
 
@@ -620,6 +623,28 @@ describe("UpgradePaymentService", () => {
         mockTokenizedPaymentMethod,
         mockBillingAddress,
         undefined,
+        undefined,
+      );
+    });
+
+    it("passes fromMarketing to purchaseSubscription when provided", async () => {
+      // Arrange
+      mockAccountBillingClient.purchaseSubscription.mockResolvedValue();
+
+      // Act
+      await sut.upgradeToPremium(
+        mockTokenizedPaymentMethod,
+        mockBillingAddress,
+        undefined,
+        "premium",
+      );
+
+      // Assert
+      expect(mockAccountBillingClient.purchaseSubscription).toHaveBeenCalledWith(
+        mockTokenizedPaymentMethod,
+        mockBillingAddress,
+        undefined,
+        "premium",
       );
     });
 
@@ -687,7 +712,7 @@ describe("UpgradePaymentService", () => {
             billingEmail: "test@example.com",
           },
           plan: {
-            type: PlanType.FamiliesAnnually2025,
+            type: PlanType.FamiliesAnnually,
             passwordManagerSeats: 6,
           },
           payment: {
@@ -701,70 +726,6 @@ describe("UpgradePaymentService", () => {
         "user-id",
       );
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
-    });
-
-    it("should use FamiliesAnnually2025 plan when feature flag is disabled", async () => {
-      // Arrange
-      mockConfigService.getFeatureFlag.mockResolvedValue(false);
-      mockOrganizationBillingService.purchaseSubscription.mockResolvedValue({
-        id: "org-id",
-        name: "Test Organization",
-        billingEmail: "test@example.com",
-      } as OrganizationResponse);
-
-      // Act
-      await sut.upgradeToFamilies(
-        mockAccount,
-        mockFamiliesPlanDetails,
-        mockTokenizedPaymentMethod,
-        {
-          organizationName: "Test Organization",
-          billingAddress: mockBillingAddress,
-        },
-      );
-
-      // Assert
-      expect(mockOrganizationBillingService.purchaseSubscription).toHaveBeenCalledWith(
-        expect.objectContaining({
-          plan: {
-            type: PlanType.FamiliesAnnually2025,
-            passwordManagerSeats: 6,
-          },
-        }),
-        "user-id",
-      );
-    });
-
-    it("should use FamiliesAnnually plan when feature flag is enabled", async () => {
-      // Arrange
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
-      mockOrganizationBillingService.purchaseSubscription.mockResolvedValue({
-        id: "org-id",
-        name: "Test Organization",
-        billingEmail: "test@example.com",
-      } as OrganizationResponse);
-
-      // Act
-      await sut.upgradeToFamilies(
-        mockAccount,
-        mockFamiliesPlanDetails,
-        mockTokenizedPaymentMethod,
-        {
-          organizationName: "Test Organization",
-          billingAddress: mockBillingAddress,
-        },
-      );
-
-      // Assert
-      expect(mockOrganizationBillingService.purchaseSubscription).toHaveBeenCalledWith(
-        expect.objectContaining({
-          plan: {
-            type: PlanType.FamiliesAnnually,
-            passwordManagerSeats: 6,
-          },
-        }),
-        "user-id",
-      );
     });
 
     it("should throw error if password manager seats are 0", async () => {

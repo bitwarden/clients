@@ -1148,6 +1148,15 @@
     "message": "Automaticky vymazať skopírované hodnoty zo schránky.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Nastavenie schránky bolo aktualizované"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Časový limit schránky je nastavený na predvolenú hodnotu, ktorá bola z bezpečnostných dôvodov predĺžená na 5 minút."
+  },
+  "jumpToSetting": {
+    "message": "Prejsť na nastavenia"
+  },
   "notificationAddDesc": {
     "message": "Má si Bitwarden zapamätať toto heslo?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Ďalšie možnosti"
+  },
+  "enableFillAssist": {
+    "message": "Pomáhať pri vypĺňaní"
   },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
@@ -2102,6 +2114,27 @@
   "typeNote": {
     "message": "Poznámka"
   },
+  "typeLoginSubtitle": {
+    "message": "Webová stránka alebo aplikácia"
+  },
+  "typeCardSubtitle": {
+    "message": "Kreditná alebo debetná karta"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Osobné informácie"
+  },
+  "typeNoteSubtitle": {
+    "message": "Dôležitý text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Prihlasovací token servera"
+  },
+  "folderSubtitle": {
+    "message": "Usporiadajte si položky"
+  },
+  "collectionSubtitle": {
+    "message": "Usporiadajte zdieľané položky"
+  },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
     "description": "Header for new login item type"
@@ -2177,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "Zobraziť kľúč SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Vyberte položku, ktorú chcete pridať"
   },
   "passwordHistory": {
     "message": "História hesla"
@@ -2837,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ chce, aby ste toto heslo zmenili, pretože je rizikové. Prejdite do nastavení svojho účtu a zmeňte heslo.",
+  "atRiskNavigatePromptV2": {
+    "message": "Vaše heslo pre túto stránku je ohrozené. $ORGANIZATION$ vás žiada, aby ste prešli do nastavení účtu a heslo zmenili.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Stav prihlásenia"
+  },
+  "recentlyActive": {
+    "message": "Posledná aktivita"
+  },
+  "recentlyActiveToday": {
+    "message": "Dnes"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Posledných 7 dní"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Posledných 14 dní"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Posledných 30 dní"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Pred viac ako 30 dňami"
   },
   "masterPasswordChanged": {
     "message": "Hlavné heslo uložené"
@@ -6115,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Spravované prostredníctvom desktopovej aplikácie Bitwarden. Na úpravu otvorte desktopovú aplikáciu."
+  },
+  "percentageCompleted": {
+    "message": "Hotovo $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Upgradovať"
   },
@@ -6200,7 +6266,10 @@
     "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
   },
   "emailPlaceholder": {
-    "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
+    "message": "pouzivatel@bitwarden.com, pouzivatel@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "pouzivatel@bitwarden.com, pouzivatel@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Stiahnuť aplikácie Bitwarden"

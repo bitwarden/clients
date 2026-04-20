@@ -79,6 +79,6 @@ export class PasswordRepromptComponent {
       return;
     }
 
-    this.dialogRef.close(true);
+    await this.dialogRef.close(true);
   };
 }

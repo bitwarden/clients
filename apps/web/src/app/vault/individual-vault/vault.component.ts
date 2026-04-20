@@ -80,6 +80,9 @@ import { CipherListView } from "@bitwarden/sdk-internal";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
   CipherFormConfig,
@@ -99,6 +102,9 @@ import {
   VaultItemsTransferService,
   DefaultVaultItemsTransferService,
   VaultItem,
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -109,11 +115,6 @@ import {
 } from "../../admin-console/organizations/shared/components/collection-dialog";
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
-import {
-  VaultItemDialogComponent,
-  VaultItemDialogMode,
-  VaultItemDialogResult,
-} from "../components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
@@ -953,6 +954,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   /**
+   * Opens the add-item type selection dialog and handles the result.
+   */
+  protected async openAddItemDialog(): Promise<void> {
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: true,
+      canCreateCollection: this.canCreateCollections,
+      canCreateSshKey: true,
+    });
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (!result) {
+      return;
+    }
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Folder) {
+      this.addFolder();
+    } else {
+      await this.addCollection();
+    }
+  }
+
+  /**
    * Opens the add cipher dialog.
    * @param cipherType The type of cipher to add.
    */
@@ -1074,7 +1097,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     );
   }
 
-  async addCollection() {
+  async addCollection(): Promise<void> {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.allOrganizations
