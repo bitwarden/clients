@@ -19,6 +19,15 @@ import { AccessReportView } from "../view/access-report.view";
 import { ApplicationHealthView } from "../view/application-health.view";
 import { MemberRegistryEntryView } from "../view/member-registry-entry.view";
 
+/**
+ * Domain model for a persisted Access Intelligence report.
+ *
+ * Holds the encrypted report, applications, and summary blobs alongside the
+ * content encryption key. Encryption lives at this top level; sub-models are
+ * plaintext once the blobs are decrypted. Use {@link AccessReport.fromView$}
+ * to encrypt from the view and {@link AccessReport.prototype.decrypt$} to
+ * produce a view.
+ */
 export class AccessReport extends Domain {
   id: string = "";
   organizationId: string = "";

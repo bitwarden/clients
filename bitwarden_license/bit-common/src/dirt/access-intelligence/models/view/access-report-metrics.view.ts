@@ -4,6 +4,13 @@ import { View } from "@bitwarden/common/models/view/view";
 
 import { AccessReportMetrics } from "../domain/access-report-metrics";
 
+/**
+ * View model for Access Intelligence aggregate metrics.
+ *
+ * UI-facing projection of {@link AccessReportMetrics} with helpers for the
+ * summary strip and dashboard widgets. Safe to serialize; no decryption
+ * required.
+ */
 export class AccessReportMetricsView implements View {
   totalApplicationCount: number = 0;
   totalAtRiskApplicationCount: number = 0;
