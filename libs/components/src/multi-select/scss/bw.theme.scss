@@ -112,9 +112,9 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     .ng-value-container {
       align-items: center;
       padding: 7px 0px 7px $ng-select-value-padding-left;
-      @include rtl {
-        padding-left: 0;
-      }
+      padding-block: 7px;
+      padding-inline: $ng-select-value-padding-left 0;
+
       .ng-placeholder {
         color: $ng-select-placeholder;
       }
@@ -135,12 +135,7 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
         height: 100%;
         .ng-input {
           left: 0;
-          padding-left: $ng-select-value-padding-left;
-          padding-right: 50px;
-          @include rtl {
-            padding-right: $ng-select-value-padding-left;
-            padding-left: 50px;
-          }
+          padding-inline: $ng-select-value-padding-left 50px;
         }
       }
     }
@@ -158,28 +153,18 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
     .ng-select-container {
       .ng-value-container {
         height: 100%;
-        padding: 3px 0 3px 0.75rem;
-        @include rtl {
-          padding-left: 0;
-        }
+        padding-block: 3px;
+        padding-inline: 0.75rem 0;
+
         .ng-value {
           font-size: $ng-select-value-font-size;
           color: var(--color-fg-inactive);
           background-color: $ng-select-selected;
           border-radius: 2px;
-          margin: 4px 5px 4px 0px;
-          @include rtl {
-            margin-right: 0;
-            margin-left: 5px;
-          }
           &.ng-value-disabled {
             background-color: var(--color-bg-secondary);
             .ng-value-label {
-              padding-left: 5px;
-              @include rtl {
-                padding-left: 0;
-                padding-right: 5px;
-              }
+              padding-inline: 5px 0;
             }
           }
           .ng-value-label {
@@ -250,11 +235,8 @@ $ng-dropdown-shadow: rgb(var(--color-secondary-100)) !default;
   }
   .ng-arrow-wrapper {
     width: 25px;
-    padding-right: 0.75rem;
-    @include rtl {
-      padding-left: 0.75rem;
-      padding-right: 0;
-    }
+    padding-inline: 0 0.75rem;
+
     .ng-arrow {
       width: 8px !important;
       height: 8px !important;
