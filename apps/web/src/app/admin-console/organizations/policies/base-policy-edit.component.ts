@@ -34,7 +34,7 @@ export interface PolicyDialogComponent {
   openDrawer?: (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
-  ) => DialogRef<PolicyEditDialogResult>;
+  ) => Promise<DialogRef<PolicyEditDialogResult> | undefined>;
 }
 
 /**

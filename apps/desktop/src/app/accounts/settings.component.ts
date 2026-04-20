@@ -223,7 +223,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.startToTrayText = this.i18nService.t(startToTrayKey);
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
-    this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
+    this.showOpenAtLoginOption = this.showAutostartSetting();
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
@@ -637,6 +637,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveAlwaysShowDock() {
     await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
+  }
+
+  private showAutostartSetting(): boolean {
+    // Windows store does not support autostart
+    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
+    // Snap store has auto-start enabled through electron-builder ALWAYS
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
   }
 
   async saveOpenAtLogin() {

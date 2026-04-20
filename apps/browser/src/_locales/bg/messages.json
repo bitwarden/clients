@@ -3805,22 +3805,22 @@
     "message": "Състояние на вписването"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Активно наскоро"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Днес"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Последните 7 дни"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Последните 14 дни"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Последните 30 дни"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Преди повече от 30 дни"
   },
   "masterPasswordChanged": {
     "message": "Главната парола е запазена"
