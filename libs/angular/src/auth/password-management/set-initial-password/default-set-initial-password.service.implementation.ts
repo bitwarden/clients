@@ -67,8 +67,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   ) {}
 
   /**
-   * @deprecated To be removed in PM-28143. When you remove this, also check for any objects/methods
-   * in this default service that are now un-used and can also be removed.
+   * @deprecated use `setInitialPasswordJitMPUserV2Encryption()` instead
    */
   async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
@@ -425,7 +424,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated along with `setInitialPassword()` deprecation
    */
   private async makeMasterKeyEncryptedUserKey(
     masterKey: MasterKey,
@@ -447,6 +446,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     return masterKeyEncryptedUserKey;
   }
 
+  /**
+   * @deprecated along with `setInitialPassword()` deprecation
+   */
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
     kdfConfig: KdfConfig,
@@ -504,7 +506,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated along with `setInitialPassword()` deprecation
    *
    * As part of [PM-28494], adding this setting path to accommodate the changes that are
    * emerging with pm-23246-unlock-with-master-password-unlock-data.
@@ -530,7 +532,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated
    *
    * This method is now deprecated because it is used with the deprecated `setInitialPassword()` method,
    * which handles both JIT MP and TDE + Permission user flows.

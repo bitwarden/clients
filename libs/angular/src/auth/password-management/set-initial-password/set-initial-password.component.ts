@@ -311,7 +311,7 @@ export class SetInitialPasswordComponent implements OnInit {
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated use `setInitialPasswordJitMPUserV2Encryption()` instead
    */
   private async setInitialPassword(passwordInputResult: PasswordInputResult) {
     const ctx = "Could not set initial password.";
