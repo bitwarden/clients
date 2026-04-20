@@ -1090,7 +1090,7 @@ export class ServiceContainer {
       this.sdkService,
       this.keyService,
       this.masterPasswordService,
-      this.kdfConfigService
+      this.kdfConfigService,
     );
     this.encryptedMigrator = new DefaultEncryptedMigrator(
       this.kdfConfigService,
