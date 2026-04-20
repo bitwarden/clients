@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -175,6 +176,7 @@ import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
 import { DesktopCredentialGenerationService } from "../../services/desktop-cipher-form-generator.service";
 import { DesktopCopyListenerService } from "../../services/desktop-copy-listener.service";
+import { DesktopDeviceManagementComponentService } from "../../services/desktop-device-management-component.service";
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
@@ -208,6 +210,11 @@ const safeProviders: SafeProvider[] = [
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
     deps: [TokenService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DesktopDeviceManagementComponentService,
+    deps: [],
   }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
@@ -598,6 +605,7 @@ const safeProviders: SafeProvider[] = [
       PendingAuthRequestsStateService,
       I18nServiceAbstraction,
       LogService,
+      ConfigService,
     ],
   }),
   safeProvider({
