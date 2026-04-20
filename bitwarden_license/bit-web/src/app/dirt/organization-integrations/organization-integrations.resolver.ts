@@ -252,7 +252,8 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         {
           name: OrganizationIntegrationServiceName.CrowdStrike,
           linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
-          image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
+          image: "../../../../../../../images/integrations/logo-crowdstrike-lightmode.svg",
+          imageDarkMode: "../../../../../../../images/integrations/logo-crowdstrike-darkmode.svg",
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Hec,
@@ -261,7 +262,8 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         {
           name: OrganizationIntegrationServiceName.Datadog,
           linkURL: "https://bitwarden.com/help/datadog-siem/",
-          image: "../../../../../../../images/integrations/logo-datadog-color.svg",
+          image: "../../../../../../../images/integrations/logo-datadog-lightmode.svg",
+          imageDarkMode: "../../../../../../../images/integrations/logo-datadog-darkmode.svg",
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Datadog,
