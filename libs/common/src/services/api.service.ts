@@ -1694,11 +1694,19 @@ export class ApiService implements ApiServiceAbstraction {
     const responseType = response.headers.get("content-type");
     const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
     const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    const responseIsBlob =
+      responseType != null && responseType.indexOf("application/octet-stream") !== -1;
     if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
       const responseJson = await response.json();
       return responseJson;
     } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
       return await response.text();
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsBlob) {
+      const disposition = response.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const fileName = match ? match[1].replace(/['"]/g, "") : "download";
+      const blob = await response.blob();
+      return { blob, fileName };
     } else if (
       response.status !== HttpStatusCode.Ok &&
       response.status !== HttpStatusCode.NoContent
