@@ -97,7 +97,9 @@ describe("WebVaultPremiumUpgradePromptService", () => {
       closed: of({ status: UnifiedUpgradeDialogStatus.Closed }),
       close: jest.fn(),
     } as any;
-    const openSpy = jest.spyOn(UnifiedUpgradeDialogComponent, "open").mockReturnValue(unifiedDialogRefMock);
+    const openSpy = jest
+      .spyOn(UnifiedUpgradeDialogComponent, "open")
+      .mockReturnValue(unifiedDialogRefMock);
 
     await service.promptForPremium();
 
