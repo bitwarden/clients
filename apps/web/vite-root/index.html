@@ -1,0 +1,39 @@
+<!doctype html>
+<html class="theme_light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1010" />
+    <meta name="theme-color" content="#175DDC" />
+
+    <title>Bitwarden Web vault (vite)</title>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/icons/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Theme runs before Angular bootstraps to avoid a flash of unthemed content. -->
+    <script type="module" src="/__bw_theme__"></script>
+    <!-- Global styles (SCSS + tailwind) loaded as a Vite module entry. -->
+    <script type="module" src="/__bw_styles__"></script>
+  </head>
+  <body class="layout_frontend">
+    <app-root>
+      <div class="tw-flex tw-flex-col tw-min-h-[100vh]">
+        <div class="tw-pt-5 tw-px-5 tw-fixed">
+          <img class="new-logo-themed !tw-w-[200px]" alt="Bitwarden" />
+        </div>
+        <div class="spinner-container tw-justify-center">
+          <i
+            class="bwi bwi-spinner bwi-spin bwi-3x tw-text-muted"
+            title="Loading"
+            aria-hidden="true"
+          ></i>
+        </div>
+      </div>
+    </app-root>
+
+    <script type="module" src="/__bw_polyfills__"></script>
+    <!-- Resolved by the factory's resolve.alias to the consumer's main.ts -->
+    <script type="module" src="/__bw_main__"></script>
+  </body>
+</html>
