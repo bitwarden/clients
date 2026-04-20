@@ -9,4 +9,5 @@ export const mockLayoutI18n = {
   close: "Close",
   sideNavigation: "Side navigation",
   skipLink: "Skip Link",
+  callout: "Callout",
 };

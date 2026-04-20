@@ -135,6 +135,9 @@ export class CalloutComponent implements OnInit {
   });
 
   protected readonly accessibleLandmarkName = computed(() => {
-    return this.accessibleName() ?? `callout ${this.calloutId + 1}, ${this.type()}`;
+    return (
+      this.accessibleName() ??
+      `${this.i18nService.t("callout")} ${this.calloutId + 1}, ${this.type()}`
+    );
   });
 }
