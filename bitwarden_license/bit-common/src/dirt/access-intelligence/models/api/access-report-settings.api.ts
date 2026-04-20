@@ -25,8 +25,8 @@ export class AccessReportSettingsApi extends BaseResponse {
       return;
     }
 
-    this.applicationName = this.getResponseProperty("applicationName");
+    this.applicationName = this.getResponseProperty("applicationName") ?? "";
     this.isCritical = this.getResponseProperty("isCritical") ?? false;
-    this.reviewedDate = this.getResponseProperty("reviewedDate");
+    this.reviewedDate = this.getResponseProperty("reviewedDate") ?? undefined;
   }
 }
