@@ -1,5 +1,11 @@
 import { AccessReportMetricsApi } from "../api/access-report-metrics.api";
 
+/**
+ * Serializable data model for Access Intelligence aggregate metrics.
+ *
+ * Persisted alongside the main report so the server can surface counts without
+ * decrypting the full report blob. Hydrated from {@link AccessReportMetricsApi}.
+ */
 export class AccessReportMetricsData {
   totalApplicationCount: number = 0;
   totalAtRiskApplicationCount: number = 0;
