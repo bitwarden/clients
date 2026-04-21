@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
+import { Observable, combineLatest, filter, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -329,6 +329,23 @@ export class TokenService implements TokenServiceAbstraction {
   }
 
   /**
+   * Returns a promise that resolves once the given key in the state layer holds expectedValue.
+   * Must be called BEFORE the write that produces expectedValue so the underlying subscription
+   * is registered before storageUpdate$ fires.
+   */
+  private waitForStateValue<T>(
+    userId: UserId,
+    keyDefinition: UserKeyDefinition<T>,
+    expectedValue: T,
+  ): Promise<T> {
+    return firstValueFrom(
+      this.singleUserStateProvider
+        .get(userId, keyDefinition)
+        .state$.pipe(filter((v) => v === expectedValue)),
+    );
+  }
+
+  /**
    * Internal helper for set access token which always requires user id.
    * This is useful because setTokens always will have a user id from the access token whereas
    * the public setAccessToken method does not.
@@ -359,6 +376,12 @@ export class TokenService implements TokenServiceAbstraction {
             userId,
           );
 
+          const newEncryptedAccessTokenInState = this.waitForStateValue(
+            userId,
+            ACCESS_TOKEN_DISK,
+            encryptedAccessToken.encryptedString,
+          );
+
           // Save the encrypted access token to disk
           await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
@@ -366,6 +389,8 @@ export class TokenService implements TokenServiceAbstraction {
               shouldUpdate: (previousValue) =>
                 previousValue !== encryptedAccessToken.encryptedString,
             });
+
+          await newEncryptedAccessTokenInState;
 
           // If we've successfully stored the encrypted access token to disk, we can return the decrypted access token
           // so that the caller can use it immediately.
@@ -381,28 +406,56 @@ export class TokenService implements TokenServiceAbstraction {
             error,
           );
 
+          const newAccessTokenInState = this.waitForStateValue(
+            userId,
+            ACCESS_TOKEN_DISK,
+            accessToken,
+          );
+
           // Fall back to disk storage for unecrypted access token
           decryptedAccessToken = await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
             .update((_) => accessToken, {
               shouldUpdate: (previousValue) => previousValue !== accessToken,
             });
+
+          await newAccessTokenInState;
         }
 
         return decryptedAccessToken;
       }
-      case TokenStorageLocation.Disk:
+      case TokenStorageLocation.Disk: {
+        const newAccessTokenInState = this.waitForStateValue(
+          userId,
+          ACCESS_TOKEN_DISK,
+          accessToken,
+        );
+
         // Access token stored on disk unencrypted as platform does not support secure storage
-        return await this.singleUserStateProvider
+        const newAccessToken = await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
           .update((_) => accessToken, {
             shouldUpdate: (previousValue) => previousValue !== accessToken,
           });
-      case TokenStorageLocation.Memory:
-        // Access token stored in memory due to vault timeout settings
-        return await this.singleUserStateProvider
+
+        await newAccessTokenInState;
+        return newAccessToken;
+      }
+      case TokenStorageLocation.Memory: {
+        const newAccessTokenInState = this.waitForStateValue(
+          userId,
+          ACCESS_TOKEN_MEMORY,
+          accessToken,
+        );
+
+        const newAccessToken = await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_MEMORY)
           .update((_) => accessToken);
+
+        await newAccessTokenInState;
+
+        return newAccessToken;
+      }
     }
   }
 

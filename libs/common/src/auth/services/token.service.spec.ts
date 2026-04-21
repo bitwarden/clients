@@ -6,6 +6,11 @@ import { firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
+import { trackEmissions } from "@bitwarden/core-test-utils";
+import { StateEventRegistrarService } from "@bitwarden/state";
+import { DefaultSingleUserStateProvider } from "@bitwarden/state-internal";
+import { StorageServiceProvider } from "@bitwarden/storage-core";
+import { FakeStorageService } from "@bitwarden/storage-test-utils";
 
 import { FakeSingleUserStateProvider, FakeGlobalStateProvider } from "../../../spec";
 import { KeyGenerationService } from "../../key-management/crypto";
@@ -183,7 +188,7 @@ describe("TokenService", () => {
       });
     });
 
-    describe("setAccessToken", () => {
+    describe("setAccessToken (FakeSingleUserStateProvider)", () => {
       it("throws an error when the access token is null", async () => {
         // Act
         const result = tokenService.setAccessToken(
@@ -237,7 +242,7 @@ describe("TokenService", () => {
         await expect(result).resolves.not.toThrow();
       });
 
-      describe("Memory storage tests", () => {
+      describe("Memory storage tests (FakeSingleUserStateProvider)", () => {
         it("set the access token in memory", async () => {
           // Act
           const result = await tokenService.setAccessToken(
@@ -404,6 +409,212 @@ describe("TokenService", () => {
 
           // assert that the decrypted access token was returned
           expect(result).toEqual(accessTokenJwt);
+        });
+      });
+    });
+
+    // Parallel setAccessToken tests using DefaultSingleUserStateProvider +
+    // FakeStorageService. Unlike FakeSingleUserStateProvider (which updates state
+    // synchronously), this wires up the real state layer so that storageUpdate$ propagates
+    // asynchronously via microtasks — the same async path as production. This lets us verify
+    // that _setAccessToken actually awaits propagation before returning.
+    describe("setAccessToken (DefaultSingleUserStateProvider)", () => {
+      let memoryStorageService: FakeStorageService;
+      let realSingleUserStateProvider: DefaultSingleUserStateProvider;
+
+      beforeEach(() => {
+        memoryStorageService = new FakeStorageService();
+
+        const storageServiceProvider = mock<StorageServiceProvider>();
+        storageServiceProvider.get.mockImplementation((location) => [
+          location,
+          memoryStorageService,
+        ]);
+
+        realSingleUserStateProvider = new DefaultSingleUserStateProvider(
+          storageServiceProvider,
+          mock<StateEventRegistrarService>(),
+          logService,
+        );
+
+        // Use a tokenService backed by the real state layer so these tests exercise
+        // async storageUpdate$ propagation.
+        tokenService = new TokenService(
+          realSingleUserStateProvider,
+          globalStateProvider,
+          false,
+          secureStorageService,
+          keyGenerationService,
+          encryptService,
+          logService,
+          logoutCallback,
+        );
+      });
+
+      describe("Memory storage tests", () => {
+        it("should propagate the new token to active subscribers before returning", async () => {
+          // Arrange: subscribe before the write so emissions are captured via storageUpdate$
+          const emissions = trackEmissions(
+            realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).state$,
+          );
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            memoryVaultTimeoutAction,
+            memoryVaultTimeout,
+          );
+
+          // Assert: the new token has been delivered to active subscribers before
+          // setAccessToken returned — no window in which a caller could observe a stale value
+          expect(emissions).toContain(accessTokenJwt);
+        });
+
+        it("should replace a stale token in active subscribers before returning", async () => {
+          // Arrange: prime storage with a stale token, then subscribe before the write
+          const storageKey = ACCESS_TOKEN_MEMORY.buildKey(userIdFromAccessToken);
+          memoryStorageService.internalUpdateStore({ [storageKey]: "staleAccessToken" });
+
+          const emissions = trackEmissions(
+            realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).state$,
+          );
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            memoryVaultTimeoutAction,
+            memoryVaultTimeout,
+          );
+
+          // Assert: the stale token has been replaced and the new value is the latest emission
+          expect(emissions[emissions.length - 1]).toEqual(accessTokenJwt);
+        });
+      });
+
+      describe("Disk storage tests", () => {
+        it("should propagate the new token to active subscribers before returning", async () => {
+          // Arrange: subscribe before the write so emissions are captured via storageUpdate$
+          const emissions = trackEmissions(
+            realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_DISK).state$,
+          );
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: the new token has been delivered to active subscribers before
+          // setAccessToken returned — no window in which a caller could observe a stale value
+          expect(emissions).toContain(accessTokenJwt);
+        });
+
+        it("should replace a stale token in active subscribers before returning", async () => {
+          // Arrange: prime storage with a stale token, then subscribe before the write
+          const storageKey = ACCESS_TOKEN_DISK.buildKey(userIdFromAccessToken);
+          memoryStorageService.internalUpdateStore({ [storageKey]: "staleAccessToken" });
+
+          const emissions = trackEmissions(
+            realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_DISK).state$,
+          );
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: the stale token has been replaced and the new value is the latest emission
+          expect(emissions[emissions.length - 1]).toEqual(accessTokenJwt);
+        });
+      });
+
+      describe("Disk storage tests (secure storage supported)", () => {
+        const accessTokenKey = new SymmetricCryptoKey(
+          new Uint8Array(64) as CsprngArray,
+        ) as AccessTokenKey;
+
+        const mockEncryptedAccessToken = "encryptedAccessToken";
+
+        beforeEach(() => {
+          // Recreate tokenService with secure storage enabled and the real state layer
+          tokenService = new TokenService(
+            realSingleUserStateProvider,
+            globalStateProvider,
+            true, // supportsSecureStorage
+            secureStorageService,
+            keyGenerationService,
+            encryptService,
+            logService,
+            logoutCallback,
+          );
+        });
+
+        it("should propagate the encrypted token to ACCESS_TOKEN_DISK subscribers before returning", async () => {
+          // Arrange
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          encryptService.encryptString.mockResolvedValue({
+            encryptedString: mockEncryptedAccessToken,
+          } as any);
+          // First get returns null (no existing key), second returns the key after save
+          secureStorageService.get.mockResolvedValueOnce(null).mockResolvedValue(accessTokenKeyB64);
+
+          const emissions = trackEmissions(
+            realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_DISK).state$,
+          );
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: the encrypted token has been delivered to active subscribers before
+          // setAccessToken returned
+          expect(emissions).toContain(mockEncryptedAccessToken);
+        });
+
+        it("should propagate the plaintext token to ACCESS_TOKEN_DISK subscribers before returning on silent key failure", async () => {
+          // Arrange: key silently fails — get always returns null so createAndSaveAccessTokenKey throws
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          secureStorageService.get.mockResolvedValue(null);
+
+          const emissions = trackEmissions(
+            realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_DISK).state$,
+          );
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: the plaintext fallback token has been delivered to active subscribers
+          expect(emissions).toContain(accessTokenJwt);
+        });
+
+        it("should propagate the plaintext token to ACCESS_TOKEN_DISK subscribers before returning on secure storage error", async () => {
+          // Arrange: secure storage throws on get, triggering the catch fallback
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          secureStorageService.get.mockRejectedValue(new Error("Secure storage error"));
+
+          const emissions = trackEmissions(
+            realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_DISK).state$,
+          );
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: the plaintext fallback token has been delivered to active subscribers
+          expect(emissions).toContain(accessTokenJwt);
         });
       });
     });

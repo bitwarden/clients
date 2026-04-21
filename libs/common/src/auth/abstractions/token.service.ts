@@ -17,6 +17,9 @@ export abstract class TokenService {
    * Note: for platforms that support secure storage, the access & refresh tokens are stored in secure storage instead of on disk.
    * Note 2: this method also enforces always setting the access token and the refresh token together as
    * we can retrieve the user id required to set the refresh token from the access token for efficiency.
+   * Note 3: the returned promise does not resolve until the new access token has fully propagated
+   * through the state layer — any call to `getAccessToken` made after awaiting this method is
+   * guaranteed to observe the new value, not a previously cached one.
    * @param accessToken The access token to set.
    * @param vaultTimeoutAction The action to take when the vault times out.
    * @param vaultTimeout The timeout for the vault.
@@ -42,8 +45,12 @@ export abstract class TokenService {
 
   /**
    * Sets the access token in memory or disk based on the given vaultTimeoutAction and vaultTimeout
-   * and the user id read off the access token
-   * Note: for platforms that support secure storage, the access & refresh tokens are stored in secure storage instead of on disk.
+   * and the user id read off the access token.
+   * Note: for platforms that support secure storage, the access token is encrypted with a key stored
+   * in secure storage and the encrypted value is written to disk.
+   * Note 2: the returned promise does not resolve until the new token has fully propagated through
+   * the state layer — any call to `getAccessToken` made after awaiting this method is guaranteed
+   * to observe the new value, not a previously cached one.
    * @param accessToken The access token to set.
    * @param vaultTimeoutAction The action to take when the vault times out.
    * @param vaultTimeout The timeout for the vault.
