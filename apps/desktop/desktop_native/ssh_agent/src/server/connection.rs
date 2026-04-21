@@ -13,8 +13,8 @@ use super::{auth_policy::AuthPolicy, peer_info::PeerInfo, KeyStore};
 pub(crate) struct Connection<S> {
     /// The I/O stream for this connection
     pub(crate) stream: S,
-    /// Information about the connected peer process
-    pub(crate) peer_info: PeerInfo,
+    /// Information about the connected peer process, if available
+    pub(crate) peer_info: Option<PeerInfo>,
 }
 
 /// Handles an individual SSH agent client connection

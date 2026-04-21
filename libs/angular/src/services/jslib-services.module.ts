@@ -14,6 +14,8 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import {
   ChangePasswordService,
   DefaultChangePasswordService,
@@ -539,11 +541,6 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       TokenServiceAbstraction,
     ],
-  }),
-  safeProvider({
-    provide: ChangeKdfService,
-    useClass: DefaultChangeKdfService,
-    deps: [ChangeKdfApiService, SdkService, KeyService, InternalMasterPasswordServiceAbstraction],
   }),
   safeProvider({
     provide: EncryptedMigrator,
@@ -1434,7 +1431,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangeKdfService,
     useClass: DefaultChangeKdfService,
-    deps: [ChangeKdfApiService, SdkService, KeyService, InternalMasterPasswordServiceAbstraction],
+    deps: [
+      ChangeKdfApiService,
+      SdkService,
+      KeyService,
+      InternalMasterPasswordServiceAbstraction,
+      KdfConfigService,
+    ],
   }),
   safeProvider({
     provide: AuthRequestServiceAbstraction,
@@ -1854,6 +1857,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherEncryptionService,
     useClass: DefaultCipherEncryptionService,
     deps: [SdkService, LogService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DefaultDeviceManagementComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: ChangePasswordService,
