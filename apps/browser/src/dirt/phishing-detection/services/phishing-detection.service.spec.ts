@@ -1,6 +1,9 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/messaging";
@@ -13,6 +16,9 @@ describe("PhishingDetectionService", () => {
   let phishingDataService: MockProxy<PhishingDataService>;
   let messageListener: MockProxy<MessageListener>;
   let phishingDetectionSettingsService: MockProxy<PhishingDetectionSettingsServiceAbstraction>;
+  let eventCollectionService: MockProxy<EventCollectionService>;
+  let organizationService: MockProxy<OrganizationService>;
+  let accountService: MockProxy<AccountService>;
 
   beforeEach(() => {
     logService = { info: jest.fn(), debug: jest.fn(), warning: jest.fn(), error: jest.fn() } as any;
@@ -25,6 +31,9 @@ describe("PhishingDetectionService", () => {
     phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>({
       on$: of(true),
     });
+    eventCollectionService = mock<EventCollectionService>();
+    organizationService = mock<OrganizationService>();
+    accountService = mock<AccountService>();
   });
 
   it("should initialize without errors", () => {
@@ -34,6 +43,9 @@ describe("PhishingDetectionService", () => {
         phishingDataService,
         phishingDetectionSettingsService,
         messageListener,
+        eventCollectionService,
+        organizationService,
+        accountService,
       );
     }).not.toThrow();
   });
