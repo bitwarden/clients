@@ -320,6 +320,7 @@ export abstract class KeyService {
 
   /**
    * Retrieves all the keys needed for decrypting Ciphers
+   * @deprecated Do not subcribe to this frequently as this will trigger slow organization crypto initialization and may result in multi-minute performance impacts for large operations. Ideally, move your encryption and decryption to the SDK.
    * @param userId The user id of the keys to retrieve or null if the user is not Unlocked
    * @param legacySupport `true` if you need to support retrieving the legacy version of the users key, `false` if
    * you do not need legacy support. Use `true` by necessity only. Defaults to `false`. Legacy support is for users
@@ -334,6 +335,7 @@ export abstract class KeyService {
 
   /**
    * Gets an observable of org keys for the given user.
+   * @deprecated Do not subcribe to this frequently as this will trigger slow organization crypto initialization and may result in multi-minute performance impacts for large operations. Ideally, move your encryption and decryption to the SDK.
    * @param userId The user id of the user of which to get the keys for.
    * @return An observable stream of the users organization keys if they are unlocked, or null if the user is not unlocked.
    * The observable will stay alive through locks/unlocks.

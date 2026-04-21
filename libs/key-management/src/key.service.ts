@@ -891,8 +891,10 @@ export class DefaultKeyService implements KeyServiceAbstraction {
                   continue;
                 }
                 decrypted = await encrypted.decrypt(this.encryptService, providerKeys!);
+                this.logService.info("WARNING: Decrypting provider key. This is slow and should only happen once on unlock! If this happens frequently in a loop, please investigate.");
               } else {
                 decrypted = await encrypted.decrypt(this.encryptService, userPrivateKey);
+                this.logService.info("WARNING: Decrypting organization key. This is slow and should only happen once on unlock! If this happens frequently in a loop, please investigate.");
               }
 
               result[orgId] = decrypted;
