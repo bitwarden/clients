@@ -64,7 +64,7 @@ import { PopupFooterComponent } from "../../../../../platform/popup/layout/popup
 import { PopupHeaderComponent } from "../../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
-import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/services/browser-premium-upgrade-prompt.service";
 import { BrowserViewPasswordHistoryService } from "../../../services/browser-view-password-history.service";
 import {
   ROUTES_AFTER_EDIT_DELETION,

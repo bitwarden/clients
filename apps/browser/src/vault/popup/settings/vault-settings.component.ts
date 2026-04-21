@@ -18,7 +18,7 @@ import { BerryComponent, ItemModule, ToastOptions, ToastService } from "@bitward
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
-import { BrowserPremiumUpgradePromptService } from "../services/browser-premium-upgrade-prompt.service";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/services/browser-premium-upgrade-prompt.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

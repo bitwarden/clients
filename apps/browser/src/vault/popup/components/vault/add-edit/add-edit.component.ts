@@ -53,7 +53,7 @@ import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-p
 import { PopupRouterCacheService } from "../../../../../platform/popup/view-cache/popup-router-cache.service";
 import { PopupCloseWarningService } from "../../../../../popup/services/popup-close-warning.service";
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
-import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
 import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
 import {

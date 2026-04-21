@@ -33,7 +33,7 @@ import {
 } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
+import { BrowserPremiumUpgradePromptService } from "@bitwarden/browser/billing/services/browser-premium-upgrade-prompt.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
 import {
