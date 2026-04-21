@@ -85,7 +85,7 @@ export class PhishingDetectionService {
           await eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id);
         }
       } catch {
-        // Event collection failure should not block the user action
+        logService.warning(`[PhishingDetectionService] Failed to record event: ${eventType}`);
       }
     };
 
