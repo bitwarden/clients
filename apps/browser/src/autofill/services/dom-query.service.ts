@@ -305,17 +305,19 @@ export class DomQueryService implements DomQueryServiceInterface {
     const shadowRoots: ShadowRoot[] = [];
 
     // Previously used querySelectorAll(":defined") which matches ALL registered/built-in
-    // elements — potentially thousands on complex pages like Jira. Only custom elements
-    // (tag names containing a hyphen) can host a shadow root per the spec, so querying
-    // "*" and filtering by tag name avoids getShadowRoot calls on standard HTML elements.
+    // elements — potentially thousands on complex pages like Jira.
+    // Open shadow roots (element.shadowRoot) are freely readable on any element type
+    // at no extension-API cost. Closed shadow roots require the expensive
+    // chrome.dom.openOrClosedShadowRoot call — we restrict that to custom elements
+    // (hyphenated tag names) because only they are commonly given closed shadow roots.
     const potentialShadowRoots = root.querySelectorAll("*");
-    for (let index = 0; index < potentialShadowRoots.length; index++) {
-      const element = potentialShadowRoots[index];
-      if (!element.tagName.includes("-")) {
-        continue;
+    for (const potentialShadowRoot of potentialShadowRoots) {
+      // Fast path: open shadow root works on any element without extension API
+      let shadowRoot: ShadowRoot | null = potentialShadowRoot.shadowRoot;
+      // Slow path: closed shadow roots via extension API — custom elements only
+      if (!shadowRoot && potentialShadowRoot.tagName.includes("-")) {
+        shadowRoot = this.getShadowRoot(potentialShadowRoot);
       }
-
-      const shadowRoot = this.getShadowRoot(element);
       if (!shadowRoot) {
         continue;
       }
@@ -414,22 +416,19 @@ export class DomQueryService implements DomQueryServiceInterface {
         treeWalkerQueryResults.push(currentNode as T);
       }
 
-      // Only probe for a shadow root when:
-      // 1. The page is known to contain shadow DOM at all, AND
-      // 2. The element is a custom element (tag name contains a hyphen) —
-      //    only custom elements and a small set of built-ins can host shadow
-      //    roots, so calling the expensive chrome.dom.openOrClosedShadowRoot
-      //    on every plain HTML element (div, span, input…) is pure waste.
-      //    This is the primary cause of the long task reported in the trace:
-      //    getShadowRoot was called for every node on the Jira page, invoking
-      //    a synchronous Chrome extension API crossing the JS/browser boundary
-      //    thousands of times per mutation cycle.
-      if (
-        this.pageContainsShadowDom &&
-        nodeIsElement(currentNode) &&
-        (currentNode as Element).tagName.includes("-")
-      ) {
-        const nodeShadowRoot = this.getShadowRoot(currentNode);
+      // Only probe for a shadow root when the page is known to have shadow DOM.
+      // Open shadow roots (element.shadowRoot) are cheap on any element type.
+      // The extension API (chrome.dom.openOrClosedShadowRoot) is restricted to
+      // custom elements (hyphenated tag names) since it crosses the JS/browser
+      // boundary synchronously and would cause long tasks if called on every node.
+      if (this.pageContainsShadowDom && nodeIsElement(currentNode)) {
+        const el = currentNode as Element;
+        // Open shadow root: cheap read, works on any element
+        let nodeShadowRoot: ShadowRoot | null = el.shadowRoot;
+        // Closed shadow root via extension API: restrict to custom elements only
+        if (!nodeShadowRoot && el.tagName.includes("-")) {
+          nodeShadowRoot = this.getShadowRoot(currentNode);
+        }
         if (nodeShadowRoot) {
           if (mutationObserver) {
             mutationObserver.observe(nodeShadowRoot, {
