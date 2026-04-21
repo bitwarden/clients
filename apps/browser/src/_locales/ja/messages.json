@@ -3805,22 +3805,22 @@
     "message": "ログイン状態"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "最近アクティブ"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "今日"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "過去7日間"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "過去14日間"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "過去30日間"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "30日以上前"
   },
   "masterPasswordChanged": {
     "message": "マスターパスワードが保存されました"
@@ -6173,7 +6173,7 @@
     "message": "Bitwarden デスクトップアプリで管理されています。編集するにはデスクトップアプリを開いてください。"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% 完了",
     "placeholders": {
       "percent": {
         "content": "$1",
