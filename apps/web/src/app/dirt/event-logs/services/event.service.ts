@@ -490,7 +490,11 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
         break;
       case EventType.Organization_ItemOrganization_Declined:
-        msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        msg = this.i18nService.t("revokedUserIdDeclinedTransfer", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdDeclinedTransfer",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       case EventType.Organization_AutoConfirmEnabled_Admin:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByAdmin");
