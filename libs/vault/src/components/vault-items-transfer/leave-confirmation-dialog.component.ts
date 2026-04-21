@@ -46,11 +46,11 @@ export class LeaveConfirmationDialogComponent {
   protected readonly organizationName = this.params.organizationName;
 
   protected confirmLeave() {
-    this.dialogRef.close(LeaveConfirmationDialogResult.Confirmed);
+    void this.dialogRef.close(LeaveConfirmationDialogResult.Confirmed);
   }
 
   protected goBack() {
-    this.dialogRef.close(LeaveConfirmationDialogResult.Back);
+    void this.dialogRef.close(LeaveConfirmationDialogResult.Back);
   }
 
   protected openLearnMore(e: Event) {

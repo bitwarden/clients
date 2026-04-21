@@ -389,9 +389,15 @@ export class WindowMain {
     if (template === "full-app") {
       // and load the index.html of the app.
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      void this.win.loadURL(this.getWindowUrl(), {
-        userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      });
+      void this.win
+        .loadURL(this.getWindowUrl(), {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        })
+        .then(() => {
+          if (isDev()) {
+            this.win.webContents.openDevTools();
+          }
+        });
     } else {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
@@ -405,11 +411,6 @@ export class WindowMain {
           userAgent: cleanUserAgent(this.win.webContents.userAgent),
         },
       );
-    }
-
-    // Open the DevTools.
-    if (isDev()) {
-      this.win.webContents.openDevTools();
     }
 
     // Emitted when the window is closed.
