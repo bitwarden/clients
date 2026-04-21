@@ -33,7 +33,7 @@ export class ZohoVaultCsvImporter extends BaseImporter implements Importer {
       cipher.login.uris = this.makeUriArray(
         this.getValueOrDefault(value["Password URL"], this.getValueOrDefault(value["Secret URL"])),
       );
-      // Zoho exports TOTP in a column called "TOTP"; older exports used "login_totp"
+      
       cipher.login.totp = this.getValueOrDefault(
         value["TOTP"],
         this.getValueOrDefault(value["login_totp"]),
