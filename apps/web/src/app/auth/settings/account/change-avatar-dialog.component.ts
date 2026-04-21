@@ -105,7 +105,7 @@ export class ChangeAvatarDialogComponent implements OnInit, OnDestroy {
 
     if (isValidSelection) {
       await this.avatarService.setAvatarColor(this.currentSelection);
-      this.dialogRef.close();
+      await this.dialogRef.close();
       this.toastService.showToast({
         variant: "success",
         title: null,
