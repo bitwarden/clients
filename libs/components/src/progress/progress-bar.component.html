@@ -1,5 +1,5 @@
 <div class="tw-flex tw-flex-col">
-  <div [id]="labelId" class="!tw-mb-1 empty:tw-hidden" bitTypography="h5">
+  <div [id]="labelId" class="!tw-mb-0 has-[[slot='label']]:!tw-mb-1" bitTypography="h5">
     <ng-content select="[slot='label']">
       <span class="tw-sr-only">{{ accessibleNameComputed() }}</span>
     </ng-content>
