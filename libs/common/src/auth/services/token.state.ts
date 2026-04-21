@@ -13,11 +13,16 @@ import {
 export const ACCESS_TOKEN_DISK = new UserKeyDefinition<string>(TOKEN_DISK, "accessToken", {
   deserializer: (accessToken) => accessToken,
   clearOn: [], // Manually handled
+  // Disable the ReplaySubject cache so every subscriber always reads the access token
+  // directly from storage. A cached value could be stale if a write has not yet
+  // propagated, causing downstream callers to send an outdated JWT on authenticated requests.
+  cleanupDelayMs: 0,
 });
 
 export const ACCESS_TOKEN_MEMORY = new UserKeyDefinition<string>(TOKEN_MEMORY, "accessToken", {
   deserializer: (accessToken) => accessToken,
   clearOn: [], // Manually handled
+  cleanupDelayMs: 0, // See ACCESS_TOKEN_DISK comment above
 });
 
 export const REFRESH_TOKEN_DISK = new UserKeyDefinition<string>(TOKEN_DISK, "refreshToken", {
