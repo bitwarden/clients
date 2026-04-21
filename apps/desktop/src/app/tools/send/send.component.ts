@@ -28,7 +28,7 @@ import {
   SendFormConfig,
 } from "@bitwarden/send-ui";
 
-import { DesktopPremiumUpgradePromptService } from "../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopHeaderComponent } from "../../layout/header";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
