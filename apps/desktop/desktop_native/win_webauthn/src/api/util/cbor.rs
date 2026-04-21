@@ -36,7 +36,7 @@ where
         const POSITIVE_INTEGER_MASK: u8 = 0b000_00000;
         const NEGATIVE_INTEGER_MASK: u8 = 0b001_00000;
         let (mask, num) = if num >= 0 {
-            if num > (u64::MAX as i128) - 1 {
+            if num > (u64::MAX as i128) {
                 return Err(Error::new(
                     ErrorKind::InvalidInput,
                     "value too large".to_string(),
@@ -44,7 +44,7 @@ where
             }
             (POSITIVE_INTEGER_MASK, num as u64)
         } else {
-            if num == i128::MIN {
+            if num < -(u64::MAX as i128) - 1 {
                 return Err(Error::new(
                     ErrorKind::InvalidInput,
                     "negative value too large".to_string(),
@@ -145,16 +145,11 @@ where
             major_type_buf[0] = major_type_mask | 26u8;
             major_type_buf[1..5].copy_from_slice(&l.to_be_bytes());
             self.writer.write_all(&major_type_buf[0..5])?;
-        } else if len < 2u64.pow(64) {
+        } else {
             let l = len;
             major_type_buf[0] = major_type_mask | 27u8;
             major_type_buf[1..9].copy_from_slice(&l.to_be_bytes());
             self.writer.write_all(&major_type_buf[0..9])?;
-        } else {
-            return Err(Error::new(
-                ErrorKind::Unsupported,
-                "Value too large".to_string(),
-            ));
         }
         if let Some(data) = data {
             self.writer.write_all(data)?;
@@ -247,6 +242,24 @@ mod tests {
     }
 
     #[test]
+    fn write_number_u32() {
+        let mut buf: Vec<u8> = Vec::with_capacity(16);
+        let mut cbor_writer = CborWriter::new(&mut buf);
+        cbor_writer.write_number(u32::MAX as i128).unwrap();
+        assert_eq!(buf, &[0b000_11010, 0xff, 0xff, 0xff, 0xff]);
+    }
+
+    #[test]
+    fn write_number_u64() {
+        let mut buf: Vec<u8> = Vec::with_capacity(16);
+        let mut cbor_writer = CborWriter::new(&mut buf);
+        cbor_writer.write_number(u64::MAX as i128).unwrap();
+        assert_eq!(
+            buf,
+            &[0b000_11011, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
+        );
+    }
+    #[test]
     fn write_negative_number() {
         let mut buf: Vec<u8> = Vec::with_capacity(16);
         let mut cbor_writer = CborWriter::new(&mut buf);
@@ -263,10 +276,29 @@ mod tests {
     }
 
     #[test]
+    fn write_negative_number_u32() {
+        let mut buf: Vec<u8> = Vec::with_capacity(16);
+        let mut cbor_writer = CborWriter::new(&mut buf);
+        cbor_writer.write_number(-(u32::MAX as i128)).unwrap();
+        assert_eq!(buf, &[0b001_11010, 0xff, 0xff, 0xff, 0xfe]);
+    }
+
+    #[test]
+    fn write_negative_number_u64() {
+        let mut buf: Vec<u8> = Vec::with_capacity(16);
+        let mut cbor_writer = CborWriter::new(&mut buf);
+        cbor_writer.write_number(-(u64::MAX as i128)).unwrap();
+        assert_eq!(
+            buf,
+            &[0b001_11011, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe]
+        );
+    }
+
+    #[test]
     fn write_negative_number_overflow() {
         let mut buf: Vec<u8> = Vec::with_capacity(16);
         let mut cbor_writer = CborWriter::new(&mut buf);
-        let err = cbor_writer.write_number(i128::MIN).unwrap_err();
+        let err = cbor_writer.write_number(-(2_i128.pow(64)) - 1).unwrap_err();
         assert!(matches!(err.kind(), ErrorKind::InvalidInput));
     }
 
@@ -274,7 +306,7 @@ mod tests {
     fn write_positive_number_overflow() {
         let mut buf: Vec<u8> = Vec::with_capacity(16);
         let mut cbor_writer = CborWriter::new(&mut buf);
-        let err = cbor_writer.write_number(u64::MAX as i128).unwrap_err();
+        let err = cbor_writer.write_number(u64::MAX as i128 + 1).unwrap_err();
         assert!(matches!(err.kind(), ErrorKind::InvalidInput));
     }
 
