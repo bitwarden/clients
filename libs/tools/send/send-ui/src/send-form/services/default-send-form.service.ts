@@ -68,6 +68,9 @@ export class DefaultSendFormService implements SendFormService {
 
   async initializeSendForm(config: SendFormConfig) {
     this.sendFormConfig = config;
+    (Object.keys(this._sendForm.controls) as (keyof SendForm)[]).forEach((key) => {
+      this._sendForm.removeControl(key);
+    });
     this._sendForm.reset();
     this.file = undefined;
     this.updatedSendView = new SendView();
