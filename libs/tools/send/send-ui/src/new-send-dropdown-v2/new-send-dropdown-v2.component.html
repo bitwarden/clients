@@ -1,7 +1,10 @@
-<button bitButton [bitMenuTriggerFor]="itemOptions" [buttonType]="buttonType()" type="button">
-  @if (!hideIcon()) {
-    <i class="bwi bwi-plus tw-me-2" aria-hidden="true"></i>
-  }
+<button
+  bitButton
+  [bitMenuTriggerFor]="itemOptions"
+  [buttonType]="buttonType()"
+  type="button"
+  [startIcon]="!hideIcon() ? 'bwi-plus' : undefined"
+>
   {{ (hideIcon() ? "createSend" : "new") | i18n }}
 </button>
 <bit-menu #itemOptions>

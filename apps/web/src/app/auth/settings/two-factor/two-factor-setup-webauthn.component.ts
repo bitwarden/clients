@@ -144,7 +144,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
     await this.disableMethod();
     if (!this.enabled) {
       this.onUpdated.emit(this.enabled);
-      this.dialogRef.close();
+      await this.dialogRef.close();
     }
   };
 
@@ -281,7 +281,7 @@ export class TwoFactorSetupWebAuthnComponent extends TwoFactorSetupMethodBaseCom
   ) {
     return dialogService.open<boolean, AuthResponse<TwoFactorWebAuthnResponse>>(
       TwoFactorSetupWebAuthnComponent,
-      config as DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>, DialogRef<boolean>>,
+      config as DialogConfig<AuthResponse<TwoFactorWebAuthnResponse>, boolean>,
     );
   }
 }
