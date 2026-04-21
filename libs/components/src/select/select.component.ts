@@ -9,21 +9,25 @@ import {
   Self,
   Output,
   EventEmitter,
+  computed,
   input,
   Signal,
-  computed,
   model,
   signal,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
   ControlValueAccessor,
   NgControl,
+  StatusChangeEvent,
+  TouchedChangeEvent,
   Validators,
   ReactiveFormsModule,
   FormsModule,
 } from "@angular/forms";
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
+import { EMPTY, filter } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -65,6 +69,9 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
   private notifyOnChange?: (value?: T | null) => void;
   private notifyOnTouched?: () => void;
 
+  private readonly ngControlEvents: Signal<unknown>;
+  readonly hasError: Signal<boolean>;
+
   constructor(
     private i18nService: I18nService,
     @Optional() @Self() private ngControl?: NgControl,
@@ -72,6 +79,16 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     if (ngControl != null) {
       ngControl.valueAccessor = this;
     }
+    this.ngControlEvents = toSignal(
+      this.ngControl?.control?.events.pipe(
+        filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
+      ) ?? EMPTY,
+      { initialValue: null },
+    );
+    this.hasError = computed(() => {
+      this.ngControlEvents();
+      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
+    });
   }
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -186,11 +203,6 @@ export class SelectComponent<T> implements BitFormFieldControl, ControlValueAcce
     this._required = value != null && value !== false;
   }
   private _required?: boolean;
-
-  /**Implemented as part of BitFormFieldControl */
-  get hasError() {
-    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
-  }
 
   /**Implemented as part of BitFormFieldControl */
   get error(): [string, any] {

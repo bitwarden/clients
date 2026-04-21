@@ -9,7 +9,7 @@
       <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
     }
   </label>
-  <div bitFieldContainer [size]="size()" [hasError]="input().hasError" [readOnly]="readOnly">
+  <div bitFieldContainer [size]="size()" [hasError]="input().hasError()" [readOnly]="readOnly">
     <div
       #prefixContainer
       [hidden]="!prefixHasChildren()"
@@ -32,7 +32,7 @@
       </div>
     </div>
   </div>
-  @switch (input().hasError) {
+  @switch (input().hasError()) {
     @case (false) {
       <ng-content select="bit-hint"></ng-content>
     }

@@ -17,7 +17,7 @@ export abstract class BitFormFieldControl {
   abstract id: Signal<string>;
   abstract labelForId: string;
   abstract required: boolean;
-  abstract hasError: boolean;
+  abstract hasError: Signal<boolean>;
   abstract error: [string, any];
   abstract type?: ModelSignal<InputTypes | undefined>;
   abstract spellcheck?: ModelSignal<boolean | undefined>;

@@ -1,15 +1,21 @@
 import {
   AfterViewInit,
+  DestroyRef,
   Directive,
   ElementRef,
   HostBinding,
   Input,
   NgZone,
+  Signal,
+  computed,
   inject,
   input,
   model,
+  signal,
 } from "@angular/core";
-import { NgControl, Validators } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { NgControl, StatusChangeEvent, TouchedChangeEvent, Validators } from "@angular/forms";
+import { filter } from "rxjs";
 
 import { BitFormFieldControl, InputTypes } from "../form-field/form-field-control";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
@@ -69,7 +75,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     ];
 
     if (this.parentFormField === null) {
-      classes.push(...inputBorderClasses(this.hasError), ...this.standaloneInputClasses);
+      classes.push(...inputBorderClasses(this.hasError()), ...this.standaloneInputClasses);
     }
 
     return classes.filter((s) => s != "");
@@ -80,7 +86,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
   ariaDescribedBy?: string;
 
   protected get ariaInvalid() {
-    return this.hasError ? true : undefined;
+    return this.hasError() ? true : undefined;
   }
 
   readonly type = model<InputTypes>();
@@ -106,12 +112,34 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
 
   protected readonly showErrorsWhenDisabled = input<boolean>(false);
 
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly controlEvent = signal<unknown>(null);
+
+  readonly hasError: Signal<boolean> = computed(() => {
+    this.controlEvent();
+    if (this.showErrorsWhenDisabled()) {
+      return !!(
+        (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
+        this.ngControl?.touched &&
+        this.ngControl?.errors != null
+      );
+    } else {
+      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
+    }
+  });
+
   get labelForId(): string {
     return this.id();
   }
 
   ngAfterViewInit() {
     this.adjustTextareaHeight();
+    this.ngControl?.control?.events
+      .pipe(
+        filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((e) => this.controlEvent.set(e));
   }
 
   protected onInput() {
@@ -127,18 +155,6 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     const textarea = el;
     textarea.style.height = "auto";
     textarea.style.height = `${textarea.scrollHeight}px`;
-  }
-
-  get hasError() {
-    if (this.showErrorsWhenDisabled()) {
-      return !!(
-        (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
-        this.ngControl?.touched &&
-        this.ngControl?.errors != null
-      );
-    } else {
-      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
-    }
   }
 
   get error(): [string, any] {
@@ -164,7 +180,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
       "tw-px-3",
       "tw-py-2",
       "tw-rounded-lg",
-      this.hasError ? "hover:tw-border-border-danger" : "hover:tw-border-border-brand",
+      this.hasError() ? "hover:tw-border-border-danger" : "hover:tw-border-border-brand",
       "disabled:tw-bg-bg-secondary",
       "disabled:hover:tw-border-border-base",
       "focus:tw-border-border-brand",

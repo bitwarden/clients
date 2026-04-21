@@ -8,19 +8,25 @@ import {
   HostBinding,
   Optional,
   Self,
+  Signal,
+  computed,
   input,
   model,
   booleanAttribute,
   viewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
   ControlValueAccessor,
   NgControl,
+  StatusChangeEvent,
+  TouchedChangeEvent,
   Validators,
   ReactiveFormsModule,
   FormsModule,
 } from "@angular/forms";
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
+import { EMPTY, filter } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -89,6 +95,9 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onItemsConfirmed = new EventEmitter<any[]>();
 
+  private readonly ngControlEvents: Signal<unknown>;
+  readonly hasError: Signal<boolean>;
+
   constructor(
     private i18nService: I18nService,
     @Optional() @Self() private ngControl?: NgControl,
@@ -96,6 +105,16 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
     if (ngControl != null) {
       ngControl.valueAccessor = this;
     }
+    this.ngControlEvents = toSignal(
+      this.ngControl?.control?.events.pipe(
+        filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
+      ) ?? EMPTY,
+      { initialValue: null },
+    );
+    this.hasError = computed(() => {
+      this.ngControlEvents();
+      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
+    });
   }
 
   ngOnInit(): void {
@@ -228,11 +247,6 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
     this._required = value != null && value !== false;
   }
   private _required?: boolean;
-
-  /**Implemented as part of BitFormFieldControl */
-  get hasError() {
-    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
-  }
 
   /**Implemented as part of BitFormFieldControl */
   get error(): [string, any] {
