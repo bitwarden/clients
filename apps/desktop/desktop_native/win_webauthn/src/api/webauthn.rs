@@ -19,6 +19,11 @@ use crate::{api::util::cbor::CborWriter, ErrorKind, WinWebAuthnError};
 
 /// List of its supported protocol versions and extensions, its AAGUID, and
 /// other aspects of its overall capabilities.
+///
+/// Corresponds to the
+/// [CTAP2 authenticatorGetInfo response structure][ctap2-getinfo-response]
+///
+/// [ctap2-getinfo-response]: https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html#getinfo-authenticatorgetinfo-response-structure
 pub struct AuthenticatorInfo {
     /// List of supported versions.
     pub versions: HashSet<CtapVersion>,
@@ -30,7 +35,10 @@ pub struct AuthenticatorInfo {
     /// UUID, which is deserialized differently than a Windows GUID.
     pub aaguid: Uuid,
 
-    /// List of supported options.
+    /// List of supported options, corresponding to the
+    /// [`options` key of the CTAP2 `authenticatorGetInfo` object][ctap2-getinfo-options].
+    ///
+    /// [ctap2-getinfo-options]: https://fidoalliance.org/specs/fido-v2.3-rd-20251023/fido-client-to-authenticator-protocol-v2.3-rd-20251023.html#option-id
     pub options: Option<HashSet<String>>,
 
     /// List of supported transports. Values are taken from the
