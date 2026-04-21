@@ -373,11 +373,20 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("userSelfRevokedOrganizationOwnership");
         break;
       case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance:
-        msg = humanReadableMsg = this.i18nService.t("revocationReasonTwoFactorNonCompliance");
+        msg = this.i18nService.t("revokedUserIdTwoFactorNonCompliance", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdTwoFactorNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance:
-        msg = humanReadableMsg = this.i18nService.t(
-          "revocationReasonSingleOrganizationNonCompliance",
+        msg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.formatOrgUserId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.getShortId(ev.organizationUserId),
         );
         break;
       // Org
