@@ -120,6 +120,7 @@ export class GetCommand extends DownloadCommand {
       }
     } else if (id.trim() !== "") {
       let ciphers = await this.cipherService.getAllDecrypted(userId);
+      ciphers = ciphers.filter((c) => !c.isDeleted && !c.isArchived);
       ciphers = this.searchService.searchCiphersBasic(ciphers, id);
       if (ciphers.length > 1) {
         return ciphers;
