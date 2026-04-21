@@ -14,7 +14,6 @@ import {
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DEFAULT_KDF_CONFIG, KeyService, KdfType } from "@bitwarden/key-management";
 
@@ -76,17 +75,16 @@ describe("DefaultRegistrationFinishService", () => {
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
-      masterKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as MasterKey;
+      masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
       passwordInputResult = {
         newMasterKey: masterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
-        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPasswordHint: "newPasswordHint",
         newPassword: "newPassword",
       };
 
-      userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+      userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
 
       userKeyPair = ["publicKey", new EncString("privateKey")];
@@ -154,7 +152,7 @@ describe("DefaultRegistrationFinishService", () => {
         salt = "test@email.com" as MasterPasswordSalt;
 
         // When the Auth flag is ON, InputPasswordComponent emits newApisWithInputPasswordFlagEnabled: true
-        // and does NOT emit newMasterKey, newServerMasterKeyHash, or newLocalMasterKeyHash.
+        // and does NOT emit newMasterKey, newServerMasterKeyHash.
         passwordInputResult = {
           newPassword: "newPassword",
           kdfConfig: DEFAULT_KDF_CONFIG,

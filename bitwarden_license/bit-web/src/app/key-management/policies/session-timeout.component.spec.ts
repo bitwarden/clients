@@ -6,21 +6,29 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   SessionTimeoutAction,
   SessionTimeoutType,
 } from "@bitwarden/common/key-management/session-timeout";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { DialogCloseRef, DialogRef, DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-confirmation-never.component";
 import { SessionTimeoutPolicyComponent } from "./session-timeout.component";
 
 // Mock DialogRef, so we can mock "readonly closed" property.
 class MockDialogRef extends DialogRef {
-  close(result: unknown | undefined, options: DialogCloseOptions | undefined): void {}
+  async close(
+    result: unknown | undefined,
+    options: DialogCloseOptions | undefined,
+  ): Promise<DialogCloseRef> {
+    return { closed: true };
+  }
 
   closed: Observable<unknown | undefined> = of();
   componentInstance: unknown | null;
@@ -47,7 +55,13 @@ describe("SessionTimeoutPolicyComponent", () => {
 
     const testBed = TestBed.configureTestingModule({
       imports: [SessionTimeoutPolicyComponent, ReactiveFormsModule],
-      providers: [FormBuilder, { provide: I18nService, useValue: mockI18nService }],
+      providers: [
+        FormBuilder,
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
+      ],
     });
 
     // Override DialogService provided from SharedModule (which includes DialogModule)
@@ -80,13 +94,16 @@ describe("SessionTimeoutPolicyComponent", () => {
   }
 
   function setPolicyResponseType(type: SessionTimeoutType) {
-    component.policyResponse = new PolicyResponse({
-      Data: {
-        type,
-        minutes: 480,
-        action: null,
-      },
-    });
+    fixture.componentRef.setInput(
+      "policyResponse",
+      new PolicyResponse({
+        Data: {
+          type,
+          minutes: 480,
+          action: null,
+        },
+      }),
+    );
   }
 
   describe("initialization and data loading", () => {
@@ -104,7 +121,7 @@ describe("SessionTimeoutPolicyComponent", () => {
     }
 
     it("should initialize with default state when policy have no value", () => {
-      component.policyResponse = undefined;
+      fixture.componentRef.setInput("policyResponse", undefined);
 
       fixture.detectChanges();
 
@@ -122,12 +139,15 @@ describe("SessionTimeoutPolicyComponent", () => {
 
     // This is for backward compatibility when type field did not exist
     it("should load as custom type when type field does not exist but minutes does", () => {
-      component.policyResponse = new PolicyResponse({
-        Data: {
-          minutes: 500,
-          action: VaultTimeoutAction.Lock,
-        },
-      });
+      fixture.componentRef.setInput(
+        "policyResponse",
+        new PolicyResponse({
+          Data: {
+            minutes: 500,
+            action: VaultTimeoutAction.Lock,
+          },
+        }),
+      );
 
       fixture.detectChanges();
 
@@ -159,13 +179,16 @@ describe("SessionTimeoutPolicyComponent", () => {
       ["custom", VaultTimeoutAction.Lock],
       ["custom", VaultTimeoutAction.LogOut],
     ])("should load correctly when policy type is %s and action is %s", (type, action) => {
-      component.policyResponse = new PolicyResponse({
-        Data: {
-          type,
-          minutes: 510,
-          action,
-        },
-      });
+      fixture.componentRef.setInput(
+        "policyResponse",
+        new PolicyResponse({
+          Data: {
+            type,
+            minutes: 510,
+            action,
+          },
+        }),
+      );
 
       fixture.detectChanges();
 

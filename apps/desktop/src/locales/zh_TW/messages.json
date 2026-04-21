@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH 金鑰"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Select the item type you want to add to your vault."
+  },
   "folders": {
     "message": "資料夾"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "檢視項目"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "名稱"
@@ -336,6 +423,22 @@
   },
   "premiumRequiredDesc": {
     "message": "進階會員才可使用此功能。"
+  },
+  "syncWithBrowser": {
+    "message": "與瀏覽器同步"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "若要連線至 $VAULTURL$，您需要將預設瀏覽器與 Bitwarden 應用程式同步。瀏覽器同步完成後，您將被重新導向回此應用程式。",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "開啟瀏覽器"
   },
   "errorOccurred": {
     "message": "發生錯誤。"
@@ -905,6 +1008,9 @@
   "masterPassHintLabel": {
     "message": "主密碼提示"
   },
+  "masterPasswordChanged": {
+    "message": "主密碼已儲存"
+  },
   "passwordStrengthScore": {
     "message": "密碼強度分數 $SCORE$",
     "placeholders": {
@@ -1196,6 +1302,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
   },
+  "rotateAccountEncKey": {
+    "message": "同時輪換帳戶的加密金鑰"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "輪換加密金鑰的影響"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
+  },
+  "rotateEncKeyTitle": {
+    "message": "輪換加密金鑰"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "確定要輪換帳戶的加密金鑰嗎？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您保存的任何受限制匯出帳號將失效。"
+  },
   "confirmIdentityToContinue": {
     "message": "請先確認身分後再繼續"
   },
@@ -1280,6 +1407,9 @@
   "changeMasterPass": {
     "message": "變更主密碼"
   },
+  "changeMasterPassword": {
+    "message": "變更主密碼"
+  },
   "continueToWebApp": {
     "message": "前往網頁應用程式嗎？"
   },
@@ -1358,17 +1488,11 @@
   "twoStepLogin": {
     "message": "兩步驟登入"
   },
-  "vaultTimeoutHeader": {
-    "message": "密碼庫逾時時間"
-  },
   "vaultTimeout": {
     "message": "密碼庫逾時時間"
   },
   "vaultTimeout1": {
     "message": "逾時"
-  },
-  "vaultTimeoutAction1": {
-    "message": "逾時後動作"
   },
   "vaultTimeoutDesc": {
     "message": "選擇密碼庫何時執行密碼庫逾時動作。"
@@ -1658,6 +1782,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "月"
+  },
+  "monthly": {
+    "message": "每月"
+  },
+  "year": {
+    "message": "年"
+  },
+  "annually": {
+    "message": "每年"
+  },
+  "annual": {
+    "message": "每年"
   },
   "refreshComplete": {
     "message": "刷新完成"
@@ -2074,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "有尚未儲存的變更"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "如果您現在離開，變更將不會被儲存。請稍後安裝更新，以便您可以留下並儲存變更。"
+  },
+  "installLater": {
+    "message": "稍後安裝"
+  },
+  "continueWithInstall": {
+    "message": "繼續安裝"
+  },
   "clone": {
     "message": "克隆"
   },
@@ -2088,9 +2236,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "需要重新驗證才能再次存取密碼庫。"
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "lock": {
     "message": "鎖定",
@@ -2186,6 +2331,9 @@
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
   },
+  "copyNotes": {
+    "message": "Copy notes"
+  },
   "totpHelperTitle": {
     "message": "無縫兩步驟驗證"
   },
@@ -2274,6 +2422,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新的主密碼不符合原則要求。"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "一個或多個組織原則要求主密碼須符合下列條件："
   },
   "receiveMarketingEmailsV2": {
     "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
@@ -2709,9 +2860,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密碼庫逾時時間超過組織設定的限制。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企業政策已套用至您的逾時選項中"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
@@ -3745,6 +3893,9 @@
   "exportSuccess": {
     "message": "密碼庫資料已匯出"
   },
+  "exportError": {
+    "message": "匯出密碼庫資料時發生錯誤"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "多因素驗證已取消"
   },
@@ -4617,8 +4768,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,20 +4777,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "點擊「接受」以轉移您項目的擁有權。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "開啟關於轉移項目的說明文章"
+  },
   "acceptTransfer": {
     "message": "同意轉移"
   },
   "declineAndLeave": {
     "message": "拒絕並離開"
   },
-  "whyAmISeeingThis": {
-    "message": "為什麼我會看到此訊息？"
-  },
   "organizationIsSuspended": {
     "message": "組織已停用"
   },
   "organizationIsSuspendedDesc": {
     "message": "無法存取已停用組織中的項目。請聯絡您組織的擁有者以獲取協助。"
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
   },
   "noItemsInTrash": {
     "message": "垃圾桶中沒有項目"
@@ -4693,13 +4856,30 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "電子郵件驗證至少需要一個電子郵件地址。若要移除所有電子郵件，請變更上方的存取類型。"
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

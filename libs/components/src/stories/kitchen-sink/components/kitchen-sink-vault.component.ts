@@ -1,17 +1,19 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 import { KitchenSinkFormComponent } from "./kitchen-sink-form.component";
-import { KitchenSinkDialogComponent } from "./kitchen-sink-main.component";
+import {
+  KitchenSinkDialogComponent,
+  KitchenSinkDialogWithAutofocusComponent,
+} from "./kitchen-sink-main.component";
 import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
 import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-kitchen-sink-vault",
   imports: [
     KitchenSinkSharedModule,
@@ -37,6 +39,14 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         Open Dialog
       </button>
       <button type="button" bitButton (click)="openDrawer()">Open Drawer</button>
+      <button type="button" bitButton [bitMenuTriggerFor]="focusMenu">Open Dialog from Menu</button>
+      <bit-menu #focusMenu>
+        <button type="button" bitMenuItem (click)="openDialog()">Open Dialog</button>
+        <button type="button" bitMenuItem (click)="openDialogWithAutofocus()">
+          Open Dialog with Autofocus
+        </button>
+        <button type="button" bitMenuItem (click)="openSimpleDialog()">Open Simple Dialog</button>
+      </bit-menu>
       <button bitButton type="button" (click)="tourService.startTour()">Start Tour</button>
     </bit-section>
     <bit-section>
@@ -87,8 +97,7 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   `,
 })
 export class KitchenSinkVaultComponent {
-  constructor(public dialogService: DialogService) {}
-
+  protected readonly dialogService = inject(DialogService);
   protected readonly tourService = inject(KitchenSinkTourService);
 
   openDialog() {
@@ -96,6 +105,20 @@ export class KitchenSinkVaultComponent {
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialogComponent);
+    void this.dialogService.openDrawer(KitchenSinkDialogComponent);
+  }
+
+  openDialogWithAutofocus() {
+    this.dialogService.open(KitchenSinkDialogWithAutofocusComponent);
+  }
+
+  openSimpleDialog() {
+    void this.dialogService.openSimpleDialog({
+      title: "Confirm Action",
+      content: "Are you sure you want to proceed?",
+      type: "primary",
+      acceptButtonText: "Yes",
+      cancelButtonText: "No",
+    });
   }
 }

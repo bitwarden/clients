@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, merge } from "rxjs";
 
 import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
@@ -94,7 +95,6 @@ import {
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { ServerCommunicationConfigService } from "@bitwarden/common/platform/abstractions/server-communication-config/server-communication-config.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
@@ -108,17 +108,12 @@ import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk
 import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/default-sdk-load.service";
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
-import {
-  DefaultServerCommunicationConfigService,
-  ServerCommunicationConfigRepository,
-  ServerCommunicationConfigPlatformApiService,
-} from "@bitwarden/common/platform/services/server-communication-config";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { COPY_CLICK_LISTENER, DialogService, ToastService } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
 import {
@@ -136,6 +131,7 @@ import {
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import {
+  CipherFormGenerationService,
   DefaultSshImportPromptService,
   SshImportPromptService,
   VaultFilterServiceAbstraction,
@@ -169,9 +165,18 @@ import { ElectronRendererMessageSender } from "../../platform/services/electron-
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import {
+  DefaultServerCommunicationConfigService,
+  ServerCommunicationConfigPlatformApiService,
+  ServerCommunicationConfigRepository,
+} from "../../platform/services/server-communication-config";
+import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
 import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { BiometricMessageHandlerService } from "../../services/biometric-message-handler.service";
+import { DesktopCredentialGenerationService } from "../../services/desktop-cipher-form-generator.service";
+import { DesktopCopyListenerService } from "../../services/desktop-copy-listener.service";
+import { DesktopDeviceManagementComponentService } from "../../services/desktop-device-management-component.service";
 import { DuckDuckGoMessageHandlerService } from "../../services/duckduckgo-message-handler.service";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
@@ -192,6 +197,11 @@ const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider({
+    provide: CipherFormGenerationService,
+    useClass: DesktopCredentialGenerationService,
+    deps: [],
+  }),
+  safeProvider({
     provide: BiometricsService,
     useClass: RendererBiometricsService,
     deps: [TokenService],
@@ -200,6 +210,11 @@ const safeProviders: SafeProvider[] = [
     provide: DesktopBiometricsService,
     useClass: RendererBiometricsService,
     deps: [TokenService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DesktopDeviceManagementComponentService,
+    deps: [],
   }),
   safeProvider(NativeMessagingService),
   safeProvider(BiometricMessageHandlerService),
@@ -429,14 +444,12 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      KeyServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
       EncryptService,
       EnvironmentService,
       PlatformUtilsServiceAbstraction,
       WINDOW,
       LogServiceAbstraction,
-      ConfigService,
     ],
   }),
   safeProvider({
@@ -575,6 +588,11 @@ const safeProviders: SafeProvider[] = [
     deps: [Router, RoutedVaultFilterService, VaultFilterServiceAbstraction],
   }),
   safeProvider({
+    provide: COPY_CLICK_LISTENER,
+    useClass: DesktopCopyListenerService,
+    deps: [MessagingServiceAbstraction],
+  }),
+  safeProvider({
     provide: AuthRequestAnsweringService,
     useClass: DesktopAuthRequestAnsweringService,
     deps: [
@@ -585,16 +603,19 @@ const safeProviders: SafeProvider[] = [
       PendingAuthRequestsStateService,
       I18nServiceAbstraction,
       LogService,
+      ConfigService,
     ],
   }),
   safeProvider({
     provide: ServerCommunicationConfigService,
     useFactory: (
       stateProvider: StateProvider,
-      platformUtilsService: PlatformUtilsServiceAbstraction,
+      platformUtilsService: PlatformUtilsService,
       messageListener: MessageListener,
       logService: LogService,
       configService: ConfigService,
+      apiService: ApiService,
+      dialogService: DialogService,
     ) =>
       new DefaultServerCommunicationConfigService(
         new ServerCommunicationConfigRepository(stateProvider),
@@ -602,15 +623,19 @@ const safeProviders: SafeProvider[] = [
           platformUtilsService,
           messageListener,
           logService,
+          dialogService,
         ),
         configService,
+        apiService,
       ),
     deps: [
       StateProvider,
-      PlatformUtilsServiceAbstraction,
+      PlatformUtilsService,
       MessageListener,
       LogService,
       ConfigService,
+      ApiService,
+      DialogService,
     ],
   }),
 ];

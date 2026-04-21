@@ -1,6 +1,11 @@
 <app-header>
-  <button type="button" (click)="addSponsorship()" bitButton buttonType="primary">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+  <button
+    type="button"
+    (click)="addSponsorship()"
+    bitButton
+    buttonType="primary"
+    startIcon="bwi-plus"
+  >
     {{ "addSponsorship" | i18n }}
   </button>
 </app-header>
@@ -51,7 +56,7 @@
                     <button
                       type="button"
                       bitIconButton="bwi-ellipsis-v"
-                      buttonType="main"
+                      buttonType="primaryGhost"
                       [bitMenuTriggerFor]="appListDropdown"
                       label="{{ 'options' | i18n }}"
                     ></button>

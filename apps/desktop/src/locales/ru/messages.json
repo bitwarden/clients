@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Веб-сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитная или дебетовая карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Личная информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важный текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Токен входа на сервер"
+  },
+  "folderSubtitle": {
+    "message": "Организуйте свои элементы"
+  },
+  "collectionSubtitle": {
+    "message": "Организуйте общие элементы"
+  },
+  "chooseItemToAdd": {
+    "message": "Выберите элемент для добавления"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Выберите тип элемента, который хотите добавить в хранилище."
+  },
   "folders": {
     "message": "Папки"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Просмотр элемента"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Просмотр логина",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Просмотр карты",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Просмотр личной информации",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Просмотр заметки",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Просмотр ключа SSH",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Новый логин",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Новая карта",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Новая личная информация",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Новая заметка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Новый ключ SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Изменить логин",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактировать карту",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактировать личную информацию",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактировать заметку",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактировать ключ SSH",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Название"
@@ -336,6 +423,22 @@
   },
   "premiumRequiredDesc": {
     "message": "Для использования этой функции требуется Премиум."
+  },
+  "syncWithBrowser": {
+    "message": "Синхронизация с браузером"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Чтобы подключиться к $VAULTURL$, необходимо синхронизировать ваш браузер по умолчанию с приложением Bitwarden. После синхронизации вы будете перенаправлены обратно в это приложение.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Запустить браузер"
   },
   "errorOccurred": {
     "message": "Произошла ошибка."
@@ -905,6 +1008,9 @@
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
   },
+  "masterPasswordChanged": {
+    "message": "Мастер-пароль сохранен"
+  },
   "passwordStrengthScore": {
     "message": "Оценка надежности пароля $SCORE$",
     "placeholders": {
@@ -1196,6 +1302,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
   },
+  "rotateAccountEncKey": {
+    "message": "Также сменить ключ шифрования моего аккаунта"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия смены ключа шифрования"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Вы уверены, что хотите сменить ключ шифрования вашего аккаунта?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Любые сохраненные вами настройки ограничения экспорта для аккаунта утратят силу."
+  },
   "confirmIdentityToContinue": {
     "message": "Подтвердите вашу личность, чтобы продолжить"
   },
@@ -1280,6 +1407,9 @@
   "changeMasterPass": {
     "message": "Изменить мастер-пароль"
   },
+  "changeMasterPassword": {
+    "message": "Изменить мастер-пароль"
+  },
   "continueToWebApp": {
     "message": "Перейти к веб-приложению?"
   },
@@ -1358,17 +1488,11 @@
   "twoStepLogin": {
     "message": "Двухэтапная аутентификация"
   },
-  "vaultTimeoutHeader": {
-    "message": "Тайм-аут хранилища"
-  },
   "vaultTimeout": {
     "message": "Тайм-аут хранилища"
   },
   "vaultTimeout1": {
     "message": "Тайм-аут"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Тайм-аут действия"
   },
   "vaultTimeoutDesc": {
     "message": "Выберите тайм-аут для хранилища и действие, которое необходимо предпринять."
@@ -1658,6 +1782,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "месяц"
+  },
+  "monthly": {
+    "message": "Ежемесячный"
+  },
+  "year": {
+    "message": "год"
+  },
+  "annually": {
+    "message": "Ежегодно"
+  },
+  "annual": {
+    "message": "Ежегодный"
   },
   "refreshComplete": {
     "message": "Обновление завершено"
@@ -2074,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "Несохраненные изменения"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Если вы остановитесь сейчас, ваши изменения не будут сохранены. Установите обновление позже, чтобы вы могли остаться и сохранить свои изменения."
+  },
+  "installLater": {
+    "message": "Установить позднее"
+  },
+  "continueWithInstall": {
+    "message": "Продолжить установку"
+  },
   "clone": {
     "message": "Клонировать"
   },
@@ -2088,9 +2236,6 @@
   },
   "vaultTimeoutActionLogOutDesc": {
     "message": "Чтобы получить доступ к хранилищу после выхода из него требуется повторная авторизация."
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Настройте способ разблокировки для изменения действия по тайм-ауту хранилища."
   },
   "lock": {
     "message": "Блокировка",
@@ -2186,6 +2331,9 @@
   "copyTOTP": {
     "message": "Скопировать ключ аутентификатора (TOTP)"
   },
+  "copyNotes": {
+    "message": "Скопировать заметки"
+  },
   "totpHelperTitle": {
     "message": "Сделайте двухэтапную аутентификацию простой и удобной"
   },
@@ -2274,6 +2422,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новый мастер-пароль не соответствует требованиям политики."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
@@ -2709,9 +2860,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Тайм-аут вашего хранилища превышает ограничения, установленные вашей организацией."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "К настройкам тайм-аута были применены требования корпоративной политики"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "В соответствии с политиками вашей организации максимально допустимый тайм-аут хранилища составляет $HOURS$ час. и $MINUTES$ мин.",
@@ -3745,6 +3893,9 @@
   "exportSuccess": {
     "message": "Данные хранилища экспортированы"
   },
+  "exportError": {
+    "message": "При экспорте данных хранилища произошла ошибка"
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Многофакторная аутентификация отменена"
   },
@@ -4617,8 +4768,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации для обеспечения безопасности и соответствия требованиям. Нажмите Принять, чтобы передать собственность на ваши элементы.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ требует, чтобы все элементы принадлежали организации в целях безопасности и соблюдения нормативных требований.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4626,20 +4777,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Нажмите Принять, чтобы передать право собственности на ваши элементы."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Открыть статью помощь по передаче элементов"
+  },
   "acceptTransfer": {
     "message": "Принять передачу"
   },
   "declineAndLeave": {
     "message": "Отклонить и покинуть"
   },
-  "whyAmISeeingThis": {
-    "message": "Почему я это вижу?"
-  },
   "organizationIsSuspended": {
     "message": "Организация приостановлена"
   },
   "organizationIsSuspendedDesc": {
     "message": "Доступ к элементам в отключенных организациях невозможен. Обратитесь за помощью к владельцу организации."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
   },
   "noItemsInTrash": {
     "message": "Нет элементов в корзине"
@@ -4693,13 +4856,30 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введите несколько email, разделяя их запятой."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Для проверки электронной почты требуется как минимум один адрес email. Чтобы удалить все адреса электронной почты, измените тип доступа выше."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

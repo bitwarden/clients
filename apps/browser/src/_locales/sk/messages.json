@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Možnosti odomknutia"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní času trezoru."
-  },
   "unlockMethodNeeded": {
     "message": "Nastavte metódu odomknutia v nastaveniach"
   },
   "sessionTimeoutHeader": {
     "message": "Časový limit relácie"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Časový limit pre trezor"
   },
   "otherOptions": {
     "message": "Ďalšie možnosti"
@@ -1154,6 +1148,15 @@
     "message": "Automaticky vymazať skopírované hodnoty zo schránky.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Nastavenie schránky bolo aktualizované"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Časový limit schránky je nastavený na predvolenú hodnotu, ktorá bola z bezpečnostných dôvodov predĺžená na 5 minút."
+  },
+  "jumpToSetting": {
+    "message": "Prejsť na nastavenia"
+  },
   "notificationAddDesc": {
     "message": "Má si Bitwarden zapamätať toto heslo?"
   },
@@ -1306,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Ďalšie možnosti"
+  },
+  "enableFillAssist": {
+    "message": "Pomáhať pri vypĺňaní"
   },
   "enableContextMenuItem": {
     "message": "Zobraziť možnosti kontextovej ponuky"
@@ -2108,6 +2114,27 @@
   "typeNote": {
     "message": "Poznámka"
   },
+  "typeLoginSubtitle": {
+    "message": "Webová stránka alebo aplikácia"
+  },
+  "typeCardSubtitle": {
+    "message": "Kreditná alebo debetná karta"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Osobné informácie"
+  },
+  "typeNoteSubtitle": {
+    "message": "Dôležitý text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Prihlasovací token servera"
+  },
+  "folderSubtitle": {
+    "message": "Usporiadajte si položky"
+  },
+  "collectionSubtitle": {
+    "message": "Usporiadajte zdieľané položky"
+  },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
     "description": "Header for new login item type"
@@ -2183,6 +2210,9 @@
   "viewItemHeaderSshKey": {
     "message": "Zobraziť kľúč SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Vyberte položku, ktorú chcete pridať"
   },
   "passwordHistory": {
     "message": "História hesla"
@@ -2372,6 +2402,30 @@
   "weakMasterPasswordDesc": {
     "message": "Hlavné heslo, ktoré ste zadali, je slabé. Mali by ste použiť silné heslo (alebo frázu), aby ste spoľahlivo ochránili váš Bitwarden účet. Naozaj chcete použiť toto heslo?"
   },
+  "rotateAccountEncKey": {
+    "message": "Rotovať aj šifrovací kľúč účtu"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotovať šifrovací kľúč"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Naozaj chcete rotovať šifrovací kľúč k účtu?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Po aktualizácii šifrovacieho kľúča budete požiadaný o opätovné prihlásenie sa do všetkých aplikácií Bitwardenu, ktoré momentálne používate (napríklad mobilné aplikácie, alebo rozšírenia v prehliadači). Ak sa opätovne neodhlásite (stiahnu sa nové šifrovacie kľúče), mohlo by to viesť k poškodeniu uložených údajov. Pokúsime sa vás odhlásiť automaticky, ale môže to chvíľu trvať."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všetky exporty s obmedzeným prístupom, ktoré ste uložili, sa stanú neplatnými."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "V trezore máte staré prílohy ktoré musia byť opravené pred tým, než budete môcť rotovať šifrovací kľúč k účtu."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Vplyv rotovania šifrovacieho kľúča"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedno alebo viac pravidiel organizácie požadujú, aby hlavné heslo spĺňalo nasledujúce požiadavky:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2516,8 @@
   "vaultTimeoutAction": {
     "message": "Akcia pri vypršaní časového limitu pre trezor"
   },
-  "vaultTimeoutAction1": {
-    "message": "Akcia pri vypršaní časového limitu"
+  "showAtRiskPasswordNotifications": {
+    "message": "Zobraziť upozornenia na ohrozené heslá"
   },
   "lock": {
     "message": "Uzamknúť",
@@ -2819,8 +2873,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ chce, aby ste toto heslo zmenili, pretože je rizikové. Prejdite do nastavení svojho účtu a zmeňte heslo.",
+  "atRiskNavigatePromptV2": {
+    "message": "Vaše heslo pre túto stránku je ohrozené. $ORGANIZATION$ vás žiada, aby ste prešli do nastavení účtu a heslo zmenili.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3229,9 +3283,6 @@
   },
   "minutes": {
     "message": "Minúty"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Na možnosti pri vypršaní časového limitu boli uplatnené požiadavky pravidiel spoločnosti"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zásady vašej organizácie ovplyvňujú časový limit trezoru. Maximálny povolený časový limit trezoru je $HOURS$ h a $MINUTES$ m.",
@@ -3752,6 +3803,24 @@
   },
   "loginStatus": {
     "message": "Stav prihlásenia"
+  },
+  "recentlyActive": {
+    "message": "Posledná aktivita"
+  },
+  "recentlyActiveToday": {
+    "message": "Dnes"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Posledných 7 dní"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Posledných 14 dní"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Posledných 30 dní"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Pred viac ako 30 dňami"
   },
   "masterPasswordChanged": {
     "message": "Hlavné heslo uložené"
@@ -4435,6 +4504,9 @@
   },
   "exportSuccess": {
     "message": "Údaje z trezora boli exportované"
+  },
+  "exportError": {
+    "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
   },
   "typePasskey": {
     "message": "Prístupový kľúč"
@@ -6097,6 +6169,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Spravované prostredníctvom desktopovej aplikácie Bitwarden. Na úpravu otvorte desktopovú aplikáciu."
+  },
+  "percentageCompleted": {
+    "message": "Hotovo $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Upgradovať"
   },
@@ -6130,8 +6214,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov. Ak chcete previesť vlastníctvo položiek, kliknite na tlačidlo Prijať.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vyžaduje, aby všetky položky boli vo vlastníctve organizácie z dôvodu bezpečnosti a dodržiavania predpisov.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6139,14 +6223,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknutím na tlačidlo Prijať prenesiete vlastníctvo svojich položiek."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otvoriť článok pomocníka o prenose položiek"
+  },
   "acceptTransfer": {
     "message": "Prijať prenos"
   },
   "declineAndLeave": {
     "message": "Zamietnuť a odísť"
-  },
-  "whyAmISeeingThis": {
-    "message": "Prečo to vidím?"
   },
   "items": {
     "message": "Položky"
@@ -6178,11 +6265,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Zadajte viacero e-mailových adries oddelených čiarkou."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Overenie e-mailu vyžaduje aspoň jednu e-mailovú adresu. Ak chcete odstrániť všetky e-maily, zmeňte typ prístupu vyššie."
-  },
   "emailPlaceholder": {
-    "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
+    "message": "pouzivatel@bitwarden.com, pouzivatel@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "pouzivatel@bitwarden.com, pouzivatel@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Stiahnuť aplikácie Bitwarden"
@@ -6196,5 +6283,8 @@
   },
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
+  },
+  "downloadFailed": {
+    "message": "Sťahovanie zlyhalo."
   }
 }

@@ -2,8 +2,20 @@
   "allApplications": {
     "message": "所有应用程序"
   },
+  "allMembers": {
+    "message": "所有成员"
+  },
+  "allPasswords": {
+    "message": "所有密码"
+  },
   "activity": {
     "message": "活动"
+  },
+  "criticalAppsAtRisk": {
+    "message": "存在风险的关键 App"
+  },
+  "allCriticalApps": {
+    "message": "所有关键 App"
   },
   "appLogoLabel": {
     "message": "Bitwarden logo"
@@ -12,7 +24,7 @@
     "message": "关键应用程序"
   },
   "noCriticalAppsAtRisk": {
-    "message": "没有关键应用程序存在风险"
+    "message": "没有存在风险的关键应用程序"
   },
   "critical": {
     "message": "关键 ($COUNT$)",
@@ -43,6 +55,15 @@
   },
   "passwordRisk": {
     "message": "密码风险"
+  },
+  "passwords": {
+    "message": "密码"
+  },
+  "riskOverTime": {
+    "message": "风险趋势"
+  },
+  "passwordsAtRisk": {
+    "message": "存在风险的密码"
   },
   "noEditPermissions": {
     "message": "您没有编辑此项目的权限"
@@ -306,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "将应用程序标记为关键失败"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "将应用程序取消标记为关键失败"
   },
   "application": {
     "message": "应用程序"
@@ -613,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "显示匹配检测"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "隐藏匹配检测"
+  },
   "autoFillOnPageLoad": {
     "message": "页面加载时自动填充吗？"
   },
@@ -728,10 +758,13 @@
     "message": "无缝两步验证"
   },
   "totpHelper": {
-    "message": "Bitwarden 可以存储并填充两步验证码。将密钥复制并粘贴到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。复制并粘贴密钥到此字段中。"
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或将密钥复制并粘贴到此字段。"
+    "message": "Bitwarden 可以存储并填充两步验证码。选择相机图标来拍摄此网站的验证器二维码，或复制并粘贴密钥到此字段中。"
+  },
+  "totpCapture": {
+    "message": "从当前网页扫描验证器二维码"
   },
   "learnMoreAboutAuthenticators": {
     "message": "进一步了解验证器"
@@ -898,7 +931,7 @@
     "message": "搜索文件夹"
   },
   "searchFavorites": {
-    "message": "搜索收藏"
+    "message": "搜索收藏夹"
   },
   "searchLogin": {
     "message": "搜索登录",
@@ -963,6 +996,27 @@
   },
   "typeSshKey": {
     "message": "SSH 密钥"
+  },
+  "typeLoginSubtitle": {
+    "message": "网站或 App"
+  },
+  "typeCardSubtitle": {
+    "message": "信用卡或借记卡"
+  },
+  "typeIdentitySubtitle": {
+    "message": "个人信息"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要的文本"
+  },
+  "typeSshKeySubtitle": {
+    "message": "服务器登录令牌"
+  },
+  "folderSubtitle": {
+    "message": "组织您的项目"
+  },
+  "collectionSubtitle": {
+    "message": "组织共享的项目"
   },
   "typeLoginPlural": {
     "message": "登录"
@@ -1032,6 +1086,9 @@
   },
   "addItem": {
     "message": "添加项目"
+  },
+  "chooseItemToAdd": {
+    "message": "选择要添加的项目"
   },
   "editItem": {
     "message": "编辑项目"
@@ -1360,7 +1417,7 @@
     "message": "删除附件"
   },
   "deleteItemConfirmation": {
-    "message": "您确定要将其发送到回收站吗？"
+    "message": "确定要将其发送到回收站吗？"
   },
   "deletedItem": {
     "message": "项目已发送到回收站"
@@ -1435,7 +1492,7 @@
     "message": "否"
   },
   "noAuth": {
-    "message": "拥有此链接的任何人"
+    "message": "拥有链接的任何人"
   },
   "anyOneWithPassword": {
     "message": "拥有您设置的密码的任何人"
@@ -1531,7 +1588,7 @@
     "message": "设置加密"
   },
   "usedForEncryption": {
-    "message": "已用于加密"
+    "message": "用于加密"
   },
   "loginWithPasskeyEnabled": {
     "message": "通行密钥登录已启用"
@@ -1697,7 +1754,7 @@
     "message": "必须填写主密码。"
   },
   "confirmMasterPasswordRequired": {
-    "message": "必须再次输入主密码。"
+    "message": "必须填写确认主密码。"
   },
   "masterPasswordMinlength": {
     "message": "主密码长度必须至少为 $VALUE$ 个字符。",
@@ -1834,7 +1891,7 @@
     "message": "新增组织"
   },
   "noOrganizationsList": {
-    "message": "您没有加入任何组织。同一组织的用户可以安全地与其他用户共享项目。"
+    "message": "您没有加入任何组织。组织允许您与其他用户安全地共享项目。"
   },
   "notificationSentDevice": {
     "message": "通知已发送到您的设备。"
@@ -1870,7 +1927,7 @@
     "message": "通知已发送到您的设备"
   },
   "versionNumber": {
-    "message": "版本: $VERSION_NUMBER$",
+    "message": "版本 $VERSION_NUMBER$",
     "placeholders": {
       "version_number": {
         "content": "$1",
@@ -1879,7 +1936,7 @@
     }
   },
   "verificationCodeEmailSent": {
-    "message": "验证邮件已发送到 $EMAIL$。",
+    "message": "验证电子邮件已发送到 $EMAIL$。",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -1901,7 +1958,7 @@
     "message": "将您的安全密钥插入计算机的 USB 端口。如果它有按钮，请触摸它。"
   },
   "loginUnavailable": {
-    "message": "登录不可用"
+    "message": "登录功能不可用"
   },
   "noTwoStepProviders": {
     "message": "此账户已设置两步登录，但此浏览器不支持任何已配置的两步登录提供程序。"
@@ -2042,7 +2099,7 @@
     "message": "此导出包含未加密格式的机密数据。您不应该通过不安全的渠道（例如电子邮件）来存储或发送此导出文件。使用完后请立即将其删除。"
   },
   "encExportKeyWarningDesc": {
-    "message": "此导出使用您账户的加密密钥来加密您的数据。如果您曾经轮换过账户的加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
+    "message": "此导出将使用您的账户加密密钥来加密您的数据。如果您曾经轮换过您的账户加密密钥，您应将其重新导出，否则您将无法解密导出的文件。"
   },
   "encExportAccountWarningDesc": {
     "message": "每个 Bitwarden 用户账户的账户加密密钥都是唯一的，因此您无法将加密的导出导入到另一个账户。"
@@ -2077,7 +2134,7 @@
     "message": "确认文件密码"
   },
   "accountRestrictedOptionDescription": {
-    "message": "使用衍生自您账户用户名和主密码的加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
+    "message": "使用衍生自您账户用户名和主密码的账户加密密钥以加密此导出，并限制只能导入到当前 Bitwarden 账户。"
   },
   "passwordProtectedOptionDescription": {
     "message": "设置一个文件密码以加密此导出，并使用此密码解密以导入到任意 Bitwarden 账户。"
@@ -2102,6 +2159,9 @@
   },
   "exportSuccess": {
     "message": "密码库数据已导出"
+  },
+  "exportError": {
+    "message": "导出密码库数据时发生错误"
   },
   "passwordGenerator": {
     "message": "密码生成器"
@@ -2233,10 +2293,10 @@
     "message": "请求待处理"
   },
   "logBackInOthersToo": {
-    "message": "请重新登录。如果您还在使用其他 Bitwarden 应用程序，也请注销并重新登陆。"
+    "message": "请重新登录。如果您正在使用其他 Bitwarden 应用程序，也请注销然后重新登录。"
   },
   "changeMasterPassword": {
-    "message": "修改主密码"
+    "message": "更改主密码"
   },
   "masterPasswordChanged": {
     "message": "主密码已保存"
@@ -2392,7 +2452,7 @@
     "message": "导入数据"
   },
   "onboardingImportDataDetailsPartOne": {
-    "message": "如果您没有任何数据要导入，您可以创建一个 ",
+    "message": "如果您没有任何数据要导入，您可以创建一个",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
@@ -2524,7 +2584,7 @@
     "message": "域名规则"
   },
   "domainRulesDesc": {
-    "message": "如果您在多个不同网站域名中使用同一个登录信息，您可以把这些网站标记为「等效」。「全局」域名是由 Bitwarden 为您预先创建的域名。"
+    "message": "如果您在多个不同网站域名中使用同一个登录，您可以把这些网站标记为「等效」。「全局」域名是由 Bitwarden 为您预先创建的域名。"
   },
   "globalEqDomains": {
     "message": "全局等效域名"
@@ -2626,13 +2686,13 @@
     "description": "Premium membership"
   },
   "premiumMembership": {
-    "message": "高级会员"
+    "message": "高级版成员资格"
   },
   "premiumRequired": {
     "message": "需要高级版"
   },
   "premiumRequiredDesc": {
-    "message": "需要高级会员才能使用此功能。"
+    "message": "需要高级版成员资格才能使用此功能。"
   },
   "youHavePremiumAccess": {
     "message": "您拥有高级版访问权限"
@@ -2671,13 +2731,13 @@
     "message": "撤销"
   },
   "twoStepLoginProviderEnabled": {
-    "message": "您的账户已启用此两步登录提供程序。"
+    "message": "您的账户已激活此两步登录提供程序。"
   },
   "twoStepLoginAuthDesc": {
     "message": "输入您的主密码以修改两步登录设置。"
   },
   "twoStepAuthenticatorInstructionPrefix": {
-    "message": "下载验证器 App，例如："
+    "message": "下载验证器 App，例如"
   },
   "twoStepAuthenticatorInstructionInfix1": {
     "message": "，"
@@ -2880,7 +2940,7 @@
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "orgsReportsDesc": {
-    "message": "点击下面的报告，找出并消除您的组织账户中的安全漏洞。",
+    "message": "点击下面的报告，识别并消除您的组织账户中的安全漏洞。",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -3047,16 +3107,16 @@
   "breachDesc": {
     "message": "泄露的账户可能会暴露您的个人信息。通过启用 2FA 或创建更强大的密码来保护被泄露的账户。"
   },
-  "breachCheckUsernameEmail": {
-    "message": "检查您使用的任何用户名或电子邮箱地址。"
+  "breachCheckEmail": {
+    "message": "检查您使用的任何电子邮箱地址。"
   },
   "checkBreaches": {
     "message": "检查泄漏情况"
   },
-  "breachUsernameNotFound": {
-    "message": "在任何已知的数据泄露中均未发现 $USERNAME$。",
+  "breachEmailNotFound": {
+    "message": "在任何已知的数据泄露中均未发现 $EMAIL$。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3126,10 @@
     "message": "好消息",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "在 $COUNT$ 个不同的在线数据泄露中发现了 $USERNAME$。",
+  "breachEmailFound": {
+    "message": "在 $COUNT$ 次不同的在线数据泄露中发现了 $EMAIL$。",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3129,7 +3189,7 @@
     "message": "付款处理完毕后，添加的信用额度将出现在您的账户上。某些付款方式会延迟，并且可能比其他方式需要更长的时间来处理。"
   },
   "makeSureEnoughCredit": {
-    "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
+    "message": "请确保您的账户有足够的信用额度来用于此购买。如果您的账户信用额度不足，您存档的默认付款方式将用于补足差额。您可以从「计费」页面向您的账户添加信用额度。"
   },
   "notEnoughAccountCredit": {
     "message": "您没有足够的账户信用额度来用于此购买。您可以从「计费」页面向您的账户添加信用额度。"
@@ -3145,7 +3205,7 @@
     "message": "您已升级为高级版。"
   },
   "premiumUpgradeUnlockFeatures": {
-    "message": "将您的账户升级为高级会员，将解锁一些强大的附加功能。"
+    "message": "将您的账户升级为高级版成员资格，并解锁一些强大的附加功能。"
   },
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
@@ -3160,7 +3220,7 @@
     }
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "专有的两步登录选项，如 YubiKey 和 Duo。"
+    "message": "专有的两步登录选项，例如 YubiKey 和 Duo。"
   },
   "premiumSignUpEmergency": {
     "message": "紧急访问"
@@ -3294,7 +3354,7 @@
     }
   },
   "paymentChargedWithUnpaidSubscription": {
-    "message": "任何未付费订阅都将通过您的付款方式收取费用。"
+    "message": "任何未支付的订阅都将通过您的付款方式扣款。"
   },
   "paymentChargedWithTrial": {
     "message": "您的方案包含了 7 天的免费试用。在试用期结束前，不会从您的付款方式中扣款。您可以随时取消。"
@@ -3377,6 +3437,9 @@
   "discount": {
     "message": "折扣"
   },
+  "discountExpiredOnPurchase": {
+    "message": "折扣已过期。请检查您的购物车总金额，然后重试。"
+  },
   "downloadLicense": {
     "message": "下载许可证"
   },
@@ -3405,7 +3468,7 @@
     "message": "移除存储空间"
   },
   "subscriptionStorage": {
-    "message": "您的订阅一共有 $MAX_STORAGE$ GB 的加密存储空间。您目前已使用 $USED_STORAGE$ 。",
+    "message": "您的订阅一共有 $MAX_STORAGE$ GB 的加密存储空间。您目前已使用 $USED_STORAGE$。",
     "placeholders": {
       "max_storage": {
         "content": "$1",
@@ -3471,13 +3534,13 @@
     }
   },
   "gbStorageAdd": {
-    "message": "GB 存储空间将增加"
+    "message": "要添加的存储空间 (GB)"
   },
   "gbStorageRemove": {
-    "message": "GB 存储空间将移除"
+    "message": "要移除的存储空间 (GB)"
   },
   "storageAddNote": {
-    "message": "添加存储空间将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
+    "message": "添加存储空间将会调整计费总金额，并立即通过您存档的付款方式扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "storageRemoveNote": {
     "message": "移除存储空间将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
@@ -3516,10 +3579,10 @@
     }
   },
   "uploadLicenseFilePremium": {
-    "message": "要将您的账户升级为高级会员，您需要上传有效的许可证文件。"
+    "message": "要将您的账户升级为高级版成员资格，您需要上传有效的许可证文件。"
   },
   "uploadLicenseFileOrg": {
-    "message": "若要创建基于本地托管的组织，您需要上传有效的许可证文件。"
+    "message": "要创建基于本地托管的组织，您需要上传有效的许可证文件。"
   },
   "accountEmailMustBeVerified": {
     "message": "必须验证您的账户电子邮箱地址。"
@@ -3713,7 +3776,7 @@
     }
   },
   "trialSecretsManagerThankYou": {
-    "message": "感谢您注册 $PLAN$ Bitwarden 机密管理器！",
+    "message": "感谢您注册 $PLAN$ Bitwarden Secrets Manager！",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -3734,7 +3797,7 @@
     "message": "我们已经发送了一封确认电子邮件到您团队的计费电子邮箱 "
   },
   "monthly": {
-    "message": "每月"
+    "message": "月"
   },
   "annually": {
     "message": "每年"
@@ -3743,7 +3806,7 @@
     "message": "每年"
   },
   "basePrice": {
-    "message": "基本价格"
+    "message": "基础价格"
   },
   "organizationCreated": {
     "message": "组织已创建"
@@ -3784,6 +3847,15 @@
   "policies": {
     "message": "策略"
   },
+  "dataControls": {
+    "message": "数据控制"
+  },
+  "authentication": {
+    "message": "身份验证"
+  },
+  "vaultManagement": {
+    "message": "密码库管理"
+  },
   "singleSignOn": {
     "message": "单点登录"
   },
@@ -3818,10 +3890,10 @@
     "message": "确定要移除此用户吗？"
   },
   "removeOrgUserConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
+    "message": "成员被移除后，他们将不再拥有组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
   },
   "revokeUserConfirmation": {
-    "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复此成员的访问权限，请转到「已撤销」标签页。"
+    "message": "成员被撤销后，他们将不再拥有组织数据的访问权限。要快速恢复此成员的访问权限，请前往「已撤销」选项卡。"
   },
   "removeUserConfirmationKeyConnector": {
     "message": "警告！此用户需要 Key Connector 来管理他们的加密。从您的组织中移除此用户将永久停用他们的账户。此操作无法撤消。要继续吗？"
@@ -3869,7 +3941,7 @@
     "message": "编辑成员"
   },
   "fieldOnTabRequiresAttention": {
-    "message": "「$TAB$」标签页上的字段需要您注意。",
+    "message": "「$TAB$」选项卡上的字段需要您注意。",
     "placeholders": {
       "tab": {
         "content": "$1",
@@ -3929,7 +4001,7 @@
     "message": "用户"
   },
   "userDesc": {
-    "message": "访问项目和将项目添加到已分配的集合"
+    "message": "访问并将项目添加到已分配的集合"
   },
   "all": {
     "message": "全部"
@@ -3980,7 +4052,7 @@
     "message": "Bitwarden 网页密码库"
   },
   "bitSecretsManager": {
-    "message": "Bitwarden 机密管理器"
+    "message": "Bitwarden Secrets Manager"
   },
   "loggedIn": {
     "message": "登录了"
@@ -4268,6 +4340,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "一个或多个电子邮箱属于已被撤销的成员。恢复其访问权限以便重新邀请。"
+  },
   "restoredUserId": {
     "message": "恢复了 $ID$ 的组织访问权限。",
     "placeholders": {
@@ -4417,6 +4492,24 @@
   },
   "loginStatus": {
     "message": "登录状态"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "今天"
+  },
+  "recentlyActivePast7Days": {
+    "message": "过去 7 天"
+  },
+  "recentlyActivePast14Days": {
+    "message": "过去 14 天"
+  },
+  "recentlyActivePast30Days": {
+    "message": "过去 30 天"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 天以前"
   },
   "firstLogin": {
     "message": "首次登录"
@@ -4904,14 +4997,14 @@
     "message": "为您的订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
   },
   "limitSmSubscriptionDesc": {
-    "message": "为您的机密管理器订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
+    "message": "为您的 Secrets Manager 订阅设置一个席位限制。达到此限制后，您将无法邀请新的成员。"
   },
   "maxSeatLimit": {
     "message": "席位限制（可选）",
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "maxSeatCost": {
-    "message": "最大潜在的席位费用"
+    "message": "最大潜在的席位成本"
   },
   "addSeats": {
     "message": "添加席位",
@@ -4943,13 +5036,13 @@
     "message": "订阅已更新"
   },
   "subscribedToSecretsManager": {
-    "message": "订阅已更新。您现在可以访问机密管理器了。"
+    "message": "订阅已更新。您现在可以访问 Secrets Manager 了。"
   },
   "additionalOptions": {
     "message": "附加选项"
   },
   "additionalOptionsDesc": {
-    "message": "如需更多管理您的订阅的帮助，请联系客户支持。"
+    "message": "如需获得管理订阅的进一步的帮助，请联系客户支持。"
   },
   "subscriptionUserSeatsUnlimitedAutoscale": {
     "message": "调整订阅将导致按比例调整您的计费总金额。如果新邀请的成员超过了您的订阅席位，您将立即收到按比例的附加成员费用。"
@@ -5006,7 +5099,7 @@
     }
   },
   "subscriptionMaxReached": {
-    "message": "调整订阅将导致按比例调整您的计费总金额。如果不增加订阅席位，您将不能邀请超过 $COUNT$ 位成员。",
+    "message": "调整订阅将导致按比例调整您的计费总金额。如果不增加订阅席位，您最多只能邀请 $COUNT$ 位成员。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5015,7 +5108,7 @@
     }
   },
   "subscriptionSeatMaxReached": {
-    "message": "如果不增加订阅席位，您将不能邀请超过 $COUNT$ 位成员。",
+    "message": "如果不增加订阅席位，您最多只能邀请 $COUNT$ 位成员。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5030,7 +5123,7 @@
     "message": "要移除的席位数"
   },
   "seatsAddNote": {
-    "message": "添加用户席位将会调整计费总金额，并立即通过您的付款方式进行扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
+    "message": "添加用户席位将会调整计费总金额，并立即通过您存档的付款方式扣款。第一笔费用将按当前计费周期的剩余时间按比例分配。"
   },
   "seatsRemoveNote": {
     "message": "移除用户席位将会调整计费总金额，这笔调整费用将按比例作为信用额度抵扣您的下一笔账单费用。"
@@ -5097,7 +5190,7 @@
     }
   },
   "updateEncryptionKeyWarning": {
-    "message": "更新加密密钥后，您需要注销所有当前使用的 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销或者重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
+    "message": "更新加密密钥后，您需要注销当前正在使用的所有 Bitwarden 应用程序（例如移动 App 或浏览器扩展）然后重新登录。注销然后重新登录（这将下载新的加密密钥）失败可能会导致数据损坏。我们会尝试自动为您注销，但可能会有所延迟。"
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "所有您已保存的账户限制的导出文件将失效。"
@@ -5143,6 +5236,12 @@
   },
   "atAnyTime": {
     "message": "随时。"
+  },
+  "byEmail": {
+    "message": "通过电子邮箱"
+  },
+  "byLink": {
+    "message": "通过链接"
   },
   "byContinuingYouAgreeToThe": {
     "message": "若继续，表示您同意"
@@ -5272,13 +5371,13 @@
     "message": "识别到弱密码。请使用一个强密码以保护您的账户。确定要使用弱密码吗？"
   },
   "rotateAccountEncKey": {
-    "message": "同时轮换账户的加密密钥"
+    "message": "同时轮换我的账户加密密钥"
   },
   "rotateEncKeyTitle": {
     "message": "轮换加密密钥"
   },
   "rotateEncKeyConfirmation": {
-    "message": "确定要轮换账户的加密密钥吗？"
+    "message": "确定要轮换您的账户加密密钥吗？"
   },
   "attachmentsNeedFix": {
     "message": "此项目有需要修复的旧文件附件。"
@@ -5300,7 +5399,7 @@
     "message": "附件已更新"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "需要先修复您的密码库中的旧文件附件，然后才能轮换您账户的加密密钥。"
+    "message": "需要先修复您的密码库中旧的文件附件，然后才能轮换您的账户加密密钥。"
   },
   "itemsTransferred": {
     "message": "项目已转移"
@@ -5362,7 +5461,7 @@
     "message": "您必须至少选择一个集合。"
   },
   "couldNotChargeCardPayInvoice": {
-    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的未支付账单。"
+    "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的未支付的账单。"
   },
   "minLength": {
     "message": "最小长度"
@@ -5578,7 +5677,7 @@
     "message": "企业单点登录"
   },
   "ssoHandOff": {
-    "message": "您现在可以在扩展中关闭此标签页并继续。"
+    "message": "您现在可以关闭此标签页然后在扩展中继续。"
   },
   "youSuccessfullyLoggedIn": {
     "message": "您已成功登录"
@@ -5719,7 +5818,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
-    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接的任何人都可以访问此 Send。",
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有链接的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -5729,7 +5828,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有此链接以及您设置的密码的任何人都可以访问此 Send。",
+    "message": "复制并分享此 Send 链接。在接下来的 $TIME$ 内，拥有链接以及您设置的密码的任何人都可以访问此 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -6027,7 +6126,7 @@
     "message": "集中化组织所有权"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "所有成员项目都将由组织拥有和管理。管理员和所有者不受此约束。"
+    "message": "所有成员项目都将由组织拥有和管理。管理员和所有者不受此策略的约束。"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "进一步了解集中化所有权",
@@ -6043,13 +6142,13 @@
     "message": "在成员离职或岗位交接时，轻松转移项目，确保不会出现访问空档。"
   },
   "centralizeDataOwnershipBenefit3": {
-    "message": "为所有用户提供一个专用的「我的项目」空间，用于管理他们自己的登录信息。"
+    "message": "为所有用户提供一个专用的「我的项目」空间，用于管理他们自己的登录。"
   },
   "centralizeDataOwnershipWarningTitle": {
     "message": "提示成员转移他们的项目"
   },
   "centralizeDataOwnershipWarningDesc": {
-    "message": "如果成员的个人密码库中有项目，将提示他们选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
+    "message": "如果成员的个人密码库中存在项目，将提示他们选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "centralizeDataOwnershipWarningLink": {
     "message": "进一步了解转移"
@@ -6058,17 +6157,17 @@
     "message": "提示用户将个人密码库项目移动到组织"
   },
   "promptUsersToMoveItemsCallout": {
-    "message": "将提示成员选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
+    "message": "成员将被提示选择将项目转移到组织，或者选择退出。如果选择退出，其访问权限将被撤销，但可以随时恢复。"
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
   },
   "organizationDataOwnershipDesc": {
-    "message": "要求所有项目归组织所有，禁用此选项以在账户级别存储项目。",
+    "message": "要求所有项目由组织拥有，禁用此选项以在账户级别存储项目。",
     "description": "This is the policy description shown in the policy list."
   },
   "organizationDataOwnershipDescContent": {
-    "message": "所有项目都将归组织所有并保存至组织中，从而实现组织范围的控制、可见性和报告。启用后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
+    "message": "所有项目都将由组织拥有并保存至组织中，从而实现组织范围的控制、可见性和报告。启用后，每个成员都可以使用默认集合来存储项目。进一步了解如何管理",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'All items will be owned and saved to the organization, enabling organization-wide controls, visibility, and reporting. When turned on, a default collection will be available for each member to store items. Learn more about managing the credential lifecycle.'"
   },
   "organizationDataOwnershipContentAnchor": {
@@ -6205,6 +6304,16 @@
     "message": "由于某个企业策略，您只能删除现有的 Send。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send 控制"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "设置用于创建和编辑 Send 的选项，包括禁用 Send 的功能。",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "可以管理组织策略的组织成员不受此策略的约束。"
+  },
   "sendOptions": {
     "message": "Send 选项",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6224,7 +6333,7 @@
     "message": "默认 URI 匹配检测"
   },
   "uriMatchDetectionPolicyDesc": {
-    "message": "确定何时建议登录用于自动填充。管理员和所有者不受此策略的约束。"
+    "message": "确定何时将登录建议用于自动填充。管理员和所有者不受此策略的约束。"
   },
   "uriMatchDetectionOptionsLabel": {
     "message": "默认 URI 匹配检测"
@@ -6259,7 +6368,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customDescNonEnterpriseLink": {
-    "message": "企业功能",
+    "message": "企业版功能",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Custom roles is an enterprise feature. Contact our support team to upgrade your subscription'"
   },
   "customDescNonEnterpriseEnd": {
@@ -6324,10 +6433,10 @@
     }
   },
   "personalOwnershipPolicyInEffect": {
-    "message": "组织策略正在影响您的所有权选项。"
+    "message": "某个组织策略正影响您的所有权选项。"
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "组织策略已阻止将项目导入您的个人密码库。"
+    "message": "某个组织策略已阻止将项目导入您的个人密码库。"
   },
   "personalOwnershipCheckboxDesc": {
     "message": "禁用组织用户的个人所有权"
@@ -6364,7 +6473,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more, see how it works, **or** try it now.'"
   },
   "developmentDevOpsAndITTeamsChooseBWSecret": {
-    "message": "开发、DevOps 和 IT 团队选择 Bitwarden 机密管理器来安全地管理和部署他们的基础设施和机器机密。"
+    "message": "开发、DevOps 和 IT 团队选择 Bitwarden Secrets Manager 来安全地管理和部署他们的基础设施和机器机密。"
   },
   "centralizeSecretsManagement": {
     "message": "集中管理机密。"
@@ -6400,28 +6509,28 @@
     "message": "添加笔记"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden 机密管理器"
+    "message": "Bitwarden Secrets Manager"
   },
   "moreProductsFromBitwarden": {
     "message": "更多来自 Bitwarden 的产品"
   },
   "requestAccessToSecretsManager": {
-    "message": "请求访问机密管理器"
+    "message": "请求访问 Secrets Manager"
   },
   "youNeedApprovalFromYourAdminToTrySecretsManager": {
-    "message": "您需要管理员的批准才能试用机密管理器。"
+    "message": "您需要管理员的批准才能试用 Secrets Manager。"
   },
   "smAccessRequestEmailSent": {
-    "message": "对机密管理器的访问请求电子邮件已发送给管理员。"
+    "message": "对 Secrets Manager 的访问请求电子邮件已发送给管理员。"
   },
   "requestAccessSMDefaultEmailContent": {
-    "message": "您好，\n\n我请求为我们的团队订阅 Bitwarden Secrets Manager。您的支持对我们来说意义重大！\n\nBitwarden Secrets Manager 是一个端到端加密的机密管理解决方案，用于安全地存储、共享和部署机器凭证，如 API 密钥、数据库密码和身份验证证书。\n\nSecrets Manager 将帮助我们：\n\n- 提高安全性\n- 精简操作\n- 防止昂贵的机密遭泄漏\n\n要为我们的团队申请免费试用，请联系 Bitwarden。\n\n感谢您的帮助！"
+    "message": "您好，\n\n我请求为我们的团队订阅 Bitwarden Secrets Manager。您的支持对我们来说意义重大！\n\nBitwarden Secrets Manager 是一个端到端加密的机密管理解决方案，用于安全地存储、共享和部署机器凭证，如 API 密钥、数据库密码和身份验证证书等。\n\nSecrets Manager 将帮助我们：\n\n- 提高安全性\n- 简化操作\n- 防止重要的机密遭泄漏\n\n请联系 Bitwarden 为我们的团队申请免费试用。\n\n感谢您的帮助！"
   },
   "giveMembersAccess": {
     "message": "授予成员访问权限："
   },
   "viewAndSelectTheMembers": {
-    "message": "查看并选择您想要授予机密管理器访问权限的成员。"
+    "message": "查看并选择您想要授予 Secrets Manager 访问权限的成员。"
   },
   "openYourOrganizations": {
     "message": "打开您的组织的"
@@ -6464,6 +6573,14 @@
   "verifyYourEmailToViewThisSend": {
     "message": "验证您的电子邮箱以查看此 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "没有收到验证码吗？请联系发送者确认您的电子邮箱地址或者",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "重新发送验证码",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewSendHiddenEmailWarning": {
     "message": "创建此 Send 的 Bitwarden 用户已选择隐藏他们的电子邮箱地址。在使用或下载其内容之前，您应确保信任此链接的来源。",
@@ -6552,6 +6669,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "重置了用户 $ID$ 的主密码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "重置了用户 $ID$ 的两步登录。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6668,10 +6794,10 @@
     "message": "确定要移除以下用户吗？该过程可能需要几秒钟才能完成，并且不能中断或取消。"
   },
   "removeOrgUsersConfirmation": {
-    "message": "移除成员后，他们将不再具有对组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
+    "message": "成员被移除后，他们将不再拥有组织数据的访问权限，并且此操作无法撤销。要将此成员添加回组织，必须再次邀请他们并重新入职。"
   },
   "revokeUsersWarning": {
-    "message": "撤销成员后，他们将不再具有对组织数据的访问权限。要快速恢复成员的访问权限，请转到「已撤销」标签页。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
+    "message": "成员被撤销后，他们将不再拥有组织数据的访问权限。要快速恢复此成员的访问权限，请前往「已撤销」选项卡。该过程可能需要几秒钟才能完成，并且不能被中断或取消。"
   },
   "theme": {
     "message": "主题"
@@ -6710,10 +6836,10 @@
     }
   },
   "reinviteSuccessToast": {
-    "message": "已发送 1 份邀请"
+    "message": "1 份邀请已发送"
   },
   "bulkReinviteSentToast": {
-    "message": "已发送 $COUNT$ 份邀请",
+    "message": "$COUNT$ 份邀请已发送",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6739,7 +6865,7 @@
     }
   },
   "bulkReinviteProgressTitle": {
-    "message": "已发送 $TOTAL$ 份邀请中的 $COUNT$ 份...",
+    "message": "$COUNT$ / $TOTAL$ 份邀请已发送...",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -6767,7 +6893,7 @@
     "message": "1 份邀请未发送"
   },
   "bulkReinviteFailureDescription": {
-    "message": "向 $TOTAL$ 位成员中的 $COUNT$ 位发送邀请时发生错误。请尝试再次发送，如果问题仍然存在，",
+    "message": "向 $COUNT$ / $TOTAL$ 位成员发送邀请时发生错误。请尝试再次发送，如果问题仍然存在，",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -7011,6 +7137,9 @@
   "sessionTimeoutAction": {
     "message": "会话超时动作"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "由 Bitwarden 浏览器扩展 App 管理。打开浏览器 App 进行编辑。"
+  },
   "immediately": {
     "message": "立即"
   },
@@ -7039,7 +7168,7 @@
     "message": "「系统锁定时」只适用于浏览器和桌面 App"
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
-    "message": "由于不支持该选项，移动端和网页 App 将使用「App 重启时」作为其最大允许的超时。"
+    "message": "由于移动端和网页 App 不支持该选项，将使用「App 重启时」作为其最大允许的超时。"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的组织策略已将您最大允许的密码库超时设置为 $HOURS$ 小时 $MINUTES$ 分钟。",
@@ -7304,7 +7433,7 @@
     "message": "链接已失效。请让赞助方重新发送邀请。"
   },
   "reclaimedFreePlan": {
-    "message": "已恢复为免费版方案"
+    "message": "重新申领了免费方案"
   },
   "redeem": {
     "message": "兑换"
@@ -7622,10 +7751,10 @@
     "message": "自动同步将解锁家庭版赞助功能，并允许您同步许可证而无需上传文件。在 Bitwarden 云服务器中进行更新后，选择「同步许可证」以应用更改。"
   },
   "active": {
-    "message": "已生效"
+    "message": "已激活"
   },
   "inactive": {
-    "message": "已失效"
+    "message": "未激活"
   },
   "sentAwaitingSync": {
     "message": "已发送（等待同步）"
@@ -7758,7 +7887,7 @@
     "message": "访问被拒绝。您没有权限查看此页面。"
   },
   "noPageAccess": {
-    "message": "您没有访问该页面的权限"
+    "message": "您没有该页面的访问权限"
   },
   "masterPassword": {
     "message": "主密码"
@@ -7770,7 +7899,7 @@
     "message": "密钥"
   },
   "billingHistory": {
-    "message": "费用历史记录"
+    "message": "计费历史记录"
   },
   "backToReports": {
     "message": "返回到报告"
@@ -7906,7 +8035,7 @@
     "message": "服务"
   },
   "unknownCipher": {
-    "message": "未知项目，您可能需要申请权限才能访问这个项目。"
+    "message": "未知的项目，您可能需要请求权限才能访问此项目。"
   },
   "unknownSecret": {
     "message": "未知的机密，您可能需要请求权限才能访问此机密。"
@@ -7971,7 +8100,7 @@
     "message": "转发的电子邮箱别名"
   },
   "forwardedEmailDesc": {
-    "message": "使用外部转发服务生成一个电子邮箱别名。"
+    "message": "使用外部转发服务生成电子邮箱别名。"
   },
   "forwarderDomainName": {
     "message": "电子邮箱域名",
@@ -8162,6 +8291,10 @@
     "message": "复制 SCIM API 密钥到剪贴板",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "查看 SCIM API 密钥",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "轮换 SCIM API 密钥",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8192,6 +8325,28 @@
   "scimSettingsSaved": {
     "message": "SCIM 设置已保存",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "仅允许一个此类型 ($TYPE$) 的集成。存在冲突的集成是：$NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "已存在同类型 ($TYPE$) 的其他集成。请刷新浏览器然后重试。",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "必须输入内容。"
@@ -8310,6 +8465,9 @@
   "members": {
     "message": "成员"
   },
+  "membersAtRisk": {
+    "message": "存在风险的成员"
+  },
   "reporting": {
     "message": "报告"
   },
@@ -8351,6 +8509,15 @@
   },
   "pink": {
     "message": "粉红色"
+  },
+  "coral": {
+    "message": "珊瑚色"
+  },
+  "purple": {
+    "message": "紫色"
+  },
+  "blue": {
+    "message": "蓝色"
   },
   "customColor": {
     "message": "自定义颜色"
@@ -8580,6 +8747,14 @@
   "newProject": {
     "message": "新增工程",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "点击以重命名该工程",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "无法解密工程名称 - 点击工程以重命名",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "删除机密可能会影响现有的集成。",
@@ -8856,7 +9031,7 @@
     "message": "DNS TXT 记录"
   },
   "dnsTxtRecordInputHint": {
-    "message": "复制并粘贴 TXT 记录到您的 DNS 提供商。"
+    "message": "复制并粘贴 TXT 记录到您的 DNS 提供程序中。"
   },
   "removeDomain": {
     "message": "移除域名"
@@ -8916,7 +9091,7 @@
     }
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "此操作需要验证。设置一个 PIN 码以继续。"
+    "message": "此操作需要验证。请设置一个 PIN 码以继续。"
   },
   "setPin": {
     "message": "设置 PIN 码"
@@ -9051,7 +9226,7 @@
     "message": "正在导出组织机密数据"
   },
   "exportingOrganizationSecretDataDescription": {
-    "message": "仅会导出与 $ORGANIZATION$ 关联的机密管理器数据。不包括其他产品中的项目和来自其他组织的项目。",
+    "message": "仅会导出与 $ORGANIZATION$ 关联的 Secrets Manager 数据。不包括其他产品中的项目和来自其他组织的项目。",
     "placeholders": {
       "ORGANIZATION": {
         "content": "$1",
@@ -9162,13 +9337,13 @@
     "message": "继续操作将会注销您所有的活动会话。您需要重新登录并完成两步登录（如果有）。我们建议您在更改加密设置前导出密码库，以防止数据丢失。"
   },
   "secretsManager": {
-    "message": "机密管理器"
+    "message": "Secrets Manager"
   },
   "secretsManagerAccessDescription": {
-    "message": "激活用户对机密管理器的访问权限。"
+    "message": "激活用户对 Secrets Manager 的访问权限。"
   },
   "userAccessSecretsManagerGA": {
-    "message": "此用户可以访问机密管理器"
+    "message": "此用户可以访问 Secrets Manager"
   },
   "important": {
     "message": "重要："
@@ -9177,7 +9352,7 @@
     "message": "查看全部"
   },
   "showingPortionOfTotal": {
-    "message": "显示 $TOTAL$ 中的 $PORTION$",
+    "message": "显示 $PORTION$ / $TOTAL$",
     "placeholders": {
       "portion": {
         "content": "$1",
@@ -9190,7 +9365,7 @@
     }
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "解决下面的错误，然后重试。"
+    "message": "请解决下面的错误，然后重试。"
   },
   "description": {
     "message": "描述"
@@ -9394,6 +9569,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "用户试图访问已知的网络钓鱼站点"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "用户退出了网络钓鱼警告页面"
+  },
+  "phishingBlockerBypassed": {
+    "message": "用户忽略了网络钓鱼警告"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -9415,7 +9599,7 @@
     "description": "Link to a downloadable resource. This will be used as part of a larger phrase. Example: Download the Secrets Manager CLI"
   },
   "smCLI": {
-    "message": "机密管理器 CLI"
+    "message": "Secrets Manager CLI"
   },
   "importSecrets": {
     "message": "导入机密"
@@ -9533,7 +9717,7 @@
     "description": "The individual description shown to the user when the user doesn't have access to delete a project."
   },
   "smProjectsDeleteBulkConfirmation": {
-    "message": "以下工程无法删除。是否继续？",
+    "message": "以下工程无法删除。您想要继续吗？",
     "description": "The message shown to the user when bulk deleting projects and the user doesn't have access to some projects."
   },
   "updateKdfSettings": {
@@ -9615,7 +9799,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "cardMetrics": {
-    "message": "满分 $TOTAL$",
+    "message": "总计 $TOTAL$",
     "placeholders": {
       "total": {
         "content": "$1",
@@ -9639,22 +9823,46 @@
   "recoverAccount": {
     "message": "恢复账户"
   },
+  "recoverAccountWarning": {
+    "message": "当您重置此成员的密码或两步登录时，他们将收到关于此更改的通知并被注销。"
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "当主密码、两步登录或受信任设备被遗忘或丢失时恢复账户。"
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "对于具有主密码的现有账户，需要成员自行注册后，管理员才可以恢复他们的账户。"
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "在恢复账户中自动注册新成员"
+  },
+  "resetMasterPassword": {
+    "message": "重置主密码"
+  },
+  "resetTwoStepLogin": {
+    "message": "重置两步登录"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "成员的访问权限将被撤销，直到他们设置两步登录"
+  },
+  "recoverAccountSuccess": {
+    "message": "账户恢复成功！"
+  },
   "updatedTempPassword": {
     "message": "用户更新了通过账户恢复颁发的密码。"
   },
   "activatedAccessToSecretsManager": {
-    "message": "激活了对机密管理器的访问权限",
+    "message": "激活了对 Secrets Manager 的访问权限",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
   "activateAccess": {
     "message": "激活访问权限"
   },
   "bulkEnableSecretsManagerDescription": {
-    "message": "允许以下成员访问机密管理器。密码管理器中授予的角色将适用于机密管理器。",
+    "message": "允许以下成员访问 Secrets Manager。Password Manager 中授予的角色将适用于 Secrets Manager。",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
-    "message": "激活机密管理器"
+    "message": "激活 Secrets Manager"
   },
   "yourOrganizationsFingerprint": {
     "message": "您组织的指纹短语",
@@ -9760,7 +9968,7 @@
     }
   },
   "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "开始 $ORG$ 的 Bitwarden 机密管理器 7 天免费试用",
+    "message": "开始 $ORG$ 的 Bitwarden Secrets Manager 7 天免费试用",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -9808,7 +10016,7 @@
     "message": "邀请用户"
   },
   "secretsManagerForPlan": {
-    "message": "$PLAN$ 机密管理器",
+    "message": "$PLAN$ Secrets Manager",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -9856,10 +10064,10 @@
     }
   },
   "subscribeToSecretsManager": {
-    "message": "订阅机密管理器"
+    "message": "订阅 Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
-    "message": "将机密管理器添加到升级后的方案中，以保留对使用之前的方案创建的所有机密的访问权限。"
+    "message": "将 Secrets Manager 添加到升级后的方案中，以保留对使用之前的方案创建的所有机密的访问权限。"
   },
   "additionalServiceAccounts": {
     "message": "附加服务账户"
@@ -9909,13 +10117,13 @@
     "message": "更新了集合管理设置"
   },
   "passwordManagerPlanPrice": {
-    "message": "密码管理器方案价格"
+    "message": "Password Manager 方案价格"
   },
   "secretsManagerPlanPrice": {
-    "message": "机密管理器方案价格"
+    "message": "Secrets Manager 方案价格"
   },
   "passwordManager": {
-    "message": "密码管理器"
+    "message": "Password Manager"
   },
   "freeOrganization": {
     "message": "免费组织"
@@ -9930,7 +10138,7 @@
     "message": "服务账户限制（可选）"
   },
   "maxServiceAccountCost": {
-    "message": "最大潜在的服务账户费用"
+    "message": "最大潜在的服务账户成本"
   },
   "loggedInExclamation": {
     "message": "已登录！"
@@ -10058,7 +10266,7 @@
     "message": "安装浏览器扩展"
   },
   "installBrowserExtensionDetails": {
-    "message": "使用扩展快速保存登录信息以及自动填充表单，而无需打开网页 App。"
+    "message": "使用扩展快速保存登录以及自动填充表单，而无需打开网页 App。"
   },
   "projectAccessUpdated": {
     "message": "工程访问权限已更新"
@@ -10148,7 +10356,7 @@
     "message": "确认详细信息"
   },
   "smFreeTrialThankYou": {
-    "message": "感谢您注册 Bitwarden 机密管理器！"
+    "message": "感谢您注册 Bitwarden Secrets Manager！"
   },
   "smFreeTrialConfirmationEmail": {
     "message": "我们已经发送了一封确认电子邮件到 "
@@ -10158,7 +10366,7 @@
     "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
   },
   "selectCancellationReason": {
-    "message": "选择取消的原因",
+    "message": "请选择取消的原因",
     "description": "Used as a form field label for a select input on the offboarding survey."
   },
   "anyOtherFeedback": {
@@ -10166,19 +10374,19 @@
     "description": "Used as a form field label for a textarea input on the offboarding survey."
   },
   "missingFeatures": {
-    "message": "功能缺失",
+    "message": "缺少某些功能",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "movingToAnotherTool": {
-    "message": "迁移到其他工具",
+    "message": "准备转用其他工具",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooDifficultToUse": {
-    "message": "太难使用",
+    "message": "使用起来太难了",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "notUsingEnough": {
-    "message": "未充分使用",
+    "message": "使用率不高",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooExpensive": {
@@ -10186,12 +10394,52 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreePlan": {
-    "message": "正在切换到免费方案",
+    "message": "准备切换到免费方案",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreeOrg": {
-    "message": "正在切换到免费组织",
+    "message": "准备切换到免费组织",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "缺少某些功能或特性",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "未提供我们需要的某些功能",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "设置或管理起来太难了",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "上手、管理或日常使用过于复杂",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "我们没有获得足够的与成本对应的价值",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "定价与我们获得的价值不匹配",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "我们团队的使用率不高",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "我们无法让人们真正使用它",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "我们的需求发生变化",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "重组、并购、优先级调整，或我们已不再需要密码管理器",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "免费 1 年"
@@ -10251,7 +10499,7 @@
     "message": "成功分配了集合"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，您将无法更新它们。",
+    "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -10515,7 +10763,7 @@
     "message": "机器账户限制（可选）"
   },
   "maxMachineAccountCost": {
-    "message": "最大潜在的机器账户费用"
+    "message": "最大潜在的机器账户成本"
   },
   "machineAccountAccessUpdated": {
     "message": "机器账户访问权限已更新"
@@ -10573,13 +10821,13 @@
     "message": "集成"
   },
   "integrationsDesc": {
-    "message": "自动将机密从 Bitwarden 机密管理器同步到第三方服务。"
+    "message": "自动将机密从 Bitwarden Secrets Manager 同步到第三方服务。"
   },
   "sdks": {
     "message": "SDK"
   },
   "sdksDesc": {
-    "message": "在以下编程语言中使用 Bitwarden 机密管理器 SDK 来构建您自己的应用程序。"
+    "message": "在以下编程语言中使用 Bitwarden Secrets Manager SDK 来构建您自己的应用程序。"
   },
   "ssoDescStart": {
     "message": "使用适合您的身份提供程序的实施指南为 Bitwarden 配置",
@@ -10796,7 +11044,7 @@
     "message": "选择集合项目"
   },
   "manageBillingFromProviderPortalMessage": {
-    "message": "从提供商门户管理账单"
+    "message": "从提供商门户管理计费"
   },
   "continueSettingUp": {
     "message": "继续设置 Bitwarden"
@@ -10805,16 +11053,16 @@
     "message": "继续设置您的免费试用版 Bitwarden"
   },
   "continueSettingUpPasswordManager": {
-    "message": "继续设置 Bitwarden 密码管理器"
+    "message": "继续设置 Bitwarden Password Manager"
   },
   "continueSettingUpFreeTrialPasswordManager": {
-    "message": "继续设置您的免费试用版 Bitwarden 密码管理器"
+    "message": "继续设置您的免费试用版 Bitwarden Password Manager"
   },
   "continueSettingUpSecretsManager": {
-    "message": "继续设置 Bitwarden 机密管理器"
+    "message": "继续设置 Bitwarden Secrets Manager"
   },
   "continueSettingUpFreeTrialSecretsManager": {
-    "message": "继续设置您的免费试用版 Bitwarden 机密管理器"
+    "message": "继续设置您的免费试用版 Bitwarden Secrets Manager"
   },
   "enterTeamsOrgInfo": {
     "message": "输入您的团队组织信息"
@@ -10966,7 +11214,7 @@
     "message": "成员访问权限"
   },
   "memberAccessReportDesc": {
-    "message": "确保成员具有对合适的凭据的访问权限，以及他们的账户是安全的。使用此报告获取包含会员访问权限和账户配置的 CSV 文件 。"
+    "message": "确保成员拥有对合适的凭据的访问权限，以及他们的账户是安全的。使用此报告获取包含会员访问权限和账户配置的 CSV 文件 。"
   },
   "memberAccessReportPageDesc": {
     "message": "审计组织成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
@@ -11046,6 +11294,9 @@
   "clientDetails": {
     "message": "客户详细信息"
   },
+  "downloadChart": {
+    "message": "下载图表"
+  },
   "downloadCSV": {
     "message": "下载 CSV"
   },
@@ -11064,7 +11315,7 @@
     "description": "A paragraph on the Billing History page of the Provider Portal letting users know they can download a CSV report for their invoices that does not include prorations."
   },
   "providerClientVaultPrivacyNotification": {
-    "message": "通知：本月晚些时候，客户密码库隐私将进行升级，提供商成员将不再能够直接访问客户密码库项目。如有疑问，",
+    "message": "注意：本月晚些时候，客户密码库隐私将得到改进，提供商成员将不再能够直接访问客户密码库项目。如有疑问，",
     "description": "This will be displayed as part of a larger sentence. The whole sentence reads: 'Notice: Later this month, client vault privacy will be improved and provider members will no longer have direct access to client vault items. For questions, please contact Bitwarden support'."
   },
   "contactBitwardenSupport": {
@@ -11151,7 +11402,7 @@
     "message": "进一步了解主密码重新提示"
   },
   "learnMoreAboutSearchingYourVault": {
-    "message": "进一步了解搜索密码库"
+    "message": "进一步了解关于搜索密码库"
   },
   "learnMoreAboutYourAccountFingerprintPhrase": {
     "message": "了解您的账户指纹短语"
@@ -11352,13 +11603,13 @@
     "message": "当前"
   },
   "secretsManagerSubscriptionInfo": {
-    "message": "您的机密管理器订阅将基于选择的方案升级"
+    "message": "您的 Secrets Manager 订阅将基于选择的方案升级"
   },
   "bitwardenPasswordManager": {
-    "message": "Bitwarden 密码管理器"
+    "message": "Bitwarden Password Manager"
   },
   "secretsManagerComplimentaryPasswordManager": {
-    "message": "您的一年免费密码管理器订阅将升级到所选方案。在免费期结束前，我们不会向您收取费用。"
+    "message": "您的一年免费 Password Manager 订阅将升级到所选方案。在免费期结束前，我们不会向您收取费用。"
   },
   "fileSavedToDevice": {
     "message": "文件已保存到设备。可以在设备下载中进行管理。"
@@ -11433,7 +11684,7 @@
     "description": "This represents the beginning of a sentence. The full sentence will be 'Manage subscription from the Provider Portal', but 'Provider Portal' will be a link and thus cannot be included in the translation file."
   },
   "toHostBitwardenOnYourOwnServer": {
-    "message": "要在您自己的服务器上托管 Bitwarden，您需要上传许可证文件。要支持自托管组织的免费版家庭版方案和高级计费功能，您需要在自托管组织中设置自动同步。"
+    "message": "要在您自己的服务器上托管 Bitwarden，您需要上传您的许可证文件。要支持自托管组织的免费家庭版方案和高级计费功能，您需要在您的自托管组织中设置计费同步。"
   },
   "selfHostingTitleProper": {
     "message": "自托管"
@@ -11497,6 +11748,18 @@
         "example": "First 8 Character of a GUID"
       }
     }
+  },
+  "userSelfRevokedFromOrganization": {
+    "message": "用户 $ID$ 从组织中自行撤销。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "因拒绝转移至组织所有权而被撤销。"
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ 已暂停",
@@ -11764,6 +12027,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "您的订阅即将续期。为确保服务不会中断，请在 $RENEWAL_DATE$ 之前联系您的 Bitwarden 提供商确认您的续订。",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "您的订阅账单已于 $ISSUED_DATE$ 开具。为确保服务不会中断，请在 $DUE_DATE$ 之前联系 $RESELLER$ 确认您的续订。",
     "placeholders": {
@@ -11794,6 +12066,15 @@
       }
     }
   },
+  "resellerPastDueWarningMsgV2": {
+    "message": "您的订阅账单尚未支付。为确保服务不会中断，请在 $GRACE_PERIOD_END$ 之前联系您的 Bitwarden 提供商。",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
+        "example": "02/14/2024"
+      }
+    }
+  },
   "restartOrganizationSubscription": {
     "message": "组织订阅已重启"
   },
@@ -11819,7 +12100,7 @@
     "message": "「删除」是一个新的操作！"
   },
   "seatsRemaining": {
-    "message": "该组织已分配 $TOTAL$ 个席位，您还剩余 $REMAINING$ 个席位。请联系提供商管理您的订阅。",
+    "message": "该组织总计分配了 $TOTAL$ 个席位，您还剩余 $REMAINING$ 个席位。请联系提供商管理您的订阅。",
     "placeholders": {
       "remaining": {
         "content": "$1",
@@ -11844,7 +12125,7 @@
     "message": "您的提供商订阅将获得此组织订阅剩余时间内的信用额度。"
   },
   "doYouWantToAddThisOrg": {
-    "message": "您想将该组织添加到 $PROVIDER$ 吗？",
+    "message": "要将该组织添加到 $PROVIDER$ 吗？",
     "placeholders": {
       "provider": {
         "content": "$1",
@@ -11881,6 +12162,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "未信任的加密密钥"
+  },
+  "atRiskPassword": {
+    "message": "存在风险的密码"
   },
   "changeAtRiskPassword": {
     "message": "更改存在风险的密码"
@@ -11945,7 +12229,7 @@
     "message": "归档中没有项目"
   },
   "noItemsInArchiveDesc": {
-    "message": "已归档的项目将显示在此处，并将被排除在一般搜索结果和自动填充建议之外。"
+    "message": "已归档的项目将显示在这里，并将被排除在一般搜索结果和自动填充建议之外。"
   },
   "itemArchiveToast": {
     "message": "项目已归档"
@@ -11987,7 +12271,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "在任何平台上安全地与任何人共享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
+    "message": "在任何平台上与任何人安全地分享文件和数据。您的信息将在限制曝光的同时保持端到端加密。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "generatorNudgeTitle": {
@@ -12038,7 +12322,7 @@
     "message": "使用身份，快速自动填充冗长的注册或联系表单。"
   },
   "newNoteNudgeTitle": {
-    "message": "保持您的敏感数据的安全"
+    "message": "保护您的敏感数据的安全"
   },
   "newNoteNudgeBody": {
     "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
@@ -12193,7 +12477,7 @@
     }
   },
   "unpaidInvoices": {
-    "message": "未付款账单"
+    "message": "未支付的账单"
   },
   "unpaidInvoicesForServiceUser": {
     "message": "您的订阅尚未支付。请联系您的提供商管理员，以恢复对您和您客户的服务。",
@@ -12333,7 +12617,7 @@
     "message": "附加机器账户"
   },
   "secretsManagerSeats": {
-    "message": "机密管理器席位"
+    "message": "Secrets Manager 席位"
   },
   "additionalStorage": {
     "message": "附加存储"
@@ -12345,7 +12629,7 @@
     "message": "折叠购买详细信息"
   },
   "familiesMembership": {
-    "message": "家庭成员"
+    "message": "家庭版成员资格"
   },
   "advancedOnlineSecurity": {
     "message": "高级在线安全防护"
@@ -12462,10 +12746,10 @@
     "message": "家庭版"
   },
   "upgradeToFamilies": {
-    "message": "升级为家庭版"
+    "message": "升级到家庭版"
   },
   "upgradeToPremium": {
-    "message": "升级为高级版"
+    "message": "升级到高级版"
   },
   "familiesUpdated": {
     "message": "您已升级为家庭版！"
@@ -12477,7 +12761,7 @@
     "message": "欢迎使用 Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "使用高级版解锁更多安全功能，或使用家庭版开始分享项目"
+    "message": "使用高级版解锁更多安全功能，或使用家庭版开始共享项目"
   },
   "individualUpgradeTaxInformationMessage": {
     "message": "价格不含税，按年计费。"
@@ -12540,7 +12824,7 @@
     "message": "卡号"
   },
   "startFreeFamiliesTrial": {
-    "message": "开始家庭版免费试用"
+    "message": "开始免费家庭版试用"
   },
   "blockClaimedDomainAccountCreation": {
     "message": "阻止使用已声明的域名创建账户"
@@ -12550,12 +12834,6 @@
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "必须先声明域名，然后才能激活此策略。"
-  },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "设置一个解锁方式以更改您的密码库超时动作。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企业策略要求已应用到您的超时选项中"
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密码库超时超出了您组织设置的限制。"
@@ -12755,8 +13033,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "出于安全和合规考虑，$ORGANIZATION$ 要求所有项目归组织所有。点击「接受」以转移您的项目的所有权。",
+  "transferItemsToOrganizationDescription": {
+    "message": "为确保安全性和合规性，$ORGANIZATION$ 要求所有项目由组织拥有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12764,14 +13042,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "点击「接受」以转移您的项目的所有权。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "打开有关转移项目的帮助文章"
+  },
   "acceptTransfer": {
     "message": "接受转移"
   },
   "declineAndLeave": {
     "message": "拒绝并退出"
-  },
-  "whyAmISeeingThis": {
-    "message": "为什么我会看到这个？"
   },
   "youHaveBitwardenPremium": {
     "message": "您有 Bitwarden 高级版"
@@ -12880,7 +13161,7 @@
     "message": "存储空间已满"
   },
   "storageUsedDescription": {
-    "message": "总计 $AVAILABLE$ GB 加密文件存储空间，您已使用 $USED$ GB。",
+    "message": "总计 $AVAILABLE$ GB 加密文件存储空间，您已使用 $USED$。",
     "placeholders": {
       "used": {
         "content": "$1",
@@ -12896,13 +13177,13 @@
     "message": "您已使用了全部的 $GB$ GB 加密存储空间。要继续存储文件，请添加更多存储空间。"
   },
   "extensionPromptHeading": {
-    "message": "获取扩展以便轻松访问密码库"
+    "message": "获取扩展以轻松访问密码库"
   },
   "extensionPromptBody": {
-    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填写密码，只需单击一下即可登录您的账户。"
+    "message": "安装浏览器扩展后，您可以随时随地在线使用 Bitwarden。它会自动填充密码，只需单击一下即可登录您的账户。"
   },
   "extensionPromptImageAlt": {
-    "message": "一个网页浏览器显示着 Bitwarden 扩展程序，该程序带有当前网页的自动填充项目。"
+    "message": "一个显示 Bitwarden 扩展的网页浏览器，该扩展为当前网页提供了自动填充项目。"
   },
   "skip": {
     "message": "跳过"
@@ -12914,7 +13195,7 @@
     "message": "谁可以查看"
   },
   "specificPeople": {
-    "message": "指定人员"
+    "message": "指定的人员"
   },
   "emailVerificationDesc": {
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
@@ -12922,10 +13203,10 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "输入多个电子邮箱（使用逗号分隔）。"
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "电子邮箱验证要求至少有一个电子邮箱地址。要移除所有电子邮箱，请更改上面的访问类型。"
-  },
   "emailPlaceholder": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
@@ -12969,10 +13250,10 @@
     "message": "每用户"
   },
   "upgradeToTeams": {
-    "message": "升级为团队版"
+    "message": "升级到团队版"
   },
   "upgradeToEnterprise": {
-    "message": "升级为企业版"
+    "message": "升级到企业版"
   },
   "upgradeShareEvenMore": {
     "message": "使用家庭版共享更多内容，或使用团队版或企业版获得强大、可信赖的密码安全防护"
@@ -12984,7 +13265,7 @@
     "message": "生成账单预览时遇到错误。"
   },
   "planProratedMembershipInMonths": {
-    "message": "按比例计费的 $PLAN$ 成员资格（$NUMOFMONTHS$）",
+    "message": "按比例分配的 $PLAN$ 成员资格（$NUMOFMONTHS$）",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -13034,5 +13315,89 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "未返回搜索结果"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "清除筛选或尝试其他搜索词"
+  },
+  "pastMonth": {
+    "message": "上个月"
+  },
+  "past3Months": {
+    "message": "过去 3 个月"
+  },
+  "past6Months": {
+    "message": "过去 6 个月"
+  },
+  "pastYear": {
+    "message": "去年"
+  },
+  "allTime": {
+    "message": "所有时间"
+  },
+  "timePeriod": {
+    "message": "时间段"
+  },
+  "of": {
+    "message": "of"
+  },
+  "coachmarkImportTitle": {
+    "message": "快速导入您的密码"
+  },
+  "coachmarkImportDescription": {
+    "message": "您以前拥有过密码管理器吗？您可以将包含现有登录和其他数据的 CSV 文件导入您的密码库。"
+  },
+  "coachmarkAddItemTitle": {
+    "message": "添加项目"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "将新的密码、笔记及其他信息添加到您的密码库。所有内容均受到端到端加密的保护。"
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "安全地与他人共享项目"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "通过将项目移入集合，您可以与组织中的其他人安全地共享该项目。"
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "监测您的密码安全性"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "通过检查漏洞报告，来保持您的密码库项目的安全。"
+  },
+  "coachmarkStepIndicator": {
+    "message": "步骤 $CURRENT$ / $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
+  },
+  "discardEdits": {
+    "message": "放弃编辑"
+  },
+  "discardEditsMessage": {
+    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
+  },
+  "backToEditing": {
+    "message": "返回继续编辑"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send 有未保存的编辑内容。确定要离开吗？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "保存 Send 的编辑内容失败",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

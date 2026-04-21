@@ -16,8 +16,6 @@ import {
   PersonalSubscriptionPricingTierId,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { LogService } from "@bitwarden/logging";
 
@@ -64,7 +62,6 @@ export class UpgradePaymentService {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private configService: ConfigService,
   ) {}
 
   userIsOwnerOfFreeOrg$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -97,6 +94,7 @@ export class UpgradePaymentService {
   async calculateEstimatedTax(
     planDetails: PlanDetails,
     billingAddress: BillingAddress,
+    coupons?: string[],
   ): Promise<number> {
     const isFamiliesPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Families;
     const isPremiumPlan = planDetails.tier === PersonalSubscriptionPricingTierIds.Premium;
@@ -115,6 +113,7 @@ export class UpgradePaymentService {
         this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPurchase(
           request,
           billingAddress,
+          coupons,
         );
     }
 
@@ -122,6 +121,7 @@ export class UpgradePaymentService {
       previewInvoiceClientCall = this.previewInvoiceClient.previewTaxForPremiumSubscriptionPurchase(
         0,
         billingAddress,
+        coupons,
       );
     }
 
@@ -144,10 +144,17 @@ export class UpgradePaymentService {
   async upgradeToPremium(
     paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
+    coupons?: string[],
+    fromMarketing?: string | null,
   ): Promise<void> {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
-    await this.accountBillingClient.purchaseSubscription(paymentMethod, billingAddress);
+    await this.accountBillingClient.purchaseSubscription(
+      paymentMethod,
+      billingAddress,
+      coupons,
+      fromMarketing,
+    );
 
     await this.refreshAndSync();
   }
@@ -160,6 +167,7 @@ export class UpgradePaymentService {
     planDetails: PlanDetails,
     paymentMethod: TokenizedPaymentMethod,
     formValues: PaymentFormValues,
+    coupons?: string[],
   ): Promise<OrganizationResponse> {
     const billingAddress = formValues.billingAddress;
 
@@ -170,12 +178,7 @@ export class UpgradePaymentService {
     this.validatePaymentAndBillingInfo(paymentMethod, billingAddress);
 
     const passwordManagerSeats = this.getPasswordManagerSeats(planDetails);
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    const familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
+    const familyPlan = PlanType.FamiliesAnnually;
 
     const subscriptionInformation: SubscriptionInformation = {
       organization: {
@@ -193,6 +196,7 @@ export class UpgradePaymentService {
           postalCode: billingAddress.postalCode,
         },
       },
+      ...(coupons?.length ? { coupons } : {}),
     };
 
     const result = await this.organizationBillingService.purchaseSubscription(
