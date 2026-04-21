@@ -21,6 +21,7 @@ describe("Callout", () => {
               warning: "Warning",
               error: "Error",
               close: "Close",
+              callout: "Callout",
             }),
         },
       ],

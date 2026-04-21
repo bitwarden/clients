@@ -1,0 +1,48 @@
+<div class="tw-border tw-border-solid tw-border-secondary-300 tw-rounded" data-testid="filters">
+  @if (!isLoaded()) {
+    <div class="tw-text-center tw-p-5">
+      <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i>
+    </div>
+  } @else {
+    <div>
+      <div
+        class="tw-bg-background-alt tw-border-0 tw-border-b tw-border-solid tw-border-secondary-100 tw-rounded-t tw-px-5 tw-py-2.5 tw-font-medium tw-uppercase"
+        data-testid="filters-header"
+      >
+        {{ "filters" | i18n }}
+        <a
+          bitLink
+          class="tw-float-right"
+          href="https://bitwarden.com/help/searching-vault/"
+          target="_blank"
+          rel="noreferrer"
+          appA11yTitle="{{ 'learnMoreAboutSearchingYourVault' | i18n }}"
+        >
+          <i class="bwi bwi-question-circle" aria-hidden="true"></i>
+        </a>
+      </div>
+      <div class="tw-p-5" data-testid="filters-body">
+        <div class="tw-mb-4">
+          <bit-search
+            id="search"
+            placeholder="{{ searchPlaceholder | i18n }}"
+            [ngModel]="searchText()"
+            (ngModelChange)="searchText.set($event)"
+            autocomplete="off"
+            appAutofocus
+          />
+        </div>
+        @for (f of filtersList(); track f) {
+          <div class="filter">
+            <app-filter-section
+              [activeFilter]="activeFilter()"
+              [section]="f"
+              [isCollectionFilter]="f === filters()?.collectionFilter"
+            >
+            </app-filter-section>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
