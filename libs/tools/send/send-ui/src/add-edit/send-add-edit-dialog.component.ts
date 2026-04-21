@@ -1,7 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject, signal, viewChild } from "@angular/core";
+import { Component, Inject, inject, signal, viewChild } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -24,6 +25,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { SendFormComponent, SendFormConfig, SendFormMode, SendFormModule } from "../send-form";
+import { SendFormService } from "../send-form/abstractions/send-form.service";
 
 export interface SendItemDialogParams {
   /**
@@ -35,12 +37,6 @@ export interface SendItemDialogParams {
    * If true, the "edit" button will be disabled in the dialog.
    */
   disableForm?: boolean;
-
-  /**
-   * A function that is called to determine whether the dialog is allowed
-   * to close. Used to trigger the "unsaved edits" dialog.
-   */
-  closePredicate?: () => Promise<boolean>;
 }
 
 /** A result of the Send add/edit dialog. */
@@ -101,6 +97,8 @@ export class SendAddEditDialogComponent {
    */
   readonly generatorButtonLabel = signal<string | undefined>(undefined);
 
+  private sendFormService = inject(SendFormService);
+
   constructor(
     @Inject(DIALOG_DATA) protected params: SendItemDialogParams,
     private dialogRef: DialogRef<SendItemDialogResult>,
@@ -111,6 +109,23 @@ export class SendAddEditDialogComponent {
   ) {
     this.config = params.formConfig;
     this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+
+    this.dialogRef.beforeClose$.pipe(takeUntilDestroyed()).subscribe((event) => {
+      // If the send was already saved/deleted, allow close
+      if (event.result?.result) {
+        return;
+      }
+      // If there are no unsaved edits, allow close immediately
+      if (!this.sendFormService.sendFormHasEdits()) {
+        return;
+      }
+      event.cancel();
+      void this.sendFormService.promptForUnsavedEdits().then((canClose) => {
+        if (canClose) {
+          this.dialogRef.close(event.result);
+        }
+      });
+    });
   }
 
   /**
@@ -246,7 +261,6 @@ export class SendAddEditDialogComponent {
       SendAddEditDialogComponent
     >(SendAddEditDialogComponent, {
       data: params,
-      closePredicate: params.closePredicate,
     });
   }
 
@@ -263,7 +277,6 @@ export class SendAddEditDialogComponent {
       SendAddEditDialogComponent
     >(SendAddEditDialogComponent, {
       data: params,
-      closePredicate: params.closePredicate,
     });
   }
 }

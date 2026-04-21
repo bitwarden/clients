@@ -17,7 +17,6 @@ import {
 import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
-  SendFormService,
   SendItemDialogResult,
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -55,7 +54,6 @@ export class NewSendDropdownComponent {
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
     private configService: ConfigService,
-    private sendFormService: SendFormService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -78,9 +76,8 @@ export class NewSendDropdownComponent {
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
     const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
     if (useRefresh) {
-      const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      const sendFormDialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
       if (sendFormDialogRef) {
         this.sendFormDialogRef = sendFormDialogRef;
@@ -94,7 +91,6 @@ export class NewSendDropdownComponent {
     } else {
       SendAddEditDialogComponent.open(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     }
   }

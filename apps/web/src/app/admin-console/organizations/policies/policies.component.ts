@@ -171,9 +171,9 @@ export class PoliciesComponent {
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
     if (useDrawer && dialogComponent.openDrawer) {
-      // openDrawer is async and returns undefined if a currently-open drawer's
-      // closePredicate prevented it from closing — only update the ref when it opened.
-      const ref = await dialogComponent.openDrawer(this.dialogService, {
+      // openDrawer returns undefined if a currently-open drawer's beforeClose$ subscriber
+      // prevented it from closing — only update the ref when it opened.
+      const ref = dialogComponent.openDrawer(this.dialogService, {
         data: {
           policy: policy,
           organization: organization,

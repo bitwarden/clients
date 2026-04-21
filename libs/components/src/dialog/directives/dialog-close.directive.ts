@@ -1,5 +1,6 @@
-import { DialogRef } from "@angular/cdk/dialog";
 import { Directive, HostBinding, HostListener, Optional, input } from "@angular/core";
+
+import { DialogRef } from "../dialog.service";
 
 @Directive({
   selector: "[bitDialogClose]",
@@ -20,6 +21,7 @@ export class DialogCloseDirective {
       return;
     }
 
-    this.dialogRef.close(this.dialogResult());
+    const result = this.dialogResult();
+    this.dialogRef?.close(result === "" ? undefined : result);
   }
 }

@@ -24,7 +24,6 @@ import {
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { LogService } from "@bitwarden/logging";
 
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
@@ -53,14 +52,21 @@ class CustomBlockScrollStrategy implements ScrollStrategy {
   detach() {}
 }
 
+export type BeforeCloseEvent<R = unknown> = {
+  /** The result passed to close() */
+  result: R | undefined;
+  /** Call this synchronously to prevent the close */
+  cancel(): void;
+};
+
 export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   CdkDialogRef<R, C>,
-  "close" | "closed" | "disableClose" | "componentInstance"
+  "closed" | "disableClose" | "componentInstance"
 > {
   abstract readonly isDrawer?: boolean;
 
   // --- From CdkDialogRef ---
-  abstract close(result?: R, options?: DialogCloseOptions): Promise<DialogCloseRef>;
+  abstract close(result?: R, options?: DialogCloseOptions): DialogCloseRef;
   abstract readonly closed: Observable<R | undefined>;
   abstract disableClose: boolean | undefined;
   /**
@@ -68,6 +74,11 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
    * Does not work with drawer dialogs.
    **/
   abstract componentInstance: C | null;
+
+  /**
+   * Emits before the dialog closes. Subscribers may call event.cancel() to prevent the close.
+   */
+  abstract readonly beforeClose$: Observable<BeforeCloseEvent<R>>;
 }
 
 export type DialogConfig<D = unknown, R = unknown> = Pick<
@@ -80,9 +91,7 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
   | "width"
   | "restoreFocus"
   | "closeOnNavigation"
-> & {
-  closePredicate?: (result?: R) => Promise<boolean>;
-};
+>;
 
 export type DialogCloseRef = {
   /** A boolean indicating whether the close succeeded */
@@ -154,6 +163,9 @@ export class CenterPositionStrategy extends GlobalPositionStrategy {
 class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = true;
 
+  private readonly _beforeClose$ = new Subject<BeforeCloseEvent<R>>();
+  readonly beforeClose$ = this._beforeClose$.asObservable();
+
   private _closed = new Subject<R | undefined>();
   closed = this._closed.asObservable();
   disableClose = false;
@@ -163,24 +175,25 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 
   constructor(
     private drawerService: DrawerService,
-    private logService: LogService | null,
     readonly config?: DialogConfig<unknown, R>,
   ) {}
 
-  async close(result?: R, _options?: DialogCloseOptions): Promise<DialogCloseRef> {
-    if (this.disableClose) {
+  close(result?: R, _options?: DialogCloseOptions): DialogCloseRef {
+    if (this.disableClose && result === undefined) {
       return { closed: false };
     }
-    if (this.config?.closePredicate) {
-      try {
-        const canClose = await this.config.closePredicate(result);
-        if (!canClose) {
-          return { closed: false };
-        }
-      } catch (err) {
-        this.logService?.error(err);
-      }
+
+    let cancelled = false;
+    this._beforeClose$.next({
+      result,
+      cancel: () => {
+        cancelled = true;
+      },
+    });
+    if (cancelled) {
+      return { closed: false };
     }
+
     this.drawerService.close(this.portal!);
     this._closed.next(result);
     this._closed.complete();
@@ -196,40 +209,44 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = false;
 
-  constructor(
-    private logService: LogService | null,
-    private closePredicate?: (result?: R) => Promise<boolean>,
-  ) {}
+  private readonly _beforeClose$ = new Subject<BeforeCloseEvent<R>>();
+  readonly beforeClose$ = this._beforeClose$.asObservable();
+
+  /**
+   * Tracked independently from cdkDialogRefBase.disableClose because we always
+   * set disableClose: true on the CDK level to intercept backdrop/Escape ourselves.
+   */
+  disableClose: boolean | undefined = undefined;
+
+  constructor() {}
 
   /** This is not available until after construction, @see DialogService.open. */
   cdkDialogRefBase!: CdkDialogRefBase<R, C>;
 
   // --- Delegated to CdkDialogRefBase ---
 
-  async close(result?: R, options?: DialogCloseOptions): Promise<DialogCloseRef> {
-    if (this.closePredicate) {
-      try {
-        const canClose = await this.closePredicate(result);
-        if (!canClose) {
-          return { closed: false };
-        }
-      } catch (err) {
-        this.logService?.error(err);
-      }
+  close(result?: R, options?: DialogCloseOptions): DialogCloseRef {
+    if (this.disableClose && result === undefined) {
+      return { closed: false };
     }
+
+    let cancelled = false;
+    this._beforeClose$.next({
+      result,
+      cancel: () => {
+        cancelled = true;
+      },
+    });
+    if (cancelled) {
+      return { closed: false };
+    }
+
     this.cdkDialogRefBase.close(result, options);
     return { closed: true };
   }
 
   get closed(): Observable<R | undefined> {
     return this.cdkDialogRefBase.closed;
-  }
-
-  get disableClose(): boolean | undefined {
-    return this.cdkDialogRefBase.disableClose;
-  }
-  set disableClose(value: boolean | undefined) {
-    this.cdkDialogRefBase.disableClose = value;
   }
 
   // Delegate the `componentInstance` property to the CDK DialogRef
@@ -245,7 +262,6 @@ export class DialogService {
   private injector = inject(Injector);
   private router = inject(Router);
   private authService = inject(AuthService, { optional: true });
-  private logService = inject(LogService, { optional: true });
 
   private backDropClasses = ["tw-fixed", "tw-bg-bg-overlay", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
@@ -291,9 +307,6 @@ export class DialogService {
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
     config?: DialogConfig<D, R>,
   ): DialogRef<R, C> {
-    // We need to split out our async closePredicate here because the CDK's closePredicate is sync
-    const { closePredicate, ...otherConfig } = config ?? {};
-
     /**
      * This is a bit circular in nature:
      * We need the DialogRef instance for the DI injector that is passed *to* `Dialog.open`,
@@ -302,23 +315,37 @@ export class DialogService {
      * To break the circle, we define CDKDialogRef as a wrapper for the CDKDialogRefBase.
      * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
-    const ref = new CdkDialogRef<R, C>(this.logService, closePredicate);
+    const ref = new CdkDialogRef<R, C>();
+    ref.disableClose = config?.disableClose;
     const injector = this.createInjector({
       data: config?.data,
       dialogRef: ref,
     });
 
-    // Merge the custom config with the default config
+    // Merge the custom config with the default config.
+    // We always set disableClose: true on the CDK level so the CDK never closes the dialog
+    // itself via backdrop click or Escape. We intercept those events below and route them
+    // through our close() so beforeClose$ always fires. When disableClose is true, the CDK
+    // suppresses the events and our close() returns early, preserving the same behaviour.
     const _config = {
       backdropClass: this.backDropClasses,
       scrollStrategy: this.defaultScrollStrategy,
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
       closeOnNavigation: config?.closeOnNavigation,
       injector,
-      ...otherConfig,
+      ...config,
+      disableClose: true,
     };
 
     ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+
+    // Only intercept backdrop clicks when disableClose is falsy. When true, CDK already
+    // suppresses backdrop clicks natively via the disableClose: true config above.
+    if (!ref.disableClose) {
+      ref.cdkDialogRefBase.backdropClick.subscribe(() => {
+        ref.close();
+      });
+    }
 
     if (config?.restoreFocus === undefined) {
       this.setRestoreFocusEl<R, C>(ref);
@@ -327,13 +354,13 @@ export class DialogService {
     return ref;
   }
 
-  /** Opens a dialog in the side drawer. Returns `undefined` if the currently-open drawer has a
-   * closePredicate that prevented it from closing, otherwise a DialogRef for the newly opened drawer. */
-  async openDrawer<R = unknown, D = unknown, C = unknown>(
+  /** Opens a dialog in the side drawer. Returns `undefined` if a `beforeClose$` subscriber
+   * prevented the current drawer from closing, otherwise a DialogRef for the newly opened drawer. */
+  openDrawer<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
     config?: DialogConfig<D, R>,
-  ): Promise<DialogRef<R, C> | undefined> {
-    const closeResult = await this.activeDrawer?.close();
+  ): DialogRef<R, C> | undefined {
+    const closeResult = this.activeDrawer?.close();
     // We only want to abort here if we have an active drawer that has failed to close. We
     // specifically check for false instead of falsy values to avoid false (ha) positives.
     if (closeResult?.closed === false) {
@@ -343,7 +370,7 @@ export class DialogService {
      * This is also circular. When creating the DrawerDialogRef, we do not yet have a portal instance to provide to the injector.
      * Similar to `this.open`, we get around this with mutability.
      */
-    this.activeDrawer = new DrawerDialogRef(this.drawerService, this.logService, config);
+    this.activeDrawer = new DrawerDialogRef(this.drawerService, config);
     const portal = new ComponentPortal(
       component,
       null,
@@ -388,13 +415,13 @@ export class DialogService {
     });
   }
 
-  /** Close all open dialogs. Note that this will ignore any and all dialog closePredicates */
+  /** Close all open dialogs. Note that this will ignore any and all beforeClose$ subscribers */
   closeAll(): void {
     return this.dialog.closeAll();
   }
 
   /** Close the open drawer */
-  async closeDrawer(): Promise<DialogCloseRef> {
+  closeDrawer(): DialogCloseRef {
     return this.activeDrawer?.close() ?? { closed: true };
   }
 
