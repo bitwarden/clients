@@ -144,12 +144,8 @@ export class ListCommand {
     }
 
     if (options.search != null && options.search.trim() !== "") {
-      ciphers = this.searchService.searchCiphersBasic(
-        ciphers,
-        options.search,
-        options.trash,
-        options.archived,
-      );
+      ciphers = ciphers.filter((c) => this.matchesStateOptions(c, options));
+      ciphers = this.searchService.searchCiphersBasic(ciphers, options.search);
     }
 
     ciphers = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(ciphers);
