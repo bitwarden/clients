@@ -119,7 +119,9 @@ impl AuthenticatorInfo {
         // 4: options - Map of supported options
         if let Some(options) = &self.options {
             let mut sorted: Vec<_> = options.iter().collect();
-            sorted.sort();
+            // Sort by CTAP2 canonical CBOR encoding: major type (all the same),
+            // then key length, then lexicographical value.
+            sorted.sort_by(|a, b| a.len().cmp(&b.len()).then_with(|| a.cmp(b)));
             writer.write_number(4)?;
             writer.write_map_start(sorted.len())?;
             for o in sorted.iter() {
@@ -584,6 +586,7 @@ mod tests {
             versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
             aaguid,
             options: Some(HashSet::from([
+                "alwaysUv".to_string(),
                 "rk".to_string(),
                 "up".to_string(),
                 "uv".to_string(),
@@ -604,13 +607,12 @@ mod tests {
         let cbor_bytes = result.unwrap();
 
         let expected = &[
-            0xa6, 0x01, 0x82, 0x68, 0x46, 0x49, 0x44, 0x4f, 0x5f, 0x32, 0x5f, 0x30, 0x68, 0x46,
-            0x49, 0x44, 0x4f, 0x5f, 0x32, 0x5f, 0x31, 0x02, 0x80, 0x03, 0x50, 0xd5, 0x48, 0x82,
-            0x6e, 0x79, 0xb4, 0xdb, 0x40, 0xa3, 0xd8, 0x11, 0x11, 0x6f, 0x7e, 0x83, 0x49, 0x04,
-            0xa3, 0x62, 0x72, 0x6b, 0xf5, 0x62, 0x75, 0x70, 0xf5, 0x62, 0x75, 0x76, 0xf5, 0x09,
-            0x82, 0x66, 0x68, 0x79, 0x62, 0x72, 0x69, 0x64, 0x68, 0x69, 0x6e, 0x74, 0x65, 0x72,
-            0x6e, 0x61, 0x6c, 0x0a, 0x81, 0xa2, 0x63, 0x61, 0x6c, 0x67, 0x26, 0x64, 0x74, 0x79,
-            0x70, 0x65, 0x6a, 0x70, 0x75, 0x62, 0x6c, 0x69, 0x63, 0x2d, 0x6b, 0x65, 0x79,
+            166, 1, 130, 104, 70, 73, 68, 79, 95, 50, 95, 48, 104, 70, 73, 68, 79, 95, 50, 95, 49,
+            2, 128, 3, 80, 213, 72, 130, 110, 121, 180, 219, 64, 163, 216, 17, 17, 111, 126, 131,
+            73, 4, 164, 98, 114, 107, 245, 98, 117, 112, 245, 98, 117, 118, 245, 104, 97, 108, 119,
+            97, 121, 115, 85, 118, 245, 9, 130, 102, 104, 121, 98, 114, 105, 100, 104, 105, 110,
+            116, 101, 114, 110, 97, 108, 10, 129, 162, 99, 97, 108, 103, 38, 100, 116, 121, 112,
+            101, 106, 112, 117, 98, 108, 105, 99, 45, 107, 101, 121,
         ];
         assert_eq!(expected, cbor_bytes.as_slice());
     }
