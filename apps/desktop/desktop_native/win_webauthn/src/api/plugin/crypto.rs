@@ -45,10 +45,18 @@ pub(super) fn parse_public_key(data: &[u8]) -> Result<NCryptKey, windows::core::
     // We still detect RSA vs EC to choose the import blob type, and store the
     // RSA flag to apply PSS padding during verification.
 
+    // The key blob comes with trailing data that is longer than the
+    // BCRYPT_KEY_BLOB header, so we test to make sure it's at least as long as
+    // the BCRYPT_KEY_BLOB header.
     if data.len() < size_of::<BCRYPT_KEY_BLOB>() {
+        tracing::error!("Recived too small buffer");
         return Err(windows::core::Error::from_hresult(E_INVALIDARG));
     }
     let header: *const BCRYPT_KEY_BLOB = data.as_ptr().cast();
+    if !header.is_aligned() {
+        tracing::error!("Received unaligned pointer, not reading BCRYPT_KEY_BLOB.");
+        return Err(windows::core::Error::from_hresult(E_INVALIDARG));
+    }
     let magic = unsafe { (*header).Magic };
     tracing::debug!("Detected BCRYPT_KEY_BLOB key magic type: {}", magic);
     // RSA is detected solely to apply PSS padding during verification.
