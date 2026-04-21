@@ -194,6 +194,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private searchText$ = new Subject<string>();
   protected refreshingSubject$ = new BehaviorSubject<boolean>(true);
+  private _loadStartTime = 0;
+  private _elapsedS = () => ((performance.now() - this._loadStartTime) / 1000).toFixed(2) + "s";
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult> | undefined;
@@ -301,6 +303,11 @@ export class VaultComponent implements OnInit, OnDestroy {
             );
             return () => sub.unsubscribe();
           }),
+      ),
+      tap((collections) =>
+        this.logService.debug(
+          `[Collections] Collections decrypted: ${collections.length} collections (+${this._elapsedS()})`,
+        ),
       ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
@@ -410,6 +417,11 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         return ciphers;
       }),
+      tap((ciphers) =>
+        this.logService.debug(
+          `[Collections] Ciphers fetched & decrypted: ${ciphers.length} ciphers (+${this._elapsedS()})`,
+        ),
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -607,10 +619,22 @@ export class VaultComponent implements OnInit, OnDestroy {
         ([refreshing, processing, firstLoadComplete]) =>
           refreshing || processing || !firstLoadComplete,
       ),
+      tap((loading) => {
+        if (!loading && this._loadStartTime > 0) {
+          this.logService.debug(`[Collections] Fully loaded — total time: ${this._elapsedS()}`);
+        }
+      }),
     );
   }
 
   async ngOnInit() {
+    this.refreshingSubject$.pipe(takeUntil(this.destroy$)).subscribe((refreshing) => {
+      if (refreshing) {
+        this._loadStartTime = performance.now();
+        this.logService.debug("[Collections] Load started");
+      }
+    });
+
     const firstSetup$ = combineLatest([this.organization$, this.route.queryParams]).pipe(
       first(),
       switchMap(async ([organization]) => {
