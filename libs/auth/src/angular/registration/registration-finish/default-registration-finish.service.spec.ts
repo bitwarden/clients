@@ -105,6 +105,38 @@ describe("DefaultRegistrationFinishService", () => {
       masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
     });
 
+    ["newPassword", "salt"].forEach((key) => {
+      it(`should throw if ${key} is an empty string (falsy) on the PasswordInputResult object`, async () => {
+        // Arrange
+        const invalidPasswordInputResult: PasswordInputResult = {
+          ...passwordInputResult,
+          [key]: "",
+        };
+
+        // Act
+        const promise = service.finishRegistration(email, invalidPasswordInputResult);
+
+        // Assert
+        await expect(promise).rejects.toThrow(`${key} is falsy. Could not finish registration.`);
+      });
+    });
+
+    it("should throw if kdfConfig is undefined on the PasswordInputResult object", async () => {
+      // Arrange
+      const invalidPasswordInputResult: PasswordInputResult = {
+        ...passwordInputResult,
+        kdfConfig: undefined,
+      };
+
+      // Act
+      const promise = service.finishRegistration(email, invalidPasswordInputResult);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        "kdfConfig is null or undefined. Could not finish registration.",
+      );
+    });
+
     it("throws an error if the user key cannot be created", async () => {
       keyService.makeUserKey.mockResolvedValue([null, null] as any);
 
