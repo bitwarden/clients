@@ -157,8 +157,8 @@ pub(super) fn hash_sha256(data: &[u8]) -> Result<Vec<u8>, windows::core::Error> 
             let mut hash_buffer: Vec<MaybeUninit<u8>> = Vec::with_capacity(hash_output_len);
             unsafe {
                 {
-                    // Temporarily treat the buffer as a byte slice to fit BCryptFinishHash parameter
-                    // arguments.
+                    // Temporarily treat the buffer as a byte slice to fit BCryptFinishHash
+                    // parameter arguments.
                     let hash_slice: &mut [u8] = mem::transmute(hash_buffer.spare_capacity_mut());
                     BCryptFinishHash(sha256.handle, hash_slice, 0).ok()?;
                     // The hash handle is not usable after calling BCryptFinishHash, drop to clean
