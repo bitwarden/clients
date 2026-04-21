@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
 
 import { makeEncString } from "../../../spec";
 import { KdfRequest } from "../../models/request/kdf.request";
@@ -25,6 +25,7 @@ describe("ChangeKdfService", () => {
   const sdkService = mock<SdkService>();
   const keyService = mock<KeyService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
+  const kdfConfigService = mock<KdfConfigService>();
 
   let sut: DefaultChangeKdfService;
 
@@ -56,6 +57,7 @@ describe("ChangeKdfService", () => {
       sdkService,
       keyService,
       masterPasswordService,
+      kdfConfigService,
     );
   });
 
@@ -174,14 +176,25 @@ describe("ChangeKdfService", () => {
     it("should set master key and hash after KDF update", async () => {
       const masterPassword = "masterPassword";
       const mockMasterKey = {} as any;
-      const mockHash = "localHash";
 
       keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-      keyService.hashMasterKey.mockResolvedValue(mockHash);
 
       await sut.updateUserKdfParams(masterPassword, mockNewKdfConfig, mockUserId);
 
       expect(masterPasswordService.setMasterKey).toHaveBeenCalledWith(mockMasterKey, mockUserId);
+      expect(masterPasswordService.setMasterPasswordUnlockData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          salt: mockSalt,
+          kdf: mockNewKdfConfig,
+          masterKeyWrappedUserKey: mockWrappedUserKey.encryptedString,
+        }),
+        mockUserId,
+      );
+      expect(masterPasswordService.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
+        new EncString(mockWrappedUserKey.encryptedString),
+        mockUserId,
+      );
+      expect(kdfConfigService.setKdfConfig).toHaveBeenCalledWith(mockUserId, mockNewKdfConfig);
     });
 
     it("should properly dispose of SDK resources", async () => {

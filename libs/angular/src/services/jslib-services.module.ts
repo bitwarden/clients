@@ -543,11 +543,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: ChangeKdfService,
-    useClass: DefaultChangeKdfService,
-    deps: [ChangeKdfApiService, SdkService, KeyService, InternalMasterPasswordServiceAbstraction],
-  }),
-  safeProvider({
     provide: EncryptedMigrator,
     useClass: DefaultEncryptedMigrator,
     deps: [
@@ -1436,7 +1431,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangeKdfService,
     useClass: DefaultChangeKdfService,
-    deps: [ChangeKdfApiService, SdkService, KeyService, InternalMasterPasswordServiceAbstraction],
+    deps: [
+      ChangeKdfApiService,
+      SdkService,
+      KeyService,
+      InternalMasterPasswordServiceAbstraction,
+      KdfConfigService,
+    ],
   }),
   safeProvider({
     provide: AuthRequestServiceAbstraction,
