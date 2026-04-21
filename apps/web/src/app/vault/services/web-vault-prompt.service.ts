@@ -48,24 +48,24 @@ export class WebVaultPromptService {
    * the user seeing multiple onboarding prompts at different times.
    */
   async conditionallyPromptUser() {
+    const userId = await firstValueFrom(this.userId$);
+
+    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
+
+    this.checkForAutoConfirm();
+
     const serverSettings = await firstValueFrom(this.configService.serverSettings$);
     if (serverSettings?.suppressOnboardingInterstitials) {
       return;
     }
 
-    const userId = await firstValueFrom(this.userId$);
-
     if (await this.unifiedUpgradePromptService.displayUpgradePromptConditionally()) {
       return;
     }
 
-    await this.vaultItemTransferService.enforceOrganizationDataOwnership(userId);
-
     await this.welcomeDialogService.conditionallyShowWelcomeDialog();
 
     await this.webVaultExtensionPromptService.conditionallyPromptUserForExtension(userId);
-
-    this.checkForAutoConfirm();
   }
 
   private openAutoConfirmFeatureDialog(organization: Organization) {

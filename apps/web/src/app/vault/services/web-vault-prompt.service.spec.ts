@@ -117,13 +117,13 @@ describe("WebVaultPromptService", () => {
       ).toHaveBeenCalledWith(mockUserId);
     });
 
-    it("skips all prompts when suppressOnboardingInterstitials is enabled", async () => {
+    it("skips onboarding prompts but not policy flows when suppressOnboardingInterstitials is enabled", async () => {
       serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
 
       await service.conditionallyPromptUser();
 
+      expect(enforceOrganizationDataOwnership).toHaveBeenCalledWith(mockUserId);
       expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
-      expect(enforceOrganizationDataOwnership).not.toHaveBeenCalled();
       expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
       expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
     });
