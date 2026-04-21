@@ -31,7 +31,7 @@ container with a `max-width` of 600px
 
 <Canvas of={stories.Default} />
 
-### Used with a from
+### Used with a form
 
 <Canvas of={stories.WithForm} />
 
@@ -39,6 +39,49 @@ container with a `max-width` of 600px
 
 <Canvas of={stories.WithLongLabel} />
 
-### Disabled
+### Inactive
 
-<Canvas of={stories.Disabled} />
+<Canvas of={stories.Inactive} />
+
+## Using in a group
+
+Use `bit-form-control-group` to visually and semantically group related switches that belong to the
+same category. The group provides layout, a shared label, and accessibility structure — each switch
+still acts immediately when toggled.
+
+Unlike checkboxes, switches in a group are **not tied together by shared form state**. Each switch
+binds to its own `formControlName` and manages its own boolean value independently. The group does
+not hold a collective value and cannot enforce cross-switch validation (e.g. "at least one must be
+on"). If you need that kind of constraint, use checkboxes instead.
+
+```html
+<form [formGroup]="formObj">
+  <bit-form-control-group>
+    <bit-label>Notification preferences</bit-label>
+
+    <bit-form-control-card icon="bwi-envelope">
+      <bit-switch formControlName="emailNotifications"></bit-switch>
+      <bit-label>Email notifications</bit-label>
+      <bit-hint>Receive email updates for important activity</bit-hint>
+    </bit-form-control-card>
+
+    <bit-form-control-card icon="bwi-lock">
+      <bit-switch formControlName="autoLock"></bit-switch>
+      <bit-label>Auto-lock</bit-label>
+      <bit-hint>Automatically lock after inactivity</bit-hint>
+    </bit-form-control-card>
+  </bit-form-control-group>
+</form>
+```
+
+Choose a switch group when:
+
+- Multiple independent on/off settings are related and benefit from being shown together
+- Each toggle takes effect immediately (no save action required)
+
+Use checkboxes in a group instead when the selections need to be saved via form submission or
+validated as a batch.
+
+### Group
+
+<Canvas of={stories.FormControlCardGroup} />
