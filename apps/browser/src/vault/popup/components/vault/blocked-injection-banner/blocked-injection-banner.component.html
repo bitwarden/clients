@@ -1,7 +1,7 @@
 <bit-banner
   *ngIf="showCurrentTabIsBlockedBanner$ | async"
   variant="primary"
-  (onClose)="handleCurrentTabIsBlockedBannerDismiss()"
+  (dismiss)="handleCurrentTabIsBlockedBannerDismiss()"
 >
   {{ "autofillBlockedNoticeV2" | i18n }}
   <a bitLink linkType="secondary" [routerLink]="blockedURISettingsRoute">

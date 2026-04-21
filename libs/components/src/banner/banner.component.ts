@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, computed, input, signal } from "@angular/core";
+import { outputFromObservable } from "@angular/core/rxjs-interop";
+import { Subject } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -43,7 +45,7 @@ const bannerColors: Record<BannerVariant, string> = {
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BannerComponent {
+export class BannerComponent implements OnInit {
   /**
    * The variant of banner, which determines its color scheme.
    */
@@ -62,19 +64,21 @@ export class BannerComponent {
   readonly icon = input<BitwardenIcon | null>();
 
   /**
-   * Whether to show the close button.
-   */
-  readonly showClose = input(true);
-
-  /**
    * Whether to use ARIA alert role for screen readers.
    */
   readonly useAlertRole = input(true);
 
-  /**
-   * Emitted when the banner is closed via the close button.
-   */
-  readonly onClose = output();
+  private readonly dismiss$ = new Subject<void>();
+  readonly dismiss = outputFromObservable(this.dismiss$);
+  protected readonly isDismissible = signal(false);
+
+  ngOnInit() {
+    this.isDismissible.set(this.dismiss$.observed);
+  }
+
+  protected onDismiss(): void {
+    this.dismiss$.next();
+  }
 
   /**
    * Actions slot only renders when a title is present.

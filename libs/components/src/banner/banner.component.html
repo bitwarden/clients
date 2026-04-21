@@ -51,13 +51,13 @@
     </div>
   </div>
 
-  @if (showClose()) {
+  @if (isDismissible()) {
     <button
       type="button"
       bitIconButton="bwi-close"
       buttonType="primaryGhost"
       size="small"
-      (click)="onClose.emit()"
+      (click)="onDismiss()"
       [label]="'close' | i18n"
     ></button>
   }
