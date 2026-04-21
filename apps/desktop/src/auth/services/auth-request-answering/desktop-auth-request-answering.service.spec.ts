@@ -7,6 +7,8 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
@@ -23,6 +25,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
   let pendingAuthRequestsState: MockProxy<PendingAuthRequestsStateService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
+  let configService: MockProxy<ConfigService>;
 
   let sut: AuthRequestAnsweringService;
 
@@ -57,6 +60,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
     pendingAuthRequestsState = mock<PendingAuthRequestsStateService>();
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
+    configService = mock<ConfigService>();
 
     // Common defaults
     authService.activeAccountStatus$ = of(AuthenticationStatus.Locked);
@@ -68,6 +72,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
     i18nService.t.mockImplementation(
       (key: string, p1?: any) => `${key}${p1 != null ? ":" + p1 : ""}`,
     );
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     sut = new DesktopAuthRequestAnsweringService(
       accountService,
@@ -77,6 +82,7 @@ describe("DesktopAuthRequestAnsweringService", () => {
       pendingAuthRequestsState,
       i18nService,
       logService,
+      configService,
     );
   });
 
@@ -100,17 +106,43 @@ describe("DesktopAuthRequestAnsweringService", () => {
 
     describe("given the active user is the intended recipient of the auth request, unlocked, and not required to set/change their master password", () => {
       describe("given the Desktop window is visible", () => {
-        it("should send an 'openLoginApproval' message", async () => {
-          // Arrange
-          (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
-          authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+        // TODO: PM-34438 - remove disabled tests once feature flag cleaned up
+        describe("given the PM34210_DesktopAddDevices feature flag is disabled", () => {
+          it("should send an 'openLoginApproval' message without notificationId", async () => {
+            // Arrange
+            (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+            authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+            configService.getFeatureFlag.mockImplementation(
+              async (flag: FeatureFlag) => flag !== FeatureFlag.PM34210_DesktopAddDevices,
+            );
 
-          // Act
-          await sut.receivedPendingAuthRequest(userId, authRequestId);
+            // Act
+            await sut.receivedPendingAuthRequest(userId, authRequestId);
 
-          // Assert
-          expect(messagingService.send).toHaveBeenCalledTimes(1);
-          expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+            // Assert
+            expect(messagingService.send).toHaveBeenCalledTimes(1);
+            expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval");
+          });
+        });
+
+        describe("given the PM34210_DesktopAddDevices feature flag is enabled", () => {
+          it("should send an 'openLoginApproval' message with notificationId", async () => {
+            // Arrange
+            (global as any).ipc.platform.isWindowVisible.mockResolvedValue(true);
+            authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
+            configService.getFeatureFlag.mockImplementation(
+              async (flag: FeatureFlag) => flag === FeatureFlag.PM34210_DesktopAddDevices,
+            );
+
+            // Act
+            await sut.receivedPendingAuthRequest(userId, authRequestId);
+
+            // Assert
+            expect(messagingService.send).toHaveBeenCalledTimes(1);
+            expect(messagingService.send).toHaveBeenCalledWith("openLoginApproval", {
+              notificationId: authRequestId,
+            });
+          });
         });
 
         it("should NOT create a system notification", async () => {
