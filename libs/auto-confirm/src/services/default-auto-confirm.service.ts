@@ -1,13 +1,29 @@
-import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import {
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  map,
+  merge,
+  Observable,
+  pairwise,
+  switchMap,
+} from "rxjs";
 
 import {
   OrganizationUserApiService,
+  OrganizationUserBulkConfirmRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -25,7 +41,35 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
     private organizationService: InternalOrganizationServiceAbstraction,
     private organizationUserApiService: OrganizationUserApiService,
     private policyService: PolicyService,
-  ) {}
+    private authService: AuthService,
+    private accountService: AccountService,
+    private configService: ConfigService,
+  ) {
+    this.initBulkAutoConfirmOnLoginSweep();
+  }
+
+  private initBulkAutoConfirmOnLoginSweep(): void {
+    this.accountService.accounts$
+      .pipe(
+        switchMap((accounts) =>
+          merge(
+            ...Object.keys(accounts).map((userId) =>
+              this.authService.authStatusFor$(userId as UserId).pipe(
+                distinctUntilChanged(),
+                pairwise(),
+                filter(
+                  ([prev, curr]) =>
+                    curr === AuthenticationStatus.Unlocked &&
+                    prev !== AuthenticationStatus.Unlocked,
+                ),
+                map(() => userId as UserId),
+              ),
+            ),
+          ),
+        ),
+      )
+      .subscribe((userId) => void this.bulkAutoConfirmPendingUsers(userId));
+  }
   private autoConfirmState(userId: UserId) {
     return this.stateProvider.getUser(userId, AUTO_CONFIRM_STATE);
   }
@@ -107,5 +151,63 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
         ),
       ),
     );
+  }
+
+  async bulkAutoConfirmPendingUsers(userId: UserId): Promise<void> {
+    const featureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.BulkAutoConfirmOnLogin,
+    );
+    if (!featureEnabled) {
+      return;
+    }
+
+    const canManage = await firstValueFrom(this.canManageAutoConfirm$(userId));
+    if (!canManage) {
+      return;
+    }
+
+    const autoConfirmEnabled = await firstValueFrom(
+      this.configuration$(userId).pipe(map((state) => state.enabled)),
+    );
+    if (!autoConfirmEnabled) {
+      return;
+    }
+
+    const org = await firstValueFrom(
+      this.organizationService.organizations$(userId).pipe(map((orgs) => orgs[0])),
+    );
+    if (!org) {
+      return;
+    }
+
+    const pendingResponse = await this.organizationUserApiService.getPendingAutoConfirmUsers(
+      org.id,
+    );
+    if (!pendingResponse.data.length) {
+      return;
+    }
+
+    const confirmEntries = await Promise.all(
+      pendingResponse.data.map(async (pendingUser) => {
+        const publicKeyResponse = await this.apiService.getUserPublicKey(pendingUser.userId);
+        const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
+        const confirmRequest = await firstValueFrom(
+          this.organizationUserService.buildConfirmRequest(org, publicKey),
+        );
+        return {
+          id: pendingUser.id,
+          key: confirmRequest.key as string,
+          defaultUserCollectionName: confirmRequest.defaultUserCollectionName,
+        };
+      }),
+    );
+
+    const defaultUserCollectionName = confirmEntries[0]?.defaultUserCollectionName;
+    const bulkRequest = new OrganizationUserBulkConfirmRequest(
+      confirmEntries.map((e) => ({ id: e.id, key: e.key })),
+      defaultUserCollectionName,
+    );
+
+    await this.organizationUserApiService.postBulkOrganizationUserAutoConfirm(org.id, bulkRequest);
   }
 }

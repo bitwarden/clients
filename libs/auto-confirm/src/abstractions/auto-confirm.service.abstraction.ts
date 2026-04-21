@@ -37,4 +37,13 @@ export abstract class AutomaticUserConfirmationService {
     confirmedOrganizationUserId: UserId,
     organization: OrganizationId,
   ): Promise<void>;
+  /**
+   * Sweeps for all organization members in the Accepted state that were not confirmed
+   * while the admin was offline, and bulk auto-confirms them.
+   *
+   * This should be called when a user transitions to the Unlocked auth state.
+   *
+   * @param userId The userId of the admin performing the sweep.
+   **/
+  abstract bulkAutoConfirmPendingUsers(userId: UserId): Promise<void>;
 }
