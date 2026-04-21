@@ -50,7 +50,7 @@ pub(super) fn parse_public_key(data: &[u8]) -> Result<NCryptKey, windows::core::
     }
     let header: *const BCRYPT_KEY_BLOB = data.as_ptr().cast();
     let magic = unsafe { (*header).Magic };
-    tracing::debug!("  got key magic: {}", magic);
+    tracing::debug!("Detected BCRYPT_KEY_BLOB key magic type: {}", magic);
     // RSA is detected solely to apply PSS padding during verification.
     // NCrypt parses the blob header to select the correct algorithm for all other key types.
     let is_rsa = magic == BCRYPT_RSAPUBLIC_MAGIC.0;
