@@ -68,11 +68,6 @@ export class DefaultSendFormService implements SendFormService {
 
   async initializeSendForm(config: SendFormConfig) {
     this.sendFormConfig = config;
-    // Remove all previously registered child form controls before resetting.
-    // Without this, stale controls from a prior send type can leave the parent
-    // FormGroup in a DISABLED or PENDING status. BitSubmitDirective silently
-    // drops the ngSubmit event when the form is disabled, causing the save
-    // button to appear to do nothing.
     (Object.keys(this._sendForm.controls) as (keyof SendForm)[]).forEach((key) => {
       this._sendForm.removeControl(key);
     });
