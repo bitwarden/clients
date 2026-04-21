@@ -1,12 +1,37 @@
+use std::sync::OnceLock;
+
 use windows::{
     core::s,
     Win32::{
         Foundation::{FreeLibrary, HMODULE},
-        System::LibraryLoader::{LoadLibraryExA, LOAD_LIBRARY_SEARCH_SYSTEM32},
+        System::LibraryLoader::{
+            GetModuleHandleExA, LoadLibraryExA, GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
+            GET_MODULE_HANDLE_EX_FLAG_PIN, LOAD_LIBRARY_SEARCH_SYSTEM32,
+        },
     },
 };
+use windows_core::{PCSTR, PCWSTR};
 
 use crate::{ErrorKind, WinWebAuthnError};
+
+struct SafeModule(HMODULE);
+impl SafeModule {
+    unsafe fn new(mut module: HMODULE) -> windows::core::Result<Self> {
+        unsafe {
+            // Pin the module so that it cannot be unloaded.
+            GetModuleHandleExA(
+                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
+                PCSTR::from_raw(module.0.cast()),
+                &mut module,
+            )?;
+        }
+        Ok(Self(module))
+    }
+}
+static WEBAUTHN_LIB: OnceLock<windows::core::Result<SafeModule>> = OnceLock::new();
+
+unsafe impl Send for SafeModule {}
+unsafe impl Sync for SafeModule {}
 
 /// Defines a Rust function to call a webauthn.dll function over FFI based on
 /// the name of the function. Documentation comments will be captured, and the
@@ -33,7 +58,7 @@ macro_rules! webauthn_call {
         pub(in crate::api) unsafe fn $fn_name($($arg: $arg_type),*) -> Result<$result_type, crate::WinWebAuthnError> {
             let library = crate::api::sys::util::load_webauthn_lib()?;
             let response = unsafe {
-                let address = windows::Win32::System::LibraryLoader::GetProcAddress(library, windows::core::s!($symbol)).ok_or(
+                let address = windows::Win32::System::LibraryLoader::GetProcAddress(*library, windows::core::s!($symbol)).ok_or(
                     crate::WinWebAuthnError::new(
                         crate::ErrorKind::DllLoad,
                         &format!(
@@ -48,7 +73,6 @@ macro_rules! webauthn_call {
                 ) -> $result_type = std::mem::transmute_copy(&address);
                 function($($arg),*)
             };
-            crate::api::sys::util::free_webauthn_lib(library)?;
             Ok(response)
         }
     )
@@ -56,22 +80,15 @@ macro_rules! webauthn_call {
 
 pub(super) use webauthn_call;
 
-pub(super) fn load_webauthn_lib() -> Result<HMODULE, WinWebAuthnError> {
-    unsafe {
-        LoadLibraryExA(s!("webauthn.dll"), None, LOAD_LIBRARY_SEARCH_SYSTEM32).map_err(|err| {
+pub(super) fn load_webauthn_lib() -> Result<&'static HMODULE, WinWebAuthnError> {
+    WEBAUTHN_LIB
+        .get_or_init(|| unsafe {
+            LoadLibraryExA(s!("webauthn.dll"), None, LOAD_LIBRARY_SEARCH_SYSTEM32)
+                .and_then(|library| SafeModule::new(library))
+        })
+        .as_ref()
+        .map(|module| &module.0)
+        .map_err(|err| {
             WinWebAuthnError::with_cause(ErrorKind::DllLoad, "Failed to load webauthn.dll", err)
         })
-    }
-}
-
-pub(super) fn free_webauthn_lib(library: HMODULE) -> Result<(), WinWebAuthnError> {
-    unsafe {
-        FreeLibrary(library).map_err(|err| {
-            WinWebAuthnError::with_cause(
-                ErrorKind::WindowsInternal,
-                "Failed to free webauthn.dll library",
-                err,
-            )
-        })
-    }
 }
