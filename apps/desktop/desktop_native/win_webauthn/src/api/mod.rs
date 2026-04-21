@@ -3,5 +3,6 @@ mod sys;
 mod util;
 
 pub(crate) mod plugin;
+pub(crate) mod webauthn;
 
 pub(crate) use util::WindowsString;
