@@ -15,7 +15,8 @@ export type BerryVariant =
  * like a navigation item, button, or icon button.
  * They draw users’ attention to status changes or new notifications.
  *
- * > `NOTE:` The maximum displayed value is 999. If the value is over 999, a “+” character is appended to indicate more.
+ * `NOTE:` By default, the full numeric value is displayed. Use `maxDigits` to cap the number of
+ * digits shown — values at or above `10^maxDigits` display as `(10^maxDigits - 1)+` (e.g., `maxDigits=2` shows `99+`).
  */
 @Component({
   selector: "bit-berry",
@@ -24,8 +25,14 @@ export type BerryVariant =
 })
 export class BerryComponent {
   readonly variant = model<BerryVariant>("primary");
-  protected readonly value = input<number>();
-  protected readonly type = input<"status" | "count">("count");
+  /**
+   * Limits the number of digits displayed in a count berry. When the value reaches or exceeds 10^maxDigits, it displays the maximum representable value followed by +
+   * @example
+   * maxDigits=2 shows 99+ for values ≥ 100. If undefined, the full value is shown.
+   */
+  readonly maxDigits = input<number>();
+  readonly value = input<number>();
+  readonly type = input<"status" | "count">("count");
 
   protected readonly content = computed(() => {
     const value = this.value();
@@ -34,7 +41,15 @@ export class BerryComponent {
     if (type === "status" || !value || value < 0) {
       return undefined;
     }
-    return value > 999 ? "999+" : `${value}`;
+
+    const maxDigits = this.maxDigits();
+
+    // 10 ** maxDigits means 10 raised to the power of maxDigits.
+    // Same as Math.pow(10, maxDigits). So 10 ** 3 === 1000, 10 ** 4 === 10000, etc.
+    if (maxDigits && value >= 10 ** maxDigits) {
+      return `${(10 ** maxDigits - 1).toLocaleString()}+`;
+    }
+    return `${value.toLocaleString()}`;
   });
 
   protected readonly textColor = computed(() => {
@@ -42,7 +57,7 @@ export class BerryComponent {
   });
 
   protected readonly padding = computed(() => {
-    return (this.value()?.toString().length ?? 0) > 2 ? "tw-px-1.5 tw-py-0.5" : "";
+    return (this.content()?.toString().length ?? 0) > 2 ? "tw-px-1.5 tw-py-0.5" : "";
   });
 
   protected readonly containerClasses = computed(() => {
