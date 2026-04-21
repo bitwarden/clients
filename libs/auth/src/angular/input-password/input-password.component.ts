@@ -331,7 +331,7 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("KdfConfig not found.");
       }
 
-      // Determine salt. Branches on userId presence:
+      // 2. Determine salt. Branches on userId presence:
       //   - SetInitialPasswordAccountRegistration: no userId -> derives salt from email via emailToSalt()
       //   - SetInitialPasswordAuthedUser, ChangePassword, ChangePasswordWithOptionalUserKeyRotation:
       //     have an active userId -> retrieves stored salt via saltForUser$()
@@ -355,24 +355,6 @@ export class InputPasswordComponent implements OnInit {
       const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
       );
-
-      // Remove this current password verification block in PM-28143. Current password verification
-      // is performed by consumers when flag is on.
-      if (!newApisWithInputPasswordFlagEnabled) {
-        // 2. Verify current password is correct (if necessary)
-        if (
-          this.flow === InputPasswordFlow.ChangePassword ||
-          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-        ) {
-          const currentPasswordVerified = await this.verifyCurrentPassword(
-            currentPassword,
-            this.kdfConfig,
-          );
-          if (!currentPasswordVerified) {
-            return;
-          }
-        }
-      }
 
       // 3. Verify new password
       const newPasswordVerified = await this.verifyNewPassword(
@@ -530,47 +512,6 @@ export class InputPasswordComponent implements OnInit {
 
     this.onPasswordFormSubmit.emit(passwordInputResult);
     return passwordInputResult;
-  }
-
-  /**
-   * @deprecated To be removed in PM-28143
-   *
-   * Returns `true` if the current password is correct (it can be used to successfully decrypt
-   * the masterKeyEncryptedUserKey), `false` otherwise
-   */
-  private async verifyCurrentPassword(
-    currentPassword: string,
-    kdfConfig: KdfConfig,
-  ): Promise<boolean> {
-    if (!this.email) {
-      throw new Error("Email is required to verify current password.");
-    }
-    if (!this.userId) {
-      throw new Error("userId is required to verify current password.");
-    }
-
-    const currentMasterKey = await this.keyService.makeMasterKey(
-      currentPassword,
-      this.email,
-      kdfConfig,
-    );
-
-    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      currentMasterKey,
-      this.userId,
-    );
-
-    if (decryptedUserKey == null) {
-      this.toastService.showToast({
-        variant: "error",
-        title: "",
-        message: this.i18nService.t("invalidMasterPassword"),
-      });
-
-      return false;
-    }
-
-    return true;
   }
 
   /**
