@@ -1,21 +1,23 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
+  AfterViewInit,
   Component,
+  DestroyRef,
   Input,
   OnInit,
   Output,
   EventEmitter,
   HostBinding,
-  Optional,
-  Self,
   Signal,
   computed,
+  inject,
   input,
   model,
   booleanAttribute,
+  signal,
   viewChild,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   ControlValueAccessor,
   NgControl,
@@ -26,7 +28,7 @@ import {
   FormsModule,
 } from "@angular/forms";
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
-import { EMPTY, filter } from "rxjs";
+import { filter } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -63,7 +65,9 @@ let nextId = 0;
 /**
  * This component has been implemented to only support Multi-select list events
  */
-export class MultiSelectComponent implements OnInit, BitFormFieldControl, ControlValueAccessor {
+export class MultiSelectComponent
+  implements AfterViewInit, OnInit, BitFormFieldControl, ControlValueAccessor
+{
   readonly select = viewChild.required(NgSelectComponent);
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
@@ -95,26 +99,28 @@ export class MultiSelectComponent implements OnInit, BitFormFieldControl, Contro
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onItemsConfirmed = new EventEmitter<any[]>();
 
-  private readonly ngControlEvents: Signal<unknown>;
-  readonly hasError: Signal<boolean>;
+  private readonly i18nService = inject(I18nService);
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly controlEvent = signal<unknown>(null);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly hasError: Signal<boolean> = computed(() => {
+    this.controlEvent();
+    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
+  });
 
-  constructor(
-    private i18nService: I18nService,
-    @Optional() @Self() private ngControl?: NgControl,
-  ) {
-    if (ngControl != null) {
-      ngControl.valueAccessor = this;
+  constructor() {
+    if (this.ngControl != null) {
+      this.ngControl.valueAccessor = this;
     }
-    this.ngControlEvents = toSignal(
-      this.ngControl?.control?.events.pipe(
+  }
+
+  ngAfterViewInit() {
+    this.ngControl?.control?.events
+      .pipe(
         filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
-      ) ?? EMPTY,
-      { initialValue: null },
-    );
-    this.hasError = computed(() => {
-      this.ngControlEvents();
-      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
-    });
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((e) => this.controlEvent.set(e));
   }
 
   ngOnInit(): void {
