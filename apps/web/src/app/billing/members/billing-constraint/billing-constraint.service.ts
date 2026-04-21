@@ -8,7 +8,7 @@ import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/m
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { isFixedSeatPlan } from "../../../admin-console/organizations/members/components/member-dialog/validators/org-seat-limit-reached.validator";
+import { isFixedSeatPlan } from "../../../admin-console/organizations/members/components/member-dialog/validators/input-email-limit.validator";
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
