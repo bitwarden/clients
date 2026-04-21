@@ -559,6 +559,7 @@ export default class MainBackground {
   // DIRT
   private phishingDataService: PhishingDataService;
   private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
+  private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -841,7 +842,7 @@ export default class MainBackground {
       this.fileUploadService,
       this.configService,
     );
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.collectionService = new DefaultCollectionService(
       this.keyService,
@@ -1063,7 +1064,6 @@ export default class MainBackground {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -1600,7 +1600,7 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    PhishingDetectionService.initialize(
+    this.phishingDetectionService = new PhishingDetectionService(
       this.logService,
       this.phishingDataService,
       this.phishingDetectionSettingsService,
