@@ -489,7 +489,7 @@ impl CredentialEx<'_> {
         if self.inner.pwszCredentialType.is_null() {
             return Err(WinWebAuthnError::new(
                 ErrorKind::WindowsInternal,
-                "Received invalid credential ID",
+                "Received invalid credential type",
             ));
         }
         unsafe {
@@ -498,7 +498,7 @@ impl CredentialEx<'_> {
                 .map_err(|err| {
                     WinWebAuthnError::with_cause(
                         ErrorKind::WindowsInternal,
-                        "Invalid credential ID",
+                        "Invalid credential type",
                         err,
                     )
                 })
