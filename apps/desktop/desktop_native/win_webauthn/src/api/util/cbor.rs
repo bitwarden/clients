@@ -1,9 +1,45 @@
+//! Implements methods to work with [RFC 8949] CBOR encoding, specifically with
+//! the subset defined [CTAP2 canonical encoding form][ctap2-canonical-cbor].
+//!
+//! CBOR is a compact encoding and is used extensively in WebAuthn.
+//!
+//! It is a tag-length-value (TLV) encoding, where the tags are referred to as "major types".
+//! The highest three bits of the start of a CBOR data item determine the major
+//! type, while the remaining 5 bits contain "additional information." For most
+//! major types, additional information encodes the number of
+//! following bytes that contain the value of the data item. As an optimization,
+//! the numeric major types elide small values into additional information. Some
+//! other major types give special meaning to the additional information (as in
+//! FloatOrSimple and Tag).
+//!
+//! Major types that use additional info for determining the length of the data item follow this pattern:
+//! - 24 => 1 bytes
+//! - 25 => 2 bytes
+//! - 26 => 4 bytes
+//! - 27 => 8 bytes
+//!
+//! Note that for the list-like types (Text, Byte, Array, Map), this means that
+//! the additional info is determines the _length of the length_ of the data
+//! item. For example, a byte string of length 25 would have additional
+//! information 24 to indicate that the byte length is in the following 1 byte,
+//! followed by a byte 25, followed by 25 bytes of data.
+//!
+//! ```ignore
+//! [
+//!   0b010_11000, // major type 2 (byte string), additional info = 24, length is in the following 1 byte
+//!   0b1100_0001, // 25, meaning 25 bytes follow
+//!   // <25 bytes of data...>
+//! ]
+//! ```
+//! [RFC 8949]: https://datatracker.ietf.org/doc/html/rfc8949
+//! [ctap2-canonical-cbor]: https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-errata-20220621.html#ctap2-canonical-cbor-encoding-form
 use std::{
     convert::TryInto,
     io::{Error, ErrorKind, Write},
 };
 
-pub(crate) struct CborWriter<'a, W> {
+/// Struct to write CBOR-encoded data to a writer.
+pub(crate) struct CborWriter<'a, W: Write> {
     writer: &'a mut W,
 }
 
@@ -15,6 +51,7 @@ where
         CborWriter { writer }
     }
 
+    /// Write a byte string to the buffer.
     pub fn write_bytes<T>(&mut self, data: T) -> Result<(), Error>
     where
         T: AsRef<[u8]>,
@@ -33,9 +70,11 @@ where
     }
 
     pub fn write_number(&mut self, num: i128) -> Result<(), Error> {
+        // Positive Numbers are major type 0 (high-order bits = 0b000), negative is major type 1 (0b001).
         const POSITIVE_INTEGER_MASK: u8 = 0b000_00000;
         const NEGATIVE_INTEGER_MASK: u8 = 0b001_00000;
         let (mask, num) = if num >= 0 {
+            // CBOR can only encode numbers [-2^64, 2^64 -1], so throw out invalid numbers.
             if num > (u64::MAX as i128) {
                 return Err(Error::new(
                     ErrorKind::InvalidInput,
@@ -50,28 +89,41 @@ where
                     "negative value too large".to_string(),
                 ));
             }
+            // Like signed integers, negative CBOR integers represent the data item -1 - N, so we capture that here.
             (NEGATIVE_INTEGER_MASK, (-num - 1) as u64)
         };
+        // As an optimization, encoded numeric values less than 24 (i.e. [-24,
+        // 23]) are encoded in a single byte, and the additional information
+        // should be interpreted as the value itself.
         if num < 24 {
             let d: u8 = num as u8;
             self.writer.write_all(&[mask | d])?;
             Ok(())
-        } else if num < 2u64.pow(8) {
+        }
+        // Otherwise, the value of the data item is encoded by the number of
+        // bytes following the initial byte.
+        //
+        // While it is valid CBOR to use more bytes than necessary for encoding
+        // numbers, WebAuthn and CTAP CBOR encoding rules require using the
+        // smallest number of bytes, so we do that here by going from smallest to biggest.
+        else if num < 2_u64.pow(8) {
             let d = num as u8;
             self.writer.write_all(&[mask | 24])?;
             self.writer.write_all(&d.to_be_bytes())?;
             Ok(())
-        } else if num < 2u64.pow(16) {
+        } else if num < 2_u64.pow(16) {
             let d = num as u16;
             self.writer.write_all(&[mask | 25])?;
             self.writer.write_all(&d.to_be_bytes())?;
             Ok(())
-        } else if num < 2u64.pow(32) {
+        } else if num < 2_u64.pow(32) {
             let d = num as u32;
             self.writer.write_all(&[mask | 26])?;
             self.writer.write_all(&d.to_be_bytes())?;
             Ok(())
-        } else {
+        }
+        // We've already checked that the data fits within a u64, so just write it out.
+        else {
             let d = num;
             self.writer.write_all(&[mask | 27])?;
             self.writer.write_all(&d.to_be_bytes())?;
@@ -79,11 +131,53 @@ where
         }
     }
 
+    /// Start a CBOR map.
+    ///
+    /// A map is encoded with the header type that contains the number of
+    /// entries in the map, followed by pairs of CBOR data items. Since the
+    /// length is encoded in the header byte, no end marker is needed.
+    ///
+    /// # Example
+    /// To encode the equivalent of the JSON map: `{ "foo": 10, "isValid": true }`:
+    /// ```ignore
+    /// use crate::api::util::cbor::CborWriter;
+    ///
+    /// let mut buf = Vec::new();
+    /// let mut writer = CborWriter::new(&mut buf);
+    /// writer.write_map_start().unwrap();
+    ///
+    /// writer.write_text("foo").unwrap();
+    /// writer.write_number(10).unwrap();
+    ///
+    /// writer.write_text("isValid").unwrap();
+    /// writer.write_bool(true).unwrap();
+    /// ```
     pub fn write_map_start(&mut self, len: usize) -> Result<(), Error> {
         self.write_cbor_value(MajorType::Map, len as u64, None)?;
         Ok(())
     }
 
+    /// Start a CBOR array.
+    ///
+    /// An array is encoded with the header type that contains the number of
+    /// elements in the array, followed CBOR data items. Since the
+    /// length is encoded in the header byte, no end marker is needed.
+    ///
+    /// # Example
+    /// To encode the equivalent of the JSON array: `["blue", 42, "hike!", true]`:`
+    /// ```ignore
+    /// use crate::api::util::cbor::CborWriter;
+    ///
+    /// let mut buf = Vec::new();
+    /// let mut writer = CborWriter::new(&mut buf);
+    /// writer.write_array_start().unwrap();
+    ///
+    /// writer.write_text("blue").unwrap();
+    /// writer.write_number(42).unwrap();
+    ///
+    /// writer.write_text("hike!").unwrap();
+    /// writer.write_bool(true).unwrap();
+    /// ```
     pub fn write_array_start(&mut self, len: usize) -> Result<(), Error> {
         self.write_cbor_value(MajorType::Array, len as u64, None)?;
         Ok(())
@@ -127,10 +221,19 @@ where
         };
 
         let mut major_type_buf = [0; 9];
+        // Here, we assume that additional information always encodes a length
+        // of a value, optionally followed by a payload. But this is not always
+        // the case, e.g. in the case of FloatOrSimple values.  If the need for
+        // any more major types in WebAuthn is needed (unlikely), then we'll
+        // need to handle those differently.
+
+        // Compact the length if it's less than 24 according to the CBOR rules:
         if len < 24 {
             let l = len as u8;
             self.writer.write_all(&[major_type_mask | l])?;
-        } else if len < 2u64.pow(8) {
+        }
+        // Otherwise, encode the length in the smallest number of bytes possible:
+        else if len < 2u64.pow(8) {
             let l = len as u8;
             major_type_buf[0] = major_type_mask | 24u8;
             major_type_buf[1..2].copy_from_slice(&l.to_be_bytes());
@@ -151,6 +254,7 @@ where
             major_type_buf[1..9].copy_from_slice(&l.to_be_bytes());
             self.writer.write_all(&major_type_buf[0..9])?;
         }
+        // After writing the length, write the value of the data item, if any.
         if let Some(data) = data {
             self.writer.write_all(data)?;
         }
@@ -259,6 +363,23 @@ mod tests {
             &[0b000_11011, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff]
         );
     }
+
+    #[test]
+    fn write_negative_number_24() {
+        let mut buf: Vec<u8> = Vec::with_capacity(16);
+        let mut cbor_writer = CborWriter::new(&mut buf);
+        cbor_writer.write_number(-24_i128).unwrap();
+        assert_eq!(buf, &[0b001_10111]);
+    }
+
+    #[test]
+    fn write_negative_number_25() {
+        let mut buf: Vec<u8> = Vec::with_capacity(16);
+        let mut cbor_writer = CborWriter::new(&mut buf);
+        cbor_writer.write_number(-25_i128).unwrap();
+        assert_eq!(buf, &[0b001_11000, 24]);
+    }
+
     #[test]
     fn write_negative_number() {
         let mut buf: Vec<u8> = Vec::with_capacity(16);
