@@ -147,7 +147,7 @@ where
     ///
     /// let mut buf = Vec::new();
     /// let mut writer = CborWriter::new(&mut buf);
-    /// writer.write_map_start().unwrap();
+    /// writer.write_map_start(2).unwrap();
     ///
     /// writer.write_text("foo").unwrap();
     /// writer.write_number(10).unwrap();
@@ -173,7 +173,7 @@ where
     ///
     /// let mut buf = Vec::new();
     /// let mut writer = CborWriter::new(&mut buf);
-    /// writer.write_array_start().unwrap();
+    /// writer.write_array_start(4).unwrap();
     ///
     /// writer.write_text("blue").unwrap();
     /// writer.write_number(42).unwrap();
