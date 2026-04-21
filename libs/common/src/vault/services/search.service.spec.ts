@@ -3,18 +3,24 @@ import { BehaviorSubject } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
-
-import { FakeStateProvider, mockAccountServiceWith } from "../../../spec";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { SearchService } from "./search.service";
 
+function createCipherView(id: string, name: string): CipherView {
+  const cipher = new CipherView();
+  cipher.id = id;
+  cipher.name = name;
+  return cipher;
+}
+
 describe("SearchService", () => {
-  let fakeStateProvider: FakeStateProvider;
   let service: SearchService;
 
   const userId = "user-id" as UserId;
   const mockLogService = {
     error: jest.fn(),
+    info: jest.fn(),
     measure: jest.fn(),
   };
   const mockLocale$ = new BehaviorSubject<string>("en");
@@ -24,74 +30,53 @@ describe("SearchService", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-
-    fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
     service = new SearchService(
       mockLogService as unknown as LogService,
       mockI18nService as unknown as I18nService,
-      fakeStateProvider,
     );
   });
 
   describe("isSearchable", () => {
-    let mockIndex$: jest.Mock;
-    beforeEach(() => {
-      mockIndex$ = jest.fn();
-      service["index$"] = mockIndex$;
-    });
-
     it("returns false if the query is empty", async () => {
-      const result = await service.isSearchable(userId, "");
+      const result = await service.isSearchable("");
       expect(result).toBe(false);
-      // Ensure we do not call the expensive index$ method
-      expect(mockIndex$).not.toHaveBeenCalled();
     });
 
     it("returns false if the query is null", async () => {
-      const result = await service.isSearchable(userId, null as any);
+      const result = await service.isSearchable(null as any);
       expect(result).toBe(false);
-      // Ensure we do not call the expensive index$ method
-      expect(mockIndex$).not.toHaveBeenCalled();
     });
 
-    it("return true if the query is longer than searchableMinLength", async () => {
+    it("returns true if the query is longer than searchableMinLength", async () => {
       service["searchableMinLength"] = 3;
-      const result = await service.isSearchable(userId, "test");
+      const result = await service.isSearchable("test");
       expect(result).toBe(true);
-      // Ensure we do not call the expensive index$ method
-      expect(mockIndex$).not.toHaveBeenCalled();
     });
 
     it("returns false if the query is shorter than searchableMinLength", async () => {
       service["searchableMinLength"] = 5;
-      const result = await service.isSearchable(userId, "test");
+      const result = await service.isSearchable("test");
       expect(result).toBe(false);
-      // Ensure we do not call the expensive index$ method
-      expect(mockIndex$).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("searchCiphers", () => {
+    it("uses basic search for regular queries", async () => {
+      const basicSearchSpy = jest.spyOn(service, "searchCiphersBasic");
+      const ciphers = [createCipherView("cipher-1", "Personal Login")];
+
+      const result = await service.searchCiphers(userId, null, "personal", ciphers);
+
+      expect(basicSearchSpy).toHaveBeenCalled();
+      expect(result).toHaveLength(1);
     });
 
-    it("returns false for short Lunr query with missing index", async () => {
-      mockIndex$.mockReturnValue(new BehaviorSubject(null));
-      service["searchableMinLength"] = 3;
-      const result = await service.isSearchable(userId, ">l");
-      expect(result).toBe(false);
-      expect(mockIndex$).toHaveBeenCalledWith(userId);
-    });
+    it("returns original ciphers for non-searchable queries", async () => {
+      const ciphers = [createCipherView("cipher-1", "Personal Login")];
 
-    it("returns false for long Lunr query with missing index", async () => {
-      mockIndex$.mockReturnValue(new BehaviorSubject(null));
-      service["searchableMinLength"] = 3;
-      const result = await service.isSearchable(userId, ">longer");
-      expect(result).toBe(false);
-      expect(mockIndex$).toHaveBeenCalledWith(userId);
-    });
+      const result = await service.searchCiphers(userId, null, "", ciphers);
 
-    it("returns true for short Lunr query with index", async () => {
-      mockIndex$.mockReturnValue(new BehaviorSubject(true));
-      service["searchableMinLength"] = 3;
-      const result = await service.isSearchable(userId, ">l");
-      expect(result).toBe(true);
-      expect(mockIndex$).toHaveBeenCalledWith(userId);
+      expect(result).toEqual(ciphers);
     });
   });
 });
