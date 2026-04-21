@@ -87,9 +87,9 @@ export class CartResponse extends BaseResponse implements Cart {
     }
     this.cadence = cadence;
 
-    const discount = this.getResponseProperty("Discount");
-    if (discount) {
-      this.discounts = [new DiscountResponse(discount)];
+    const discounts = this.getResponseProperty("Discounts");
+    if (discounts && discounts.length) {
+      this.discounts = discounts.map((d: any) => new DiscountResponse(d));
     }
 
     this.estimatedTax = this.getResponseProperty("EstimatedTax");
