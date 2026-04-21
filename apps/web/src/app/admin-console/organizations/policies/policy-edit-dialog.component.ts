@@ -117,7 +117,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     if (component.data) {
       component.data.statusChanges
         .pipe(
-          map((status) => status !== "VALID" || !policyResponse.canToggleState),
+          map((status) => status === "INVALID" || !policyResponse.canToggleState),
           takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((disabled) => this._saveDisabled.set(disabled));
@@ -149,7 +149,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     if ((await policyComponent.confirm?.()) == false) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       return;
     }
 
@@ -160,7 +160,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         variant: "success",
         message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
       });
-      this.dialogRef.close("saved");
+      await this.dialogRef.close("saved");
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
@@ -196,5 +196,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
+  };
+
+  static readonly openDrawer = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

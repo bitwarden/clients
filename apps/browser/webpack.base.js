@@ -372,6 +372,9 @@ module.exports.buildConfig = function buildConfig(params) {
       webassemblyModuleFilename: "assets/[modulehash].wasm",
       path: params.outputPath,
       clean: true,
+      environment: {
+        asyncFunction: true,
+      },
     },
     module: {
       rules: moduleRules,
