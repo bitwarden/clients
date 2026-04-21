@@ -554,7 +554,7 @@ export default class MainBackground {
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
 
-  private targetingRulesDataService: TargetingRulesDataService;
+  targetingRulesDataService: TargetingRulesDataService;
 
   // DIRT
   private phishingDataService: PhishingDataService;
