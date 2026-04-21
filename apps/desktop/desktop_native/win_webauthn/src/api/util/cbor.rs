@@ -12,7 +12,8 @@
 //! other major types give special meaning to the additional information (as in
 //! FloatOrSimple and Tag).
 //!
-//! Major types that use additional info for determining the length of the data item follow this pattern:
+//! Major types that use additional info for determining the length of the data item follow this
+//! pattern:
 //! - 24 => 1 bytes
 //! - 25 => 2 bytes
 //! - 26 => 4 bytes
@@ -70,7 +71,8 @@ where
     }
 
     pub fn write_number(&mut self, num: i128) -> Result<(), Error> {
-        // Positive Numbers are major type 0 (high-order bits = 0b000), negative is major type 1 (0b001).
+        // Positive Numbers are major type 0 (high-order bits = 0b000), negative is major type 1
+        // (0b001).
         const POSITIVE_INTEGER_MASK: u8 = 0b000_00000;
         const NEGATIVE_INTEGER_MASK: u8 = 0b001_00000;
         let (mask, num) = if num >= 0 {
@@ -89,7 +91,8 @@ where
                     "negative value too large".to_string(),
                 ));
             }
-            // Like signed integers, negative CBOR integers represent the data item -1 - N, so we capture that here.
+            // Like signed integers, negative CBOR integers represent the data item -1 - N, so we
+            // capture that here.
             (NEGATIVE_INTEGER_MASK, (-num - 1) as u64)
         };
         // As an optimization, encoded numeric values less than 24 (i.e. [-24,
