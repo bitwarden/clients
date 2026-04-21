@@ -4459,6 +4459,9 @@
   "chooseFile": {
     "message": "Choose File"
   },
+  "uploadFile": {
+    "message": "Upload File"
+  },
   "noFileChosen": {
     "message": "No file chosen"
   },
