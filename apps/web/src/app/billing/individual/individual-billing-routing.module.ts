@@ -1,9 +1,6 @@
 import { inject, NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
-import { map } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { hasPremiumPersonallyGuard } from "@bitwarden/web-vault/app/billing/guards/has-premium-personally.guard";
 import { AccountPaymentDetailsComponent } from "@bitwarden/web-vault/app/billing/individual/payment-details/account-payment-details.component";
@@ -14,12 +11,6 @@ import { SelfHostedAccountSubscriptionComponent } from "@bitwarden/web-vault/app
 import { BillingHistoryViewComponent } from "./billing-history-view.component";
 import { CloudHostedPremiumComponent } from "./premium/cloud-hosted-premium.component";
 import { SubscriptionComponent } from "./subscription.component";
-import { UserSubscriptionComponent } from "./user-subscription.component";
-
-const isSubscriptionPageEnabled = () =>
-  inject(ConfigService)
-    .getFeatureFlag$(FeatureFlag.PM29594_UpdateIndividualSubscriptionPage)
-    .pipe(map((flagValue) => flagValue === true));
 
 const isSelfHosted = () => inject(PlatformUtilsService).isSelfHost();
 
@@ -31,31 +22,22 @@ const routes: Routes = [
     children: [
       { path: "", pathMatch: "full", redirectTo: "user-subscription" },
       /**
-       * Three-Route Matching Strategy for /user-subscription:
+       * Two-Route Matching Strategy for /user-subscription:
        *
-       * Routes are evaluated in order using canMatch guards. The first matching route is selected.
-       *
-       * 1. Feature flag ON + Self-Hosted → SelfHostedAccountSubscriptionComponent
+       * 1. Self-Hosted Environment → SelfHostedAccountSubscriptionComponent
        *    (Redirects to /premium if the user lacks a personal premium subscription)
-       * 2. Feature flag ON (fallthrough for cloud-hosted) → CloudHostedAccountSubscriptionComponent
-       * 3. Default (flag OFF) → UserSubscriptionComponent
+       * 2. Cloud-Hosted (default) → CloudHostedAccountSubscriptionComponent
        */
       {
         path: "user-subscription",
         component: SelfHostedAccountSubscriptionComponent,
         data: { titleId: "premiumMembership" },
-        canMatch: [isSubscriptionPageEnabled, isSelfHosted],
+        canMatch: [isSelfHosted],
         canActivate: [hasPremiumPersonallyGuard],
       },
       {
         path: "user-subscription",
         component: CloudHostedAccountSubscriptionComponent,
-        data: { titleId: "premiumMembership" },
-        canMatch: [isSubscriptionPageEnabled],
-      },
-      {
-        path: "user-subscription",
-        component: UserSubscriptionComponent,
         data: { titleId: "premiumMembership" },
       },
       /**
