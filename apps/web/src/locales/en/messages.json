@@ -13393,6 +13393,45 @@
   "backToEditing": {
     "message": "Back to editing"
   },
+  "organizationUserNotificationPolicyTitle": {
+    "message": "Vault banner message"
+  },
+  "organizationUserNotificationPolicyDesc": {
+    "message": "Create and launch a customized banner that all your organization members will see on their page after login."
+  },
+  "singleOrgPrerequisite":{
+    "message": "The single organization policy must be turned on before activating this policy."
+  },
+  "allowBanner":{
+    "message": "Allow banner"
+  },
+  "createBannerMessage":{
+    "message": "Create banner message"
+  },
+  "header":{
+    "message": "Header"
+  },
+  "maximumOfXCharacters": {
+    "message": "Maximum of $COUNT$ characters",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "organizationUserNotificationPolicyButtonTooltip":{
+    "message": "You must enter a header to create a button."
+  },
+  "button":{
+    "message": "Button"
+  },
+  "showAfterEveryLogin":{
+    "message": "Show after every login"
+  },
+  "seeMessageEveryLogin":{
+    "message": "Users will see the message after every login even if they dismiss it."
+  },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
