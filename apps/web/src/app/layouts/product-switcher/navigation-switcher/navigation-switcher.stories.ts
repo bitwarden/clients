@@ -131,6 +131,8 @@ const translations: Record<string, string> = {
   toggleCollapse: "toggle collapse",
   close: "Close",
   loading: "Loading",
+  sideNavigation: "Side navigation",
+  skipLink: "Skip link",
 };
 
 export default {

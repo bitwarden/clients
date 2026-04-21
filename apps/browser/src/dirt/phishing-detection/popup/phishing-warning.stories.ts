@@ -78,6 +78,7 @@ export default {
               learnMore: "Learn more",
               danger: "error",
               close: "Close",
+              callout: "Callout",
             }),
         },
         {

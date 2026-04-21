@@ -70,7 +70,7 @@ class ExtensionPoppedContainerComponent {}
   selector: "vault-placeholder",
   template: /*html*/ `
     <bit-section>
-      <bit-item-group aria-label="Mock Vault Items">
+      <bit-item-group>
         <bit-item *ngFor="let item of data; index as i">
           <button type="button" bit-item-content>
             <i slot="start" class="bwi bwi-globe tw-text-3xl tw-text-muted" aria-hidden="true"></i>
@@ -519,57 +519,83 @@ export const PopupPageWithFooter: Story = {
   }),
 };
 
-export const CompactMode: Story = {
+export const RegularMode: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <div class="tw-flex tw-gap-6 tw-text-main">
-        <div id="regular-example">
-          <p>Relaxed</p>
-          <p class="example-label"></p>
-          <extension-container>
-            <mock-vault-subpage></mock-vault-subpage>
-          </extension-container>
-        </div>
-
-        <div id="compact-example" class="tw-bit-compact">
-          <p>Compact</p>
-          <p class="example-label"></p>
-          <extension-container>
-            <mock-vault-subpage></mock-vault-subpage>
-          </extension-container>
-        </div>
+      <div id="regular-example">
+        <p>Relaxed</p>
+        <p class="example-label"></p>
+        <extension-container>
+          <mock-vault-subpage></mock-vault-subpage>
+        </extension-container>
       </div>
     `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
-    const updateLabel = (containerId: string) => {
-      const compact = canvasEl.querySelector(
-        `#${containerId} [data-testid=popup-layout-scroll-region]`,
-      );
+    const example = canvasEl.querySelector(
+      `#regular-example [data-testid=popup-layout-scroll-region]`,
+    );
 
-      if (!compact) {
-        // eslint-disable-next-line
-        console.error(`#${containerId} [data-testid=popup-layout-scroll-region] not found`);
-        return;
-      }
+    if (!example) {
+      // eslint-disable-next-line
+      console.error(`#regular-example [data-testid=popup-layout-scroll-region] not found`);
+      return;
+    }
 
-      const label = canvasEl.querySelector(`#${containerId} .example-label`);
+    const label = canvasEl.querySelector(`#regular-example .example-label`);
 
-      if (!label) {
-        // eslint-disable-next-line
-        console.error(`#${containerId} .example-label not found`);
-        return;
-      }
+    if (!label) {
+      // eslint-disable-next-line
+      console.error(`#regular-example .example-label not found`);
+      return;
+    }
 
-      const percentVisible =
-        100 -
-        Math.round((100 * (compact.scrollHeight - compact.clientHeight)) / compact.scrollHeight);
-      label.textContent = `${percentVisible}% above the fold`;
-    };
-    updateLabel("compact-example");
-    updateLabel("regular-example");
+    const percentVisible =
+      100 -
+      Math.round((100 * (example.scrollHeight - example.clientHeight)) / example.scrollHeight);
+    label.textContent = `${percentVisible}% above the fold`;
+  },
+};
+
+export const CompactMode: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <div id="compact-example" class="tw-bit-compact">
+        <p>Compact</p>
+        <p class="example-label"></p>
+        <extension-container>
+          <mock-vault-subpage></mock-vault-subpage>
+        </extension-container>
+      </div>
+    `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const example = canvasEl.querySelector(
+      `#compact-example [data-testid=popup-layout-scroll-region]`,
+    );
+
+    if (!example) {
+      // eslint-disable-next-line
+      console.error(`#compact-example [data-testid=popup-layout-scroll-region] not found`);
+      return;
+    }
+
+    const label = canvasEl.querySelector(`#compact-example .example-label`);
+
+    if (!label) {
+      // eslint-disable-next-line
+      console.error(`#compact-example .example-label not found`);
+      return;
+    }
+
+    const percentVisible =
+      100 -
+      Math.round((100 * (example.scrollHeight - example.clientHeight)) / example.scrollHeight);
+    label.textContent = `${percentVisible}% above the fold`;
   },
 };
 
@@ -672,23 +698,34 @@ export const Notice: Story = {
   }),
 };
 
-export const WidthOptions: Story = {
+export const NarrowWidth: Story = {
   render: (args) => ({
     props: args,
     template: /* HTML */ `
-      <div class="tw-flex tw-flex-col tw-gap-4 tw-text-main">
-        <div>Default:</div>
-        <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
-          <mock-vault-page></mock-vault-page>
-        </div>
-        <div>Wide:</div>
-        <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
-          <mock-vault-page></mock-vault-page>
-        </div>
-        <div>Extra wide:</div>
-        <div class="tw-h-[640px] tw-w-[600px] tw-border tw-border-solid tw-border-secondary-300">
-          <mock-vault-page></mock-vault-page>
-        </div>
+      <div class="tw-h-[640px] tw-w-[380px] tw-border tw-border-solid tw-border-secondary-300">
+        <mock-vault-page></mock-vault-page>
+      </div>
+    `,
+  }),
+};
+
+export const DefaultWidth: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
+        <mock-vault-page></mock-vault-page>
+      </div>
+    `,
+  }),
+};
+
+export const WideWidth: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <div class="tw-h-[640px] tw-w-[600px] tw-border tw-border-solid tw-border-secondary-300">
+        <mock-vault-page></mock-vault-page>
       </div>
     `,
   }),
@@ -704,7 +741,7 @@ export const WithVirtualScrollChild: Story = {
           <mock-search slot="above-scroll-area"></mock-search>
           <bit-section>
             @defer (on immediate) {
-            <bit-item-group aria-label="Mock Vault Items">
+            <bit-item-group>
               <cdk-virtual-scroll-viewport itemSize="59" bitScrollLayout>
                 <bit-item *cdkVirtualFor="let item of data; index as i">
                   <button type="button" bit-item-content>

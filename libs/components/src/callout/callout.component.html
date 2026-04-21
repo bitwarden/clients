@@ -1,11 +1,12 @@
+@let title = titleComputed();
+@let icon = iconComputed();
+
 <aside
   class="tw-mb-4 tw-border tw-border-solid tw-rounded-xl tw-ps-4 tw-pe-2 tw-flex tw-flex-col tw-relative"
   [class]="calloutClass()"
-  [attr.aria-labelledby]="titleId"
+  [attr.aria-labelledby]="title ? titleId : null"
+  [attr.aria-label]="!title ? accessibleLandmarkName() : null"
 >
-  @let title = titleComputed();
-  @let icon = iconComputed();
-
   <ng-template #contentTpl>
     <div bitTypography="body2" class="tw-pr-4">
       <ng-content />

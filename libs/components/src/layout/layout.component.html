@@ -10,7 +10,10 @@
   <div
     class="tw-fixed tw-z-50 tw-w-full tw-flex tw-justify-center tw-opacity-0 focus-within:tw-opacity-100 tw-pointer-events-none focus-within:tw-pointer-events-auto"
   >
-    <nav class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2">
+    <nav
+      class="tw-bg-background-alt3 tw-rounded-md tw-rounded-t-none tw-py-2 tw-text-alt2"
+      [attr.aria-label]="'skipLink' | i18n"
+    >
       <a
         #skipLink
         bitLink
@@ -19,8 +22,9 @@
         [routerLink]="[]"
         (click)="focusMainContent()"
         linkType="light"
-        >{{ "skipToContent" | i18n }}</a
       >
+        {{ "skipToContent" | i18n }}
+      </a>
     </nav>
   </div>
 

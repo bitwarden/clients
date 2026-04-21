@@ -234,6 +234,8 @@ export default {
               yes: "Yes",
               no: "No",
               loading: "Loading",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
             });
           },
         },

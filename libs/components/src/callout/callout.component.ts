@@ -47,8 +47,12 @@ export class CalloutComponent implements OnInit {
   readonly icon = input<BitwardenIcon | null>();
   /** The title of the callout. If not provided, a default title will be used if callout type is `warning | danger`. Pass in `null` to not display a title. */
   readonly title = input<string | null>();
+  /** If a title is not supplied, provide a screenreader-accessible unique name for this callout */
+  readonly accessibleName = input<string>();
 
   readonly closeLabel = this.i18nService.t("close");
+
+  private readonly calloutId = nextId++;
 
   private readonly dismiss$ = new Subject<void>();
   readonly dismiss = outputFromObservable(this.dismiss$);
@@ -84,7 +88,7 @@ export class CalloutComponent implements OnInit {
     return title;
   });
 
-  protected readonly titleId = `bit-callout-title-${nextId++}`;
+  protected readonly titleId = `bit-callout-title-${this.calloutId}`;
 
   constructor(private readonly i18nService: I18nService) {}
 
@@ -128,5 +132,12 @@ export class CalloutComponent implements OnInit {
 
   protected readonly paddingTopClass = computed(() => {
     return this.isDismissible() ? "tw-pt-1.5" : undefined;
+  });
+
+  protected readonly accessibleLandmarkName = computed(() => {
+    return (
+      this.accessibleName() ??
+      `${this.i18nService.t("callout")} ${this.calloutId + 1}, ${this.type()}`
+    );
   });
 }

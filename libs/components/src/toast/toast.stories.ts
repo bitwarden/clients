@@ -60,6 +60,7 @@ export default {
               warning: "Warning",
               info: "Info",
               loading: "Loading",
+              progressBar: "Progress bar",
             });
           },
         },

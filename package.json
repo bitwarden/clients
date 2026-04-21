@@ -33,7 +33,7 @@
     "build-storybook": "ng run components:build-storybook",
     "build-storybook:ci": "ng run components:build-storybook --webpack-stats-json",
     "build-storybook:autofill:ci": "cd apps/browser/src/autofill/content/components && npm run storybook:build-lit:ci",
-    "test-stories": "test-storybook --url http://localhost:6006",
+    "test-stories": "test-storybook --url http://localhost:6006 --maxWorkers=2 --testTimeout=100000 --failOnConsole",
     "test-stories:watch": "test-stories --watch",
     "icons:build": "ts-node scripts/material-icons/build-with-bwi-names.ts",
     "icons:migrate": "ts-node scripts/material-icons/migrate-icon-names.ts",

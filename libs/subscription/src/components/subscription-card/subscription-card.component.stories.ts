@@ -84,6 +84,7 @@ export default {
                 secretsManager: "Secrets Manager",
                 additionalStorageGb: "Additional storage (GB)",
                 additionalServiceAccountsV2: "Additional machine accounts",
+                callout: "Callout",
               };
               return translations[key] || key;
             },

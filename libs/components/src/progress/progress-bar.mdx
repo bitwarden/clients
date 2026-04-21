@@ -73,6 +73,11 @@ For a strength indicator use the following variants:
 
 ## Accessibility
 
+Progress bars must have a unique accessible name. If the progress does not have a label passed to
+the `label` slot, an accessible name should still be provided via the `accessibleName` input. If
+neither label or accessible name is provided, the progress bar will default to "progress bar
+\{number\}" as its unique accessible name.
+
 In the case of a password strength indicator; `aria-describedby` is used on the password field and
 points to the `id` of the progress bar. This results in the screen reader reading the password
 strength to the user after they finish typing.
