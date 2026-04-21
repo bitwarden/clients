@@ -313,7 +313,7 @@ jobs:
         run: |
           ACR_NAME="$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}"
           echo "name=$ACR_NAME" >> "$GITHUB_OUTPUT"
-          if [[ "$IMAGE_TAG" == "rc" || "$IMAGE_TAG" == "hotfix-rc-web" ]]; then
+          if [[ "$IMAGE_TAG" == "dev" || "$IMAGE_TAG" == "rc" || "$IMAGE_TAG" == "hotfix-rc-web" ]]; then
             echo "tags=$ACR_NAME,$_GHCR_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
           else
             echo "tags=$ACR_NAME" >> "$GITHUB_OUTPUT"
