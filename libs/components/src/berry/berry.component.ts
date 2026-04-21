@@ -30,7 +30,7 @@ export class BerryComponent {
    * @example
    * maxDigits=2 shows 99+ for values ≥ 100. If undefined, the full value is shown.
    */
-  readonly maxDigits = input<number | undefined>(undefined);
+  readonly maxDigits = input<number>();
   readonly value = input<number>();
   readonly type = input<"status" | "count">("count");
 
