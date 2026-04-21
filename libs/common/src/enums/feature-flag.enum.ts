@@ -88,6 +88,7 @@ export enum FeatureFlag {
   PM32180PremiumUpsellAccountAge = "pm-32180-premium-upsell-account-age",
   PM28091_AddCopyAndQuickLaunchActions = "pm-28091-add-copy-and-quick-launch-actions",
   PM34500_StrictCipherDecryption = "pm-34500-strict-cipher-decryption",
+  PM31948_OrgUserNotificationBanner = "pm-31948-org-user-notification-banner",
 
   /* Platform */
   ContentScriptIpcChannelFramework = "content-script-ipc-channel-framework",
@@ -161,6 +162,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM32180PremiumUpsellAccountAge]: 7,
   [FeatureFlag.PM28091_AddCopyAndQuickLaunchActions]: FALSE,
   [FeatureFlag.PM34500_StrictCipherDecryption]: FALSE,
+  [FeatureFlag.PM31948_OrgUserNotificationBanner]: FALSE,
 
   /* Auth */
   [FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword]: FALSE,
