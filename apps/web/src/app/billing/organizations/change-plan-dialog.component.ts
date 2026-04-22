@@ -48,7 +48,13 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Discount, DiscountTypes, getCompoundedPercentOff, getLabel } from "@bitwarden/pricing";
+import {
+  Discount,
+  DiscountTypes,
+  getCompoundedPercentOff,
+  getLabel,
+  isSmStandaloneTrial,
+} from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
@@ -396,14 +402,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
-    return (
-      this.sub?.customerDiscounts?.some(
-        (d) =>
-          d.active &&
-          d.id === "sm-standalone" &&
-          this.sub?.subscription?.items?.some((item) => d.appliesTo?.includes(item.productId)),
-      ) ?? false
-    );
+    return isSmStandaloneTrial(this.sub?.customerDiscounts ?? [], this.sub?.subscription?.items);
   }
 
   async planTypeChanged() {
@@ -990,8 +989,17 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
    * Returns each active discount's label and its compounded dollar amount.
    * Percent-off discounts are applied to the running total after all prior discounts.
    * Amount-off discounts are applied as a flat reduction.
+   *
+   * Results are cached by `total` so repeated access within the same change-detection
+   * cycle (e.g., from `totalDiscountAmount` and the template) avoids recomputation.
    */
+  private _cachedDiscountTotal: number | null = null;
+  private _cachedDiscountLineItems: { label: string; amount: number }[] = [];
+
   calculateIndividualDiscounts(total: number): { label: string; amount: number }[] {
+    if (this._cachedDiscountTotal === total) {
+      return this._cachedDiscountLineItems;
+    }
     const result: { label: string; amount: number }[] = [];
     let remaining = total;
     for (const d of this.activeDiscounts) {
@@ -1008,6 +1016,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         result.push({ label, amount });
       }
     }
+    this._cachedDiscountTotal = total;
+    this._cachedDiscountLineItems = result;
     return result;
   }
 

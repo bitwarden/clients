@@ -28,7 +28,12 @@ import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/model
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { Discount, toDisplayableDiscounts } from "@bitwarden/pricing";
+import {
+  Discount,
+  SM_STANDALONE_DISCOUNT_ID,
+  isSmStandaloneTrial,
+  toDisplayableDiscounts,
+} from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -239,7 +244,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   /** Exclude sm-standalone trial coupons — they shouldn't display as discount badges */
   get displayableDiscounts(): Discount[] {
-    return toDisplayableDiscounts(this.customerDiscounts, new Set(["sm-standalone"]));
+    return toDisplayableDiscounts(this.customerDiscounts, new Set([SM_STANDALONE_DISCOUNT_ID]));
   }
 
   get isExpired() {
@@ -413,12 +418,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   isSecretsManagerTrial(): boolean {
-    return this.customerDiscounts.some(
-      (d) =>
-        d.active &&
-        d.id === "sm-standalone" &&
-        this.sub?.subscription?.items?.some((item) => d.appliesTo?.includes(item.productId)),
-    );
+    return isSmStandaloneTrial(this.customerDiscounts, this.sub?.subscription?.items);
   }
 
   discountAppliesToProduct(productId: string): boolean {
@@ -501,13 +501,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       if (!d.active) {
         continue;
       }
-      // sm-standalone coupons are product-scoped trials — skip them unless the caller
-      // provides a productId that the coupon explicitly applies to. Without a productId
-      // we can't verify applicability, so we err on the side of not applying the discount.
-      if (d.id === "sm-standalone" && (!productId || !d.appliesTo?.includes(productId))) {
-        continue;
-      }
-      if (d.appliesTo?.length && productId && !d.appliesTo.includes(productId)) {
+      // Product-scoped discounts (including sm-standalone trials) only apply when the
+      // caller provides a productId that the coupon explicitly covers. Without a
+      // productId we can't verify applicability, so we skip them.
+      if (d.appliesTo?.length && (!productId || !d.appliesTo.includes(productId))) {
         continue;
       }
       if (d.percentOff) {

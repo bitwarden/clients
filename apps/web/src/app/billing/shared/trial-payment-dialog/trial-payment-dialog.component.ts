@@ -34,6 +34,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { isSmStandaloneTrial } from "@bitwarden/pricing";
 import {
   SubscriberBillingClient,
   PreviewInvoiceClient,
@@ -317,14 +318,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   };
 
   isSecretsManagerTrial(): boolean {
-    return (
-      this.sub?.customerDiscounts?.some(
-        (d) =>
-          d.active &&
-          d.id === "sm-standalone" &&
-          this.sub?.subscription?.items?.some((item) => d.appliesTo?.includes(item.productId)),
-      ) ?? false
-    );
+    return isSmStandaloneTrial(this.sub?.customerDiscounts ?? [], this.sub?.subscription?.items);
   }
 
   async onSubscribe(): Promise<void> {
