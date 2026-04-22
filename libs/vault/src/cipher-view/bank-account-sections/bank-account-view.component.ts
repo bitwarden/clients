@@ -44,17 +44,13 @@ export class BankAccountViewComponent {
 
   readonly localizedAccountType = computed(() => {
     const accountTypeMap: Record<BankAccountType, string> = {
-      [BankAccountType.Checking]: this.i18nService.t("bankAccountTypeChecking"),
-      [BankAccountType.Savings]: this.i18nService.t("bankAccountTypeSavings"),
-      [BankAccountType.CertificateOfDeposit]: this.i18nService.t(
-        "bankAccountTypeCertificateOfDeposit",
-      ),
-      [BankAccountType.LineOfCredit]: this.i18nService.t("bankAccountTypeLineOfCredit"),
-      [BankAccountType.InvestmentBrokerage]: this.i18nService.t(
-        "bankAccountTypeInvestmentBrokerage",
-      ),
-      [BankAccountType.MoneyMarket]: this.i18nService.t("bankAccountTypeMoneyMarket"),
-      [BankAccountType.Other]: this.i18nService.t("bankAccountTypeOther"),
+      checking: this.i18nService.t("bankAccountTypeChecking"),
+      savings: this.i18nService.t("bankAccountTypeSavings"),
+      certificateOfDeposit: this.i18nService.t("bankAccountTypeCertificateOfDeposit"),
+      lineOfCredit: this.i18nService.t("bankAccountTypeLineOfCredit"),
+      investmentBrokerage: this.i18nService.t("bankAccountTypeInvestmentBrokerage"),
+      moneyMarket: this.i18nService.t("bankAccountTypeMoneyMarket"),
+      other: this.i18nService.t("bankAccountTypeOther"),
     };
     const accountType = this.bankAccount().accountType;
 

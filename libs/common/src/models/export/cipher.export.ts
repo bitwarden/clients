@@ -76,7 +76,7 @@ export class CipherExport {
         break;
       case CipherType.BankAccount:
         if (req.bankAccount != null) {
-          view.bankAccount = BankAccountExport.toView(req.bankAccount);
+          view.bankAccount = BankAccountExport.toView(req.bankAccount)!;
         }
         break;
     }
