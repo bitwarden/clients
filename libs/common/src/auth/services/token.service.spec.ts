@@ -1674,6 +1674,37 @@ describe("TokenService", () => {
             tokenService = createTokenService(true /* supportsSecureStorage */);
           });
 
+          it("happy path clears both Disk and Memory: both locations are null after secure storage write", async () => {
+            // Arrange: pre-seed both locations so we can verify both are cleared
+            singleUserStateProvider
+              .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
+              .nextState(refreshToken);
+
+            singleUserStateProvider
+              .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
+              .nextState(refreshToken);
+
+            // Read-back returns the token, so the save is confirmed and the happy path runs
+            secureStorageService.get.mockResolvedValue(refreshToken);
+
+            // Act
+            await (tokenService as any).setRefreshToken(
+              refreshToken,
+              diskVaultTimeoutAction,
+              diskVaultTimeout,
+              userIdFromAccessToken,
+            );
+
+            // Assert: both locations were cleared — unlike the access token path which only clears
+            // Memory, the refresh token happy path clears both Disk and Memory
+            expect(
+              singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK).nextMock,
+            ).toHaveBeenCalledWith(null);
+            expect(
+              singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextMock,
+            ).toHaveBeenCalledWith(null);
+          });
+
           it("fallback (null read-back) clears Memory: seeded Memory value is null after fallback disk write", async () => {
             // Arrange: pre-seed REFRESH_TOKEN_MEMORY; get returns null so the read-back check
             // throws ("Refresh token failed to save to secure storage"), triggering the catch block.
