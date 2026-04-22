@@ -136,7 +136,7 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
-    this.destroyRef.onDestroy(() => this.drawerRef()?.close());
+    this.destroyRef.onDestroy(() => void this.drawerRef()?.close());
   }
 
   // Handle policies component launch from Event message

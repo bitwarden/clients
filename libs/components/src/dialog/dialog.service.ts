@@ -72,19 +72,9 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   /**
    * An optional predicate called before closing. Return `true` to allow the close, `false` to
    * prevent it (e.g. to ask the user to confirm discarding unsaved changes).
-   * Only honoured by drawer dialogs via `tryClose()`.
+   * Only honoured by drawer dialogs.
    */
   closePredicate?: (result?: R) => Promise<boolean>;
-
-  /**
-   * Attempts to close the dialog.
-   * Returns `true` if the dialog was closed, `false` if it was prevented (e.g. `disableClose`).
-   * The default implementation always closes and returns `true`.
-   */
-  tryClose(result?: R, options?: DialogCloseOptions): Promise<boolean> {
-    void this.close(result, options);
-    return Promise.resolve(true);
-  }
 }
 
 export type DialogConfig<D = unknown, R = unknown> = Pick<
@@ -221,11 +211,6 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     return { closed: true };
   }
 
-  tryClose(result?: R, options?: DialogCloseOptions): Promise<boolean> {
-    void this.close(result, options);
-    return Promise.resolve(true);
-  }
-
   componentInstance: C | null = null;
 }
 
@@ -262,11 +247,6 @@ export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     }
     this.cdkDialogRefBase.close(result, options);
     return { closed: true };
-  }
-
-  tryClose(result?: R, options?: DialogCloseOptions): Promise<boolean> {
-    void this.close(result, options);
-    return Promise.resolve(true);
   }
 
   get closed(): Observable<R | undefined> {
