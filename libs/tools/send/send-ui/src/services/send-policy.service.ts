@@ -117,15 +117,15 @@ export class SendPolicyService {
   );
 
   /**
-   * Emits the policy-enforced deletion days preset (in hours), or `null` if no policy applies.
+   * Emits the policy-enforced deletion hours preset, or `null` if no policy applies.
    */
-  readonly deletionDays$: Observable<DatePreset | null> = this.flagAndUser$.pipe(
+  readonly deletionHours$: Observable<DatePreset | null> = this.flagAndUser$.pipe(
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
             map((policies) => {
-              const policy = policies?.find((p) => p.data?.deletionDays != null);
-              return (policy?.data?.deletionDays as DatePreset) ?? null;
+              const policy = policies?.find((p) => p.data?.deletionHours != null);
+              return (policy?.data?.deletionHours as DatePreset) ?? null;
             }),
           )
         : of(null),
@@ -134,14 +134,14 @@ export class SendPolicyService {
   );
 
   /**
-   * Emits the name of the organization enforcing the deletion days policy, or `null` if none.
+   * Emits the name of the organization enforcing the deletion hours policy, or `null` if none.
    */
-  readonly deletionDaysOrgName$: Observable<string | null> = this.flagAndUser$.pipe(
+  readonly deletionHoursOrgName$: Observable<string | null> = this.flagAndUser$.pipe(
     switchMap(([sendControlsEnabled, userId]) =>
       sendControlsEnabled
         ? this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
             switchMap((policies) => {
-              const policy = policies?.find((p) => p.data?.deletionDays != null);
+              const policy = policies?.find((p) => p.data?.deletionHours != null);
               if (!policy) {
                 return of(null);
               }

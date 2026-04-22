@@ -109,8 +109,8 @@ export class SendDetailsComponent implements OnInit {
   datePresetOptions: DatePresetSelectOption[] = [];
   passwordRemoved = false;
   policyAllowedDomains: string[] | null = null;
-  policyDeletionDays: DatePreset | null = null;
-  policyDeletionDaysOrgName: string | null = null;
+  policyDeletionHours: DatePreset | null = null;
+  policyDeletionHoursOrgName: string | null = null;
 
   emailVerificationFeatureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.SendEmailOTP);
   hasPremium$ = this.accountService.activeAccount$.pipe(
@@ -257,16 +257,16 @@ export class SendDetailsComponent implements OnInit {
       });
 
     combineLatest([
-      this.sendPolicyService.deletionDays$,
-      this.sendPolicyService.deletionDaysOrgName$,
+      this.sendPolicyService.deletionHours$,
+      this.sendPolicyService.deletionHoursOrgName$,
     ])
       .pipe(takeUntilDestroyed())
-      .subscribe(([deletionDays, orgName]) => {
-        this.policyDeletionDays = deletionDays;
-        this.policyDeletionDaysOrgName = orgName;
+      .subscribe(([deletionHours, orgName]) => {
+        this.policyDeletionHours = deletionHours;
+        this.policyDeletionHoursOrgName = orgName;
         const deletionControl = this.sendDetailsForm.get("selectedDeletionDatePreset");
-        if (deletionDays != null) {
-          deletionControl.setValue(deletionDays as any);
+        if (deletionHours != null) {
+          deletionControl.setValue(deletionHours as any);
           deletionControl.disable();
         }
       });

@@ -59,8 +59,8 @@
     </div>
     <bit-form-field>
       <bit-label>{{ "sendDeletionDays" | i18n }}</bit-label>
-      <bit-select formControlName="deletionDays">
-        @for (option of deletionDaysOptions; track option.value) {
+      <bit-select formControlName="deletionHours">
+        @for (option of deletionHoursOptions; track option.value) {
           <bit-option [value]="option.value" [label]="option.name"></bit-option>
         }
       </bit-select>

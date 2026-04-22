@@ -34,8 +34,8 @@
           [label]="o.name"
         ></bit-option>
       </bit-select>
-      @if (policyDeletionDays != null && policyDeletionDaysOrgName) {
-        <bit-hint>{{ "sendDeletionDaysPolicyHint" | i18n: policyDeletionDaysOrgName }}</bit-hint>
+      @if (policyDeletionHours != null && policyDeletionHoursOrgName) {
+        <bit-hint>{{ "sendDeletionDaysPolicyHint" | i18n: policyDeletionHoursOrgName }}</bit-hint>
       } @else {
         <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
       }

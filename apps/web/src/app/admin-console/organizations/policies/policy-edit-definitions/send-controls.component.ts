@@ -51,10 +51,10 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     disableHideEmail: false,
     whoCanAccess: WhoCanAccessType.Any as WhoCanAccessType,
     allowedDomains: null as string | null,
-    deletionDays: null as DatePreset | null,
+    deletionHours: null as DatePreset | null,
   });
 
-  readonly deletionDaysOptions: { name: string; value: DatePreset | null }[] = [];
+  readonly deletionHoursOptions: { name: string; value: DatePreset | null }[] = [];
 
   readonly sendFeatureEnabled = signal(true);
   /** Whether the allowed domains text area should be displayed */
@@ -71,7 +71,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     private readonly i18nService: I18nService,
   ) {
     super();
-    this.deletionDaysOptions = [
+    this.deletionHoursOptions = [
       { name: this.i18nService.t("sendDeletionDaysNoRestriction"), value: null },
       { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
       { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
@@ -112,7 +112,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       .subscribe((value: boolean) => {
         this.data.get("whoCanAccess")?.patchValue(WhoCanAccessType.Any);
         this.data.get("disableHideEmail")?.patchValue(false);
-        this.data.get("deletionDays")?.patchValue(null);
+        this.data.get("deletionHours")?.patchValue(null);
         this.sendFeatureEnabled.set(!value);
       });
     this.data.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
@@ -122,7 +122,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
           !value.disableSend &&
           value.whoCanAccess === WhoCanAccessType.Any &&
           !value.disableHideEmail &&
-          value.deletionDays == null
+          value.deletionHours == null
         ),
       );
     });
