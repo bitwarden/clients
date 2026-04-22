@@ -8,7 +8,7 @@
 >
   @if (!(canArchive$ | async)) {
     <ng-container slot="end">
-      <app-premium-badge-desktop />
+      <app-premium-badge [iconOnly]="true" />
     </ng-container>
   }
 </bit-nav-item>

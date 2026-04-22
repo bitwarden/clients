@@ -4,12 +4,11 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, map, startWith } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NavigationModule } from "@bitwarden/components";
 import { SendListFiltersService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { PremiumBadgeDesktopComponent } from "../../../billing/components/premium-badge-desktop.component";
 
 /**
  * Navigation component that renders Send filter options in the sidebar.
@@ -22,7 +21,7 @@ import { PremiumBadgeDesktopComponent } from "../../../billing/components/premiu
   selector: "app-send-filters-nav",
   templateUrl: "./send-filters-nav.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, NavigationModule, PremiumBadgeDesktopComponent, I18nPipe],
+  imports: [CommonModule, NavigationModule, PremiumBadgeComponent, I18nPipe],
 })
 export class SendFiltersNavComponent {
   protected readonly SendType = SendType;
