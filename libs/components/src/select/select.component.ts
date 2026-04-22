@@ -9,6 +9,7 @@ import {
   QueryList,
   Output,
   EventEmitter,
+  booleanAttribute,
   computed,
   effect,
   inject,
@@ -50,6 +51,7 @@ let nextId = 0;
   host: {
     "[id]": "id()",
     "[attr.aria-describedby]": "ariaDescribedBy()",
+    "[attr.required]": "required() || null",
   },
 })
 export class SelectComponent<T>
@@ -192,19 +194,13 @@ export class SelectComponent<T>
   readonly id = input(`bit-multi-select-${nextId++}`);
 
   /**Implemented as part of BitFormFieldControl */
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding("attr.required")
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get required() {
-    return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
-  }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required?: boolean;
+  readonly requiredInput = input(false, { transform: booleanAttribute, alias: "required" });
+  readonly required: Signal<boolean> = computed(() => {
+    this.controlEvent();
+    return (
+      this.requiredInput() || (this.ngControl?.control?.hasValidator(Validators.required) ?? false)
+    );
+  });
 
   /**Implemented as part of BitFormFieldControl */
   get error(): [string, any] {

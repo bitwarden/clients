@@ -4,7 +4,7 @@
     [attr.for]="input().labelForId"
   >
     <ng-content select="bit-label"></ng-content>
-    @if (input().required) {
+    @if (input().required()) {
       <sup class="tw-text-sm tw-text-fg-danger tw-relative tw-top-[-1px]">*</sup>
       <span class="tw-sr-only"> ({{ "required" | i18n }})</span>
     }

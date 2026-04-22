@@ -16,7 +16,7 @@ export abstract class BitFormFieldControl {
   abstract ariaDescribedBy: WritableSignal<string | undefined>;
   abstract id: Signal<string>;
   abstract labelForId: string;
-  abstract required: boolean;
+  abstract required: Signal<boolean>;
   abstract hasError: Signal<boolean>;
   abstract error: [string, any];
   abstract type?: ModelSignal<InputTypes | undefined>;

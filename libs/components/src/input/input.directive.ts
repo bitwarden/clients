@@ -3,10 +3,9 @@ import {
   DestroyRef,
   Directive,
   ElementRef,
-  HostBinding,
-  Input,
   NgZone,
   Signal,
+  booleanAttribute,
   computed,
   inject,
   input,
@@ -43,6 +42,7 @@ export function inputBorderClasses(error: boolean) {
     "(input)": "onInput()",
     "[attr.aria-describedby]": "ariaDescribedBy()",
     "[attr.aria-invalid]": "ariaInvalid",
+    "[required]": "required()",
   },
 })
 export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
@@ -93,19 +93,13 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
 
   readonly spellcheck = model<boolean>();
 
-  // TODO: Skipped for signal migration because:
-  //  Accessor inputs cannot be migrated as they are too complex.
-  @HostBinding()
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get required() {
-    return this._required ?? this.ngControl?.control?.hasValidator(Validators.required) ?? false;
-  }
-  set required(value: any) {
-    this._required = value != null && value !== false;
-  }
-  private _required?: boolean;
+  readonly requiredInput = input(false, { transform: booleanAttribute, alias: "required" });
+  readonly required: Signal<boolean> = computed(() => {
+    this.controlEvent();
+    return (
+      this.requiredInput() || (this.ngControl?.control?.hasValidator(Validators.required) ?? false)
+    );
+  });
 
   protected readonly hasPrefix = input(false);
   protected readonly hasSuffix = input(false);
