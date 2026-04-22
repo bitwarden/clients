@@ -3952,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "புதிய பயனரை உங்கள் நிறுவனத்திற்கு அவர்களின் Bitwarden கணக்கு மின்னஞ்சல் முகவரியை கீழே உள்ளிட்டு அழைக்கவும். அவர்களுக்கு ஏற்கனவே Bitwarden கணக்கு இல்லையென்றால், புதிய கணக்கை உருவாக்கும்படி கேட்கப்படுவார்கள்."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "காமாவால் பிரிப்பதன் மூலம் $COUNT$ மின்னஞ்சல்கள் வரை உள்ளிடவும்.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3966,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "உங்களிடம் 0 அழைப்புகள் மீதம் உள்ளன."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "இந்த பயனர் தங்கள் கணக்கைப் பாதுகாக்க இரண்டு-படி உள்நுழைவைப் பயன்படுத்துகிறார்."
@@ -13399,5 +13412,22 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "export": {
+    "message": "Export"
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

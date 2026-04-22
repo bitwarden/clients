@@ -3952,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Új felhasználó meghívása a szervezetéhez a Bitwarden fiók e-mail címének megadásával. Ha még nem rendelkezik Bitwarden-fiókkal, felkérjük új fiók létrehozására.\n"
   },
-  "inviteMultipleEmailDesc": {
-    "message": "Legfeljebb $COUNT$, egymástól vesszővel elválasztott email cím.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Adjunk meg akár $BATCHLIMIT$ email címet vesszővel elválasztva. ($REMAININGSEATS$ hely marad)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3966,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "0 meghívó maradt."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Adjunk meg egyszerre legfeljebb $BATCHLIMIT$ email címet, vesszővel elválasztva.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Ez a felhasználó kétlépcsős bejelentkezést használ fiókja védelmére."
@@ -13399,5 +13412,22 @@
   "saveSendEditsFailed": {
     "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "export": {
+    "message": "Exportálás"
+  },
+  "sideNavigation": {
+    "message": "Oldal navigáció"
+  },
+  "skipLink": {
+    "message": "Hivatkozás kihagyása"
+  },
+  "callout": {
+    "message": "Felhívás",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Folyamatjelző sáv",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
