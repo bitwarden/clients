@@ -2,12 +2,14 @@ import { ComponentRef } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,6 +23,7 @@ describe("ItemDetailsV2Component", () => {
   let fixture: ComponentFixture<ItemDetailsV2Component>;
   let componentRef: ComponentRef<ItemDetailsV2Component>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
+  let desktopMilestone3Flag$: BehaviorSubject<boolean>;
 
   const cipher = {
     id: "cipher1",
@@ -52,18 +55,28 @@ describe("ItemDetailsV2Component", () => {
 
   beforeEach(async () => {
     mockPlatformUtilsService = mock<PlatformUtilsService>();
+    mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
+    desktopMilestone3Flag$ = new BehaviorSubject<boolean>(false);
 
     await TestBed.configureTestingModule({
       imports: [ItemDetailsV2Component],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
-        { provide: PlatformUtilsService, useValue: { getClientType: () => ClientType.Web } },
+        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: (flag: FeatureFlag) =>
+              flag === FeatureFlag.DesktopUiMigrationMilestone3
+                ? desktopMilestone3Flag$.asObservable()
+                : of(false),
+          },
+        },
         {
           provide: EnvironmentService,
           useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
         },
         { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
-        { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
       ],
     }).compileComponents();
   });
@@ -102,30 +115,37 @@ describe("ItemDetailsV2Component", () => {
     expect(owner).toBeNull();
   });
 
-  it("should show archive badge when cipher is archived and client is Desktop", () => {
-    jest.spyOn(mockPlatformUtilsService, "getClientType").mockReturnValue(ClientType.Desktop);
+  describe("showArchiveBadge", () => {
+    it("is true when cipher is archived on Desktop and DesktopUiMigrationMilestone3 is off", () => {
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+      desktopMilestone3Flag$.next(false);
+      componentRef.setInput("cipher", { ...cipher, isArchived: true });
 
-    const archivedCipher = { ...cipher, isArchived: true };
-    componentRef.setInput("cipher", archivedCipher);
+      expect((component as any).showArchiveBadge()).toBe(true);
+    });
 
-    expect((component as any).showArchiveBadge()).toBe(true);
-  });
+    it("is false when DesktopUiMigrationMilestone3 is on (dialog renders its own badge)", () => {
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+      desktopMilestone3Flag$.next(true);
+      componentRef.setInput("cipher", { ...cipher, isArchived: true });
 
-  it("should not show archive badge when cipher is not archived", () => {
-    jest.spyOn(mockPlatformUtilsService, "getClientType").mockReturnValue(ClientType.Desktop);
+      expect((component as any).showArchiveBadge()).toBe(false);
+    });
 
-    const unarchivedCipher = { ...cipher, isArchived: false };
-    componentRef.setInput("cipher", unarchivedCipher);
+    it("is false when cipher is not archived", () => {
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+      desktopMilestone3Flag$.next(false);
+      componentRef.setInput("cipher", { ...cipher, isArchived: false });
 
-    expect((component as any).showArchiveBadge()).toBe(false);
-  });
+      expect((component as any).showArchiveBadge()).toBe(false);
+    });
 
-  it("should not show archive badge when client is not Desktop", () => {
-    jest.spyOn(mockPlatformUtilsService, "getClientType").mockReturnValue(ClientType.Web);
+    it("is false when client is not Desktop", () => {
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Web);
+      desktopMilestone3Flag$.next(false);
+      componentRef.setInput("cipher", { ...cipher, isArchived: true });
 
-    const archivedCipher = { ...cipher, isArchived: true };
-    componentRef.setInput("cipher", archivedCipher);
-
-    expect((component as any).showArchiveBadge()).toBe(false);
+      expect((component as any).showArchiveBadge()).toBe(false);
+    });
   });
 });
