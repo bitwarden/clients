@@ -40,7 +40,7 @@
       >
         {{ (currentStep() === policySteps().length - 1 ? "save" : "next") | i18n }}
       </button>
-      <button bitButton buttonType="secondary" bitDialogClose type="button">
+      <button bitButton buttonType="secondary" type="button" (click)="cancel()">
         {{ "cancel" | i18n }}
       </button>
     }

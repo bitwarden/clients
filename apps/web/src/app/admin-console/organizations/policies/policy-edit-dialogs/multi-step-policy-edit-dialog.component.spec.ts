@@ -55,7 +55,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         { provide: ToastService, useValue: toastService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
-        { provide: CdkDialogRef, useValue: { backdropClick: NEVER } },
+        { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

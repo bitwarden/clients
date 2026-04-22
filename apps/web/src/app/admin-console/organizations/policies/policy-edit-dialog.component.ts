@@ -133,9 +133,16 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       this.cdkDialogRef.backdropClick
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => void this.cancel());
+      this.cdkDialogRef.keydownEvents
+        .pipe(
+          filter((e: KeyboardEvent) => e.key === "Escape"),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe(() => void this.cancel());
     } else {
-      this.dialogRef.closePredicate = async () => {
-        if (!this.isFormDirty()) {
+      this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
+        // A defined result means an intentional close (e.g. after a successful save) — always allow.
+        if (result !== undefined || !this.isFormDirty()) {
           return true;
         }
         return this.dialogService.openSimpleDialog(this.discardDialogOptions);
