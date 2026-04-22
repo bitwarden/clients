@@ -358,7 +358,6 @@ export class Main {
         await this.windowMain.init();
         this.ssoCookieMain.init(this.windowMain.session);
         await this.i18nService.init();
-        console.log("Migrations complete, initializing messaging main");
         await this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
