@@ -71,7 +71,7 @@ export class PricingSummaryService {
     const allActiveDiscounts = isSecretsManagerTrial
       ? []
       : (sub?.customerDiscounts ?? []).filter(
-          (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
+          (d) => d.active && ((d.percentOff ?? 0) > 0 || (d.amountOff ?? 0) > 0),
         );
     const compoundedDiscountPercentage = getCompoundedPercentOff(allActiveDiscounts);
     const discountPercentage = 20;
@@ -85,17 +85,19 @@ export class PricingSummaryService {
     const discountLineItems: DiscountLineItem[] = [];
     let remaining = subtotalBeforeTax;
     for (const d of allActiveDiscounts) {
-      const discount: Discount = d.amountOff
-        ? { type: DiscountTypes.AmountOff, value: d.amountOff }
-        : { type: DiscountTypes.PercentOff, value: d.percentOff };
+      const percentOff = d.percentOff ?? 0;
+      const amountOff = d.amountOff ?? 0;
+      const discount: Discount = amountOff
+        ? { type: DiscountTypes.AmountOff, value: amountOff }
+        : { type: DiscountTypes.PercentOff, value: percentOff };
       const label = getLabel(this.i18nService, discount);
-      if (d.percentOff > 0) {
-        const amount = remaining * (d.percentOff / 100);
+      if (percentOff > 0) {
+        const amount = remaining * (percentOff / 100);
         remaining -= amount;
         discountLineItems.push({ label, amount });
-      } else if (d.amountOff > 0) {
-        remaining -= d.amountOff;
-        discountLineItems.push({ label, amount: d.amountOff });
+      } else if (amountOff > 0) {
+        remaining -= amountOff;
+        discountLineItems.push({ label, amount: amountOff });
       }
     }
 

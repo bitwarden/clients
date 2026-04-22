@@ -69,12 +69,15 @@ export const toDisplayableDiscounts = (
   return customerDiscounts
     .filter(
       (d) =>
-        d.active && (d.percentOff > 0 || d.amountOff > 0) && (!excludeIds || !excludeIds.has(d.id)),
+        d.active &&
+        ((d.percentOff ?? 0) > 0 || (d.amountOff ?? 0) > 0) &&
+        (!excludeIds || !d.id || !excludeIds.has(d.id)),
     )
-    .map((d) =>
-      d.amountOff
-        ? { type: DiscountTypes.AmountOff, value: d.amountOff }
-        : { type: DiscountTypes.PercentOff, value: d.percentOff },
+    .map(
+      (d): Discount =>
+        d.amountOff
+          ? { type: DiscountTypes.AmountOff, value: d.amountOff }
+          : { type: DiscountTypes.PercentOff, value: d.percentOff ?? 0 },
     );
 };
 
