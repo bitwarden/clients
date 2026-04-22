@@ -202,14 +202,15 @@ export class MessagingMain {
    * Sets the autostart flag on a linux .desktop file's Exec line.
    */
   private setAutostartFlagOnDesktopFile(desktopFileData: string): string {
-    const lines = desktopFileData.split("\n");
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith("Exec=") && !lines[i].includes(AUTOSTART_FLAG)) {
-        lines[i] = `${lines[i]} ${AUTOSTART_FLAG}`;
-        break;
-      }
-    }
-    return lines.join("\n");
+    return desktopFileData.split("\n")
+      .map((line) => line.trim())
+      .map((line) => {
+          if (line.startsWith("Exec=") && !line.includes(AUTOSTART_FLAG)) {
+            return `${line} ${AUTOSTART_FLAG}`;
+          }
+          return line;
+      })
+      .join("\n");
   }
 
   private removeOpenAtLogin() {
