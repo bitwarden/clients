@@ -87,11 +87,11 @@ export class BitFormFieldComponent implements AfterContentChecked {
     const error = this.error();
     const hint = this.hint();
     if (error) {
-      this.input().ariaDescribedBy = error.id;
+      this.input().ariaDescribedBy.set(error.id);
     } else if (hint) {
-      this.input().ariaDescribedBy = hint.id;
+      this.input().ariaDescribedBy.set(hint.id);
     } else {
-      this.input().ariaDescribedBy = undefined;
+      this.input().ariaDescribedBy.set(undefined);
     }
   }
 }

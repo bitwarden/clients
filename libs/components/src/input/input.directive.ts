@@ -41,7 +41,7 @@ export function inputBorderClasses(error: boolean) {
     "[attr.type]": "type()",
     "[attr.spellcheck]": "spellcheck()",
     "(input)": "onInput()",
-    "[attr.aria-describedby]": "ariaDescribedBy",
+    "[attr.aria-describedby]": "ariaDescribedBy()",
     "[attr.aria-invalid]": "ariaInvalid",
   },
 })
@@ -83,7 +83,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
 
   readonly id = input(`bit-input-${nextId++}`);
 
-  ariaDescribedBy?: string;
+  readonly ariaDescribedBy = signal<string | undefined>(undefined);
 
   protected get ariaInvalid() {
     return this.hasError() ? true : undefined;

@@ -10,6 +10,7 @@ import {
   Output,
   EventEmitter,
   computed,
+  effect,
   inject,
   input,
   Signal,
@@ -48,6 +49,7 @@ let nextId = 0;
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
   host: {
     "[id]": "id()",
+    "[attr.aria-describedby]": "ariaDescribedBy()",
   },
 })
 export class SelectComponent<T>
@@ -85,6 +87,11 @@ export class SelectComponent<T>
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
+    effect(() => {
+      this.select()
+        ?.searchInput()
+        .nativeElement.setAttribute("aria-describedby", this.ariaDescribedBy() ?? "");
+    });
   }
 
   ngAfterViewInit() {
@@ -174,17 +181,7 @@ export class SelectComponent<T>
   }
 
   /**Implemented as part of BitFormFieldControl */
-  @HostBinding("attr.aria-describedby")
-  get ariaDescribedBy() {
-    return this._ariaDescribedBy;
-  }
-  set ariaDescribedBy(value: string | undefined) {
-    this._ariaDescribedBy = value;
-    this.select()
-      ?.searchInput()
-      .nativeElement.setAttribute("aria-describedby", value ?? "");
-  }
-  private _ariaDescribedBy?: string;
+  readonly ariaDescribedBy = signal<string | undefined>(undefined);
 
   /**Implemented as part of BitFormFieldControl */
   get labelForId() {

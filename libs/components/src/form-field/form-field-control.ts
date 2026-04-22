@@ -1,4 +1,4 @@
-import { ModelSignal, Signal } from "@angular/core";
+import { ModelSignal, Signal, WritableSignal } from "@angular/core";
 
 export type InputTypes =
   | "text"
@@ -13,7 +13,7 @@ export type InputTypes =
   | "time";
 
 export abstract class BitFormFieldControl {
-  abstract ariaDescribedBy?: string;
+  abstract ariaDescribedBy: WritableSignal<string | undefined>;
   abstract id: Signal<string>;
   abstract labelForId: string;
   abstract required: boolean;

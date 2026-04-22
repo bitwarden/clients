@@ -10,6 +10,7 @@ import {
   HostBinding,
   Signal,
   computed,
+  effect,
   inject,
   input,
   model,
@@ -60,6 +61,7 @@ let nextId = 0;
   ],
   host: {
     "[id]": "this.id()",
+    "[attr.aria-describedby]": "ariaDescribedBy()",
   },
 })
 /**
@@ -112,6 +114,11 @@ export class MultiSelectComponent
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
+    effect(() => {
+      this.select()
+        ?.searchInput()
+        .nativeElement.setAttribute("aria-describedby", this.ariaDescribedBy() ?? "");
+    });
   }
 
   ngAfterViewInit() {
@@ -219,17 +226,7 @@ export class MultiSelectComponent
   }
 
   /**Implemented as part of BitFormFieldControl */
-  @HostBinding("attr.aria-describedby")
-  get ariaDescribedBy() {
-    return this._ariaDescribedBy;
-  }
-  set ariaDescribedBy(value: string | undefined) {
-    this._ariaDescribedBy = value;
-    this.select()
-      ?.searchInput()
-      .nativeElement.setAttribute("aria-describedby", value ?? "");
-  }
-  private _ariaDescribedBy?: string;
+  readonly ariaDescribedBy = signal<string | undefined>(undefined);
 
   /**Implemented as part of BitFormFieldControl */
   get labelForId() {
