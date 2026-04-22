@@ -1,8 +1,6 @@
-<bit-dialog [title]="'confirmAutofill' | i18n">
+<bit-dialog [title]="dialogTitle()">
   <div bitDialogContent>
-    <p bitTypography="body2">
-      {{ "confirmAutofillDesc" | i18n }}
-    </p>
+    <p bitTypography="body2">{{ dialogBody() }}</p>
     @if (formattedSavedUrls().length === 1) {
       <p class="tw-text-muted tw-text-xs tw-uppercase tw-mt-4 tw-font-medium">
         {{ "savedWebsite" | i18n }}
@@ -63,11 +61,11 @@
     <div class="tw-flex tw-justify-center tw-flex-col tw-gap-3 tw-mt-6">
       @if (!viewOnly()) {
         <button type="button" bitButton buttonType="primary" (click)="autofillAndAddUrl()">
-          {{ "autofillAndAddWebsite" | i18n }}
+          {{ "autofillAndSaveThisSite" | i18n }}
         </button>
       }
       <button type="button" bitButton buttonType="secondary" (click)="autofillOnly()">
-        {{ (viewOnly() ? "autofill" : "autofillWithoutAdding") | i18n }}
+        {{ (viewOnly() ? "autoFill" : "autofillOnly") | i18n }}
       </button>
       <button
         type="button"
@@ -76,7 +74,7 @@
         (click)="close()"
         class="tw-mt-2 tw-font-medium tw-text-sm [&>div]:tw-justify-center"
       >
-        {{ "doNotAutofill" | i18n }}
+        {{ "cancel" | i18n }}
       </button>
     </div>
   </div>
