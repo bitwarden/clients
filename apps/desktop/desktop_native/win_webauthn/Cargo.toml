@@ -16,8 +16,5 @@ windows = { workspace = true, features = [
 ] }
 windows-core = { workspace = true }
 
-[target.'cfg(windows)'.dev-dependencies]
-hex = { workspace = true }
-
 [lints]
 workspace = true
