@@ -121,7 +121,7 @@ export class OrganizationIntegrationService {
         organizationIntegrationResult: newIntegration ?? undefined,
       };
     } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 422) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
         return {
           mustBeOwner: true,
           success: false,
@@ -204,7 +204,7 @@ export class OrganizationIntegrationService {
         organizationIntegrationResult: updatedIntegration ?? undefined,
       };
     } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 422) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
         return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
       }
       throw error;
@@ -247,7 +247,7 @@ export class OrganizationIntegrationService {
 
       return { mustBeOwner: false, success: true, organizationIntegrationResult: undefined };
     } catch (error) {
-      if (error instanceof ErrorResponse && error.statusCode === 422) {
+      if (error instanceof ErrorResponse && error.statusCode === 404) {
         return { mustBeOwner: true, success: false, organizationIntegrationResult: undefined };
       }
       throw error;
