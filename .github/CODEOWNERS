@@ -80,6 +80,7 @@ libs/angular/src/admin-console @bitwarden/team-admin-console-dev
 libs/common/src/admin-console @bitwarden/team-admin-console-dev
 libs/admin-console @bitwarden/team-admin-console-dev
 libs/auto-confirm @bitwarden/team-admin-console-dev
+libs/organization-invite-link @bitwarden/team-admin-console-dev
 
 ## Billing team files ##
 apps/browser/src/billing @bitwarden/team-billing-dev
@@ -268,4 +269,3 @@ apps/desktop/native-messaging-test-runner/package-lock.json @bitwarden/team-plat
 .claude/ @bitwarden/team-ai-sme
 .github/workflows/respond.yml @bitwarden/team-ai-sme
 .github/workflows/review-code.yml @bitwarden/team-ai-sme
-libs/organization-invite-link @bitwarden/team-admin-console-dev
