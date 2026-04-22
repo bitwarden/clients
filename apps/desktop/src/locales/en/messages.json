@@ -4939,6 +4939,10 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideEmailPolicyInEffect": {
+    "message": "An organization policy is in effect that prevents hiding your email address from Send viewers. Uncheck \"Hide your email address from viewers\" before saving.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "sideNavigation": {
     "message": "Side navigation"
   },
