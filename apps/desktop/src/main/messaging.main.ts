@@ -31,6 +31,7 @@ export class MessagingMain {
     // On app start, regenerate the configurations needed to autostart or not auto-start
     // depending on the setting provided in the settings file.
     const openAtLogin = await firstValueFrom(this.desktopSettingsService.openAtLogin$);
+    console.log("openAtLogin setting is", openAtLogin);
     if (openAtLogin) {
       this.addOpenAtLogin();
     } else {
