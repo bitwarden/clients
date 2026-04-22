@@ -13413,9 +13413,6 @@
     "message": "儲存 Send 變更失敗",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "export": {
-    "message": "匯出"
-  },
   "sideNavigation": {
     "message": "Side navigation"
   },
