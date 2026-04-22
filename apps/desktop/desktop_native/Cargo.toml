@@ -10,6 +10,7 @@ members = [
     "process_isolation",
     "proxy",
     "ssh_agent",
+    "win_webauthn",
     "windows_plugin_authenticator",
 ]
 

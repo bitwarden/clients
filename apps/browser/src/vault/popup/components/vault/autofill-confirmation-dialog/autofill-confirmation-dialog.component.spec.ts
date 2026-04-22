@@ -299,28 +299,66 @@ describe("AutofillConfirmationDialogComponent", () => {
     expect(vc.savedUrlsExpanded()).toBe(false);
   });
 
-  it("shows autofillWithoutAdding text on autofill button when viewOnly is false", () => {
+  it("shows autofillOnly text on autofill button when viewOnly is false", () => {
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text.includes("autofillWithoutAdding")).toBe(true);
+    expect(text.includes("autofillOnly")).toBe(true);
   });
 
-  it("does not show autofillWithoutAdding text on autofill button when viewOnly is true", async () => {
+  it("does not show autofillOnly text on autofill button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
     const text = vf.nativeElement.textContent as string;
-    expect(text.includes("autofillWithoutAdding")).toBe(false);
+    expect(text.includes("autofillOnly")).toBe(false);
   });
 
   it("shows autofill and save button when viewOnly is false", () => {
     // default viewOnly is false
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent as string;
-    expect(text.includes("autofillAndAddWebsite")).toBe(true);
+    expect(text.includes("autofillAndSaveThisSite")).toBe(true);
   });
 
   it("does not show autofill and save button when viewOnly is true", async () => {
     const { fixture: vf } = await createFreshFixture({ viewOnly: true });
     const text = vf.nativeElement.textContent as string;
-    expect(text.includes("autofillAndAddWebsite")).toBe(false);
+    expect(text.includes("autofillAndSaveThisSite")).toBe(false);
+  });
+
+  describe("dialogTitle()", () => {
+    it("returns loginHasNoSiteSaved when no URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+      });
+      expect(c.dialogTitle()).toBe("loginHasNoSiteSaved");
+    });
+
+    it("returns siteDoesntMatch when 1 URI is saved", () => {
+      expect(component.dialogTitle()).toBe("siteDoesntMatch");
+    });
+
+    it("returns siteDoesntMatch when multiple URIs are saved", async () => {
+      const { component: c } = await createFreshFixture();
+      expect(c.dialogTitle()).toBe("siteDoesntMatch");
+    });
+  });
+
+  describe("dialogBody()", () => {
+    it("returns loginNoSiteDesc when no URIs are saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [] },
+      });
+      expect(c.dialogBody()).toBe("loginNoSiteDesc");
+    });
+
+    it("returns loginSingleSiteDesc when 1 URI is saved", async () => {
+      const { component: c } = await createFreshFixture({
+        params: { currentUrl: "https://example.com", savedUris: [makeUri("https://other.com")] },
+      });
+      expect(c.dialogBody()).toBe("loginSingleSiteDesc");
+    });
+
+    it("returns loginMultipleSitesDesc when multiple URIs are saved", () => {
+      expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
+    });
   });
 });

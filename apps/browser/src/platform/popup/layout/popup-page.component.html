@@ -33,6 +33,7 @@
         !disablePadding(),
     }"
     bitScrollLayoutHost
+    [tabindex]="hideOverflow() ? null : '0'"
   >
     <ng-content></ng-content>
   </div>
