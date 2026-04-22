@@ -13413,9 +13413,6 @@
     "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "export": {
-    "message": "Exportálás"
-  },
   "sideNavigation": {
     "message": "Oldal navigáció"
   },

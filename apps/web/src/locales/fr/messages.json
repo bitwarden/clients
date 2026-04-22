@@ -13413,9 +13413,6 @@
     "message": "La sauvegarde des modifications du Send a échouée",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "export": {
-    "message": "Exporter"
-  },
   "sideNavigation": {
     "message": "Navigation latérale"
   },
