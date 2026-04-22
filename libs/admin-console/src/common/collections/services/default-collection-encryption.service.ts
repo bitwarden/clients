@@ -52,14 +52,16 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
 
           using ref = sdk.take();
 
-          const sdkCollectionViews = ref.value
-            .vault()
-            .collections()
-            .decrypt_list(collections.map((c) => c.toSdkCollection()));
-
-          return sdkCollectionViews.map((sdkView, index) =>
-            CollectionView.fromSdkCollectionView(sdkView, collections[index]),
-          );
+          const views: CollectionView[] = [];
+          for (const collection of collections) {
+            try {
+              const sdkView = ref.value.vault().collections().decrypt(collection.toSdkCollection());
+              views.push(CollectionView.fromSdkCollectionView(sdkView, collection));
+            } catch (error: unknown) {
+              this.logService.error(`Failed to decrypt collection ${collection.id}: ${error}`);
+            }
+          }
+          return views;
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collections in batch: ${error}`);
