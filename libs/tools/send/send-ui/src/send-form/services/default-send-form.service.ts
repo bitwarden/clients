@@ -14,13 +14,11 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import {
-  SendItemDialogResult,
-  SendPolicyService,
-  SendFormConfig,
-  SendFormService,
-} from "@bitwarden/send-ui";
 
+import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
+import { SendPolicyService } from "../../services/send-policy.service";
+import { SendFormConfig } from "../abstractions/send-form-config.service";
+import { SendFormService } from "../abstractions/send-form.service";
 import {
   UnsavedEditsDialogComponent,
   UnsavedEditsDialogResult,
@@ -102,7 +100,10 @@ export class DefaultSendFormService implements SendFormService {
       const disableHideEmail = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
       if (disableHideEmail) {
         this.toastService.showToast({
-          message: this.i18nService.t("hideEmailPolicyInEffect"),
+          message: this.i18nService.t(
+            "hideEmailPolicyInEffect",
+            this.i18nService.t("hideYourEmail"),
+          ),
           variant: "error",
         });
         this._submitting.set(false);
