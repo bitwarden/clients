@@ -13,17 +13,19 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { NodeUtils } from "@bitwarden/node/node-utils";
-import { WhoCanAccessType } from "@bitwarden/send-ui";
 
 import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
 import { SendTextResponse } from "../models/send-text.response";
 import { SendResponse } from "../models/send.response";
+
 export class SendCreateCommand {
   constructor(
     private sendService: SendService,
@@ -185,21 +187,20 @@ export class SendCreateCommand {
     const policies = await firstValueFrom(
       this.policyService.policiesByType$(PolicyType.SendControls, userId),
     );
-    const policy = policies?.find((p) => p.data?.whoCanAccess);
+    const policy = policies?.find((p) => p.data?.whoCanAccess != null);
     if (!policy) {
       return null;
     }
+    const policyData: SendControlsPolicyData = policy.data;
 
-    const whoCanAccess = policy.data.whoCanAccess as WhoCanAccessType;
-
-    if (whoCanAccess === WhoCanAccessType.SpecificPeople) {
+    if (policyData.whoCanAccess === WhoCanAccessType.SpecificPeople) {
       if (authType !== AuthType.Email || !emails?.length) {
         return Response.error(
           "Organization policy requires Send access to be restricted to specific people. Use --emails to specify recipients.",
         );
       }
 
-      const rawDomains = policy.data.allowedDomains as string;
+      const rawDomains = policyData.allowedDomains;
       if (rawDomains) {
         const allowedDomains = rawDomains
           .split(",")
@@ -218,7 +219,7 @@ export class SendCreateCommand {
           }
         }
       }
-    } else if (whoCanAccess === WhoCanAccessType.PasswordProtected) {
+    } else if (policyData.whoCanAccess === WhoCanAccessType.PasswordProtected) {
       if (authType !== AuthType.Password) {
         return Response.error(
           "Organization policy requires Send access to be password protected. Use --password to set a password.",

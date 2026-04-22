@@ -7,13 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-
-export const WhoCanAccessType = Object.freeze({
-  Any: 0,
-  PasswordProtected: 1,
-  SpecificPeople: 2,
-} as const);
-export type WhoCanAccessType = (typeof WhoCanAccessType)[keyof typeof WhoCanAccessType];
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.

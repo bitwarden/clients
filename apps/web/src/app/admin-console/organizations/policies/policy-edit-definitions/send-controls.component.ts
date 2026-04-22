@@ -1,22 +1,32 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   DestroyRef,
   inject,
   OnInit,
   signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AbstractControl, UntypedFormBuilder, ValidationErrors, ValidatorFn } from "@angular/forms";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import {
+  AbstractControl,
+  FormGroup,
+  UntypedFormBuilder,
+  ValidationErrors,
+  ValidatorFn,
+} from "@angular/forms";
 import { Observable } from "rxjs";
 
+import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { WhoCanAccessType } from "@bitwarden/send-ui";
+import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
+import { SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -24,7 +34,7 @@ import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
   name = "sendControls";
-  description = "sendControlsPolicyDesc";
+  description = "sendControlsPolicyDescV2";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
   priority = 30;
@@ -38,29 +48,42 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 @Component({
   selector: "send-controls-policy-edit",
   templateUrl: "send-controls.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, SwitchComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendControlsPolicyComponent extends BasePolicyEditComponent implements OnInit {
-  readonly WhoCanAccessType = WhoCanAccessType;
-
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly data = this.formBuilder.group({
-    disableSend: false,
-    disableHideEmail: false,
-    whoCanAccess: WhoCanAccessType.Any as WhoCanAccessType,
-    allowedDomains: null as string | null,
-  });
+  readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group(
+    new SendControlsPolicyData(),
+  );
+  private readonly dataFormValue = toSignal(this.data.valueChanges);
 
-  readonly sendFeatureEnabled = signal(true);
+  protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
+
+  protected readonly sendAccessOptions: { name: string; value: WhoCanAccessType }[] = [
+    { name: this.i18nService.t("all"), value: WhoCanAccessType.Any },
+    {
+      name: this.i18nService.t("sendAccessOptionAnyoneWithAPassword"),
+      value: WhoCanAccessType.PasswordProtected,
+    },
+    { name: this.i18nService.t("specificPeople"), value: WhoCanAccessType.SpecificPeople },
+  ];
+
   /** Whether the allowed domains text area should be displayed */
   readonly showDomains = signal(false);
   private readonly claimedDomains = signal<string | null>(null);
-  readonly showAllowedDomainsAutopopulateAlert = signal(false);
-  onDismissCallout() {
-    this.showAllowedDomainsAutopopulateAlert.set(false);
-  }
+  protected readonly allowedDomainsHint = computed(() => {
+    if (this.claimedDomains() != null) {
+      return (
+        this.i18nService.t("allowedDomainsAutopopulateAlert") +
+        " " +
+        this.i18nService.t("separateMultipleWithComma")
+      );
+    } else {
+      return this.i18nService.t("separateMultipleWithComma");
+    }
+  });
 
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
@@ -76,40 +99,26 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     this.data
       .get("whoCanAccess")
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value: WhoCanAccessType) => {
+      .subscribe((value) => {
         const allowedDomainsControl = this.data.get("allowedDomains");
         if (value === WhoCanAccessType.SpecificPeople) {
           allowedDomainsControl?.setValidators([this.emailDomainValidator()]);
-          const claimedDomains = this.claimedDomains();
-          if (claimedDomains != null) {
-            this.showAllowedDomainsAutopopulateAlert.set(true);
+          if (!allowedDomainsControl?.value) {
+            allowedDomainsControl?.setValue(this.claimedDomains());
           }
-          allowedDomainsControl?.setValue(claimedDomains);
           this.showDomains.set(true);
         } else {
-          this.showAllowedDomainsAutopopulateAlert.set(false);
           allowedDomainsControl?.clearValidators();
           allowedDomainsControl?.patchValue(null);
           this.showDomains.set(false);
         }
       });
-    this.data
-      .get("disableSend")
-      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value: boolean) => {
-        this.data.get("whoCanAccess")?.patchValue(WhoCanAccessType.Any);
-        this.data.get("disableHideEmail")?.patchValue(false);
-        this.sendFeatureEnabled.set(!value);
-      });
-    this.data.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value) => {
-      // If the policy has no settings that change default behavior, the policy can be disabled
-      this.enabled.patchValue(
-        !(
-          !value.disableSend &&
-          value.whoCanAccess === WhoCanAccessType.Any &&
-          !value.disableHideEmail
-        ),
-      );
+    this.enabled.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
+      if (!enabled) {
+        this.data.disable();
+      } else {
+        this.data.enable();
+      }
     });
     super.ngOnInit();
   }
@@ -141,14 +150,14 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
         return null;
       }
       const emailDomainRegex = /^[^\s@]+\.[^\s@]+$/;
-      const domains = control.value.split(",").map((d: string) => d.trim());
-      const nonEmptyDomains = domains.filter((d: string) => d.length > 0);
+      const domains: string[] = control.value.split(",").map((d: string) => d.trim());
+      const nonEmptyDomains = domains.filter((d) => d.length > 0);
       if (nonEmptyDomains.length === 0) {
         return {
           multipleDomainsInvalid: { message: this.i18nService.t("multipleInputDomainsInvalid") },
         };
       }
-      const invalidDomains = nonEmptyDomains.filter((d: string) => !emailDomainRegex.test(d));
+      const invalidDomains = nonEmptyDomains.filter((d) => !emailDomainRegex.test(d));
       if (invalidDomains.length > 0) {
         return {
           multipleDomainsInvalid: { message: this.i18nService.t("multipleInputDomainsInvalid") },

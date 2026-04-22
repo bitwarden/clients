@@ -4933,48 +4933,23 @@
       }
     }
   },
-  "sendControlsEnable": {
-    "message": "Enable"
-  },
   "sendControlsEnableDescription": {
-    "message": "Users can create and share Sends",
+    "message": "Create and manage Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendControlsDisable": {
-    "message": "Disable"
   },
   "sendControlsDisableDescription": {
     "message": "Send is removed for all users",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "feature": {
-    "message": "Feature"
-  },
   "sendType": {
     "message": "Send type",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendSharingMethod": {
-    "message": "Sharing method"
-  },
-  "sendSharingMethodDescription": {
-    "message": "Set the sharing methods available to users when creating a Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
     "message": "Any"
   },
-  "anySharingMethodDescription": {
-    "message": "Allow users to choose their own sharing settings"
-  },
-  "passwordSharingMethodDescription": {
-    "message": "Require a password to access"
-  },
-  "specificPeopleSharingMethodDescription": {
-    "message": "Only selected emails or domains"
-  },
   "allowedDomainsAutopopulateAlert": {
-    "message": "Domains have been auto populated based off of claimed domains. You can edit these at any time"
+    "message": "This was filled in using claimed domains. You can edit them at any time."
   },
   "discardEdits": {
     "message": "Discard edits"
@@ -4992,5 +4967,14 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Enable Send controls"
+  },
+  "sendAccessOptions": {
+    "message": "Access options"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Anyone with a password"
   }
 }

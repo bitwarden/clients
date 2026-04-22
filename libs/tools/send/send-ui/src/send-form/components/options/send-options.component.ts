@@ -109,9 +109,5 @@ export class SendOptionsComponent implements OnInit {
     if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
       this.sendOptionsForm.disable();
     }
-
-    if (this.sendFormContainer.originalSendView?.disabled) {
-      this.sendOptionsForm.disable();
-    }
   }
 }

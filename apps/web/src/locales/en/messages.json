@@ -6315,12 +6315,9 @@
   "sendControls": {
     "message": "Send controls"
   },
-  "sendControlsPolicyDesc": {
-    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+  "sendControlsPolicyDescV2": {
+    "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
-  },
-  "sendControlsExemption": {
-    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
   },
   "sendOptions": {
     "message": "Send options",
@@ -13409,48 +13406,23 @@
       }
     }
   },
-  "sendControlsEnable": {
-    "message": "Enable"
-  },
   "sendControlsEnableDescription": {
-    "message": "Users can create and share Sends",
+    "message": "Create and manage Sends",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendControlsDisable": {
-    "message": "Disable"
   },
   "sendControlsDisableDescription": {
     "message": "Send is removed for all users",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "feature": {
-    "message": "Feature"
-  },
   "sendType": {
     "message": "Send type",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendSharingMethod": {
-    "message": "Sharing method"
-  },
-  "sendSharingMethodDescription": {
-    "message": "Set the sharing methods available to users when creating a Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
     "message": "Any"
   },
-  "anySharingMethodDescription": {
-    "message": "Allow users to choose their own sharing settings"
-  },
-  "passwordSharingMethodDescription": {
-    "message": "Require a password to access"
-  },
-  "specificPeopleSharingMethodDescription": {
-    "message": "Only selected emails or domains"
-  },
   "allowedDomainsAutopopulateAlert": {
-    "message": "Domains have been auto populated based off of claimed domains. You can edit these at any time"
+    "message": "This was filled in using claimed domains. You can edit them at any time."
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
@@ -13472,7 +13444,25 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-    "export": {
+  "export": {
     "message": "Export"
+  },
+  "sendControlsPolicySwitchLabel": {
+    "message": "Enable Send controls"
+  },
+  "allow": {
+    "message": "Allow"
+  },
+  "doNotAllow": {
+    "message": "Do not allow"
+  },
+  "sendControlAccessOptions": {
+    "message": "Access options"
+  },
+  "sendControlHideEmailDescription": {
+    "message": "Never hide sender email from recipients"
+  },
+  "sendAccessOptionAnyoneWithAPassword": {
+    "message": "Anyone with a password"
   }
 }

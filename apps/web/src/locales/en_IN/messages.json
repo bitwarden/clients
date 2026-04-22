@@ -6307,13 +6307,6 @@
   "sendControls": {
     "message": "Send controls"
   },
-  "sendControlsPolicyDesc": {
-    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
-    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
-  },
-  "sendControlsExemption": {
-    "message": "Organisation members that can manage the organisation's policies are exempt from this policy's enforcement."
-  },
   "sendOptions": {
     "message": "Send Options",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."

@@ -21,6 +21,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -39,12 +40,7 @@ import {
   ToastService,
   DialogService,
 } from "@bitwarden/components";
-import {
-  SendFormConfig,
-  SendFormGenerationService,
-  SendPolicyService,
-  WhoCanAccessType,
-} from "@bitwarden/send-ui";
+import { SendFormConfig, SendFormGenerationService, SendPolicyService } from "@bitwarden/send-ui";
 
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
@@ -164,6 +160,7 @@ export class SendDetailsComponent implements OnInit {
     this.sendPolicyService.whoCanAccess$,
   ]).pipe(
     map(([enabled, hasPremium, whoCanAccess]) => {
+      const anyAuthTypeAllowed = whoCanAccess === WhoCanAccessType.Any || whoCanAccess === null;
       /** Show the email auth type if the feature flag is enabled AND EITHER
        * 1. There is an enterprise policy that mandates the email auth type
        * 2. There are no policies dictating required auth types
@@ -172,7 +169,7 @@ export class SendDetailsComponent implements OnInit {
         enabled &&
         hasPremium &&
         (whoCanAccess === WhoCanAccessType.SpecificPeople ||
-          whoCanAccess === null ||
+          anyAuthTypeAllowed ||
           this.originalSendView?.authType === AuthType.Email);
       /** Show the password auth type if EITHER
        * 1. There is an enterprise policy that mandates the password auth type
@@ -180,12 +177,12 @@ export class SendDetailsComponent implements OnInit {
        * 3. The Send currently uses the password auth type */
       const includePassword =
         whoCanAccess === WhoCanAccessType.PasswordProtected ||
-        whoCanAccess === null ||
+        anyAuthTypeAllowed ||
         this.originalSendView?.authType === AuthType.Password;
       /** Show the "Anyone with the link" auth type if EITHER
        * 1. There are no enterprise policies that dictate required auth types
        * 2. The Send currently uses the "Anyone with the link" auth type */
-      const includeAny = whoCanAccess == null || this.originalSendView?.authType === AuthType.None;
+      const includeAny = anyAuthTypeAllowed || this.originalSendView?.authType === AuthType.None;
       return this.authTypes.filter(
         (at) =>
           (includeEmail && at.value === AuthType.Email) ||
