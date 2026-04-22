@@ -79,11 +79,6 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Applies all active discounts without filtering by appliesTo/productId.
-   * This is intentional — this component only displays Secrets Manager pricing,
-   * so product-level scoping is unnecessary.
-   */
   discountPrice = (price: number) => {
     let discounted = price;
     for (const d of this.customerDiscounts) {

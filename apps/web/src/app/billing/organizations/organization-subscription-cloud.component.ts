@@ -501,13 +501,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       if (!d.active) {
         continue;
       }
-      // sm-standalone coupons only apply to their targeted SM products
       if (d.id === "sm-standalone" && (!productId || !d.appliesTo?.includes(productId))) {
         continue;
       }
-      // When productId is null, non-sm-standalone discounts are applied unconditionally.
-      // This preserves the legacy single-discount behavior where !productId caused the
-      // discount to be applied regardless of appliesTo constraints.
       if (d.appliesTo?.length && productId && !d.appliesTo.includes(productId)) {
         continue;
       }
