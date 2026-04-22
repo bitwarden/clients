@@ -60,10 +60,10 @@
     "message": "Пароли"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Риск со временем"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Пароли, подверженные риску"
   },
   "noEditPermissions": {
     "message": "У вас нет разрешения на редактирование этого элемента"
@@ -3952,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Пригласите нового пользователя в свою организацию, введя ниже адрес email его аккаунта Bitwarden. Если у него пока нет аккаунта Bitwarden, ему будет предложено его создать."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "Введите до $COUNT$ адресов email, разделяя их запятой.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Введите до $BATCHLIMIT$ адресов email, разделяя их запятой. (Осталось $REMAININGSEATS$ мест)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3966,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "У вас осталось 0 приглашений."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Введите до $BATCHLIMIT$ адресов электронной почты за раз, разделяя их запятыми.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Этот пользователь использует двухэтапную аутентификацию для защиты своего аккаунта."
@@ -8466,7 +8479,7 @@
     "message": "Участники"
   },
   "membersAtRisk": {
-    "message": "Members at risk"
+    "message": "Пользователи, подверженные риску"
   },
   "reporting": {
     "message": "Отчеты"
@@ -13399,5 +13412,22 @@
   "saveSendEditsFailed": {
     "message": "Сохранить изменения Send не удалось",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "export": {
+    "message": "Экспорт"
+  },
+  "sideNavigation": {
+    "message": "Боковая навигация"
+  },
+  "skipLink": {
+    "message": "Пропустить ссылку"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Индикатор прогресса",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

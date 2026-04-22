@@ -638,10 +638,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "顯示比對偵測"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "隱藏比對偵測"
   },
   "autoFillOnPageLoad": {
     "message": "要在頁面載入時自動填寫嗎？"
@@ -764,7 +764,7 @@
     "message": "Bitwarden 可以儲存並填入兩步驟驗證碼。選擇相機圖示來截取此網站的驗證器QR code，或手動複製金鑰並貼上到此欄位。"
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "從目前網頁掃描驗證器二維碼"
   },
   "learnMoreAboutAuthenticators": {
     "message": "瞭解更多關於驗證器的資訊"
@@ -998,25 +998,25 @@
     "message": "SSH 金鑰"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "網站或應用程式"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "信用卡或金融卡"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "個人資料"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "重要文字"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "伺服器登入憑證"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "整理您的項目"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "整理共享項目"
   },
   "typeLoginPlural": {
     "message": "登入資料"
@@ -1088,7 +1088,7 @@
     "message": "新增項目"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "選擇要新增的項目"
   },
   "editItem": {
     "message": "編輯項目"
@@ -3952,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "在下方輸入 Bitwarden 帳戶的電子郵件位址，以邀請新使用者加入您的組織。若他們沒有 Bitwarden 帳戶，系統將提示他們建立新帳戶。"
   },
-  "inviteMultipleEmailDesc": {
-    "message": "可使用逗號分隔最多 $COUNT$ 組電子郵件地址。",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3966,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "您沒有剩餘邀請名額。"
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "此使用者正在使用兩步驟登入保護帳戶。"
@@ -4494,22 +4507,22 @@
     "message": "登入狀態"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "最近活動"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "今天"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "過去 7 天"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "過去 14 天"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "過去 30 天"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "30 天前以上"
   },
   "firstLogin": {
     "message": "首次登入"
@@ -5238,10 +5251,10 @@
     "message": "於任何時間。"
   },
   "byEmail": {
-    "message": "By email"
+    "message": "透過電子郵件"
   },
   "byLink": {
-    "message": "By link"
+    "message": "透過連結"
   },
   "byContinuingYouAgreeToThe": {
     "message": "若是繼續，則代表您同意"
@@ -6677,7 +6690,7 @@
     }
   },
   "eventAdminResetTwoFactor": {
-    "message": "Two-step login reset for user $ID$.",
+    "message": "已為使用者 $ID$ 重設兩步驟登入。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7138,7 +7151,7 @@
     "message": "工作階段逾時動作"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
+    "message": "由 Bitwarden 瀏覽器擴充功能管理。請開啟瀏覽器應用程式進行編輯。"
   },
   "immediately": {
     "message": "立即"
@@ -8292,7 +8305,7 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "viewScimApiKey": {
-    "message": "View the SCIM API key",
+    "message": "檢視 SCIM API 金鑰",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "rotateScimKey": {
@@ -8327,7 +8340,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "onlyOneIntegrationOfTypeAllowed": {
-    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "message": "此類型 ($TYPE$) 只允許一個整合。發生衝突的整合為：$NAME$",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -8340,7 +8353,7 @@
     }
   },
   "anotherIntegrationWithSameTypeExists": {
-    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "message": "已存在相同類型 ($TYPE$) 的另一個整合。請重新整理瀏覽器後再試一次。",
     "placeholders": {
       "type": {
         "content": "$1",
@@ -9570,13 +9583,13 @@
     }
   },
   "phishingBlockerSiteAccessed": {
-    "message": "User attempted to access known phishing site"
+    "message": "使用者嘗試存取已知的釣魚網站"
   },
   "phishingBlockerSiteExited": {
-    "message": "User exited phishing warning page"
+    "message": "使用者已離開釣魚警告頁面"
   },
   "phishingBlockerBypassed": {
-    "message": "User bypassed phishing warning"
+    "message": "使用者已略過釣魚警告"
   },
   "sdk": {
     "message": "SDK",
@@ -9824,28 +9837,28 @@
     "message": "復原帳戶"
   },
   "recoverAccountWarning": {
-    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+    "message": "當重設此成員的密碼或兩步驟登入時，系統會通知該成員並將其登出。"
   },
   "accountRecoveryPolicyDescV2": {
-    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+    "message": "當主密碼、兩步驟登入或受信任裝置遺失或忘記時，可恢復帳戶。"
   },
   "accountRecoveryPolicyWarningV2": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+    "message": "現有使用主密碼的帳戶，需先由成員自行註冊後，管理員才能恢復其帳戶。"
   },
   "resetPasswordPolicyAutoEnrollCheckboxV2": {
-    "message": "Automatically enroll new members in account recovery"
+    "message": "自動將新成員加入帳戶復原機制"
   },
   "resetMasterPassword": {
-    "message": "Reset master password"
+    "message": "重設主密碼"
   },
   "resetTwoStepLogin": {
-    "message": "Reset two-step login"
+    "message": "重設兩步驟登入"
   },
   "resetTwoStepLoginDesc": {
-    "message": "The member's access will be revoked until they set up two-step login"
+    "message": "在設定兩步驟登入之前，該成員的存取權將被撤銷"
   },
   "recoverAccountSuccess": {
-    "message": "Account recovery success!"
+    "message": "帳戶復原成功！"
   },
   "updatedTempPassword": {
     "message": "使用者更新了透過帳戶復原發送的密碼。"
@@ -10402,43 +10415,43 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "cancelSurveyMissingFeaturesLabel": {
-    "message": "Missing features or functionality",
+    "message": "缺少功能或特性",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHint": {
-    "message": "Something we needed wasn't available",
+    "message": "缺少所需的功能",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
-    "message": "Too difficult to set up or manage",
+    "message": "設定或管理過於困難",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "message": "導入、管理或日常使用過於複雜",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabel": {
-    "message": "We're not getting enough value for the cost",
+    "message": "成本與價值不符",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHint": {
-    "message": "The price doesn't match what we're getting out of it",
+    "message": "價格與實際獲得的價值不相符",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
-    "message": "Not enough usage by our team",
+    "message": "團隊使用率不足",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHint": {
-    "message": "We couldn't get people to actually use it",
+    "message": "無法讓團隊成員實際使用",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
-    "message": "Our needs changed",
+    "message": "需求已改變",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHint": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "message": "組織重整、併購、優先順序改變，或不再需要密碼管理工具",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
@@ -12028,7 +12041,7 @@
     }
   },
   "resellerRenewalWarningMsgV2": {
-    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "message": "您的訂閱即將續訂。為確保服務不中斷，請在 $RENEWAL_DATE$ 前聯絡您的 Bitwarden 供應商確認續訂。",
     "placeholders": {
       "renewal_date": {
         "content": "$1",
@@ -12067,7 +12080,7 @@
     }
   },
   "resellerPastDueWarningMsgV2": {
-    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "message": "您的訂閱發票尚未付款。為確保服務不中斷，請在 $GRACE_PERIOD_END$ 前聯絡您的 Bitwarden 供應商。",
     "placeholders": {
       "grace_period_end": {
         "content": "$1",
@@ -13381,23 +13394,40 @@
     }
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
-    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+    "message": "您的銀行帳戶需先完成驗證後，才能用於此次升級。請先驗證銀行帳戶或選擇其他付款方式。"
   },
   "discardEdits": {
-    "message": "Discard edits"
+    "message": "放棄變更"
   },
   "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
+    "message": "若關閉此畫面，尚未儲存的變更將會遺失"
   },
   "backToEditing": {
-    "message": "Back to editing"
+    "message": "返回編輯"
   },
   "sendHasUnsavedEdits": {
-    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "message": "Send 有未儲存的變更。確定要離開嗎？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
+    "message": "儲存 Send 變更失敗",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "export": {
+    "message": "匯出"
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
