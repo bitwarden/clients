@@ -259,6 +259,20 @@ export class LocalBackedSessionStorageService
     }
 
     const valueJson = JSON.stringify(value);
+
+    // The WASM SDK's symmetric_encrypt_string calls data-encoding's encode_len, which
+    // panics on wasm32 when the input byte slice length exceeds usize::MAX / 512 (~8.38 MiB).
+    // Serialized large vaults can easily exceed this. When the payload is too large to encrypt
+    // safely, skip local-storage persistence — the value is already in the in-memory cache
+    // (set by save() before this call) and will be re-derived after a service-worker restart.
+    const MAX_WASM_ENCRYPT_BYTES = 7 * 1024 * 1024; // 7 MiB — conservative headroom below the 8.38 MiB wasm32 limit
+    if (valueJson.length > MAX_WASM_ENCRYPT_BYTES) {
+      this.logService.warning(
+        `[LocalBackedSessionStorageService] Skipping local storage persistence for key "${key}": payload (${valueJson.length} chars) would exceed WASM encryption limit.`,
+      );
+      return;
+    }
+
     const encValue = await this.encryptService.encryptString(valueJson, await this.getSessionKey());
     await this.localStorage.save(this.sessionStorageKey(key), encValue.encryptedString);
   }

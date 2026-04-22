@@ -273,6 +273,47 @@ describe("LocalBackedSessionStorage", () => {
         newSessionKey,
       );
     });
+
+    describe("large payload guard", () => {
+      // Build a value that JSON-serialises to > 7 MiB.
+      // Each object is ~100 chars so 80 000 of them ≈ 8 MB.
+      const makeLargeValue = () =>
+        Array.from({ length: 80_000 }, (_, i) => ({
+          id: `cipher-${i.toString().padStart(6, "0")}`,
+          name: `Test Cipher ${i}`,
+          type: 1,
+          login: { username: `user${i}@example.com`, password: "Password1!" },
+        }));
+
+      it("skips encryption and local storage write when payload exceeds 7 MiB", async () => {
+        const largeValue = makeLargeValue();
+
+        await sut.save("ciphers", largeValue);
+
+        expect(encryptService.encryptString).not.toHaveBeenCalled();
+        expect(localStorage.save).not.toHaveBeenCalled();
+        expect(logService.warning).toHaveBeenCalledWith(
+          expect.stringContaining("WASM encryption limit"),
+        );
+      });
+
+      it("still updates the in-memory cache when payload exceeds 7 MiB", async () => {
+        const largeValue = makeLargeValue();
+
+        await sut.save("ciphers", largeValue);
+
+        expect(sut["cache"]["ciphers"]).toBe(largeValue);
+      });
+
+      it("encrypts and persists normally when payload is under 7 MiB", async () => {
+        const smallValue = Array.from({ length: 10 }, (_, i) => ({ id: `cipher-${i}` }));
+
+        await sut.save("ciphers", smallValue);
+
+        expect(encryptService.encryptString).toHaveBeenCalled();
+        expect(localStorage.save).toHaveBeenCalled();
+      });
+    });
   });
 
   describe("remove", () => {

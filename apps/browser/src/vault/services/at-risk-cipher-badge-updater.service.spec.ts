@@ -17,22 +17,22 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
   let service: AtRiskCipherBadgeUpdaterService;
 
   let setState: jest.Mock;
-  let getAllDecryptedForUrl: jest.Mock;
+  let filterCiphersForUrl: jest.Mock;
   let getTab: jest.Mock;
   let addListener: jest.Mock;
 
   let activeAccount$: BehaviorSubject<{ id: string }>;
-  let cipherViews$: BehaviorSubject<Array<{ id: string; isDeleted?: boolean }>>;
+  let cipherListViews$: BehaviorSubject<Array<{ id: string; deletedDate?: string }>>;
   let pendingTasks$: BehaviorSubject<SecurityTask[]>;
 
   beforeEach(async () => {
     setState = jest.fn().mockResolvedValue(undefined);
-    getAllDecryptedForUrl = jest.fn().mockResolvedValue([]);
+    filterCiphersForUrl = jest.fn().mockResolvedValue([]);
     getTab = jest.fn();
     addListener = jest.fn();
 
     activeAccount$ = new BehaviorSubject({ id: "test-account-id" });
-    cipherViews$ = new BehaviorSubject<Array<{ id: string; isDeleted?: boolean }>>([]);
+    cipherListViews$ = new BehaviorSubject<Array<{ id: string; deletedDate?: string }>>([]);
     pendingTasks$ = new BehaviorSubject<SecurityTask[]>([]);
 
     jest.spyOn(BrowserApi, "addListener").mockImplementation(addListener);
@@ -41,7 +41,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
     service = new AtRiskCipherBadgeUpdaterService(
       { setState } as unknown as BadgeService,
       { activeAccount$ } as unknown as AccountService,
-      { cipherViews$: () => cipherViews$, getAllDecryptedForUrl } as unknown as CipherService,
+      { cipherListViews$: () => cipherListViews$, filterCiphersForUrl } as unknown as CipherService,
       { pendingTasks$: () => pendingTasks$ } as unknown as TaskService,
     );
 
@@ -76,7 +76,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
       } as SecurityTask,
     ];
     pendingTasks$.next(pendingTasks);
-    getAllDecryptedForUrl.mockResolvedValueOnce([{ id: "cipher1" }]);
+    filterCiphersForUrl.mockResolvedValueOnce([{ id: "cipher1" }]);
 
     const state = await firstValueFrom(stateFunction(tab));
 
