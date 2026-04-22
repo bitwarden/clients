@@ -91,13 +91,13 @@ export class PricingSummaryService {
         ? { type: DiscountTypes.AmountOff, value: amountOff }
         : { type: DiscountTypes.PercentOff, value: percentOff };
       const label = getLabel(this.i18nService, discount);
-      if (percentOff > 0) {
+      if (amountOff > 0) {
+        remaining -= amountOff;
+        discountLineItems.push({ label, amount: amountOff });
+      } else if (percentOff > 0) {
         const amount = remaining * (percentOff / 100);
         remaining -= amount;
         discountLineItems.push({ label, amount });
-      } else if (amountOff > 0) {
-        remaining -= amountOff;
-        discountLineItems.push({ label, amount: amountOff });
       }
     }
 

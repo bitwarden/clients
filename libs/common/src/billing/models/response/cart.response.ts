@@ -89,6 +89,8 @@ export class CartResponse extends BaseResponse implements Cart {
     }
     this.cadence = cadence;
 
+    // Unlike CartItemResponse (which takes only the first element), CartResponse
+    // maps the full Discounts array since cart-level discounts can stack.
     const discounts = this.getResponseProperty("Discounts");
     if (Array.isArray(discounts) && discounts.length > 0) {
       this.discounts = discounts.map((d: any) => new DiscountResponse(d));

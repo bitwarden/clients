@@ -501,6 +501,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       if (!d.active) {
         continue;
       }
+      // sm-standalone coupons are product-scoped trials — skip them unless the caller
+      // provides a productId that the coupon explicitly applies to. Without a productId
+      // we can't verify applicability, so we err on the side of not applying the discount.
       if (d.id === "sm-standalone" && (!productId || !d.appliesTo?.includes(productId))) {
         continue;
       }

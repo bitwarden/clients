@@ -999,13 +999,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         ? { type: DiscountTypes.AmountOff, value: d.amountOff }
         : { type: DiscountTypes.PercentOff, value: d.percentOff };
       const label = getLabel(this.i18nService, discount);
-      if (d.percentOff > 0) {
+      if (d.amountOff > 0) {
+        remaining -= d.amountOff;
+        result.push({ label, amount: d.amountOff });
+      } else if (d.percentOff > 0) {
         const amount = remaining * (d.percentOff / 100);
         remaining -= amount;
         result.push({ label, amount });
-      } else if (d.amountOff > 0) {
-        remaining -= d.amountOff;
-        result.push({ label, amount: d.amountOff });
       }
     }
     return result;
