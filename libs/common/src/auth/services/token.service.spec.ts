@@ -413,6 +413,128 @@ describe("TokenService", () => {
       });
     });
 
+    describe("_setAccessToken cross-location clearing", () => {
+      it("Disk path clears Memory: seeded Memory value is null after disk write", async () => {
+        // Arrange: pre-seed ACCESS_TOKEN_MEMORY so we can verify it is cleared
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+          .nextState(accessTokenJwt);
+
+        // Act: write to Disk path (Lock + numeric timeout → Disk)
+        await tokenService.setAccessToken(accessTokenJwt, diskVaultTimeoutAction, diskVaultTimeout);
+
+        // Assert: the Memory location was cleared after the Disk write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
+        ).toHaveBeenCalledWith(null);
+      });
+
+      it("Memory path clears Disk: seeded Disk value is null after memory write", async () => {
+        // Arrange: pre-seed ACCESS_TOKEN_DISK so we can verify it is cleared
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK)
+          .nextState(accessTokenJwt);
+
+        // Act: write to Memory path (LogOut + numeric timeout → Memory)
+        await tokenService.setAccessToken(
+          accessTokenJwt,
+          memoryVaultTimeoutAction,
+          memoryVaultTimeout,
+        );
+
+        // Assert: the Disk location was cleared after the Memory write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_DISK).nextMock,
+        ).toHaveBeenCalledWith(null);
+      });
+
+      describe("SecureStorage path (secure storage supported)", () => {
+        const accessTokenKey = new SymmetricCryptoKey(
+          new Uint8Array(64) as CsprngArray,
+        ) as AccessTokenKey;
+
+        const accessTokenKeyB64 = {
+          keyB64:
+            "lI7lSoejJ1HsrTkRs2Ipm0x+YcZMKpgm7WQGCNjAWmFAyGOKossXwBJvvtbxcYDZ0G0XNY8Gp7DBXZV2tWAO5w==",
+        };
+
+        beforeEach(() => {
+          tokenService = createTokenService(true /* supportsSecureStorage */);
+        });
+
+        it("happy path clears Memory: seeded Memory value is null after encrypted disk write", async () => {
+          // Arrange: pre-seed ACCESS_TOKEN_MEMORY
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(accessTokenJwt);
+
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          encryptService.encryptString.mockResolvedValue({
+            encryptedString: "encryptedAccessToken",
+          } as any);
+          secureStorageService.get.mockResolvedValueOnce(null).mockResolvedValue(accessTokenKeyB64);
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: Memory was cleared after the encrypted disk write
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenCalledWith(null);
+        });
+
+        it("fallback (silent key failure) clears Memory: seeded Memory value is null after fallback disk write", async () => {
+          // Arrange: pre-seed ACCESS_TOKEN_MEMORY; key retrieval returns null → triggers catch
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(accessTokenJwt);
+
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          // Both get calls return null: first (before save) → null key, second (after save) → null
+          // key, which causes the "key unable to be retrieved" error and falls into the catch block.
+          secureStorageService.get.mockResolvedValue(null);
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: Memory was cleared even when falling back to plaintext disk
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenCalledWith(null);
+        });
+
+        it("fallback (secure storage error) clears Memory: seeded Memory value is null after fallback disk write", async () => {
+          // Arrange: pre-seed ACCESS_TOKEN_MEMORY; secure storage throws → triggers catch
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+            .nextState(accessTokenJwt);
+
+          keyGenerationService.createKey.mockResolvedValue(accessTokenKey);
+          secureStorageService.get.mockRejectedValue(new Error("Secure storage error"));
+
+          // Act
+          await tokenService.setAccessToken(
+            accessTokenJwt,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+          );
+
+          // Assert: Memory was cleared even when falling back to plaintext disk
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenCalledWith(null);
+        });
+      });
+    });
+
     // Parallel setAccessToken tests using DefaultSingleUserStateProvider +
     // FakeStorageService. Unlike FakeSingleUserStateProvider (which updates state
     // synchronously), this wires up the real state layer so that storageUpdate$ propagates
@@ -420,16 +542,25 @@ describe("TokenService", () => {
     // that _setAccessToken actually awaits propagation before returning.
     describe("setAccessToken (DefaultSingleUserStateProvider)", () => {
       let memoryStorageService: FakeStorageService;
+      let diskStorageService: FakeStorageService;
       let realSingleUserStateProvider: DefaultSingleUserStateProvider;
 
       beforeEach(() => {
         memoryStorageService = new FakeStorageService();
+        diskStorageService = new FakeStorageService();
 
         const storageServiceProvider = mock<StorageServiceProvider>();
-        storageServiceProvider.get.mockImplementation((location) => [
-          location,
-          memoryStorageService,
-        ]);
+        // Use separate services per location so that writes to the disk storage key do not
+        // bleed into the memory storage key's storageUpdate$ stream (and vice versa). Both keys
+        // share the same key string ("user_…_token_accessToken") because TOKEN_DISK and
+        // TOKEN_MEMORY share the same state-definition name; keeping them in different backing
+        // stores mirrors production and prevents cross-location null emissions in tests.
+        storageServiceProvider.get.mockImplementation((location) => {
+          if (location === "disk") {
+            return [location, diskStorageService];
+          }
+          return [location, memoryStorageService];
+        });
 
         realSingleUserStateProvider = new DefaultSingleUserStateProvider(
           storageServiceProvider,
@@ -511,9 +642,9 @@ describe("TokenService", () => {
         });
 
         it("should replace a stale token in active subscribers before returning", async () => {
-          // Arrange: prime storage with a stale token, then subscribe before the write
+          // Arrange: prime disk storage with a stale token, then subscribe before the write
           const storageKey = ACCESS_TOKEN_DISK.buildKey(userIdFromAccessToken);
-          memoryStorageService.internalUpdateStore({ [storageKey]: "staleAccessToken" });
+          diskStorageService.internalUpdateStore({ [storageKey]: "staleAccessToken" });
 
           const emissions = trackEmissions(
             realSingleUserStateProvider.get(userIdFromAccessToken, ACCESS_TOKEN_DISK).state$,
@@ -1882,6 +2013,99 @@ describe("TokenService", () => {
       });
     });
 
+    describe("setRefreshToken cross-location clearing", () => {
+      it("Disk path clears Memory: seeded Memory value is null after disk write", async () => {
+        // Arrange: pre-seed REFRESH_TOKEN_MEMORY
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
+          .nextState(refreshToken);
+
+        // Act: write to Disk path (Lock + numeric timeout → Disk)
+        await (tokenService as any).setRefreshToken(
+          refreshToken,
+          diskVaultTimeoutAction,
+          diskVaultTimeout,
+          userIdFromAccessToken,
+        );
+
+        // Assert: the Memory location was cleared after the Disk write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextMock,
+        ).toHaveBeenCalledWith(null);
+      });
+
+      it("Memory path clears Disk: seeded Disk value is null after memory write", async () => {
+        // Arrange: pre-seed REFRESH_TOKEN_DISK
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK)
+          .nextState(refreshToken);
+
+        // Act: write to Memory path (LogOut + numeric timeout → Memory)
+        await (tokenService as any).setRefreshToken(
+          refreshToken,
+          memoryVaultTimeoutAction,
+          memoryVaultTimeout,
+          userIdFromAccessToken,
+        );
+
+        // Assert: the Disk location was cleared after the Memory write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_DISK).nextMock,
+        ).toHaveBeenCalledWith(null);
+      });
+
+      describe("SecureStorage path (secure storage supported)", () => {
+        beforeEach(() => {
+          tokenService = createTokenService(true /* supportsSecureStorage */);
+        });
+
+        it("fallback (null read-back) clears Memory: seeded Memory value is null after fallback disk write", async () => {
+          // Arrange: pre-seed REFRESH_TOKEN_MEMORY; get returns null so the read-back check
+          // throws ("Refresh token failed to save to secure storage"), triggering the catch block.
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
+            .nextState(refreshToken);
+
+          secureStorageService.get.mockResolvedValue(null);
+
+          // Act
+          await (tokenService as any).setRefreshToken(
+            refreshToken,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+            userIdFromAccessToken,
+          );
+
+          // Assert: Memory was cleared even when falling back to plaintext disk
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenCalledWith(null);
+        });
+
+        it("fallback (secure storage error) clears Memory: seeded Memory value is null after fallback disk write", async () => {
+          // Arrange: pre-seed REFRESH_TOKEN_MEMORY; save throws so the catch block runs.
+          singleUserStateProvider
+            .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
+            .nextState(refreshToken);
+
+          secureStorageService.save.mockRejectedValue(new Error("Secure storage not supported"));
+
+          // Act
+          await (tokenService as any).setRefreshToken(
+            refreshToken,
+            diskVaultTimeoutAction,
+            diskVaultTimeout,
+            userIdFromAccessToken,
+          );
+
+          // Assert: Memory was cleared even when falling back to plaintext disk
+          expect(
+            singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextMock,
+          ).toHaveBeenCalledWith(null);
+        });
+      });
+    });
+
     describe("clearRefreshToken", () => {
       it("throws an error when no user id is provided", async () => {
         // Act
@@ -2023,6 +2247,48 @@ describe("TokenService", () => {
             singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK).nextMock,
           ).toHaveBeenCalledWith(clientId);
         });
+      });
+    });
+
+    describe("setClientId cross-location clearing", () => {
+      it("Disk path clears Memory: seeded Memory value is null after disk write", async () => {
+        // Arrange: pre-seed API_KEY_CLIENT_ID_MEMORY
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
+          .nextState(clientId);
+
+        // Act: write to Disk path
+        await tokenService.setClientId(
+          clientId,
+          diskVaultTimeoutAction,
+          diskVaultTimeout,
+          userIdFromAccessToken,
+        );
+
+        // Assert: the Memory location was cleared after the Disk write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY).nextMock,
+        ).toHaveBeenCalledWith(null);
+      });
+
+      it("Memory path clears Disk: seeded Disk value is null after memory write", async () => {
+        // Arrange: pre-seed API_KEY_CLIENT_ID_DISK
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK)
+          .nextState(clientId);
+
+        // Act: write to Memory path
+        await tokenService.setClientId(
+          clientId,
+          memoryVaultTimeoutAction,
+          memoryVaultTimeout,
+          userIdFromAccessToken,
+        );
+
+        // Assert: the Disk location was cleared after the Memory write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_DISK).nextMock,
+        ).toHaveBeenCalledWith(null);
       });
     });
 
@@ -2237,6 +2503,50 @@ describe("TokenService", () => {
               .nextMock,
           ).toHaveBeenCalledWith(clientSecret);
         });
+      });
+    });
+
+    describe("setClientSecret cross-location clearing", () => {
+      it("Disk path clears Memory: seeded Memory value is null after disk write", async () => {
+        // Arrange: pre-seed API_KEY_CLIENT_SECRET_MEMORY
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
+          .nextState(clientSecret);
+
+        // Act: write to Disk path
+        await tokenService.setClientSecret(
+          clientSecret,
+          diskVaultTimeoutAction,
+          diskVaultTimeout,
+          userIdFromAccessToken,
+        );
+
+        // Assert: the Memory location was cleared after the Disk write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
+            .nextMock,
+        ).toHaveBeenCalledWith(null);
+      });
+
+      it("Memory path clears Disk: seeded Disk value is null after memory write", async () => {
+        // Arrange: pre-seed API_KEY_CLIENT_SECRET_DISK
+        singleUserStateProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
+          .nextState(clientSecret);
+
+        // Act: write to Memory path
+        await tokenService.setClientSecret(
+          clientSecret,
+          memoryVaultTimeoutAction,
+          memoryVaultTimeout,
+          userIdFromAccessToken,
+        );
+
+        // Assert: the Disk location was cleared after the Memory write
+        expect(
+          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_DISK)
+            .nextMock,
+        ).toHaveBeenCalledWith(null);
       });
     });
 
