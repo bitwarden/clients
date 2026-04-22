@@ -148,7 +148,9 @@
           [value]="bankAccount().swiftCode"
           aria-readonly="true"
           data-testid="swift-code"
+          type="password"
         />
+        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
       </bit-form-field>
     }
 
@@ -161,7 +163,9 @@
           [value]="bankAccount().iban"
           aria-readonly="true"
           data-testid="iban"
+          type="password"
         />
+        <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
         <button
           bitIconButton="bwi-clone"
           bitSuffix

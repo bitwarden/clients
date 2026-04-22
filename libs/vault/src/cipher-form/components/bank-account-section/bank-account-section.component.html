@@ -65,12 +65,14 @@
 
     <bit-form-field>
       <bit-label>{{ "swiftCode" | i18n }}</bit-label>
-      <input bitInput formControlName="swiftCode" data-testid="swift-code" />
+      <input bitInput formControlName="swiftCode" type="password" data-testid="swift-code" />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
     <bit-form-field>
       <bit-label>{{ "iban" | i18n }}</bit-label>
-      <input bitInput formControlName="iban" data-testid="iban" />
+      <input bitInput formControlName="iban" type="password" data-testid="iban" />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
     <bit-form-field>
