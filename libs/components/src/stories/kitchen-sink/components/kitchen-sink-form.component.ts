@@ -33,6 +33,7 @@ import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
           required: "required",
           selectPlaceholder: "-- Select --",
           toggleVisibility: "Toggle visibility",
+          progressBar: "Progress bar",
         });
       },
     },
