@@ -7,6 +7,7 @@ import {
   merge,
   Observable,
   pairwise,
+  startWith,
   switchMap,
 } from "rxjs";
 
@@ -55,6 +56,7 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
           merge(
             ...Object.keys(accounts).map((userId) =>
               this.authService.authStatusFor$(userId as UserId).pipe(
+                startWith(AuthenticationStatus.LoggedOut),
                 distinctUntilChanged(),
                 pairwise(),
                 filter(

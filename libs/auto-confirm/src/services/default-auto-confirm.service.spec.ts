@@ -19,6 +19,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -26,6 +27,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
+
+import { AUTO_CONFIRM_STATE, AutoConfirmState } from "../models/auto-confirm-state.model";
 
 import { DefaultAutomaticUserConfirmationService } from "./default-auto-confirm.service";
 
@@ -634,6 +637,75 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       await service.bulkAutoConfirmPendingUsers(mockUserId);
 
       expect(organizationUserApiService.getPendingAutoConfirmUsers).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("initBulkAutoConfirmOnLoginSweep", () => {
+    let accountsSubject: BehaviorSubject<Record<string, unknown>>;
+    let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
+
+    const createSweepService = () =>
+      new DefaultAutomaticUserConfirmationService(
+        apiService,
+        organizationUserService,
+        stateProvider,
+        organizationService,
+        organizationUserApiService,
+        policyService,
+        authService,
+        accountService,
+        configService,
+      );
+
+    beforeEach(() => {
+      accountsSubject = new BehaviorSubject({} as Record<string, unknown>);
+      accountService.accounts$ = accountsSubject;
+    });
+
+    it("should trigger sweep when a user account appears already in the Unlocked state (fresh login)", () => {
+      authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
+      authService.authStatusFor$.mockReturnValue(authStatusSubject);
+
+      const svc = createSweepService();
+      const spy = jest
+        .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
+        .mockResolvedValue(undefined);
+
+      // Account becomes visible in accounts$ for the first time while already Unlocked
+      accountsSubject.next({ [mockUserId]: {} });
+
+      expect(spy).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("should trigger sweep when a user transitions from Locked to Unlocked", () => {
+      authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Locked);
+      authService.authStatusFor$.mockReturnValue(authStatusSubject);
+
+      const svc = createSweepService();
+      const spy = jest
+        .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
+        .mockResolvedValue(undefined);
+
+      accountsSubject.next({ [mockUserId]: {} });
+      expect(spy).not.toHaveBeenCalled();
+
+      authStatusSubject.next(AuthenticationStatus.Unlocked);
+
+      expect(spy).toHaveBeenCalledWith(mockUserId);
+    });
+
+    it("should not trigger sweep when status stays Locked", () => {
+      authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Locked);
+      authService.authStatusFor$.mockReturnValue(authStatusSubject);
+
+      const svc = createSweepService();
+      const spy = jest
+        .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
+        .mockResolvedValue(undefined);
+
+      accountsSubject.next({ [mockUserId]: {} });
+
+      expect(spy).not.toHaveBeenCalled();
     });
   });
 });
