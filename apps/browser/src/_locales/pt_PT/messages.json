@@ -1801,25 +1801,25 @@
     "message": "Este site não corresponde às suas credenciais guardadas. Antes de preencher as suas credenciais, certifique-se de que se trata de um site fiável."
   },
   "loginHasNoSiteSaved": {
-    "message": "Login has no site saved"
+    "message": "A credencial não tem nenhum site associado"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "O site não corresponde"
   },
   "loginNoSiteDesc": {
-    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+    "message": "Esta credencial ainda não tem nenhum site associado. Verifique se está num site fidedigno antes de utilizar o preenchimento automático."
   },
   "loginSingleSiteDesc": {
-    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Este site não corresponde ao que tem associado a esta credencial. Verifique se está num site fidedigno antes de utilizar o preenchimento automático."
   },
   "loginMultipleSitesDesc": {
-    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Este site não corresponde aos que tem associados a esta credencial. Verifique se está num site fidedigno antes de utilizar o preenchimento automático."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Preencher automaticamente e guardar este site"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Preencher automaticamente apenas"
   },
   "showInlineMenuLabel": {
     "message": "Mostrar sugestões de preenchimento automático nos campos do formulário"
