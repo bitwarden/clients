@@ -59,7 +59,7 @@
               <span [attr.aria-label]="'nextChargeDate' | i18n">
                 {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
               </span>
-              @for (discount of displayableDiscounts; track discount) {
+              @for (discount of displayableDiscounts; track $index) {
                 <billing-discount-badge [discount]="discount"></billing-discount-badge>
               }
             </div>

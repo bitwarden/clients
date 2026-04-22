@@ -18,7 +18,7 @@
           class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
         >
           {{ "details" | i18n }}
-          @for (discount of displayableDiscounts; track discount) {
+          @for (discount of displayableDiscounts; track $index) {
             <billing-discount-badge [discount]="discount"></billing-discount-badge>
           }
         </strong>
