@@ -51,13 +51,13 @@
     "message": "Server login token"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organizuj elementy"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organizuj udostępnione elementy"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Wybierz element do dodania"
   },
   "chooseItemToAddDesc": {
     "message": "Select the item type you want to add to your vault."
@@ -115,63 +115,63 @@
     "message": "Pokaż element"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Pokaż dane logowania",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Pokaż kartę",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Pokaż tożsamość",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Pokaż notatkę",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Pokaż klucz SSH",
     "description": "Header for view SSH key item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Nowe dane logowania",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Nowa karta",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Nowa tożsamość",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nowa notatka",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Nowy klucz SSH",
     "description": "Header for new SSH key item type"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Edytuj dane logowania",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Edytuj kartę",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Edytuj tożsamość",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Edytuj notatkę",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Edytuj klucz SSH",
     "description": "Header for edit SSH key item type"
   },
   "name": {
@@ -438,7 +438,7 @@
     }
   },
   "launchBrowser": {
-    "message": "Launch browser"
+    "message": "Uruchom przeglądarkę"
   },
   "errorOccurred": {
     "message": "Wystąpił błąd."
@@ -894,7 +894,7 @@
     "message": "This file is using an outdated encryption method."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Załącznik został zaktualizowany"
   },
   "maxFileSizeSansPunctuation": {
     "message": "Maksymalny rozmiar pliku to 500 MB"
@@ -1009,7 +1009,7 @@
     "message": "Podpowiedź do hasła głównego"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "Hasło główne zostało zapisane"
   },
   "passwordStrengthScore": {
     "message": "Siła hasła wynosi $SCORE$",
@@ -1100,7 +1100,7 @@
     "message": "Wystąpił nieoczekiwany błąd."
   },
   "unexpectedErrorShort": {
-    "message": "Unexpected error"
+    "message": "Nieoczekiwany błąd"
   },
   "closeThisBitwardenWindow": {
     "message": "Close this Bitwarden window and try again."
@@ -1408,7 +1408,7 @@
     "message": "Zmień hasło główne"
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Zmień hasło główne"
   },
   "continueToWebApp": {
     "message": "Kontynuować przejście do aplikacji internetowej?"
@@ -2332,7 +2332,7 @@
     "message": "Kopiuj klucz uwierzytelniający (TOTP)"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Kopiuj notatki"
   },
   "totpHelperTitle": {
     "message": "Bezproblemowa weryfikacja dwustopniowa"
@@ -3627,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Urządzenie zostało zaufane"
   },
+  "device": {
+    "message": "Urządzenie"
+  },
+  "devices": {
+    "message": "Urządzenia"
+  },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
+  "loginStatus": {
+    "message": "Status logowania"
+  },
+  "recentlyActive": {
+    "message": "Ostatnio aktywny"
+  },
+  "recentlyActiveToday": {
+    "message": "Dziś"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Ostatnie 7 dni"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Ostatnie 14 dni"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Ostatnie 30 dni"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
+  "firstLogin": {
+    "message": "Pierwsze logowanie"
+  },
+  "trusted": {
+    "message": "Zaufane"
+  },
+  "currentSession": {
+    "message": "Obecna sesja"
+  },
+  "requestPending": {
+    "message": "Oczekująca prośba"
+  },
+  "deviceIdMissing": {
+    "message": "Brak identyfikatora urządzenia"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "trustOrganization": {
     "message": "Zaufaj organizacji"
   },
@@ -4881,5 +4938,19 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

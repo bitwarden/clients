@@ -323,6 +323,7 @@ export default class RuntimeBackground {
           await this.main.updateOverlayCiphers();
 
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
+          void this.main.targetingRulesDataService.forceUpdate();
         }
         break;
       case "openPopup":

@@ -20,6 +20,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               percentageCompleted: "__$1__% complete",
+              progressBar: "Progress bar",
             });
           },
         },
@@ -35,6 +36,7 @@ export default {
   args: {
     variant: "primary",
     value: "50",
+    accessibleName: "Upload progress",
   },
 } as Meta;
 
@@ -45,7 +47,7 @@ export const Base: Story = {
     props: {
       ...args,
     },
-    template: `
+    template: /*html*/ `
       <div class="tw-w-[552px]">
         <bit-progress-bar ${formatArgsForCodeSnippet<ProgressBarComponent>(args)} />
       </div>
@@ -55,7 +57,7 @@ export const Base: Story = {
 
 export const AllVariants: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-w-[552px] tw-gap-4">
         <bit-progress-bar variant="primary" [value]="20" [hideStartHint]="true">
           <bit-label slot="label">primary</bit-label>
@@ -79,7 +81,7 @@ export const AllVariants: Story = {
 
 export const WithLabelAndHelperHint: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-w-[552px]">
         <bit-progress-bar [value]="50">
           <bit-label slot="label">File name</bit-label>
@@ -93,7 +95,7 @@ export const WithLabelAndHelperHint: Story = {
 
 export const StartHint: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-w-[552px] tw-mb-8">
         <bit-progress-bar [value]="10">
           <bit-label slot="label">Default</bit-label>
@@ -124,4 +126,11 @@ export const StartHint: Story = {
       </div>
     `,
   }),
+};
+
+export const WithAccessibleNameFallback: Story = {
+  ...Base,
+  args: {
+    accessibleName: undefined,
+  },
 };

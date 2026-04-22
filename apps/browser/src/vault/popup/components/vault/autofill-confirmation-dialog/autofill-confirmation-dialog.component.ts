@@ -5,6 +5,7 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
@@ -58,6 +59,7 @@ export class AutofillConfirmationDialogComponent {
   private readonly params = inject<AutofillConfirmationDialogParams>(DIALOG_DATA);
   private readonly dialogRef = inject(DialogRef<AutofillConfirmationDialogResultType>);
   private readonly domainSettingsService = inject(DomainSettingsService);
+  private readonly i18nService = inject(I18nService);
 
   private readonly uriMatchSetting = toSignal(
     this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
@@ -96,6 +98,23 @@ export class AutofillConfirmationDialogComponent {
 
   readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
   readonly savedUrlsExpanded = signal<boolean>(false);
+
+  readonly dialogTitle = computed(() =>
+    this.savedUrls().length === 0
+      ? this.i18nService.t("loginHasNoSiteSaved")
+      : this.i18nService.t("siteDoesntMatch"),
+  );
+
+  readonly dialogBody = computed(() => {
+    const count = this.savedUrls().length;
+    if (count === 0) {
+      return this.i18nService.t("loginNoSiteDesc");
+    }
+    if (count === 1) {
+      return this.i18nService.t("loginSingleSiteDesc");
+    }
+    return this.i18nService.t("loginMultipleSitesDesc");
+  });
 
   readonly savedUrlsListClass = computed(() =>
     this.savedUrlsExpanded()
