@@ -172,6 +172,20 @@ describe("VaultItemCopyActionsComponent", () => {
       expect(result).toBeNull();
     });
 
+    it("returns null when password is hidden and password is the only populated login field", () => {
+      (component.cipher() as CipherView).viewPassword = false;
+
+      (component.cipher() as any).__copyable = {
+        username: false,
+        password: true,
+        totp: false,
+      };
+
+      const result = component.singleCopyableLogin;
+
+      expect(result).toBeNull();
+    });
+
     it("falls back to findSingleCopyableItem when password is visible", () => {
       const findSingleCopyableItemSpy = jest.spyOn(component, "findSingleCopyableItem");
       (component.cipher() as CipherView).viewPassword = true;
@@ -298,6 +312,24 @@ describe("VaultItemCopyActionsComponent", () => {
         password: null,
         totp: null,
       } as any;
+
+      expect(component.hasLoginValues).toBe(false);
+    });
+
+    it("does not count password as a login value when password is hidden", () => {
+      (component.cipher() as CipherView).viewPassword = false;
+      (component.cipher() as any).__copyable = {
+        username: false,
+        password: true,
+        totp: false,
+      };
+      jest
+        .spyOn(CipherViewLikeUtils, "hasCopyableValue")
+        .mockImplementation(
+          (cipher: CipherViewLike & { __copyable?: Record<string, boolean> }, field) => {
+            return Boolean(cipher.__copyable?.[field]);
+          },
+        );
 
       expect(component.hasLoginValues).toBe(false);
     });

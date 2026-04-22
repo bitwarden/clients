@@ -41,27 +41,21 @@ export class VaultItemCopyActionsComponent {
    */
   get singleCopyableLogin(): CipherItem | null {
     const cipher = this.cipher();
+    const loginItems = this.getLoginCopyableItems(cipher);
+
+    return this.findSingleCopyableItem(cipher, loginItems);
+  }
+
+  private getLoginCopyableItems(cipher: CipherViewLike): CipherItem[] {
     const loginItems: CipherItem[] = [
       { key: "username", field: "username" },
       { key: "password", field: "password" },
       { key: "verificationCodeTotp", field: "totp" },
     ];
 
-    // If both username and password are present but password is hidden and no TOTP exists,
-    // expose username as the single quick-copy action.
-    if (
-      !cipher.viewPassword &&
-      CipherViewLikeUtils.hasCopyableValue(cipher, "username") &&
-      CipherViewLikeUtils.hasCopyableValue(cipher, "password") &&
-      !CipherViewLikeUtils.hasCopyableValue(cipher, "totp")
-    ) {
-      return {
-        key: this.i18nService.t("username"),
-        field: "username" as const,
-      };
-    }
-
-    return this.findSingleCopyableItem(cipher, loginItems);
+    return cipher.viewPassword
+      ? loginItems
+      : loginItems.filter((item) => item.field !== "password");
   }
 
   get singleCopyableCard() {
@@ -118,15 +112,9 @@ export class VaultItemCopyActionsComponent {
 
   /** Sets the number of populated login values for the cipher */
   private getNumberOfLoginValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      return [
-        CipherViewLikeUtils.hasCopyableValue(cipher, "username"),
-        CipherViewLikeUtils.hasCopyableValue(cipher, "password"),
-        CipherViewLikeUtils.hasCopyableValue(cipher, "totp"),
-      ].filter(Boolean).length;
-    }
-
-    return [cipher.login.username, cipher.login.password, cipher.login.totp].filter(Boolean).length;
+    return this.getLoginCopyableItems(cipher)
+      .map((item) => CipherViewLikeUtils.hasCopyableValue(cipher, item.field))
+      .filter(Boolean).length;
   }
 
   /** Sets the number of populated card values for the cipher */
