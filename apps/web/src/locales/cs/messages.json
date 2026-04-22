@@ -13413,9 +13413,6 @@
     "message": "Ukládání úprav Send selhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "export": {
-    "message": "Exportovat"
-  },
   "sideNavigation": {
     "message": "Boční navigace"
   },
