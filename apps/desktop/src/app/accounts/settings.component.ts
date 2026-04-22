@@ -574,7 +574,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (
       this.requireEnableTray &&
       !this.form.value.enableTray &&
-      (this.form.value.enableCloseToTray)
+      this.form.value.enableCloseToTray
     ) {
       const confirm = await this.dialogService.openSimpleDialog({
         title: { key: "confirmTrayTitle" },
