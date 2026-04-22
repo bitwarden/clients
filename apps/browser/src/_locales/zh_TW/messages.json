@@ -1149,13 +1149,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "剪貼簿設定已更新"
   },
   "clipboardSettingUpdatedMessage": {
-    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+    "message": "您的剪貼簿逾時已設為預設值，為提升安全性，已更新為 5 分鐘。"
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "前往設定"
   },
   "notificationAddDesc": {
     "message": "是否要讓 Bitwarden 記住此密碼？"
@@ -1311,7 +1311,7 @@
     "message": "其他選項"
   },
   "enableFillAssist": {
-    "message": "Use fill assist"
+    "message": "使用填寫輔助"
   },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "此網站與您儲存的登入資料不相符。在填入登入憑證前，請確認這是受信任的網站。"
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "在表單欄位上顯示自動填入選單"
   },
@@ -2115,25 +2136,25 @@
     "message": "備註"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "網站或應用程式"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "信用卡或金融卡"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "個人資料"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "重要文字"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "伺服器登入憑證"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "整理您的項目"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "整理共享項目"
   },
   "newItemHeaderLogin": {
     "message": "新增登入資料",
@@ -2212,7 +2233,7 @@
     "description": "Header for view SSH key item type"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "選擇要新增的項目"
   },
   "passwordHistory": {
     "message": "密碼歷史記錄"
@@ -2874,7 +2895,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
+    "message": "此網站的密碼存在風險。$ORGANIZATION$ 已要求您前往帳戶設定並進行變更。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3805,22 +3826,22 @@
     "message": "登入狀態"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "最近活動"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "今天"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "過去 7 天"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "過去 14 天"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "過去 30 天"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "30 天前以上"
   },
   "masterPasswordChanged": {
     "message": "主密碼已儲存"
@@ -6170,10 +6191,10 @@
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+    "message": "由 Bitwarden 桌面應用程式管理。請開啟桌面應用程式進行編輯。"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "完成 $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "下載失敗"
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

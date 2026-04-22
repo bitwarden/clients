@@ -1149,13 +1149,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "Ustawienia schowka zostały zaktualizowane"
   },
   "clipboardSettingUpdatedMessage": {
     "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "Przejdź do ustawień"
   },
   "notificationAddDesc": {
     "message": "Zapisać hasło?"
@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ta witryna nie pasuje do Twoich zapisanych danych logowania. Zanim wpiszesz dane logowania, upewnij się, że jest to zaufana witryna."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Pokaż sugestie autouzupełniania na polach formularza"
   },
@@ -2115,10 +2136,10 @@
     "message": "Notatka"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Strona internetowa lub aplikacja"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Karta kredytowa lub debetowa"
   },
   "typeIdentitySubtitle": {
     "message": "Personal info"
@@ -2130,10 +2151,10 @@
     "message": "Server login token"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organizuj elementy"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organizuj udostępnione elementy"
   },
   "newItemHeaderLogin": {
     "message": "Nowe dane logowania",
@@ -2212,7 +2233,7 @@
     "description": "Header for view SSH key item type"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Wybierz element do dodania"
   },
   "passwordHistory": {
     "message": "Historia hasła"
@@ -2403,10 +2424,10 @@
     "message": "Użyj silniejszego hasła, aby odpowiednio chronić konto Bitwarden. Czy na pewno chcesz użyć tego hasła głównego?"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Zmień również klucz szyfrowania konta"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Zmień klucz szyfrowania"
   },
   "rotateEncKeyConfirmation": {
     "message": "Are you sure you want to rotate your account's encryption key?"
@@ -3811,16 +3832,16 @@
     "message": "Today"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Ostatnie 7 dni"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Ostatnie 14 dni"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Ostatnie 30 dni"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Ponad 30 dni temu"
   },
   "masterPasswordChanged": {
     "message": "Hasło główne zostało zapisane"
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Pobieranie nie powiodło się."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Deze website komt past niet bij je opgeslagen inloggegevens. Verzeker jezelf ervan dat het een vertrouwde website is, voordat je je inloggegevens invult."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login heeft geen site opgeslagen"
+  },
+  "siteDoesntMatch": {
+    "message": "Site komt niet overeen"
+  },
+  "loginNoSiteDesc": {
+    "message": "Deze login heeft nog geen website opgeslagen. Controleer of je op een vertrouwde website bent voordat je automatisch invult."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Deze website komt niet overeen met degene die je hebt opgeslagen voor deze login. Controleer of je op een vertrouwde site bent voordat je automatisch invult."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Deze website komt niet overeen met degene die je hebt opgeslagen voor deze login. Controleer of je op een vertrouwde site bent voordat je automatisch invult."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Automatisch invullen en deze website opslaan"
+  },
+  "autofillOnly": {
+    "message": "Alleen automatisch invullen"
+  },
   "showInlineMenuLabel": {
     "message": "Suggesties voor automatisch invullen op formuliervelden weergeven"
   },
@@ -3950,7 +3971,7 @@
     "message": "Verzoek in behandeling"
   },
   "firstLogin": {
-    "message": "Eerst inloggen"
+    "message": "Eerste aanmelding"
   },
   "trusted": {
     "message": "Vertrouwd"
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Downloaden mislukt."
+  },
+  "sideNavigation": {
+    "message": "Zijnavigatie"
+  },
+  "skipLink": {
+    "message": "Link overslaan"
+  },
+  "callout": {
+    "message": "Opmerking",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Voortgangsbalk",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

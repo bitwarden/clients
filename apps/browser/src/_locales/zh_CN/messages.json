@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "此站点与您保存的登录信息不匹配。在填充您的登录凭据之前，请确保它是一个可信的站点。"
   },
+  "loginHasNoSiteSaved": {
+    "message": "登录未保存任何站点"
+  },
+  "siteDoesntMatch": {
+    "message": "站点不匹配"
+  },
+  "loginNoSiteDesc": {
+    "message": "此登录尚未保存任何网站。自动填充之前，请确认您访问的是可信的站点。"
+  },
+  "loginSingleSiteDesc": {
+    "message": "此站点与您为此登录保存的站点不匹配。自动填充之前，请确认您访问的是可信的站点。"
+  },
+  "loginMultipleSitesDesc": {
+    "message": "此站点与您为此登录保存的站点不匹配。自动填充之前，请确认您访问的是可信的站点。"
+  },
+  "autofillAndSaveThisSite": {
+    "message": "自动填充并保存此站点"
+  },
+  "autofillOnly": {
+    "message": "仅自动填充"
+  },
   "showInlineMenuLabel": {
     "message": "在表单字段上显示自动填充建议"
   },
@@ -6263,7 +6284,7 @@
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "输入多个电子邮箱（使用逗号分隔）。"
+    "message": "使用逗号分隔输入多个电子邮箱。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "下载失败。"
+  },
+  "sideNavigation": {
+    "message": "侧边导航"
+  },
+  "skipLink": {
+    "message": "跳过链接"
+  },
+  "callout": {
+    "message": "提示框",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "进度条",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
