@@ -123,7 +123,7 @@
         "to": "libprocess_isolation.so"
       }
     ],
-    "target": ["snap"],
+    "target": ["deb", "rpm", "AppImage", "snap"],
     "desktop": {
       "entry": {
         "Name": "Bitwarden",
