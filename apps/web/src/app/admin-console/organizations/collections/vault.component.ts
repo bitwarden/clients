@@ -196,6 +196,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   private searchText$ = new Subject<string>();
   protected refreshingSubject$ = new BehaviorSubject<boolean>(true);
   private _loadStartTime = 0;
+  private _collectionsReadyMs = 0;
+  private _ciphersReadyMs = 0;
   private _elapsedS = () => ((performance.now() - this._loadStartTime) / 1000).toFixed(2) + "s";
   private destroy$ = new Subject<void>();
   protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(0);
@@ -286,11 +288,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       switchMap(([orgId, userId]) =>
         this.collectionAdminService.collectionAdminViews$(orgId, userId),
       ),
-      tap((collections) =>
+      tap((collections) => {
+        this._collectionsReadyMs = performance.now() - this._loadStartTime;
         this.logService.debug(
           `[Collections] Collections decrypted: ${collections.length} collections (+${this._elapsedS()})`,
-        ),
-      ),
+        );
+      }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -349,6 +352,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
         }
+        this._ciphersReadyMs = performance.now() - this._loadStartTime;
 
         // Filter out restricted ciphers before indexing
         ciphers = ciphers.filter(
@@ -551,7 +555,16 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
       tap((loading) => {
         if (!loading && this._loadStartTime > 0) {
-          this.logService.debug(`[Collections] Fully loaded — total time: ${this._elapsedS()}`);
+          const totalMs = performance.now() - this._loadStartTime;
+          const dataReadyMs = Math.max(this._collectionsReadyMs, this._ciphersReadyMs);
+          const postFetchMs = totalMs - dataReadyMs;
+          const fmt = (ms: number) => (ms / 1000).toFixed(2) + "s";
+          this.logService.debug(
+            `[Collections] Fully loaded — total: ${fmt(totalMs)}, ` +
+              `post-fetch processing: ${fmt(postFetchMs)} ` +
+              `(collections fetch+decrypt: ${fmt(this._collectionsReadyMs)}, ` +
+              `ciphers fetch+decrypt: ${fmt(this._ciphersReadyMs)})`,
+          );
         }
       }),
     );
