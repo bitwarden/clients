@@ -13413,9 +13413,6 @@
     "message": "Сохранить изменения Send не удалось",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "export": {
-    "message": "Экспорт"
-  },
   "sideNavigation": {
     "message": "Боковая навигация"
   },
