@@ -238,8 +238,8 @@ describe("OrganizationIntegrationService", () => {
       ).rejects.toThrow("Organization ID mismatch");
     });
 
-    it("should return mustBeOwner true when API returns 403", async () => {
-      const error = new ErrorResponse({}, 403);
+    it("should return mustBeOwner true when API returns 422", async () => {
+      const error = new ErrorResponse({}, 422);
       integrationApiService.createOrganizationIntegration.mockRejectedValue(error);
 
       const result = await service.save(orgId, OrganizationIntegrationType.Hec, config, template);
@@ -252,7 +252,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-403 and non-409 errors", async () => {
+    it("should rethrow non-422 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationApiService.createOrganizationIntegration.mockRejectedValue(error);
 
@@ -261,8 +261,8 @@ describe("OrganizationIntegrationService", () => {
       ).rejects.toThrow("Server error");
     });
 
-    it("should handle configuration creation failure with 403", async () => {
-      const error = new ErrorResponse({}, 403);
+    it("should handle configuration creation failure with 422", async () => {
+      const error = new ErrorResponse({}, 422);
       integrationApiService.createOrganizationIntegration.mockResolvedValue(
         mockIntegrationResponse,
       );
@@ -398,8 +398,8 @@ describe("OrganizationIntegrationService", () => {
       ).rejects.toThrow("Organization ID mismatch");
     });
 
-    it("should return mustBeOwner true when API returns 403", async () => {
-      const error = new ErrorResponse({}, 403);
+    it("should return mustBeOwner true when API returns 422", async () => {
+      const error = new ErrorResponse({}, 422);
       integrationApiService.updateOrganizationIntegration.mockRejectedValue(error);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -420,7 +420,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-403 and non-409 errors", async () => {
+    it("should rethrow non-422 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationApiService.updateOrganizationIntegration.mockRejectedValue(error);
 
@@ -554,8 +554,8 @@ describe("OrganizationIntegrationService", () => {
       );
     });
 
-    it("should return mustBeOwner true when API returns 403", async () => {
-      const error = new ErrorResponse({}, 403);
+    it("should return mustBeOwner true when API returns 422", async () => {
+      const error = new ErrorResponse({}, 422);
       integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration.mockRejectedValue(
         error,
       );
@@ -571,7 +571,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-403 and non-409 errors", async () => {
+    it("should rethrow non-422 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration.mockRejectedValue(
         error,
@@ -584,8 +584,8 @@ describe("OrganizationIntegrationService", () => {
       );
     });
 
-    it("should handle 403 error when deleting integration", async () => {
-      const error = new ErrorResponse({}, 403);
+    it("should handle 422 error when deleting integration", async () => {
+      const error = new ErrorResponse({}, 422);
       integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration.mockResolvedValue(
         undefined,
       );
