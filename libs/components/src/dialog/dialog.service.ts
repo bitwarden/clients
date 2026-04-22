@@ -221,6 +221,11 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     return { closed: true };
   }
 
+  tryClose(result?: R, options?: DialogCloseOptions): Promise<boolean> {
+    void this.close(result, options);
+    return Promise.resolve(true);
+  }
+
   componentInstance: C | null = null;
 }
 
@@ -230,10 +235,14 @@ class DrawerDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = false;
 
+  closePredicate?: (result?: R) => Promise<boolean>;
+
   constructor(
     private logService: LogService | null,
-    private closePredicate?: (result?: R) => Promise<boolean>,
-  ) {}
+    closePredicate?: (result?: R) => Promise<boolean>,
+  ) {
+    this.closePredicate = closePredicate;
+  }
 
   /** This is not available until after construction, @see DialogService.open. */
   cdkDialogRefBase!: CdkDialogRefBase<R, C>;

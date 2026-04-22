@@ -191,4 +191,16 @@ export class PoliciesComponent {
       });
     }
   }
+
+  /**
+   * Called by the `PoliciesDeactivateGuard` before navigating away from this page.
+   * Returns `true` if navigation may proceed, `false` if the user chose to stay.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.drawerRef()) {
+      return true;
+    }
+    const result = await this.drawerRef()!.close();
+    return result.closed;
+  }
 }
