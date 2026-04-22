@@ -188,13 +188,14 @@ export class MessagingMain {
    * Sets the autostart flag on a linux .desktop file's Exec line.
    */
   private setAutostartFlagOnDesktopFile(desktopFileData: string): string {
-    return desktopFileData.split("\n")
+    return desktopFileData
+      .split("\n")
       .map((line) => line.trim())
       .map((line) => {
-          if (line.startsWith("Exec=") && !line.includes(AUTOSTART_FLAG)) {
-            return `${line} ${AUTOSTART_FLAG}`;
-          }
-          return line;
+        if (line.startsWith("Exec=") && !line.includes(AUTOSTART_FLAG)) {
+          return `${line} ${AUTOSTART_FLAG}`;
+        }
+        return line;
       })
       .join("\n");
   }
