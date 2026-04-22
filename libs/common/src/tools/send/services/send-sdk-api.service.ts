@@ -136,10 +136,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     apiUrl?: string,
   ): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await sdk
-      .auth()
-      .send_access()
-      .access_send_v1(id, request.password ?? undefined);
+    const view = await sdk.sends().access_send_v1(id, request.password ?? undefined);
     return new SendAccessResponse(view);
   }
 
@@ -148,7 +145,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     apiUrl?: string,
   ): Promise<SendAccessResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const view = await sdk.auth().send_access().access_send(accessToken.token);
+    const view = await sdk.sends().access_send(accessToken.token);
     return new SendAccessResponse(view);
   }
 
@@ -237,8 +234,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const data = await sdk
-      .auth()
-      .send_access()
+      .sends()
       .get_file_download_data_v1(send.id, send.file.id, request.password ?? undefined);
     return new SendFileDownloadDataResponse(data);
   }
@@ -249,10 +245,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-    const data = await sdk
-      .auth()
-      .send_access()
-      .get_file_download_data(accessToken.token, send.file.id);
+    const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
     return new SendFileDownloadDataResponse(data);
   }
 
