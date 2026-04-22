@@ -52,7 +52,7 @@ export abstract class BiometricsService {
    * @param userId the user to enroll
    * @param key the user key to enroll
    */
-  async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {}
+  abstract enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
 
   /**
    * Checks if the given user has a persistent biometric key enrolled.
@@ -60,7 +60,5 @@ export abstract class BiometricsService {
    * @param userId the user to check
    * @returns true if a persistent key is enrolled
    */
-  async hasPersistentKey(userId: UserId): Promise<boolean> {
-    return false;
-  }
+  abstract hasPersistentKey(userId: UserId): Promise<boolean>;
 }
