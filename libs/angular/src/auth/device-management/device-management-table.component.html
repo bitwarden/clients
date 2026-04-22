@@ -6,6 +6,7 @@
       [class]="column.headerClass"
       bitCell
       [bitSortable]="column.sortable ? column.name : ''"
+      [fn]="column.sortFn"
       scope="col"
       role="columnheader"
     >
@@ -38,7 +39,7 @@
       </div>
     </td>
 
-    <!-- Column: Login Status -->
+    <!-- Column: Login Status / Recently Active -->
     <td bitCell>
       <div class="tw-flex tw-gap-1">
         <span *ngIf="device.isCurrentDevice" bitBadge variant="primary">
@@ -46,6 +47,10 @@
         </span>
         <span *ngIf="device.pendingAuthRequest" bitBadge variant="warning">
           {{ "requestPending" | i18n }}
+        </span>
+        <!-- TODO: PM-34091 - Remove the showRecentlyActive condition; always show recentlyActiveText. -->
+        <span *ngIf="showRecentlyActive && !device.isCurrentDevice && !device.pendingAuthRequest">
+          {{ device.recentlyActiveText }}
         </span>
       </div>
     </td>

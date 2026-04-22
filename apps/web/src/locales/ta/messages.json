@@ -637,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "autoFillOnPageLoad": {
     "message": "பக்கத்தை ஏற்றியவுடன் தானாக நிரப்ப வேண்டுமா?"
   },
@@ -756,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden ஆனது 2-படி சரிபார்ப்பு குறியீடுகளை சேமித்து நிரப்ப முடியும். இந்த இணையதளத்தின் அங்கீகரிப்பு QR குறியீட்டின் ஸ்கிரீன்ஷாட்டை எடுக்க கேமரா ஐகானைத் தேர்ந்தெடுக்கவும், அல்லது விசையை நகலெடுத்து இந்த புலத்தில் ஒட்டவும்."
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
   },
   "learnMoreAboutAuthenticators": {
     "message": "அங்கீகரிப்பாளர்கள் பற்றி மேலும் அறிக"
@@ -988,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH விசை"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "உள்நுழைவுகள்"
   },
@@ -1056,6 +1086,9 @@
   },
   "addItem": {
     "message": "பொருளைச் சேர்"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "பொருளைத் திருத்து"
@@ -3919,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "புதிய பயனரை உங்கள் நிறுவனத்திற்கு அவர்களின் Bitwarden கணக்கு மின்னஞ்சல் முகவரியை கீழே உள்ளிட்டு அழைக்கவும். அவர்களுக்கு ஏற்கனவே Bitwarden கணக்கு இல்லையென்றால், புதிய கணக்கை உருவாக்கும்படி கேட்கப்படுவார்கள்."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "காமாவால் பிரிப்பதன் மூலம் $COUNT$ மின்னஞ்சல்கள் வரை உள்ளிடவும்.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3933,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "உங்களிடம் 0 அழைப்புகள் மீதம் உள்ளன."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "இந்த பயனர் தங்கள் கணக்கைப் பாதுகாக்க இரண்டு-படி உள்நுழைவைப் பயன்படுத்துகிறார்."
@@ -4459,6 +4505,24 @@
   },
   "loginStatus": {
     "message": "உள்நுழைவு நிலை"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "firstLogin": {
     "message": "முதல் உள்நுழைவு"
@@ -5185,6 +5249,12 @@
   },
   "atAnyTime": {
     "message": "எந்த நேரத்திலும்."
+  },
+  "byEmail": {
+    "message": "By email"
+  },
+  "byLink": {
+    "message": "By link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "தொடர்ந்து செல்வதன் மூலம், நீங்கள்"
@@ -7079,6 +7149,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Session timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
     "message": "Immediately"
@@ -9509,6 +9582,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "User attempted to access known phishing site"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "User exited phishing warning page"
+  },
+  "phishingBlockerBypassed": {
+    "message": "User bypassed phishing warning"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -10331,6 +10413,46 @@
   "switchToFreeOrg": {
     "message": "Switching to free organization",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Missing features or functionality",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Something we needed wasn't available",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Too difficult to set up or manage",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "We're not getting enough value for the cost",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "The price doesn't match what we're getting out of it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Not enough usage by our team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "We couldn't get people to actually use it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Our needs changed",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "1 வருடத்திற்கு இலவசம்"
@@ -11918,6 +12040,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "உங்கள் சந்தாவிற்கான விலைப்பட்டியல் $ISSUED_DATE$ அன்று வழங்கப்பட்டது. தடையற்ற சேவையை உறுதிப்படுத்த, $DUE_DATE$-க்கு முன் உங்கள் புதுப்பித்தலை உறுதிப்படுத்த $RESELLER$-ஐத் தொடர்பு கொள்ளவும்.",
     "placeholders": {
@@ -11944,6 +12075,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -13079,6 +13219,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
   },
@@ -13249,5 +13392,42 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "export": {
+    "message": "Export"
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
