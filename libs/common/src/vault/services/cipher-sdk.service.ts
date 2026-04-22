@@ -3,7 +3,7 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
@@ -263,6 +263,80 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to restore multiple ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async shareWithServer(
+    cipherView: CipherView,
+    organizationId: OrganizationId,
+    collectionIds: CollectionId[],
+    userId: UserId,
+    originalCipherView?: CipherView,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+
+          const sdkCipherView = cipherView.toSdkCipherView();
+
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .share_cipher(
+              sdkCipherView,
+              asUuid(organizationId),
+              collectionIds.map((id) => asUuid(id)),
+              originalCipherView?.toSdkCipherView(),
+            );
+
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to share cipher: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async shareManyWithServer(
+    cipherViews: CipherView[],
+    organizationId: OrganizationId,
+    collectionIds: CollectionId[],
+    userId: UserId,
+  ): Promise<CipherView[]> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+
+          const sdkCipherViews = cipherViews.map((cv) => cv.toSdkCipherView());
+
+          const results = await ref.value
+            .vault()
+            .ciphers()
+            .share_ciphers_bulk(
+              sdkCipherViews,
+              asUuid(organizationId),
+              collectionIds.map((id) => asUuid(id)),
+            );
+
+          return results
+            .map((c) => CipherView.fromSdkCipherView(c))
+            .filter((c): c is CipherView => c !== undefined);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to share multiple ciphers: ${error}`);
           throw error;
         }),
       ),
