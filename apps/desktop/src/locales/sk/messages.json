@@ -3627,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
   },
+  "device": {
+    "message": "Zariadenie"
+  },
+  "devices": {
+    "message": "Zariadenia"
+  },
+  "whatIsADevice": {
+    "message": "Čo je zariadenie?"
+  },
+  "aDeviceIs": {
+    "message": "Zariadenie je konkrétna inštalácia aplikácie Bitwarden, do ktorej ste sa prihlásili. Preinštalovanie, vymazanie údajov aplikácie alebo vymazanie súborov cookie môže spôsobiť, že sa zariadenie zobrazí viackrát."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Váš účet bol prihlásený do každého zariadenia uvedeného nižšie."
+  },
+  "loginStatus": {
+    "message": "Stav prihlásenia"
+  },
+  "recentlyActive": {
+    "message": "Posledná aktivita"
+  },
+  "recentlyActiveToday": {
+    "message": "Dnes"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Posledných 7 dní"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Posledných 14 dní"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Posledných 30 dní"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Pred viac ako 30 dňami"
+  },
+  "firstLogin": {
+    "message": "Prvé prihlásenie"
+  },
+  "trusted": {
+    "message": "Dôveryhodné"
+  },
+  "currentSession": {
+    "message": "Aktuálna relácia"
+  },
+  "requestPending": {
+    "message": "Žiadosť čaká na spracovanie"
+  },
+  "deviceIdMissing": {
+    "message": "Chýba ID zariadenia"
+  },
+  "deviceTypeMissing": {
+    "message": "Chýba typ zariadenia"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Chýba dátum vytvorenia zaradenia"
+  },
   "trustOrganization": {
     "message": "Dôverovať organizácii"
   },
@@ -4881,5 +4938,19 @@
   "saveSendEditsFailed": {
     "message": "Uloženie úprav Sendu zlyhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Bočná navigácia"
+  },
+  "skipLink": {
+    "message": "Preskočiť odkaz"
+  },
+  "callout": {
+    "message": "Oznámenie",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
