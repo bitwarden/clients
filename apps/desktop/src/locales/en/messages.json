@@ -4940,14 +4940,8 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "hideEmailPolicyInEffect": {
-    "message": "An organization policy is in effect that prevents hiding your email address from Send viewers. Uncheck \"$LABEL$\" before saving.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated. $LABEL$ is the localized text of the \"Hide your email address from viewers\" checkbox label.",
-    "placeholders": {
-      "label": {
-        "content": "$1",
-        "example": "Hide your email address from viewers."
-      }
-    }
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sideNavigation": {
     "message": "Side navigation"
