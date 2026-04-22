@@ -12,11 +12,18 @@ import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-p
  */
 export abstract class PolicyService {
   /**
-   * All policies for the provided user from sync data.
+   * Policies for the provided user that belong to organizations where
+   * the user has the Confirmed membership status.
    * May include policies that are disabled or otherwise do not apply to the user. Be careful using this!
    * Consider {@link policiesByType$} instead, which will only return policies that should be enforced against the user.
    */
   abstract policies$: (userId: UserId) => Observable<Policy[]>;
+
+  /**
+   * Policies for the provided user that belong to organizations where
+   * the user is in the Accepted (not yet Confirmed) status.
+   */
+  abstract acceptedPolicies$: (userId: UserId) => Observable<Policy[]>;
 
   /**
    * @returns all {@link Policy} objects of a given type that apply to the specified user.

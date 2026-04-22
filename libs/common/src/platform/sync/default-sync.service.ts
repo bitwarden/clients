@@ -192,7 +192,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
-      await this.syncPolicies(response.policies, response.profile.id);
+      await this.syncPolicies(response.policiesNew ?? response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
