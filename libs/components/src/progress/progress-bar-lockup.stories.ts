@@ -25,6 +25,7 @@ export default {
           useFactory: () => {
             return new I18nMockService({
               percentageCompleted: "__$1__% complete",
+              progressBar: "Progress bar",
             });
           },
         },
