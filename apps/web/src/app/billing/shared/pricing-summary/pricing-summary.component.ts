@@ -26,7 +26,7 @@ export interface PricingSummaryData {
   sub?: OrganizationSubscriptionResponse;
   selectedPlan?: PlanResponse;
   selectedInterval?: PlanInterval;
-  discountPercentageFromSub?: number;
+  compoundedDiscountPercentage?: number;
   discountPercentage?: number;
   acceptingSponsorship?: boolean;
   additionalServiceAccount?: number;

@@ -73,7 +73,7 @@ export class PricingSummaryService {
       : (sub?.customerDiscounts ?? []).filter(
           (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
         );
-    const discountPercentageFromSub = getCompoundedPercentOff(allActiveDiscounts);
+    const compoundedDiscountPercentage = getCompoundedPercentOff(allActiveDiscounts);
     const discountPercentage = 20;
     const acceptingSponsorship = false;
 
@@ -118,7 +118,7 @@ export class PricingSummaryService {
       sub,
       selectedPlan: plan,
       selectedInterval,
-      discountPercentageFromSub,
+      compoundedDiscountPercentage,
       discountPercentage,
       acceptingSponsorship,
       additionalServiceAccount,

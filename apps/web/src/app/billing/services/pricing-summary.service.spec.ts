@@ -103,7 +103,7 @@ describe("PricingSummaryService", () => {
         sub: mockSub,
         selectedPlan: mockPlan,
         selectedInterval: PlanInterval.Monthly,
-        discountPercentageFromSub: 0,
+        compoundedDiscountPercentage: 0,
         discountPercentage: 20,
         acceptingSponsorship: false,
         additionalServiceAccount: 0, // 50 - 5 = 45, which is > 0, so return 0
@@ -140,7 +140,7 @@ describe("PricingSummaryService", () => {
       );
 
       expect(result.passwordManagerSeatTotal).toBe(0); // Should be 0 during trial
-      expect(result.discountPercentageFromSub).toBe(0); // Should be 0 during trial
+      expect(result.compoundedDiscountPercentage).toBe(0); // Should be 0 during trial
       expect(result.discountLineItems).toEqual([]);
     });
 
@@ -163,7 +163,7 @@ describe("PricingSummaryService", () => {
         50,
       );
 
-      expect(result.discountPercentageFromSub).toBe(0);
+      expect(result.compoundedDiscountPercentage).toBe(0);
       expect(result.discountLineItems).toEqual([]);
     });
 
@@ -202,7 +202,7 @@ describe("PricingSummaryService", () => {
         50,
       );
 
-      expect(result.discountPercentageFromSub).toBe(10);
+      expect(result.compoundedDiscountPercentage).toBe(10);
       // subtotal before tax = 246, 10% of 246 = 24.6
       expect(result.discountLineItems).toEqual([{ label: "10% discount", amount: 24.6 }]);
       expect(result.totalAppliedDiscount).toBe(24.6);
@@ -234,7 +234,7 @@ describe("PricingSummaryService", () => {
       );
 
       // Compounded: 1 - (1 - 0.10) * (1 - 0.20) = 1 - 0.72 = 0.28 -> 28%
-      expect(result.discountPercentageFromSub).toBe(28);
+      expect(result.compoundedDiscountPercentage).toBe(28);
       // subtotal = 246; 10% of 246 = 24.6; remaining = 221.4; 20% of 221.4 = 44.28
       expect(result.discountLineItems).toEqual([
         { label: "10% discount", amount: 24.6 },
@@ -268,7 +268,7 @@ describe("PricingSummaryService", () => {
         50,
       );
 
-      expect(result.discountPercentageFromSub).toBe(10);
+      expect(result.compoundedDiscountPercentage).toBe(10);
       expect(result.discountLineItems).toEqual([{ label: "10% discount", amount: 24.6 }]);
       expect(result.totalAppliedDiscount).toBe(24.6);
     });

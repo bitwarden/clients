@@ -38,6 +38,10 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
  * Calculates the total compounded percent-off from multiple active discounts.
  * For example, a 10% discount stacked with a 20% discount yields 28% (not 30%).
  * Returns an integer in the range [0, 100].
+ *
+ * Only considers `percentOff` discounts. Amount-off discounts cannot be meaningfully
+ * represented as a percentage without knowing the base amount, so they are handled
+ * separately in per-line-item calculations (e.g., `calculateIndividualDiscounts`).
  */
 export const getCompoundedPercentOff = (
   discounts: { active: boolean; percentOff?: number }[],
@@ -49,6 +53,29 @@ export const getCompoundedPercentOff = (
     }
   }
   return Math.round((1 - multiplier) * 100);
+};
+
+/**
+ * Converts an array of billing customer discounts into displayable {@link Discount} objects.
+ *
+ * Filters to only active discounts with a non-zero percentOff or amountOff value.
+ * Optionally excludes discounts whose id is in the provided `excludeIds` set
+ * (e.g., "sm-standalone" coupons that shouldn't display as discount badges).
+ */
+export const toDisplayableDiscounts = (
+  customerDiscounts: { id?: string; active: boolean; percentOff?: number; amountOff?: number }[],
+  excludeIds?: Set<string>,
+): Discount[] => {
+  return customerDiscounts
+    .filter(
+      (d) =>
+        d.active && (d.percentOff > 0 || d.amountOff > 0) && (!excludeIds || !excludeIds.has(d.id)),
+    )
+    .map((d) =>
+      d.amountOff
+        ? { type: DiscountTypes.AmountOff, value: d.amountOff }
+        : { type: DiscountTypes.PercentOff, value: d.percentOff },
+    );
 };
 
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {

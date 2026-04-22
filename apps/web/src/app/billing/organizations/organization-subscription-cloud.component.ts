@@ -28,7 +28,7 @@ import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/model
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { Discount, DiscountTypes } from "@bitwarden/pricing";
+import { Discount, toDisplayableDiscounts } from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -239,13 +239,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
   /** Exclude sm-standalone trial coupons — they shouldn't display as discount badges */
   get displayableDiscounts(): Discount[] {
-    return this.customerDiscounts
-      .filter((d) => d.active && (d.percentOff > 0 || d.amountOff > 0) && d.id !== "sm-standalone")
-      .map((d) =>
-        d.amountOff
-          ? { type: DiscountTypes.AmountOff, value: d.amountOff }
-          : { type: DiscountTypes.PercentOff, value: d.percentOff },
-      );
+    return toDisplayableDiscounts(this.customerDiscounts, new Set(["sm-standalone"]));
   }
 
   get isExpired() {
@@ -511,6 +505,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       if (d.id === "sm-standalone" && (!productId || !d.appliesTo?.includes(productId))) {
         continue;
       }
+      // When productId is null, non-sm-standalone discounts are applied unconditionally.
+      // This preserves the legacy single-discount behavior where !productId caused the
+      // discount to be applied regardless of appliesTo constraints.
       if (d.appliesTo?.length && productId && !d.appliesTo.includes(productId)) {
         continue;
       }

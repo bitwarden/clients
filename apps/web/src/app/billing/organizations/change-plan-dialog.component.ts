@@ -180,7 +180,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected discountPercentageFromSub: number;
+  protected compoundedDiscountPercentage: number;
   protected activeDiscounts: BillingCustomerDiscount[] = [];
   protected loading = true;
   protected planCards: PlanCard[];
@@ -345,7 +345,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       : (this.sub?.customerDiscounts ?? []).filter(
           (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
         );
-    this.discountPercentageFromSub = getCompoundedPercentOff(this.activeDiscounts);
+    this.compoundedDiscountPercentage = getCompoundedPercentOff(this.activeDiscounts);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {

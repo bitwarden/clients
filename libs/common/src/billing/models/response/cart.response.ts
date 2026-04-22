@@ -19,6 +19,8 @@ export class CartItemResponse extends BaseResponse implements CartItem {
     this.translationKey = this.getResponseProperty("TranslationKey");
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
+    // The CartItem interface defines a single discount per line item. The server returns
+    // a Discounts array, but at most one discount per item is expected. Take the first.
     const discounts = this.getResponseProperty("Discounts");
     if (Array.isArray(discounts) && discounts.length > 0) {
       this.discount = new DiscountResponse(discounts[0]);

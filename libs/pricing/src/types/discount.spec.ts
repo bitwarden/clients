@@ -1,4 +1,4 @@
-import { Discount, DiscountTypes, getAmount } from "./discount";
+import { Discount, DiscountTypes, getAmount, toDisplayableDiscounts } from "./discount";
 
 describe("getAmount", () => {
   describe("PercentOff", () => {
@@ -76,5 +76,62 @@ describe("getAmount", () => {
       const discount: Discount = { type: DiscountTypes.AmountOff, value: 0 };
       expect(getAmount(discount, 200)).toBe(0);
     });
+  });
+});
+
+describe("toDisplayableDiscounts", () => {
+  it("should return empty array for empty input", () => {
+    expect(toDisplayableDiscounts([])).toEqual([]);
+  });
+
+  it("should filter out inactive discounts", () => {
+    const discounts = [{ id: "d1", active: false, percentOff: 10, amountOff: 0 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([]);
+  });
+
+  it("should filter out discounts with zero values", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 0, amountOff: 0 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([]);
+  });
+
+  it("should map percentOff discounts to PercentOff type", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 25, amountOff: 0 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.PercentOff, value: 25 },
+    ]);
+  });
+
+  it("should map amountOff discounts to AmountOff type", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 0, amountOff: 5 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.AmountOff, value: 5 },
+    ]);
+  });
+
+  it("should prefer amountOff when both are set", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 10, amountOff: 5 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.AmountOff, value: 5 },
+    ]);
+  });
+
+  it("should exclude discounts matching excludeIds", () => {
+    const discounts = [
+      { id: "sm-standalone", active: true, percentOff: 100, amountOff: 0 },
+      { id: "org-discount", active: true, percentOff: 10, amountOff: 0 },
+    ];
+    const result = toDisplayableDiscounts(discounts, new Set(["sm-standalone"]));
+    expect(result).toEqual([{ type: DiscountTypes.PercentOff, value: 10 }]);
+  });
+
+  it("should not exclude any when excludeIds is omitted", () => {
+    const discounts = [
+      { id: "sm-standalone", active: true, percentOff: 100, amountOff: 0 },
+      { id: "org-discount", active: true, percentOff: 10, amountOff: 0 },
+    ];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.PercentOff, value: 100 },
+      { type: DiscountTypes.PercentOff, value: 10 },
+    ]);
   });
 });
