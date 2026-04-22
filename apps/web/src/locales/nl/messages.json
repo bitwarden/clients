@@ -3952,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Nodig een nieuwe gebruiker uit voor je organisatie door het e-mailadres van hun Bitwarden-account hieronder in te vullen. Als ze nog geen Bitwarden-account hebben, kunnen ze een nieuw account aanmaken."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "Je kunt tot $COUNT$ gebruikers per keer uitnodigen door middel van een lijst met komma's gescheiden e-mailadressen.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Voer maximaal $BATCHLIMIT$ e-mailadressen in door ze te scheiden met een komma. ($REMAININGSEATS$ zetels over)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3966,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "Je hebt 0 uitnodigingen over."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Voer maximaal $BATCHLIMIT$ e-mailadressen per keer in, gescheiden door komma's.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Het account van deze gebruiker is beschermd met tweestapsaanmelding."
@@ -13399,5 +13412,22 @@
   "saveSendEditsFailed": {
     "message": "Bewerkingen Send opslaan mislukt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "export": {
+    "message": "Exporteren"
+  },
+  "sideNavigation": {
+    "message": "Zijnavigatie"
+  },
+  "skipLink": {
+    "message": "Link overslaan"
+  },
+  "callout": {
+    "message": "Opmerking",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Voortgangsbalk",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
