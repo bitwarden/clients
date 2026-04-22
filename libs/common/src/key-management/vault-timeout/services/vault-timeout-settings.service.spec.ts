@@ -969,8 +969,9 @@ describe("VaultTimeoutSettingsService", () => {
       expect(keyService.refreshAdditionalKeys).toHaveBeenCalled();
     });
 
-    it("should clear the tokens when the timeout is not never and the action is log out", async () => {
+    it("should re-store the tokens when the timeout is not never and the action is log out", async () => {
       // Arrange
+
       const action = VaultTimeoutAction.LogOut;
       const timeout = 30;
       tokenService.getAccessToken.mockResolvedValue(mockAccessToken);
@@ -978,8 +979,15 @@ describe("VaultTimeoutSettingsService", () => {
       // Act
       await vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, timeout, action);
 
-      // Assert
-      expect(tokenService.clearTokens).toHaveBeenCalled();
+      // Assert: setTokens is called to re-store tokens in the correct location
+      // (eviction of other storage locations is managed by the token service)
+      expect(tokenService.setTokens).toHaveBeenCalledWith(
+        mockAccessToken,
+        action,
+        timeout,
+        undefined, // refreshToken not mocked
+        [undefined, undefined], // clientId / clientSecret not mocked
+      );
     });
 
     it("should not clear the tokens when the timeout is never and the action is log out", async () => {

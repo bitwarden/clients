@@ -261,11 +261,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     const clientId = await this.tokenService.getClientId(userId);
     const clientSecret = await this.tokenService.getClientSecret(userId);
 
-    if (timeout != VaultTimeoutStringType.Never && action === VaultTimeoutAction.LogOut) {
-      // Switching to LogOut: clear tokens from disk before re-storing in memory
-      await this.tokenService.clearTokens(userId);
-    }
-
     if (!accessToken) {
       return;
     }
