@@ -77,7 +77,7 @@ export const BIOMETRIC_ENROLLED_KEY_ID = new UserKeyDefinition<string | null>(
   BIOMETRIC_SETTINGS_DISK,
   "biometricEnrolledKeyId",
   {
-    deserializer: (obj: any) => obj,
+    deserializer: (obj) => obj,
     clearOn: [],
   },
 );
