@@ -9,6 +9,7 @@ import {
   PlanResponse,
   SecretsManagerPlanFeaturesResponse,
 } from "@bitwarden/common/billing/models/response/plan.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { PricingSummaryData } from "../shared/pricing-summary/pricing-summary.component";
 
@@ -16,9 +17,18 @@ import { PricingSummaryService } from "./pricing-summary.service";
 
 describe("PricingSummaryService", () => {
   let service: PricingSummaryService;
+  let mockI18nService: jest.Mocked<I18nService>;
 
   beforeEach(() => {
-    service = new PricingSummaryService();
+    mockI18nService = {
+      t: jest.fn((key: string) => {
+        if (key === "discount") {
+          return "discount";
+        }
+        return key;
+      }),
+    } as unknown as jest.Mocked<I18nService>;
+    service = new PricingSummaryService(mockI18nService);
   });
 
   describe("getPricingSummaryData", () => {
@@ -58,7 +68,7 @@ describe("PricingSummaryService", () => {
         smSeats: 5,
         smServiceAccounts: 5,
         maxStorageGb: 2,
-        customerDiscount: null,
+        customerDiscounts: [],
       } as OrganizationSubscriptionResponse;
 
       // Create mock organization
@@ -100,6 +110,7 @@ describe("PricingSummaryService", () => {
         storageGb: 1,
         isSecretsManagerTrial: false,
         estimatedTax: 50,
+        discountLineItems: [],
       });
     });
 
@@ -130,6 +141,30 @@ describe("PricingSummaryService", () => {
 
       expect(result.passwordManagerSeatTotal).toBe(0); // Should be 0 during trial
       expect(result.discountPercentageFromSub).toBe(0); // Should be 0 during trial
+      expect(result.discountLineItems).toEqual([]);
+    });
+
+    it("should return zero discount during secrets manager trial even with active discounts", async () => {
+      mockSub.customerDiscounts = [
+        {
+          id: "discount1",
+          active: true,
+          percentOff: 25,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+      ];
+
+      const result = await service.getPricingSummaryData(
+        mockPlan,
+        mockSub,
+        mockOrganization,
+        PlanInterval.Monthly,
+        true, // isSecretsManagerTrial
+        50,
+      );
+
+      expect(result.discountPercentageFromSub).toBe(0);
+      expect(result.discountLineItems).toEqual([]);
     });
 
     it("should handle premium access option", async () => {
@@ -149,12 +184,14 @@ describe("PricingSummaryService", () => {
     });
 
     it("should handle customer discount", async () => {
-      mockSub.customerDiscount = {
-        id: "discount1",
-        active: true,
-        percentOff: 10,
-        appliesTo: ["subscription"],
-      } as BillingCustomerDiscount;
+      mockSub.customerDiscounts = [
+        {
+          id: "discount1",
+          active: true,
+          percentOff: 10,
+          appliesTo: ["subscription"],
+        } as BillingCustomerDiscount,
+      ];
 
       const result = await service.getPricingSummaryData(
         mockPlan,
@@ -166,6 +203,74 @@ describe("PricingSummaryService", () => {
       );
 
       expect(result.discountPercentageFromSub).toBe(10);
+      // subtotal before tax = 246, 10% of 246 = 24.6
+      expect(result.discountLineItems).toEqual([{ label: "10% discount", amount: 24.6 }]);
+      expect(result.totalAppliedDiscount).toBe(24.6);
+    });
+
+    it("should compound multiple customer discounts", async () => {
+      mockSub.customerDiscounts = [
+        {
+          id: "discount1",
+          active: true,
+          percentOff: 10,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+        {
+          id: "discount2",
+          active: true,
+          percentOff: 20,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+      ];
+
+      const result = await service.getPricingSummaryData(
+        mockPlan,
+        mockSub,
+        mockOrganization,
+        PlanInterval.Monthly,
+        false,
+        50,
+      );
+
+      // Compounded: 1 - (1 - 0.10) * (1 - 0.20) = 1 - 0.72 = 0.28 -> 28%
+      expect(result.discountPercentageFromSub).toBe(28);
+      // subtotal = 246; 10% of 246 = 24.6; remaining = 221.4; 20% of 221.4 = 44.28
+      expect(result.discountLineItems).toEqual([
+        { label: "10% discount", amount: 24.6 },
+        { label: "20% discount", amount: 44.28 },
+      ]);
+      expect(result.totalAppliedDiscount).toBeCloseTo(68.88, 2);
+    });
+
+    it("should skip inactive discounts during compounding", async () => {
+      mockSub.customerDiscounts = [
+        {
+          id: "discount1",
+          active: true,
+          percentOff: 10,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+        {
+          id: "discount2",
+          active: false,
+          percentOff: 50,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+      ];
+
+      const result = await service.getPricingSummaryData(
+        mockPlan,
+        mockSub,
+        mockOrganization,
+        PlanInterval.Monthly,
+        false,
+        50,
+      );
+
+      expect(result.discountPercentageFromSub).toBe(10);
+      expect(result.discountLineItems).toEqual([{ label: "10% discount", amount: 24.6 }]);
+      expect(result.totalAppliedDiscount).toBe(24.6);
     });
 
     it("should handle zero storage calculation", async () => {

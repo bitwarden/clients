@@ -51,7 +51,7 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   @Input() selectedPlan: PlanResponse;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() customerDiscount: BillingCustomerDiscount;
+  @Input() customerDiscounts: BillingCustomerDiscount[] = [];
 
   logo = SecretsManagerAlt;
   productTypes = ProductTierType;
@@ -79,13 +79,24 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  /**
+   * Applies all active discounts without filtering by appliesTo/productId.
+   * This is intentional — this component only displays Secrets Manager pricing,
+   * so product-level scoping is unnecessary.
+   */
   discountPrice = (price: number) => {
-    const discount =
-      !!this.customerDiscount && this.customerDiscount.active
-        ? price * (this.customerDiscount.percentOff / 100)
-        : 0;
-
-    return price - discount;
+    let discounted = price;
+    for (const d of this.customerDiscounts) {
+      if (!d.active) {
+        continue;
+      }
+      if (d.percentOff) {
+        discounted -= discounted * (d.percentOff / 100);
+      } else if (d.amountOff) {
+        discounted -= d.amountOff;
+      }
+    }
+    return Math.max(0, discounted);
   };
 
   get product() {

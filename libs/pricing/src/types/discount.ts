@@ -34,6 +34,23 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
   }
 };
 
+/**
+ * Calculates the total compounded percent-off from multiple active discounts.
+ * For example, a 10% discount stacked with a 20% discount yields 28% (not 30%).
+ * Returns an integer in the range [0, 100].
+ */
+export const getCompoundedPercentOff = (
+  discounts: { active: boolean; percentOff?: number }[],
+): number => {
+  let multiplier = 1;
+  for (const d of discounts) {
+    if (d.active && d.percentOff) {
+      multiplier *= 1 - d.percentOff / 100;
+    }
+  }
+  return Math.round((1 - multiplier) * 100);
+};
+
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {
   switch (discount.type) {
     case DiscountTypes.AmountOff: {

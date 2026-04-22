@@ -5,6 +5,11 @@ import { PlanInterval } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 
+export interface DiscountLineItem {
+  label: string;
+  amount: number;
+}
+
 export interface PricingSummaryData {
   selectedPlanInterval: string;
   passwordManagerSeats: number;
@@ -29,6 +34,7 @@ export interface PricingSummaryData {
   storageGb?: number;
   isSecretsManagerTrial?: boolean;
   estimatedTax?: number;
+  discountLineItems?: DiscountLineItem[];
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush

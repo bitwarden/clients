@@ -19,9 +19,9 @@ export class CartItemResponse extends BaseResponse implements CartItem {
     this.translationKey = this.getResponseProperty("TranslationKey");
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
-    const discount = this.getResponseProperty("Discount");
-    if (discount) {
-      this.discount = discount;
+    const discounts = this.getResponseProperty("Discounts");
+    if (Array.isArray(discounts) && discounts.length > 0) {
+      this.discount = new DiscountResponse(discounts[0]);
     }
   }
 }
@@ -87,9 +87,9 @@ export class CartResponse extends BaseResponse implements Cart {
     }
     this.cadence = cadence;
 
-    const discount = this.getResponseProperty("Discount");
-    if (discount) {
-      this.discounts = [new DiscountResponse(discount)];
+    const discounts = this.getResponseProperty("Discounts");
+    if (Array.isArray(discounts) && discounts.length > 0) {
+      this.discounts = discounts.map((d: any) => new DiscountResponse(d));
     }
 
     this.estimatedTax = this.getResponseProperty("EstimatedTax");

@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { getCompoundedPercentOff } from "@bitwarden/pricing";
 
 @Injectable({ providedIn: "root" })
 export class PlanCardService {
@@ -38,7 +39,7 @@ export class PlanCardService {
         costPerMember = (secretsManagerCost + passwordManagerCost) / (plan.isAnnual ? 12 : 1);
       }
 
-      const percentOff = subscription.customerDiscount?.percentOff ?? 0;
+      const percentOff = getCompoundedPercentOff(subscription.customerDiscounts ?? []);
 
       const discount =
         (percentOff === 0 && plan.isAnnual) || isSecretsManagerTrial ? 20 : percentOff;

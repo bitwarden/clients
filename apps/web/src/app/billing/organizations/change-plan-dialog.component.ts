@@ -29,7 +29,10 @@ import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/mode
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import {
+  BillingCustomerDiscount,
+  OrganizationSubscriptionResponse,
+} from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,6 +48,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Discount, DiscountTypes, getCompoundedPercentOff, getLabel } from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
@@ -177,6 +181,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   protected discountPercentageFromSub: number;
+  protected activeDiscounts: BillingCustomerDiscount[] = [];
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -335,9 +340,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         selected: false,
       },
     ];
-    this.discountPercentageFromSub = this.isSecretsManagerTrial()
-      ? 0
-      : (this.sub?.customerDiscount?.percentOff ?? 0);
+    this.activeDiscounts = this.isSecretsManagerTrial()
+      ? []
+      : (this.sub?.customerDiscounts ?? []).filter(
+          (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
+        );
+    this.discountPercentageFromSub = getCompoundedPercentOff(this.activeDiscounts);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
@@ -389,8 +397,11 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   isSecretsManagerTrial(): boolean {
     return (
-      this.sub?.subscription?.items?.some((item) =>
-        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
+      this.sub?.customerDiscounts?.some(
+        (d) =>
+          d.active &&
+          d.id === "sm-standalone" &&
+          this.sub?.subscription?.items?.some((item) => d.appliesTo?.includes(item.productId)),
       ) ?? false
     );
   }
@@ -975,8 +986,33 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.totalOpened = !this.totalOpened;
   }
 
-  calculateTotalAppliedDiscount(total: number) {
-    return total * (this.discountPercentageFromSub / 100);
+  /**
+   * Returns each active discount's label and its compounded dollar amount.
+   * Percent-off discounts are applied to the running total after all prior discounts.
+   * Amount-off discounts are applied as a flat reduction.
+   */
+  calculateIndividualDiscounts(total: number): { label: string; amount: number }[] {
+    const result: { label: string; amount: number }[] = [];
+    let remaining = total;
+    for (const d of this.activeDiscounts) {
+      const discount: Discount = d.amountOff
+        ? { type: DiscountTypes.AmountOff, value: d.amountOff }
+        : { type: DiscountTypes.PercentOff, value: d.percentOff };
+      const label = getLabel(this.i18nService, discount);
+      if (d.percentOff > 0) {
+        const amount = remaining * (d.percentOff / 100);
+        remaining -= amount;
+        result.push({ label, amount });
+      } else if (d.amountOff > 0) {
+        remaining -= d.amountOff;
+        result.push({ label, amount: d.amountOff });
+      }
+    }
+    return result;
+  }
+
+  get totalDiscountAmount(): number {
+    return this.calculateIndividualDiscounts(this.total).reduce((sum, d) => sum + d.amount, 0);
   }
 
   resolvePlanName(productTier: ProductTierType) {

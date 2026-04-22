@@ -7,7 +7,6 @@ import { firstValueFrom, lastValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { SubscriptionResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -15,7 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { Discount, DiscountTypes, Maybe } from "@bitwarden/pricing";
+import { Discount, DiscountTypes } from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -245,13 +244,14 @@ export class UserSubscriptionComponent implements OnInit {
     }
   }
 
-  getDiscount(discount: BillingCustomerDiscount | null): Maybe<Discount> {
-    if (!discount) {
-      return null;
-    }
-    return discount.amountOff
-      ? { type: DiscountTypes.AmountOff, value: discount.amountOff }
-      : { type: DiscountTypes.PercentOff, value: discount.percentOff };
+  get displayableDiscounts(): Discount[] {
+    return (this.sub?.customerDiscounts ?? [])
+      .filter((d) => d.active && (d.percentOff > 0 || d.amountOff > 0))
+      .map((d) =>
+        d.amountOff
+          ? { type: DiscountTypes.AmountOff, value: d.amountOff }
+          : { type: DiscountTypes.PercentOff, value: d.percentOff },
+      );
   }
 
   get isSubscriptionActive(): boolean {

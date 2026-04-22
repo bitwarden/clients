@@ -318,8 +318,11 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
 
   isSecretsManagerTrial(): boolean {
     return (
-      this.sub?.subscription?.items?.some((item) =>
-        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
+      this.sub?.customerDiscounts?.some(
+        (d) =>
+          d.active &&
+          d.id === "sm-standalone" &&
+          this.sub?.subscription?.items?.some((item) => d.appliesTo?.includes(item.productId)),
       ) ?? false
     );
   }

@@ -10,7 +10,7 @@ export class SubscriptionResponse extends BaseResponse {
   maxStorageGb: number;
   subscription: BillingSubscriptionResponse;
   upcomingInvoice: BillingSubscriptionUpcomingInvoiceResponse;
-  customerDiscount: BillingCustomerDiscount;
+  customerDiscounts: BillingCustomerDiscount[];
   license: any;
   expiration: string;
 
@@ -23,14 +23,14 @@ export class SubscriptionResponse extends BaseResponse {
     this.expiration = this.getResponseProperty("Expiration");
     const subscription = this.getResponseProperty("Subscription");
     const upcomingInvoice = this.getResponseProperty("UpcomingInvoice");
-    const customerDiscount = this.getResponseProperty("CustomerDiscount");
+    const customerDiscounts = this.getResponseProperty("CustomerDiscounts");
     this.subscription = subscription == null ? null : new BillingSubscriptionResponse(subscription);
     this.upcomingInvoice =
       upcomingInvoice == null
         ? null
         : new BillingSubscriptionUpcomingInvoiceResponse(upcomingInvoice);
-    this.customerDiscount =
-      customerDiscount == null ? null : new BillingCustomerDiscount(customerDiscount);
+    this.customerDiscounts =
+      customerDiscounts?.map((d: any) => new BillingCustomerDiscount(d)) ?? [];
   }
 }
 

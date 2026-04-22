@@ -20,11 +20,15 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import {
+  BillingCustomerDiscount,
+  OrganizationSubscriptionResponse,
+} from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { Discount, DiscountTypes } from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -176,7 +180,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           .sort(sortSubscriptionItems);
       }
 
-      if (this.sub?.customerDiscount?.percentOff == 100) {
+      if (this.customerDiscounts.some((d) => d.percentOff === 100)) {
         this.lineItems.reverse();
       }
     }
@@ -229,8 +233,19 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return this.sub != null ? this.sub.upcomingInvoice : null;
   }
 
-  get customerDiscount() {
-    return this.sub != null ? this.sub.customerDiscount : null;
+  get customerDiscounts(): BillingCustomerDiscount[] {
+    return this.sub?.customerDiscounts ?? [];
+  }
+
+  /** Exclude sm-standalone trial coupons — they shouldn't display as discount badges */
+  get displayableDiscounts(): Discount[] {
+    return this.customerDiscounts
+      .filter((d) => d.active && (d.percentOff > 0 || d.amountOff > 0) && d.id !== "sm-standalone")
+      .map((d) =>
+        d.amountOff
+          ? { type: DiscountTypes.AmountOff, value: d.amountOff }
+          : { type: DiscountTypes.PercentOff, value: d.percentOff },
+      );
   }
 
   get isExpired() {
@@ -404,17 +419,16 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   isSecretsManagerTrial(): boolean {
-    const isSmStandalone = this.sub?.customerDiscount?.id === "sm-standalone";
-    const appliesToProduct =
-      this.sub?.subscription?.items?.some((item) =>
-        this.discountAppliesToProduct(item.productId),
-      ) ?? false;
-
-    return isSmStandalone && appliesToProduct;
+    return this.customerDiscounts.some(
+      (d) =>
+        d.active &&
+        d.id === "sm-standalone" &&
+        this.sub?.subscription?.items?.some((item) => d.appliesTo?.includes(item.productId)),
+    );
   }
 
   discountAppliesToProduct(productId: string): boolean {
-    return this.sub?.customerDiscount?.appliesTo?.includes(productId) ?? false;
+    return this.customerDiscounts.some((d) => d.active && d.appliesTo?.includes(productId));
   }
 
   closeChangePlan() {
@@ -488,15 +502,21 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   };
 
   discountPrice = (price: number, productId: string = null) => {
-    const discount =
-      this.customerDiscount?.active &&
-      (!productId ||
-        !this.customerDiscount.appliesTo.length ||
-        this.customerDiscount.appliesTo.includes(productId))
-        ? price * (this.customerDiscount.percentOff / 100)
-        : 0;
-
-    return price - discount;
+    let discounted = price;
+    for (const d of this.customerDiscounts) {
+      if (!d.active) {
+        continue;
+      }
+      if (d.appliesTo?.length && productId && !d.appliesTo.includes(productId)) {
+        continue;
+      }
+      if (d.percentOff) {
+        discounted -= discounted * (d.percentOff / 100);
+      } else if (d.amountOff) {
+        discounted -= d.amountOff;
+      }
+    }
+    return Math.max(0, discounted);
   };
 
   get showChangePlanButton() {

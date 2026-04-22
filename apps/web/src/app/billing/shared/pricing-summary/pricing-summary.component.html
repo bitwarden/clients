@@ -215,18 +215,16 @@
         </ng-template>
 
         <!-- Discount Section -->
-        <ng-container *ngIf="summaryData.discountPercentageFromSub > 0">
+        @for (d of summaryData.discountLineItems; track d.label) {
           <p class="tw-mb-0 tw-flex tw-justify-between" bitTypography="body2">
             <span class="tw-text-xs">
-              {{
-                "providerDiscount" | i18n: this.summaryData.discountPercentageFromSub | lowercase
-              }}
+              {{ d.label }}
             </span>
             <span class="tw-line-through tw-text-xs">
-              {{ summaryData.totalAppliedDiscount | currency: "$" }}
+              {{ d.amount | currency: "$" }}
             </span>
           </p>
-        </ng-container>
+        }
       </bit-hint>
     </div>
 

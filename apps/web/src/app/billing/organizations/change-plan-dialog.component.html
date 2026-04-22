@@ -387,7 +387,7 @@
           <p class="tw-text-lg tw-mb-1">
             <span class="tw-font-medium"
               >{{ "total" | i18n }}:
-              {{ total - calculateTotalAppliedDiscount(total) | currency: "USD" : "$" }} USD</span
+              {{ total - totalDiscountAmount | currency: "USD" : "$" }} USD</span
             >
             <span class="tw-text-xs tw-font-light"> / {{ selectedPlanInterval | i18n }}</span>
             <button
@@ -468,24 +468,28 @@
               <span>{{ additionalStorageTotal(selectedPlan) | currency: "$" }}</span>
             </p>
             <!--Discount PM Annual-->
-            <p
-              class="tw-mb-0 tw-flex tw-justify-between"
-              bitTypography="body2"
-              *ngIf="organization.useSecretsManager && !isSecretsManagerTrial()"
+            <ng-container
+              *ngIf="
+                organization.useSecretsManager &&
+                !isSecretsManagerTrial() &&
+                selectedInterval == planIntervals.Annually &&
+                discountPercentageFromSub > 0
+              "
             >
-              <ng-container
-                *ngIf="selectedInterval == planIntervals.Annually && discountPercentageFromSub > 0"
-              >
-                <span class="tw-text-xs">
-                  {{ "providerDiscount" | i18n: this.discountPercentageFromSub | lowercase }}
-                </span>
-                <span class="tw-line-through tw-text-xs">{{
-                  calculateTotalAppliedDiscount(
-                    passwordManagerSeatTotal(selectedPlan) + additionalStorageTotal(selectedPlan)
-                  ) | currency: "$"
-                }}</span>
-              </ng-container>
-            </p>
+              @for (
+                d of calculateIndividualDiscounts(
+                  passwordManagerSeatTotal(selectedPlan) + additionalStorageTotal(selectedPlan)
+                );
+                track d.label
+              ) {
+                <p class="tw-mb-0 tw-flex tw-justify-between" bitTypography="body2">
+                  <span class="tw-text-xs">
+                    {{ d.label }}
+                  </span>
+                  <span class="tw-line-through tw-text-xs">{{ d.amount | currency: "$" }}</span>
+                </p>
+              }
+            </ng-container>
             <!-- secrets manager summary for annual -->
             <p class="tw-font-medium tw-mt-3 tw-mb-1" *ngIf="organization.useSecretsManager">
               {{ "secretsManager" | i18n }}
@@ -548,25 +552,29 @@
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
             <!--Discount SM annual-->
-            <p
-              class="tw-mb-0 tw-flex tw-justify-between"
-              bitTypography="body2"
-              *ngIf="organization.useSecretsManager && !isSecretsManagerTrial()"
+            <ng-container
+              *ngIf="
+                organization.useSecretsManager &&
+                !isSecretsManagerTrial() &&
+                selectedInterval == planIntervals.Annually &&
+                discountPercentageFromSub > 0
+              "
             >
-              <ng-container
-                *ngIf="selectedInterval == planIntervals.Annually && discountPercentageFromSub > 0"
-              >
-                <span class="tw-text-xs">
-                  {{ "providerDiscount" | i18n: this.discountPercentageFromSub | lowercase }}
-                </span>
-                <span class="tw-line-through tw-text-xs">{{
-                  calculateTotalAppliedDiscount(
-                    additionalServiceAccountTotal(selectedPlan) +
-                      secretsManagerSeatTotal(selectedPlan, sub.smSeats)
-                  ) | currency: "$"
-                }}</span>
-              </ng-container>
-            </p>
+              @for (
+                d of calculateIndividualDiscounts(
+                  additionalServiceAccountTotal(selectedPlan) +
+                    secretsManagerSeatTotal(selectedPlan, sub.smSeats)
+                );
+                track d.label
+              ) {
+                <p class="tw-mb-0 tw-flex tw-justify-between" bitTypography="body2">
+                  <span class="tw-text-xs">
+                    {{ d.label }}
+                  </span>
+                  <span class="tw-line-through tw-text-xs">{{ d.amount | currency: "$" }}</span>
+                </p>
+              }
+            </ng-container>
           </bit-hint>
           <bit-hint class="tw-w-1/2" *ngIf="selectedInterval == planIntervals.Monthly">
             <p class="tw-font-medium tw-mb-1" *ngIf="organization.useSecretsManager">
@@ -622,25 +630,23 @@
               }}</span>
             </p>
             <!--Discount PM Monthly-->
-            <p
-              class="tw-mb-0 tw-flex tw-justify-between"
-              bitTypography="body2"
-              *ngIf="organization.useSecretsManager && !isSecretsManagerTrial()"
+            <ng-container
+              *ngIf="
+                organization.useSecretsManager &&
+                !isSecretsManagerTrial() &&
+                selectedInterval == planIntervals.Monthly &&
+                discountPercentageFromSub > 0
+              "
             >
-              <ng-container *ngIf="selectedInterval == planIntervals.Monthly">
-                <span
-                  class="tw-text-xs"
-                  [style.display]="discountPercentageFromSub > 0 ? 'block' : 'none'"
-                >
-                  {{ "providerDiscount" | i18n: this.discountPercentageFromSub | lowercase }}
-                </span>
-                <span
-                  [style.display]="discountPercentageFromSub > 0 ? 'block' : 'none'"
-                  class="tw-line-through tw-text-xs"
-                  >{{ calculateTotalAppliedDiscount(total) | currency: "$" }}</span
-                >
-              </ng-container>
-            </p>
+              @for (d of calculateIndividualDiscounts(total); track d.label) {
+                <p class="tw-mb-0 tw-flex tw-justify-between" bitTypography="body2">
+                  <span class="tw-text-xs">
+                    {{ d.label }}
+                  </span>
+                  <span class="tw-line-through tw-text-xs">{{ d.amount | currency: "$" }}</span>
+                </p>
+              }
+            </ng-container>
             <!-- secrets manager summary for monthly -->
             <p class="tw-font-medium tw-mt-3 tw-mb-1" *ngIf="organization.useSecretsManager">
               {{ "secretsManager" | i18n }}
@@ -699,28 +705,29 @@
               <span>{{ additionalServiceAccountTotal(selectedPlan) | currency: "$" }}</span>
             </p>
             <!--Discount SM Monthly-->
-            <p
-              class="tw-mb-0 tw-flex tw-justify-between"
-              bitTypography="body2"
-              *ngIf="organization.useSecretsManager && !isSecretsManagerTrial()"
+            <ng-container
+              *ngIf="
+                organization.useSecretsManager &&
+                !isSecretsManagerTrial() &&
+                selectedInterval == planIntervals.Monthly &&
+                discountPercentageFromSub > 0
+              "
             >
-              <ng-container *ngIf="selectedInterval == planIntervals.Monthly">
-                <span
-                  class="tw-text-xs"
-                  [style.display]="discountPercentageFromSub > 0 ? 'block' : 'none'"
-                >
-                  {{ "providerDiscount" | i18n: this.discountPercentageFromSub | lowercase }}
-                </span>
-                <span
-                  [style.display]="discountPercentageFromSub > 0 ? 'block' : 'none'"
-                  class="tw-line-through tw-text-xs"
-                  >{{
-                    additionalServiceAccountTotal(selectedPlan) +
-                      secretsManagerSeatTotal(selectedPlan, sub?.smSeats) | currency: "$"
-                  }}</span
-                >
-              </ng-container>
-            </p>
+              @for (
+                d of calculateIndividualDiscounts(
+                  additionalServiceAccountTotal(selectedPlan) +
+                    secretsManagerSeatTotal(selectedPlan, sub?.smSeats)
+                );
+                track d.label
+              ) {
+                <p class="tw-mb-0 tw-flex tw-justify-between" bitTypography="body2">
+                  <span class="tw-text-xs">
+                    {{ d.label }}
+                  </span>
+                  <span class="tw-line-through tw-text-xs">{{ d.amount | currency: "$" }}</span>
+                </p>
+              }
+            </ng-container>
           </bit-hint>
         </div>
         <!-- SM + Free PM cost summary -->
@@ -947,24 +954,18 @@
         </div>
         <!-- discountPercentage to PM Only -->
         <div
-          *ngIf="totalOpened && !organization.useSecretsManager"
+          *ngIf="totalOpened && !organization.useSecretsManager && discountPercentageFromSub > 0"
           class="tw-flex tw-flex-wrap tw-gap-4"
         >
           <bit-hint class="tw-w-1/2">
-            <p
-              class="tw-mb-0 tw-flex tw-justify-between"
-              bitTypography="body2"
-              *ngIf="discountPercentageFromSub > 0"
-            >
-              <ng-container>
+            @for (d of calculateIndividualDiscounts(total); track d.label) {
+              <p class="tw-mb-0 tw-flex tw-justify-between" bitTypography="body2">
                 <span class="tw-text-xs">
-                  {{ "providerDiscount" | i18n: this.discountPercentageFromSub | lowercase }}
+                  {{ d.label }}
                 </span>
-                <span class="tw-line-through tw-text-xs">{{
-                  calculateTotalAppliedDiscount(total) | currency: "$"
-                }}</span>
-              </ng-container>
-            </p>
+                <span class="tw-line-through tw-text-xs">{{ d.amount | currency: "$" }}</span>
+              </p>
+            }
           </bit-hint>
         </div>
         <div *ngIf="totalOpened" class="tw-flex tw-flex-wrap tw-gap-4 tw-mt-4">
@@ -990,7 +991,7 @@
                 {{ "total" | i18n }}
               </span>
               <span>
-                {{ total - calculateTotalAppliedDiscount(total) | currency: "USD" : "$" }}
+                {{ total - totalDiscountAmount | currency: "USD" : "$" }}
                 <span class="tw-text-xs tw-font-medium"> / {{ selectedPlanInterval | i18n }}</span>
               </span>
             </p>

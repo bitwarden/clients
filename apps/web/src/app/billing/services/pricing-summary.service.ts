@@ -4,13 +4,20 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Discount, DiscountTypes, getCompoundedPercentOff, getLabel } from "@bitwarden/pricing";
 
-import { PricingSummaryData } from "../shared/pricing-summary/pricing-summary.component";
+import {
+  DiscountLineItem,
+  PricingSummaryData,
+} from "../shared/pricing-summary/pricing-summary.component";
 
 @Injectable({
   providedIn: "root",
 })
 export class PricingSummaryService {
+  constructor(private i18nService: I18nService) {}
+
   async getPricingSummaryData(
     plan: PlanResponse,
     sub: OrganizationSubscriptionResponse,
@@ -61,16 +68,38 @@ export class PricingSummaryService {
         additionalServiceAccountTotal
       : 0;
 
-    const totalAppliedDiscount = 0;
-    const discountPercentageFromSub = isSecretsManagerTrial
-      ? 0
-      : (sub?.customerDiscount?.percentOff ?? 0);
+    const allActiveDiscounts = isSecretsManagerTrial
+      ? []
+      : (sub?.customerDiscounts ?? []).filter(
+          (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
+        );
+    const discountPercentageFromSub = getCompoundedPercentOff(allActiveDiscounts);
     const discountPercentage = 20;
     const acceptingSponsorship = false;
 
     const total = organization?.useSecretsManager
       ? passwordManagerSubtotal + secretsManagerSubtotal + estimatedTax
       : passwordManagerSubtotal + estimatedTax;
+
+    const subtotalBeforeTax = total - estimatedTax;
+    const discountLineItems: DiscountLineItem[] = [];
+    let remaining = subtotalBeforeTax;
+    for (const d of allActiveDiscounts) {
+      const discount: Discount = d.amountOff
+        ? { type: DiscountTypes.AmountOff, value: d.amountOff }
+        : { type: DiscountTypes.PercentOff, value: d.percentOff };
+      const label = getLabel(this.i18nService, discount);
+      if (d.percentOff > 0) {
+        const amount = remaining * (d.percentOff / 100);
+        remaining -= amount;
+        discountLineItems.push({ label, amount });
+      } else if (d.amountOff > 0) {
+        remaining -= d.amountOff;
+        discountLineItems.push({ label, amount: d.amountOff });
+      }
+    }
+
+    const totalAppliedDiscount = discountLineItems.reduce((sum, d) => sum + d.amount, 0);
 
     return {
       selectedPlanInterval: selectedInterval === PlanInterval.Annually ? "year" : "month",
@@ -96,6 +125,7 @@ export class PricingSummaryService {
       storageGb,
       isSecretsManagerTrial,
       estimatedTax,
+      discountLineItems,
     };
   }
 
