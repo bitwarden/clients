@@ -1,4 +1,4 @@
-import { mockContainerService, mockEnc } from "../../../../spec";
+import { makeEncString, mockContainerService, mockEnc } from "../../../../spec";
 import { BankAccountApi } from "../api/bank-account.api";
 import { BankAccountData } from "../data/bank-account.data";
 
@@ -7,19 +7,30 @@ import { BankAccount } from "./bank-account";
 describe("BankAccount", () => {
   let data: BankAccountData;
 
+  const bankNameEnc = makeEncString("bankName");
+  const nameOnAccountEnc = makeEncString("nameOnAccount");
+  const accountTypeEnc = makeEncString("accountType");
+  const accountNumberEnc = makeEncString("accountNumber");
+  const routingNumberEnc = makeEncString("routingNumber");
+  const branchNumberEnc = makeEncString("branchNumber");
+  const pinEnc = makeEncString("pin");
+  const swiftCodeEnc = makeEncString("swiftCode");
+  const ibanEnc = makeEncString("iban");
+  const bankContactPhoneEnc = makeEncString("bankContactPhone");
+
   beforeEach(() => {
     data = new BankAccountData(
       new BankAccountApi({
-        BankName: "bankName",
-        NameOnAccount: "nameOnAccount",
-        AccountType: "accountType",
-        AccountNumber: "accountNumber",
-        RoutingNumber: "routingNumber",
-        BranchNumber: "branchNumber",
-        Pin: "pin",
-        SwiftCode: "swiftCode",
-        Iban: "iban",
-        BankContactPhone: "bankContactPhone",
+        BankName: bankNameEnc.encryptedString,
+        NameOnAccount: nameOnAccountEnc.encryptedString,
+        AccountType: accountTypeEnc.encryptedString,
+        AccountNumber: accountNumberEnc.encryptedString,
+        RoutingNumber: routingNumberEnc.encryptedString,
+        BranchNumber: branchNumberEnc.encryptedString,
+        Pin: pinEnc.encryptedString,
+        SwiftCode: swiftCodeEnc.encryptedString,
+        Iban: ibanEnc.encryptedString,
+        BankContactPhone: bankContactPhoneEnc.encryptedString,
       }),
     );
 
@@ -30,16 +41,16 @@ describe("BankAccount", () => {
     const bankAccount = new BankAccount(data);
 
     expect(bankAccount).toEqual({
-      bankName: { encryptedString: "bankName", encryptionType: 0 },
-      nameOnAccount: { encryptedString: "nameOnAccount", encryptionType: 0 },
-      accountType: { encryptedString: "accountType", encryptionType: 0 },
-      accountNumber: { encryptedString: "accountNumber", encryptionType: 0 },
-      routingNumber: { encryptedString: "routingNumber", encryptionType: 0 },
-      branchNumber: { encryptedString: "branchNumber", encryptionType: 0 },
-      pin: { encryptedString: "pin", encryptionType: 0 },
-      swiftCode: { encryptedString: "swiftCode", encryptionType: 0 },
-      iban: { encryptedString: "iban", encryptionType: 0 },
-      bankContactPhone: { encryptedString: "bankContactPhone", encryptionType: 0 },
+      bankName: bankNameEnc,
+      nameOnAccount: nameOnAccountEnc,
+      accountType: accountTypeEnc,
+      accountNumber: accountNumberEnc,
+      routingNumber: routingNumberEnc,
+      branchNumber: branchNumberEnc,
+      pin: pinEnc,
+      swiftCode: swiftCodeEnc,
+      iban: ibanEnc,
+      bankContactPhone: bankContactPhoneEnc,
     });
   });
 
@@ -149,16 +160,16 @@ describe("BankAccount", () => {
       const sdkBankAccount = bankAccount.toSdkBankAccount();
 
       expect(sdkBankAccount).toEqual({
-        bankName: "bankName",
-        nameOnAccount: "nameOnAccount",
-        accountType: "accountType",
-        accountNumber: "accountNumber",
-        routingNumber: "routingNumber",
-        branchNumber: "branchNumber",
-        pin: "pin",
-        swiftCode: "swiftCode",
-        iban: "iban",
-        bankContactPhone: "bankContactPhone",
+        bankName: bankNameEnc.encryptedString,
+        nameOnAccount: nameOnAccountEnc.encryptedString,
+        accountType: accountTypeEnc.encryptedString,
+        accountNumber: accountNumberEnc.encryptedString,
+        routingNumber: routingNumberEnc.encryptedString,
+        branchNumber: branchNumberEnc.encryptedString,
+        pin: pinEnc.encryptedString,
+        swiftCode: swiftCodeEnc.encryptedString,
+        iban: ibanEnc.encryptedString,
+        bankContactPhone: bankContactPhoneEnc.encryptedString,
       });
     });
   });
