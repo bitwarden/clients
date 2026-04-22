@@ -623,7 +623,7 @@ describe("PolicyService", () => {
     });
 
     describe("SingleOrg policy exemptions", () => {
-      it("returns true for SingleOrg policy when AutoConfirm is enabled, even for users who can manage policies", async () => {
+      it("returns false for SingleOrg policy when user can manage policies, even when AutoConfirm is enabled", async () => {
         singleUserState.nextState(
           arrayToRecord([
             policyData("policy1", "org6", PolicyType.SingleOrg, true),
@@ -635,7 +635,7 @@ describe("PolicyService", () => {
           policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
         );
 
-        expect(result).toBe(true);
+        expect(result).toBe(false);
       });
 
       it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is not enabled", async () => {

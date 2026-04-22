@@ -11,6 +11,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { singleOrganizationPolicyApplies$ } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -191,6 +192,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           merge(
             this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
+            this.policyService.policiesByType$(PolicyType.AutoConfirm, userId).pipe(getFirstPolicy),
             this.policyService
               .policiesByType$(PolicyType.OrganizationDataOwnership, userId)
               .pipe(getFirstPolicy),
@@ -270,9 +272,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const singleOrgPolicy = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        ),
+        switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
       ),
     );
 

@@ -17,10 +17,11 @@ import {
   canAccessSettingsTab,
   canAccessVaultTab,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
+import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -109,7 +110,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
     this.hideNewOrgButton$ = this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+      switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
     );
 
     const provider$ = combineLatest([

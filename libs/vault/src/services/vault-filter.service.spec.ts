@@ -50,6 +50,7 @@ describe("vault filter service", () => {
   let cipherViews: ReplaySubject<CipherView[]>;
   let organizationDataOwnershipPolicy: ReplaySubject<boolean>;
   let singleOrgPolicy: ReplaySubject<boolean>;
+  let autoConfirmPolicy: ReplaySubject<boolean>;
   let stateProvider: FakeStateProvider;
   let configService: MockProxy<ConfigService>;
 
@@ -75,6 +76,7 @@ describe("vault filter service", () => {
     cipherViews = new ReplaySubject<CipherView[]>(1);
     organizationDataOwnershipPolicy = new ReplaySubject<boolean>(1);
     singleOrgPolicy = new ReplaySubject<boolean>(1);
+    autoConfirmPolicy = new ReplaySubject<boolean>(1);
 
     configService.getFeatureFlag$.mockReturnValue(of(true));
     organizationService.memberOrganizations$.mockReturnValue(organizations);
@@ -86,6 +88,9 @@ describe("vault filter service", () => {
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.SingleOrg, mockUserId)
       .mockReturnValue(singleOrgPolicy);
+    policyService.policyAppliesToUser$
+      .calledWith(PolicyType.AutoConfirm, mockUserId)
+      .mockReturnValue(autoConfirmPolicy);
     cipherService.cipherListViews$.mockReturnValue(cipherViews);
 
     vaultFilterService = new VaultFilterService(
@@ -134,6 +139,7 @@ describe("vault filter service", () => {
       organizations.next(storedOrgs);
       organizationDataOwnershipPolicy.next(false);
       singleOrgPolicy.next(false);
+      autoConfirmPolicy.next(false);
     });
 
     it("returns a nested tree", async () => {
