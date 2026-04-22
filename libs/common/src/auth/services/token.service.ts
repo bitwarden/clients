@@ -359,6 +359,27 @@ export class TokenService implements TokenServiceAbstraction {
   }
 
   /**
+   * Writes value to the given state key and awaits propagation through the RxJS state$ pipeline
+   * before returning — guaranteeing all subscribers see the new value before the caller proceeds.
+   *
+   * Delegates to waitForStateValue, which MUST subscribe before the write fires. That ordering
+   * is enforced here by construction: the subscription is always registered before the update call.
+   */
+  private async writeAndWait<T>(
+    userId: UserId,
+    keyDefinition: UserKeyDefinition<T>,
+    value: T,
+    options?: { shouldUpdate?: (state: T | null) => boolean },
+  ): Promise<T | null> {
+    const propagated = this.waitForStateValue(userId, keyDefinition, value);
+    const result = await this.singleUserStateProvider
+      .get(userId, keyDefinition)
+      .update((_) => value, options);
+    await propagated;
+    return result;
+  }
+
+  /**
    * Internal helper for set access token which always requires user id.
    * This is useful because setTokens always will have a user id from the access token whereas
    * the public setAccessToken method does not.
@@ -389,22 +410,10 @@ export class TokenService implements TokenServiceAbstraction {
             userId,
           );
 
-          const newEncryptedAccessTokenInState = this.waitForStateValue(
-            userId,
-            ACCESS_TOKEN_DISK,
-            encryptedAccessToken.encryptedString,
-          );
-
-          // Save the encrypted access token to disk
-          await this.singleUserStateProvider
-            .get(userId, ACCESS_TOKEN_DISK)
-            .update((_) => encryptedAccessToken.encryptedString, {
-              shouldUpdate: (previousValue) =>
-                previousValue !== encryptedAccessToken.encryptedString,
-            });
-
-          // Await for propagation of the new state location on disk
-          await newEncryptedAccessTokenInState;
+          // Save the encrypted access token to disk and await state propagation
+          await this.writeAndWait(userId, ACCESS_TOKEN_DISK, encryptedAccessToken.encryptedString, {
+            shouldUpdate: (prev) => prev !== encryptedAccessToken.encryptedString,
+          });
 
           // If we've successfully stored the encrypted access token to disk, we can return the decrypted access token
           // so that the caller can use it immediately.
@@ -418,21 +427,10 @@ export class TokenService implements TokenServiceAbstraction {
             error,
           );
 
-          const newAccessTokenInState = this.waitForStateValue(
-            userId,
-            ACCESS_TOKEN_DISK,
-            accessToken,
-          );
-
-          // Fall back to disk storage for unecrypted access token
-          decryptedAccessToken = await this.singleUserStateProvider
-            .get(userId, ACCESS_TOKEN_DISK)
-            .update((_) => accessToken, {
-              shouldUpdate: (previousValue) => previousValue !== accessToken,
-            });
-
-          // Await for propagation of the new state location on disk
-          await newAccessTokenInState;
+          // Fall back to disk storage for unencrypted access token and await state propagation
+          decryptedAccessToken = await this.writeAndWait(userId, ACCESS_TOKEN_DISK, accessToken, {
+            shouldUpdate: (prev) => prev !== accessToken,
+          });
           // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
           await this.clearAccessTokenMemoryLocation(userId);
         }
@@ -440,38 +438,16 @@ export class TokenService implements TokenServiceAbstraction {
         return decryptedAccessToken;
       }
       case TokenStorageLocation.Disk: {
-        const newAccessTokenInState = this.waitForStateValue(
-          userId,
-          ACCESS_TOKEN_DISK,
-          accessToken,
-        );
-
         // Access token stored on disk unencrypted as platform does not support secure storage
-        const newAccessToken = await this.singleUserStateProvider
-          .get(userId, ACCESS_TOKEN_DISK)
-          .update((_) => accessToken, {
-            shouldUpdate: (previousValue) => previousValue !== accessToken,
-          });
-
-        // Await for propagation of the new state location on disk
-        await newAccessTokenInState;
+        const newAccessToken = await this.writeAndWait(userId, ACCESS_TOKEN_DISK, accessToken, {
+          shouldUpdate: (prev) => prev !== accessToken,
+        });
         // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
         await this.clearAccessTokenMemoryLocation(userId);
         return newAccessToken;
       }
       case TokenStorageLocation.Memory: {
-        const newAccessTokenInState = this.waitForStateValue(
-          userId,
-          ACCESS_TOKEN_MEMORY,
-          accessToken,
-        );
-
-        const newAccessToken = await this.singleUserStateProvider
-          .get(userId, ACCESS_TOKEN_MEMORY)
-          .update((_) => accessToken);
-
-        // Await for propagation of the new state location in memory
-        await newAccessTokenInState;
+        const newAccessToken = await this.writeAndWait(userId, ACCESS_TOKEN_MEMORY, accessToken);
         // Then, we can clear the disk state location to enforce that a single location holds the access token at a time.
         await this.clearAccessTokenDiskLocation(userId);
 
