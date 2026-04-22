@@ -314,7 +314,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
       enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
       enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
-      startToTray: await firstValueFrom(this.desktopSettingsService.startToTray$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
       enableBrowserIntegration: await firstValueFrom(
@@ -341,7 +340,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
-    this.form.setValue(initialValues, { emitEvent: false });
 
     if (this.form.value.enableBrowserIntegration) {
       this.form.controls.enableBrowserIntegrationFingerprint.enable();
@@ -592,7 +590,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
       if (confirm) {
         this.form.controls.startToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
         this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
         await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
       } else {
@@ -605,15 +602,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
     // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
     this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
-  }
-
-  async saveStartToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
   }
 
   async saveLocale() {
