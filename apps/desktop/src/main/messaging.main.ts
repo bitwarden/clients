@@ -30,7 +30,7 @@ export class MessagingMain {
     // On app start, regenerate the configurations needed to autostart or not auto-start
     // depending on the setting provided in the settings file.
     const openAtLogin = await firstValueFrom(this.desktopSettingsService.openAtLogin$);
-    if (openAtLogin) {
+    if (openAtLogin && !this.isTestAutomation()) {
       this.addOpenAtLogin();
     } else {
       this.removeOpenAtLogin();
@@ -128,6 +128,10 @@ export class MessagingMain {
   }
 
   private addOpenAtLogin() {
+    if (this.isTestAutomation()) {
+      return;
+    }
+
     if (process.platform === "linux") {
       if (isFlatpak()) {
         autostart.setAutostart(true, []).catch((e) => {});
@@ -181,5 +185,9 @@ export class MessagingMain {
       command: "windowIsFocused",
       windowIsFocused: windowIsFocused,
     });
+  }
+
+  private isTestAutomation() {
+    return process.env.TEST_AUTOMATION === "true";
   }
 }
