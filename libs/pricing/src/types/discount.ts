@@ -54,7 +54,7 @@ export const isSmStandaloneTrial = (
       (d) =>
         d.active &&
         d.id === SM_STANDALONE_DISCOUNT_ID &&
-        subscriptionItems?.some((item) => d.appliesTo?.includes(item.productId)),
+        subscriptionItems?.some((item) => item.productId && d.appliesTo?.includes(item.productId)),
     ) ?? false
   );
 };
