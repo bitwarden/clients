@@ -546,7 +546,7 @@
     "message": "私密备注"
   },
   "note": {
-    "message": "备注"
+    "message": "笔记"
   },
   "customFields": {
     "message": "自定义字段"
@@ -3800,7 +3800,7 @@
     "message": "月"
   },
   "annually": {
-    "message": "每年"
+    "message": "按年"
   },
   "annual": {
     "message": "每年"
@@ -3952,20 +3952,33 @@
   "inviteUserDesc": {
     "message": "在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的组织。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
   },
-  "inviteMultipleEmailDesc": {
-    "message": "最多输入 $COUNT$ 个电子邮箱（使用逗号分隔）。",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "使用逗号分隔输入最多 $BATCHLIMIT$ 个电子邮箱。（还剩余 $REMAININGSEATS$ 个席位）",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
   "inviteSingleEmailDesc": {
-    "message": "您还剩下 1 个邀请。"
+    "message": "您还剩余 1 个邀请。"
   },
   "inviteZeroEmailDesc": {
-    "message": "您还剩下 0 个邀请。"
+    "message": "您还剩余 0 个邀请。"
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "一次性输入最多 $BATCHLIMIT$ 个电子邮箱，使用逗号分隔。",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "此用户正在使用两步登录来保护他们的账户。"
@@ -12543,7 +12556,7 @@
     "message": "缺少税务 ID"
   },
   "missingTaxIdWarning": {
-    "message": "需要采取操作：您的付款详细信息缺少税务 ID 号码。如果未添加税务 ID，您的账单可能会包括额外的税款。"
+    "message": "需要采取操作：您的付款详细信息缺少税务 ID 号码。如果未添加税务 ID，您的账单可能会包含附加税。"
   },
   "moreBreadcrumbs": {
     "message": "更多导航项",
@@ -12556,10 +12569,10 @@
     "message": "需要采取操作：缺少税务 ID"
   },
   "missingTaxIdCalloutDescription": {
-    "message": "如果未添加税务 ID，您的账单可能会包括额外的税款。"
+    "message": "如果未添加税务 ID，您的账单可能会包含附加税。"
   },
   "unverifiedTaxIdWarning": {
-    "message": "需要采取操作：您的税务 ID 号码未验证。如果您的税务 ID 未验证，您的账单可能会包括额外的税款。"
+    "message": "需要采取操作：您的税务 ID 号码未验证。如果您的税务 ID 未验证，您的账单可能会包含附加税。"
   },
   "editTaxId": {
     "message": "编辑您的税务 ID"
@@ -13201,7 +13214,7 @@
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "输入多个电子邮箱（使用逗号分隔）。"
+    "message": "使用逗号分隔输入多个电子邮箱。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -13399,5 +13412,22 @@
   "saveSendEditsFailed": {
     "message": "保存 Send 的编辑内容失败",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "export": {
+    "message": "导出"
+  },
+  "sideNavigation": {
+    "message": "侧边导航"
+  },
+  "skipLink": {
+    "message": "跳过链接"
+  },
+  "callout": {
+    "message": "提示框",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "进度条",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
