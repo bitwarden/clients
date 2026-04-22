@@ -38,6 +38,7 @@ describe("DefaultCipherSdkService", () => {
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
       list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      update_collection: jest.fn(),
     };
     mockCiphersSdk = {
       create: jest.fn(),
@@ -988,6 +989,82 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to list organization ciphers"),
+      );
+    });
+  });
+
+  describe("saveCollectionsWithServerAdmin()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
+
+    const createMockSdkCipherView = (id: string): any => ({
+      id,
+      organizationId: orgId,
+      folderId: null,
+      collectionIds: [collectionId1, collectionId2],
+      key: null,
+      name: "EncryptedString",
+      notes: null,
+      type: CipherType.Login,
+      login: null,
+      identity: null,
+      card: null,
+      secureNote: null,
+      sshKey: null,
+      data: null,
+      favorite: false,
+      reprompt: 0,
+      organizationUseTotp: false,
+      edit: true,
+      permissions: null,
+      viewPassword: true,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      creationDate: "2022-01-01T12:00:00.000Z",
+      deletedDate: null,
+      archivedDate: null,
+      revisionDate: "2022-01-31T12:00:00.000Z",
+    });
+
+    it("should update cipher collections using the admin SDK", async () => {
+      const collectionIds = [collectionId1, collectionId2];
+      const mockSdkCipherView = createMockSdkCipherView(cipherId);
+      mockAdminSdk.update_collection.mockResolvedValue(mockSdkCipherView);
+
+      const result = await cipherSdkService.saveCollectionsWithServerAdmin(
+        cipherId,
+        collectionIds,
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.update_collection).toHaveBeenCalledWith(cipherId, collectionIds);
+      expect(result).toBeInstanceOf(CipherView);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(
+        cipherSdkService.saveCollectionsWithServerAdmin(cipherId, [collectionId1], userId),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher collections as admin"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockAdminSdk.update_collection.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.saveCollectionsWithServerAdmin(cipherId, [collectionId1], userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to update cipher collections as admin"),
       );
     });
   });

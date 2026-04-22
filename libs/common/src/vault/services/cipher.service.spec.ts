@@ -118,6 +118,7 @@ describe("Cipher Service", () => {
   // BehaviorSubjects for SDK feature flags - allows tests to change the value after service instantiation
   let sdkCrudFeatureFlag$: BehaviorSubject<boolean>;
   let sdkShareFeatureFlag$: BehaviorSubject<boolean>;
+  let sdkAdminOpsFeatureFlag$: BehaviorSubject<boolean>;
 
   beforeEach(() => {
     encryptService.encryptFileData.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
@@ -136,10 +137,14 @@ describe("Cipher Service", () => {
     // Create BehaviorSubjects for SDK feature flags - tests can update these to change behavior
     sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
     sdkShareFeatureFlag$ = new BehaviorSubject<boolean>(false);
+    sdkAdminOpsFeatureFlag$ = new BehaviorSubject<boolean>(false);
     configService.getFeatureFlag$.mockImplementation(
       <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
         if (flag === FeatureFlag.PM28190CipherSharingOpsToSdk) {
           return sdkShareFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
+        }
+        if (flag === FeatureFlag.PM28191CipherAdminOpsToSdk) {
+          return sdkAdminOpsFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
         }
         return sdkCrudFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
       },
@@ -1662,6 +1667,58 @@ describe("Cipher Service", () => {
       const result = await cipherService.getLastLaunchedForUrl(testUrl, userId, true);
 
       expect(result.localData).toBe(existingLocalData);
+    });
+  });
+
+  describe("saveCollectionsWithServerAdmin()", () => {
+    const collectionIds = ["col-id-1", "col-id-2"];
+    let cipher: Cipher;
+
+    beforeEach(() => {
+      cipher = new Cipher(cipherData);
+      cipher.collectionIds = collectionIds;
+    });
+
+    it("should call apiService when feature flag is disabled", async () => {
+      sdkAdminOpsFeatureFlag$.next(false);
+      apiService.putCipherCollectionsAdmin.mockResolvedValue(cipherData as any);
+
+      const result = await cipherService.saveCollectionsWithServerAdmin(cipher);
+
+      expect(apiService.putCipherCollectionsAdmin).toHaveBeenCalledWith(
+        cipher.id,
+        expect.objectContaining({ collectionIds }),
+      );
+      expect(cipherSdkService.saveCollectionsWithServerAdmin).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(Cipher);
+    });
+
+    it("should delegate to cipherSdkService when feature flag is enabled", async () => {
+      sdkAdminOpsFeatureFlag$.next(true);
+
+      const sdkCipherView = new CipherView(cipher);
+      const encryptedCipher = new Cipher(cipherData);
+
+      jest
+        .spyOn(cipherSdkService, "saveCollectionsWithServerAdmin")
+        .mockResolvedValue(sdkCipherView);
+      cipherEncryptionService.encrypt.mockResolvedValue({
+        cipher: encryptedCipher,
+        encryptedFor: mockUserId,
+      });
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      const result = await cipherService.saveCollectionsWithServerAdmin(cipher);
+
+      expect(cipherSdkService.saveCollectionsWithServerAdmin).toHaveBeenCalledWith(
+        cipher.id,
+        collectionIds,
+        mockUserId,
+      );
+      expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
+      expect(cipherEncryptionService.encrypt).toHaveBeenCalledWith(sdkCipherView, mockUserId);
+      expect(apiService.putCipherCollectionsAdmin).not.toHaveBeenCalled();
+      expect(result).toBe(encryptedCipher);
     });
   });
 });
