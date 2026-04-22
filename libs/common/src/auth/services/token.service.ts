@@ -329,9 +329,22 @@ export class TokenService implements TokenServiceAbstraction {
   }
 
   /**
-   * Returns a promise that resolves once the given key in the state layer holds expectedValue.
-   * Must be called BEFORE the write that produces expectedValue so the underlying subscription
-   * is registered before storageUpdate$ fires.
+   * Returns a promise that resolves once the given state key holds expectedValue as seen
+   * through the RxJS state$ observable pipeline — not merely written to raw storage.
+   *
+   * IMPORTANT: Must be called BEFORE the write that produces expectedValue. The
+   * subscription must be registered before storageUpdate$ fires, otherwise the emission
+   * is missed and the promise never resolves.
+   *
+   * Why this exists — enforcing the single-location invariant safely:
+   * _setAccessToken writes the new token to one storage location and then clears the
+   * other to enforce the rule "only one slot holds the access token at a time." That
+   * clear is only safe once the new value has propagated through state$ to all readers.
+   * Without this guarantee there is a brief window where:
+   *   1. Raw storage has the new value (e.g. on Disk).
+   *   2. The other location (Memory) is cleared to null.
+   *   3. A concurrent getAccessToken() call reads Memory (null), falls back to Disk,
+   *      but state$ for Disk has not yet emitted — returning null or a prior stale value.
    */
   private waitForStateValue<T>(
     userId: UserId,
