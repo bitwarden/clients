@@ -77,6 +77,18 @@ describe("BiometricPersistentMigration", () => {
       expect(result).toBe("needsMigration");
     });
 
+    it("should return 'noMigrationNeeded' when enrolled key ID matches current key ID (v2 hot path)", async () => {
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
+      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
+      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
+      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdB64);
+
+      const result = await sut.needsMigration(mockUserId);
+
+      expect(result).toBe("noMigrationNeeded");
+    });
+
     it("should return 'noMigrationNeeded' when no persistent key exists", async () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(false);
