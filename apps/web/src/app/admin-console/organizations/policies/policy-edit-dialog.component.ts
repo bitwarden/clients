@@ -145,14 +145,14 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   protected readonly cancel = async () => {
     if (!this.isFormDirty()) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
     if (confirmed) {
-      // Clear the predicate first so the drawer's tryClose() doesn't show a second dialog.
+      // Clear the predicate first so close() doesn't show a second dialog.
       this.dialogRef.closePredicate = undefined;
-      this.dialogRef.close();
+      await this.dialogRef.close();
     }
   };
 
@@ -182,7 +182,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     if (component.data) {
       component.data.statusChanges
         .pipe(
-          map((status) => status !== "VALID" || !policyResponse.canToggleState),
+          map((status) => status === "INVALID" || !policyResponse.canToggleState),
           takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((disabled) => this._saveDisabled.set(disabled));
@@ -215,8 +215,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     if ((await policyComponent.confirm?.()) == false) {
-      this.dialogRef.closePredicate = undefined;
-      this.dialogRef.close();
+      await this.dialogRef.close();
       return;
     }
 
@@ -227,8 +226,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         variant: "success",
         message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
       });
-      this.dialogRef.closePredicate = undefined;
-      this.dialogRef.close("saved");
+      await this.dialogRef.close("saved");
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",

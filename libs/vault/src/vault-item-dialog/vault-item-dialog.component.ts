@@ -33,6 +33,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
+  BadgeModule,
   BitIconButtonComponent,
   ButtonModule,
   CenterPositionStrategy,
@@ -130,6 +131,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
+    BadgeModule,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
@@ -345,7 +347,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           data: { cipherIds: [this.cipher.id] },
           positionStrategy: new CenterPositionStrategy(),
         });
-        this.dialogRef.close();
+        await this.dialogRef.close();
         return;
       }
 
@@ -396,7 +398,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     }
     // If the cipher was modified, be sure we emit the saved result in case the dialog was closed with the X button or ESC key.
     if (this._cipherModified) {
-      this.dialogRef.close(VaultItemDialogResult.Saved);
+      void this.dialogRef.close(VaultItemDialogResult.Saved);
     }
   }
 
@@ -465,7 +467,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   restore = async () => {
     await this.params.restore?.(this.cipher);
-    this.dialogRef.close(VaultItemDialogResult.Restored);
+    await this.dialogRef.close(VaultItemDialogResult.Restored);
   };
 
   delete = async () => {
@@ -500,7 +502,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.logService.error(e);
     }
     this._cipherModified = false;
-    this.dialogRef.close(VaultItemDialogResult.Deleted);
+    await this.dialogRef.close(VaultItemDialogResult.Deleted);
   };
 
   openAttachmentsDialog = async () => {
@@ -573,7 +575,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   cancel = async () => {
     // We're in View mode, we don't have a cipher, or we were cloning, close the dialog.
     if (this.params.mode === "view" || this.cipher == null || this.formConfig.mode === "clone") {
-      this.dialogRef.close(this._cipherModified ? VaultItemDialogResult.Saved : undefined);
+      await this.dialogRef.close(this._cipherModified ? VaultItemDialogResult.Saved : undefined);
       return;
     }
 

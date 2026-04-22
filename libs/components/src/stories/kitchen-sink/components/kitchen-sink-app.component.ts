@@ -1,12 +1,11 @@
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component } from "@angular/core";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-kitchen-sink-app",
   imports: [KitchenSinkSharedModule],
   template: `

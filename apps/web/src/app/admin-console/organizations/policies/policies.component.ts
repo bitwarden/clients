@@ -171,22 +171,17 @@ export class PoliciesComponent {
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
     if (useDrawer && dialogComponent.openDrawer) {
-      // If a drawer is already open, check for unsaved changes before switching policies.
-      if (this.drawerRef()) {
-        const closed = await this.drawerRef()!.tryClose();
-        if (!closed) {
-          return; // User chose to keep editing the current policy.
-        }
+      // openDrawer is async and returns undefined if a currently-open drawer's
+      // closePredicate prevented it from closing — only update the ref when it opened.
+      const ref = await dialogComponent.openDrawer(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+      if (ref !== undefined) {
+        this.drawerRef.set(ref);
       }
-
-      this.drawerRef.set(
-        dialogComponent.openDrawer(this.dialogService, {
-          data: {
-            policy: policy,
-            organization: organization,
-          },
-        }),
-      );
     } else {
       dialogComponent.open(this.dialogService, {
         data: {
@@ -195,17 +190,5 @@ export class PoliciesComponent {
         },
       });
     }
-  }
-
-  /**
-   * Called by the `PoliciesDeactivateGuard` before navigating away from this page.
-   * Returns `true` if navigation may proceed, `false` if the user chose to stay.
-   */
-  async canDeactivate(): Promise<boolean> {
-    if (!this.drawerRef()) {
-      return true;
-    }
-    const closed = await this.drawerRef()!.tryClose();
-    return closed;
   }
 }
