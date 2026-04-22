@@ -8,7 +8,7 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
-import { KeySuffixOptions, HashPurpose } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -57,7 +57,7 @@ export abstract class KeyService {
    * @note this observable represents only user keys stored in memory. A null value does not indicate that we cannot load a user key from storage.
    * @param userId The desired user
    */
-  abstract getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey>;
+  abstract getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null>;
   /**
    * Sets the provided user key and stores
    * any other necessary versions (such as auto, biometrics,
@@ -91,7 +91,7 @@ export abstract class KeyService {
    *
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
-  abstract getUserKey(userId?: string): Promise<UserKey>;
+  abstract getUserKey(userId?: string): Promise<UserKey | null>;
 
   /**
    * Retrieves the user key from storage
@@ -165,15 +165,10 @@ export abstract class KeyService {
    * @deprecated Interacting with the master key directly is prohibited. Use a high level function from MasterPasswordService instead.
    * @param password The user's master password
    * @param key The user's master key or active's user master key.
-   * @param hashPurpose The iterations to use for the hash. Defaults to {@link HashPurpose.ServerAuthorization}.
    * @throws Error when password is null/undefined or key is null/undefined.
    * @returns The user's master password hash
    */
-  abstract hashMasterKey(
-    password: string,
-    key: MasterKey,
-    hashPurpose?: HashPurpose,
-  ): Promise<string>;
+  abstract hashMasterKey(password: string, key: MasterKey): Promise<string>;
   /**
    * Stores the encrypted organization keys and clears any decrypted
    * organization keys currently in memory

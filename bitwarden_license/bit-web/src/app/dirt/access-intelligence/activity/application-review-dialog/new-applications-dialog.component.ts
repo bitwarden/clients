@@ -88,7 +88,7 @@ export type NewApplicationsDialogResultType =
   ],
 })
 export class NewApplicationsDialogComponent {
-  destroyRef = inject(DestroyRef);
+  readonly destroyRef = inject(DestroyRef);
 
   // View state management
   protected readonly currentView = signal<DialogView>(DialogView.SelectApplications);
@@ -150,15 +150,15 @@ export class NewApplicationsDialogComponent {
   protected readonly markingAsCritical = signal<boolean>(false);
 
   constructor(
-    @Inject(DIALOG_DATA) protected dialogParams: NewApplicationsDialogData,
-    private dataService: RiskInsightsDataService,
-    private dialogRef: DialogRef<NewApplicationsDialogResultType>,
-    private dialogService: DialogService,
-    private i18nService: I18nService,
-    private injector: Injector,
-    private logService: LogService,
-    private securityTasksService: AccessIntelligenceSecurityTasksService,
-    private toastService: ToastService,
+    @Inject(DIALOG_DATA) protected readonly dialogParams: NewApplicationsDialogData,
+    private readonly dataService: RiskInsightsDataService,
+    private readonly dialogRef: DialogRef<NewApplicationsDialogResultType>,
+    private readonly dialogService: DialogService,
+    private readonly i18nService: I18nService,
+    private readonly injector: Injector,
+    private readonly logService: LogService,
+    private readonly securityTasksService: AccessIntelligenceSecurityTasksService,
+    private readonly toastService: ToastService,
   ) {
     this.setApplicationIconMap(this.dialogParams.newApplications);
     // Setup the _tasks signal by manually passing in the injector
@@ -269,7 +269,22 @@ export class NewApplicationsDialogComponent {
 
     // Save the application review dates and critical markings
     try {
-      await firstValueFrom(this.dataService.saveApplicationReviewStatus(updatedApplications));
+      const response = await firstValueFrom(
+        this.dataService.saveApplicationReviewStatus(updatedApplications),
+      );
+
+      if (response.error) {
+        this.logService.error(
+          "[NewApplicationsDialog] Failed to save application review status",
+          response.error,
+        );
+        this.toastService.showToast({
+          variant: "error",
+          title: this.i18nService.t("errorSavingReviewStatus"),
+          message: this.i18nService.t("pleaseTryAgain"),
+        });
+        return;
+      }
 
       this.toastService.showToast({
         variant: "success",
@@ -347,23 +362,23 @@ export class NewApplicationsDialogComponent {
    * Closes the dialog when the "Cancel" button is selected
    */
   handleCancel() {
-    this.dialogRef.close(NewApplicationsDialogResultType.Close);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Close);
   }
 
   /**
    * Handles the tasksAssigned event from the embedded component.
    * Closes the dialog with success indicator.
    */
-  protected handleAssigningCompleted = () => {
+  protected readonly handleAssigningCompleted = () => {
     // Tasks were successfully assigned - close dialog
-    this.dialogRef.close(NewApplicationsDialogResultType.Complete);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Complete);
   };
 
   /**
    * Handles the back event from the embedded component.
    * Returns to the select applications view.
    */
-  protected onBack = () => {
+  protected readonly onBack = () => {
     this.currentView.set(DialogView.SelectApplications);
   };
 }

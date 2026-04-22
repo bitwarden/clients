@@ -84,6 +84,7 @@ export default {
                 secretsManager: "Secrets Manager",
                 additionalStorageGb: "Additional storage (GB)",
                 additionalServiceAccountsV2: "Additional machine accounts",
+                callout: "Callout",
               };
               return translations[key] || key;
             },
@@ -396,10 +397,12 @@ export const Enterprise: Story = {
             cost: 1,
           },
         },
-        discount: {
-          type: DiscountTypes.PercentOff,
-          value: 25,
-        },
+        discounts: [
+          {
+            type: DiscountTypes.PercentOff,
+            value: 25,
+          },
+        ],
         cadence: "monthly",
         estimatedTax: 6.4,
       },

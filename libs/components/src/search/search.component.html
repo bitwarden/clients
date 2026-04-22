@@ -28,7 +28,7 @@
     [attr.autocomplete]="autocomplete()"
   />
   <button
-    *ngIf="searchText && showResetButton()"
+    *ngIf="searchText"
     [ngClass]="{
       'tw-opacity-0': !showResetButton(),
       'tw-bg-text-muted': showResetButton(),
@@ -37,5 +37,7 @@
     type="reset"
     [attr.aria-label]="'resetSearch' | i18n"
     (click)="clearSearch()"
+    (focus)="isResetButtonFocused.set(true)"
+    (blur)="isResetButtonFocused.set(false)"
   ></button>
 </form>

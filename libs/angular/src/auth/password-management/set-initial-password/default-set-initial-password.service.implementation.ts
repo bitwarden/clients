@@ -45,8 +45,9 @@ import {
   InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
-  SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordUserType,
+  SetInitialPasswordTdeOffboardingCredentialsOld,
+  SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordTdeUserWithPermissionCredentials,
 } from "./set-initial-password.service.abstraction";
 
@@ -78,7 +79,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     const {
       newMasterKey,
       newServerMasterKeyHash,
-      newLocalMasterKeyHash,
       newPasswordHint,
       kdfConfig,
       orgSsoIdentifier,
@@ -211,9 +211,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       );
     }
 
-    // [PM-23246] "Legacy" master key setting path - to be removed once unlock path migration is complete
-    await this.masterPasswordService.setMasterKeyHash(newLocalMasterKeyHash, userId);
-
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
     }
@@ -221,6 +218,58 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
 
   async setInitialPasswordTdeOffboarding(
     credentials: SetInitialPasswordTdeOffboardingCredentials,
+    userId: UserId,
+  ) {
+    const ctx = "Could not set initial password.";
+    assertTruthy(credentials.newPassword, "newPassword", ctx);
+    assertTruthy(credentials.salt, "salt", ctx);
+    assertNonNullish(credentials.kdfConfig, "kdfConfig", ctx);
+    assertNonNullish(credentials.newPasswordHint, "newPasswordHint", ctx);
+
+    if (userId == null) {
+      throw new Error("userId not found. Could not set password.");
+    }
+
+    const { newPassword, salt, kdfConfig, newPasswordHint } = credentials;
+
+    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+    if (userKey == null) {
+      throw new Error("userKey not found. Could not set password.");
+    }
+
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        newPassword,
+        kdfConfig,
+        salt,
+      );
+
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        newPassword,
+        kdfConfig,
+        salt,
+        userKey,
+      );
+
+    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+      authenticationData,
+      unlockData,
+      newPasswordHint,
+    );
+
+    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
+
+    // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
+    // Clear force set password reason to allow navigation back to vault.
+    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
+  }
+
+  /**
+   * @deprecated To be removed in PM-28143
+   */
+  async setInitialPasswordTdeOffboardingOld(
+    credentials: SetInitialPasswordTdeOffboardingCredentialsOld,
     userId: UserId,
   ) {
     const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;

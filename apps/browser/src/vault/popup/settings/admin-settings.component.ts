@@ -12,7 +12,6 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, map, Observable, of, switchMap, tap, withLatestFrom } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import {
   AutoConfirmWarningDialogComponent,
   AutomaticUserConfirmationService,
@@ -20,17 +19,16 @@ import {
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
-  BitIconButtonComponent,
   CardComponent,
   DialogService,
   FormFieldModule,
   SwitchComponent,
+  CalloutModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { UserId } from "@bitwarden/user-core";
@@ -47,33 +45,32 @@ import { UserId } from "@bitwarden/user-core";
     ReactiveFormsModule,
     SwitchComponent,
     CardComponent,
-    SpotlightComponent,
-    BitIconButtonComponent,
     I18nPipe,
+    CalloutModule,
   ],
 })
 export class AdminSettingsComponent implements OnInit {
-  private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly formLoading: WritableSignal<boolean> = signal(true);
-  protected adminForm = this.formBuilder.group({
+  protected readonly adminForm = this.formBuilder.group({
     autoConfirm: false,
   });
-  protected showAutoConfirmSpotlight$: Observable<boolean> = this.userId$.pipe(
+  protected readonly showAutoConfirmSpotlight$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
       this.nudgesService.showNudgeSpotlight$(NudgeType.AutoConfirmNudge, userId),
     ),
   );
 
   constructor(
-    private formBuilder: FormBuilder,
-    private accountService: AccountService,
-    private autoConfirmService: AutomaticUserConfirmationService,
-    private destroyRef: DestroyRef,
-    private dialogService: DialogService,
-    private nudgesService: NudgesService,
-    private eventCollectionService: EventCollectionService,
-    private organizationService: InternalOrganizationServiceAbstraction,
+    private readonly formBuilder: FormBuilder,
+    private readonly accountService: AccountService,
+    private readonly autoConfirmService: AutomaticUserConfirmationService,
+    private readonly destroyRef: DestroyRef,
+    private readonly dialogService: DialogService,
+    private readonly nudgesService: NudgesService,
+    private readonly eventCollectionService: EventCollectionService,
+    private readonly organizationService: InternalOrganizationServiceAbstraction,
   ) {}
 
   async ngOnInit() {

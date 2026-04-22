@@ -11,6 +11,9 @@
   "favorites": {
     "message": "我的最愛"
   },
+  "unfavorite": {
+    "message": "取消最愛"
+  },
   "types": {
     "message": "類型"
   },
@@ -31,6 +34,33 @@
   },
   "typeSshKey": {
     "message": "SSH 金鑰"
+  },
+  "typeLoginSubtitle": {
+    "message": "網站或應用程式"
+  },
+  "typeCardSubtitle": {
+    "message": "信用卡或金融卡"
+  },
+  "typeIdentitySubtitle": {
+    "message": "個人資料"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要文字"
+  },
+  "typeSshKeySubtitle": {
+    "message": "伺服器登入憑證"
+  },
+  "folderSubtitle": {
+    "message": "整理您的項目"
+  },
+  "collectionSubtitle": {
+    "message": "整理共享項目"
+  },
+  "chooseItemToAdd": {
+    "message": "選擇要新增的項目"
+  },
+  "chooseItemToAddDesc": {
+    "message": "選擇要新增到保險庫的項目類型。"
   },
   "folders": {
     "message": "資料夾"
@@ -83,6 +113,66 @@
   },
   "viewItem": {
     "message": "檢視項目"
+  },
+  "viewItemHeaderLogin": {
+    "message": "檢視登入資訊",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "檢視付款卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "檢視身分",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "檢視備註",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "檢視 SSH 金鑰",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "新增登入資料",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "新增付款卡",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "新增身分",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "新增備註",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "新增 SSH 金鑰",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "編輯登入資訊",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "編輯付款卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "編輯身分",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "編輯備註",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "編輯 SSH 金鑰",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "名稱"
@@ -333,6 +423,22 @@
   },
   "premiumRequiredDesc": {
     "message": "進階會員才可使用此功能。"
+  },
+  "syncWithBrowser": {
+    "message": "與瀏覽器同步"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "若要連線至 $VAULTURL$，您需要將預設瀏覽器與 Bitwarden 應用程式同步。瀏覽器同步完成後，您將被重新導向回此應用程式。",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "開啟瀏覽器"
   },
   "errorOccurred": {
     "message": "發生錯誤。"
@@ -585,6 +691,12 @@
   },
   "editedItem": {
     "message": "項目已儲存"
+  },
+  "itemAddedToFavorites": {
+    "message": "項目已加入到最愛"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "項目已從最愛中移除"
   },
   "deleteItem": {
     "message": "刪除項目"
@@ -896,6 +1008,9 @@
   "masterPassHintLabel": {
     "message": "主密碼提示"
   },
+  "masterPasswordChanged": {
+    "message": "主密碼已儲存"
+  },
   "passwordStrengthScore": {
     "message": "密碼強度分數 $SCORE$",
     "placeholders": {
@@ -1024,7 +1139,7 @@
     "message": "無效的驗證碼"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "電子郵件或驗證碼無效"
   },
   "continue": {
     "message": "繼續"
@@ -1187,6 +1302,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
   },
+  "rotateAccountEncKey": {
+    "message": "同時輪換帳戶的加密金鑰"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "輪換加密金鑰的影響"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
+  },
+  "rotateEncKeyTitle": {
+    "message": "輪換加密金鑰"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "確定要輪換帳戶的加密金鑰嗎？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您保存的任何受限制匯出帳號將失效。"
+  },
   "confirmIdentityToContinue": {
     "message": "請先確認身分後再繼續"
   },
@@ -1271,6 +1407,9 @@
   "changeMasterPass": {
     "message": "變更主密碼"
   },
+  "changeMasterPassword": {
+    "message": "變更主密碼"
+  },
   "continueToWebApp": {
     "message": "前往網頁應用程式嗎？"
   },
@@ -1349,17 +1488,11 @@
   "twoStepLogin": {
     "message": "兩步驟登入"
   },
-  "vaultTimeoutHeader": {
-    "message": "密碼庫逾時時間"
-  },
   "vaultTimeout": {
     "message": "密碼庫逾時時間"
   },
   "vaultTimeout1": {
     "message": "逾時"
-  },
-  "vaultTimeoutAction1": {
-    "message": "逾時後動作"
   },
   "vaultTimeoutDesc": {
     "message": "選擇密碼庫何時執行密碼庫逾時動作。"
@@ -1555,6 +1688,18 @@
   "unknown": {
     "message": "不詳"
   },
+  "copyAddress": {
+    "message": "複製地址"
+  },
+  "copyPhone": {
+    "message": "複製電話"
+  },
+  "copyNote": {
+    "message": "複製備註"
+  },
+  "copyVerificationCode": {
+    "message": "複製驗證碼"
+  },
   "copyUsername": {
     "message": "複製使用者名稱"
   },
@@ -1637,6 +1782,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "月"
+  },
+  "monthly": {
+    "message": "每月"
+  },
+  "year": {
+    "message": "年"
+  },
+  "annually": {
+    "message": "每年"
+  },
+  "annual": {
+    "message": "每年"
   },
   "refreshComplete": {
     "message": "刷新完成"
@@ -2053,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "有尚未儲存的變更"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "如果您現在離開，變更將不會被儲存。請稍後安裝更新，以便您可以留下並儲存變更。"
+  },
+  "installLater": {
+    "message": "稍後安裝"
+  },
+  "continueWithInstall": {
+    "message": "繼續安裝"
+  },
   "clone": {
     "message": "克隆"
   },
@@ -2068,9 +2237,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "需要重新驗證才能再次存取密碼庫。"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
-  },
   "lock": {
     "message": "鎖定",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2081,6 +2247,24 @@
   },
   "searchTrash": {
     "message": "搜尋垃圾桶"
+  },
+  "searchArchive": {
+    "message": "搜尋封存"
+  },
+  "searchLogin": {
+    "message": "搜尋登入資料"
+  },
+  "searchCard": {
+    "message": "搜尋卡片"
+  },
+  "searchIdentity": {
+    "message": "搜尋身分"
+  },
+  "searchSecureNote": {
+    "message": "搜尋安全筆記"
+  },
+  "searchSshKey": {
+    "message": "搜尋 SSH 金鑰"
   },
   "permanentlyDeleteItem": {
     "message": "永久刪除項目"
@@ -2146,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
+  },
+  "copyNotes": {
+    "message": "複製備註"
   },
   "totpHelperTitle": {
     "message": "無縫兩步驟驗證"
@@ -2235,6 +2422,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新的主密碼不符合原則要求。"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "一個或多個組織原則要求主密碼須符合下列條件："
   },
   "receiveMarketingEmailsV2": {
     "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
@@ -2377,6 +2567,9 @@
   "editSend": {
     "message": "編輯 Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "我"
   },
   "myVault": {
     "message": "我的密碼庫"
@@ -2667,9 +2860,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "您的密碼庫逾時時間超過組織設定的限制。"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企業政策已套用至您的逾時選項中"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
@@ -3437,6 +3627,63 @@
   "deviceTrusted": {
     "message": "裝置已信任"
   },
+  "device": {
+    "message": "裝置"
+  },
+  "devices": {
+    "message": "裝置"
+  },
+  "whatIsADevice": {
+    "message": "什麼是裝置？"
+  },
+  "aDeviceIs": {
+    "message": "裝置是您登入 Bitwarden 應用程式的唯一安裝環境。重新安裝、清除應用程式資料或清除 Cookie 可能導致裝置出現多次。"
+  },
+  "deviceListDescriptionTemp": {
+    "message": "你的帳號已在下列各裝置登入。"
+  },
+  "loginStatus": {
+    "message": "登入狀態"
+  },
+  "recentlyActive": {
+    "message": "最近活動"
+  },
+  "recentlyActiveToday": {
+    "message": "今天"
+  },
+  "recentlyActivePast7Days": {
+    "message": "過去 7 天"
+  },
+  "recentlyActivePast14Days": {
+    "message": "過去 14 天"
+  },
+  "recentlyActivePast30Days": {
+    "message": "過去 30 天"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 天前以上"
+  },
+  "firstLogin": {
+    "message": "首次登入"
+  },
+  "trusted": {
+    "message": "已信任"
+  },
+  "currentSession": {
+    "message": "目前工作階段"
+  },
+  "requestPending": {
+    "message": "等待請求"
+  },
+  "deviceIdMissing": {
+    "message": "缺少裝置 ID"
+  },
+  "deviceTypeMissing": {
+    "message": "缺少裝置類型"
+  },
+  "deviceCreationDateMissing": {
+    "message": "缺少裝置建立日期"
+  },
   "trustOrganization": {
     "message": "目前組織"
   },
@@ -3702,6 +3949,9 @@
   },
   "exportSuccess": {
     "message": "密碼庫資料已匯出"
+  },
+  "exportError": {
+    "message": "匯出密碼庫資料時發生錯誤"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多因素驗證已取消"
@@ -4086,6 +4336,9 @@
   "missingWebsite": {
     "message": "缺少網站"
   },
+  "missingPermissions": {
+    "message": "您欠缺執行本動作必要的權限。"
+  },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
     "placeholders": {
@@ -4391,10 +4644,10 @@
     "message": "封存的項目會顯示在此處，且不會出現在一般搜尋結果或自動填入建議中。"
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "項目已封存"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "項目已取消封存"
   },
   "archiveItem": {
     "message": "封存項目"
@@ -4490,7 +4743,7 @@
     "message": "逾時後動作"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "錯誤：無法解密"
   },
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
@@ -4572,8 +4825,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4581,14 +4834,56 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "點擊「接受」以轉移您項目的擁有權。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "開啟關於轉移項目的說明文章"
+  },
   "acceptTransfer": {
     "message": "同意轉移"
   },
   "declineAndLeave": {
     "message": "拒絕並離開"
   },
-  "whyAmISeeingThis": {
-    "message": "為什麼我會看到此訊息？"
+  "organizationIsSuspended": {
+    "message": "組織已停用"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "無法存取已停用組織中的項目。請聯絡您組織的擁有者以獲取協助。"
+  },
+  "percentageCompleted": {
+    "message": "完成 $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "noItemsInTrash": {
+    "message": "垃圾桶中沒有項目"
+  },
+  "noItemsInTrashDesc": {
+    "message": "您刪除的項目會在此顯示，並會在 30 天之後永久刪除"
+  },
+  "noItemsInVault": {
+    "message": "密碼庫中沒有項目"
+  },
+  "emptyVaultDescription": {
+    "message": "除了密碼之外，您也可以儲存安全的登入資訊、身分資訊、支付卡及筆記在您的密碼庫。"
+  },
+  "emptyFavorites": {
+    "message": "您尚未將任何項目設為收藏"
+  },
+  "emptyFavoritesDesc": {
+    "message": "將常用項目加入收藏以快速存取。"
+  },
+  "noSearchResults": {
+    "message": "沒有搜尋結果"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "清除過濾器或更換另一個搜尋條件"
   },
   "sendPasswordHelperText": {
     "message": "對方必須輸入密碼才能檢視此 Send",
@@ -4618,13 +4913,44 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "使用者驗證失敗。"
+  },
+  "discardEdits": {
+    "message": "放棄變更"
+  },
+  "discardEditsMessage": {
+    "message": "若關閉此畫面，尚未儲存的變更將會遺失"
+  },
+  "backToEditing": {
+    "message": "返回編輯"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send 有未儲存的變更。確定要離開嗎？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "儲存 Send 變更失敗",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

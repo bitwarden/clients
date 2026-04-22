@@ -19,7 +19,6 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -31,7 +30,7 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { SortDirection, TableDataSource } from "@bitwarden/components";
 import { OrganizationId } from "@bitwarden/sdk-internal";
-import { RoutedVaultFilterService } from "@bitwarden/vault";
+import { RoutedVaultFilterService, VaultItem } from "@bitwarden/vault";
 
 import { GroupView } from "../../../admin-console/organizations/core";
 
@@ -39,7 +38,6 @@ import {
   CollectionPermission,
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
-import { VaultItem } from "./vault-item";
 import { VaultItemEvent } from "./vault-item-event";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
@@ -159,12 +157,9 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected disableMenu$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
 
-  protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
-
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    protected cipherArchiveService: CipherArchiveService,
     protected routedVaultFilterService: RoutedVaultFilterService,
   ) {
     this.canDeleteSelected$ = this.selection.changed.pipe(

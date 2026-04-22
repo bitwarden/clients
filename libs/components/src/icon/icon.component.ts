@@ -1,14 +1,20 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from "@angular/core";
 
 import { BitwardenIcon } from "../shared/icon";
 
 @Component({
   selector: "bit-icon",
-  standalone: true,
   host: {
     "[class]": "classList()",
     "[attr.aria-hidden]": "ariaLabel() ? null : true",
     "[attr.aria-label]": "ariaLabel()",
+    "[attr.role]": "ariaLabel() ? 'img' : 'presentation'",
   },
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,7 +30,12 @@ export class IconComponent {
    */
   readonly ariaLabel = input<string>();
 
-  protected readonly classList = computed(() => {
-    return ["bwi", this.name()].join(" ");
-  });
+  /**
+   * Whether the icon should use a fixed width
+   */
+  readonly fixedWidth = input(false, { transform: booleanAttribute });
+
+  protected readonly classList = computed(() =>
+    ["bwi", this.name(), this.fixedWidth() && "bwi-fw"].filter(Boolean),
+  );
 }

@@ -313,8 +313,8 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       case KdfType.Argon2id:
         config = new Argon2KdfConfig(
           takeoverResponse.kdfIterations,
-          takeoverResponse.kdfMemory,
-          takeoverResponse.kdfParallelism,
+          takeoverResponse.kdfMemory!,
+          takeoverResponse.kdfParallelism!,
         );
         break;
     }
@@ -325,7 +325,16 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     );
 
     if (newApisWithInputPasswordFlagEnabled) {
-      const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
+      // Prefer server-provided salt from the takeover response.
+      // Falls back to email-derived salt for backward compatibility with servers
+      // that don't yet include Salt in the response (PM-31636).
+      //
+      // TODO: PM-32059 — When salt is fully disconnected from email (Stage 3),
+      // the email fallback will be removed and server salt becomes mandatory.
+      const salt: MasterPasswordSalt =
+        typeof takeoverResponse.salt === "string"
+          ? (takeoverResponse.salt as MasterPasswordSalt)
+          : this.masterPasswordService.emailToSalt(email);
 
       const authenticationData: MasterPasswordAuthenticationData =
         await this.masterPasswordService.makeMasterPasswordAuthenticationData(
@@ -439,7 +448,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     for (const details of allDetails) {
       if (
         trustedPublicKeys.find(
-          (pk) => Utils.fromBufferToHex(pk) === Utils.fromBufferToHex(details.publicKey),
+          (pk) => Utils.fromArrayToHex(pk) === Utils.fromArrayToHex(details.publicKey),
         ) == null
       ) {
         this.logService.info(

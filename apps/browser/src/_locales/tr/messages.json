@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Kilit açma seçenekleri"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Kasa zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın."
-  },
   "unlockMethodNeeded": {
     "message": "Ayarlar'da bir kilit açma yöntemi ayarlayın"
   },
   "sessionTimeoutHeader": {
     "message": "Oturum zaman aşımı"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Kasa zaman aşımı"
   },
   "otherOptions": {
     "message": "Diğer seçenekler"
@@ -1154,6 +1148,15 @@
     "message": "Kopyalanan değerleri otomatik olarak panodan sil.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Pano ayarı güncellendi"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "Bitwarden bu parolayı sizin için hatırlasın mı?"
   },
@@ -1306,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Ek seçenekler"
+  },
+  "enableFillAssist": {
+    "message": "Doldurma yardımcısını kullan"
   },
   "enableContextMenuItem": {
     "message": "Bağlam menüsü seçeneklerini göster"
@@ -1794,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Hesap bilgilerinizi doldurmadan önce sitenin güvenilir olduğundan emin olun."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Bu hesaba kayıtlı site yok"
+  },
+  "siteDoesntMatch": {
+    "message": "Site eşleşmiyor"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Otomatik doldur ve bu siteyi kaydet"
+  },
+  "autofillOnly": {
+    "message": "Yalnızca otomatik doldur"
+  },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"
   },
@@ -2108,6 +2135,27 @@
   "typeNote": {
     "message": "Not"
   },
+  "typeLoginSubtitle": {
+    "message": "Web sitesi veya uygulama"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredi veya banka kartı"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Kişisel bilgiler"
+  },
+  "typeNoteSubtitle": {
+    "message": "Önemli metinler"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Sunucu giriş token'ı"
+  },
+  "folderSubtitle": {
+    "message": "Kayıtlarınızı organize edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan kayıtları organize edin"
+  },
   "newItemHeaderLogin": {
     "message": "Yeni hesap",
     "description": "Header for new login item type"
@@ -2183,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH anahtarını göster",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Eklenecek kaydı seçin"
   },
   "passwordHistory": {
     "message": "Parola geçmişi"
@@ -2372,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "Seçtiğiniz ana parola zayıf. Bitwarden hesabınızı korumak için daha güçlü bir ana parola seçmenizi öneririz. Bu ana parolayı kullanmak istediğinizden emin misiniz?"
   },
+  "rotateAccountEncKey": {
+    "message": "Hesabımın şifreleme anahtarını da yenile"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Şifreleme anahtarını yenile"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Hesabınızın şifreleme anahtarını yenilemek istediğinizden emin misiniz?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Hesabınızın şifreleme anahtarını yenilemeden önce kasanızdaki eski dosya eklerini düzeltmeniz gerekiyor."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Şifreleme anahtarınızı yenilemenin etkisi"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Bir veya daha fazla kuruluş ilkesi gereğince ana parola aşağıdaki gereksinimleri karşılamalıdır:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "Kasa zaman aşımı eylemi"
   },
-  "vaultTimeoutAction1": {
-    "message": "Zaman aşımı eylemi"
+  "showAtRiskPasswordNotifications": {
+    "message": "Riskli parola bildirimlerini göster"
   },
   "lock": {
     "message": "Kilitle",
@@ -2819,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$, risk altındaki bu parolayı değiştirmenizi istiyor. Parolayı değiştirmek için hesap ayarlarınıza gidin.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3229,9 +3304,6 @@
   },
   "minutes": {
     "message": "Dakika"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zaman aşımı ayarlarınıza kurumsal ilke gereksinimleri uygulandı"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Kuruluş ilkeleriniz izin verilen maksimum kasa zaman aşımını $HOURS$ saat $MINUTES$ dakika olarak belirlemiş.",
@@ -3752,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Oturum açma durumu"
+  },
+  "recentlyActive": {
+    "message": "Yakın zamanda aktif"
+  },
+  "recentlyActiveToday": {
+    "message": "Bugün"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Son 7 gün"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Son 14 gün"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Son 30 gün"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 günden önce"
   },
   "masterPasswordChanged": {
     "message": "Ana parola kaydedildi"
@@ -4436,6 +4526,9 @@
   "exportSuccess": {
     "message": "Kasa verileri dışa aktarıldı"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Geçiş anahtarı"
   },
@@ -4865,6 +4958,9 @@
   "copyAddress": {
     "message": "Adresi kopyala"
   },
+  "myItems": {
+    "message": "Kayıtlarım"
+  },
   "adminConsole": {
     "message": "Yönetici Konsolu"
   },
@@ -4893,10 +4989,10 @@
     "message": "New users will be automatically confirmed while this device is unlocked."
   },
   "autoConfirmSetupHint": {
-    "message": "What are the potential security risks?"
+    "message": "Olası güvenlik riskleri neler?"
   },
   "autoConfirmEnabled": {
-    "message": "Turned on automatic confirmation"
+    "message": "Otomatik onay etkinleştirildi"
   },
   "availableNow": {
     "message": "Available now"
@@ -5387,7 +5483,7 @@
     }
   },
   "reorderFieldDown": {
-    "message": "$LABEL$ aşağı taşındı, konum: $LENGTH$'in $INDEX$'i",
+    "message": "$LABEL$ aşağı taşındı. Konum: $LENGTH$/$INDEX$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -5533,10 +5629,10 @@
     "message": "Kasanıza daha hızlı ulaşmak için kilit açma ve zaman aşımı ayarlarınızı özelleştirebilirsiniz."
   },
   "unlockPinSet": {
-    "message": "Kilit açma PIN seti"
+    "message": "Unlock PIN set"
   },
   "unlockWithBiometricSet": {
-    "message": "Biyometrik set ile kilidi aç"
+    "message": "Unlock with biometrics set"
   },
   "authenticating": {
     "message": "Kimlik doğrulanıyor"
@@ -6012,10 +6108,10 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Giriş yapmaya devam et"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Devam etme"
   },
   "domain": {
     "message": "Domain"
@@ -6036,7 +6132,7 @@
     "message": "If you don't verify your organization, your access to the organization will be revoked."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
     "message": "Verify your domain to log in"
@@ -6094,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden masaüstü uygulaması tarafından yönetiliyor. Düzenlemek için masaüstü uygulamasını açın."
+  },
+  "percentageCompleted": {
+    "message": "%$PERCENT$ tamamlandı",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Yükselt"
   },
@@ -6127,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$, güvenlik ve mevzuata uyum amacıyla tüm kayıtların kuruluşa ait olmasını zorunlu kılıyor. Kayıtlarınızın sahipliğini devretmek için \"Kabul et\"e tıklayın.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,20 +6244,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "Aktarımı kabul et"
   },
   "declineAndLeave": {
     "message": "Reddet ve ayrıl"
   },
-  "whyAmISeeingThis": {
-    "message": "Bunu neden görüyorum?"
-  },
   "items": {
     "message": "Kayıtlar"
   },
   "searchResults": {
     "message": "Arama sonuçları"
+  },
+  "simplifiedAutofill": {
+    "message": "Basit otomatik doldurma"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Önerilen otomatik doldurma öğelerinden birine tıkladığınızda ayrıntıları açmak yerine doğrudan bilgileri doldurur. Bu bilgilere istediğiniz zaman \"Diğer eylemler\" menüsünden ulaşabilirsiniz."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Basit otomatik doldurma kutusunu aç"
   },
   "resizeSideNavigation": {
     "message": "Kenar menüsünü yeniden boyutlandır"
@@ -6166,17 +6286,17 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "E-posta adreslerini virgülle ayırarak yazın."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-posta doğrulaması için en az bir e-posta adresi gerekir. Tüm e-postaları silmek için yukarıdan erişim türünü değiştirin."
-  },
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "kullanici@bitwarden.com, kullanici@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Bitwarden uygulamalarını indir"
   },
   "emailProtected": {
-    "message": "Email protected"
+    "message": "E-posta korumalı"
   },
   "sendPasswordHelperText": {
     "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
@@ -6184,5 +6304,22 @@
   },
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
+  },
+  "downloadFailed": {
+    "message": "İndirilemedi."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

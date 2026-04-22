@@ -586,7 +586,7 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "เก็บ"
   },
   "unarchiveAndSave": {
     "message": "Unarchive and save"
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "ตัวเลือกการปลดล็อก"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "ตั้งค่าวิธีการปลดล็อกเพื่อเปลี่ยนการดำเนินการเมื่อตู้นิรภัยหมดเวลา"
-  },
   "unlockMethodNeeded": {
     "message": "ตั้งค่าวิธีการปลดล็อกในการตั้งค่า"
   },
   "sessionTimeoutHeader": {
     "message": "เซสชันหมดเวลา"
-  },
-  "vaultTimeoutHeader": {
-    "message": "ตู้นิรภัยหมดเวลา"
   },
   "otherOptions": {
     "message": "ตัวเลือกอื่น ๆ"
@@ -1154,6 +1148,15 @@
     "message": "ล้างค่าที่คัดลอกออกจากคลิปบอร์ดโดยอัตโนมัติ",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Clipboard setting updated"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Jump to setting"
+  },
   "notificationAddDesc": {
     "message": "ต้องการให้ Bitwarden จำรหัสผ่านนี้หรือไม่"
   },
@@ -1306,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "ตัวเลือกเพิ่มเติม"
+  },
+  "enableFillAssist": {
+    "message": "Use fill assist"
   },
   "enableContextMenuItem": {
     "message": "แสดงตัวเลือกเมนูบริบท"
@@ -1794,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "เว็บไซต์นี้ไม่ตรงกับรายละเอียดการเข้าสู่ระบบที่คุณบันทึกไว้ ก่อนป้อนข้อมูล โปรดตรวจสอบให้แน่ใจว่าเป็นเว็บไซต์ที่เชื่อถือได้"
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "แสดงคำแนะนำการป้อนอัตโนมัติบนช่องกรอกข้อมูล"
   },
@@ -2108,6 +2135,27 @@
   "typeNote": {
     "message": "โน้ต"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "newItemHeaderLogin": {
     "message": "ข้อมูลเข้าสู่ระบบใหม่",
     "description": "Header for new login item type"
@@ -2183,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "ดูคีย์ SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "ประวัติรหัสผ่าน"
@@ -2372,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "รหัสผ่านหลักที่คุณเลือกไม่ปลอดภัย คุณควรใช้รหัสผ่านหลักที่รัดกุม (หรือวลีรหัสผ่าน) เพื่อปกป้องบัญชี Bitwarden ของคุณอย่างเหมาะสม ยืนยันที่จะใช้รหัสผ่านหลักนี้หรือไม่"
   },
+  "rotateAccountEncKey": {
+    "message": "Also rotate my account's encryption key"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Rotate encryption key"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "การดำเนินการเมื่อตู้นิรภัยหมดเวลา"
   },
-  "vaultTimeoutAction1": {
-    "message": "การดำเนินการเมื่อหมดเวลา"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "ล็อก",
@@ -2819,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ ต้องการให้คุณเปลี่ยนรหัสผ่านนี้เนื่องจากมีความเสี่ยง ไปที่การตั้งค่าบัญชีของคุณเพื่อเปลี่ยนรหัสผ่าน",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3229,9 +3304,6 @@
   },
   "minutes": {
     "message": "นาที"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "ข้อกำหนดนโยบายองค์กรถูกนำไปใช้กับตัวเลือกเวลาหมดเวลาของคุณแล้ว"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "นโยบายองค์กรกำหนดระยะเวลาหมดเวลาของตู้นิรภัยสูงสุดไว้ที่ $HOURS$ ชั่วโมง $MINUTES$ นาที",
@@ -3752,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "สถานะการเข้าสู่ระบบ"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "บันทึกรหัสผ่านหลักแล้ว"
@@ -4436,6 +4526,9 @@
   "exportSuccess": {
     "message": "ส่งออกข้อมูลตู้นิรภัยแล้ว"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "พาสคีย์"
   },
@@ -4865,11 +4958,14 @@
   "copyAddress": {
     "message": "คัดลอกที่อยู่"
   },
+  "myItems": {
+    "message": "รายการของฉัน"
+  },
   "adminConsole": {
     "message": "คอนโซลผู้ดูแลระบบ"
   },
   "admin": {
-    "message": "Admin"
+    "message": "แอดมิน"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -6094,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "ตั้งค่าวิธีการปลดล็อกเพื่อเปลี่ยนการดำเนินการเมื่อหมดเวลา"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "อัปเกรด"
   },
@@ -6127,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ กำหนดให้รายการทั้งหมดต้องเป็นขององค์กรเพื่อความปลอดภัยและการปฏิบัติตามข้อกำหนด คลิกยอมรับเพื่อโอนกรรมสิทธิ์รายการของคุณ",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,20 +6244,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
+  },
   "acceptTransfer": {
     "message": "ยอมรับการโอนย้าย"
   },
   "declineAndLeave": {
     "message": "ปฏิเสธและออก"
   },
-  "whyAmISeeingThis": {
-    "message": "ทำไมฉันจึงเห็นสิ่งนี้"
-  },
   "items": {
     "message": "Items"
   },
   "searchResults": {
     "message": "Search results"
+  },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
@@ -6166,11 +6286,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Enter multiple emails by separating with a comma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Download Bitwarden apps"
@@ -6184,5 +6304,22 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Failed to download."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

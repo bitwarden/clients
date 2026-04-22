@@ -57,7 +57,7 @@ export class TwoFactorSetupDuoComponent
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onChangeStatus: EventEmitter<boolean> = new EventEmitter();
 
-  type = TwoFactorProviderType.Duo;
+  type: TwoFactorProviderType = TwoFactorProviderType.Duo;
   formGroup = this.formBuilder.group({
     clientId: ["", [Validators.required]],
     clientSecret: ["", [Validators.required]],
@@ -156,7 +156,7 @@ export class TwoFactorSetupDuoComponent
   }
 
   onClose = () => {
-    this.dialogRef.close(this.enabled);
+    void this.dialogRef.close(this.enabled);
   };
 
   private processResponse(response: TwoFactorDuoResponse) {
@@ -177,7 +177,7 @@ export class TwoFactorSetupDuoComponent
   ) => {
     return dialogService.open<boolean, TwoFactorDuoComponentConfig>(
       TwoFactorSetupDuoComponent,
-      config as DialogConfig<TwoFactorDuoComponentConfig, DialogRef<boolean>>,
+      config as DialogConfig<TwoFactorDuoComponentConfig, boolean>,
     );
   };
 }

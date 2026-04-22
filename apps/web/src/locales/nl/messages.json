@@ -2,8 +2,20 @@
   "allApplications": {
     "message": "Alle applicaties"
   },
+  "allMembers": {
+    "message": "Alle deelnemers"
+  },
+  "allPasswords": {
+    "message": "Alle wachtwoorden"
+  },
   "activity": {
     "message": "Activiteit"
+  },
+  "criticalAppsAtRisk": {
+    "message": "Kritieke applicaties die gevaar lopen"
+  },
+  "allCriticalApps": {
+    "message": "Alle kritieke applicaties"
   },
   "appLogoLabel": {
     "message": "Bitwarden-logo"
@@ -43,6 +55,15 @@
   },
   "passwordRisk": {
     "message": "Wachtwoordrisico"
+  },
+  "passwords": {
+    "message": "Wachtwoorden"
+  },
+  "riskOverTime": {
+    "message": "Risico na verloop van tijd"
+  },
+  "passwordsAtRisk": {
+    "message": "Risicovolle wachtwoorden"
   },
   "noEditPermissions": {
     "message": "Je hebt geen toestemming om dit item te bewerken"
@@ -306,6 +327,9 @@
   },
   "applicationsMarkedAsCriticalFail": {
     "message": "Kon applicaties niet als kritiek markeren"
+  },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Kon als kritiek markeren van applicaties niet ongedaan maken"
   },
   "application": {
     "message": "Applicatie"
@@ -613,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie weergeven"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie verbergen"
+  },
   "autoFillOnPageLoad": {
     "message": "Automatisch invullen bij laden van pagina?"
   },
@@ -732,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden kan tweestapsaanmeldingscodes opslaan en invullen. Selecteer het camerapictogram om een schermafbeelding van de QR-code van deze website te maken of kopieer en plak de sleutel in dit veld."
+  },
+  "totpCapture": {
+    "message": "Scan de authenticatie-QR-code van de huidige webpagina"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Meer informatie over authenticatoren"
@@ -964,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH-sleutel"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "typeLoginPlural": {
     "message": "Logins"
   },
@@ -1032,6 +1086,9 @@
   },
   "addItem": {
     "message": "Item toevoegen"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "editItem": {
     "message": "Item bewerken"
@@ -2103,6 +2160,9 @@
   "exportSuccess": {
     "message": "Kluisgegevens geëxporteerd"
   },
+  "exportError": {
+    "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
+  },
   "passwordGenerator": {
     "message": "Wachtwoordgenerator"
   },
@@ -3047,16 +3107,16 @@
   "breachDesc": {
     "message": "Een \"datalek\" is een incident waarbij de gegevens van een website zijn gestolen door hackers en vervolgens openbaar zijn gemaakt. Controleer de soorten gegevens die zijn gelekt (e-mailadressen, wachtwoorden, creditcards, enz.) en neem passende maatregelen, zoals het wijzigen van wachtwoorden."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Controleer elke gebruikersnaam of e-mailadres die je gebruikt."
+  "breachCheckEmail": {
+    "message": "Controleer elk e-mailadres dat je gebruikt."
   },
   "checkBreaches": {
     "message": "Controleer datalekken"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ is niet gevonden in bekende datalekken.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ is niet gevonden in bekende datalekken.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -3066,10 +3126,10 @@
     "message": "Goed nieuws",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ is in $COUNT$ verschillende datalekken gevonden.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ is in $COUNT$ verschillende datalekken gevonden.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3376,6 +3436,9 @@
   },
   "discount": {
     "message": "korting"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Korting verlopen. Controleer je winkelwagentotaal en probeer het opnieuw."
   },
   "downloadLicense": {
     "message": "Licentie downloaden"
@@ -3784,6 +3847,15 @@
   "policies": {
     "message": "Beleidseisen"
   },
+  "dataControls": {
+    "message": "Gegevensbeheer"
+  },
+  "authentication": {
+    "message": "Authenticatie"
+  },
+  "vaultManagement": {
+    "message": "Kluisbeheer"
+  },
   "singleSignOn": {
     "message": "Single sign-on"
   },
@@ -3880,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Nodig een nieuwe gebruiker uit voor je organisatie door het e-mailadres van hun Bitwarden-account hieronder in te vullen. Als ze nog geen Bitwarden-account hebben, kunnen ze een nieuw account aanmaken."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "Je kunt tot $COUNT$ gebruikers per keer uitnodigen door middel van een lijst met komma's gescheiden e-mailadressen.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Voer maximaal $BATCHLIMIT$ e-mailadressen in door ze te scheiden met een komma. ($REMAININGSEATS$ zetels over)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3894,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "Je hebt 0 uitnodigingen over."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Voer maximaal $BATCHLIMIT$ e-mailadressen per keer in, gescheiden door komma's.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Het account van deze gebruiker is beschermd met tweestapsaanmelding."
@@ -4268,6 +4353,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 of meer e-mails behoren tot ingetrokken leden. Herstel hun toegang voor heruitnodiging."
+  },
   "restoredUserId": {
     "message": "Toegang tot de organisatie hersteld voor $ID$.",
     "placeholders": {
@@ -4417,6 +4505,24 @@
   },
   "loginStatus": {
     "message": "Loginstatus"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "firstLogin": {
     "message": "Eerst inloggen"
@@ -5144,6 +5250,12 @@
   "atAnyTime": {
     "message": "op ieder moment."
   },
+  "byEmail": {
+    "message": "Via e-mail"
+  },
+  "byLink": {
+    "message": "Via link"
+  },
   "byContinuingYouAgreeToThe": {
     "message": "Door verder te gaan, ga je akkoord met de"
   },
@@ -5445,8 +5557,8 @@
   "minimumNumberOfWords": {
     "message": "Minimum aantal woorden"
   },
-  "passwordTypePolicyOverride": {
-    "message": "Type wachtwoord",
+  "overridePasswordTypePolicy": {
+    "message": "Wachtwoordtype",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -6054,6 +6166,12 @@
   "centralizeDataOwnershipWarningLink": {
     "message": "Meer informatie over de overstap"
   },
+  "promptUsersToMoveItems": {
+    "message": "Vraag gebruikers om individuele kluisitems naar de organisatie te verplaatsen"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Leden worden gevraagd om hun items over te dragen naar de organisatie of te vertrekken. Als ze vertrekken, wordt hun toegang ingetrokken maar kan deze op elk moment worden hersteld."
+  },
   "organizationDataOwnership": {
     "message": "Gegevenseigendom van organisatie afdwingen"
   },
@@ -6091,8 +6209,8 @@
   "availableNow": {
     "message": "Nu beschikbaar"
   },
-  "autoConfirm": {
-    "message": "Automatische bevestiging van nieuwe gebruikers"
+  "automaticUserConfirmation": {
+    "message": "Automatische gebruikersbevestiging"
   },
   "autoConfirmDescription": {
     "message": "Nieuwe uitgenodigde gebruikers in de organisatie worden automatisch bevestigd wanneer het apparaat van een beheerder is ontgrendeld.",
@@ -6198,6 +6316,16 @@
   "sendDisabledWarning": {
     "message": "Als gevolg van een ondernemingsbeleid kun je alleen een bestaande Send verwijderen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Send-instellingen"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Instellingen voor het aanmaken en bewerken van Sends, inclusief de mogelijkheid tot het verwijderen van Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Gebruikers die het beleid van de organisatie kunnen beheren, zijn vrijgesteld van de handhaving van dit beleid."
   },
   "sendOptions": {
     "message": "Send-opties",
@@ -6459,6 +6587,14 @@
     "message": "Verifieer je e-mailadres om deze Send te bekijken",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Heeft je geen code ontvangen? Neem contact op met de verzender om je e-mailadres te bevestigen of ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Verificatiecode opnieuw verzenden",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "De Bitwarden-gebruiker die deze Send heeft gemaakt heeft ervoor gekozen het e-mailadres te verbergen. Je moet je ervan verzekeren dat je de bron van deze link vertrouwt voordat je de inhoud gebruikt of downloadt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6546,6 +6682,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Hoofdwachtwoord opnieuw instellen voor gebruiker $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Tweestapsaanmeldingsreset voor gebruiker $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7004,6 +7149,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Actie voor sessie time-out"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Beheerd door de Bitwarden browser-extensie-app. Open de browser-app om te bewerken."
   },
   "immediately": {
     "message": "Onmiddellijk"
@@ -8156,6 +8304,10 @@
     "message": "Kopieer de SCIM API-sleutel naar je klembord",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "De SCIM API-sleutel weergeven",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "De SCIM API-sleutel roteren",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8186,6 +8338,28 @@
   "scimSettingsSaved": {
     "message": "SCIM-instellingen opgeslagen",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Slechts één integratie van dit type ($TYPE$) is toegestaan. De conflicterende integratie is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Een andere integratie met hetzelfde type ($TYPE$) bestaat al. Vernieuw de browser en probeer het opnieuw.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Invoer vereist."
@@ -8304,6 +8478,9 @@
   "members": {
     "message": "Leden"
   },
+  "membersAtRisk": {
+    "message": "Risicovolle leden"
+  },
   "reporting": {
     "message": "Rapporteren"
   },
@@ -8345,6 +8522,15 @@
   },
   "pink": {
     "message": "Roze"
+  },
+  "coral": {
+    "message": "Koraal"
+  },
+  "purple": {
+    "message": "Paars"
+  },
+  "blue": {
+    "message": "Blauw"
   },
   "customColor": {
     "message": "Aangepaste kleur"
@@ -8574,6 +8760,14 @@
   "newProject": {
     "message": "Nieuw Project",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Klik om dit project te hernoemen",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Kan projectnaam niet ontsleutelen - klik op project om de naam te wijzigen",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Verwijderen van geheimen kan invloed hebben op bestaande integraties.",
@@ -9388,6 +9582,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "Gebruiker probeerde toegang te krijgen tot bekende phishingsite"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Gebruiker heeft phishing-waarschuwingspagina afgesloten"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Gebruiker omzeilde phishing-waarschuwing"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -9632,6 +9835,30 @@
   },
   "recoverAccount": {
     "message": "Account herstellen"
+  },
+  "recoverAccountWarning": {
+    "message": "Als je het wachtwoord of tweestapsaanmelding voor dit lid opnieuw instelt, worden ze op de hoogte gebracht van de wijziging en uitgelogd."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Accounts herstellen wanneer hoofdwachtwoord, tweestapsaanmelding of vertrouwde apparaten worden vergeten of verloren."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Bestaande accounts met hoofdwachtwoorden vereisen dat leden zichzelf inschrijven voordat beheerders hun accounts kunnen herstellen."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Nieuwe leden automatisch meenemen in accountherstel"
+  },
+  "resetMasterPassword": {
+    "message": "Hoofdwachtwoord opnieuw instellen"
+  },
+  "resetTwoStepLogin": {
+    "message": "Tweestapsaanmelding opnieuw instellen"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "De toegang van het lid wordt ingetrokken tot ze tweestapsaanmelding instellen"
+  },
+  "recoverAccountSuccess": {
+    "message": "Accountherstel succesvol!"
   },
   "updatedTempPassword": {
     "message": "Gebruiker heeft een via accountherstel uitgegeven wachtwoord bijgewerkt."
@@ -10187,6 +10414,46 @@
     "message": "Overstappen naar gratis organisatie",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Ontbrekende functies of functionaliteit",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Iets wat we nodig hadden was niet beschikbaar",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Te moeilijk om in te stellen of te beheren",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, beheer of dagelijks gebruik was te ingewikkeld",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "We krijgen niet genoeg waarde voor het geld",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "De prijs komt niet overeen met wat we eruit krijgen",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Niet genoeg gebruik door ons team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "We konden mensen er niet toe zetten het echt te gebruiken",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Onze behoeften zijn veranderd",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorganisatie, acquisitie, verschuiving van prioriteiten, of we hebben geen wachtwoordmanager meer nodig",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 jaar gratis"
   },
@@ -10624,6 +10891,15 @@
   "huntressEventIntegrationDesc": {
     "message": "Stuur eventgegevens naar je Huntress SIEM-instantie"
   },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ succesvol verbonden.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Opslaan van integratie mislukt. Probeer het later opnieuw."
   },
@@ -10977,6 +11253,9 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Uit"
   },
+  "memberAccessReportLoadError": {
+    "message": "Het laden van het toegangsrapport van leden is mislukt. Dit kan worden veroorzaakt door de grootte van de organisatie of een netwerkprobleem. Probeer het opnieuw of neem contact op met ondersteuning als het probleem zich blijft voordoen."
+  },
   "kdfIterationRecommends": {
     "message": "We adviseren 600.000 of meer"
   },
@@ -11027,6 +11306,9 @@
   },
   "clientDetails": {
     "message": "Klantgegevens"
+  },
+  "downloadChart": {
+    "message": "Grafiek downloaden"
   },
   "downloadCSV": {
     "message": "CSV downloaden"
@@ -11480,6 +11762,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "Gebruiker $ID$ heeft zichzelf ingetrokken van de organisatie.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Ingetrokken wegens afwijzen van overdracht naar organisatie-eigendom."
+  },
   "suspendedOrganizationTitle": {
     "message": "De $ORGANIZATION$ is geschorst",
     "placeholders": {
@@ -11746,6 +12040,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Je abonnement wordt binnenkort verlengd. Neem voor $RENEWAL_DATE$ contact op met je Bitwarden-provider om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Er is een factuur voor je abonnement aangemaakt op $ISSUED_DATE$. Neem contact op met $RESELLER$ voor $DUE_DATE$ om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
     "placeholders": {
@@ -11772,6 +12075,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "De factuur voor je abonnement is niet betaald. Neem contact op met je Bitwarden-provider voor $GRACE_PERIOD_END$ om je verlenging te bevestigen en een ononderbroken service te verzekeren.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -11863,6 +12175,9 @@
   },
   "userkeyRotationDisclaimerTitle": {
     "message": "Niet-vertrouwde encryptiesleutels"
+  },
+  "atRiskPassword": {
+    "message": "Risicovolle wachtwoorden"
   },
   "changeAtRiskPassword": {
     "message": "Risicovol wachtwoord wijzigen"
@@ -12533,12 +12848,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Voordat dit beleid geactiveerd kan worden, moet je een domein claimen."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Bedrijfsbeleidseisen zijn toegepast op je time-out instellingen"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Je kluis time-out is hoger dan het maximum van jouw organisatie."
   },
@@ -12737,8 +13046,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en naleving. Klik op accepteren voor het overdragen van eigendom van je items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ vereist dat alle items eigendom zijn van de organisatie voor veiligheid en regelgeving.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12746,14 +13055,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Klik op accepteren voor het overdragen van het eigendom van je items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Help-artikel openen over de overdracht van items"
+  },
   "acceptTransfer": {
     "message": "Overdacht accepteren"
   },
   "declineAndLeave": {
     "message": "Weigeren en verlaten"
-  },
-  "whyAmISeeingThis": {
-    "message": "Waarom zie ik dit?"
   },
   "youHaveBitwardenPremium": {
     "message": "Je hebt Bitwarden Premium"
@@ -12904,11 +13216,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Voer meerdere e-mailadressen in door te scheiden met een komma."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "E-mailverificatie vereist ten minste één e-mailadres. Om alle e-mailadressen te verwijderen, moet je het toegangstype hierboven wijzigen."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "whenYouRemoveStorage": {
     "message": "Wanneer je opslag verwijdert, krijg je op je volgende rekening automatisch pro-rata rekeningkrediet."
@@ -13016,5 +13328,103 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Geen resultaten teruggekregen"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Wis filters of probeer een andere zoekterm"
+  },
+  "pastMonth": {
+    "message": "Afgelopen maand"
+  },
+  "past3Months": {
+    "message": "Laatste 3 maanden"
+  },
+  "past6Months": {
+    "message": "Afgelopen 6 maanden"
+  },
+  "pastYear": {
+    "message": "Afgelopen jaar"
+  },
+  "allTime": {
+    "message": "Van alle tijden"
+  },
+  "timePeriod": {
+    "message": "Tijdsperiode"
+  },
+  "of": {
+    "message": "van"
+  },
+  "coachmarkImportTitle": {
+    "message": "Snel je wachtwoorden importeren"
+  },
+  "coachmarkImportDescription": {
+    "message": "Heb je eerder een wachtwoordmanager gehad? Je kunt een CSV met bestaande logins en andere gegevens in je kluis importeren."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Een item toevoegen"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Nieuwe wachtwoorden, notities en andere informatie aan je kluis toevoegen. Alles is beveiligd met end-to-end-versleuteling."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Items veilig met anderen delen"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "Door een item naar een collectie te verplaatsen, kun je het veilig delen met andere mensen in je organisatie."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "De beveiliging van je wachtwoord controleren"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Houd de veiligheid van je kluisitems sterk door rapporten te controleren op kwetsbaarheden."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Stap $CURRENT$ van $TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Je bankrekening moet worden geverifieerd voordat deze kan worden gebruikt voor deze upgrade. Verifieer je bankrekening of kies een andere betaalmethode."
+  },
+  "discardEdits": {
+    "message": "Bewerkingen verwerpen"
+  },
+  "discardEditsMessage": {
+    "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt"
+  },
+  "backToEditing": {
+    "message": "Terug naar bewerken"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Bewerkingen Send opslaan mislukt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Zijnavigatie"
+  },
+  "skipLink": {
+    "message": "Link overslaan"
+  },
+  "callout": {
+    "message": "Opmerking",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Voortgangsbalk",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

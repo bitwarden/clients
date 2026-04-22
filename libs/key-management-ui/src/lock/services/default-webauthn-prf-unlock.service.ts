@@ -7,10 +7,8 @@ import {
 } from "@bitwarden/auth/common";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -18,7 +16,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
 
 import { WebAuthnPrfUnlockService } from "./webauthn-prf-unlock.service";
 
@@ -27,28 +24,18 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
 
   constructor(
     private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
-    private keyService: KeyService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private encryptService: EncryptService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
     private window: Window,
     private logService: LogService,
-    private configService: ConfigService,
   ) {
     this.navigatorCredentials = this.window.navigator.credentials;
   }
 
   async isPrfUnlockAvailable(userId: UserId): Promise<boolean> {
     try {
-      // Check if feature flag is enabled
-      const passkeyUnlockEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PasskeyUnlock,
-      );
-      if (!passkeyUnlockEnabled) {
-        return false;
-      }
-
       // Check if browser supports WebAuthn
       if (!this.navigatorCredentials || !this.navigatorCredentials.get) {
         return false;
@@ -154,7 +141,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
         allowCredentials: credentials.map(({ credentialId, transports }) => {
           // The credential ID is already base64url encoded from login storage
           // We need to decode it to ArrayBuffer for WebAuthn
-          const decodedId = Fido2Utils.stringToBuffer(credentialId);
+          const decodedId = Fido2Utils.stringToArray(credentialId);
           return {
             type: "public-key",
             id: decodedId,
@@ -238,7 +225,7 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     return prfOption;
   }
 
-  private async getUnlockWithPrfSalt(): Promise<ArrayBuffer> {
+  private async getUnlockWithPrfSalt(): Promise<Uint8Array<ArrayBuffer>> {
     try {
       // Use the same salt as login to ensure PRF keys match
       return await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt();

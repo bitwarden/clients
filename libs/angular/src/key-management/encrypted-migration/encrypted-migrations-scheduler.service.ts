@@ -38,7 +38,7 @@ export const ENCRYPTED_MIGRATION_DISMISSED = new UserKeyDefinition<Date>(
   },
 );
 const DISMISS_TIME_HOURS = 24;
-const VAULT_ROUTES = ["/vault", "/tabs/vault", "/tabs/current"];
+const VAULT_ROUTES = ["/new-vault", "/vault", "/tabs/vault", "/tabs/current"];
 
 /**
  * This services schedules encrypted migrations for users on clients that are interactive (non-cli), and handles manual interaction,

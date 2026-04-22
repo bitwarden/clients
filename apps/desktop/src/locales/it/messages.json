@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Preferiti"
   },
+  "unfavorite": {
+    "message": "Rimuovi dai preferiti"
+  },
   "types": {
     "message": "Tipi"
   },
@@ -31,6 +34,33 @@
   },
   "typeSshKey": {
     "message": "Chiave SSH"
+  },
+  "typeLoginSubtitle": {
+    "message": "Sito web o app"
+  },
+  "typeCardSubtitle": {
+    "message": "Carta di credito o debito"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informazioni personali"
+  },
+  "typeNoteSubtitle": {
+    "message": "Testo importante"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Token di login del server"
+  },
+  "folderSubtitle": {
+    "message": "Organizza i tuoi elementi"
+  },
+  "collectionSubtitle": {
+    "message": "Organizza gli elementi condivisi"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Select the item type you want to add to your vault."
   },
   "folders": {
     "message": "Cartelle"
@@ -83,6 +113,66 @@
   },
   "viewItem": {
     "message": "Visualizza elemento"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Nome"
@@ -333,6 +423,22 @@
   },
   "premiumRequiredDesc": {
     "message": "Passa a Premium per utilizzare questa funzionalità."
+  },
+  "syncWithBrowser": {
+    "message": "Sincronizza con il browser"
+  },
+  "acquireCookieSpeedbumpContent": {
+    "message": "Per connettersi a $VAULTURL$, è necessario sincronizzare il browser predefinito con l'app Bitwarden. Sarai reindirizzato a questa app una volta che il tuo browser sarà sincronizzato.",
+    "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
+    "placeholders": {
+      "vaultUrl": {
+        "content": "$1",
+        "example": "https://vault.bitwarden.com"
+      }
+    }
+  },
+  "launchBrowser": {
+    "message": "Avvia il browser"
   },
   "errorOccurred": {
     "message": "Si è verificato un errore."
@@ -585,6 +691,12 @@
   },
   "editedItem": {
     "message": "Elemento salvato"
+  },
+  "itemAddedToFavorites": {
+    "message": "Elemento aggiunto ai preferiti"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Elemento rimosso dai preferiti"
   },
   "deleteItem": {
     "message": "Elimina elemento"
@@ -896,6 +1008,9 @@
   "masterPassHintLabel": {
     "message": "Suggerimento per la password principale"
   },
+  "masterPasswordChanged": {
+    "message": "Password principale salvata"
+  },
   "passwordStrengthScore": {
     "message": "Valutazione complessità parola d'accesso $SCORE$",
     "placeholders": {
@@ -1187,6 +1302,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Le nuove impostazioni di crittografia consigliate miglioreranno la sicurezza del tuo account. Inserisci la tua password principale per aggiornare."
   },
+  "rotateAccountEncKey": {
+    "message": "Ruota anche la chiave di crittografia del mio account"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impatto della rotazione della chiave di crittografia"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Ci sono vecchi file allegati nella tua cassaforte che devono essere corretti prima di poter ruotare la chiave di crittografia del tuo account."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Ruota la chiave di cifratura"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Sei sicuro di voler ruotare la chiave di crittografia del tuo account?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Dopo aver aggiornato la tua chiave di crittografia, devi uscire ed entrare di nuovo in tutte le app Bitwarden che stai usando (come l'app mobile o l'estensione del browser). Non uscire e rientrare (per scaricare la nuova chiave di crittografia) protrebbe risultura in danneggiamento dei dati nella tua cassaforte. Cercheremo di farti uscire automaticamente, ma potrebbe esserci un ritardo."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Qualsiasi esportazione effettuata da un account limitato non sarà valida."
+  },
   "confirmIdentityToContinue": {
     "message": "Conferma la tua identità per continuare"
   },
@@ -1271,6 +1407,9 @@
   "changeMasterPass": {
     "message": "Cambia password principale"
   },
+  "changeMasterPassword": {
+    "message": "Cambia password principale"
+  },
   "continueToWebApp": {
     "message": "Passa al sito web?"
   },
@@ -1349,17 +1488,11 @@
   "twoStepLogin": {
     "message": "Verifica in due passaggi"
   },
-  "vaultTimeoutHeader": {
-    "message": "Timeout cassaforte"
-  },
   "vaultTimeout": {
     "message": "Timeout cassaforte"
   },
   "vaultTimeout1": {
     "message": "Tempo limite"
-  },
-  "vaultTimeoutAction1": {
-    "message": "Azione al timeout"
   },
   "vaultTimeoutDesc": {
     "message": "Scegli quando la tua cassaforte eseguirà l'azione di timeout."
@@ -1555,6 +1688,18 @@
   "unknown": {
     "message": "Sconosciuto"
   },
+  "copyAddress": {
+    "message": "Copia indirizzo"
+  },
+  "copyPhone": {
+    "message": "Copia numero di telefono"
+  },
+  "copyNote": {
+    "message": "Copia nota"
+  },
+  "copyVerificationCode": {
+    "message": "Copia codice di verifica"
+  },
   "copyUsername": {
     "message": "Copia nome utente"
   },
@@ -1637,6 +1782,21 @@
         "example": "$10"
       }
     }
+  },
+  "month": {
+    "message": "mese"
+  },
+  "monthly": {
+    "message": "Mensilmente"
+  },
+  "year": {
+    "message": "anno"
+  },
+  "annually": {
+    "message": "Annualmente"
+  },
+  "annual": {
+    "message": "Annuale"
   },
   "refreshComplete": {
     "message": "Aggiornamento completato"
@@ -2053,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "Modifiche non salvate"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Se esci adesso, le modifiche non verranno salvate. Installare l'aggiornamento dopo in modo da poter rimanere e salvare le modifiche."
+  },
+  "installLater": {
+    "message": "Installa dopo"
+  },
+  "continueWithInstall": {
+    "message": "Continua con l'installazione"
+  },
   "clone": {
     "message": "Clona"
   },
@@ -2068,9 +2237,6 @@
   "vaultTimeoutActionLogOutDesc": {
     "message": "Dovrai autenticarti di nuovo per accedere alla tua cassaforte."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Imposta un metodo di sblocco per modificare l'azione timeout cassaforte."
-  },
   "lock": {
     "message": "Blocca",
     "description": "Verb form: to make secure or inaccessible by"
@@ -2081,6 +2247,24 @@
   },
   "searchTrash": {
     "message": "Cerca nel cestino"
+  },
+  "searchArchive": {
+    "message": "Cerca nell'archivio"
+  },
+  "searchLogin": {
+    "message": "Cerca (login)"
+  },
+  "searchCard": {
+    "message": "Cerca (carta)"
+  },
+  "searchIdentity": {
+    "message": "Cerca (identità)"
+  },
+  "searchSecureNote": {
+    "message": "Cerca (nota sicura)"
+  },
+  "searchSshKey": {
+    "message": "Cerca (chiave SSH)"
   },
   "permanentlyDeleteItem": {
     "message": "Elimina definitivamente elemento"
@@ -2146,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Copia la chiave di autenticazione (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Copia note"
   },
   "totpHelperTitle": {
     "message": "Semplifica l'accesso a doppia verifica"
@@ -2235,6 +2422,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "La tua nuova password principale non soddisfa i requisiti di sicurezza."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Uno o più criteri di organizzazione richiedono la password principale per soddisfare i seguenti requisiti:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Ottieni consigli, annunci e opportunità di ricerca da Bitwarden nella tua casella di posta."
@@ -2377,6 +2567,9 @@
   "editSend": {
     "message": "Modifica Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "me": {
+    "message": "Io"
   },
   "myVault": {
     "message": "La mia cassaforte"
@@ -2667,9 +2860,6 @@
   },
   "vaultTimeoutTooLarge": {
     "message": "Il timeout della tua cassaforte supera i limiti impostati dalla tua organizzazione."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "I requisiti di politica aziendale sono stati applicati alle opzioni di timeout"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Le politiche dell'organizzazione hanno impostato il timeout massimo consentito della tua cassaforte su $HOURS$ ore e $MINUTES$ minuti.",
@@ -3437,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Dispositivo fidato"
   },
+  "device": {
+    "message": "Device"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "trustOrganization": {
     "message": "Contrassegna organizzazione come affidabile"
   },
@@ -3702,6 +3949,9 @@
   },
   "exportSuccess": {
     "message": "Dati della cassaforte esportati"
+  },
+  "exportError": {
+    "message": "Si è verificato un errore durante l'esportazione dei dati della cassaforte"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Verifica in due passaggi annullata"
@@ -4085,6 +4335,9 @@
   },
   "missingWebsite": {
     "message": "Sito Web mancante"
+  },
+  "missingPermissions": {
+    "message": "Non hai i permessi necessari per eseguire questa azione."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Non puoi rimuovere raccolte con i soli permessi di visualizzazione: $COLLECTIONS$",
@@ -4572,8 +4825,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di conformità e sicurezza. Clicca su 'Accetta' per trasferire la proprietà.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ richiede che tutti gli elementi siano di proprietà dell'organizzazione per motivi di sicurezza e di conformità alle policy.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4581,14 +4834,56 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clicca su 'Accetta' per il trasferimento di proprietà."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Leggi di più sul trasferimento di proprietà degli elementi della cassaforte"
+  },
   "acceptTransfer": {
     "message": "Accetta il trasferimento"
   },
   "declineAndLeave": {
     "message": "Rifiuta e abbandona"
   },
-  "whyAmISeeingThis": {
-    "message": "Perché vedo questo avviso?"
+  "organizationIsSuspended": {
+    "message": "Organizzazione sospesa"
+  },
+  "organizationIsSuspendedDesc": {
+    "message": "Non è possibile accedere agli elementi delle organizzazioni sospese. Contatta il proprietario dell'organizzazione per ricevere assistenza."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
+  "noItemsInTrash": {
+    "message": "Non ci sono elementi nel cestino"
+  },
+  "noItemsInTrashDesc": {
+    "message": "Gli elementi cancellati appariranno qui e saranno eliminati definitivamente dopo 30 giorni"
+  },
+  "noItemsInVault": {
+    "message": "La cassaforte è vuota"
+  },
+  "emptyVaultDescription": {
+    "message": "La cassaforte protegge non solo le password: archivia in modo sicuro anche passkey, identità, carte di pagamento e note."
+  },
+  "emptyFavorites": {
+    "message": "La lista dei preferiti è vuota"
+  },
+  "emptyFavoritesDesc": {
+    "message": "Aggiungi ai preferiti gli elementi che usi più spesso per un accesso rapido."
+  },
+  "noSearchResults": {
+    "message": "Nessun risultato"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Azzera i filtri o cerca qualcos'altro"
   },
   "sendPasswordHelperText": {
     "message": "I destinatari dovranno inserire la password per visualizzare questo Send",
@@ -4618,13 +4913,44 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Inserisci più indirizzi email separandoli con virgole."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "La verifica via email richiede almeno un indirizzo email. Per rimuovere tutte le email, modifica il tipo di accesso qui sopra."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "userVerificationFailed": {
     "message": "Verifica dell'utente non riuscita."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

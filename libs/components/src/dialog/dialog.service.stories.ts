@@ -11,7 +11,6 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
-import { SharedModule } from "../shared";
 import { positionFixedWrapperDecorator } from "../stories/storybook-decorators";
 import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
@@ -61,7 +60,7 @@ class StoryDialogComponent {
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(StoryDialogContentComponent, {
+    void this.dialogService.openDrawer(StoryDialogContentComponent, {
       data: {
         animal: "panda",
       },
@@ -69,7 +68,7 @@ class StoryDialogComponent {
   }
 
   openSmallDrawer() {
-    this.dialogService.openDrawer(SmallDrawerContentComponent, {
+    void this.dialogService.openDrawer(SmallDrawerContentComponent, {
       data: {
         animal: "panda",
       },
@@ -77,7 +76,7 @@ class StoryDialogComponent {
   }
 
   openLargeDrawer() {
-    this.dialogService.openDrawer(LargeDrawerContentComponent, {
+    void this.dialogService.openDrawer(LargeDrawerContentComponent, {
       data: {
         animal: "panda",
       },
@@ -209,7 +208,6 @@ export default {
     positionFixedWrapperDecorator(),
     moduleMetadata({
       imports: [
-        SharedModule,
         ButtonModule,
         NoopAnimationsModule,
         DialogModule,
@@ -236,6 +234,8 @@ export default {
               yes: "Yes",
               no: "No",
               loading: "Loading",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
             });
           },
         },

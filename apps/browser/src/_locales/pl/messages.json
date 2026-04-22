@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opcje odblokowania"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Ustaw metodę odblokowania, aby zmienić sposób blokowania sejfu."
-  },
   "unlockMethodNeeded": {
     "message": "Ustaw metodę odblokowania w ustawieniach"
   },
   "sessionTimeoutHeader": {
     "message": "Blokada aplikacji"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Blokowanie sejfu"
   },
   "otherOptions": {
     "message": "Inne opcje"
@@ -991,10 +985,10 @@
     "message": "Nie"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Każdy, kto ma link"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Każdy, kto ma hasło wysyłki"
   },
   "location": {
     "message": "Lokalizacja"
@@ -1154,6 +1148,15 @@
     "message": "Automatycznie wyczyść skopiowaną wartość ze schowka.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Ustawienia schowka zostały zaktualizowane"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Przejdź do ustawień"
+  },
   "notificationAddDesc": {
     "message": "Zapisać hasło?"
   },
@@ -1307,6 +1310,9 @@
   "additionalOptions": {
     "message": "Dodatkowe opcje"
   },
+  "enableFillAssist": {
+    "message": "Use fill assist"
+  },
   "enableContextMenuItem": {
     "message": "Pokaż opcje w menu kontekstowym"
   },
@@ -1356,7 +1362,7 @@
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importuj",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1519,7 +1525,7 @@
     "message": "Starsze szyfrowanie nie jest już obsługiwane. Skontaktuj się z pomocą techniczną, aby odzyskać konto."
   },
   "premiumMembership": {
-    "message": "Konto premium"
+    "message": "Konto Premium"
   },
   "premiumManage": {
     "message": "Zarządzaj kontem premium"
@@ -1531,16 +1537,16 @@
     "message": "Odśwież konto premium"
   },
   "premiumNotCurrentMember": {
-    "message": "Nie masz konta premium."
+    "message": "Nie masz konta Premium."
   },
   "premiumSignUpAndGet": {
-    "message": "Ulepsz konto do wersji premium, aby otrzymać:"
+    "message": "Kup konto Premium, aby otrzymać:"
   },
   "ppremiumSignUpStorage": {
     "message": "1 GB miejsca na zaszyfrowane załączniki."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ miejsca na zaszyfrowane załączniki.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1555,13 +1561,13 @@
     "message": "Specjalne opcje logowania dwustopniowego, takie jak YubiKey i Duo."
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "Subskrypcja Premium wygasła"
   },
   "archivePremiumRestart": {
-    "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
+    "message": "Aby odzyskać dostęp do archiwum, odnów subskrypcję Premium. Jeśli przed wznowieniem subskrypcji edytujesz szczegóły archiwizowanego elementu, zostanie on przeniesiony z powrotem do sejfu."
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Odnów subskrypcję Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Raporty bezpieczeństwa haseł, konta i wycieków danych, aby Twoje dane były bezpieczne."
@@ -1573,22 +1579,22 @@
     "message": "Priorytetowe wsparcie klienta."
   },
   "ppremiumSignUpFuture": {
-    "message": "Wszystkie przyszłe funkcje premium. Więcej już wkrótce!"
+    "message": "Wszystkie przyszłe funkcje Premium. Więcej już wkrótce!"
   },
   "premiumPurchase": {
-    "message": "Kup konto premium"
+    "message": "Kup konto Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Możesz kupić konto premium w aplikacji internetowej Bitwarden."
+    "message": "Możesz kupić konto Premium w aplikacji internetowej Bitwarden."
   },
   "premiumCurrentMember": {
-    "message": "Masz konto premium!"
+    "message": "Masz konto Premium!"
   },
   "premiumCurrentMemberThanks": {
     "message": "Dziękujemy za wspieranie Bitwarden."
   },
   "premiumFeatures": {
-    "message": "Ulepsz konto do wersji premium i otrzymaj:"
+    "message": "Kup konto Premium i otrzymaj:"
   },
   "premiumPrice": {
     "message": "Tylko $PRICE$ / rok!",
@@ -1793,6 +1799,27 @@
   },
   "confirmAutofillDesc": {
     "message": "Ta witryna nie pasuje do Twoich zapisanych danych logowania. Zanim wpiszesz dane logowania, upewnij się, że jest to zaufana witryna."
+  },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
   },
   "showInlineMenuLabel": {
     "message": "Pokaż sugestie autouzupełniania na polach formularza"
@@ -2108,6 +2135,27 @@
   "typeNote": {
     "message": "Notatka"
   },
+  "typeLoginSubtitle": {
+    "message": "Strona internetowa lub aplikacja"
+  },
+  "typeCardSubtitle": {
+    "message": "Karta kredytowa lub debetowa"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organizuj elementy"
+  },
+  "collectionSubtitle": {
+    "message": "Organizuj udostępnione elementy"
+  },
   "newItemHeaderLogin": {
     "message": "Nowe dane logowania",
     "description": "Header for new login item type"
@@ -2183,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Pokaż klucz SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Wybierz element do dodania"
   },
   "passwordHistory": {
     "message": "Historia hasła"
@@ -2372,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "Użyj silniejszego hasła, aby odpowiednio chronić konto Bitwarden. Czy na pewno chcesz użyć tego hasła głównego?"
   },
+  "rotateAccountEncKey": {
+    "message": "Zmień również klucz szyfrowania konta"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Zmień klucz szyfrowania"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Are you sure you want to rotate your account's encryption key?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Any account restricted exports you have saved will become invalid."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact of rotating your encryption key"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "One or more organization policies require the master password to meet the following requirements:"
+  },
   "pin": {
     "message": "Kod PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "Sposób blokowania sejfu"
   },
-  "vaultTimeoutAction1": {
-    "message": "Sposób blokady"
+  "showAtRiskPasswordNotifications": {
+    "message": "Show at-risk password notifications"
   },
   "lock": {
     "message": "Zablokuj",
@@ -2751,7 +2826,7 @@
     "message": "Autouzupełnianie będzie zablokowane dla tych stron internetowych. Zmiany zaczną obowiązywać po odświeżeniu strony."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autouzupełnianie będzie zablokowane dla tych stron intenretowych."
+    "message": "Autouzupełnianie będzie zablokowane dla tych stron internetowych."
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Zmień to w ustawieniach"
@@ -2819,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "Organizacja $ORGANIZATION$ prosi o zmianę hasła, ponieważ jest ono zagrożone. Przejdź do ustawień konta, aby zmienić hasło.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3230,9 +3305,6 @@
   "minutes": {
     "message": "Minuty"
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zasady organizacji zostały zastosowane do opcji blokowania sejfu"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
@@ -3636,7 +3708,7 @@
     "message": "Wystąpił błąd serwera Key Connector. Upewnij się, że serwer jest dostępny i działa poprawnie."
   },
   "premiumSubcriptionRequired": {
-    "message": "Wymagana jest subskrypcja premium"
+    "message": "Wymagana jest subskrypcja Premium"
   },
   "organizationIsDisabled": {
     "message": "Organizacja została zawieszona."
@@ -3752,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Status logowania"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Ostatnie 7 dni"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Ostatnie 14 dni"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Ostatnie 30 dni"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Ponad 30 dni temu"
   },
   "masterPasswordChanged": {
     "message": "Hasło główne zostało zapisane"
@@ -4436,6 +4526,9 @@
   "exportSuccess": {
     "message": "Dane sejfu zostały wyeksportowane"
   },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
+  },
   "typePasskey": {
     "message": "Klucz dostępu"
   },
@@ -4864,6 +4957,9 @@
   },
   "copyAddress": {
     "message": "Kopiuj adres"
+  },
+  "myItems": {
+    "message": "Moje elementy"
   },
   "adminConsole": {
     "message": "Konsola administratora"
@@ -5960,7 +6056,7 @@
     "message": "Zaktualizuj teraz"
   },
   "builtInAuthenticator": {
-    "message": "Wbudowany uwierzytelniacz"
+    "message": "Wbudowana aplikacja uwierzytelniająca"
   },
   "secureFileStorage": {
     "message": "Bezpieczne przechowywanie plików"
@@ -5978,7 +6074,7 @@
     "message": "Advanced online security"
   },
   "upgradeToPremium": {
-    "message": "Ulepsz do Premium"
+    "message": "Kup konto Premium"
   },
   "unlockAdvancedSecurity": {
     "message": "Unlock advanced security features"
@@ -5987,13 +6083,13 @@
     "message": "A Premium subscription gives you more tools to stay secure and in control"
   },
   "explorePremium": {
-    "message": "Poznaj Premium"
+    "message": "Poznaj konto Premium"
   },
   "loadingVault": {
     "message": "Ładowanie sejfu"
   },
   "vaultLoaded": {
-    "message": "Sejf załadowany"
+    "message": "Sejf został załadowany"
   },
   "settingDisabledByPolicy": {
     "message": "Ustawienie jest wyłączone przez Twoją organizację.",
@@ -6039,19 +6135,19 @@
     "message": "Leave now"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Zweryfikuj domenę, aby się zalogować"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Sprawdź domenę, aby kontynuować logowanie."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Sprawdź organizację i domenę, aby kontynuować logowanie."
   },
   "sessionTimeoutSettingsAction": {
     "message": "Sposób blokady"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "This setting is managed by your organization."
+    "message": "Ustawienie jest zarządzane przez Twoją organizację."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "Your organization has set the maximum session timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -6067,13 +6163,13 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
-    "message": "Your organization has set the default session timeout to Immediately."
+    "message": "Twoja organizacja włączyła domyślną blokadę aplikacji."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Your organization has set the default session timeout to On system lock."
+    "message": "Twoja organizacja włączyła domyślną blokadę aplikacji po zablokowaniu systemu."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Your organization has set the default session timeout to On browser restart."
+    "message": "Twoja organizacja ustawiła domyślną blokadę aplikacji po uruchomieniu przeglądarki."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "Maximum timeout cannot exceed $HOURS$ hour(s) and $MINUTES$ minute(s)",
@@ -6093,6 +6189,18 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
   },
   "upgrade": {
     "message": "Upgrade"
@@ -6127,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "Organizacja $ORGANIZATION$ wymaga, aby wszystkie elementy były ich własnością.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,14 +6244,17 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Kliknij akceptuj, aby przenieść własność elementów."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Otwórz artykuł pomocy dotyczący przenoszenia elementów"
+  },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Akceptuj"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Odrzuć i wyjdź"
   },
   "items": {
     "message": "Elementy"
@@ -6151,26 +6262,35 @@
   "searchResults": {
     "message": "Wyniki wyszukiwania"
   },
+  "simplifiedAutofill": {
+    "message": "Simplified autofill"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "When you click a suggested autofill item, it fills rather than taking you to details. You can still view these items from the More menu."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Open simplified autofill popover"
+  },
   "resizeSideNavigation": {
     "message": "Zmień rozmiar nawigacji bocznej"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Kto może odczytać"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Konkretni użytkownicy"
   },
   "emailVerificationDesc": {
-    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+    "message": "Aby wyświetlić wysyłkę, odbiorcy będą musieli zweryfikować adres e-mail za pomocą kodu."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Enter multiple emails by separating with a comma."
-  },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
+    "message": "Wpisz wiele adresów e-mail, oddzielając je przecinkami."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Pobierz aplikacje Bitwarden"
@@ -6184,5 +6304,22 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "downloadFailed": {
+    "message": "Pobieranie nie powiodło się."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Opções de desbloqueio"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configure um método de desbloqueio para alterar a ação de tempo limite do seu cofre."
-  },
   "unlockMethodNeeded": {
     "message": "Definir um método de desbloqueio nas Definições"
   },
   "sessionTimeoutHeader": {
     "message": "Tempo limite da sessão"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Tempo limite do cofre"
   },
   "otherOptions": {
     "message": "Outras opções"
@@ -1154,6 +1148,15 @@
     "message": "Limpar automaticamente os valores copiados da sua área de transferência.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Definição da área de transferência atualizada"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "O tempo limite da área de transferência está definido para o valor predefinido, que foi atualizado para 5 minutos para maior segurança."
+  },
+  "jumpToSetting": {
+    "message": "Ir para a definição"
+  },
   "notificationAddDesc": {
     "message": "Deve o Bitwarden memorizar esta palavra-passe por si?"
   },
@@ -1306,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Opções adicionais"
+  },
+  "enableFillAssist": {
+    "message": "Utilizar assistência de preenchimento"
   },
   "enableContextMenuItem": {
     "message": "Mostrar opções do menu de contexto"
@@ -1794,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Este site não corresponde às suas credenciais guardadas. Antes de preencher as suas credenciais, certifique-se de que se trata de um site fiável."
   },
+  "loginHasNoSiteSaved": {
+    "message": "A credencial não tem nenhum site associado"
+  },
+  "siteDoesntMatch": {
+    "message": "O site não corresponde"
+  },
+  "loginNoSiteDesc": {
+    "message": "Esta credencial ainda não tem nenhum site associado. Verifique se está num site fidedigno antes de utilizar o preenchimento automático."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Este site não corresponde ao que tem associado a esta credencial. Verifique se está num site fidedigno antes de utilizar o preenchimento automático."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Este site não corresponde aos que tem associados a esta credencial. Verifique se está num site fidedigno antes de utilizar o preenchimento automático."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Preencher automaticamente e guardar este site"
+  },
+  "autofillOnly": {
+    "message": "Preencher automaticamente apenas"
+  },
   "showInlineMenuLabel": {
     "message": "Mostrar sugestões de preenchimento automático nos campos do formulário"
   },
@@ -1855,10 +1882,10 @@
     "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
   },
   "learnMoreAboutAutofillOnPageLoadLinkText": {
-    "message": "Saber mais sobre os riscos"
+    "message": "Saiba mais sobre os riscos"
   },
   "learnMoreAboutAutofill": {
-    "message": "Saber mais sobre o preenchimento automático"
+    "message": "Saiba mais sobre o preenchimento automático"
   },
   "defaultAutoFillOnPageLoad": {
     "message": "Definição de preenchimento automático predefinido para itens de início de sessão"
@@ -2108,6 +2135,27 @@
   "typeNote": {
     "message": "Nota"
   },
+  "typeLoginSubtitle": {
+    "message": "Site ou app"
+  },
+  "typeCardSubtitle": {
+    "message": "Cartão de crédito ou débito"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informações pessoais"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texto importante"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Token de início de sessão no servidor"
+  },
+  "folderSubtitle": {
+    "message": "Organize os seus itens"
+  },
+  "collectionSubtitle": {
+    "message": "Organize itens partilhados"
+  },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
     "description": "Header for new login item type"
@@ -2183,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Ver chave SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Escolher item a adicionar"
   },
   "passwordHistory": {
     "message": "Histórico de palavras-passe"
@@ -2372,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "A palavra-passe mestra que escolheu é fraca. Deve utilizar uma palavra-passe mestra forte (ou uma frase de acesso) para proteger adequadamente a sua conta Bitwarden. Tem a certeza de que pretende utilizar esta palavra-passe mestra?"
   },
+  "rotateAccountEncKey": {
+    "message": "Regenerar também a chave de encriptação da minha conta"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Regenerar chave de encriptação"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Tem a certeza de que pretende regenerar a chave de encriptação da sua conta?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Após atualizar a sua chave de encriptação, terá de terminar a sessão e iniciar sessão novamente em todas as aplicações Bitwarden que está atualmente a utilizar (como a aplicação móvel ou as extensões do navegador). Não o fazer (o que permite descarregar a nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, poderá sofrer algum atraso."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Todas as exportações com restrições de conta que tenha guardado tornar-se-ão inválidas."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Existem anexos de ficheiros antigos no seu cofre que têm de ser corrigidos antes de poder regenerar a chave de encriptação da sua conta."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impacto da regeneração da sua chave de encriptação"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Uma ou mais políticas da organização exigem que a palavra-passe mestra cumpra os seguintes requisitos:"
+  },
   "pin": {
     "message": "PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "Ação de tempo limite do cofre"
   },
-  "vaultTimeoutAction1": {
-    "message": "Ação de tempo limite"
+  "showAtRiskPasswordNotifications": {
+    "message": "Mostrar notificações sobre palavras-passe em risco"
   },
   "lock": {
     "message": "Bloquear",
@@ -2819,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "A $ORGANIZATION$ pretende que altere esta palavra-passe porque está em risco. Navegue até às definições da sua conta para alterar a palavra-passe.",
+  "atRiskNavigatePromptV2": {
+    "message": "A sua palavra-passe para este site está em risco. A organização $ORGANIZATION$ solicitou que aceda às definições da sua conta e a altere.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3229,9 +3304,6 @@
   },
   "minutes": {
     "message": "Minutos"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Os requisitos da política empresarial foram aplicados às suas opções de tempo limite"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "As políticas da sua organização definiram o tempo limite máximo permitido do cofre de $HOURS$ hora(s) e $MINUTES$ minuto(s).",
@@ -3752,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Estado do início de sessão"
+  },
+  "recentlyActive": {
+    "message": "Ativo recentemente"
+  },
+  "recentlyActiveToday": {
+    "message": "Hoje"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Últimos 7 dias"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Últimos 14 dias"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Últimos 30 dias"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Há mais de 30 dias"
   },
   "masterPasswordChanged": {
     "message": "Palavra-passe mestra guardada"
@@ -4436,6 +4526,9 @@
   "exportSuccess": {
     "message": "Dados do cofre exportados"
   },
+  "exportError": {
+    "message": "Ocorreu um erro ao exportar os dados do seu cofre"
+  },
   "typePasskey": {
     "message": "Chave de acesso"
   },
@@ -4864,6 +4957,9 @@
   },
   "copyAddress": {
     "message": "Copiar endereço"
+  },
+  "myItems": {
+    "message": "Os meus itens"
   },
   "adminConsole": {
     "message": "Consola de administração"
@@ -5978,7 +6074,7 @@
     "message": "Segurança online avançada"
   },
   "upgradeToPremium": {
-    "message": "Atualizar para o Premium"
+    "message": "Atualize para o Premium"
   },
   "unlockAdvancedSecurity": {
     "message": "Desbloqueie funcionalidades de segurança avançadas"
@@ -6094,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Configure um método de desbloqueio para alterar a sua ação de tempo limite"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Gerido pela app para computador Bitwarden. Abra a app para editar."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% concluído",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Atualizar"
   },
@@ -6127,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que todos os itens sejam propriedade da organização por motivos de segurança e conformidade. Clique em Aceitar para transferir a propriedade dos seus itens.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que todos os itens pertençam à organização por motivos de segurança e conformidade.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,20 +6244,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Clique em aceitar para transferir a titularidade dos seus itens."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Abrir artigo de ajuda sobre a transferência de itens"
+  },
   "acceptTransfer": {
     "message": "Aceitar transferência"
   },
   "declineAndLeave": {
     "message": "Recusar e sair"
   },
-  "whyAmISeeingThis": {
-    "message": "Porque é que estou a ver isto?"
-  },
   "items": {
     "message": "Itens"
   },
   "searchResults": {
     "message": "Resultados da pesquisa"
+  },
+  "simplifiedAutofill": {
+    "message": "Preenchimento automático simplificado"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Ao clicar num item de preenchimento automático sugerido, este é preenchido em vez de abrir os detalhes. Pode continuar a visualizar estes itens através do menu Mais."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Abrir popover de preenchimento automático simplificado"
   },
   "resizeSideNavigation": {
     "message": "Redimensionar navegação lateral"
@@ -6166,11 +6286,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Introduza vários e-mails, separados por vírgula."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "A verificação por e-mail requer pelo menos um endereço de e-mail. Para remover todos os e-mails, altere o tipo de acesso acima."
-  },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "utilizador@bitwarden.com, utilizador@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Descarregar as apps Bitwarden"
@@ -6184,5 +6304,22 @@
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
+  },
+  "downloadFailed": {
+    "message": "Falha na transferência."
+  },
+  "sideNavigation": {
+    "message": "Navegação lateral"
+  },
+  "skipLink": {
+    "message": "Ignorar link"
+  },
+  "callout": {
+    "message": "Aviso",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Barra de progresso",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

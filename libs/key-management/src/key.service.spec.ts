@@ -18,7 +18,7 @@ import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/se
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { HashPurpose, KeySuffixOptions } from "@bitwarden/common/platform/enums";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
@@ -91,6 +91,12 @@ describe("keyService", () => {
     );
   });
 
+  const setUserKeyState = (userId: UserId, userKey: UserKey | null) => {
+    stateProvider.singleUser
+      .getFake(userId, USER_KEY)
+      .nextState(userKey == null ? null : ({ "": userKey } as Record<string, UserKey>));
+  };
+
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -110,7 +116,7 @@ describe("keyService", () => {
     );
 
     it("throws error if user key not found", async () => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+      setUserKeyState(mockUserId, null);
 
       await expect(keyService.refreshAdditionalKeys(mockUserId)).rejects.toThrow(
         "No user key found for: " + mockUserId,
@@ -119,7 +125,7 @@ describe("keyService", () => {
 
     it("refreshes additional keys when user key is available", async () => {
       const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
       const setUserKeySpy = jest.spyOn(keyService, "setUserKey");
 
       await keyService.refreshAdditionalKeys(mockUserId);
@@ -143,7 +149,7 @@ describe("keyService", () => {
     });
 
     it("returns the User Key if available", async () => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
 
       const userKey = await keyService.getUserKey(mockUserId);
 
@@ -173,7 +179,7 @@ describe("keyService", () => {
     );
 
     it.each([true, false])("returns %s if the user key is set", async (hasKey) => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(hasKey ? mockUserKey : null);
+      setUserKeyState(mockUserId, hasKey ? mockUserKey : null);
       expect(await keyService.hasUserKey(mockUserId)).toBe(hasKey);
     });
   });
@@ -365,7 +371,7 @@ describe("keyService", () => {
       mockUserKey = makeSymmetricCryptoKey<UserKey>(64);
       mockEncryptedPrivateKey = makeEncString("encryptedPrivateKey").encryptedString!;
       mockUserPrivateKey = makeStaticByteArray(10, 1);
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
       accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
         of({ V1: { private_key: mockEncryptedPrivateKey } }),
       );
@@ -392,7 +398,7 @@ describe("keyService", () => {
     });
 
     it("returns null if user key is not set", async () => {
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+      setUserKeyState(mockUserId, null);
 
       const result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
@@ -423,14 +429,14 @@ describe("keyService", () => {
       expect(result).toEqual(mockUserPrivateKey);
 
       // Change user key to null
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(null);
+      setUserKeyState(mockUserId, null);
 
       result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
 
       expect(result).toBeNull();
 
       // Restore user key, remove encrypted private key
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(mockUserKey);
+      setUserKeyState(mockUserId, mockUserKey);
       accountStateSubject.next(null);
 
       result = await firstValueFrom(keyService.userPrivateKey$(mockUserId));
@@ -480,8 +486,7 @@ describe("keyService", () => {
 
     function updateKeys(keys: Partial<UpdateKeysParams> = {}) {
       if ("userKey" in keys) {
-        const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-        userKeyState.nextState(keys.userKey!);
+        setUserKeyState(mockUserId, keys.userKey!);
       }
 
       if ("encryptedPrivateKey" in keys) {
@@ -820,27 +825,6 @@ describe("keyService", () => {
       );
       expect(result).toBe(mockReturnedHashB64);
     });
-
-    test.each([
-      [2, HashPurpose.LocalAuthorization],
-      [1, HashPurpose.ServerAuthorization],
-    ])(
-      "hashes master key with %s iterations when hashPurpose is %s",
-      async (expectedIterations, hashPurpose) => {
-        const mockReturnedHashB64 = "bXlfaGFzaA==";
-        cryptoFunctionService.pbkdf2.mockResolvedValue(Utils.fromB64ToArray(mockReturnedHashB64));
-
-        const result = await keyService.hashMasterKey(password, masterKey, hashPurpose);
-
-        expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-          masterKey.inner().encryptionKey,
-          password,
-          "sha256",
-          expectedIterations,
-        );
-        expect(result).toBe(mockReturnedHashB64);
-      },
-    );
   });
 
   describe("makeOrgKey", () => {
@@ -915,7 +899,9 @@ describe("keyService", () => {
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
-      userKeyState.nextState(fakeUserKey);
+      userKeyState.nextState(
+        fakeUserKey == null ? null : ({ "": fakeUserKey } as Record<string, UserKey>),
+      );
       return [fakeUserKey, fakeMasterKey];
     }
 
@@ -1054,7 +1040,7 @@ describe("keyService", () => {
 
     it("throws when user already has a user key", async () => {
       const existingUserKey = makeSymmetricCryptoKey<UserKey>(64);
-      stateProvider.singleUser.getFake(mockUserId, USER_KEY).nextState(existingUserKey);
+      setUserKeyState(mockUserId, existingUserKey);
 
       await expect(keyService.initAccount(mockUserId)).rejects.toThrow(
         "Cannot initialize account, keys already exist.",

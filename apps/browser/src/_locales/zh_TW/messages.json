@@ -300,7 +300,7 @@
     "message": "接下來造訪網頁 App 嗎？"
   },
   "continueToWebAppDesc": {
-    "message": "在 Web 應用程式上探索 Bitwarden 帳號的更多功能。"
+    "message": "在 Web 應用程式上探索 Bitwarden 帳戶的更多功能。"
   },
   "continueToHelpCenter": {
     "message": "接下來前往說明中心嗎？"
@@ -353,10 +353,10 @@
     "message": "您可以使用 Bitwarden 驗證器儲存驗證器金鑰，並為兩步驟驗證流程產生 TOTP 代碼。前往 bitwarden.com 網站以了解更多資訊。"
   },
   "bitwardenSecretsManager": {
-    "message": "Bitwarden 密鑰管理"
+    "message": "Bitwarden 機密管理器"
   },
   "continueToSecretsManagerPageDesc": {
-    "message": "使用 Bitwarden 密鑰管理來安全儲存、管理並分享開發人員密鑰。在 bitwarden.com 網站上了解更多。"
+    "message": "透過 Bitwarden 機密管理器安全地儲存、管理並分享開發人員機密。請前往 bitwarden.com 網站了解更多。"
   },
   "passwordlessDotDev": {
     "message": "Passwordless.dev"
@@ -493,7 +493,7 @@
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "包含大寫字元",
+    "message": "包含大寫字母",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -501,7 +501,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "包含小寫字元",
+    "message": "包含小寫字母",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -696,20 +696,14 @@
   "unlockMethods": {
     "message": "解鎖選項"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "設定解鎖方法來變更您的密碼庫逾時動作。"
-  },
   "unlockMethodNeeded": {
     "message": "在設定中設定一個解鎖方式"
   },
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
   },
-  "vaultTimeoutHeader": {
-    "message": "密碼庫逾時時間"
-  },
   "otherOptions": {
-    "message": "其它選項"
+    "message": "其他選項"
   },
   "rateExtension": {
     "message": "評分此擴充功能"
@@ -897,7 +891,7 @@
     "message": "驗證碼無效"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "電子郵件或驗證碼無效"
   },
   "valueCopied": {
     "message": "$VALUE$ 已複製",
@@ -1126,7 +1120,7 @@
     "message": "一律在密碼庫介面中顯示付款卡自動填入建議"
   },
   "showCardsCurrentTab": {
-    "message": "於分頁頁面顯示卡片"
+    "message": "於分頁頁面顯示付款卡"
   },
   "showCardsCurrentTabDesc": {
     "message": "於分頁頁面顯示付款卡以便於自動填入。"
@@ -1153,6 +1147,15 @@
   "clearClipboardDesc": {
     "message": "自動清除剪貼簿中已複製的值。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
+  },
+  "clipboardSettingUpdated": {
+    "message": "剪貼簿設定已更新"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "您的剪貼簿逾時已設為預設值，為提升安全性，已更新為 5 分鐘。"
+  },
+  "jumpToSetting": {
+    "message": "前往設定"
   },
   "notificationAddDesc": {
     "message": "是否要讓 Bitwarden 記住此密碼？"
@@ -1211,7 +1214,7 @@
     }
   },
   "saveAsNewLoginAction": {
-    "message": "儲存為新的登入資訊",
+    "message": "儲存為新的登入資料",
     "description": "Button text for saving login details as a new entry."
   },
   "updateLoginAction": {
@@ -1306,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "其他選項"
+  },
+  "enableFillAssist": {
+    "message": "使用填寫輔助"
   },
   "enableContextMenuItem": {
     "message": "顯示內容選單選項"
@@ -1794,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "此網站與您儲存的登入資料不相符。在填入登入憑證前，請確認這是受信任的網站。"
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "在表單欄位上顯示自動填入選單"
   },
@@ -1816,7 +1843,7 @@
     "message": "顯示身分建議"
   },
   "showInlineMenuCardsLabel": {
-    "message": "顯示信用卡建議"
+    "message": "顯示付款卡建議"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "當選擇圖示時，顯示建議"
@@ -1828,7 +1855,7 @@
     "message": "關閉您的瀏覽器內建密碼管理器設定以避免衝突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "編輯瀏覽器設定"
+    "message": "編輯瀏覽器設定。"
   },
   "autofillOverlayVisibilityOff": {
     "message": "關閉",
@@ -2001,7 +2028,7 @@
     "message": "安全碼"
   },
   "cardNumber": {
-    "message": "信用卡號碼"
+    "message": "卡號"
   },
   "ex": {
     "message": "例如"
@@ -2108,8 +2135,29 @@
   "typeNote": {
     "message": "備註"
   },
+  "typeLoginSubtitle": {
+    "message": "網站或應用程式"
+  },
+  "typeCardSubtitle": {
+    "message": "信用卡或金融卡"
+  },
+  "typeIdentitySubtitle": {
+    "message": "個人資料"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要文字"
+  },
+  "typeSshKeySubtitle": {
+    "message": "伺服器登入憑證"
+  },
+  "folderSubtitle": {
+    "message": "整理您的項目"
+  },
+  "collectionSubtitle": {
+    "message": "整理共享項目"
+  },
   "newItemHeaderLogin": {
-    "message": "新增登入資訊",
+    "message": "新增登入資料",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
@@ -2183,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "檢視 SSH 金鑰",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "選擇要新增的項目"
   },
   "passwordHistory": {
     "message": "密碼歷史記錄"
@@ -2372,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "您選擇的主密碼強度過弱。請使用高強度的主密碼（或密碼短語），以妥善保護您的 Bitwarden 帳戶。您確定要使用此主密碼嗎？"
   },
+  "rotateAccountEncKey": {
+    "message": "同時輪換帳戶的加密金鑰"
+  },
+  "rotateEncKeyTitle": {
+    "message": "輪換加密金鑰"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "確定要輪換帳戶的加密金鑰嗎？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您保存的任何受限制匯出帳號將失效。"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "輪換加密金鑰的影響"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "一個或多個組織原則要求主密碼須符合下列條件："
+  },
   "pin": {
     "message": "PIN 碼",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2440,7 +2515,7 @@
     "message": "使用此密碼"
   },
   "useThisPassphrase": {
-    "message": "使用此密碼"
+    "message": "使用此密碼短語"
   },
   "useThisUsername": {
     "message": "使用此使用者名稱"
@@ -2462,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "密碼庫逾時動作"
   },
-  "vaultTimeoutAction1": {
-    "message": "逾時後動作"
+  "showAtRiskPasswordNotifications": {
+    "message": "顯示高風險密碼通知"
   },
   "lock": {
     "message": "鎖定",
@@ -2630,7 +2705,7 @@
     "message": "存取權杖更新失敗"
   },
   "errorRefreshingAccessTokenDesc": {
-    "message": "未找到存取權杖或 API 密鑰。請重試登出再登入。"
+    "message": "未找到重新整理權杖或 API 金鑰。請先登出再重新登入。"
   },
   "desktopSyncVerificationTitle": {
     "message": "桌面應用程式同步驗證"
@@ -2819,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ 要求你變更此密碼，因為它存在風險。請前往帳號設定以變更密碼。",
+  "atRiskNavigatePromptV2": {
+    "message": "此網站的密碼存在風險。$ORGANIZATION$ 已要求您前往帳戶設定並進行變更。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2861,7 +2936,7 @@
     "message": "有風險登入清單的示意圖。"
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Bitwarden 密碼庫頁面版面配置示意圖。"
   },
   "generatePasswordSlideDesc": {
     "message": "在有風險的網站上，透過 Bitwarden 自動填入選單快速產生強且唯一的密碼。",
@@ -3230,9 +3305,6 @@
   "minutes": {
     "message": "分鐘"
   },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "企業政策已套用至您的逾時選項中"
-  },
   "vaultTimeoutPolicyInEffect": {
     "message": "您的組織政策已限定您密碼庫逾時的時間長度。密碼庫逾時時間最高可以設定到 $HOURS$ 小時 $MINUTES$ 分鐘。",
     "placeholders": {
@@ -3448,7 +3520,7 @@
     }
   },
   "passphraseNumWordsRecommendationHint": {
-    "message": " 使用 $RECOMMENDED$ 或更多個單字產生強的密碼短語。",
+    "message": " 使用至少 $RECOMMENDED$ 個詞彙來建立更強的密碼短語。",
     "description": "Appended to `spinboxBoundariesHint` to recommend a number of words to the user. This must include any language-specific 'sentence' separator characters (e.g. a space in english).",
     "placeholders": {
       "recommended": {
@@ -3752,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "登入狀態"
+  },
+  "recentlyActive": {
+    "message": "最近活動"
+  },
+  "recentlyActiveToday": {
+    "message": "今天"
+  },
+  "recentlyActivePast7Days": {
+    "message": "過去 7 天"
+  },
+  "recentlyActivePast14Days": {
+    "message": "過去 14 天"
+  },
+  "recentlyActivePast30Days": {
+    "message": "過去 30 天"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 天前以上"
   },
   "masterPasswordChanged": {
     "message": "主密碼已儲存"
@@ -4257,7 +4347,7 @@
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "新信用卡",
+    "message": "新增付款卡",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
@@ -4435,6 +4525,9 @@
   },
   "exportSuccess": {
     "message": "密碼庫資料已匯出"
+  },
+  "exportError": {
+    "message": "匯出密碼庫資料時發生錯誤"
   },
   "typePasskey": {
     "message": "密碼金鑰"
@@ -4865,6 +4958,9 @@
   "copyAddress": {
     "message": "複製地址"
   },
+  "myItems": {
+    "message": "我的項目"
+  },
   "adminConsole": {
     "message": "管理控制台"
   },
@@ -4962,7 +5058,7 @@
     "message": "不在任何資料夾中的項目"
   },
   "itemDetails": {
-    "message": "項目詳細資訊"
+    "message": "項目詳細資料"
   },
   "itemName": {
     "message": "項目名稱"
@@ -5108,7 +5204,7 @@
     "description": "Used within the inline menu to provide an aria description when users are attempting to fill a card cipher."
   },
   "loginCredentials": {
-    "message": "登入資訊"
+    "message": "登入憑證"
   },
   "authenticatorKey": {
     "message": "驗證器金鑰"
@@ -5177,13 +5273,13 @@
     "message": "在頁面載入時自動填寫？"
   },
   "cardExpiredTitle": {
-    "message": "過期的信用卡"
+    "message": "過期的付款卡"
   },
   "cardExpiredMessage": {
     "message": "如果您已續期，請更新信用卡資訊"
   },
   "cardDetails": {
-    "message": "信用卡詳細資料"
+    "message": "付款卡詳細資料"
   },
   "cardBrandDetails": {
     "message": "$BRAND$ 詳細資訊",
@@ -5728,16 +5824,16 @@
     "message": "請輸入密碼"
   },
   "invalidSshKey": {
-    "message": "SSH 密鑰不正確"
+    "message": "SSH 金鑰無效"
   },
   "sshKeyTypeUnsupported": {
-    "message": "SSH 密鑰類型不支援"
+    "message": "不支援此 SSH 金鑰類型"
   },
   "importSshKeyFromClipboard": {
-    "message": "從剪貼簿中匯入密鑰"
+    "message": "從剪貼簿匯入金鑰"
   },
   "sshKeyImported": {
-    "message": "SSH 密鑰成功匯入"
+    "message": "SSH 金鑰已成功匯入"
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "若您只有檢視權限，無法移除集合 $COLLECTIONS$。",
@@ -6094,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "由 Bitwarden 桌面應用程式管理。請開啟桌面應用程式進行編輯。"
+  },
+  "percentageCompleted": {
+    "message": "完成 $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "升級"
   },
@@ -6127,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ 為了安全性與合規性，要求所有項目皆由組織擁有。點擊接受即可轉移您項目的擁有權。",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ 為了安全與合規要求，要求所有項目必須由組織擁有。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,20 +6244,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "點擊「接受」以轉移您項目的擁有權。"
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "開啟關於轉移項目的說明文章"
+  },
   "acceptTransfer": {
     "message": "同意轉移"
   },
   "declineAndLeave": {
     "message": "拒絕並離開"
   },
-  "whyAmISeeingThis": {
-    "message": "為什麼我會看到此訊息？"
-  },
   "items": {
     "message": "項目"
   },
   "searchResults": {
     "message": "搜尋結果"
+  },
+  "simplifiedAutofill": {
+    "message": "簡化自動填入"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "當您點擊建議的自動填入項目時，將直接填入，而不會進入詳細資料頁面。您仍可從「更多」選單檢視這些項目。"
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "開啟簡化自動填入彈出視窗"
   },
   "resizeSideNavigation": {
     "message": "調整側邊欄大小"
@@ -6166,11 +6286,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "請以逗號分隔輸入多個電子郵件地址。"
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Email verification requires at least one email address. To remove all emails, change the access type above."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "下載 Bitwarden 應用程式"
@@ -6183,6 +6303,23 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "使用者驗證失敗。"
+  },
+  "downloadFailed": {
+    "message": "下載失敗"
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

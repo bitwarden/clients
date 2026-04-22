@@ -81,6 +81,7 @@ export const VAULT_TIMEOUT_SETTINGS_DISK_LOCAL = new StateDefinition(
     web: "disk-local",
   },
 );
+export const VAULT_TIMEOUT_SETTINGS_MEMORY = new StateDefinition("vaultTimeoutSettings", "memory");
 
 // Autofill
 
@@ -137,6 +138,10 @@ export const EXTENSION_INITIAL_INSTALL_DISK = new StateDefinition(
 export const WEB_PUSH_SUBSCRIPTION = new StateDefinition("webPushSubscription", "disk", {
   web: "disk-local",
 });
+export const SERVER_COMMUNICATION_CONFIG_DISK = new StateDefinition(
+  "serverCommunicationConfig",
+  "disk",
+);
 
 // Design System
 

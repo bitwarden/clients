@@ -589,7 +589,7 @@
     "message": "Архівовано"
   },
   "unarchiveAndSave": {
-    "message": "Розархівувати й зберегти"
+    "message": "Видобути й зберегти"
   },
   "upgradeToUseArchive": {
     "message": "Для використання архіву необхідна передплата Premium."
@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Налаштування розблокування"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища."
-  },
   "unlockMethodNeeded": {
     "message": "Встановіть спосіб розблокування в налаштуваннях"
   },
   "sessionTimeoutHeader": {
     "message": "Час очікування сеансу"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Час очікування сховища"
   },
   "otherOptions": {
     "message": "Інші налаштування"
@@ -1154,6 +1148,15 @@
     "message": "Автоматично очищати скопійовані значення з буфера обміну.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Налаштування буфера обміну оновлено"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Час очікування буфера обміну встановлено за замовчуванням; у цілях безпеки його подовжено до 5 хвилин."
+  },
+  "jumpToSetting": {
+    "message": "Перейти до налаштування"
+  },
   "notificationAddDesc": {
     "message": "Чи має Bitwarden зберегти цей пароль?"
   },
@@ -1306,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Додаткові налаштування"
+  },
+  "enableFillAssist": {
+    "message": "Скористатись помічником із заповнення"
   },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
@@ -1794,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Адреса цього вебсайту відрізняється від збережених даних вашого запису. Перш ніж заповнити облікові дані, переконайтеся, що це надійний сайт."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
   },
@@ -2108,6 +2135,27 @@
   "typeNote": {
     "message": "Нотатка"
   },
+  "typeLoginSubtitle": {
+    "message": "Веб-сайт або застосунок"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитна або дебетова картка"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Особисті дані"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важливий текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Токен входу на сервер"
+  },
+  "folderSubtitle": {
+    "message": "Організуйте свої записи"
+  },
+  "collectionSubtitle": {
+    "message": "Організуйте спільні записи"
+  },
   "newItemHeaderLogin": {
     "message": "Новий запис",
     "description": "Header for new login item type"
@@ -2183,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Перегляд ключа SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Виберіть запис, щоб додати"
   },
   "passwordHistory": {
     "message": "Історія паролів"
@@ -2372,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "Обраний вами головний пароль є слабким. Для належного захисту свого облікового запису Bitwarden, вам слід використовувати надійний головний пароль (або парольну фразу). Ви впевнені, що хочете використати цей пароль?"
   },
+  "rotateAccountEncKey": {
+    "message": "Також оновити ключ шифрування мого облікового запису"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Оновити ключ шифрування"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Ви справді хочете оновити ключ шифрування облікового запису?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Після оновлення вашого ключа шифрування вам необхідно вийти з системи і потім виконати повторний вхід у всіх програмах Bitwarden, які ви використовуєте (як-от мобільний застосунок або розширення для браузера). Збій при виході та повторному вході (що завантажує ваш новий ключ шифрування) може призвести до пошкодження даних. Ми спробуємо завершити ваші сеанси автоматично, однак, цей процес може відбутися із затримкою."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Будь-які збережені експорти, обмежені обліковим записом, стануть недійсними."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "У вашому сховищі є старі вкладені файли, які необхідно виправити перед тим, як оновлювати ключ шифрування облікового запису."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Наслідки оновлення ключа шифрування"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна або декілька політик організації вимагають дотримання таких вимог для головного пароля:"
+  },
   "pin": {
     "message": "PIN-код",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "Дія після часу очікування сховища"
   },
-  "vaultTimeoutAction1": {
-    "message": "Дія після часу очікування"
+  "showAtRiskPasswordNotifications": {
+    "message": "Показувати сповіщення про паролі із ризиком"
   },
   "lock": {
     "message": "Блокувати",
@@ -2819,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ хоче, щоб ви змінили цей пароль, тому що він ризикований. Перейдіть до налаштувань облікового запису, щоб змінити пароль.",
+  "atRiskNavigatePromptV2": {
+    "message": "Ваш пароль для цього сайту містить ризик. $ORGANIZATION$ просить вас перейти до налаштувань облікового запису і змінити його.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3229,9 +3304,6 @@
   },
   "minutes": {
     "message": "Хвилин"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "До налаштувань часу очікування застосовано вимоги політики компанії"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
@@ -3752,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Стан входу в систему"
+  },
+  "recentlyActive": {
+    "message": "Нещодавно активний"
+  },
+  "recentlyActiveToday": {
+    "message": "Сьогодні"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Минулі 7 днів"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Минулі 14 днів"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Минулі 30 днів"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Понад 30 днів тому"
   },
   "masterPasswordChanged": {
     "message": "Головний пароль збережено"
@@ -4436,6 +4526,9 @@
   "exportSuccess": {
     "message": "Дані сховища експортовано"
   },
+  "exportError": {
+    "message": "Виникла помилка під час експорту даних вашого сховища"
+  },
   "typePasskey": {
     "message": "Ключ доступу"
   },
@@ -4864,6 +4957,9 @@
   },
   "copyAddress": {
     "message": "Копіювати адресу"
+  },
+  "myItems": {
+    "message": "Мої записи"
   },
   "adminConsole": {
     "message": "консолі адміністратора,"
@@ -6009,7 +6105,7 @@
     "message": "Помилка: неможливо розшифрувати"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
+    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердьте організацію та домен."
   },
   "continueWithLogIn": {
     "message": "Перейти до входу"
@@ -6094,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Встановіть спосіб розблокування, щоб змінити дію під час очікування"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Керується розширенням для браузера Bitwarden. Щоб редагувати, відкрийте браузер."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% виконано",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Оновити"
   },
@@ -6127,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "З міркувань безпеки та для забезпечення відповідності $ORGANIZATION$ вимагає, щоб власником всіх елементів була організація. Натисніть кнопку \"прийняти\", щоб передати права власності на ваші елементи.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ вимагає, щоб усіма записами володіла організація з міркувань безпеки та відповідності.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,20 +6244,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Натисніть \"Погодитись\", щоб передати право власності на ваші записи."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Відкрити статтю з довідки про перенесення записів"
+  },
   "acceptTransfer": {
     "message": "Схвалити переміщення"
   },
   "declineAndLeave": {
     "message": "Відхилити і покинути"
   },
-  "whyAmISeeingThis": {
-    "message": "Чому я це бачу?"
-  },
   "items": {
     "message": "Записи"
   },
   "searchResults": {
     "message": "Результати пошуку"
+  },
+  "simplifiedAutofill": {
+    "message": "Спрощене автозаповнення"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Під час натискання запропонованого елемента відбувається автоматичне заповнення, а не відкриття подробиць запису. Ви можете переглядати ці елементи з меню \"Більше\"."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Відкрити меню спрощеного автозаповнення"
   },
   "resizeSideNavigation": {
     "message": "Змінити розмір бічної панелі"
@@ -6166,11 +6286,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "Для підтвердження адреси електронної пошти потрібна щонайменше одна адреса. Щоб вилучити всі адреси електронної пошти, змініть тип доступу вище."
-  },
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Завантажити програми Bitwarden"
@@ -6184,5 +6304,22 @@
   },
   "userVerificationFailed": {
     "message": "Не вдалося перевірити користувача."
+  },
+  "downloadFailed": {
+    "message": "Не вдалося завантажити."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

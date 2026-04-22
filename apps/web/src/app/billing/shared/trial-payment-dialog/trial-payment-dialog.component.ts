@@ -76,7 +76,6 @@ interface OnSuccessArgs {
   selector: "app-trial-payment-dialog",
   templateUrl: "./trial-payment-dialog.component.html",
   standalone: false,
-  providers: [SubscriberBillingClient, PreviewInvoiceClient],
 })
 export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -361,7 +360,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
       });
 
       this.onSuccess.emit({ organizationId: this.organizationId });
-      this.dialogRef.close(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED);
+      await this.dialogRef.close(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED);
     } catch (error) {
       const msg =
         typeof error === "object" && error !== null && "message" in error

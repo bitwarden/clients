@@ -696,17 +696,11 @@
   "unlockMethods": {
     "message": "Options de déverrouillage"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre."
-  },
   "unlockMethodNeeded": {
     "message": "Configurer une méthode de déverrouillage dans les Paramètres"
   },
   "sessionTimeoutHeader": {
     "message": "Expiration de la session"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Délai d'expiration du coffre"
   },
   "otherOptions": {
     "message": "Autres options"
@@ -1154,6 +1148,15 @@
     "message": "Efface automatiquement les valeurs copiées de votre presse-papiers.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Paramètres du presse-papier mis à jour"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Le délai d'expiration de votre presse-papier est défini à la valeur par défaut, qui a été mis à jour sur 5 minutes pour une sécurité accrue."
+  },
+  "jumpToSetting": {
+    "message": "Allez aux paramètres"
+  },
   "notificationAddDesc": {
     "message": "Est-ce que Bitwarden doit se souvenir de ce mot de passe pour vous ?"
   },
@@ -1306,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Options supplémentaires"
+  },
+  "enableFillAssist": {
+    "message": "Utiliser l'aide de remplissage"
   },
   "enableContextMenuItem": {
     "message": "Afficher les options du menu contextuel"
@@ -1794,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ce site ne correspond pas à vos identifiants de connexion enregistrés. Avant de remplir vos identifiants de connexion, assurez-vous que c'est un site de confiance."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Afficher les suggestions de saisie automatique dans les champs d'un formulaire"
   },
@@ -2108,6 +2135,27 @@
   "typeNote": {
     "message": "Note"
   },
+  "typeLoginSubtitle": {
+    "message": "Site web ou application"
+  },
+  "typeCardSubtitle": {
+    "message": "Carte de débit ou de crédit"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informations personnelles"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texte important"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Jeton de connexion au serveur"
+  },
+  "folderSubtitle": {
+    "message": "Organisez vos éléments"
+  },
+  "collectionSubtitle": {
+    "message": "Organisez vos éléments partagés"
+  },
   "newItemHeaderLogin": {
     "message": "Nouvel Identifiant",
     "description": "Header for new login item type"
@@ -2183,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Afficher la clé SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choisissez un élément à ajouter"
   },
   "passwordHistory": {
     "message": "Historique des mots de passe"
@@ -2372,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "Le mot de passe principal que vous avez choisi est faible. Vous devriez utiliser un mot de passe principal fort (ou une phrase de passe) pour protéger correctement votre compte Bitwarden. Êtes-vous sûr de vouloir utiliser ce mot de passe principal ?"
   },
+  "rotateAccountEncKey": {
+    "message": "Régénérer également la clé de chiffrement de mon compte"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Régénérer la clé de chiffrement"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Êtes-vous sûr de vouloir régénérer la clé de chiffrement de votre compte ?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Toutes les exportations restreintes du compte que vous avez enregistrées seront invalides."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Il y a d'anciennes pièces jointes dans votre coffre qui doivent être réparées avant que vous ne puissiez régénérer la clé de chiffrement de votre compte."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Impact de la régénération de votre clé de chiffrement"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Une ou plusieurs politiques de sécurité de l'organisation exigent que votre mot de passe principal réponde aux exigences suivantes :"
+  },
   "pin": {
     "message": "Code PIN",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2462,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "Action après délai d'expiration du coffre"
   },
-  "vaultTimeoutAction1": {
-    "message": "Expiration de l'action"
+  "showAtRiskPasswordNotifications": {
+    "message": "Afficher les notifications de mot de passe à risque"
   },
   "lock": {
     "message": "Verrouiller",
@@ -2819,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ souhaite que vous changiez ce mot de passe car il est à risque. Accédez aux paramètres de votre compte pour modifier le mot de passe.",
+  "atRiskNavigatePromptV2": {
+    "message": "Votre mot de passe pour ce site est compromis. $ORGANIZATION$ vous demande d'accéder aux paramètres de votre compte et de le changer.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2861,7 +2936,7 @@
     "message": "Illustration d'une liste de connexions à risque."
   },
   "welcomeDialogGraphicAlt": {
-    "message": "Illustration of the layout of the Bitwarden vault page."
+    "message": "Illustration de la mise en page du coffre Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Générez rapidement un mot de passe fort et unique grâce au menu de saisie automatique de Bitwarden sur le site à risque.",
@@ -3229,9 +3304,6 @@
   },
   "minutes": {
     "message": "Minutes"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Les exigences de la politique de sécurité d'Entreprise ont été appliquées à vos options de délai d'expiration"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Les politiques de sécurité de votre organisation ont défini le délai d'expiration de votre coffre à $HOURS$ heure(s) et $MINUTES$ minute(s) maximum.",
@@ -3752,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Statut de connexion"
+  },
+  "recentlyActive": {
+    "message": "Actif récemment"
+  },
+  "recentlyActiveToday": {
+    "message": "Aujourd'hui"
+  },
+  "recentlyActivePast7Days": {
+    "message": "7 derniers jours"
+  },
+  "recentlyActivePast14Days": {
+    "message": "14 derniers jours"
+  },
+  "recentlyActivePast30Days": {
+    "message": "30 derniers jours"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Il y a plus de 30 jours"
   },
   "masterPasswordChanged": {
     "message": "Mot de passe principal enregistré"
@@ -4436,6 +4526,9 @@
   "exportSuccess": {
     "message": "Données du coffre exportées"
   },
+  "exportError": {
+    "message": "Une erreur s'est produite lors de l'exportation des données de votre coffre"
+  },
   "typePasskey": {
     "message": "Clé d'accès"
   },
@@ -4864,6 +4957,9 @@
   },
   "copyAddress": {
     "message": "Copier l'adresse"
+  },
+  "myItems": {
+    "message": "Mes éléments"
   },
   "adminConsole": {
     "message": "Console Admin"
@@ -6094,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Géré par l'application de bureau Bitwarden. Ouvrez l'application pour éditer."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complet",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Mettre à jour"
   },
@@ -6127,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ exige que tous les éléments soient détenus par l’organisation pour des raisons de sécurité et de conformité. Cliquez sur Accepter pour transférer la propriété de vos éléments.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ exige que tous les éléments soient la propriété de l'organisation pour la sécurité et la conformité.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6136,20 +6244,32 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Cliquez sur accepter pour transférer la propriété de vos éléments."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Ouvrir un article d'aide sur le transfert d'éléments"
+  },
   "acceptTransfer": {
     "message": "Accepter le transfert"
   },
   "declineAndLeave": {
     "message": "Refuser et quitter"
   },
-  "whyAmISeeingThis": {
-    "message": "Pourquoi vois-je ceci ?"
-  },
   "items": {
     "message": "Éléments"
   },
   "searchResults": {
     "message": "Résultats de la recherche"
+  },
+  "simplifiedAutofill": {
+    "message": "Saisie automatique simplifiée"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Quand vous cliquez un élément de saisie automatique, il est saisi au lieu d'afficher les détails. Vous pouvez toujours voir ces éléments dans le menu Plus."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Ouvrir le popover de saisie automatique simplifiée"
   },
   "resizeSideNavigation": {
     "message": "Ajuster la taille de la navigation latérale"
@@ -6166,11 +6286,11 @@
   "enterMultipleEmailsSeparatedByComma": {
     "message": "Entrez plusieurs courriels en les séparant d'une virgule."
   },
-  "emailsRequiredChangeAccessType": {
-    "message": "La vérification de courriel requiert au moins une adresse courriel. Pour retirer toutes les adresses, changez le type d'accès ci-dessus."
-  },
   "emailPlaceholder": {
     "message": "utilisateur@bitwarden.com , utilisateur@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "utilisateur@bitwarden.com, utilisateur@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Télécharger les applications Bitwarden"
@@ -6184,5 +6304,22 @@
   },
   "userVerificationFailed": {
     "message": "Échec de la vérification d'utilisateur."
+  },
+  "downloadFailed": {
+    "message": "Échec du téléchargement."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -106,6 +106,15 @@ export class Messenger {
 
   private createMessageEventListener() {
     return async (event: MessageEvent<MessageWithMetadata>) => {
+      // Reject when in a sandboxed iframe with an opaque origin. window.origin can be null/undefined or the
+      // literal string "null" (truthy), so we check both to avoid accepting messages from that context.
+      if (!window.origin || String(window.origin).toLowerCase() === "null") {
+        return;
+      }
+      if (!event.isTrusted) {
+        return;
+      }
+
       const windowOrigin = window.location.origin;
       if (event.origin !== windowOrigin || !this.handler) {
         return;

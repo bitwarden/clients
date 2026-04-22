@@ -4,16 +4,14 @@ import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { RoutedVaultFilterService, RoutedVaultFilterModel } from "@bitwarden/vault";
+import { RoutedVaultFilterService, RoutedVaultFilterModel, VaultItem } from "@bitwarden/vault";
 
-import { VaultItem } from "./vault-item";
 import { VaultItemsComponent } from "./vault-items.component";
 
 describe("VaultItemsComponent", () => {
@@ -57,12 +55,6 @@ describe("VaultItemsComponent", () => {
           provide: I18nService,
           useValue: {
             t: (key: string) => key,
-          },
-        },
-        {
-          provide: CipherArchiveService,
-          useValue: {
-            hasArchiveFlagEnabled$: of(true),
           },
         },
         {

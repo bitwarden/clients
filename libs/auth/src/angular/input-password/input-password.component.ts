@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
@@ -16,7 +17,6 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -43,9 +43,6 @@ import {
   KeyService,
 } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
-// eslint-disable-next-line no-restricted-imports
-import { SharedModule } from "../../../../components/src/shared";
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
 
@@ -108,6 +105,7 @@ interface InputPasswordForm {
   selector: "auth-input-password",
   templateUrl: "./input-password.component.html",
   imports: [
+    CommonModule,
     AsyncActionsModule,
     ButtonModule,
     CheckboxModule,
@@ -120,7 +118,6 @@ interface InputPasswordForm {
     PasswordStrengthV2Component,
     ReactiveFormsModule,
     LinkModule,
-    SharedModule,
   ],
 })
 export class InputPasswordComponent implements OnInit {
@@ -334,6 +331,18 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("KdfConfig not found.");
       }
 
+      // Determine salt. Branches on userId presence:
+      //   - SetInitialPasswordAccountRegistration: no userId -> derives salt from email via emailToSalt()
+      //   - SetInitialPasswordAuthedUser, ChangePassword, ChangePasswordWithOptionalUserKeyRotation:
+      //     have an active userId -> retrieves stored salt via saltForUser$()
+      //
+      // Note: ChangePasswordDelegation (Emergency Access Takeover, Account Recovery) early-returns
+      // this component only collects the password for those flows. Salt determination
+      // is handled by the parent caller's service, which supplies the target user's email to
+      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.resetMasterPassword).
+      //
+      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), replace
+      // this.masterPasswordService.emailToSalt(this.email) with a KM-originated salt.
       const salt =
         this.userId != null
           ? await firstValueFrom(this.masterPasswordService.saltForUser$(this.userId))
@@ -342,17 +351,26 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("Salt not found.");
       }
 
-      // 2. Verify current password is correct (if necessary)
-      if (
-        this.flow === InputPasswordFlow.ChangePassword ||
-        this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-      ) {
-        const currentPasswordVerified = await this.verifyCurrentPassword(
-          currentPassword,
-          this.kdfConfig,
-        );
-        if (!currentPasswordVerified) {
-          return;
+      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
+      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
+        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
+      );
+
+      // Remove this current password verification block in PM-28143. Current password verification
+      // is performed by consumers when flag is on.
+      if (!newApisWithInputPasswordFlagEnabled) {
+        // 2. Verify current password is correct (if necessary)
+        if (
+          this.flow === InputPasswordFlow.ChangePassword ||
+          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
+        ) {
+          const currentPasswordVerified = await this.verifyCurrentPassword(
+            currentPassword,
+            this.kdfConfig,
+          );
+          if (!currentPasswordVerified) {
+            return;
+          }
         }
       }
 
@@ -365,11 +383,6 @@ export class InputPasswordComponent implements OnInit {
       if (!newPasswordVerified) {
         return;
       }
-
-      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
-      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-      );
 
       if (newApisWithInputPasswordFlagEnabled) {
         // 4. Build a PasswordInputResult object
@@ -408,24 +421,13 @@ export class InputPasswordComponent implements OnInit {
         this.kdfConfig,
       );
 
-      const newServerMasterKeyHash = await this.keyService.hashMasterKey(
-        newPassword,
-        newMasterKey,
-        HashPurpose.ServerAuthorization,
-      );
-
-      const newLocalMasterKeyHash = await this.keyService.hashMasterKey(
-        newPassword,
-        newMasterKey,
-        HashPurpose.LocalAuthorization,
-      );
+      const newServerMasterKeyHash = await this.keyService.hashMasterKey(newPassword, newMasterKey);
 
       const passwordInputResult: PasswordInputResult = {
         newPassword,
         salt,
         newMasterKey,
         newServerMasterKeyHash,
-        newLocalMasterKeyHash,
         newPasswordHint,
         kdfConfig: this.kdfConfig,
       };
@@ -443,19 +445,11 @@ export class InputPasswordComponent implements OnInit {
         const currentServerMasterKeyHash = await this.keyService.hashMasterKey(
           currentPassword,
           currentMasterKey,
-          HashPurpose.ServerAuthorization,
-        );
-
-        const currentLocalMasterKeyHash = await this.keyService.hashMasterKey(
-          currentPassword,
-          currentMasterKey,
-          HashPurpose.LocalAuthorization,
         );
 
         passwordInputResult.currentPassword = currentPassword;
         passwordInputResult.currentMasterKey = currentMasterKey;
         passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
-        passwordInputResult.currentLocalMasterKeyHash = currentLocalMasterKeyHash;
       }
 
       if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
@@ -539,6 +533,8 @@ export class InputPasswordComponent implements OnInit {
   }
 
   /**
+   * @deprecated To be removed in PM-28143
+   *
    * Returns `true` if the current password is correct (it can be used to successfully decrypt
    * the masterKeyEncryptedUserKey), `false` otherwise
    */

@@ -5,20 +5,25 @@ import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, MenuModule } from "@bitwarden/components";
-import { CopyCipherFieldDirective, CopyCipherFieldService } from "@bitwarden/vault";
-
-import { OrganizationNameBadgeComponent } from "../../individual-vault/organization-badge/organization-name-badge.component";
+import {
+  CopyCipherFieldDirective,
+  CopyCipherFieldService,
+  OrganizationNameBadgeComponent,
+} from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
 
@@ -45,7 +50,7 @@ describe("VaultCipherRowComponent", () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [VaultCipherRowComponent, OrganizationNameBadgeComponent],
+      declarations: [VaultCipherRowComponent],
       imports: [
         CommonModule,
         RouterModule.forRoot([]),
@@ -53,6 +58,8 @@ describe("VaultCipherRowComponent", () => {
         IconButtonModule,
         JslibModule,
         CopyCipherFieldDirective,
+        OrganizationNameBadgeComponent,
+        PremiumBadgeComponent,
       ],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -67,12 +74,16 @@ describe("VaultCipherRowComponent", () => {
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
         { provide: AccountService, useValue: mock<AccountService>() },
         { provide: CipherService, useValue: mock<CipherService>() },
+        { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: mock<BillingAccountProfileStateService>(),
+        },
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VaultCipherRowComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput("archiveEnabled", false);
     overlayContainer = TestBed.inject(OverlayContainer);
   });
 

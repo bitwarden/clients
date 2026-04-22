@@ -128,6 +128,10 @@ module.exports.buildConfig = function buildConfig(params) {
   ];
 
   const requiredPlugins = [
+    new webpack.SourceMapDevToolPlugin({
+      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
+      filename: "[file].map",
+    }),
     new webpack.DefinePlugin({
       "process.env": {
         ENV: JSON.stringify(ENV),
@@ -200,10 +204,6 @@ module.exports.buildConfig = function buildConfig(params) {
     }),
     new webpack.ProvidePlugin({
       process: "process/browser.js",
-    }),
-    new webpack.SourceMapDevToolPlugin({
-      exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
-      filename: "[file].map",
     }),
     ...requiredPlugins,
   ];
@@ -372,6 +372,9 @@ module.exports.buildConfig = function buildConfig(params) {
       webassemblyModuleFilename: "assets/[modulehash].wasm",
       path: params.outputPath,
       clean: true,
+      environment: {
+        asyncFunction: true,
+      },
     },
     module: {
       rules: moduleRules,
