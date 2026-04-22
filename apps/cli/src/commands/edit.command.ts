@@ -138,10 +138,8 @@ export class EditCommand {
       );
     }
 
-    const encCipher = await this.cipherService.encrypt(cipherView, activeUserId);
     try {
-      const updatedCipher = await this.cipherService.updateWithServer(encCipher);
-      const decCipher = await this.cipherService.decrypt(updatedCipher, activeUserId);
+      const decCipher = await this.cipherService.updateWithServer(cipherView, activeUserId);
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {
@@ -218,6 +216,9 @@ export class EditCommand {
     }
     if (options.organizationId !== req.organizationId) {
       return Response.badRequest("`organizationid` option does not match request object.");
+    }
+    if (req.name == null || req.name.trim() === "") {
+      return Response.badRequest("Collection name is required.");
     }
     try {
       const orgKey = await firstValueFrom(

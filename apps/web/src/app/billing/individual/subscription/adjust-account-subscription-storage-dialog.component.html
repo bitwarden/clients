@@ -1,0 +1,43 @@
+@let content = this.content();
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog [title]="content.title">
+    <ng-container bitDialogContent>
+      <p bitTypography="body1">{{ content.body }}</p>
+      <div class="tw-grid tw-grid-cols-12">
+        <bit-form-field class="tw-col-span-7">
+          <bit-label>{{ content.label }}</bit-label>
+          <input bitInput type="number" [formControl]="formGroup.controls.amount" />
+          @if (action() === "add") {
+            <bit-hint>
+              <!-- Total: 10 GB × $0.50 = $5.00 /month -->
+              <strong>{{ "total" | i18n }}</strong>
+              {{ formGroup.value.amount }} GB &times; {{ price() | currency: "$" }} =
+              {{ price() * formGroup.value.amount | currency: "$" }} /
+              {{ term() | i18n }}
+            </bit-hint>
+          }
+        </bit-form-field>
+      </div>
+    </ng-container>
+    <ng-container bitDialogFooter>
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="formGroup.invalid"
+      >
+        {{ "submit" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        bitFormButton
+        buttonType="secondary"
+        [bitDialogClose]="'closed'"
+      >
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

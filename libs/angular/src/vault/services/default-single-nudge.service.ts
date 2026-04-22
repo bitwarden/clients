@@ -1,4 +1,4 @@
-import { inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -22,7 +22,11 @@ export interface SingleNudgeService {
   providedIn: "root",
 })
 export class DefaultSingleNudgeService implements SingleNudgeService {
-  stateProvider = inject(StateProvider);
+  protected stateProvider: StateProvider;
+
+  constructor(stateProvider: StateProvider) {
+    this.stateProvider = stateProvider;
+  }
 
   protected getNudgeStatus$(nudgeType: NudgeType, userId: UserId): Observable<NudgeStatus> {
     return this.stateProvider

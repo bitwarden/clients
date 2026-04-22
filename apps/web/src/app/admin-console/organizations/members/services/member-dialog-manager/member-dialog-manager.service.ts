@@ -1,16 +1,21 @@
-import { Injectable } from "@angular/core";
+import { Injectable, WritableSignal } from "@angular/core";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
+import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { CenterPositionStrategy, DialogService, ToastService } from "@bitwarden/components";
+import { openEntityEventsDialog } from "@bitwarden/web-vault/app/dirt/event-logs/components/entity-events/entity-events.component";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
-import { openEntityEventsDialog } from "../../../manage/entity-events.component";
+import { AccountRecoveryDialogV2Component } from "../../components/account-recovery/account-recovery-dialog-v2.component";
 import {
   AccountRecoveryDialogComponent,
   AccountRecoveryDialogResultType,
@@ -18,19 +23,24 @@ import {
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
+import { BulkProgressDialogComponent } from "../../components/bulk/bulk-progress-dialog.component";
+import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-reinvite-failure-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
 import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
+import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
 import {
   MemberDialogResult,
   MemberDialogTab,
   openUserAddEditDialog,
 } from "../../components/member-dialog";
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
+import { BulkActionResult } from "../member-actions/member-actions.service";
 
 @Injectable()
 export class MemberDialogManagerService {
   constructor(
+    private configService: ConfigService,
     private dialogService: DialogService,
     private i18nService: I18nService,
     private toastService: ToastService,
@@ -41,13 +51,30 @@ export class MemberDialogManagerService {
   async openInviteDialog(
     organization: Organization,
     billingMetadata: OrganizationBillingMetadataResponse,
-    allUserEmails: string[],
+    allUsers: OrganizationUserView[],
   ): Promise<MemberDialogResult> {
+    const generateInviteLink = await this.configService.getFeatureFlag(
+      FeatureFlag.GenerateInviteLink,
+    );
+
+    if (generateInviteLink) {
+      const dialog = InviteMembersDialogComponent.open(this.dialogService, {
+        data: {
+          organizationId: organization.id,
+          allOrganizationUsers: allUsers,
+          occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
+          isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
+        },
+      });
+      const result = await lastValueFrom(dialog.closed);
+      return result ?? MemberDialogResult.Canceled;
+    }
+
     const dialog = openUserAddEditDialog(this.dialogService, {
       data: {
         kind: "Add",
         organizationId: organization.id,
-        allOrganizationUserEmails: allUserEmails,
+        allOrganizationUsers: allUsers,
         occupiedSeatCount: billingMetadata?.organizationOccupiedSeats ?? 0,
         isOnSecretsManagerStandalone: billingMetadata?.isOnSecretsManagerStandalone ?? false,
       },
@@ -84,14 +111,31 @@ export class MemberDialogManagerService {
     user: OrganizationUserView,
     organization: Organization,
   ): Promise<AccountRecoveryDialogResultType> {
-    const dialogRef = AccountRecoveryDialogComponent.open(this.dialogService, {
-      data: {
-        name: this.userNamePipe.transform(user),
-        email: user.email,
-        organizationId: organization.id as OrganizationId,
-        organizationUserId: user.id,
-      },
-    });
+    const adminResetTwoFactorEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.AdminResetTwoFactor,
+    );
+
+    const dialogRef = adminResetTwoFactorEnabled
+      ? AccountRecoveryDialogV2Component.open(this.dialogService, {
+          data: {
+            name: this.userNamePipe.transform(user),
+            email: user.email,
+            organizationId: organization.id as OrganizationId,
+            organizationUserId: user.id,
+            organizationUserType: user.type,
+            twoFactorEnabled: user.twoFactorEnabled,
+          },
+        })
+      : AccountRecoveryDialogComponent.open(this.dialogService, {
+          data: {
+            name: this.userNamePipe.transform(user),
+            email: user.email,
+            organizationId: organization.id as OrganizationId,
+            organizationUserId: user.id,
+            organizationUserType: user.type,
+            twoFactorEnabled: user.twoFactorEnabled,
+          },
+        });
 
     const result = await lastValueFrom(dialogRef.closed);
     return result ?? AccountRecoveryDialogResultType.Ok;
@@ -194,7 +238,7 @@ export class MemberDialogManagerService {
   async openBulkStatusDialog(
     users: OrganizationUserView[],
     filteredUsers: OrganizationUserView[],
-    request: Promise<any>,
+    request: Promise<OrganizationUserBulkResponse[] | ProviderUserBulkResponse[]>,
     successMessage: string,
   ): Promise<void> {
     const dialogRef = BulkStatusComponent.open(this.dialogService, {
@@ -318,5 +362,34 @@ export class MemberDialogManagerService {
       },
       type: "warning",
     });
+  }
+
+  openBulkProgressDialog(progress: WritableSignal<number>, allCount: number) {
+    return this.dialogService.open<BulkProgressDialogComponent>(BulkProgressDialogComponent, {
+      disableClose: true,
+      positionStrategy: new CenterPositionStrategy(),
+      data: {
+        progress,
+        allCount,
+      },
+    });
+  }
+
+  openBulkReinviteFailureDialog(
+    organization: Organization,
+    users: OrganizationUserView[],
+    result: BulkActionResult,
+  ) {
+    return this.dialogService.open<BulkReinviteFailureDialogComponent>(
+      BulkReinviteFailureDialogComponent,
+      {
+        positionStrategy: new CenterPositionStrategy(),
+        data: {
+          organization,
+          users,
+          result,
+        },
+      },
+    );
   }
 }

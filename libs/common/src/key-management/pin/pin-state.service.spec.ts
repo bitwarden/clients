@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
@@ -94,14 +94,50 @@ describe("PinStateService", () => {
     });
   });
 
-  describe("getPinLockType()", () => {
+  describe("pinSet$", () => {
     beforeEach(() => {
       jest.clearAllMocks();
     });
 
     it("should throw an error if userId is null", async () => {
       // Act & Assert
-      await expect(sut.getPinLockType(null as any)).rejects.toThrow("userId");
+      expect(() => sut.pinSet$(null as any)).toThrow("userId");
+    });
+
+    it("should return false when pin lock type is DISABLED", async () => {
+      // Arrange
+      jest.spyOn(sut, "pinLockType$").mockReturnValue(of("DISABLED"));
+
+      // Act
+      const result = await firstValueFrom(sut.pinSet$(mockUserId));
+
+      // Assert
+      expect(result).toBe(false);
+    });
+
+    it.each([["PERSISTENT" as PinLockType], ["EPHEMERAL" as PinLockType]])(
+      "should return true when pin lock type is %s",
+      async (pinLockType) => {
+        // Arrange
+        jest.spyOn(sut, "pinLockType$").mockReturnValue(of(pinLockType));
+
+        // Act
+        const result = await firstValueFrom(sut.pinSet$(mockUserId));
+
+        // Assert
+        expect(result).toBe(true);
+      },
+    );
+  });
+
+  describe("pinLockType$", () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    it("should throw an error if userId is null", async () => {
+      // Act & Assert
+      expect(() => sut.pinLockType$(null as any)).toThrow("userId");
     });
 
     it("should return 'PERSISTENT' if a pin protected user key (persistent) is found", async () => {
@@ -114,7 +150,7 @@ describe("PinStateService", () => {
       );
 
       // Act
-      const result = await sut.getPinLockType(mockUserId);
+      const result = await firstValueFrom(sut.pinLockType$(mockUserId));
 
       // Assert
       expect(result).toBe("PERSISTENT");
@@ -125,7 +161,7 @@ describe("PinStateService", () => {
       await stateProvider.setUserState(USER_KEY_ENCRYPTED_PIN, mockUserKeyEncryptedPin, mockUserId);
 
       // Act
-      const result = await sut.getPinLockType(mockUserId);
+      const result = await firstValueFrom(sut.pinLockType$(mockUserId));
 
       // Assert
       expect(result).toBe("EPHEMERAL");
@@ -135,7 +171,7 @@ describe("PinStateService", () => {
       // Arrange - don't set any PIN-related state
 
       // Act
-      const result = await sut.getPinLockType(mockUserId);
+      const result = await firstValueFrom(sut.pinLockType$(mockUserId));
 
       // Assert
       expect(result).toBe("DISABLED");
@@ -151,7 +187,7 @@ describe("PinStateService", () => {
       await stateProvider.setUserState(USER_KEY_ENCRYPTED_PIN, null, mockUserId);
 
       // Act
-      const result = await sut.getPinLockType(mockUserId);
+      const result = await firstValueFrom(sut.pinLockType$(mockUserId));
 
       // Assert
       expect(result).toBe("DISABLED");
@@ -230,22 +266,31 @@ describe("PinStateService", () => {
       },
     );
 
-    test.each([
-      ["PERSISTENT" as PinLockType, PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT],
-      ["EPHEMERAL" as PinLockType, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL],
-    ])(
-      "should return null when %s envelope is explicitly set to null",
-      async (pinLockType, keyDefinition) => {
-        // Arrange
-        await stateProvider.setUserState(keyDefinition, null, mockUserId);
+    it("should return null when PERSISTENT envelope is explicitly set to null", async () => {
+      // Arrange
+      await stateProvider.setUserState(
+        PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+        null,
+        mockUserId,
+      );
 
-        // Act
-        const result = await sut.getPinProtectedUserKeyEnvelope(mockUserId, pinLockType);
+      // Act
+      const result = await sut.getPinProtectedUserKeyEnvelope(mockUserId, "PERSISTENT");
 
-        // Assert
-        expect(result).toBeNull();
-      },
-    );
+      // Assert
+      expect(result).toBeNull();
+    });
+
+    it("should return null when EPHEMERAL envelope is explicitly set to null", async () => {
+      // Arrange
+      await stateProvider.setUserState(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, null, mockUserId);
+
+      // Act
+      const result = await sut.getPinProtectedUserKeyEnvelope(mockUserId, "EPHEMERAL");
+
+      // Assert
+      expect(result).toBeNull();
+    });
 
     it("should not cross-contaminate PERSISTENT and EPHEMERAL envelopes", async () => {
       // Arrange - set both envelopes to different values

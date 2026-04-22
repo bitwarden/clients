@@ -10,6 +10,7 @@ import {
   DialogService,
   ButtonModule,
   DialogModule,
+  IconModule,
   LinkModule,
   TypographyModule,
   CenterPositionStrategy,
@@ -35,7 +36,7 @@ export type LeaveConfirmationDialogResultType = UnionOfValues<typeof LeaveConfir
 @Component({
   templateUrl: "./leave-confirmation-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, DialogModule, LinkModule, TypographyModule, JslibModule],
+  imports: [ButtonModule, DialogModule, IconModule, LinkModule, TypographyModule, JslibModule],
 })
 export class LeaveConfirmationDialogComponent {
   private readonly params = inject<LeaveConfirmationDialogParams>(DIALOG_DATA);
@@ -45,11 +46,11 @@ export class LeaveConfirmationDialogComponent {
   protected readonly organizationName = this.params.organizationName;
 
   protected confirmLeave() {
-    this.dialogRef.close(LeaveConfirmationDialogResult.Confirmed);
+    void this.dialogRef.close(LeaveConfirmationDialogResult.Confirmed);
   }
 
   protected goBack() {
-    this.dialogRef.close(LeaveConfirmationDialogResult.Back);
+    void this.dialogRef.close(LeaveConfirmationDialogResult.Back);
   }
 
   protected openLearnMore(e: Event) {

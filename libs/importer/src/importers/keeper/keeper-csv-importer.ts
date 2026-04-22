@@ -21,7 +21,7 @@ export class KeeperCsvImporter extends BaseImporter implements Importer {
 
       const notes = this.getValueOrDefault(value[5]);
       if (notes) {
-        cipher.notes = `${notes}\n`;
+        cipher.notes = notes.trimEnd();
       }
 
       cipher.name = this.getValueOrDefault(value[1], "--");

@@ -1,5 +1,11 @@
 use anyhow::Result;
 
+#[cfg(target_os = "windows")]
+mod modifier_keys;
+
+#[cfg(target_os = "windows")]
+pub(crate) use modifier_keys::*;
+
 #[cfg_attr(target_os = "linux", path = "linux.rs")]
 #[cfg_attr(target_os = "macos", path = "macos.rs")]
 #[cfg_attr(target_os = "windows", path = "windows/mod.rs")]
@@ -28,6 +34,6 @@ pub fn get_foreground_window_title() -> Result<String> {
 /// This function returns an `anyhow::Error` if there is any
 /// issue in typing the input. Detailed reasons will
 /// vary based on platform implementation.
-pub fn type_input(input: Vec<u16>, keyboard_shortcut: Vec<String>) -> Result<()> {
+pub fn type_input(input: &[u16], keyboard_shortcut: &[String]) -> Result<()> {
     windowing::type_input(input, keyboard_shortcut)
 }

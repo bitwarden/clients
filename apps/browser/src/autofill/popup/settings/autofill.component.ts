@@ -1,15 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-} from "@angular/forms";
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import {
   concatMap,
@@ -25,8 +17,6 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
@@ -45,6 +35,7 @@ import {
   DisablePasswordManagerUri,
   InlineMenuVisibilitySetting,
 } from "@bitwarden/common/autofill/types";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
@@ -57,6 +48,8 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
+  ButtonModule,
+  CalloutModule,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -82,6 +75,8 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
 @Component({
   templateUrl: "autofill.component.html",
   imports: [
+    ButtonModule,
+    CalloutModule,
     CardComponent,
     CheckboxModule,
     CommonModule,
@@ -100,7 +95,6 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     SelectModule,
     TypographyModule,
     ReactiveFormsModule,
-    SpotlightComponent,
   ],
 })
 export class AutofillComponent implements OnInit {
@@ -130,6 +124,12 @@ export class AutofillComponent implements OnInit {
       map((restrictedTypes) => restrictedTypes.some((type) => type.cipherType === CipherType.Card)),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+  protected showClipboardNotification$: Observable<boolean> =
+    this.autofillSettingsService.showClipboardSettingUpdateNotification$;
+  protected showClipboardNotificationThisSession = false;
+  protected fillAssistFeatureEnabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.FillAssistTargetingRules,
+  );
 
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
@@ -137,6 +137,7 @@ export class AutofillComponent implements OnInit {
   });
 
   protected additionalOptionsForm = new FormGroup({
+    enableFillAssist: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
     clearClipboard: new FormControl(),
@@ -159,7 +160,7 @@ export class AutofillComponent implements OnInit {
   clearClipboard!: ClearClipboardDelaySetting;
   clearClipboardOptions: { name: string; value: ClearClipboardDelaySetting }[];
   defaultUriMatch: UriMatchStrategySetting = UriMatchStrategy.Domain;
-  uriMatchOptions: { name: string; value: UriMatchStrategySetting; disabled?: boolean }[];
+  uriMatchOptions: { name: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
   /** Non-null asserted. */
@@ -167,6 +168,7 @@ export class AutofillComponent implements OnInit {
   accountSwitcherEnabled: boolean = false;
 
   constructor(
+    private configService: ConfigService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private domainSettingsService: DomainSettingsService,
@@ -174,14 +176,11 @@ export class AutofillComponent implements OnInit {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private messagingService: MessagingService,
     private vaultSettingsService: VaultSettingsService,
-    private configService: ConfigService,
-    private formBuilder: FormBuilder,
     private destroyRef: DestroyRef,
     private nudgesService: NudgesService,
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private policyService: PolicyService,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -223,6 +222,17 @@ export class AutofillComponent implements OnInit {
       await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
         this.browserClientVendor,
       );
+
+    if (await this.getPendingDefaultPasswordManagerApply()) {
+      if (await this.privacyPermissionGranted()) {
+        this.defaultBrowserAutofillDisabled =
+          await this.autofillBrowserSettingsService.isBrowserAutofillSettingOverridden(
+            this.browserClientVendor,
+          );
+      } else {
+        await this.setPendingDefaultPasswordManagerApply(false);
+      }
+    }
 
     this.inlineMenuVisibility = await firstValueFrom(
       this.autofillSettingsService.inlineMenuVisibility$,
@@ -287,6 +297,18 @@ export class AutofillComponent implements OnInit {
       });
 
     /** Additional options form */
+
+    const enableFillAssist = await firstValueFrom(this.domainSettingsService.enableFillAssist$);
+
+    this.additionalOptionsForm.controls.enableFillAssist.patchValue(enableFillAssist, {
+      emitEvent: false,
+    });
+
+    this.additionalOptionsForm.controls.enableFillAssist.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.domainSettingsService.setEnableFillAssist(value);
+      });
 
     this.enableContextMenuItem = await firstValueFrom(
       this.autofillSettingsService.enableContextMenu$,
@@ -356,13 +378,17 @@ export class AutofillComponent implements OnInit {
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
     );
-  }
 
-  get spotlightButtonIcon() {
-    if (this.browserClientVendor === BrowserClientVendors.Unknown) {
-      return "bwi-external-link";
+    // Show clipboard notification on first visit, mark as dismissed for future visits
+    const shouldShowNotification = await firstValueFrom(this.showClipboardNotification$);
+
+    if (shouldShowNotification) {
+      // Show it for THIS page session
+      this.showClipboardNotificationThisSession = true;
+
+      // Mark as dismissed in storage (so it won't show on future visits)
+      await this.autofillSettingsService.setClipboardSettingUpdatedNotificationDismissed(true);
     }
-    return null;
   }
 
   get browserClientVendorExtended() {
@@ -507,20 +533,22 @@ export class AutofillComponent implements OnInit {
       return;
     }
 
-    if (
-      !privacyPermissionGranted &&
-      !(await BrowserApi.requestPermission({ permissions: ["privacy"] }))
-    ) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "privacyPermissionAdditionNotGrantedTitle" },
-        content: { key: "privacyPermissionAdditionNotGrantedDescription" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-      this.defaultBrowserAutofillDisabled = false;
+    if (!privacyPermissionGranted) {
+      await this.setPendingDefaultPasswordManagerApply(true);
+      const granted = await BrowserApi.requestPermission({ permissions: ["privacy"] });
+      if (!granted) {
+        await this.setPendingDefaultPasswordManagerApply(false);
+        await this.dialogService.openSimpleDialog({
+          title: { key: "privacyPermissionAdditionNotGrantedTitle" },
+          content: { key: "privacyPermissionAdditionNotGrantedDescription" },
+          acceptButtonText: { key: "ok" },
+          cancelButtonText: null,
+          type: "warning",
+        });
+        this.defaultBrowserAutofillDisabled = false;
 
-      return;
+        return;
+      }
     }
 
     await BrowserApi.updateDefaultBrowserAutofillSettings(!this.defaultBrowserAutofillDisabled);
@@ -556,23 +584,59 @@ export class AutofillComponent implements OnInit {
     const isAdvanced =
       current === UriMatchStrategy.StartsWith || current === UriMatchStrategy.RegularExpression;
     if (!valueChange || !isAdvanced) {
-      return await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      if (current !== null) {
+        await this.domainSettingsService.setDefaultUriMatchStrategy(current);
+      }
+      return;
+    }
+    const contentKey = this.advancedOptionWarningMap[current];
+    if (!contentKey) {
+      return;
     }
     AdvancedUriOptionDialogComponent.open(this.dialogService, {
-      contentKey: this.advancedOptionWarningMap[current],
+      contentKey,
       onContinue: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(current);
         await this.domainSettingsService.setDefaultUriMatchStrategy(current);
       },
       onCancel: async () => {
         this.additionalOptionsForm.controls.defaultUriMatch.setValue(previous);
-        await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        if (previous !== null) {
+          await this.domainSettingsService.setDefaultUriMatchStrategy(previous);
+        }
       },
     });
   }
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
+  }
+
+  /**
+   * Persists whether a default password manager apply is pending because the permission UI may close the popup.
+   */
+  private async setPendingDefaultPasswordManagerApply(pending: boolean): Promise<void> {
+    if (!chrome.storage?.session) {
+      return;
+    }
+
+    if (pending) {
+      await chrome.storage.session.set({ pendingDefaultPasswordManagerApply: true });
+    } else {
+      await chrome.storage.session.remove("pendingDefaultPasswordManagerApply");
+    }
+  }
+
+  /**
+   * Reads the pending apply flag used to resume the default password manager flow on popup or background restart.
+   */
+  private async getPendingDefaultPasswordManagerApply(): Promise<boolean> {
+    if (!chrome.storage?.session) {
+      return false;
+    }
+
+    const result = await chrome.storage.session.get("pendingDefaultPasswordManagerApply");
+    return Boolean(result.pendingDefaultPasswordManagerApply);
   }
 
   async updateShowCardsCurrentTab() {
@@ -599,7 +663,10 @@ export class AutofillComponent implements OnInit {
       strategy === UriMatchStrategy.StartsWith ||
       strategy === UriMatchStrategy.RegularExpression
     ) {
-      hints.push(this.advancedOptionWarningMap[strategy]);
+      const hint = this.advancedOptionWarningMap[strategy];
+      if (hint) {
+        hints.push(hint);
+      }
     }
     return hints;
   }
@@ -611,8 +678,23 @@ export class AutofillComponent implements OnInit {
     if (this.canOverrideBrowserAutofillSetting) {
       this.defaultBrowserAutofillDisabled = true;
       await this.updateDefaultBrowserAutofillDisabled();
+      await this.nudgesService.dismissNudge(
+        NudgeType.AutofillNudge,
+        await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId)),
+      );
     } else {
       await this.openURI(event, this.disablePasswordManagerURI);
     }
+  }
+
+  async dismissClipboardNotification() {
+    this.showClipboardNotificationThisSession = false;
+    await this.autofillSettingsService.setClipboardSettingUpdatedNotificationDismissed(true);
+
+    // Scroll to the clear clipboard field
+    setTimeout(() => {
+      const element = document.getElementById("clearClipboardField");
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
   }
 }

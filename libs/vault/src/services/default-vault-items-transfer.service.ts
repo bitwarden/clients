@@ -10,19 +10,19 @@ import {
 } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService } from "@bitwarden/admin-console/common";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { CollectionService, OrganizationUserApiService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogService, ToastService } from "@bitwarden/components";
@@ -53,17 +53,27 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
     private toastService: ToastService,
     private eventCollectionService: EventCollectionService,
     private configService: ConfigService,
+    private organizationUserApiService: OrganizationUserApiService,
+    private syncService: SyncService,
   ) {}
 
   private _transferInProgressSubject = new BehaviorSubject(false);
 
   transferInProgress$ = this._transferInProgressSubject.asObservable();
 
+  /**
+   * Only a single enforcement should be allowed to run at a time to prevent multiple dialogs
+   * or multiple simultaneous transfers.
+   */
+  private enforcementInFlight: boolean = false;
+
   private enforcingOrganization$(userId: UserId): Observable<Organization | undefined> {
     return this.policyService.policiesByType$(PolicyType.OrganizationDataOwnership, userId).pipe(
       map(
         (policies) =>
-          policies.sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
+          policies
+            .filter((p) => p.data?.enableIndividualItemsTransfer === true)
+            .sort((a, b) => a.revisionDate.getTime() - b.revisionDate.getTime())?.[0],
       ),
       switchMap((policy) => {
         if (policy == null) {
@@ -139,7 +149,7 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
       FeatureFlag.MigrateMyVaultToMyItems,
     );
 
-    if (!featureEnabled) {
+    if (!featureEnabled || this.enforcementInFlight) {
       return;
     }
 
@@ -157,19 +167,22 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
       return;
     }
 
+    this.enforcementInFlight = true;
+
     const userAcceptedTransfer = await this.promptUserForTransfer(
       migrationInfo.enforcingOrganization.name,
     );
 
     if (!userAcceptedTransfer) {
-      // TODO: Revoke user from organization if they decline migration and show toast PM-29465
+      await this.organizationUserApiService.revokeSelf(migrationInfo.enforcingOrganization.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("leftOrganization"),
+      });
 
-      await this.eventCollectionService.collect(
-        EventType.Organization_ItemOrganization_Declined,
-        undefined,
-        undefined,
-        migrationInfo.enforcingOrganization.id,
-      );
+      // Sync to reflect organization removal
+      await this.syncService.fullSync(true);
+      this.enforcementInFlight = false;
       return;
     }
 
@@ -199,6 +212,8 @@ export class DefaultVaultItemsTransferService implements VaultItemsTransferServi
         variant: "error",
         message: this.i18nService.t("errorOccurred"),
       });
+    } finally {
+      this.enforcementInFlight = false;
     }
   }
 

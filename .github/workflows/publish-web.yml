@@ -16,6 +16,7 @@ on:
 
 env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
+  _GHCR_REGISTRY: ghcr.io/bitwarden
 
 jobs:
   setup:
@@ -28,7 +29,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -60,6 +61,7 @@ jobs:
       id-token: write
       contents: read
       deployments: write
+      packages: write
     env:
       _BRANCH_NAME: ${{ github.ref_name }}
       _RELEASE_VERSION: ${{ needs.setup.outputs.release_version }}
@@ -74,7 +76,7 @@ jobs:
           echo "Github Release Option: $_RELEASE_OPTION"
 
       - name: Checkout repo
-        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -89,6 +91,13 @@ jobs:
       - name: Login to Azure ACR
         run: az acr login -n bitwardenprod
 
+      - name: Log in to GHCR
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create GitHub deployment
         if: ${{ inputs.publish_type != 'Dry Run' }}
         uses: chrnorm/deployment-action@55729fcebec3d284f60f5bcabbd8376437d696b1 # v2.0.7
@@ -101,36 +110,25 @@ jobs:
           description: 'Deployment ${{ needs.setup.outputs.release_version }} from branch ${{ github.ref_name }}'
           task: release
 
-      - name: Pull branch image
+      - name: Copy images
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker pull "$_AZ_REGISTRY/web:latest"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:latest" \
+              "docker://$_AZ_REGISTRY/web:dryrun"
+            skopeo copy --all \
+              "docker://$_GHCR_REGISTRY/web:latest" \
+              "docker://$_GHCR_REGISTRY/web:dryrun"
           else
-            docker pull "$_AZ_REGISTRY/web:$_BRANCH_NAME"
-          fi
-
-      - name: Tag version
-        run: |
-          if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web:dryrun"
-            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web-sh:dryrun"
-          else
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:latest"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web-sh:latest"
-          fi
-
-      - name: Push version
-        run: |
-          if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker push "$_AZ_REGISTRY/web:dryrun"
-            docker push "$_AZ_REGISTRY/web-sh:dryrun"
-          else
-            docker push "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
-            docker push "$_AZ_REGISTRY/web-sh:$_RELEASE_VERSION"
-            docker push "$_AZ_REGISTRY/web:latest"
-            docker push "$_AZ_REGISTRY/web-sh:latest"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:$_BRANCH_NAME" \
+              "docker://$_AZ_REGISTRY/web:$_RELEASE_VERSION"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:$_BRANCH_NAME" \
+              "docker://$_AZ_REGISTRY/web:latest"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:$_BRANCH_NAME" \
+              "docker://$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
           fi
 
       - name: Log out from Azure
@@ -155,7 +153,9 @@ jobs:
           deployment-id: ${{ steps.deployment.outputs.deployment_id }}
 
       - name: Log out of Docker
-        run: docker logout
+        run: |
+          docker logout "$_AZ_REGISTRY"
+          docker logout ghcr.io
 
   bitwarden-lite-build:
     name: Trigger Bitwarden lite build
@@ -182,7 +182,7 @@ jobs:
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Generate GH App token
-        uses: actions/create-github-app-token@67018539274d69449ef7c02e8e71183d1719ab42 # v2.1.4
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
         id: app-token
         with:
           app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}

@@ -32,4 +32,8 @@ export class DefaultAccountCryptographicStateService implements AccountCryptogra
       userId,
     );
   }
+
+  async clearAccountCryptographicState(userId: UserId): Promise<void> {
+    await this.stateProvider.setUserState(ACCOUNT_CRYPTOGRAPHIC_STATE, null, userId);
+  }
 }

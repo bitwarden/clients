@@ -1,7 +1,7 @@
 import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 
 import { BrowserApi } from "./browser-api";
-import BrowserPopupUtils from "./browser-popup-utils";
+import BrowserPopupUtils, { PopupWidthOptions } from "./browser-popup-utils";
 
 describe("BrowserPopupUtils", () => {
   afterEach(() => {
@@ -140,11 +140,6 @@ describe("BrowserPopupUtils", () => {
 
   describe("openPopout", () => {
     beforeEach(() => {
-      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValueOnce({
-        os: "linux",
-        arch: "x86-64",
-        nacl_arch: "x86-64",
-      });
       jest.spyOn(BrowserApi, "getWindow").mockResolvedValueOnce({
         id: 1,
         left: 100,
@@ -152,11 +147,12 @@ describe("BrowserPopupUtils", () => {
         focused: false,
         alwaysOnTop: false,
         incognito: false,
-        width: 380,
+        width: PopupWidthOptions.default,
       });
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "win",
+      } as chrome.runtime.PlatformInfo);
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
-      jest.spyOn(BrowserApi, "updateWindowProperties").mockImplementation();
-      jest.spyOn(BrowserApi, "getPlatformInfo").mockImplementation();
     });
 
     it("creates a window with the default window options", async () => {
@@ -168,7 +164,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
@@ -197,7 +193,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
@@ -214,7 +210,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
@@ -267,7 +263,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
         type: "popup",
         focused: true,
-        width: 380,
+        width: PopupWidthOptions.default,
         height: 630,
         left: 85,
         top: 190,
@@ -275,60 +271,51 @@ describe("BrowserPopupUtils", () => {
       });
     });
 
-    it("exits fullscreen and focuses popout window if the current window is fullscreen and platform is mac", async () => {
+    it("omits position when on Linux with Wayland-like coordinates (left=0, top=0)", async () => {
       const url = "popup/index.html";
-      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
-      jest.spyOn(BrowserApi, "getPlatformInfo").mockReset().mockResolvedValueOnce({
-        os: "mac",
-        arch: "x86-64",
-        nacl_arch: "x86-64",
-      });
       jest.spyOn(BrowserApi, "getWindow").mockReset().mockResolvedValueOnce({
-        id: 1,
-        left: 100,
-        top: 100,
+        id: 2,
+        left: 0,
+        top: 0,
         focused: false,
         alwaysOnTop: false,
         incognito: false,
-        width: 380,
-        state: "fullscreen",
+        width: PopupWidthOptions.default,
       });
-      jest
-        .spyOn(BrowserApi, "createWindow")
-        .mockResolvedValueOnce({ id: 2 } as chrome.windows.Window);
-
-      await BrowserPopupUtils.openPopout(url, { senderWindowId: 1 });
-      expect(BrowserApi.updateWindowProperties).toHaveBeenCalledWith(1, {
-        state: "maximized",
-      });
-      expect(BrowserApi.updateWindowProperties).toHaveBeenCalledWith(2, {
-        focused: true,
-      });
-    });
-
-    it("doesnt exit fullscreen if the platform is not mac", async () => {
-      const url = "popup/index.html";
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "linux",
+      } as chrome.runtime.PlatformInfo);
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
-      jest.spyOn(BrowserApi, "getPlatformInfo").mockReset().mockResolvedValueOnce({
-        os: "win",
-        arch: "x86-64",
-        nacl_arch: "x86-64",
-      });
-      jest.spyOn(BrowserApi, "getWindow").mockResolvedValueOnce({
-        id: 1,
-        left: 100,
-        top: 100,
-        focused: false,
-        alwaysOnTop: false,
-        incognito: false,
-        width: 380,
-        state: "fullscreen",
-      });
 
       await BrowserPopupUtils.openPopout(url);
 
-      expect(BrowserApi.updateWindowProperties).not.toHaveBeenCalledWith(1, {
-        state: "maximized",
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
+      });
+    });
+
+    it("includes position when on Linux with non-zero window coordinates", async () => {
+      const url = "popup/index.html";
+      // Uses the beforeEach window (left: 100, top: 100) — non-zero, so not Wayland-like.
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "linux",
+      } as chrome.runtime.PlatformInfo);
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        left: 85,
+        top: 190,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
       });
     });
   });

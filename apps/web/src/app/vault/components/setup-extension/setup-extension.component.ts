@@ -18,7 +18,7 @@ import {
   CenterPositionStrategy,
   DialogRef,
   DialogService,
-  IconModule,
+  SvgModule,
   LinkModule,
 } from "@bitwarden/components";
 
@@ -52,7 +52,7 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
     JslibModule,
     ButtonComponent,
     LinkModule,
-    IconModule,
+    SvgModule,
     RouterModule,
     AddExtensionVideosComponent,
     ManuallyOpenExtensionComponent,
@@ -109,7 +109,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
 
         // Extension was not installed and now it is, show success state
         if (previousState === false && currentState) {
-          this.dialogRef?.close();
+          void this.dialogRef?.close();
           void this.dismissExtensionPage();
           this.state = SetupExtensionState.Success;
         }

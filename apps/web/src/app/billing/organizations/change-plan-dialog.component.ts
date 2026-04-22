@@ -31,9 +31,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -50,7 +48,7 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
-  TaxClient,
+  PreviewInvoiceClient,
 } from "@bitwarden/web-vault/app/billing/clients";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import {
@@ -117,7 +115,6 @@ interface OnSuccessArgs {
     EnterBillingAddressComponent,
     CardComponent,
   ],
-  providers: [SubscriberBillingClient, TaxClient],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -248,9 +245,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private billingNotificationService: BillingNotificationService,
     private subscriberBillingClient: SubscriberBillingClient,
-    private taxClient: TaxClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
-    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -300,12 +296,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    this._familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
+    this._familyPlan = PlanType.FamiliesAnnually;
     if (this.currentPlan && this.currentPlan.productTier !== ProductTierType.Enterprise) {
       const upgradedPlan = this.passwordManagerPlans.find((plan) =>
         this.currentPlan.productTier === ProductTierType.Free
@@ -843,7 +834,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.onSuccess.emit({ organizationId: organizationId });
     // TODO: No one actually listening to this message?
     this.messagingService.send("organizationCreated", { organizationId });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private async restartSubscription() {
@@ -1068,11 +1059,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       ? getBillingAddressFromForm(this.billingFormGroup.controls.billingAddress)
       : this.billingAddress;
 
-    const taxAmounts = await this.taxClient.previewTaxForOrganizationSubscriptionPlanChange(
-      this.organizationId,
-      getPlanFromLegacyEnum(this.selectedPlan.type),
-      billingAddress,
-    );
+    const taxAmounts =
+      await this.previewInvoiceClient.previewTaxForOrganizationSubscriptionPlanChange(
+        this.organizationId,
+        getPlanFromLegacyEnum(this.selectedPlan.type),
+        billingAddress,
+      );
 
     this.estimatedTax = taxAmounts.tax;
   }

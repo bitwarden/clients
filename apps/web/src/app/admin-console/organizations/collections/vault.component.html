@@ -27,10 +27,11 @@
       (onEditCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
       (onDeleteCollection)="deleteCollection(selectedCollection?.node)"
       (searchTextChanged)="filterSearchText($event)"
+      (onOpenAddItemDialog)="openAddItemDialog()"
     ></app-org-vault-header>
   }
 
-  <div class="tw-flex tw-flex-row">
+  <div class="tw-flex tw-flex-row tw-flex-1">
     @let hideVaultFilters = hideVaultFilter$ | async;
     @if (!hideVaultFilters) {
       <div class="tw-w-1/4 tw-mr-5">
@@ -38,12 +39,15 @@
           [organization]="organization"
           [activeFilter]="activeFilter"
           [searchText]="currentSearchText$ | async"
-          (searchTextChanged)="filterSearchText($event)"
+          [ciphers$]="allCiphers$"
+          (searchTextChange)="filterSearchText($event)"
         ></app-organization-vault-filter>
       </div>
     }
 
-    <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
+    <div
+      [class]="(hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4') + ' tw-flex tw-flex-col tw-min-h-0'"
+    >
       @if (showAddAccessToggle && activeFilter.selectedCollectionNode) {
         <bit-toggle-group
           [selected]="addAccessStatus$ | async"
@@ -68,6 +72,7 @@
 
       @if (filter) {
         <app-vault-items
+          class="tw-flex-1 tw-min-h-0"
           #vaultItems
           [ciphers]="ciphers$ | async"
           [collections]="collections$ | async"
@@ -117,8 +122,9 @@
                 (click)="addCipher()"
                 buttonType="primary"
                 type="button"
+                startIcon="bwi-plus"
               >
-                <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
+                {{ "newItem" | i18n }}
               </button>
             }
           </bit-no-items>

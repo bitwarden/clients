@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig",
+  "include": ["src/preload.ts", "src/global.d.ts"]
+}

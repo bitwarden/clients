@@ -22,6 +22,7 @@ import {
   TypographyModule,
   FormFieldModule,
   AsyncActionsModule,
+  IconModule,
   ToastService,
 } from "@bitwarden/components";
 
@@ -48,6 +49,7 @@ export interface WebAuthnResult {
     FormFieldModule,
     AsyncActionsModule,
     FormsModule,
+    IconModule,
   ],
   providers: [],
 })

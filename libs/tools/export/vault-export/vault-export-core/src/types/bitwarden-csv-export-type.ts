@@ -12,6 +12,7 @@ export type BitwardenCsvExportType = {
   login_password: string;
   login_totp: string;
   favorite: number | null;
+  archivedDate: string | null;
 };
 
 export type BitwardenCsvIndividualExportType = BitwardenCsvExportType & {

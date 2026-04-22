@@ -1,7 +1,11 @@
 export { DisableSendPolicy } from "./disable-send.component";
+export { SendControlsPolicy } from "./send-controls.component";
 export { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
 export { MasterPasswordPolicy } from "./master-password.component";
-export { OrganizationDataOwnershipPolicy } from "./organization-data-ownership.component";
+export {
+  OrganizationDataOwnershipPolicy,
+  OrganizationDataOwnershipPolicyComponent,
+} from "./organization-data-ownership.component";
 export { PasswordGeneratorPolicy } from "./password-generator.component";
 export { RemoveUnlockWithPinPolicy } from "./remove-unlock-with-pin.component";
 export { RequireSsoPolicy } from "./require-sso.component";

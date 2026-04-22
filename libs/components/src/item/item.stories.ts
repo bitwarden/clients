@@ -1,16 +1,24 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { RouterTestingModule } from "@angular/router/testing";
-import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
+import {
+  Meta,
+  StoryObj,
+  applicationConfig,
+  componentWrapperDecorator,
+  moduleMetadata,
+} from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { GlobalStateProvider } from "@bitwarden/state";
 
 import { AvatarModule } from "../avatar";
 import { BadgeModule } from "../badge";
+import { ChipActionComponent } from "../chips/chip-action";
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
 import { TypographyModule } from "../typography";
-import { I18nMockService } from "../utils/i18n-mock.service";
+import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
 
 import { ItemActionComponent } from "./item-action.component";
 import { ItemContentComponent } from "./item-content.component";
@@ -28,6 +36,7 @@ export default {
         AvatarModule,
         IconButtonModule,
         BadgeModule,
+        ChipActionComponent,
         TypographyModule,
         ItemActionComponent,
         ItemContentComponent,
@@ -45,8 +54,18 @@ export default {
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
               loading: "Loading",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
             });
           },
+        },
+      ],
+    }),
+    applicationConfig({
+      providers: [
+        {
+          provide: GlobalStateProvider,
+          useClass: StorybookGlobalStateProvider,
         },
       ],
     }),
@@ -75,7 +94,7 @@ export const Default: Story = {
 
         <ng-container slot="end">
           <bit-item-action>
-            <button type="button" bitBadge variant="primary">Fill</button>
+            <button type="button" bit-chip-action variant="primary" label="Fill"></button>
           </bit-item-action>
           <bit-item-action>
             <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -98,6 +117,7 @@ export const ContentSlots: Story = {
           <bit-avatar
             slot="start"
             text="Foo"
+            size="lg"
           ></bit-avatar>
           foo&#64;bitwarden.com
           <ng-container slot="secondary">
@@ -186,7 +206,7 @@ export const TextOverflowWrap: Story = {
 };
 
 const multipleActionListTemplate = /*html*/ `
-  <bit-item-group aria-label="Multiple Action List">
+  <bit-item-group>
     <bit-item>
       <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
@@ -196,7 +216,7 @@ const multipleActionListTemplate = /*html*/ `
 
       <ng-container slot="end">
         <bit-item-action>
-          <button type="button" bitBadge variant="primary">Fill</button>
+          <button type="button" bit-chip-action variant="primary" label="Fill"></button>
         </bit-item-action>
         <bit-item-action>
           <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -215,7 +235,7 @@ const multipleActionListTemplate = /*html*/ `
 
       <ng-container slot="end">
         <bit-item-action>
-          <button type="button" bitBadge variant="primary">Fill</button>
+          <button type="button" bit-chip-action variant="primary" label="Fill"></button>
         </bit-item-action>
         <bit-item-action>
           <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -234,7 +254,7 @@ const multipleActionListTemplate = /*html*/ `
 
       <ng-container slot="end">
         <bit-item-action>
-          <button type="button" bitBadge variant="primary">Fill</button>
+          <button type="button" bit-chip-action variant="primary" label="Fill"></button>
         </bit-item-action>
         <bit-item-action>
           <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -253,7 +273,7 @@ const multipleActionListTemplate = /*html*/ `
 
       <ng-container slot="end">
         <bit-item-action>
-          <button type="button" bitBadge variant="primary">Fill</button>
+          <button type="button" bit-chip-action variant="primary" label="Fill"></button>
         </bit-item-action>
         <bit-item-action>
           <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -272,7 +292,7 @@ const multipleActionListTemplate = /*html*/ `
 
       <ng-container slot="end">
         <bit-item-action>
-          <button type="button" bitBadge variant="primary">Fill</button>
+          <button type="button" bit-chip-action variant="primary" label="Fill"></button>
         </bit-item-action>
         <bit-item-action>
           <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -291,7 +311,7 @@ const multipleActionListTemplate = /*html*/ `
 
       <ng-container slot="end">
         <bit-item-action>
-          <button type="button" bitBadge variant="primary">Fill</button>
+          <button type="button" bit-chip-action variant="primary" label="Fill"></button>
         </bit-item-action>
         <bit-item-action>
           <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -315,7 +335,7 @@ export const SingleActionList: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-item-group aria-label="Single Action List">
+      <bit-item-group>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
@@ -361,7 +381,7 @@ export const SingleActionWithBadge: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-item-group aria-label="Single Action With Badge">
+      <bit-item-group>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
@@ -399,7 +419,7 @@ export const VirtualScrolling: Story = {
     },
     template: /*html*/ `
       <cdk-virtual-scroll-viewport [itemSize]="54" class="tw-h-[500px]">
-        <bit-item-group aria-label="Virtual Scrolling">
+        <bit-item-group>
           <bit-item *cdkVirtualFor="let item of data">
             <button type="button" bit-item-content>
               <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
@@ -408,7 +428,7 @@ export const VirtualScrolling: Story = {
 
             <ng-container slot="end">
               <bit-item-action>
-                <button type="button" bitBadge variant="primary">Fill</button>
+                <button type="button" bit-chip-action variant="primary" label="Fill"></button>
               </bit-item-action>
               <bit-item-action>
                 <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
@@ -438,7 +458,7 @@ export const WithoutBorderRadius: Story = {
 
         <ng-container slot="end">
           <bit-item-action>
-            <button type="button" bitBadge variant="primary">Fill</button>
+            <button type="button" bit-chip-action variant="primary" label="Fill"></button>
           </bit-item-action>
           <bit-item-action>
             <button type="button" bitIconButton="bwi-clone" label="Clone"></button>

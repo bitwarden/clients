@@ -8,9 +8,13 @@ import {
 } from "../../../autofill/content/components/common-types";
 
 const NotificationTypes = {
+  /** represents scenarios handling saving new ciphers after form submit */
   Add: "add",
+  /** represents scenarios handling saving updated ciphers after form submit */
   Change: "change",
+  /** represents scenarios where user has interacted with an unlock action prompt or action otherwise requiring unlock as a prerequisite */
   Unlock: "unlock",
+  /** represents scenarios where the user has security tasks after updating ciphers */
   AtRiskPassword: "at-risk-password",
 } as const;
 
@@ -21,13 +25,18 @@ const NotificationTypes = {
 type NotificationType = (typeof NotificationTypes)[keyof typeof NotificationTypes];
 
 type NotificationTaskInfo = {
-  orgName: string;
+  orgName?: string;
   remainingTasksCount: number;
 };
 
 /**
- * @todo Use generics to make this type specific to notification types, see Standard_NotificationQueueMessage.
+ * Init data projected into the notification bar iframe when a queued notification is ready to
+ * display.
+ *
+ * `type` is the primary discriminant: it determines which notification component renders in `bar.ts`.
  */
+// FIXME: Use type guards to specialize this type into subtypes keyed on `type`; once
+// all patterns are known, replace type guards with a discriminated union.
 type NotificationBarIframeInitData = {
   ciphers?: NotificationCipherData[];
   folders?: FolderView[];
@@ -38,8 +47,14 @@ type NotificationBarIframeInitData = {
   organizations?: OrgView[];
   removeIndividualVault?: boolean;
   theme?: Theme;
+  /** The notification discriminant. Determines which component renders. */
   type?: NotificationType;
-  params?: AtRiskPasswordNotificationParams | any;
+  showAnimations?: boolean;
+  /**
+   * Type-erased payload for the notification.
+   * Use type guards like `isAtRiskPasswordNotification` to read this field.
+   */
+  params?: AtRiskPasswordNotificationParams | unknown;
 };
 
 type NotificationBarWindowMessage = {
@@ -60,8 +75,19 @@ type NotificationBarWindowMessageHandlers = {
   saveCipherAttemptCompleted: ({ message }: { message: NotificationBarWindowMessage }) => void;
 };
 
+/**
+ * Type-specific payload for at-risk-password notifications.
+ *
+ * `organizationName` is always present — it is resolved from the organization record before the
+ * notification is queued.
+ *
+ * `hasPasswordChangeUri` indicates whether the site advertises a `.well-known/change-password`
+ * endpoint. When `true`, the notification renders a "Change password" button whose click is
+ * handled by the background service (which re-derives the trusted URL). When `false`, the
+ * notification body instructs the user to navigate to the site manually.
+ */
 type AtRiskPasswordNotificationParams = {
-  passwordChangeUri?: string;
+  hasPasswordChangeUri: boolean;
   organizationName: string;
 };
 

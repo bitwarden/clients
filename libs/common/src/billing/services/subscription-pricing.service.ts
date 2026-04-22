@@ -1,6 +1,5 @@
 import {
   combineLatest,
-  combineLatestWith,
   from,
   map,
   Observable,
@@ -16,7 +15,6 @@ import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstract
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -33,16 +31,6 @@ import {
 } from "../types/subscription-pricing-tier";
 
 export class DefaultSubscriptionPricingService implements SubscriptionPricingServiceAbstraction {
-  /**
-   * Fallback premium pricing used when the feature flag is disabled.
-   * These values represent the legacy pricing model and will not reflect
-   * server-side price changes. They are retained for backward compatibility
-   * during the feature flag rollout period.
-   */
-  private static readonly FALLBACK_PREMIUM_SEAT_PRICE = 10;
-  private static readonly FALLBACK_PREMIUM_STORAGE_PRICE = 4;
-  private static readonly FALLBACK_PREMIUM_PROVIDED_STORAGE_GB = 1;
-
   constructor(
     private billingApiService: BillingApiServiceAbstraction,
     private configService: ConfigService,
@@ -123,55 +111,32 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       shareReplay({ bufferSize: 1, refCount: false }),
     );
 
-  private premium$: Observable<PersonalSubscriptionPricingTier> = this.configService
-    .getFeatureFlag$(FeatureFlag.PM26793_FetchPremiumPriceFromPricingService)
-    .pipe(
-      take(1), // Lock behavior at first subscription to prevent switching data sources mid-stream
-      switchMap((fetchPremiumFromPricingService) =>
-        fetchPremiumFromPricingService
-          ? this.premiumPlanResponse$.pipe(
-              map((premiumPlan) => ({
-                seat: premiumPlan.seat?.price,
-                storage: premiumPlan.storage?.price,
-                provided: premiumPlan.storage?.provided,
-              })),
-            )
-          : of({
-              seat: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_SEAT_PRICE,
-              storage: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_STORAGE_PRICE,
-              provided: DefaultSubscriptionPricingService.FALLBACK_PREMIUM_PROVIDED_STORAGE_GB,
-            }),
-      ),
-      map((premiumPrices) => ({
-        id: PersonalSubscriptionPricingTierIds.Premium,
-        name: this.i18nService.t("premium"),
-        description: this.i18nService.t("advancedOnlineSecurity"),
-        availableCadences: [SubscriptionCadenceIds.Annually],
-        passwordManager: {
-          type: "standalone",
-          annualPrice: premiumPrices.seat,
-          annualPricePerAdditionalStorageGB: premiumPrices.storage,
-          providedStorageGB: premiumPrices.provided,
-          features: [
-            this.featureTranslations.builtInAuthenticator(),
-            this.featureTranslations.secureFileStorage(),
-            this.featureTranslations.emergencyAccess(),
-            this.featureTranslations.breachMonitoring(),
-            this.featureTranslations.andMoreFeatures(),
-          ],
-        },
-      })),
-    );
+  private premium$: Observable<PersonalSubscriptionPricingTier> = this.premiumPlanResponse$.pipe(
+    map((premiumPlan) => ({
+      id: PersonalSubscriptionPricingTierIds.Premium,
+      name: this.i18nService.t("premium"),
+      description: this.i18nService.t("advancedOnlineSecurity"),
+      availableCadences: [SubscriptionCadenceIds.Annually],
+      passwordManager: {
+        type: "standalone",
+        annualPrice: premiumPlan.seat?.price,
+        annualPricePerAdditionalStorageGB: premiumPlan.storage?.price,
+        providedStorageGB: premiumPlan.storage?.provided,
+        features: [
+          this.featureTranslations.builtInAuthenticator(),
+          this.featureTranslations.secureFileStorage(),
+          this.featureTranslations.emergencyAccess(),
+          this.featureTranslations.breachMonitoring(),
+          this.featureTranslations.andMoreFeatures(),
+        ],
+      },
+    })),
+  );
 
   private families$: Observable<PersonalSubscriptionPricingTier> =
     this.organizationPlansResponse$.pipe(
-      combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
-      map(([plans, milestone3FeatureEnabled]) => {
-        const familiesPlan = plans.data.find(
-          (plan) =>
-            plan.type ===
-            (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
-        );
+      map((plans) => {
+        const familiesPlan = plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually);
 
         return {
           id: PersonalSubscriptionPricingTierIds.Families,

@@ -2,8 +2,20 @@
   "allApplications": {
     "message": "Tüm uygulamalar"
   },
+  "allMembers": {
+    "message": "Tüm üyeler"
+  },
+  "allPasswords": {
+    "message": "Tüm parolalar"
+  },
   "activity": {
     "message": "Aktivite"
+  },
+  "criticalAppsAtRisk": {
+    "message": "Critical apps at risk"
+  },
+  "allCriticalApps": {
+    "message": "All critical apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden logosu"
@@ -14,17 +26,50 @@
   "noCriticalAppsAtRisk": {
     "message": "Risk altında olan kritik uygulama yok"
   },
+  "critical": {
+    "message": "Kritik ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "notCritical": {
+    "message": "Kritik değil ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "criticalBadge": {
+    "message": "Kritik"
+  },
   "accessIntelligence": {
     "message": "Access Intelligence"
+  },
+  "noApplicationsMatchTheseFilters": {
+    "message": "Bu filtrelerle eşleşen uygulama yok"
   },
   "passwordRisk": {
     "message": "Parola Riski"
   },
+  "passwords": {
+    "message": "Parolalar"
+  },
+  "riskOverTime": {
+    "message": "Risk over time"
+  },
+  "passwordsAtRisk": {
+    "message": "Passwords at risk"
+  },
   "noEditPermissions": {
     "message": "Bu kaydı düzenleme yetkisine sahip değilsiniz"
   },
-  "reviewAtRiskPasswords": {
-    "message": "Uygulamalar genelinde risk altındaki parolaları (zayıf, açığa çıkmış veya farklı yerlerde kullanılan) gözden geçirin. Kullanıcılarınız için risk altındaki parolalara yönelik güvenlik eylemlerine öncelik vermek üzere en kritik uygulamalarınızı seçin."
+  "reviewAccessIntelligence": {
+    "message": "Review security reports to find and fix credential risks before they escalate."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "Risk altındaki hesapları inceleyin"
@@ -244,11 +289,53 @@
       }
     }
   },
+  "numCriticalApplicationsMarkedSuccess": {
+    "message": "$COUNT$ uygulama kritik olarak işaretlendi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "numApplicationsUnmarkedCriticalSuccess": {
+    "message": "$COUNT$ uygulama kritik değil olarak işaretlendi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsCritical": {
+    "message": "$COUNT$ tane şeyi kritik olarak işaretle",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "markAppCountAsNotCritical": {
+    "message": "$COUNT$ tane şeyi kritik değil olarak işaretle",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "applicationsMarkedAsCriticalFail": {
     "message": "Uygulamaların kritik olarak işaretlenmesi başarısız oldu"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Failed to unmark applications as critical"
+  },
   "application": {
     "message": "Uygulama"
+  },
+  "applications": {
+    "message": "Uygulamalar"
   },
   "atRiskPasswords": {
     "message": "Riskli parolalar"
@@ -550,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini göster"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Eşleşme tespitini gizle"
+  },
   "autoFillOnPageLoad": {
     "message": "Sayfa yüklendiğinde otomatik doldur"
   },
@@ -585,6 +678,9 @@
   },
   "email": {
     "message": "E-posta"
+  },
+  "emails": {
+    "message": "E-postalar"
   },
   "phone": {
     "message": "Telefon"
@@ -666,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+  },
+  "totpCapture": {
+    "message": "Mevcut web sayfasındaki kimlik doğrulayıcı QR kodunu tarayın"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Kimlik doğrulayıcılar hakkında bilgi alın"
@@ -898,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH anahtarı"
   },
+  "typeLoginSubtitle": {
+    "message": "Web sitesi veya uygulama"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredi veya banka kartı"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Kişisel bilgiler"
+  },
+  "typeNoteSubtitle": {
+    "message": "Önemli metinler"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Sunucu giriş token'ı"
+  },
+  "folderSubtitle": {
+    "message": "Kayıtlarınızı organize edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan kayıtları organize edin"
+  },
   "typeLoginPlural": {
     "message": "Hesaplar"
   },
@@ -966,6 +1086,9 @@
   },
   "addItem": {
     "message": "Kayıt ekle"
+  },
+  "chooseItemToAdd": {
+    "message": "Eklenecek kaydı seçin"
   },
   "editItem": {
     "message": "Kaydı düzenle"
@@ -1217,6 +1340,9 @@
   "selectAll": {
     "message": "Tümünü seç"
   },
+  "deselectAll": {
+    "message": "Tüm seçimi kaldır"
+  },
   "unselectAll": {
     "message": "Seçimi iptal et"
   },
@@ -1364,6 +1490,12 @@
   },
   "no": {
     "message": "Hayır"
+  },
+  "noAuth": {
+    "message": "Bağlantıya sahip olan herkes"
+  },
+  "anyOneWithPassword": {
+    "message": "Belirlediğiniz parolaya sahip olan herkes"
   },
   "location": {
     "message": "Konum"
@@ -1749,6 +1881,9 @@
   "noMembersInList": {
     "message": "Listelenecek üye yok."
   },
+  "noMembersToExport": {
+    "message": "Dışa aktarılacak üye yok."
+  },
   "noEventsInList": {
     "message": "Listelenecek olay yok."
   },
@@ -2024,6 +2159,9 @@
   },
   "exportSuccess": {
     "message": "Kasa verileriniz dışa aktarıldı"
+  },
+  "exportError": {
+    "message": "An error occurred while exporting your vault data"
   },
   "passwordGenerator": {
     "message": "Parola oluşturucu"
@@ -2537,6 +2675,9 @@
   "enabled": {
     "message": "Etkinleştirildi"
   },
+  "optionEnabled": {
+    "message": "Etkinleştirildi"
+  },
   "restoreAccess": {
     "message": "Erişimi geri getir"
   },
@@ -2633,6 +2774,9 @@
   },
   "key": {
     "message": "Anahtar"
+  },
+  "unnamedKey": {
+    "message": "Adsız anahtar"
   },
   "twoStepAuthenticatorEnterCodeV2": {
     "message": "Doğrulama kodu"
@@ -2963,16 +3107,16 @@
   "breachDesc": {
     "message": "Ele geçirilen hesaplar kişisel bilgilerinizi açığa çıkarabilir. İki aşamalı girişi etkinleştirerek veya daha güçlü parolalar kullanarak ele geçirilen hesapları güvence altına alın."
   },
-  "breachCheckUsernameEmail": {
-    "message": "Kullandığınız kullanıcı adlarını ve e-posta adreslerini kontrol edin."
+  "breachCheckEmail": {
+    "message": "Kullandığınız e-posta adreslerini kontrol edin."
   },
   "checkBreaches": {
     "message": "İhlalleri denetle"
   },
-  "breachUsernameNotFound": {
-    "message": "$USERNAME$ bilinen veri ihlallerinde bulunamadı.",
+  "breachEmailNotFound": {
+    "message": "$EMAIL$ bilinen veri ihlallerinde bulunamadı.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       }
@@ -2982,10 +3126,10 @@
     "message": "Haberler iyi",
     "description": "ex. Good News, No Breached Accounts Found!"
   },
-  "breachUsernameFound": {
-    "message": "$USERNAME$ $COUNT$ farklı çevrimiçi veri ihlalinde bulundu.",
+  "breachEmailFound": {
+    "message": "$EMAIL$ $COUNT$ farklı çevrimiçi veri ihlalinde bulundu.",
     "placeholders": {
-      "username": {
+      "email": {
         "content": "$1",
         "example": "user@example.com"
       },
@@ -3143,6 +3287,9 @@
   "premiumSubscriptionEndedDesc": {
     "message": "Arşivinize yeniden erişim kazanmak için Premium aboneliğinizi yeniden başlatın. Yeniden başlatmadan önce arşivlenmiş bir kaydın ayrıntılarını düzenlerseniz, kayıt tekrar kasanıza taşınır."
   },
+  "itemRestored": {
+    "message": "Kayıt geri yüklendi"
+  },
   "restartPremium": {
     "message": "Premium’u yeniden başlat"
   },
@@ -3251,6 +3398,15 @@
   "reinstated": {
     "message": "Abonelik sürdürüldü."
   },
+  "resubscribe": {
+    "message": "Yeniden abone ol"
+  },
+  "yourSubscriptionIsExpired": {
+    "message": "Aboneliğiniz sona erdi"
+  },
+  "yourSubscriptionIsCanceled": {
+    "message": "Aboneliğiniz iptal edildi"
+  },
   "cancelConfirmation": {
     "message": "İptal etmek istediğinden emin misin? Bu fatura döneminin sonunda bu aboneliğin tüm özelliklerine erişiminizi kaybedeceksiniz."
   },
@@ -3269,6 +3425,9 @@
   "nextChargeHeader": {
     "message": "Sonraki ödeme"
   },
+  "nextChargeDate": {
+    "message": "Sonraki ödeme tarihi"
+  },
   "plan": {
     "message": "Paket"
   },
@@ -3277,6 +3436,9 @@
   },
   "discount": {
     "message": "indirim"
+  },
+  "discountExpiredOnPurchase": {
+    "message": "Discount expired. Please review your cart total and try again."
   },
   "downloadLicense": {
     "message": "Lisansı indir"
@@ -3685,6 +3847,15 @@
   "policies": {
     "message": "İlkeler"
   },
+  "dataControls": {
+    "message": "Veri kontrolleri"
+  },
+  "authentication": {
+    "message": "Kimlik doğrulama"
+  },
+  "vaultManagement": {
+    "message": "Kasa yönetimi"
+  },
   "singleSignOn": {
     "message": "Çoklu oturum açma"
   },
@@ -3757,6 +3928,9 @@
   "editCollection": {
     "message": "Koleksiyonu düzenle"
   },
+  "viewCollection": {
+    "message": "Koleksiyonu görüntüle"
+  },
   "collectionInfo": {
     "message": "Koleksiyon bilgileri"
   },
@@ -3778,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Aşağıya Bitwarden hesabının e-posta adresini girerek kuruluşunuza yeni bir kullanıcı davet edin. Halihazırda bir Bitwarden hesabı yoksa yeni bir hesap oluşturması istenecektir."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "E-posta adreslerini virgülle ayırarak en fazla $COUNT$ adres girin.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3792,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "0 davetiyeniz kaldı."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Bu kullanıcı hesabını korumak için iki aşamalı giriş kullanıyor."
@@ -4166,6 +4353,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
   "restoredUserId": {
     "message": "$ID$ için kuruluş erişimi geri getirildi.",
     "placeholders": {
@@ -4228,6 +4418,15 @@
   },
   "confirmedUserId": {
     "message": "Kullanıcı onaylandı: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "automaticallyConfirmedUserId": {
+    "message": "Automatically confirmed user $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4306,6 +4505,24 @@
   },
   "loginStatus": {
     "message": "Oturum açma durumu"
+  },
+  "recentlyActive": {
+    "message": "Yakın zamanda aktif"
+  },
+  "recentlyActiveToday": {
+    "message": "Bugün"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Son 7 gün"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Son 14 gün"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Son 30 gün"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 günden önce"
   },
   "firstLogin": {
     "message": "İlk giriş"
@@ -4494,29 +4711,26 @@
   "generatingYourAccessIntelligence": {
     "message": "Access Intelligence’ınız oluşturuluyor..."
   },
-  "fetchingMemberData": {
-    "message": "Üye verileri getiriliyor..."
-  },
-  "analyzingPasswordHealth": {
-    "message": "Parola sağlığı analiz ediliyor..."
-  },
-  "calculatingRiskScores": {
-    "message": "Risk puanları hesaplanıyor..."
-  },
-  "generatingReportData": {
-    "message": "Rapor verileri oluşturuluyor..."
-  },
-  "savingReport": {
-    "message": "Rapor kaydediliyor..."
-  },
-  "compilingInsights": {
-    "message": "İçgörüler derleniyor..."
-  },
   "loadingProgress": {
     "message": "Yükleme ilerlemesi"
   },
-  "thisMightTakeFewMinutes": {
-    "message": "Bu işlem birkaç dakika sürebilir."
+  "reviewingMemberData": {
+    "message": "Reviewing member data..."
+  },
+  "analyzingPasswords": {
+    "message": "Analyzing passwords..."
+  },
+  "calculatingRisks": {
+    "message": "Calculating risks..."
+  },
+  "generatingReports": {
+    "message": "Generating reports..."
+  },
+  "compilingInsightsProgress": {
+    "message": "Compiling insights..."
+  },
+  "reportGenerationDone": {
+    "message": "Done!"
   },
   "riskInsightsRunReport": {
     "message": "Raporu çalıştır"
@@ -5036,6 +5250,12 @@
   "atAnyTime": {
     "message": "aboneliğinizi iptal edebilirsiniz."
   },
+  "byEmail": {
+    "message": "E-posta ile"
+  },
+  "byLink": {
+    "message": "Bağlantı ile"
+  },
   "byContinuingYouAgreeToThe": {
     "message": "Devam ederek şunları kabul etmiş olursunuz:"
   },
@@ -5406,6 +5626,12 @@
   "restoreSelected": {
     "message": "Seçilenleri geri yükle"
   },
+  "archivedItemRestored": {
+    "message": "Arşivlenmiş kayıt geri getirildi"
+  },
+  "archivedItemsRestored": {
+    "message": "Arşivlenmiş kayıtlar geri getirildi"
+  },
   "restoredItem": {
     "message": "Kayıt geri yüklendi"
   },
@@ -5588,10 +5814,6 @@
   "sendTypeText": {
     "message": "Metin"
   },
-  "sendPasswordDescV3": {
-    "message": "Alıcıların bu Send'e erişmesi için isterseniz parola ekleyebilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Yeni Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -5602,6 +5824,57 @@
   },
   "createdSend": {
     "message": "Send kaydedildi",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedSuccessfully": {
+    "message": "Send başarıyla oluşturuldu.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Bu Send'e önümüzdeki $TIME$ boyunca bağlantıya sahip herkes ulaşabilecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Bu Send'e önümüzdeki $TIME$ boyunca bağlantıya ve parolaya sahip herkes ulaşabilecektir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Bu Send bağlantısını kopyalayıp paylaşın. Belirlediğiniz kişiler bağlantıyı önümüzdeki $TIME$ boyunca kullanabilir.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "durationTimeHours": {
+    "message": "$HOURS$ saat",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "newTextSend": {
+    "message": "Yeni Send metni",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "newFileSend": {
+    "message": "Yeni Send dosyası",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5642,6 +5915,9 @@
   },
   "revoked": {
     "message": "İptal edildi"
+  },
+  "accepted": {
+    "message": "Kabul edildi"
   },
   "sendLink": {
     "message": "Send bağlantısı",
@@ -5689,10 +5965,6 @@
   },
   "sendProtectedPasswordDontKnow": {
     "message": "Parolayı bilmiyor musunuz? Bu Send'e erişmek için gereken parolayı dosyayı gönderen kişiye sorabilirsiniz.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendHiddenByDefault": {
-    "message": "Bu Send varsayılan olarak gizlidir. Aşağıdaki düğmeyi kullanarak görünürlüğünü değiştirebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
@@ -5863,6 +6135,43 @@
       }
     }
   },
+  "centralizeDataOwnership": {
+    "message": "Centralize organization ownership"
+  },
+  "centralizeDataOwnershipDesc": {
+    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+  },
+  "centralizeDataOwnershipContentAnchor": {
+    "message": "Learn more about centralized ownership",
+    "description": "This will be used as a hyperlink"
+  },
+  "benefits": {
+    "message": "Avantajlar"
+  },
+  "centralizeDataOwnershipBenefit1": {
+    "message": "Gain full visibility into credential health, including shared and unshared items."
+  },
+  "centralizeDataOwnershipBenefit2": {
+    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+  },
+  "centralizeDataOwnershipBenefit3": {
+    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+  },
+  "centralizeDataOwnershipWarningTitle": {
+    "message": "Prompt members to transfer their items"
+  },
+  "centralizeDataOwnershipWarningDesc": {
+    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
+  "centralizeDataOwnershipWarningLink": {
+    "message": "Transfer hakkında daha fazla bilgi edinin"
+  },
+  "promptUsersToMoveItems": {
+    "message": "Prompt users to move individual vault items to the organization"
+  },
+  "promptUsersToMoveItemsCallout": {
+    "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+  },
   "organizationDataOwnership": {
     "message": "Kuruluş veri sahipliğini zorunlu kılın"
   },
@@ -5900,8 +6209,8 @@
   "availableNow": {
     "message": "Şimdi kullanılabilir"
   },
-  "autoConfirm": {
-    "message": "Yeni kullanıcıların otomatik onayı"
+  "automaticUserConfirmation": {
+    "message": "Otomatik kullanıcı onayı"
   },
   "autoConfirmDescription": {
     "message": "Kuruluşa davet edilen yeni kullanıcılar, bir yöneticinin cihazı kilitli değilken otomatik olarak onaylanacaktır.",
@@ -5956,6 +6265,21 @@
   "autoConfirmCheckBoxLabel": {
     "message": "Bu riskleri ve ilke güncellemelerini kabul ediyorum"
   },
+  "autoConfirmEnabledByAdmin": {
+    "message": "Turned on Automatic user confirmation setting"
+  },
+  "autoConfirmDisabledByAdmin": {
+    "message": "Turned off Automatic user confirmation setting"
+  },
+  "autoConfirmEnabledByPortal": {
+    "message": "Added Automatic user confirmation policy"
+  },
+  "autoConfirmDisabledByPortal": {
+    "message": "Removed Automatic user confirmation policy"
+  },
+  "system": {
+    "message": "Sistem"
+  },
   "personalOwnership": {
     "message": "Kişisel kasayı kaldır"
   },
@@ -5992,6 +6316,16 @@
   "sendDisabledWarning": {
     "message": "Bir kuruluş ilkesi nedeniyle yalnızca mevcut Send'leri silebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendControls": {
+    "message": "Send kontrolleri"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organization members that can manage the organization's policies are exempt from this policy's enforcement."
   },
   "sendOptions": {
     "message": "Send seçenekleri",
@@ -6249,6 +6583,18 @@
     "message": "Send'i görüntüle",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "verifyYourEmailToViewThisSend": {
+    "message": "Bu Send'i görmek için e-posta adresinizi doğrulayın",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "didNotReceiveCodeContactSenderOr": {
+    "message": "Didn't receive a code? Contact the sender to confirm your email address or ",
+    "description": "Hint text shown below the verification code input on the Send access page. Followed by a 'Resend code' link. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "codeResent": {
+    "message": "Resent verification code",
+    "description": "Toast message shown when a user clicks the resend code link on the Send access page. 'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "viewSendHiddenEmailWarning": {
     "message": "Bu Send'i oluşturan Bitwarden kullanıcısı e-posta adresini gizlemeyi seçti. Kullanmadan veya içeriğini indirmeden önce bu bağlantının kaynağının güvenilir olduğundan emin olun.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6301,6 +6647,12 @@
   "enrolledAccountRecovery": {
     "message": "Hesap kurtarmaya kaydolundu"
   },
+  "enrolled": {
+    "message": "Kayıtlı"
+  },
+  "notEnrolled": {
+    "message": "Kayıtlı değil"
+  },
   "withdrawAccountRecovery": {
     "message": "Hesap kurtarmadan ayrıl"
   },
@@ -6330,6 +6682,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "$ID$ kullanıcısının ana parolası sıfırlandı.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "$ID$ adlı kullanıcı için iki aşamalı giriş sıfırlandı.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6487,6 +6848,18 @@
       }
     }
   },
+  "reinviteSuccessToast": {
+    "message": "1 davet gönder"
+  },
+  "bulkReinviteSentToast": {
+    "message": "$COUNT$ davet gönder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
   "bulkReinviteLimitedSuccessToast": {
     "message": "$SELECTEDCOUNT$ kullanıcıdan $LIMIT$ tanesi yeniden davet edildi. $EXCLUDEDCOUNT$ kullanıcı, $LIMIT$ davet sınırı nedeniyle davet edilmedi.",
     "placeholders": {
@@ -6503,6 +6876,50 @@
         "example": "5"
       }
     }
+  },
+  "bulkReinviteProgressTitle": {
+    "message": "$COUNT$ of $TOTAL$ invitations sent...",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkReinviteProgressSubtitle": {
+    "message": "Tüm davetler gönderilene dek bu sayfayı açık tutunuz."
+  },
+  "bulkReinviteFailuresTitle": {
+    "message": "$COUNT$ davet gönderilmedi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      }
+    }
+  },
+  "bulkReinviteFailureTitle": {
+    "message": "1 davet gönderilmedi"
+  },
+  "bulkReinviteFailureDescription": {
+    "message": "An error occurred while sending invitations to $COUNT$ of $TOTAL$ members. Try sending again, and if the problem continues,",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1,000"
+      },
+      "total": {
+        "content": "$2",
+        "example": "2,000"
+      }
+    }
+  },
+  "bulkResendInvitations": {
+    "message": "Tekrar göndermeyi dene"
   },
   "bulkRemovedMessage": {
     "message": "Başarıyla kaldırıldı"
@@ -6733,6 +7150,9 @@
   "sessionTimeoutAction": {
     "message": "Oturum zaman aşımı eylemi"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden tarayıcı uzantısı tarafından yönetiliyor. Düzenlemek için tarayıcı uygulamasını açın."
+  },
   "immediately": {
     "message": "Hemen"
   },
@@ -6825,7 +7245,7 @@
     "message": "Kasa zaman aşımı izin verilen aralıkta değil."
   },
   "disableExport": {
-    "message": "Remove export"
+    "message": "Dışa aktarmayı kaldır"
   },
   "disablePersonalVaultExportDescription": {
     "message": "Üyelerin kişisel kasalarındaki verileri dışa aktarmasına izin verme."
@@ -6836,16 +7256,16 @@
   "personalVaultExportPolicyInEffect": {
     "message": "Bir veya daha fazla kuruluş ilkesi, kişisel kasanızı dışa aktarmanızı engelliyor."
   },
-  "activateAutofill": {
+  "activateAutofillPolicy": {
     "message": "Otomatik doldurmayı etkinleştir"
   },
-  "activateAutofillPolicyDesc": {
+  "activateAutofillPolicyDescription": {
     "message": "Tüm mevcut ve yeni üyeler için tarayıcı uzantısındaki \"sayfa yüklendiğinde otomatik doldur\" ayarını etkinleştir."
   },
-  "experimentalFeature": {
+  "autofillOnPageLoadExploitWarning": {
     "message": "Ele geçirilmiş veya güvenilmeyen web siteleri sayfa yüklenirken otomatik doldurmayı suistimal edebilir."
   },
-  "learnMoreAboutAutofill": {
+  "learnMoreAboutAutofillPolicy": {
     "message": "Otomatik doldurma hakkında bilgi alın"
   },
   "selectType": {
@@ -7144,6 +7564,9 @@
   },
   "invalidVerificationCode": {
     "message": "Geçersiz doğrulama kodu"
+  },
+  "invalidEmailOrVerificationCode": {
+    "message": "E-posta veya doğrulama kodu geçersiz"
   },
   "keyConnectorDomain": {
     "message": "Key Connector alan adı"
@@ -7881,6 +8304,10 @@
     "message": "SCIM API anahtarını panoya kopyala",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "SCIM API anahtarını göster",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "SCIM API anahtarını yenile",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -7911,6 +8338,28 @@
   "scimSettingsSaved": {
     "message": "SCIM ayarları kaydedildi",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Only one integration of this type ($TYPE$) is allowed. The conflicting integration is: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Girdi gerekli."
@@ -8029,6 +8478,9 @@
   "members": {
     "message": "Üyeler"
   },
+  "membersAtRisk": {
+    "message": "Members at risk"
+  },
   "reporting": {
     "message": "Raporlama"
   },
@@ -8070,6 +8522,15 @@
   },
   "pink": {
     "message": "Pembe"
+  },
+  "coral": {
+    "message": "Mercan"
+  },
+  "purple": {
+    "message": "Mor"
+  },
+  "blue": {
+    "message": "Mavi"
   },
   "customColor": {
     "message": "Özel renk"
@@ -8299,6 +8760,14 @@
   "newProject": {
     "message": "Yeni proje",
     "description": "Title for creating a new project."
+  },
+  "clickToRenameProject": {
+    "message": "Click to rename this project",
+    "description": "Tooltip text for corrupted project names that can be clicked to rename."
+  },
+  "cannotDecryptProjectName": {
+    "message": "Cannot decrypt project name - click project to rename",
+    "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
     "message": "Sırların silinmesi mevcut entegrasyonları etkileyebilir.",
@@ -9113,6 +9582,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "User attempted to access known phishing site"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "User exited phishing warning page"
+  },
+  "phishingBlockerBypassed": {
+    "message": "User bypassed phishing warning"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -9357,6 +9835,30 @@
   },
   "recoverAccount": {
     "message": "Hesabı kurtar"
+  },
+  "recoverAccountWarning": {
+    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automatically enroll new members in account recovery"
+  },
+  "resetMasterPassword": {
+    "message": "Ana parolayı sıfırla"
+  },
+  "resetTwoStepLogin": {
+    "message": "İki adımlı girişi sıfırla"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "The member's access will be revoked until they set up two-step login"
+  },
+  "recoverAccountSuccess": {
+    "message": "Hesap kurtarma başarılı!"
   },
   "updatedTempPassword": {
     "message": "Kullanıcı, hesap kurtarma yoluyla verilen bir parolayı güncelledi."
@@ -9912,6 +10414,46 @@
     "message": "Ücretsiz kuruluşa geçiliyor",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Missing features or functionality",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Something we needed wasn't available",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Too difficult to set up or manage",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "We're not getting enough value for the cost",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "The price doesn't match what we're getting out of it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Not enough usage by our team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "We couldn't get people to actually use it",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Our needs changed",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "1 yıl boyunca ücretsiz"
   },
@@ -9941,6 +10483,9 @@
   },
   "assignTasks": {
     "message": "Görev ata"
+  },
+  "allTasksAssigned": {
+    "message": "Tüm görevler atandı"
   },
   "assignSecurityTasksToMembers": {
     "message": "Parolaları değiştirmek için bildirim gönder"
@@ -10343,8 +10888,23 @@
   "datadogEventIntegrationDesc": {
     "message": "Kasa olay verilerini Datadog örneğinize gönderin"
   },
+  "huntressEventIntegrationDesc": {
+    "message": "Send event data to your Huntress SIEM instance"
+  },
+  "integrationConnectedSuccessfully": {
+    "message": "$INTEGRATION$ başarıyla bağlandı.",
+    "placeholders": {
+      "integration": {
+        "content": "$1",
+        "example": "Crowdstrike"
+      }
+    }
+  },
   "failedToSaveIntegration": {
     "message": "Entegrasyon kaydedilemedi. Lütfen daha sonra tekrar deneyin."
+  },
+  "mustBeOrganizationOwnerAdmin": {
+    "message": "Bu işlemi gerçekleştirmek için kuruluş sahibi veya yönetici olmalısınız."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "Bu işlemi gerçekleştirmek için kuruluş sahibi olmalısınız."
@@ -10453,6 +11013,12 @@
   },
   "index": {
     "message": "İndeks"
+  },
+  "httpEventCollectorUrl": {
+    "message": "HTTP Olay Toplayıcı URL'si"
+  },
+  "httpEventCollectorToken": {
+    "message": "HTTP Olay Toplayıcı Token'i"
   },
   "selectAPlan": {
     "message": "Bir plan seçin"
@@ -10687,6 +11253,9 @@
   "memberAccessReportAuthenticationEnabledFalse": {
     "message": "Kapalı"
   },
+  "memberAccessReportLoadError": {
+    "message": "Failed to load the member access report. This may be due to a large organization size or network issue. Please try again or contact support if the problem persists."
+  },
   "kdfIterationRecommends": {
     "message": "600.000 veya üstünü öneriyoruz"
   },
@@ -10737,6 +11306,9 @@
   },
   "clientDetails": {
     "message": "İstemci detayları"
+  },
+  "downloadChart": {
+    "message": "Download chart"
   },
   "downloadCSV": {
     "message": "CSV'yi indir"
@@ -11190,6 +11762,18 @@
       }
     }
   },
+  "userSelfRevokedFromOrganization": {
+    "message": "User $ID$ self-revoked from organization.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "userSelfRevokedOrganizationOwnership": {
+    "message": "Revoked for declining transfer to organization ownership."
+  },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ kuruluşu askıya alındı",
     "placeholders": {
@@ -11268,6 +11852,18 @@
   "automaticDomainClaimProcess": {
     "message": "Bitwarden, ilk 72 saat içinde etki alanını 3 kez talep etmeye çalışacaktır. Etki alanı talep edilemezse, barındırıcınızdaki DNS kaydını kontrol edin ve manuel olarak talep edin. Etki alanı talep edilmezse, 7 gün içinde kuruluşunuzdan kaldırılacaktır."
   },
+  "automaticDomainClaimProcess1": {
+    "message": "Bitwarden will attempt to claim the domain within 72 hours. If the domain can't be claimed, verify your DNS record and claim manually. Unclaimed domains are removed after 7 days."
+  },
+  "automaticDomainClaimProcess2": {
+    "message": "Once claimed, existing members with claimed domains will be emailed about the "
+  },
+  "accountOwnershipChange": {
+    "message": "account ownership change"
+  },
+  "automaticDomainClaimProcessEnd": {
+    "message": "."
+  },
   "domainNotClaimed": {
     "message": "$DOMAIN$ alınmadı. DNS kayıtlarınızı kontrol edin.",
     "placeholders": {
@@ -11280,8 +11876,8 @@
   "domainStatusClaimed": {
     "message": "Alındı"
   },
-  "domainStatusUnderVerification": {
-    "message": "Doğrulama altında"
+  "domainStatusPending": {
+    "message": "Beklemede"
   },
   "claimedDomainsDescription": {
     "message": "Üye hesaplarını sahip olmak için bir alan adı talep edin. Alan adı talep eden üyelerin oturum açma sırasında SSO tanımlayıcı sayfası atlanacak ve yöneticiler talep edilen hesapları silebilecek."
@@ -11444,6 +12040,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Aboneliğiniz için fatura $ISSUED_DATE$ tarihinde düzenlenmiştir. Hizmetin kesintisiz devam etmesi için, $DUE_DATE$ tarihinden önce $RESELLER$ ile iletişime geçerek yenileme işleminizi onaylatın.",
     "placeholders": {
@@ -11470,6 +12075,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -11562,11 +12176,20 @@
   "userkeyRotationDisclaimerTitle": {
     "message": "Güvenilmeyen şifreleme anahtarları"
   },
+  "atRiskPassword": {
+    "message": "Riskli parolalar"
+  },
   "changeAtRiskPassword": {
     "message": "Risk altındaki parolayı değiştirin"
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Bu hesap risk altında ve web sitesi eksik. Bir web sitesi ekleyin ve güvenliğinizi artırmak için parolayı değiştirin."
+  },
+  "vulnerablePassword": {
+    "message": "Güvensiz parola."
+  },
+  "changeNow": {
+    "message": "Şimdi değiştir"
   },
   "missingWebsite": {
     "message": "Web sitesi eksik"
@@ -11606,6 +12229,9 @@
   "unArchive": {
     "message": "Arşivden çıkar"
   },
+  "archived": {
+    "message": "Arşivlendi"
+  },
   "unArchiveAndSave": {
     "message": "Arşivden çıkar ve kaydet"
   },
@@ -11618,13 +12244,10 @@
   "noItemsInArchiveDesc": {
     "message": "Arşivlenmiş kayıtlar burada görünür ve genel arama sonuçları ile otomatik doldurma önerilerinden hariç tutulur."
   },
-  "itemWasSentToArchive": {
-    "message": "Kayıt arşive gönderildi"
+  "itemArchiveToast": {
+    "message": "Kayıt arşivlendi"
   },
-  "itemsWereSentToArchive": {
-    "message": "Kayıtlar arşive gönderildi"
-  },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Kayıt arşivden çıkarıldı"
   },
   "bulkArchiveItems": {
@@ -11637,8 +12260,8 @@
     "message": "Kaydı arşivle",
     "description": "Verb"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Arşivlenmiş kayıtlar genel arama sonuçları ve otomatik doldurma önerilerinden hariç tutulur. Bu kaydı arşivlemek istediğinizden emin misiniz?"
+  "archiveItemDialogContent": {
+    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archiveBulkItems": {
     "message": "Kayıtları arşivle",
@@ -11991,6 +12614,15 @@
   "verifyNow": {
     "message": "Şimdi doğrulayın."
   },
+  "unlockWithPasskey": {
+    "message": "Kilidi geçiş anahtarıyla aç"
+  },
+  "prfUnlockFailed": {
+    "message": "Kilit geçiş anahtarıyla açılamadı. Lütfen yeniden deneyin veya başka bir kilit açma yöntemi kullanın."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Kilit açma için PRF uyumlu geçiş anahtarı bulunamadı."
+  },
   "additionalStorageGB": {
     "message": "Ek depolama alanı GB"
   },
@@ -12216,12 +12848,6 @@
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Bu ilkeyi etkinleştirmeden önce bir etki alanının sahiplenilmesi gerekir."
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Kasa zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın."
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "Zaman aşımı ayarlarınıza kurumsal ilke gereksinimleri uygulandı"
-  },
   "vaultTimeoutTooLarge": {
     "message": "Kasa zaman aşımınız, kuruluşunuz tarafından belirlenen kısıtlamaları aşıyor."
   },
@@ -12254,40 +12880,40 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Giriş yaparak devam et"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Devam etme"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Alan Adı"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
   },
   "verifyYourOrganization": {
-    "message": "Verify your organization to log in"
+    "message": "Giriş yapmak için kuruluşunuzu doğrulayın"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Kuruluş doğrulandı"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Alan adı doğrulandı"
   },
   "leaveOrganizationContent": {
-    "message": "If you don't verify your organization, your access to the organization will be revoked."
+    "message": "Kuruluşunuzu doğrulamazsanız, kuruluşa erişiminiz iptal edilecektir."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Şimdi ayrıl"
   },
   "verifyYourDomainToLogin": {
-    "message": "Verify your domain to log in"
+    "message": "Giriş yapmak için alan adınızı doğrulayın"
   },
   "verifyYourDomainDescription": {
-    "message": "To continue with log in, verify this domain."
+    "message": "Giriş yaparak devam etmek için bu alan adını doğrulayın."
   },
   "confirmKeyConnectorOrganizationUserDescription": {
-    "message": "To continue with log in, verify the organization and domain."
+    "message": "Giriş yaparak devam etmek için kuruluşu ve alan adını doğrulayın."
   },
   "confirmNoSelectedCriticalApplicationsTitle": {
     "message": "Hiçbir kritik uygulama seçili değil"
@@ -12295,8 +12921,14 @@
   "confirmNoSelectedCriticalApplicationsDesc": {
     "message": "Devam etmek istediğinizden emin misiniz?"
   },
+  "errorCannotDecrypt": {
+    "message": "Hata: Deşifre edilemiyor"
+  },
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
+  },
+  "resizeSideNavigation": {
+    "message": "Kenar menüsünü yeniden boyutlandır"
   },
   "recoveryDeleteCiphersTitle": {
     "message": "Delete unrecoverable vault items"
@@ -12311,13 +12943,13 @@
     "message": "Some of your folders could not be recovered. Do you want to delete these unrecoverable folders from your vault?"
   },
   "recoveryReplacePrivateKeyTitle": {
-    "message": "Replace encryption key"
+    "message": "Şifreleme anahtarını değiştir"
   },
   "recoveryReplacePrivateKeyDesc": {
     "message": "Your public-key encryption key pair could not be recovered. Do you want to replace your encryption key with a new key pair? This will require you to set up existing emergency-access and organization memberships again."
   },
   "recoveryStepSyncTitle": {
-    "message": "Synchronizing data"
+    "message": "Veri eşitleme"
   },
   "recoveryStepPrivateKeyTitle": {
     "message": "Verifying encryption key integrity"
@@ -12338,13 +12970,13 @@
     "message": "Use the data recovery tool to diagnose and repair issues with your account. After running diagnostics you have the option to save diagnostic logs for support and the option to repair any detected issues."
   },
   "runDiagnostics": {
-    "message": "Run Diagnostics"
+    "message": "Tanılamayı Çalıştır"
   },
   "repairIssues": {
     "message": "Repair Issues"
   },
   "saveDiagnosticLogs": {
-    "message": "Save Diagnostic Logs"
+    "message": "Tanılama Günlüklerini Kaydet"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
     "message": "Bu ayar kuruluşunuz tarafından yönetiliyor."
@@ -12385,16 +13017,16 @@
     "message": "Zaman aşımı eyleminizi değiştirmek için kilit açma yönteminizi ayarlayın"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Ayrılmak istediğinizden emin misiniz?"
   },
   "leaveConfirmationDialogContentOne": {
-    "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
+    "message": "Reddederseniz kişisel kayıtlarınız hesabınızda kalır, ancak paylaşılan kayıtlara ve kuruluş özelliklerine erişiminizi kaybedersiniz."
   },
   "leaveConfirmationDialogContentTwo": {
-    "message": "Contact your admin to regain access."
+    "message": "Erişiminizi yeniden kazanmak için yöneticinizle iletişime geçin."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "$ORGANIZATION$ kuruluşundan ayrıl",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12403,10 +13035,10 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Kasamı nasıl yönetebilirim?"
   },
   "transferItemsToOrganizationTitle": {
-    "message": "Transfer items to $ORGANIZATION$",
+    "message": "Kayıtları $ORGANIZATION$ kuruluşuna aktar",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -12414,32 +13046,35 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance. Click accept to transfer ownership of your items.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ is requiring all items to be owned by the organization for security and compliance.",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
+  },
+  "transferItemsToOrganizationAction": {
+    "message": "Click accept to transfer ownership of your items."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Aktarımı kabul et"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
-  },
-  "whyAmISeeingThis": {
-    "message": "Why am I seeing this?"
+    "message": "Reddet ve ayrıl"
   },
   "youHaveBitwardenPremium": {
     "message": "Bitwarden Premium abonesisiniz"
   },
   "viewAndManagePremiumSubscription": {
-    "message": "View and manage your Premium subscription"
+    "message": "Premium aboneliğinizi görüntüleyin ve yönetin"
   },
   "youNeedToUpdateLicenseFile": {
-    "message": "You'll need to update your license file"
+    "message": "Lisans dosyanızı güncellemeniz gerekecektir"
   },
   "youNeedToUpdateLicenseFileDate": {
     "message": "$DATE$.",
@@ -12451,16 +13086,16 @@
     }
   },
   "uploadLicenseFile": {
-    "message": "Upload license file"
+    "message": "Lisans dosyasını yükle"
   },
   "uploadYourLicenseFile": {
-    "message": "Upload your license file"
+    "message": "Lisans dosyasınızı yükleyin"
   },
   "uploadYourPremiumLicenseFile": {
-    "message": "Upload your Premium license file"
+    "message": "Premium lisans dosyasınızı yükleyin"
   },
   "uploadLicenseFileDesc": {
-    "message": "Your license file name will be similar to: $FILE_NAME$",
+    "message": "Lisans dosyanızın adı şuna benzer olacaktır: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -12469,15 +13104,327 @@
     }
   },
   "alreadyHaveSubscriptionQuestion": {
-    "message": "Already have a subscription?"
+    "message": "Halihazırda bir aboneliğiniz var mı?"
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
-    "message": "View all plans"
+    "message": "Tüm planları görüntüle"
   },
   "planDescPremium": {
     "message": "Eksiksiz çevrimiçi güvenlik"
+  },
+  "updatePayment": {
+    "message": "Ödemeyi güncelle"
+  },
+  "weCouldNotProcessYourPayment": {
+    "message": "We could not process your payment. Please update your payment method or contact the support team for assistance."
+  },
+  "yourSubscriptionHasExpired": {
+    "message": "Your subscription has expired. Please contact the support team for assistance."
+  },
+  "yourSubscriptionIsScheduledToCancel": {
+    "message": "Your subscription is scheduled to cancel on $DATE$. You can reinstate it anytime before then.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "premiumShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise."
+  },
+  "youHaveAGracePeriod": {
+    "message": "You have a grace period of $DAYS$ days from your subscription expiration date. Please resolve the past due invoices by $DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "14"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Dec. 22, 2025"
+      }
+    }
+  },
+  "manageInvoices": {
+    "message": "Faturaları yönet"
+  },
+  "yourNextChargeIsFor": {
+    "message": "Your next charge is for"
+  },
+  "dueOn": {
+    "message": "due on"
+  },
+  "yourSubscriptionWillBeSuspendedOn": {
+    "message": "Aboneliğiniz şu tarihte askıya alınacaktır"
+  },
+  "yourSubscriptionWasSuspendedOn": {
+    "message": "Aboneliğiniz şu tarihte askıya alındı"
+  },
+  "yourSubscriptionWillBeCanceledOn": {
+    "message": "Aboneliğiniz şu tarihte iptal edilecektir"
+  },
+  "yourSubscriptionWasCanceledOn": {
+    "message": "Aboneliğiniz şu tarihte iptal edildi"
+  },
+  "storageFull": {
+    "message": "Depolama alanı dolu"
+  },
+  "storageUsedDescription": {
+    "message": "You have used $USED$ out of $AVAILABLE$ GB of your encrypted file storage.",
+    "placeholders": {
+      "used": {
+        "content": "$1",
+        "example": "1"
+      },
+      "available": {
+        "content": "$2",
+        "example": "5"
+      }
+    }
+  },
+  "storageFullDescription": {
+    "message": "You have used all $GB$ GB of your encrypted storage. To continue storing files, add more storage."
+  },
+  "extensionPromptHeading": {
+    "message": "Get the extension for easy vault access"
+  },
+  "extensionPromptBody": {
+    "message": "With the browser extension installed, you'll take Bitwarden everywhere online. It'll fill in passwords, so you can log into your accounts with a single click."
+  },
+  "extensionPromptImageAlt": {
+    "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
+  },
+  "skip": {
+    "message": "Skip"
+  },
+  "downloadExtension": {
+    "message": "Download extension"
+  },
+  "whoCanView": {
+    "message": "Kim görebilir"
+  },
+  "specificPeople": {
+    "message": "Belirli kişiler"
+  },
+  "emailVerificationDesc": {
+    "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "E-posta adreslerini virgülle ayırarak yazın."
+  },
+  "emailPlaceholder": {
+    "message": "kullanici@bitwarden.com , kullanici@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "kullanici@bitwarden.com, kullanici@acme.com"
+  },
+  "whenYouRemoveStorage": {
+    "message": "When you remove storage, you will receive a prorated account credit that will automatically go toward your next bill."
+  },
+  "ownerBadgeA11yDescription": {
+    "message": "Sahip, $OWNER$, sahibi $OWNER$ olan tüm kayıtları göster",
+    "placeholders": {
+      "owner": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "youHavePremium": {
+    "message": "Premium abonesiniz"
+  },
+  "emailProtected": {
+    "message": "E-posta korumalı"
+  },
+  "invalidSendPassword": {
+    "message": "Geçersiz Send parolası"
+  },
+  "vaultWelcomeDialogTitle": {
+    "message": "Bitwarden'a hoş geldiniz"
+  },
+  "vaultWelcomeDialogDescription": {
+    "message": "Tüm parolalarınızı ve kişisel bilgilerinizi Bitwarden kasanızda saklayabilirsiniz. Size etrafı gezdirelim."
+  },
+  "vaultWelcomeDialogPrimaryCta": {
+    "message": "Tura başla"
+  },
+  "vaultWelcomeDialogDismissCta": {
+    "message": "Geç"
+  },
+  "sendPasswordHelperText": {
+    "message": "Bu Send'i görmek isteyen kişilerin parola girmesi gerekecektir",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "perUser": {
+    "message": "kişi başı"
+  },
+  "upgradeToTeams": {
+    "message": "Ekip planına yükselt"
+  },
+  "upgradeToEnterprise": {
+    "message": "Kurumsal planına yükselt"
+  },
+  "upgradeShareEvenMore": {
+    "message": "Share even more with Families, or get powerful, trusted password security with Teams or Enterprise"
+  },
+  "organizationUpgradeTaxInformationMessage": {
+    "message": "Fiyatlara vergi dahil değildir ve yıllık olarak faturalandırılır."
+  },
+  "invoicePreviewErrorMessage": {
+    "message": "Encountered an error while generating the invoice preview."
+  },
+  "planProratedMembershipInMonths": {
+    "message": "Prorated $PLAN$ membership ($NUMOFMONTHS$)",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      },
+      "numofmonths": {
+        "content": "$2",
+        "example": "6 Months"
+      }
+    }
+  },
+  "premiumSubscriptionCredit": {
+    "message": "Premium abonelik kredisi"
+  },
+  "enterpriseMembership": {
+    "message": "Kurumsal üyelik"
+  },
+  "teamsMembership": {
+    "message": "Ekip üyeliği"
+  },
+  "plansUpdated": {
+    "message": "$PLAN$ planına geçtiniz!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Families"
+      }
+    }
+  },
+  "paymentMethodUpdateError": {
+    "message": "Ödeme yönteminizi güncellerken bir hata oluştu."
+  },
+  "sendPasswordInvalidAskOwner": {
+    "message": "Parola geçersiz. Bu Send'e erişmek için gereken parolayı dosyayı gönderen kişiye sorabilirsiniz.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendExpiresOn": {
+    "message": "Bu Send'in süresi $DATE$ $TIME$ tarihinde dolacaktır",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "10:00 AM"
+      },
+      "date": {
+        "content": "$2",
+        "example": "Jan 1, 1970"
+      }
+    }
+  },
+  "sendsTitleNoSearchResults": {
+    "message": "Hiçbir sonuç bulunamadı"
+  },
+  "sendsBodyNoSearchResults": {
+    "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
+  },
+  "pastMonth": {
+    "message": "Geçen ay"
+  },
+  "past3Months": {
+    "message": "Son 3 ay"
+  },
+  "past6Months": {
+    "message": "Son 6 ay"
+  },
+  "pastYear": {
+    "message": "Geçen yıl"
+  },
+  "allTime": {
+    "message": "Tüm zamanlar"
+  },
+  "timePeriod": {
+    "message": "Zaman aralığı"
+  },
+  "of": {
+    "message": "/"
+  },
+  "coachmarkImportTitle": {
+    "message": "Quickly import your passwords"
+  },
+  "coachmarkImportDescription": {
+    "message": "Did you have a password manager before? You can import a CSV of existing logins and other data into your vault."
+  },
+  "coachmarkAddItemTitle": {
+    "message": "Add an item"
+  },
+  "coachmarkAddItemDescription": {
+    "message": "Add new passwords, notes, and other info to your vault. Everything is protected with end-to-end encryption."
+  },
+  "coachmarkShareWithCollectionsTitle": {
+    "message": "Safely share items with others"
+  },
+  "coachmarkShareWithCollectionsDescription": {
+    "message": "By moving an item into a collection, you can securely share it with other people in your organization."
+  },
+  "coachmarkMonitorSecurityTitle": {
+    "message": "Monitor your password security"
+  },
+  "coachmarkMonitorSecurityDescription": {
+    "message": "Keep the security of your vault items strong by checking reports for vulnerabilities."
+  },
+  "coachmarkStepIndicator": {
+    "message": "Adım $CURRENT$/$TOTAL$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "1"
+      },
+      "total": {
+        "content": "$2",
+        "example": "4"
+      }
+    }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
+  },
+  "discardEdits": {
+    "message": "Düzenlemeleri sil"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Düzenlemeye dön"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

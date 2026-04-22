@@ -4,16 +4,15 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { CreateCollectionRequest, UpdateCollectionRequest } from "@bitwarden/admin-console/common";
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LogoutReason } from "@bitwarden/auth/common";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,
   CollectionResponse,
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-} from "@bitwarden/admin-console/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { LogoutReason } from "@bitwarden/auth/common";
+} from "@bitwarden/common/admin-console/models/collections";
 
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
@@ -48,8 +47,6 @@ import {
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
-import { EmailTokenRequest } from "../auth/models/request/email-token.request";
-import { EmailRequest } from "../auth/models/request/email.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
@@ -67,23 +64,22 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
-import { PreloginResponse } from "../auth/models/response/prelogin.response";
+import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
 import { PaymentResponse } from "../billing/models/response/payment.response";
 import { PlanResponse } from "../billing/models/response/plan.response";
 import { SubscriptionResponse } from "../billing/models/response/subscription.response";
-import { ClientType, DeviceType } from "../enums";
+import { EventRequest, EventResponse } from "../dirt/event-logs";
+import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
 import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
 import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
-import { EventRequest } from "../models/request/event.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { PreloginRequest } from "../models/request/prelogin.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
@@ -91,14 +87,15 @@ import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-reco
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { DomainsResponse } from "../models/response/domains.response";
 import { ErrorResponse } from "../models/response/error.response";
-import { EventResponse } from "../models/response/event.response";
 import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
+import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { LogService } from "../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { buildFetchPipeline, FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { flagEnabled } from "../platform/misc/flags";
 import { Utils } from "../platform/misc/utils";
 import { SyncResponse } from "../platform/sync";
@@ -116,6 +113,7 @@ import { CipherRequest } from "../vault/models/request/cipher.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
 import { CipherResponse } from "../vault/models/response/cipher.response";
+import { DeleteAttachmentResponse } from "../vault/models/response/delete-attachment.response";
 import { OptionalCipherResponse } from "../vault/models/response/optional-cipher.response";
 
 import { InsecureUrlNotAllowedError } from "./api-errors";
@@ -139,6 +137,12 @@ export class ApiService implements ApiServiceAbstraction {
    */
   private static readonly NEW_DEVICE_VERIFICATION_REQUIRED_MESSAGE =
     "new device verification required";
+
+  /**
+   * Middlewares wrap the fetch call in a chain. Each middleware receives the request and a `next`
+   * function, and can modify requests, inspect/modify responses, retry, or short-circuit.
+   */
+  private middlewares: FetchMiddleware[] = [];
 
   constructor(
     private tokenService: TokenService,
@@ -287,27 +291,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new ProfileResponse(r);
   }
 
-  async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
-    const env = await firstValueFrom(this.environmentService.environment$);
-    const r = await this.send(
-      "POST",
-      "/accounts/prelogin",
-      request,
-      false,
-      true,
-      env.getIdentityUrl(),
-    );
-    return new PreloginResponse(r);
-  }
-
-  postEmailToken(request: EmailTokenRequest): Promise<any> {
-    return this.send("POST", "/accounts/email-token", request, true, false);
-  }
-
-  postEmail(request: EmailRequest): Promise<any> {
-    return this.send("POST", "/accounts/email", request, true, false);
-  }
-
   postSetKeyConnectorKey(request: SetKeyConnectorKeyRequest): Promise<any> {
     return this.send("POST", "/accounts/set-key-connector-key", request, true, false);
   }
@@ -330,6 +313,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new PaymentResponse(r);
   }
 
+  // TODO: Remove with deletion of pm-29594-update-individual-subscription-page
   postReinstatePremium(): Promise<any> {
     return this.send("POST", "/accounts/reinstate-premium", null, true, false);
   }
@@ -590,18 +574,32 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentUploadDataResponse(r);
   }
 
-  deleteCipherAttachment(id: string, attachmentId: string): Promise<any> {
-    return this.send("DELETE", "/ciphers/" + id + "/attachment/" + attachmentId, null, true, true);
+  async deleteCipherAttachment(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
+      "DELETE",
+      "/ciphers/" + id + "/attachment/" + attachmentId,
+      null,
+      true,
+      true,
+    );
+    return new DeleteAttachmentResponse(r);
   }
 
-  deleteCipherAttachmentAdmin(id: string, attachmentId: string): Promise<any> {
-    return this.send(
+  async deleteCipherAttachmentAdmin(
+    id: string,
+    attachmentId: string,
+  ): Promise<DeleteAttachmentResponse> {
+    const r = await this.send(
       "DELETE",
       "/ciphers/" + id + "/attachment/" + attachmentId + "/admin",
       null,
       true,
       true,
     );
+    return new DeleteAttachmentResponse(r);
   }
 
   postShareCipherAttachment(
@@ -633,7 +631,25 @@ export class ApiService implements ApiServiceAbstraction {
     return new AttachmentUploadDataResponse(r);
   }
 
-  postAttachmentFile(id: string, attachmentId: string, data: FormData): Promise<any> {
+  async postAttachmentFile(
+    id: string,
+    attachmentId: string,
+    data: FormData,
+    options?: UploadOptions,
+  ): Promise<any> {
+    if (typeof XMLHttpRequest !== "undefined" && options?.onProgress) {
+      const userId = await this.getActiveUser();
+      const environment = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+      const apiUrl = environment.getApiUrl();
+      const headers = await this.buildRequestHeaders();
+      const request = new Request(`${apiUrl}/ciphers/${id}/attachment/${attachmentId}`, {
+        method: "POST",
+        body: data,
+        headers,
+      });
+      return this.nativeXMLHttpRequest(request, options.onProgress);
+    }
+
     return this.send("POST", "/ciphers/" + id + "/attachment/" + attachmentId, data, true, false);
   }
 
@@ -1252,8 +1268,8 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
 
@@ -1283,8 +1299,8 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
@@ -1301,13 +1317,11 @@ export class ApiService implements ApiServiceAbstraction {
       }),
     );
 
-    if (response.status !== 200) {
-      const error = await this.handleError(response, false, true);
+    if (response.status !== HttpStatusCode.Ok) {
+      const error = await this.handleApiRequestError(response, true);
       return Promise.reject(error);
     }
   }
-
-  // Helpers
 
   async getActiveBearerToken(userId: UserId): Promise<string> {
     let accessToken = await this.tokenService.getAccessToken(userId);
@@ -1315,6 +1329,10 @@ export class ApiService implements ApiServiceAbstraction {
       accessToken = await this.refreshToken(userId);
     }
     return accessToken;
+  }
+
+  addMiddleware(middleware: FetchMiddleware): void {
+    this.middlewares.push(middleware);
   }
 
   async fetch(request: Request): Promise<Response> {
@@ -1326,21 +1344,66 @@ export class ApiService implements ApiServiceAbstraction {
       request.headers.set("Cache-Control", "no-store");
       request.headers.set("Pragma", "no-cache");
     }
-    request.headers.set("Bitwarden-Client-Name", this.platformUtilsService.getClientType());
-    request.headers.set(
-      "Bitwarden-Client-Version",
-      await this.platformUtilsService.getApplicationVersionNumber(),
-    );
+    await this.applyPlatformHeaders(request.headers);
 
-    const packageType = await this.platformUtilsService.packageType();
-    if (packageType != null) {
-      request.headers.set("Bitwarden-Package-Type", packageType);
-    }
-    return this.nativeFetch(request);
+    const pipeline = buildFetchPipeline(this.middlewares, (req) => this.nativeFetch(req));
+    return pipeline(request);
   }
 
   nativeFetch(request: Request): Promise<Response> {
     return fetch(request);
+  }
+
+  nativeXMLHttpRequest(
+    request: Request,
+    onProgress: (percentage: number) => void,
+  ): Promise<Response> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(request.method, request.url);
+      request.headers.forEach((value, key) => xhr.setRequestHeader(key, value));
+      xhr.responseType = "arraybuffer";
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          onProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      };
+      xhr.onload = () => resolve(new Response(xhr.response, { status: xhr.status }));
+      xhr.onerror = () => reject(new Error("Network error during upload"));
+      void request
+        .arrayBuffer()
+        .then((body) => xhr.send(body))
+        .catch(reject);
+    });
+  }
+
+  private async applyPlatformHeaders(headers: Headers): Promise<void> {
+    headers.set("Bitwarden-Client-Name", this.platformUtilsService.getClientType());
+    headers.set(
+      "Bitwarden-Client-Version",
+      await this.platformUtilsService.getApplicationVersionNumber(),
+    );
+    const packageType = await this.platformUtilsService.packageType();
+    if (packageType != null) {
+      headers.set("Bitwarden-Package-Type", packageType);
+    }
+  }
+
+  protected async buildRequestHeaders(): Promise<Headers> {
+    const userId = await this.getActiveUser();
+    const accessToken = await this.getActiveBearerToken(userId);
+    const headers = new Headers({
+      "Device-Type": this.deviceType,
+      Authorization: "Bearer " + accessToken,
+    });
+    if (this.customUserAgent != null) {
+      headers.set("User-Agent", this.customUserAgent);
+    }
+    if (flagEnabled("prereleaseBuild")) {
+      headers.set("Is-Prerelease", "1");
+    }
+    await this.applyPlatformHeaders(headers);
+    return headers;
   }
 
   async preValidateSso(identifier: string): Promise<SsoPreValidateResponse> {
@@ -1370,7 +1433,7 @@ export class ApiService implements ApiServiceAbstraction {
       const body = await response.json();
       return new SsoPreValidateResponse(body);
     } else {
-      const error = await this.handleError(response, false, true);
+      const error = await this.handleApiRequestError(response, false);
       return Promise.reject(error);
     }
   }
@@ -1503,7 +1566,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status === 200) {
       const responseJson = await response.json();
-      const tokenResponse = new IdentityTokenResponse(responseJson);
+      const tokenResponse = new RefreshTokenResponse(responseJson);
 
       const newDecodedAccessToken = await this.tokenService.decodeAccessToken(
         tokenResponse.accessToken,
@@ -1525,7 +1588,7 @@ export class ApiService implements ApiServiceAbstraction {
       );
       return refreshedTokens.accessToken;
     } else {
-      const error = await this.handleError(response, true, true);
+      const error = await this.handleTokenRefreshRequestError(response);
       return Promise.reject(error);
     }
   }
@@ -1580,6 +1643,95 @@ export class ApiService implements ApiServiceAbstraction {
     apiUrl?: string | null,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
+    // We assume that if there is a UserId making the request, it is also an authenticated
+    // request and we will attempt to add an access token to the request.
+    const userIdMakingRequest = await this.getUserIdMakingRequest(authedOrUserId);
+
+    const environment = await firstValueFrom(
+      userIdMakingRequest == null
+        ? this.environmentService.environment$
+        : this.environmentService.getEnvironment$(userIdMakingRequest),
+    );
+    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? environment.getApiUrl() : apiUrl;
+
+    const requestUrl = await this.buildSafeApiRequestUrl(apiUrl, path);
+
+    let request = await this.buildRequest(
+      method,
+      userIdMakingRequest,
+      environment,
+      hasResponse,
+      body,
+      alterHeaders,
+    );
+
+    let response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+
+    // First, check to see if we were making an authenticated request and received an Unauthorized (401)
+    // response.  This could mean that we attempted to make a request with an expired access token.
+    // If so, attempt to refresh the token and try again.
+    if (
+      hasResponse &&
+      userIdMakingRequest != null &&
+      response.status === HttpStatusCode.Unauthorized
+    ) {
+      this.logService.warning(
+        "Unauthorized response received for request to " + path + ". Attempting request again.",
+      );
+      request = await this.buildRequest(
+        method,
+        userIdMakingRequest,
+        environment,
+        hasResponse,
+        body,
+        alterHeaders,
+      );
+      response = await this.fetch(this.httpOperations.createRequest(requestUrl, request));
+    }
+
+    // At this point we are processing either the initial response or the response for the retry with the refreshed
+    // access token.
+    const responseType = response.headers.get("content-type");
+    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
+    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    const responseIsBlob =
+      responseType != null && responseType.indexOf("application/octet-stream") !== -1;
+    if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
+      const responseJson = await response.json();
+      return responseJson;
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
+      return await response.text();
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsBlob) {
+      const disposition = response.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const fileName = match ? match[1].replace(/['"]/g, "") : "download";
+      const blob = await response.blob();
+      return { blob, fileName };
+    } else if (
+      response.status !== HttpStatusCode.Ok &&
+      response.status !== HttpStatusCode.NoContent
+    ) {
+      const error = await this.handleApiRequestError(response, userIdMakingRequest != null);
+      return Promise.reject(error);
+    }
+  }
+
+  private buildSafeApiRequestUrl(apiUrl: string, path: string): string {
+    const pathParts = path.split("?");
+
+    // Supplementary heuristic: detect common traversal indicators before normalization.
+    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+    if (Utils.containsTraversalIndicators(fullUrlPath)) {
+      throw new Error("The request URL contains unexpected patterns.");
+    }
+
+    const requestUrl =
+      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
+
+    return requestUrl;
+  }
+
+  private async getUserIdMakingRequest(authedOrUserId: UserId | boolean): Promise<UserId> {
     if (authedOrUserId == null) {
       throw new Error("A user id was given but it was null, cannot complete API request.");
     }
@@ -1591,29 +1743,19 @@ export class ApiService implements ApiServiceAbstraction {
     } else if (typeof authedOrUserId === "string") {
       userId = authedOrUserId;
     }
+    return userId;
+  }
 
-    const env = await firstValueFrom(
-      userId == null
-        ? this.environmentService.environment$
-        : this.environmentService.getEnvironment$(userId),
-    );
-    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
-
-    const pathParts = path.split("?");
-    // Check for path traversal patterns from any URL.
-    const fullUrlPath = apiUrl + pathParts[0] + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
-    const isInvalidUrl = Utils.invalidUrlPatterns(fullUrlPath);
-    if (isInvalidUrl) {
-      throw new Error("The request URL contains dangerous patterns.");
-    }
-
-    // Prevent directory traversal from malicious paths
-    const requestUrl =
-      apiUrl + Utils.normalizePath(pathParts[0]) + (pathParts.length > 1 ? `?${pathParts[1]}` : "");
-
+  private async buildRequest(
+    method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH",
+    userForAccessToken: UserId | null,
+    environment: Environment,
+    hasResponse: boolean,
+    body: string,
+    alterHeaders?: (headers: Headers) => void,
+  ): Promise<RequestInit> {
     const [requestHeaders, requestBody] = await this.buildHeadersAndBody(
-      userId,
+      userForAccessToken,
       hasResponse,
       body,
       alterHeaders,
@@ -1621,29 +1763,17 @@ export class ApiService implements ApiServiceAbstraction {
 
     const requestInit: RequestInit = {
       cache: "no-store",
-      credentials: await this.getCredentials(env),
+      credentials: await this.getCredentials(environment),
       method: method,
     };
     requestInit.headers = requestHeaders;
     requestInit.body = requestBody;
-    const response = await this.fetch(this.httpOperations.createRequest(requestUrl, requestInit));
 
-    const responseType = response.headers.get("content-type");
-    const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
-    const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
-    if (hasResponse && response.status === 200 && responseIsJson) {
-      const responseJson = await response.json();
-      return responseJson;
-    } else if (hasResponse && response.status === 200 && responseIsCsv) {
-      return await response.text();
-    } else if (response.status !== 200 && response.status !== 204) {
-      const error = await this.handleError(response, false, userId != null);
-      return Promise.reject(error);
-    }
+    return requestInit;
   }
 
   private async buildHeadersAndBody(
-    userToAuthenticate: UserId | null,
+    userForAccessToken: UserId | null,
     hasResponse: boolean,
     body: any,
     alterHeaders: (headers: Headers) => void,
@@ -1665,8 +1795,8 @@ export class ApiService implements ApiServiceAbstraction {
     if (alterHeaders != null) {
       alterHeaders(headers);
     }
-    if (userToAuthenticate != null) {
-      const authHeader = await this.getActiveBearerToken(userToAuthenticate);
+    if (userForAccessToken != null) {
+      const authHeader = await this.getActiveBearerToken(userForAccessToken);
       headers.set("Authorization", "Bearer " + authHeader);
     } else {
       // For unauthenticated requests, we need to tell the server what the device is for flag targeting,
@@ -1692,32 +1822,59 @@ export class ApiService implements ApiServiceAbstraction {
     return [headers, requestBody];
   }
 
-  private async handleError(
+  /**
+   * Handle an error response from a request to the Bitwarden API.
+   * If the request is made with an access token (aka the user is authenticated),
+   * and we receive a 401 or 403 response, we will log the user out, as this indicates
+   * that the access token used on the request is either expired or does not have the appropriate permissions.
+   * It is unlikely that it is expired, as we attempt to refresh the token on initial failure.
+   * @param response The response from the API request
+   * @param userIsAuthenticated A boolean indicating whether this is an authenticated request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleApiRequestError(
     response: Response,
-    tokenError: boolean,
-    authed: boolean,
+    userIsAuthenticated: boolean,
   ): Promise<ErrorResponse> {
+    if (
+      userIsAuthenticated &&
+      (response.status === HttpStatusCode.Unauthorized ||
+        response.status === HttpStatusCode.Forbidden)
+    ) {
+      await this.logoutCallback("invalidAccessToken");
+    }
+
+    const responseJson = await this.getJsonResponse(response);
+    return new ErrorResponse(responseJson, response.status);
+  }
+
+  /**
+   * Handle an error response when trying to refresh an access token.
+   * If the error indicates that the user's session has expired, it will log the user out.
+   * @param response The response from the token refresh request.
+   * @returns An ErrorResponse with a message based on the response status.
+   */
+  private async handleTokenRefreshRequestError(response: Response): Promise<ErrorResponse> {
+    const responseJson = await this.getJsonResponse(response);
+
+    // IdentityServer will return an invalid_grant response if the refresh token has expired.
+    // This means that the user's session has expired, and they need to log out.
+    // We issue the logoutCallback() to log the user out through messaging.
+    if (response.status === HttpStatusCode.BadRequest && responseJson?.error === "invalid_grant") {
+      await this.logoutCallback("sessionExpired");
+    }
+
+    return new ErrorResponse(responseJson, response.status, true);
+  }
+
+  private async getJsonResponse(response: Response): Promise<any> {
     let responseJson: any = null;
     if (this.isJsonResponse(response)) {
       responseJson = await response.json();
     } else if (this.isTextPlainResponse(response)) {
       responseJson = { Message: await response.text() };
     }
-
-    if (authed) {
-      if (
-        response.status === 401 ||
-        response.status === 403 ||
-        (tokenError &&
-          response.status === 400 &&
-          responseJson != null &&
-          responseJson.error === "invalid_grant")
-      ) {
-        await this.logoutCallback("invalidGrantError");
-      }
-    }
-
-    return new ErrorResponse(responseJson, response.status, tokenError);
+    return responseJson;
   }
 
   private qsStringify(params: any): string {

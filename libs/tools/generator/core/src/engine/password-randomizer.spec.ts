@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { mock } from "jest-mock-extended";
 
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
@@ -231,10 +235,7 @@ describe("PasswordRandomizer", () => {
       // given. In the password generator, the array is generated from the
       // options. Thus, returning a fixed set of results effectively overrides
       // the randomizer's arguments.
-      randomizer.shuffle.mockImplementation(() => {
-        const results = [Ascii.Full.Uppercase, Ascii.Full.Digit];
-        return Promise.resolve(results);
-      });
+      randomizer.shuffle.mockResolvedValue([Ascii.Full.Uppercase, Ascii.Full.Digit]);
 
       const result = await password.randomAscii({
         all: 0,

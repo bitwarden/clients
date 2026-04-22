@@ -24,6 +24,7 @@ export type BulkEnableSecretsManagerDialogData = {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: `bulk-enable-sm-dialog.component.html`,
+  selector: "member-bulk-enable-sm-dialog",
   standalone: false,
 })
 export class BulkEnableSecretsManagerDialogComponent implements OnInit {
@@ -51,7 +52,7 @@ export class BulkEnableSecretsManagerDialogComponent implements OnInit {
       title: null,
       message: this.i18nService.t("activatedAccessToSecretsManager"),
     });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   static open(dialogService: DialogService, data: BulkEnableSecretsManagerDialogData) {

@@ -2,6 +2,8 @@
 // @ts-strict-ignore
 import { Component, Input } from "@angular/core";
 
+import { BitwardenIcon } from "@bitwarden/components";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -9,6 +11,7 @@ import { Component, Input } from "@angular/core";
   templateUrl: "./onboarding-task.component.html",
   host: {
     class: "tw-max-w-max",
+    role: "listitem",
   },
   standalone: false,
 })
@@ -21,7 +24,7 @@ export class OnboardingTaskComponent {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
-  icon = "bwi-info-circle";
+  icon: BitwardenIcon = "bwi-info-circle";
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals

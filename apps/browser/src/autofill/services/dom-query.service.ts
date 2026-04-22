@@ -1,4 +1,8 @@
-import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
+import {
+  DEEP_QUERY_SELECTOR_COMBINATOR,
+  EVENTS,
+  MAX_DEEP_QUERY_RECURSION_DEPTH,
+} from "@bitwarden/common/autofill/constants";
 
 import { nodeIsElement } from "../utils";
 
@@ -7,6 +11,7 @@ import { DomQueryService as DomQueryServiceInterface } from "./abstractions/dom-
 export class DomQueryService implements DomQueryServiceInterface {
   /** Non-null asserted. */
   private pageContainsShadowDom!: boolean;
+  private observedShadowRoots = new WeakSet<ShadowRoot>();
   private ignoredTreeWalkerNodes = new Set([
     "svg",
     "script",
@@ -76,21 +81,111 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
-   * Checks if the page contains any shadow DOM elements.
+   * Queries the page for shadow DOM elements and updates the cached state.
+   * Use this when you need to refresh the shadow DOM detection state.
+   *
+   * @returns True if the page contains any shadow DOM elements
    */
-  checkPageContainsShadowDom = (): void => {
+  updatePageContainsShadowDom = (): boolean => {
     this.pageContainsShadowDom = this.queryShadowRoots(globalThis.document.body, true).length > 0;
+    return this.pageContainsShadowDom;
   };
+
+  /**
+   * Checks if any of the provided mutations occurred within shadow roots.
+   * This is a lightweight check that doesn't query the DOM.
+   * @param mutations - The mutation records to check
+   * @returns True if any mutation occurred within a shadow root
+   */
+  checkMutationsInShadowRoots = (mutations: MutationRecord[]): boolean => {
+    return mutations.some((mutation) => {
+      const root = (mutation.target as Node).getRootNode();
+      return root instanceof ShadowRoot;
+    });
+  };
+
+  /**
+   * Queries the DOM for shadow roots and checks if any are not being observed.
+   * This is an expensive operation that should be debounced.
+   * @returns True if any new shadow roots are found that aren't being observed
+   */
+  checkForNewShadowRoots = (): boolean => {
+    let currentRoots: ShadowRoot[];
+    try {
+      currentRoots = this.recursivelyQueryShadowRoots(globalThis.document.body);
+    } catch {
+      currentRoots = this.queryShadowRoots(globalThis.document.body);
+    }
+
+    for (const root of currentRoots) {
+      if (!this.observedShadowRoots.has(root)) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+
+  /**
+   * Resets the observed shadow roots tracking. This should be called when the mutation
+   * observer is recreated or on significant lifecycle events (like navigation).
+   */
+  resetObservedShadowRoots = (): void => {
+    this.observedShadowRoots = new WeakSet<ShadowRoot>();
+  };
+
+  /**
+   * Queries the DOM for elements based on the given selector string.
+   * Supports the special `>>>` combinator to indicate the need for
+   * shadow DOM traversal; each segment separated by `>>>` is queried
+   * within the shadow root of the previous result.
+   *
+   * @param selector selector string, supports shadow DOM piercing with `>>>`
+   * @returns The first matching element, or null if no match is found
+   */
+  queryDeepSelector(selector: string): Element | null {
+    if (!selector) {
+      return null;
+    }
+
+    const segments = selector.split(DEEP_QUERY_SELECTOR_COMBINATOR);
+    let context: Document | ShadowRoot | Element = globalThis.document;
+
+    for (let i = 0; i < segments.length; i++) {
+      const segment = (segments[i] || "").trim();
+      if (segment.length < 1) {
+        return null;
+      }
+
+      const element = context.querySelector(segment);
+      if (!element) {
+        return null;
+      }
+
+      // If there are more segments, traverse into the shadow root
+      if (i < segments.length - 1) {
+        const shadow = this.getShadowRoot(element);
+        if (!shadow) {
+          return null;
+        }
+        context = shadow;
+      } else {
+        return element;
+      }
+    }
+
+    return null;
+  }
 
   /**
    * Initializes the DomQueryService, checking for the presence of shadow DOM elements on the page.
    */
   private async init() {
     if (globalThis.document.readyState === "complete") {
-      this.checkPageContainsShadowDom();
+      this.updatePageContainsShadowDom();
       return;
     }
-    globalThis.addEventListener(EVENTS.LOAD, this.checkPageContainsShadowDom);
+    globalThis.addEventListener(EVENTS.LOAD, this.updatePageContainsShadowDom);
   }
 
   /**
@@ -108,7 +203,7 @@ export class DomQueryService implements DomQueryServiceInterface {
   ): T[] {
     let elements = this.queryElements<T>(root, queryString);
 
-    const shadowRoots = this.recursivelyQueryShadowRoots(root);
+    const shadowRoots = this.pageContainsShadowDom ? this.recursivelyQueryShadowRoots(root) : [];
     for (let index = 0; index < shadowRoots.length; index++) {
       const shadowRoot = shadowRoots[index];
       elements = elements.concat(this.queryElements<T>(shadowRoot, queryString));
@@ -119,6 +214,7 @@ export class DomQueryService implements DomQueryServiceInterface {
           childList: true,
           subtree: true,
         });
+        this.observedShadowRoots.add(shadowRoot);
       }
     }
 
@@ -151,10 +247,6 @@ export class DomQueryService implements DomQueryServiceInterface {
     root: Document | ShadowRoot | Element,
     depth: number = 0,
   ): ShadowRoot[] {
-    if (!this.pageContainsShadowDom) {
-      return [];
-    }
-
     if (depth >= MAX_DEEP_QUERY_RECURSION_DEPTH) {
       throw new Error("Max recursion depth reached");
     }
@@ -292,6 +384,7 @@ export class DomQueryService implements DomQueryServiceInterface {
             childList: true,
             subtree: true,
           });
+          this.observedShadowRoots.add(nodeShadowRoot);
         }
 
         this.buildTreeWalkerNodesQueryResults(

@@ -20,6 +20,8 @@ describe("Callout", () => {
             new I18nMockService({
               warning: "Warning",
               error: "Error",
+              close: "Close",
+              callout: "Callout",
             }),
         },
       ],
@@ -57,11 +59,11 @@ describe("Callout", () => {
       expect(component.iconComputed()).toBe("bwi-error");
     });
 
-    it("default", () => {
-      fixture.componentRef.setInput("type", "default");
+    it("subtle", () => {
+      fixture.componentRef.setInput("type", "subtle");
       fixture.detectChanges();
       expect(component.titleComputed()).toBeUndefined();
-      expect(component.iconComputed()).toBe("bwi-star");
+      expect(component.iconComputed()).toBe("bwi-info-circle");
     });
   });
 });

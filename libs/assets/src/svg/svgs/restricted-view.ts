@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const RestrictedView = svgIcon`
+export const RestrictedView = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="5.52 2.62 110 110">
     <path class="tw-fill-illustration-bg-secondary" d="M25.518 12.621c0-5.523 4.477-10 10-10h50c5.523 0 10 4.477 10 10v2.5h-70v-2.5Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M85.518 5.121h-50a7.5 7.5 0 0 0-7.5 7.5h65a7.5 7.5 0 0 0-7.5-7.5Zm-50-2.5c-5.523 0-10 4.477-10 10v2.5h70v-2.5c0-5.523-4.477-10-10-10h-50Z" clip-rule="evenodd"/>

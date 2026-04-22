@@ -6,9 +6,12 @@ const path = require("path");
 const { flipFuses, FuseVersion, FuseV1Options } = require("@electron/fuses");
 const builder = require("electron-builder");
 const fse = require("fs-extra");
-
 exports.default = run;
 
+/**
+ *
+ * @param {builder.AfterPackContext} context
+ */
 async function run(context) {
   console.log("## After pack");
   // console.log(context);
@@ -42,10 +45,10 @@ async function run(context) {
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
         id = is_mas_dev
-          ? "588E3F1724AE018EBA762E42279DAE85B313E3ED"
+          ? "A579B6AE496B360642D05B8AB1B650C1B143B770"
           : "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
-        id = "Developer ID Application: 8bit Solutions LLC";
+        id = "Developer ID Application: Bitwarden Inc";
       }
       // Locally, use the first valid code signing identity, unless CSC_NAME is set
     } else if (process.env.CSC_NAME) {

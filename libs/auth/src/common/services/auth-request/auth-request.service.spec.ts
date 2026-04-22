@@ -13,7 +13,7 @@ import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.ser
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -146,63 +146,9 @@ describe("AuthRequestService", () => {
       );
 
       // Assert
-      expect(sut.decryptPubKeyEncryptedUserKey).toBeCalledWith(
+      expect(sut.decryptPubKeyEncryptedUserKey).toHaveBeenCalledWith(
         mockAuthReqResponse.key,
         mockPrivateKey,
-      );
-      expect(keyService.setUserKey).toBeCalledWith(mockDecryptedUserKey, mockUserId);
-    });
-  });
-
-  describe("setKeysAfterDecryptingSharedMasterKeyAndHash", () => {
-    it("decrypts and sets master key and hash and user key when given valid auth request response and private key", async () => {
-      // Arrange
-      const mockAuthReqResponse = {
-        key: "authReqPublicKeyEncryptedMasterKey",
-        masterPasswordHash: "authReqPublicKeyEncryptedMasterKeyHash",
-      } as AuthRequestResponse;
-
-      const mockDecryptedMasterKey = {} as MasterKey;
-      const mockDecryptedMasterKeyHash = "mockDecryptedMasterKeyHash";
-      const mockDecryptedUserKey = {} as UserKey;
-
-      jest.spyOn(sut, "decryptPubKeyEncryptedMasterKeyAndHash").mockResolvedValueOnce({
-        masterKey: mockDecryptedMasterKey,
-        masterKeyHash: mockDecryptedMasterKeyHash,
-      });
-
-      masterPasswordService.masterKeySubject.next(undefined);
-      masterPasswordService.masterKeyHashSubject.next(undefined);
-      masterPasswordService.mock.decryptUserKeyWithMasterKey.mockResolvedValue(
-        mockDecryptedUserKey,
-      );
-      keyService.setUserKey.mockResolvedValueOnce(undefined);
-
-      // Act
-      await sut.setKeysAfterDecryptingSharedMasterKeyAndHash(
-        mockAuthReqResponse,
-        mockPrivateKey,
-        mockUserId,
-      );
-
-      // Assert
-      expect(sut.decryptPubKeyEncryptedMasterKeyAndHash).toBeCalledWith(
-        mockAuthReqResponse.key,
-        mockAuthReqResponse.masterPasswordHash,
-        mockPrivateKey,
-      );
-      expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(
-        mockDecryptedMasterKey,
-        mockUserId,
-      );
-      expect(masterPasswordService.mock.setMasterKeyHash).toHaveBeenCalledWith(
-        mockDecryptedMasterKeyHash,
-        mockUserId,
-      );
-      expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        mockDecryptedMasterKey,
-        mockUserId,
-        undefined,
       );
       expect(keyService.setUserKey).toHaveBeenCalledWith(mockDecryptedUserKey, mockUserId);
     });
@@ -226,7 +172,7 @@ describe("AuthRequestService", () => {
       );
 
       // Assert
-      expect(encryptService.decapsulateKeyUnsigned).toBeCalledWith(
+      expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
         new EncString(mockPubKeyEncryptedUserKey),
         mockPrivateKey,
       );

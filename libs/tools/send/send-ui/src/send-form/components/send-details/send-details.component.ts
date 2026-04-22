@@ -1,16 +1,30 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, output } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import {
+  FormBuilder,
+  FormControl,
+  ReactiveFormsModule,
+  Validators,
+  ValidatorFn,
+  ValidationErrors,
+} from "@angular/forms";
+import { firstValueFrom, combineLatest, map, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   SectionComponent,
   SectionHeaderComponent,
@@ -20,10 +34,15 @@ import {
   IconButtonModule,
   CheckboxModule,
   SelectModule,
+  AsyncActionsModule,
+  ButtonModule,
+  ToastService,
+  DialogService,
 } from "@bitwarden/components";
+import { CredentialGeneratorService } from "@bitwarden/generator-core";
+import { SendFormConfig, SendFormGenerationService } from "@bitwarden/send-ui";
 
-import { SendFormConfig } from "../../abstractions/send-form-config.service";
-import { SendFormContainer } from "../../send-form-container";
+import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
@@ -78,6 +97,7 @@ export function asDatePreset(value: unknown): DatePreset | undefined {
 @Component({
   selector: "tools-send-details",
   templateUrl: "./send-details.component.html",
+  standalone: true,
   imports: [
     SectionComponent,
     SectionHeaderComponent,
@@ -92,10 +112,15 @@ export function asDatePreset(value: unknown): DatePreset | undefined {
     IconButtonModule,
     CheckboxModule,
     CommonModule,
+    CommonModule,
     SelectModule,
+    AsyncActionsModule,
+    ButtonModule,
   ],
 })
 export class SendDetailsComponent implements OnInit {
+  readonly SendType = SendType;
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() config: SendFormConfig;
@@ -103,60 +128,156 @@ export class SendDetailsComponent implements OnInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() originalSendView?: SendView;
 
+  readonly openPasswordGenerator = output<void>();
+
   FileSendType = SendType.File;
   TextSendType = SendType.Text;
+  readonly AuthType = AuthType;
   sendLink: string | null = null;
   customDeletionDateOption: DatePresetSelectOption | null = null;
   datePresetOptions: DatePresetSelectOption[] = [];
+  passwordRemoved = false;
+
+  emailVerificationFeatureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.SendEmailOTP);
+  hasPremium$ = this.accountService.activeAccount$.pipe(
+    switchMap((account) =>
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    ),
+  );
+
+  authTypes: { name: string; value: AuthType; disabled?: boolean }[] = [
+    { name: this.i18nService.t("noAuth"), value: AuthType.None },
+    { name: this.i18nService.t("specificPeople"), value: AuthType.Email },
+    { name: this.i18nService.t("anyOneWithPassword"), value: AuthType.Password },
+  ];
+
+  availableAuthTypes$ = combineLatest([this.emailVerificationFeatureFlag$, this.hasPremium$]).pipe(
+    map(([enabled, hasPremium]) => {
+      if (!enabled || !hasPremium) {
+        return this.authTypes.filter((t) => t.value !== AuthType.Email);
+      }
+      return this.authTypes;
+    }),
+  );
 
   sendDetailsForm = this.formBuilder.group({
     name: new FormControl("", Validators.required),
     selectedDeletionDatePreset: new FormControl(DatePreset.SevenDays || "", Validators.required),
+    authType: [AuthType.None as AuthType],
+    password: [null as string],
+    emails: [null as string],
   });
 
+  get hasPassword(): boolean {
+    return this.sendFormService.originalSendView?.password != null;
+  }
+
   constructor(
-    protected sendFormContainer: SendFormContainer,
     protected formBuilder: FormBuilder,
     protected i18nService: I18nService,
     protected datePipe: DatePipe,
     protected environmentService: EnvironmentService,
+    private configService: ConfigService,
+    private accountService: AccountService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private generatorService: CredentialGeneratorService,
+    private sendApiService: SendApiService,
+    private dialogService: DialogService,
+    private toastService: ToastService,
+    protected sendFormService: SendFormService,
+    private sendFormGenerationService: SendFormGenerationService,
   ) {
-    this.sendDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
-      this.sendFormContainer.patchSend((send) => {
-        return Object.assign(send, {
-          name: value.name,
-          deletionDate: new Date(this.formattedDeletionDate),
-          expirationDate: new Date(this.formattedDeletionDate),
-        } as SendView);
+    this.sendDetailsForm.valueChanges
+      .pipe(
+        tap((value) => {
+          if (Utils.isNullOrWhitespace(value.password)) {
+            value.password = null;
+          }
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((value) => {
+        this.sendFormService.patchSend((send) => {
+          return Object.assign(send, {
+            name: value.name,
+            deletionDate: new Date(this.formattedDeletionDate),
+            expirationDate: new Date(this.formattedDeletionDate),
+            password: value.password,
+            authType: value.authType,
+            emails: value.emails
+              ? value.emails
+                  .split(",")
+                  .map((e) => e.trim())
+                  .filter((e) => e.length > 0)
+              : [],
+          } as unknown as SendView);
+        });
       });
-    });
 
-    this.sendFormContainer.registerChildForm("sendDetailsForm", this.sendDetailsForm);
+    this.sendDetailsForm
+      .get("authType")
+      .valueChanges.pipe(takeUntilDestroyed())
+      .subscribe((type) => {
+        const emailsControl = this.sendDetailsForm.get("emails");
+        const passwordControl = this.sendDetailsForm.get("password");
+
+        if (type === AuthType.Password) {
+          emailsControl.setValue(null);
+          emailsControl.clearValidators();
+          passwordControl.setValidators([Validators.required]);
+        } else if (type === AuthType.Email) {
+          passwordControl.setValue(null);
+          passwordControl.clearValidators();
+          emailsControl.setValidators([Validators.required, this.emailListValidator()]);
+        } else {
+          emailsControl.setValue(null);
+          emailsControl.clearValidators();
+          passwordControl.setValue(null);
+          passwordControl.clearValidators();
+        }
+        emailsControl.updateValueAndValidity();
+        passwordControl.updateValueAndValidity();
+      });
+
+    this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
   }
 
   async ngOnInit() {
     this.setupDeletionDatePresets();
 
-    if (this.originalSendView) {
+    if (this.sendFormService.originalSendView) {
       this.sendDetailsForm.patchValue({
-        name: this.originalSendView.name,
-        selectedDeletionDatePreset: this.originalSendView.deletionDate.toString(),
+        name: this.sendFormService.originalSendView.name,
+        selectedDeletionDatePreset: this.sendFormService.originalSendView.deletionDate.toString(),
+        password: this.hasPassword ? "************" : null,
+        authType: this.sendFormService.originalSendView.authType,
+        emails: this.sendFormService.originalSendView.emails?.join(", ") ?? null,
       });
 
-      if (this.originalSendView.deletionDate) {
+      if (this.hasPassword) {
+        this.sendDetailsForm.get("password")?.disable();
+      }
+
+      if (this.sendFormService.originalSendView.deletionDate) {
         this.customDeletionDateOption = {
-          name: this.datePipe.transform(this.originalSendView.deletionDate, "short"),
-          value: this.originalSendView.deletionDate.toString(),
+          name: this.datePipe.transform(
+            this.sendFormService.originalSendView.deletionDate,
+            "short",
+          ),
+          value: this.sendFormService.originalSendView.deletionDate.toString(),
         };
         this.datePresetOptions.unshift(this.customDeletionDateOption);
       }
 
       const env = await firstValueFrom(this.environmentService.environment$);
       this.sendLink =
-        env.getSendUrl() + this.originalSendView.accessId + "/" + this.originalSendView.urlB64Key;
+        env.getSendUrl() +
+        this.sendFormService.originalSendView.accessId +
+        "/" +
+        this.sendFormService.originalSendView.urlB64Key;
     }
 
-    if (!this.config.areSendsAllowed) {
+    if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
       this.sendDetailsForm.disable();
     }
   }
@@ -193,4 +314,64 @@ export class SendDetailsComponent implements OnInit {
     const milliseconds = now.setTime(now.getTime() + preset * 60 * 60 * 1000);
     return new Date(milliseconds).toString();
   }
+
+  emailListValidator(): ValidatorFn {
+    return (control: FormControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+      const emails = control.value.split(",").map((e: string) => e.trim());
+      const nonEmptyEmails = emails.filter((e: string) => e.length > 0);
+      if (nonEmptyEmails.length === 0) {
+        return { required: true };
+      }
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const invalidEmails = nonEmptyEmails.filter((e: string) => !emailRegex.test(e));
+      return invalidEmails.length > 0 ? { multipleEmails: true } : null;
+    };
+  }
+
+  generatePassword = () => {
+    this.openPasswordGenerator.emit();
+  };
+
+  /**
+   * Sets the password field with a generated value from the inline generator.
+   */
+  setGeneratedPassword(value: string) {
+    this.sendDetailsForm.patchValue({
+      password: value,
+    });
+  }
+
+  removePassword = async () => {
+    if (!this.hasPassword) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePassword" },
+      content: { key: "removePasswordConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    this.passwordRemoved = true;
+
+    await this.sendApiService.removePassword(this.sendFormService.originalSendView.id);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("removedPassword"),
+    });
+
+    this.sendFormService.originalSendView.password = null;
+    this.sendDetailsForm.patchValue({
+      password: null,
+    });
+    this.sendDetailsForm.get("password")?.enable();
+  };
 }

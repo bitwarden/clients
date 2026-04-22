@@ -26,8 +26,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { BannerModule, IconModule } from "@bitwarden/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
+import { BannerModule, SvgModule } from "@bitwarden/components";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
@@ -47,12 +46,11 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     RouterModule,
     JslibModule,
     WebLayoutModule,
-    IconModule,
+    SvgModule,
     OrgSwitcherComponent,
     BannerModule,
     TaxIdWarningComponent,
     TaxIdWarningComponent,
-    OrganizationWarningsModule,
   ],
 })
 export class OrganizationLayoutComponent implements OnInit {

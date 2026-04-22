@@ -11,6 +11,7 @@
   ],
   "include": [
     "../../apps/web/src/connectors/*.ts",
+    "../../apps/web/src/connectors/platform/*.ts",
     "../../apps/web/src/**/*.stories.ts",
     "../../apps/web/src/**/*.spec.ts",
     "src/**/*.stories.ts",

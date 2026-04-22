@@ -24,6 +24,7 @@ import {
 } from "@bitwarden/assets/svg";
 import {
   LoginStrategyServiceAbstraction,
+  LoginStrategySessionTimeoutService,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
@@ -55,6 +56,7 @@ import {
   DialogService,
   FormFieldModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
@@ -88,6 +90,7 @@ import {
     AsyncActionsModule,
     CheckboxModule,
     ButtonModule,
+    IconModule,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthDuoComponent,
@@ -174,6 +177,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
     private authService: AuthService,
     private keyConnectorService: KeyConnectorService,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {}
 
   async ngOnInit() {
@@ -265,15 +269,11 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private listenForAuthnSessionTimeout() {
-    this.loginStrategyService.authenticationSessionTimeout$
+    this.loginStrategySessionTimeoutService.loginSessionTimeout$
       .pipe(takeUntilDestroyed(this.destroyRef))
       // TODO: Fix this!
       // eslint-disable-next-line rxjs/no-async-subscribe
-      .subscribe(async (expired) => {
-        if (!expired) {
-          return;
-        }
-
+      .subscribe(async () => {
         try {
           await this.router.navigate([this.authenticationSessionTimeoutRoute]);
         } catch (err) {

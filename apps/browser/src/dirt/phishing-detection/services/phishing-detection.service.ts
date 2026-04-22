@@ -1,14 +1,4 @@
-import {
-  concatMap,
-  distinctUntilChanged,
-  EMPTY,
-  filter,
-  map,
-  merge,
-  Subject,
-  switchMap,
-  tap,
-} from "rxjs";
+import { distinctUntilChanged, EMPTY, filter, map, merge, Subject, switchMap, tap } from "rxjs";
 
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -40,11 +30,11 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
-  private static _ignoredHostnames = new Set<string>();
-  private static _didInit = false;
+  private _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
+  private _ignoredHostnames = new Set<string>();
+  private _didInit = false;
 
-  static initialize(
+  constructor(
     logService: LogService,
     phishingDataService: PhishingDataService,
     phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
@@ -63,7 +53,7 @@ export class PhishingDetectionService {
       tap((message) =>
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
-      concatMap(async (message) => {
+      switchMap(async (message) => {
         const url = new URL(message.url);
         this._ignoredHostnames.add(url.hostname);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
@@ -88,13 +78,15 @@ export class PhishingDetectionService {
           prev.ignored === curr.ignored,
       ),
       tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
-      concatMap(async ({ tabId, url, ignored }) => {
+      // Use switchMap to cancel any in-progress check when navigating to a new URL
+      // This prevents race conditions where a stale check redirects the user incorrectly
+      switchMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
           // The next time this host is visited, block again
           this._ignoredHostnames.delete(url.hostname);
           return;
         }
-        const isPhishing = await phishingDataService.isPhishingDomain(url);
+        const isPhishing = await phishingDataService.isPhishingWebAddress(url);
         if (!isPhishing) {
           return;
         }
@@ -113,7 +105,7 @@ export class PhishingDetectionService {
 
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
-    const initSub = phishingDetectionActive$
+    phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
@@ -136,21 +128,9 @@ export class PhishingDetectionService {
       .subscribe();
 
     this._didInit = true;
-    return () => {
-      initSub.unsubscribe();
-      this._didInit = false;
-
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
-    };
   }
 
-  private static _handleTabUpdated(
+  private _handleTabUpdated(
     tabId: number,
     changeInfo: chrome.tabs.OnUpdatedInfo,
     tab: chrome.tabs.Tab,
@@ -161,7 +141,7 @@ export class PhishingDetectionService {
     return true;
   }
 
-  private static _isExtensionPage(url: string): boolean {
+  private _isExtensionPage(url: string): boolean {
     // Check against all common extension protocols
     return (
       url.startsWith("chrome-extension://") ||

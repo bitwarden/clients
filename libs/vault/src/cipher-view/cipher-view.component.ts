@@ -1,19 +1,18 @@
 import { CommonModule } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { Component, computed, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
@@ -24,6 +23,7 @@ import {
 } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
@@ -31,7 +31,7 @@ import {
   CalloutModule,
   SearchModule,
   TypographyModule,
-  AnchorLinkDirective,
+  LinkComponent,
 } from "@bitwarden/components";
 
 import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
@@ -67,7 +67,7 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
-    AnchorLinkDirective,
+    LinkComponent,
     TypographyModule,
   ],
 })
@@ -112,7 +112,7 @@ export class CipherViewComponent {
     private logService: LogService,
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
-    private configService: ConfigService,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -247,19 +247,9 @@ export class CipherViewComponent {
    * The password is only evaluated when the user is premium and has edit access to the cipher.
    */
   readonly passwordIsAtRisk = toSignal(
-    combineLatest([
-      this.activeUserId$,
-      this.cipher$,
-      this.configService.getFeatureFlag$(FeatureFlag.RiskInsightsForPremium),
-    ]).pipe(
-      switchMap(([userId, cipher, featureEnabled]) => {
-        if (
-          !featureEnabled ||
-          !cipher.hasLoginPassword ||
-          !cipher.edit ||
-          cipher.organizationId ||
-          cipher.isDeleted
-        ) {
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) => {
+        if (!cipher.hasLoginPassword || !cipher.edit || cipher.organizationId || cipher.isDeleted) {
           return of(false);
         }
         return this.switchPremium$(
@@ -276,7 +266,40 @@ export class CipherViewComponent {
   );
 
   readonly showChangePasswordLink = computed(() => {
-    return this.hasLoginUri() && (this.hadPendingChangePasswordTask() || this.passwordIsAtRisk());
+    return (
+      this.hasLoginUri() &&
+      (this.hadPendingChangePasswordTask() ||
+        // Only show the change password link if the password is at risk and the user has opted to see at-risk password notifications.
+        // `hasPendingChangePasswordTask` supersedes the `showAtRiskPasswordNotifications` setting because it comes from
+        // an organization marking the cipher as at-risk.
+        (this.passwordIsAtRisk() && this.showAtRiskPasswordNotifications()))
+    );
+  });
+
+  readonly showAtRiskPasswordNotifications = toSignal(
+    this.vaultSettingsService.showAtRiskPasswordNotifications$,
+  );
+
+  protected readonly changePasswordUrl = resource({
+    params: () => ({ cipher: this.cipher(), showPwLink: this.showChangePasswordLink() }),
+    loader: async ({ params }) => {
+      if (!params.showPwLink) {
+        return undefined;
+      }
+      try {
+        return await this.changeLoginPasswordService.getChangePasswordUrl(params.cipher);
+      } catch (e: any) {
+        this.logService.error(e.message);
+        return undefined;
+      }
+    },
+  });
+
+  readonly changePasswordLink = computed(() => {
+    if (this.changePasswordUrl.hasValue()) {
+      return this.changePasswordUrl.value();
+    }
+    return undefined;
   });
 
   launchChangePassword = async () => {

@@ -11,6 +11,7 @@ export class FolderStep implements RecoveryStep {
   title = "recoveryStepFoldersTitle";
 
   private undecryptableFolderIds: string[] = [];
+  private decryptableFolderIds: string[] = [];
 
   constructor(
     private folderService: FolderApiServiceAbstraction,
@@ -24,6 +25,8 @@ export class FolderStep implements RecoveryStep {
     }
 
     this.undecryptableFolderIds = [];
+    this.decryptableFolderIds = [];
+
     for (const folder of workingData.folders) {
       if (!folder.name?.encryptedString) {
         logger.record(`Folder ID ${folder.id} has no name`);
@@ -36,18 +39,21 @@ export class FolderStep implements RecoveryStep {
           folder.name.encryptedString,
           workingData.userKey.toEncoded(),
         );
+        this.decryptableFolderIds.push(folder.id);
       } catch {
         logger.record(`Folder name for folder ID ${folder.id} was undecryptable`);
         this.undecryptableFolderIds.push(folder.id);
       }
     }
     logger.record(`Found ${this.undecryptableFolderIds.length} undecryptable folders`);
+    logger.record(`Found ${this.decryptableFolderIds.length} decryptable folders`);
 
     return this.undecryptableFolderIds.length == 0;
   }
 
   canRecover(workingData: RecoveryWorkingData): boolean {
-    return this.undecryptableFolderIds.length > 0;
+    // If everything fails to decrypt, it's a deeper issue and we shouldn't offer recovery here.
+    return this.undecryptableFolderIds.length > 0 && this.decryptableFolderIds.length > 0;
   }
 
   async runRecovery(workingData: RecoveryWorkingData, logger: LogRecorder): Promise<void> {

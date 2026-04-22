@@ -8,6 +8,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { LogService } from "@bitwarden/logging";
 
 import { FakeAccountService, FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { UserId } from "../../../types/guid";
@@ -54,6 +55,8 @@ describe("PhishingDetectionSettingsService", () => {
     usePhishingBlocker: true,
   });
 
+  const mockLogService = mock<LogService>();
+
   const mockUserId = "mock-user-id" as UserId;
   const account = mock<Account>({ id: mockUserId });
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
@@ -85,6 +88,7 @@ describe("PhishingDetectionSettingsService", () => {
       mockAccountService,
       mockBillingService,
       mockConfigService,
+      mockLogService,
       mockOrganizationService,
       mockPlatformService,
       stateProvider,

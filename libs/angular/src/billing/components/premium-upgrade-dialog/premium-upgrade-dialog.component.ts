@@ -42,7 +42,7 @@ import { LogService } from "@bitwarden/logging";
   templateUrl: "./premium-upgrade-dialog.component.html",
 })
 export class PremiumUpgradeDialogComponent {
-  protected cardDetails$: Observable<SubscriptionPricingCardDetails | null> =
+  protected readonly cardDetails$: Observable<SubscriptionPricingCardDetails | null> =
     this.subscriptionPricingService.getPersonalSubscriptionPricingTiers$().pipe(
       map((tiers) => tiers.find((tier) => tier.id === PersonalSubscriptionPricingTierIds.Premium)),
       map((tier) => this.mapPremiumTierToCardDetails(tier!)),
@@ -53,19 +53,19 @@ export class PremiumUpgradeDialogComponent {
           message: this.i18nService.t("unexpectedError"),
         });
         this.logService.error("Error fetching and mapping pricing tiers", error);
-        this.dialogRef.close();
+        void this.dialogRef.close();
         return EMPTY;
       }),
     );
 
   constructor(
-    private dialogRef: DialogRef,
-    private subscriptionPricingService: SubscriptionPricingServiceAbstraction,
-    private i18nService: I18nService,
-    private toastService: ToastService,
-    private environmentService: EnvironmentService,
-    private platformUtilsService: PlatformUtilsService,
-    private logService: LogService,
+    private readonly dialogRef: DialogRef,
+    private readonly subscriptionPricingService: SubscriptionPricingServiceAbstraction,
+    private readonly i18nService: I18nService,
+    private readonly toastService: ToastService,
+    private readonly environmentService: EnvironmentService,
+    private readonly platformUtilsService: PlatformUtilsService,
+    private readonly logService: LogService,
   ) {}
 
   protected async upgrade(): Promise<void> {
@@ -74,11 +74,11 @@ export class PremiumUpgradeDialogComponent {
       environment.getWebVaultUrl() +
       "/#/settings/subscription/premium?callToAction=upgradeToPremium";
     this.platformUtilsService.launchUri(vaultUrl);
-    this.dialogRef.close();
+    void this.dialogRef.close();
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    void this.dialogRef.close();
   }
 
   private mapPremiumTierToCardDetails(

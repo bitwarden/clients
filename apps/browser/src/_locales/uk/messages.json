@@ -28,6 +28,9 @@
   "logInWithPasskey": {
     "message": "Увійти з ключем доступу"
   },
+  "unlockWithPasskey": {
+    "message": "Розблокувати з ключем доступу"
+  },
   "useSingleSignOn": {
     "message": "Використати єдиний вхід"
   },
@@ -570,20 +573,29 @@
   "noItemsInArchiveDesc": {
     "message": "Архівовані записи з'являтимуться тут і будуть виключені з результатів звичайного пошуку та пропозицій автозаповнення."
   },
-  "itemWasSentToArchive": {
+  "itemArchiveToast": {
     "message": "Запис архівовано"
   },
-  "itemUnarchived": {
+  "itemUnarchivedToast": {
     "message": "Запис розархівовано"
   },
   "archiveItem": {
     "message": "Архівувати запис"
   },
-  "archiveItemConfirmDesc": {
-    "message": "Архівовані записи виключаються з результатів звичайного пошуку та пропозицій автозаповнення. Ви дійсно хочете архівувати цей запис?"
+  "archiveItemDialogContent": {
+    "message": "Після архівації цей запис буде виключено з результатів пошуку і пропозицій автозаповнення."
+  },
+  "archived": {
+    "message": "Архівовано"
+  },
+  "unarchiveAndSave": {
+    "message": "Видобути й зберегти"
   },
   "upgradeToUseArchive": {
     "message": "Для використання архіву необхідна передплата Premium."
+  },
+  "itemRestored": {
+    "message": "Запис відновлено"
   },
   "edit": {
     "message": "Змінити"
@@ -684,17 +696,11 @@
   "unlockMethods": {
     "message": "Налаштування розблокування"
   },
-  "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища."
-  },
   "unlockMethodNeeded": {
     "message": "Встановіть спосіб розблокування в налаштуваннях"
   },
   "sessionTimeoutHeader": {
     "message": "Час очікування сеансу"
-  },
-  "vaultTimeoutHeader": {
-    "message": "Час очікування сховища"
   },
   "otherOptions": {
     "message": "Інші налаштування"
@@ -884,6 +890,9 @@
   "invalidVerificationCode": {
     "message": "Недійсний код підтвердження"
   },
+  "invalidEmailOrVerificationCode": {
+    "message": "Недійсна е-пошта або код підтвердження"
+  },
   "valueCopied": {
     "message": "$VALUE$ скопійовано",
     "description": "Value has been copied to the clipboard.",
@@ -974,6 +983,12 @@
   },
   "no": {
     "message": "Ні"
+  },
+  "noAuth": {
+    "message": "Будь-хто з посиланням"
+  },
+  "anyOneWithPassword": {
+    "message": "Будь-хто зі встановленим вами паролем"
   },
   "location": {
     "message": "Розташування"
@@ -1123,7 +1138,7 @@
     "message": "Натисніть на запис у режимі перегляду сховища для автозаповнення"
   },
   "clickToAutofill": {
-    "message": "Натисніть запис у пропозиціях для автозаповнення"
+    "message": "Натиснути запис у пропозиціях для автозаповнення"
   },
   "clearClipboard": {
     "message": "Очистити буфер обміну",
@@ -1132,6 +1147,15 @@
   "clearClipboardDesc": {
     "message": "Автоматично очищати скопійовані значення з буфера обміну.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
+  },
+  "clipboardSettingUpdated": {
+    "message": "Налаштування буфера обміну оновлено"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Час очікування буфера обміну встановлено за замовчуванням; у цілях безпеки його подовжено до 5 хвилин."
+  },
+  "jumpToSetting": {
+    "message": "Перейти до налаштування"
   },
   "notificationAddDesc": {
     "message": "Чи має Bitwarden зберегти цей пароль?"
@@ -1286,6 +1310,9 @@
   "additionalOptions": {
     "message": "Додаткові налаштування"
   },
+  "enableFillAssist": {
+    "message": "Скористатись помічником із заповнення"
+  },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
   },
@@ -1323,19 +1350,19 @@
     "message": "Експортувати з"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Експортувати",
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Експорт",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Імпорт",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Імпортувати",
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
@@ -1532,6 +1559,15 @@
   },
   "premiumSignUpTwoStepOptions": {
     "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
+  },
+  "premiumSubscriptionEnded": {
+    "message": "Ваша передплата Premium завершилась"
+  },
+  "archivePremiumRestart": {
+    "message": "Щоб відновити доступ до архіву, поновіть передплату Premium. Якщо ви редагуєте архівований запис перед поновленням, його буде повернуто назад у ваше сховище."
+  },
+  "restartPremium": {
+    "message": "Поновити Premium"
   },
   "ppremiumSignUpReports": {
     "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
@@ -1763,6 +1799,27 @@
   },
   "confirmAutofillDesc": {
     "message": "Адреса цього вебсайту відрізняється від збережених даних вашого запису. Перш ніж заповнити облікові дані, переконайтеся, що це надійний сайт."
+  },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
   },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
@@ -2024,6 +2081,9 @@
   "email": {
     "message": "Е-пошта"
   },
+  "emails": {
+    "message": "Адреси е-пошти"
+  },
   "phone": {
     "message": "Телефон"
   },
@@ -2074,6 +2134,27 @@
   },
   "typeNote": {
     "message": "Нотатка"
+  },
+  "typeLoginSubtitle": {
+    "message": "Веб-сайт або застосунок"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитна або дебетова картка"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Особисті дані"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важливий текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Токен входу на сервер"
+  },
+  "folderSubtitle": {
+    "message": "Організуйте свої записи"
+  },
+  "collectionSubtitle": {
+    "message": "Організуйте спільні записи"
   },
   "newItemHeaderLogin": {
     "message": "Новий запис",
@@ -2150,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Перегляд ключа SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Виберіть запис, щоб додати"
   },
   "passwordHistory": {
     "message": "Історія паролів"
@@ -2339,6 +2423,30 @@
   "weakMasterPasswordDesc": {
     "message": "Обраний вами головний пароль є слабким. Для належного захисту свого облікового запису Bitwarden, вам слід використовувати надійний головний пароль (або парольну фразу). Ви впевнені, що хочете використати цей пароль?"
   },
+  "rotateAccountEncKey": {
+    "message": "Також оновити ключ шифрування мого облікового запису"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Оновити ключ шифрування"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Ви справді хочете оновити ключ шифрування облікового запису?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Після оновлення вашого ключа шифрування вам необхідно вийти з системи і потім виконати повторний вхід у всіх програмах Bitwarden, які ви використовуєте (як-от мобільний застосунок або розширення для браузера). Збій при виході та повторному вході (що завантажує ваш новий ключ шифрування) може призвести до пошкодження даних. Ми спробуємо завершити ваші сеанси автоматично, однак, цей процес може відбутися із затримкою."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Будь-які збережені експорти, обмежені обліковим записом, стануть недійсними."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "У вашому сховищі є старі вкладені файли, які необхідно виправити перед тим, як оновлювати ключ шифрування облікового запису."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Наслідки оновлення ключа шифрування"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна або декілька політик організації вимагають дотримання таких вимог для головного пароля:"
+  },
   "pin": {
     "message": "PIN-код",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2429,8 +2537,8 @@
   "vaultTimeoutAction": {
     "message": "Дія після часу очікування сховища"
   },
-  "vaultTimeoutAction1": {
-    "message": "Дія після часу очікування"
+  "showAtRiskPasswordNotifications": {
+    "message": "Показувати сповіщення про паролі із ризиком"
   },
   "lock": {
     "message": "Блокувати",
@@ -2451,6 +2559,9 @@
   },
   "permanentlyDeletedItem": {
     "message": "Запис остаточно видалено"
+  },
+  "archivedItemRestored": {
+    "message": "Архівований запис відновлено"
   },
   "restoreItem": {
     "message": "Відновити запис"
@@ -2711,9 +2822,6 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів. Потрібно оновити сторінку для застосування змін."
   },
-  "excludedDomainsDescAlt": {
-    "message": "Bitwarden не запитуватиме про збереження даних входу для цих доменів для всіх облікових записів, до яких виконано вхід. Потрібно оновити сторінку для застосування змін."
-  },
   "blockedDomainsDesc": {
     "message": "Автозаповнення та інші пов'язані функції не пропонуватимуться для цих вебсайтів. Вам слід оновити сторінку для застосування змін."
   },
@@ -2786,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ хоче, щоб ви змінили цей пароль, тому що він ризикований. Перейдіть до налаштувань облікового запису, щоб змінити пароль.",
+  "atRiskNavigatePromptV2": {
+    "message": "Ваш пароль для цього сайту містить ризик. $ORGANIZATION$ просить вас перейти до налаштувань облікового запису і змінити його.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2826,6 +2934,9 @@
   },
   "reviewAtRiskLoginSlideImgAltPeriod": {
     "message": "Ілюстрація списку ризикованих записів."
+  },
+  "welcomeDialogGraphicAlt": {
+    "message": "Ілюстрація макету сторінки сховища Bitwarden."
   },
   "generatePasswordSlideDesc": {
     "message": "Швидко згенеруйте надійний, унікальний пароль через меню автозаповнення Bitwarden на сайті з ризикованим паролем.",
@@ -2999,10 +3110,6 @@
   "custom": {
     "message": "Власний"
   },
-  "sendPasswordDescV3": {
-    "message": "За бажання додайте пароль для отримувачів цього відправлення.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "createSend": {
     "message": "Нове відправлення",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3054,6 +3161,45 @@
       }
     }
   },
+  "durationTimeHours": {
+    "message": "$HOURS$ годин",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "sendCreatedDescriptionV2": {
+    "message": "Скопіюйте посилання на це відправлення і поділіться ним. Відправлення буде доступне за посиланням усім протягом $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionPassword": {
+    "message": "Скопіюйте посилання на це відправлення і поділіться ним. Відправлення буде доступне за посиланням і встановленим вами паролем усім протягом $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
+  "sendCreatedDescriptionEmail": {
+    "message": "Скопіюйте посилання на це відправлення і поділіться ним. Його зможуть переглядати зазначені вами користувачі протягом $TIME$.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "7 days, 1 hour, 1 day"
+      }
+    }
+  },
   "sendLinkCopied": {
     "message": "Посилання на відправлення скопійовано",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -3062,28 +3208,8 @@
     "message": "Відправлення збережено",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendFilePopoutDialogText": {
-    "message": "Відкріпити розширення?",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendFilePopoutDialogDesc": {
-    "message": "Щоб створити відправлення файлу, необхідно відкріпити розширення в окреме вікно.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendLinuxChromiumFileWarning": {
-    "message": "Щоб вибрати файл, відкрийте розширення в бічній панелі (якщо можливо) або в новому вікні, натиснувши цей банер."
-  },
-  "sendFirefoxFileWarning": {
-    "message": "Щоб вибрати файл з використанням Firefox, відкрийте розширення в бічній панелі або в новому вікні, натиснувши цей банер."
-  },
-  "sendSafariFileWarning": {
-    "message": "Щоб вибрати файл з використанням Safari, відкрийте розширення в новому вікні, натиснувши на цей банер."
-  },
   "popOut": {
     "message": "Відкріпити"
-  },
-  "sendFileCalloutHeader": {
-    "message": "Перед початком"
   },
   "expirationDateIsInvalid": {
     "message": "Вказано недійсний термін дії."
@@ -3178,9 +3304,6 @@
   },
   "minutes": {
     "message": "Хвилин"
-  },
-  "vaultTimeoutPolicyAffectingOptions": {
-    "message": "До налаштувань часу очікування застосовано вимоги політики компанії"
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Політикою вашої організації встановлено максимальний дозволений час очікування сховища $HOURS$ годин, $MINUTES$ хвилин.",
@@ -3342,6 +3465,12 @@
   },
   "error": {
     "message": "Помилка"
+  },
+  "prfUnlockFailed": {
+    "message": "Не вдалося розблокувати за допомогою ключа доступу. Повторіть спробу або скористайтеся іншим способом розблокування."
+  },
+  "noPrfCredentialsAvailable": {
+    "message": "Немає ключів доступу з підтримкою PRF, доступних для розблокування. Спочатку ввійдіть з ключем доступу."
   },
   "decryptionError": {
     "message": "Помилка розшифрування"
@@ -3695,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Стан входу в систему"
+  },
+  "recentlyActive": {
+    "message": "Нещодавно активний"
+  },
+  "recentlyActiveToday": {
+    "message": "Сьогодні"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Минулі 7 днів"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Минулі 14 днів"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Минулі 30 днів"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Понад 30 днів тому"
   },
   "masterPasswordChanged": {
     "message": "Головний пароль збережено"
@@ -4379,6 +4526,9 @@
   "exportSuccess": {
     "message": "Дані сховища експортовано"
   },
+  "exportError": {
+    "message": "Виникла помилка під час експорту даних вашого сховища"
+  },
   "typePasskey": {
     "message": "Ключ доступу"
   },
@@ -4677,7 +4827,7 @@
     "message": "Запропоновані записи"
   },
   "autofillSuggestionsTip": {
-    "message": "Зберегти дані входу цього сайту для автозаповнення"
+    "message": "Збережіть дані входу цього сайту для автозаповнення"
   },
   "yourVaultIsEmpty": {
     "message": "Ваше сховище порожнє"
@@ -4717,6 +4867,9 @@
         "example": "Secret Item"
       }
     }
+  },
+  "moreOptionsLabelNoPlaceholder": {
+    "message": "Інші варіанти"
   },
   "moreOptionsTitle": {
     "message": "Інші можливості – $ITEMNAME$",
@@ -4805,8 +4958,44 @@
   "copyAddress": {
     "message": "Копіювати адресу"
   },
+  "myItems": {
+    "message": "Мої записи"
+  },
   "adminConsole": {
     "message": "консолі адміністратора,"
+  },
+  "admin": {
+    "message": "Адміністратор"
+  },
+  "automaticUserConfirmation": {
+    "message": "Автоматичне підтвердження користувачів"
+  },
+  "automaticUserConfirmationHint": {
+    "message": "Автоматично підтверджувати користувачів, які перебувають у черзі, поки цей пристрій розблокований"
+  },
+  "autoConfirmOnboardingCallout": {
+    "message": "Заощаджуйте час завдяки автоматичному підтвердженню користувачів"
+  },
+  "autoConfirmWarning": {
+    "message": "Це може вплинути на безпеку даних вашої організації. "
+  },
+  "autoConfirmWarningLink": {
+    "message": "Дізнатися про ризики"
+  },
+  "autoConfirmSetup": {
+    "message": "Автоматично підтверджувати нових користувачів"
+  },
+  "autoConfirmSetupDesc": {
+    "message": "Нові користувачі будуть автоматично підтверджені, якщо пристрій розблоковано."
+  },
+  "autoConfirmSetupHint": {
+    "message": "Які потенційні ризики безпеки?"
+  },
+  "autoConfirmEnabled": {
+    "message": "Автоматичне підтвердження увімкнено"
+  },
+  "availableNow": {
+    "message": "Доступно зараз"
   },
   "accountSecurity": {
     "message": "Безпека облікового запису"
@@ -4931,6 +5120,9 @@
         "example": "Attachment Name"
       }
     }
+  },
+  "downloadAttachmentLabel": {
+    "message": "Завантажити вкладення"
   },
   "downloadBitwarden": {
     "message": "Завантажити Bitwarden"
@@ -5071,14 +5263,11 @@
       }
     }
   },
-  "hideMatchDetection": {
-    "message": "Приховати виявлення збігів $WEBSITE$",
-    "placeholders": {
-      "website": {
-        "content": "$1",
-        "example": "https://example.com"
-      }
-    }
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показати виявлення збігів"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Приховати виявлення збігів"
   },
   "autoFillOnPageLoad": {
     "message": "Автоматично заповнювати під час завантаження сторінки?"
@@ -5616,6 +5805,9 @@
   "extraWide": {
     "message": "Дуже широке"
   },
+  "narrow": {
+    "message": "Вузьке"
+  },
   "sshKeyWrongPassword": {
     "message": "Ви ввели неправильний пароль."
   },
@@ -5663,6 +5855,12 @@
   },
   "changeAtRiskPasswordAndAddWebsite": {
     "message": "Цей запис ризикований, і не має адреси вебсайту. Додайте адресу вебсайту і змініть пароль для вдосконалення безпеки."
+  },
+  "vulnerablePassword": {
+    "message": "Вразливий пароль."
+  },
+  "changeNow": {
+    "message": "Змінити зараз"
   },
   "missingWebsite": {
     "message": "Немає вебсайту"
@@ -5903,8 +6101,11 @@
   "cardNumberLabel": {
     "message": "Номер картки"
   },
+  "errorCannotDecrypt": {
+    "message": "Помилка: неможливо розшифрувати"
+  },
   "removeMasterPasswordForOrgUserKeyConnector": {
-    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердіть організацію та домен."
+    "message": "Ваша організація більше не використовує головні паролі для входу в Bitwarden. Щоб продовжити, підтвердьте організацію та домен."
   },
   "continueWithLogIn": {
     "message": "Перейти до входу"
@@ -5989,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Встановіть спосіб розблокування, щоб змінити дію під час очікування"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Керується розширенням для браузера Bitwarden. Щоб редагувати, відкрийте браузер."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% виконано",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Оновити"
   },
@@ -6022,8 +6235,8 @@
       }
     }
   },
-  "transferItemsToOrganizationContent": {
-    "message": "З міркувань безпеки та для забезпечення відповідності $ORGANIZATION$ вимагає, щоб власником всіх елементів була організація. Натисніть кнопку \"прийняти\", щоб передати права власності на ваші елементи.",
+  "transferItemsToOrganizationDescription": {
+    "message": "$ORGANIZATION$ вимагає, щоб усіма записами володіла організація з міркувань безпеки та відповідності.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -6031,13 +6244,82 @@
       }
     }
   },
+  "transferItemsToOrganizationAction": {
+    "message": "Натисніть \"Погодитись\", щоб передати право власності на ваші записи."
+  },
+  "openTransferItemsHelpArticle": {
+    "message": "Відкрити статтю з довідки про перенесення записів"
+  },
   "acceptTransfer": {
     "message": "Схвалити переміщення"
   },
   "declineAndLeave": {
     "message": "Відхилити і покинути"
   },
-  "whyAmISeeingThis": {
-    "message": "Чому я це бачу?"
+  "items": {
+    "message": "Записи"
+  },
+  "searchResults": {
+    "message": "Результати пошуку"
+  },
+  "simplifiedAutofill": {
+    "message": "Спрощене автозаповнення"
+  },
+  "simplifiedAutofillDescription": {
+    "message": "Під час натискання запропонованого елемента відбувається автоматичне заповнення, а не відкриття подробиць запису. Ви можете переглядати ці елементи з меню \"Більше\"."
+  },
+  "openSimplifiedAutofillPopover": {
+    "message": "Відкрити меню спрощеного автозаповнення"
+  },
+  "resizeSideNavigation": {
+    "message": "Змінити розмір бічної панелі"
+  },
+  "whoCanView": {
+    "message": "Хто може переглядати"
+  },
+  "specificPeople": {
+    "message": "Певні користувачі"
+  },
+  "emailVerificationDesc": {
+    "message": "Після того, як ви поділитеся посиланням на це відправлення, користувачі мають підтвердити свою е-пошту за допомогою коду, щоб переглянути його."
+  },
+  "enterMultipleEmailsSeparatedByComma": {
+    "message": "Введіть декілька адрес е-пошти, розділяючи їх комою."
+  },
+  "emailPlaceholder": {
+    "message": "user@bitwarden.com , user@acme.com"
+  },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "downloadBitwardenApps": {
+    "message": "Завантажити програми Bitwarden"
+  },
+  "emailProtected": {
+    "message": "Е-пошту захищено"
+  },
+  "sendPasswordHelperText": {
+    "message": "Користувачі мають ввести пароль для перегляду цього відправлення",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "userVerificationFailed": {
+    "message": "Не вдалося перевірити користувача."
+  },
+  "downloadFailed": {
+    "message": "Не вдалося завантажити."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -3,6 +3,7 @@ import { html, TemplateResult } from "lit";
 
 import { Theme } from "@bitwarden/common/platform/enums";
 
+import { EventSecurity } from "../../../utils/event-security";
 import { border, themes, typography, spacing } from "../constants/styles";
 import { Spinner } from "../icons";
 
@@ -14,6 +15,7 @@ export type ActionButtonProps = {
   theme: Theme;
   handleClick: (e: Event) => void;
   fullWidth?: boolean;
+  title?: string;
 };
 
 export function ActionButton({
@@ -24,9 +26,10 @@ export function ActionButton({
   theme,
   handleClick,
   fullWidth = true,
+  title,
 }: ActionButtonProps) {
   const handleButtonClick = (event: Event) => {
-    if (!disabled && !isLoading) {
+    if (EventSecurity.isEventTrusted(event) && !disabled && !isLoading) {
       handleClick(event);
     }
   };
@@ -35,7 +38,7 @@ export function ActionButton({
     <button
       class=${actionButtonStyles({ disabled, fullWidth, isLoading, theme })}
       data-testid="${dataTestId}"
-      title=${buttonText}
+      title=${title ?? buttonText}
       type="button"
       @click=${handleButtonClick}
     >

@@ -8,6 +8,7 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 import {
   SignedPublicKey,
@@ -22,7 +23,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { EncryptionType, HashPurpose } from "@bitwarden/common/platform/enums";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -38,6 +39,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { PureCrypto, TokenProvider } from "@bitwarden/sdk-internal";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth/core";
@@ -99,6 +101,8 @@ export class UserKeyRotationService {
     private kdfConfigService: KdfConfigService,
     private sdkClientFactory: SdkClientFactory,
     private securityStateService: SecurityStateService,
+    private masterPasswordService: MasterPasswordServiceAbstraction,
+    private sdkUserKeyRotationService: UserKeyRotationServiceAbstraction,
   ) {}
 
   /**
@@ -114,6 +118,31 @@ export class UserKeyRotationService {
     user: Account,
     newMasterPasswordHint?: string,
   ): Promise<void> {
+    const useSdkKeyRotation = await this.configService.getFeatureFlag(FeatureFlag.SdkKeyRotation);
+    if (useSdkKeyRotation) {
+      this.logService.info(
+        "[UserKey Rotation] Using SDK-based key rotation service from user-crypto-management",
+      );
+      const success = await this.sdkUserKeyRotationService.changePasswordAndRotateUserKey(
+        currentMasterPassword,
+        newMasterPassword,
+        newMasterPasswordHint,
+        asUuid(user.id),
+      );
+
+      if (success) {
+        this.toastService.showToast({
+          variant: "success",
+          title: this.i18nService.t("rotationCompletedTitle"),
+          message: this.i18nService.t("rotationCompletedDesc"),
+          timeout: 15000,
+        });
+
+        await this.logoutService.logout(user.id);
+      }
+      return;
+    }
+
     // Key-rotation uses the SDK, so we need to ensure that the SDK is loaded / the WASM initialized.
     await SdkLoadService.Ready;
 
@@ -146,7 +175,7 @@ export class UserKeyRotationService {
     const { userKey: newUserKey, accountKeysRequest } = await this.getRotatedAccountKeysFlagged(
       user.id,
       masterKeyKdfConfig,
-      user.email,
+      masterKeySalt,
       currentCryptographicStateParameters,
       upgradeToV2FeatureFlagEnabled,
     );
@@ -300,7 +329,7 @@ export class UserKeyRotationService {
   protected async upgradeV1UserToV2UserAccountKeys(
     userId: UserId,
     kdfConfig: KdfConfig,
-    email: string,
+    masterKeySalt: string,
     cryptographicStateParameters: V1CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
     // Initialize an SDK with the current cryptographic state
@@ -308,7 +337,7 @@ export class UserKeyRotationService {
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
-      email: email,
+      email: masterKeySalt,
       accountCryptographicState: {
         V1: {
           private_key: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
@@ -328,7 +357,7 @@ export class UserKeyRotationService {
   protected async rotateV2UserAccountKeys(
     userId: UserId,
     kdfConfig: KdfConfig,
-    email: string,
+    masterKeySalt: string,
     cryptographicStateParameters: V2CryptographicStateParameters,
   ): Promise<V2UserCryptographicState> {
     // Initialize an SDK with the current cryptographic state
@@ -336,7 +365,7 @@ export class UserKeyRotationService {
     await sdk.crypto().initialize_user_crypto({
       userId: asUuid(userId),
       kdfParams: kdfConfig.toSdkConfig(),
-      email: email,
+      email: masterKeySalt,
       accountCryptographicState: {
         V2: {
           private_key: cryptographicStateParameters.publicKeyEncryptionKeyPair.wrappedPrivateKey,
@@ -578,11 +607,7 @@ export class UserKeyRotationService {
       masterKeySalt,
       masterKeyKdfConfig,
     );
-    return this.keyService.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.ServerAuthorization,
-    );
+    return this.keyService.hashMasterKey(masterPassword, masterKey);
   }
 
   /**
@@ -598,8 +623,11 @@ export class UserKeyRotationService {
       this.kdfConfigService.getKdfConfig$(user.id),
       "KDF config",
     ))!;
-    // The master key salt used for deriving the masterkey always needs to be trimmed and lowercased.
-    const masterKeySalt = user.email.trim().toLowerCase();
+
+    const masterKeySalt = await this.firstValueFromOrThrow(
+      this.masterPasswordService.saltForUser$(user.id),
+      "Master key salt",
+    );
 
     // V1 and V2 users both have a user key and a private key
     const currentUserKey: UserKey = (await this.firstValueFromOrThrow(

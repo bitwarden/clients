@@ -53,28 +53,12 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     return this.mock.setMasterKey(masterKey, userId);
   }
 
-  clearMasterKey(userId: UserId): Promise<void> {
-    return this.mock.clearMasterKey(userId);
-  }
-
-  masterKeyHash$(userId: UserId): Observable<string> {
-    return this.masterKeyHashSubject.asObservable();
-  }
-
   getMasterKeyEncryptedUserKey(userId: UserId): Promise<EncString> {
     return this.mock.getMasterKeyEncryptedUserKey(userId);
   }
 
   setMasterKeyEncryptedUserKey(encryptedKey: EncString, userId: UserId): Promise<void> {
     return this.mock.setMasterKeyEncryptedUserKey(encryptedKey, userId);
-  }
-
-  setMasterKeyHash(masterKeyHash: string, userId: UserId): Promise<void> {
-    return this.mock.setMasterKeyHash(masterKeyHash, userId);
-  }
-
-  clearMasterKeyHash(userId: UserId): Promise<void> {
-    return this.mock.clearMasterKeyHash(userId);
   }
 
   forceSetPasswordReason$(userId: UserId): Observable<ForceSetPasswordReason> {
@@ -124,7 +108,19 @@ export class FakeMasterPasswordService implements InternalMasterPasswordServiceA
     return this.mock.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
   }
 
+  clearMasterPasswordUnlockData(userId: UserId): Promise<void> {
+    return this.mock.clearMasterPasswordUnlockData(userId);
+  }
+
   masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null> {
     return this.mock.masterPasswordUnlockData$(userId);
+  }
+
+  setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void> {
+    return this.mock.setLegacyMasterKeyFromUnlockData(password, masterPasswordUnlockData, userId);
   }
 }

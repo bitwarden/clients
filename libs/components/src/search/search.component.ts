@@ -49,9 +49,10 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
 
   protected readonly isInputFocused = signal(false);
   protected readonly isFormHovered = signal(false);
+  protected readonly isResetButtonFocused = signal(false);
 
   protected readonly showResetButton = computed(
-    () => this.isInputFocused() || this.isFormHovered(),
+    () => this.isInputFocused() || this.isFormHovered() || this.isResetButtonFocused(),
   );
 
   readonly disabled = model<boolean>();
@@ -75,6 +76,8 @@ export class SearchComponent implements ControlValueAccessor, FocusableElement {
     if (this.notifyOnChange) {
       this.notifyOnChange("");
     }
+    // Return focus to the search input since the reset button is about to be removed from the DOM
+    this.input()?.nativeElement.focus();
   }
 
   onTouch() {

@@ -3,8 +3,9 @@ import { Observable, firstValueFrom, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -197,6 +198,70 @@ describe("CipherAuthorizationService", () => {
       mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
 
       cipherAuthorizationService.canDeleteCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(false);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  describe("canEditCipher$", () => {
+    it("should return true if isAdminConsoleAction is true and cipher is unassigned", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+
+      cipherAuthorizationService.canEditCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(true);
+        done();
+      });
+    });
+
+    it("should return true if isAdminConsoleAction is true and user can edit all ciphers in the org", (done) => {
+      const cipher = createMockCipher("org1", ["col1"]) as CipherView;
+      const organization = createMockOrganization({ canEditAllCiphers: true });
+      mockOrganizationService.organizations$.mockReturnValue(
+        of([organization]) as Observable<Organization[]>,
+      );
+
+      cipherAuthorizationService.canEditCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockOrganizationService.organizations$).toHaveBeenCalledWith(mockUserId);
+        done();
+      });
+    });
+
+    it("should return false if isAdminConsoleAction is true but user does not have permission to edit unassigned ciphers", (done) => {
+      const cipher = createMockCipher("org1", []) as CipherView;
+      const organization = createMockOrganization({ canEditUnassignedCiphers: false });
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, true).subscribe((result) => {
+        expect(result).toBe(false);
+        done();
+      });
+    });
+
+    it("should return true if cipher.edit is true and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], true) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, false).subscribe((result) => {
+        expect(result).toBe(true);
+        expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return false if cipher.edit is false and is not an admin action", (done) => {
+      const cipher = createMockCipher("org1", [], false) as CipherView;
+      const organization = createMockOrganization();
+      mockOrganizationService.organizations$.mockReturnValue(of([organization] as Organization[]));
+
+      cipherAuthorizationService.canEditCipher$(cipher, false).subscribe((result) => {
         expect(result).toBe(false);
         expect(mockCollectionService.decryptedCollections$).not.toHaveBeenCalled();
         done();

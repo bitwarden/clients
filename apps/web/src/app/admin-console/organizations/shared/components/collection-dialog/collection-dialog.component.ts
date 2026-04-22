@@ -18,19 +18,21 @@ import {
 import { first } from "rxjs/operators";
 
 import {
-  CollectionAccessSelectionView,
   CollectionAdminService,
-  CollectionAdminView,
   OrganizationUserApiService,
   OrganizationUserUserMiniResponse,
-  CollectionResponse,
-  CollectionView,
   CollectionService,
 } from "@bitwarden/admin-console/common";
 import {
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  CollectionAccessSelectionView,
+  CollectionAdminView,
+  CollectionView,
+  CollectionResponse,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -359,6 +361,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     return this.params.readonly === true;
   }
 
+  protected get accessTabLabel(): string {
+    return this.dialogReadonly
+      ? this.i18nService.t("viewAccess")
+      : this.i18nService.t("editAccess");
+  }
+
   protected async cancel() {
     this.close(CollectionDialogAction.Canceled);
   }
@@ -520,7 +528,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   private close(action: CollectionDialogAction, collection?: CollectionResponse | CollectionView) {
-    this.dialogRef.close({ action, collection } as CollectionDialogResult);
+    void this.dialogRef.close({ action, collection } as CollectionDialogResult);
   }
 }
 
@@ -618,7 +626,7 @@ function mapUserToAccessItemView(
  */
 export function openCollectionDialog(
   dialogService: DialogService,
-  config: DialogConfig<CollectionDialogParams, DialogRef<CollectionDialogResult>>,
+  config: DialogConfig<CollectionDialogParams, CollectionDialogResult>,
 ) {
   return dialogService.open<CollectionDialogResult>(CollectionDialogComponent, config);
 }

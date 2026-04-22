@@ -11,13 +11,11 @@ import {
   of,
   shareReplay,
   switchMap,
-  take,
 } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -87,24 +85,14 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
     this._filter$.next(value);
   }
 
-  private archiveFeatureEnabled = false;
-
   constructor(
     protected searchService: SearchService,
     protected cipherService: CipherService,
     protected accountService: AccountService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
+    protected configService: ConfigService,
   ) {
     this.subscribeToCiphers();
-
-    // Check if archive feature flag is enabled
-    this.configService
-      .getFeatureFlag$(FeatureFlag.PM19148_InnovationArchive)
-      .pipe(takeUntilDestroyed(), take(1))
-      .subscribe((isEnabled) => {
-        this.archiveFeatureEnabled = isEnabled;
-      });
   }
 
   ngOnDestroy(): void {
@@ -151,15 +139,8 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
   protected deletedFilter: (cipher: C) => boolean = (c) =>
     CipherViewLikeUtils.isDeleted(c) === this.deleted;
 
-  protected archivedFilter: (cipher: C) => boolean = (c) => {
-    // When the archive feature is not enabled,
-    // always return true to avoid filtering out any items.
-    if (!this.archiveFeatureEnabled) {
-      return true;
-    }
-
-    return CipherViewLikeUtils.isArchived(c) === this.archived;
-  };
+  protected archivedFilter: (cipher: C) => boolean = (c) =>
+    CipherViewLikeUtils.isArchived(c) === this.archived;
 
   /**
    * Creates stream of dependencies that results in the list of ciphers to display
@@ -182,22 +163,31 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             this.restrictedItemTypesService.restricted$,
           ]),
         ),
-        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
-          let allCiphers = (indexedCiphers ?? []) as C[];
-          const _failedCiphers = failedCiphers ?? [];
+        switchMap(
+          async ([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
+            let allCiphers = (indexedCiphers ?? []) as C[];
+            const _failedCiphers = failedCiphers ?? [];
 
-          allCiphers = [..._failedCiphers, ...allCiphers] as C[];
+            allCiphers = [..._failedCiphers, ...allCiphers] as C[];
 
-          const restrictedTypeFilter = (cipher: CipherViewLike) =>
-            !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
+            const restrictedTypeFilter = (cipher: CipherViewLike) =>
+              !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
 
-          return this.searchService.searchCiphers(
-            userId,
-            searchText,
-            [filter, this.deletedFilter, this.archivedFilter, restrictedTypeFilter],
-            allCiphers,
-          );
-        }),
+            let filteredCiphers = await this.searchService.searchCiphers(
+              userId,
+              null,
+              searchText,
+              allCiphers,
+            );
+            filteredCiphers = filteredCiphers.filter(restrictedTypeFilter);
+            // Filter is initially null
+            if (filter != null) {
+              filteredCiphers = filteredCiphers.filter(filter);
+            }
+
+            return filteredCiphers;
+          },
+        ),
         takeUntilDestroyed(),
       )
       .subscribe((ciphers) => {

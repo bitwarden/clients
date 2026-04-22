@@ -30,6 +30,7 @@ import {
   DialogService,
   FormFieldModule,
   IconModule,
+  SvgModule,
   InputModule,
   LinkModule,
   ToastService,
@@ -63,12 +64,13 @@ declare global {
     ReactiveFormsModule,
     DialogModule,
     FormFieldModule,
+    IconModule,
     InputModule,
     LinkModule,
     TypographyModule,
     CalloutModule,
     ButtonModule,
-    IconModule,
+    SvgModule,
     I18nPipe,
     AsyncActionsModule,
     JslibModule,
@@ -145,7 +147,7 @@ export class TwoFactorSetupAuthenticatorComponent
     }
     if (this.enabled) {
       await this.disableMethod();
-      this.dialogRef.close(this.enabled);
+      await this.dialogRef.close(this.enabled);
     } else {
       await this.enable();
     }

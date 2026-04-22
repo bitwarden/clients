@@ -18,7 +18,6 @@ import {
   BehaviorSubject,
   combineLatest,
   firstValueFrom,
-  from,
   map,
   merge,
   Observable,
@@ -32,19 +31,16 @@ import {
 } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordStrengthV2Component } from "@bitwarden/angular/tools/password-strength/password-strength-v2.component";
 import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ClientType, EventType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { ClientType } from "@bitwarden/common/enums";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -58,6 +54,7 @@ import {
   BitSubmitDirective,
   ButtonModule,
   CalloutModule,
+  CopyClickDirective,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -67,6 +64,7 @@ import {
 } from "@bitwarden/components";
 import { GeneratorServicesModule } from "@bitwarden/generator-components";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 import {
   ExportedVault,
   ExportFormatMetadata,
@@ -85,7 +83,7 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    JslibModule,
+    I18nPipe,
     FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
@@ -96,11 +94,11 @@ import { ExportScopeCalloutComponent } from "./export-scope-callout.component";
     ExportScopeCalloutComponent,
     PasswordStrengthV2Component,
     GeneratorServicesModule,
+    CopyClickDirective,
   ],
 })
 export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   private _organizationId$ = new BehaviorSubject<OrganizationId | undefined>(undefined);
-  private createDefaultLocationFlagEnabled$: Observable<boolean>;
   private _showExcludeMyItems = false;
 
   /**
@@ -259,13 +257,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     protected organizationService: OrganizationService,
     private accountService: AccountService,
     private collectionService: CollectionService,
-    private configService: ConfigService,
     private platformUtilsService: PlatformUtilsService,
     @Optional() private router?: Router,
   ) {}
 
   async ngOnInit() {
-    this.observeFeatureFlags();
     this.observeFormState();
     this.observePolicyStatus();
     this.observeFormSelections();
@@ -284,12 +280,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     // individual vault export
     this.initIndividual();
     this.setupPolicyBasedFormState();
-  }
-
-  private observeFeatureFlags(): void {
-    this.createDefaultLocationFlagEnabled$ = from(
-      this.configService.getFeatureFlag(FeatureFlag.CreateDefaultLocation),
-    ).pipe(shareReplay({ bufferSize: 1, refCount: true }));
   }
 
   private observeFormState(): void {
@@ -380,32 +370,24 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /**
    * Determine value of showExcludeMyItems. Returns true when:
-   * CreateDefaultLocation feature flag is on
-   * AND organizationDataOwnershipPolicy is enabled for the selected organization
+   * organizationDataOwnershipPolicy is enabled for the selected organization
    * AND a valid OrganizationId is present (not exporting from individual vault)
    */
   private observeMyItemsExclusionCriteria(): void {
     combineLatest({
-      createDefaultLocationFlagEnabled: this.createDefaultLocationFlagEnabled$,
       organizationDataOwnershipPolicyEnabledForOrg:
         this.organizationDataOwnershipPolicyEnabledForOrg$,
       organizationId: this._organizationId$,
     })
       .pipe(takeUntil(this.destroy$))
-      .subscribe(
-        ({
-          createDefaultLocationFlagEnabled,
-          organizationDataOwnershipPolicyEnabledForOrg,
-          organizationId,
-        }) => {
-          if (!createDefaultLocationFlagEnabled || !organizationId) {
-            this._showExcludeMyItems = false;
-            return;
-          }
+      .subscribe(({ organizationDataOwnershipPolicyEnabledForOrg, organizationId }) => {
+        if (!organizationId) {
+          this._showExcludeMyItems = false;
+          return;
+        }
 
-          this._showExcludeMyItems = organizationDataOwnershipPolicyEnabledForOrg;
-        },
-      );
+        this._showExcludeMyItems = organizationDataOwnershipPolicyEnabledForOrg;
+      });
   }
 
   // Setup validator adjustments based on format and encryption type changes
@@ -569,6 +551,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
       this.exportForm.clearValidators();
     } catch (e) {
       this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        title: this.i18nService.t("errorOccurred"),
+        message: this.i18nService.t("exportError"),
+      });
     }
   }
 
