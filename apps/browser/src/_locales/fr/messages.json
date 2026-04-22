@@ -1148,6 +1148,15 @@
     "message": "Efface automatiquement les valeurs copiées de votre presse-papiers.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Paramètres du presse-papier mis à jour"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Le délai d'expiration de votre presse-papier est défini à la valeur par défaut, qui a été mis à jour sur 5 minutes pour une sécurité accrue."
+  },
+  "jumpToSetting": {
+    "message": "Allez aux paramètres"
+  },
   "notificationAddDesc": {
     "message": "Est-ce que Bitwarden doit se souvenir de ce mot de passe pour vous ?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Options supplémentaires"
+  },
+  "enableFillAssist": {
+    "message": "Utiliser l'aide de remplissage"
   },
   "enableContextMenuItem": {
     "message": "Afficher les options du menu contextuel"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ce site ne correspond pas à vos identifiants de connexion enregistrés. Avant de remplir vos identifiants de connexion, assurez-vous que c'est un site de confiance."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Afficher les suggestions de saisie automatique dans les champs d'un formulaire"
   },
@@ -2102,6 +2135,27 @@
   "typeNote": {
     "message": "Note"
   },
+  "typeLoginSubtitle": {
+    "message": "Site web ou application"
+  },
+  "typeCardSubtitle": {
+    "message": "Carte de débit ou de crédit"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informations personnelles"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texte important"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Jeton de connexion au serveur"
+  },
+  "folderSubtitle": {
+    "message": "Organisez vos éléments"
+  },
+  "collectionSubtitle": {
+    "message": "Organisez vos éléments partagés"
+  },
   "newItemHeaderLogin": {
     "message": "Nouvel Identifiant",
     "description": "Header for new login item type"
@@ -2177,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Afficher la clé SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choisissez un élément à ajouter"
   },
   "passwordHistory": {
     "message": "Historique des mots de passe"
@@ -2837,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ souhaite que vous changiez ce mot de passe car il est à risque. Accédez aux paramètres de votre compte pour modifier le mot de passe.",
+  "atRiskNavigatePromptV2": {
+    "message": "Votre mot de passe pour ce site est compromis. $ORGANIZATION$ vous demande d'accéder aux paramètres de votre compte et de le changer.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Statut de connexion"
+  },
+  "recentlyActive": {
+    "message": "Actif récemment"
+  },
+  "recentlyActiveToday": {
+    "message": "Aujourd'hui"
+  },
+  "recentlyActivePast7Days": {
+    "message": "7 derniers jours"
+  },
+  "recentlyActivePast14Days": {
+    "message": "14 derniers jours"
+  },
+  "recentlyActivePast30Days": {
+    "message": "30 derniers jours"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Il y a plus de 30 jours"
   },
   "masterPasswordChanged": {
     "message": "Mot de passe principal enregistré"
@@ -6115,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Géré par l'application de bureau Bitwarden. Ouvrez l'application pour éditer."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complet",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Mettre à jour"
   },
@@ -6202,6 +6289,9 @@
   "emailPlaceholder": {
     "message": "utilisateur@bitwarden.com , utilisateur@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "utilisateur@bitwarden.com, utilisateur@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Télécharger les applications Bitwarden"
   },
@@ -6217,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Échec du téléchargement."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
