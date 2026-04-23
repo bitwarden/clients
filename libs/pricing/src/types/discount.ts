@@ -110,6 +110,37 @@ export const toDisplayableDiscounts = (
     );
 };
 
+/**
+ * Applies an array of active discounts sequentially to a base price.
+ *
+ * Percent-off discounts compound on the running remainder (e.g., 10% then 20%
+ * reduces $100 → $90 → $72, not $100 → $70).
+ * Amount-off discounts are subtracted as flat reductions.
+ *
+ * The result is floored at zero — a price can never go negative.
+ */
+export const applyDiscountsSequentially = (
+  price: number,
+  discounts: { active: boolean; percentOff?: number; amountOff?: number; appliesTo?: string[] }[],
+  productId?: string | null,
+): number => {
+  let discounted = price;
+  for (const d of discounts) {
+    if (!d.active) {
+      continue;
+    }
+    if (d.appliesTo?.length && (!productId || !d.appliesTo.includes(productId))) {
+      continue;
+    }
+    if (d.percentOff) {
+      discounted -= discounted * (d.percentOff / 100);
+    } else if (d.amountOff) {
+      discounted -= d.amountOff;
+    }
+  }
+  return Math.max(0, discounted);
+};
+
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {
   switch (discount.type) {
     case DiscountTypes.AmountOff: {

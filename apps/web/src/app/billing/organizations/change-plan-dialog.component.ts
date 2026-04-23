@@ -990,15 +990,15 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
    * Percent-off discounts are applied to the running total after all prior discounts.
    * Amount-off discounts are applied as a flat reduction.
    *
-   * Results are cached by `total` so repeated access within the same change-detection
-   * cycle (e.g., from `totalDiscountAmount` and the template) avoids recomputation.
+   * Results are cached by `total` so repeated calls with the same subtotal within
+   * the same change-detection cycle avoid recomputation.
    */
-  private _cachedDiscountTotal: number | null = null;
-  private _cachedDiscountLineItems: { label: string; amount: number }[] = [];
+  private _discountCache = new Map<number, { label: string; amount: number }[]>();
 
   calculateIndividualDiscounts(total: number): { label: string; amount: number }[] {
-    if (this._cachedDiscountTotal === total) {
-      return this._cachedDiscountLineItems;
+    const cached = this._discountCache.get(total);
+    if (cached) {
+      return cached;
     }
     const result: { label: string; amount: number }[] = [];
     let remaining = total;
@@ -1016,8 +1016,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         result.push({ label, amount });
       }
     }
-    this._cachedDiscountTotal = total;
-    this._cachedDiscountLineItems = result;
+    this._discountCache.set(total, result);
     return result;
   }
 

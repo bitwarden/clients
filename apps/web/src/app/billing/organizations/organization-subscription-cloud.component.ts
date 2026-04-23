@@ -31,6 +31,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import {
   Discount,
   SM_STANDALONE_DISCOUNT_ID,
+  applyDiscountsSequentially,
   isSmStandaloneTrial,
   toDisplayableDiscounts,
 } from "@bitwarden/pricing";
@@ -496,24 +497,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   };
 
   discountPrice = (price: number, productId: string = null) => {
-    let discounted = price;
-    for (const d of this.customerDiscounts) {
-      if (!d.active) {
-        continue;
-      }
-      // Product-scoped discounts (including sm-standalone trials) only apply when the
-      // caller provides a productId that the coupon explicitly covers. Without a
-      // productId we can't verify applicability, so we skip them.
-      if (d.appliesTo?.length && (!productId || !d.appliesTo.includes(productId))) {
-        continue;
-      }
-      if (d.percentOff) {
-        discounted -= discounted * (d.percentOff / 100);
-      } else if (d.amountOff) {
-        discounted -= d.amountOff;
-      }
-    }
-    return Math.max(0, discounted);
+    return applyDiscountsSequentially(price, this.customerDiscounts, productId);
   };
 
   get showChangePlanButton() {

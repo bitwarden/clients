@@ -10,6 +10,7 @@ import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BillingCustomerDiscount } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { applyDiscountsSequentially } from "@bitwarden/pricing";
 
 export interface SecretsManagerSubscription {
   enabled: boolean;
@@ -80,18 +81,7 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   }
 
   discountPrice = (price: number) => {
-    let discounted = price;
-    for (const d of this.customerDiscounts) {
-      if (!d.active) {
-        continue;
-      }
-      if (d.percentOff) {
-        discounted -= discounted * (d.percentOff / 100);
-      } else if (d.amountOff) {
-        discounted -= d.amountOff;
-      }
-    }
-    return Math.max(0, discounted);
+    return applyDiscountsSequentially(price, this.customerDiscounts);
   };
 
   get product() {

@@ -2,6 +2,7 @@ import {
   Discount,
   DiscountTypes,
   SM_STANDALONE_DISCOUNT_ID,
+  applyDiscountsSequentially,
   getAmount,
   isSmStandaloneTrial,
   toDisplayableDiscounts,
@@ -187,5 +188,69 @@ describe("isSmStandaloneTrial", () => {
 
   it("should return false when discounts array is null", () => {
     expect(isSmStandaloneTrial(null, [{ productId: "prod_1" }])).toBe(false);
+  });
+});
+
+describe("applyDiscountsSequentially", () => {
+  it("should return the original price when there are no discounts", () => {
+    expect(applyDiscountsSequentially(100, [])).toBe(100);
+  });
+
+  it("should skip inactive discounts", () => {
+    const discounts = [{ active: false, percentOff: 50 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(100);
+  });
+
+  it("should apply a single percent-off discount", () => {
+    const discounts = [{ active: true, percentOff: 10 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(90);
+  });
+
+  it("should apply a single amount-off discount", () => {
+    const discounts = [{ active: true, amountOff: 15 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(85);
+  });
+
+  it("should compound multiple percent-off discounts sequentially", () => {
+    const discounts = [
+      { active: true, percentOff: 10 },
+      { active: true, percentOff: 20 },
+    ];
+    // 100 -> 90 -> 72
+    expect(applyDiscountsSequentially(100, discounts)).toBe(72);
+  });
+
+  it("should apply mixed percent-off and amount-off discounts sequentially", () => {
+    const discounts = [
+      { active: true, percentOff: 10 },
+      { active: true, amountOff: 5 },
+    ];
+    // 100 -> 90 -> 85
+    expect(applyDiscountsSequentially(100, discounts)).toBe(85);
+  });
+
+  it("should floor the result at zero", () => {
+    const discounts = [{ active: true, amountOff: 200 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(0);
+  });
+
+  it("should skip product-scoped discounts when no productId is provided", () => {
+    const discounts = [{ active: true, percentOff: 50, appliesTo: ["prod_1"] }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(100);
+  });
+
+  it("should skip product-scoped discounts when productId does not match", () => {
+    const discounts = [{ active: true, percentOff: 50, appliesTo: ["prod_1"] }];
+    expect(applyDiscountsSequentially(100, discounts, "prod_2")).toBe(100);
+  });
+
+  it("should apply product-scoped discounts when productId matches", () => {
+    const discounts = [{ active: true, percentOff: 50, appliesTo: ["prod_1"] }];
+    expect(applyDiscountsSequentially(100, discounts, "prod_1")).toBe(50);
+  });
+
+  it("should apply non-scoped discounts regardless of productId", () => {
+    const discounts = [{ active: true, percentOff: 10, appliesTo: [] as string[] }];
+    expect(applyDiscountsSequentially(100, discounts, "prod_1")).toBe(90);
   });
 });

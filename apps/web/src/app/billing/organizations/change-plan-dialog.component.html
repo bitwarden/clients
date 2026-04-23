@@ -473,7 +473,7 @@
                 organization.useSecretsManager &&
                 !isSecretsManagerTrial() &&
                 selectedInterval == planIntervals.Annually &&
-                compoundedDiscountPercentage > 0
+                activeDiscounts.length > 0
               "
             >
               @for (
@@ -557,7 +557,7 @@
                 organization.useSecretsManager &&
                 !isSecretsManagerTrial() &&
                 selectedInterval == planIntervals.Annually &&
-                compoundedDiscountPercentage > 0
+                activeDiscounts.length > 0
               "
             >
               @for (
@@ -635,7 +635,7 @@
                 organization.useSecretsManager &&
                 !isSecretsManagerTrial() &&
                 selectedInterval == planIntervals.Monthly &&
-                compoundedDiscountPercentage > 0
+                activeDiscounts.length > 0
               "
             >
               @for (d of calculateIndividualDiscounts(total); track d.label) {
@@ -710,7 +710,7 @@
                 organization.useSecretsManager &&
                 !isSecretsManagerTrial() &&
                 selectedInterval == planIntervals.Monthly &&
-                compoundedDiscountPercentage > 0
+                activeDiscounts.length > 0
               "
             >
               @for (
@@ -954,7 +954,7 @@
         </div>
         <!-- discountPercentage to PM Only -->
         <div
-          *ngIf="totalOpened && !organization.useSecretsManager && compoundedDiscountPercentage > 0"
+          *ngIf="totalOpened && !organization.useSecretsManager && activeDiscounts.length > 0"
           class="tw-flex tw-flex-wrap tw-gap-4"
         >
           <bit-hint class="tw-w-1/2">
