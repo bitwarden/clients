@@ -1,11 +1,14 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
   inject,
   input,
   model,
+  NgZone,
+  OnInit,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
@@ -18,6 +21,7 @@ import {
   Observable,
   of,
   shareReplay,
+  startWith,
   switchMap,
 } from "rxjs";
 
@@ -48,12 +52,17 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class VaultFilterComponent {
+export class VaultFilterComponent implements OnInit {
   private readonly vaultFilterService = inject(VaultFilterServiceAbstraction);
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  /** Tracks which org id filters were last built for, to avoid redundant rebuilds. */
+  private readonly builtOrgId: string | undefined;
 
   readonly activeFilter = input<VaultFilter>(new VaultFilter());
   readonly searchText = model("");
@@ -133,31 +142,62 @@ export class VaultFilterComponent {
   }
 
   constructor() {
+    // toObservable must be set up in the constructor (injection context).
+    // ngOnInit handles the synchronous initial build before the first view evaluation;
+    // this subscription handles org changes after the initial render and resolves the
+    // default collection node selection (which requires an async tree emission).
     toObservable(this.organization)
       .pipe(
         filter((org): org is Organization => !!org),
         switchMap(async (org) => {
-          this.vaultFilterService.setOrganizationFilter(org);
-          const filters = await this.buildAllFilters();
+          // Skip the rebuild if ngOnInit already built filters for this org.
+          if (org.id !== this.builtOrgId) {
+            this.builtOrgId = org.id;
+            this.vaultFilterService.setOrganizationFilter(org);
+            // Re-enter Angular's zone: toObservable's effect runs outside NgZone,
+            // so signal writes here would not schedule a CD run on their own.
+            this.ngZone.run(() => {
+              this.filters.set(this.buildAllFilters());
+              this.isLoaded.set(true);
+              this.cdr.markForCheck();
+            });
+          }
 
           const defaultCollectionNode = !this.activeFilter().selectedCipherTypeNode
             ? ((await firstValueFrom(
-                filters.collectionFilter!.data$,
+                this.filters()!.collectionFilter!.data$,
               )) as TreeNode<CollectionFilter>)
             : null;
 
-          return { filters, defaultCollectionNode };
+          return { defaultCollectionNode };
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ filters, defaultCollectionNode }) => {
-        this.filters.set(filters);
+      .subscribe(({ defaultCollectionNode }) => {
         if (defaultCollectionNode) {
-          this.activeFilter().resetFilter();
-          this.activeFilter().selectedCollectionNode = defaultCollectionNode;
+          this.ngZone.run(() => {
+            this.activeFilter().resetFilter();
+            this.activeFilter().selectedCollectionNode = defaultCollectionNode;
+            this.cdr.markForCheck();
+          });
         }
-        this.isLoaded.set(true);
       });
+  }
+
+  ngOnInit(): void {
+    const org = this.organization();
+    if (!org) {
+      return;
+    }
+
+    // Build filters synchronously before the first view evaluation. ngOnInit runs
+    // before Angular checks this component's template, so setting isLoaded here means
+    // the @else branch (with all filter sections) renders on the very first pass —
+    // no loading spinner is ever shown.
+    this.builtOrgId = org.id;
+    this.vaultFilterService.setOrganizationFilter(org);
+    this.filters.set(this.buildAllFilters());
+    this.isLoaded.set(true);
   }
 
   readonly applyTypeFilter = async (filterNode: TreeNode<CipherTypeFilter>): Promise<void> => {
@@ -174,15 +214,17 @@ export class VaultFilterComponent {
     filter.selectedCollectionNode = collectionNode;
   };
 
-  async buildAllFilters(): Promise<VaultFilterList> {
-    const builderFilter = {} as VaultFilterList;
-    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this.organization()?.id);
-    builderFilter.collectionFilter = await this.addCollectionFilter();
-    builderFilter.trashFilter = await this.addTrashFilter();
-    return builderFilter;
+  // Each add*Filter method constructs a VaultFilterSection with a lazy data$ observable.
+  // None of them do any actual async I/O, so they can all run synchronously.
+  buildAllFilters(): VaultFilterList {
+    return {
+      typeFilter: this.addTypeFilter(["favorites"], this.organization()?.id),
+      collectionFilter: this.addCollectionFilter(),
+      trashFilter: this.addTrashFilter(),
+    };
   }
 
-  protected async addCollectionFilter(): Promise<VaultFilterSection> {
+  protected addCollectionFilter(): VaultFilterSection {
     // Ensure the Collections filter is never collapsed in the org vault.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.removeCollapsibleCollection();
@@ -214,10 +256,10 @@ export class VaultFilterComponent {
     };
   }
 
-  protected async addTypeFilter(
+  protected addTypeFilter(
     excludeTypes: CipherStatus[] = [],
     organizationId?: string,
-  ): Promise<VaultFilterSection> {
+  ): VaultFilterSection {
     const allFilter: CipherTypeFilter = {
       id: "AllItems",
       name: "allItems",
@@ -226,7 +268,11 @@ export class VaultFilterComponent {
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      this.ciphers$(),
+      // startWith([]) lets combineLatest emit immediately (before allCiphers$ resolves
+      // its API call), so the type filter renders on the first CD cycle. When actual
+      // ciphers arrive, the filter recomputes; for users with no restricted types the
+      // value is identical and distinctUntilChanged suppresses a spurious re-render.
+      this.ciphers$().pipe(startWith([] as CipherView[])),
     ]).pipe(
       map(([restrictedTypes, ciphers]) => {
         const restrictedForUser = restrictedTypes
@@ -267,7 +313,7 @@ export class VaultFilterComponent {
     };
   }
 
-  protected async addTrashFilter(): Promise<VaultFilterSection> {
+  protected addTrashFilter(): VaultFilterSection {
     return {
       data$: this.vaultFilterService.buildTypeTree(
         {
