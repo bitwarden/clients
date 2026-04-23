@@ -33,10 +33,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
-function lengthValidCustomMessage(name: string, max: number): ValidatorFn {
+function lengthValidCustomMessage(customMessage: string, max: number): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (control.value && control.value.length > max) {
-      return { headerMaxLength: { message: `Enter a ${name} under ${max} characters.` } };
+      return { headerMaxLength: { message: customMessage } };
     }
     return null;
   };
@@ -97,18 +97,41 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
     this.formBuilder.group({
       header: [
         null as string,
-        lengthValidCustomMessage(this.i18nService.t("header").toLocaleLowerCase(), 40),
+        lengthValidCustomMessage(
+          this.i18nService.t(
+            "tooManyCharacters",
+            this.i18nService.t("header").toLocaleLowerCase(),
+            40,
+          ),
+          40,
+        ),
       ],
       description: [
         null as string,
         [
           Validators.required,
-          lengthValidCustomMessage(this.i18nService.t("description").toLocaleLowerCase(), 250),
+          lengthValidCustomMessage(
+            this.i18nService.t(
+              "tooManyCharacters",
+              this.i18nService.t("description").toLocaleLowerCase(),
+              250,
+            ),
+            250,
+          ),
         ],
       ],
       buttonText: [
         null as string,
-        [lengthValidCustomMessage(this.i18nService.t("button").toLocaleLowerCase(), 20)],
+        [
+          lengthValidCustomMessage(
+            this.i18nService.t(
+              "tooManyCharactersAlt",
+              this.i18nService.t("button").toLocaleLowerCase(),
+              20,
+            ),
+            20,
+          ),
+        ],
       ],
       showAfterEveryLogin: [null as boolean],
     });
