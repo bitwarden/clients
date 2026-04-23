@@ -113,6 +113,13 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
       showAfterEveryLogin: [null as boolean],
     });
 
+  protected override buildRequestData() {
+    if (!this.enabled.value) {
+      return null;
+    }
+    return this.data.getRawValue();
+  }
+
   constructor() {
     super();
     const { header, description, buttonText, showAfterEveryLogin } = this.data.controls;
