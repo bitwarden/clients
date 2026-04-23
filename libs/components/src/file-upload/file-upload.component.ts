@@ -103,7 +103,7 @@ export class FileUploadComponent {
   protected readonly fileLabel = computed(() => {
     const files = this.files();
     if (files.length) {
-      return files.length === 1 ? files[0].name : `${files.length} files selected`;
+      return files[0].name;
     }
   });
 

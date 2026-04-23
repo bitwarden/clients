@@ -55,7 +55,6 @@ export class DropzoneComponent {
       "tw-items-center",
       "tw-gap-4",
       "tw-py-10",
-      "tw-mt-1",
       "tw-border",
       "tw-border-dashed",
       "tw-rounded-xl",
