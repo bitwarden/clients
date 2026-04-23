@@ -19,11 +19,9 @@ export class CartItemResponse extends BaseResponse implements CartItem {
     this.translationKey = this.getResponseProperty("TranslationKey");
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
-    // The CartItem interface defines a single discount per line item. The server returns
-    // a Discounts array, but at most one discount per item is expected. Take the first.
-    const discounts = this.getResponseProperty("Discounts");
-    if (Array.isArray(discounts) && discounts.length > 0) {
-      this.discount = new DiscountResponse(discounts[0]);
+    const discount = this.getResponseProperty("Discount");
+    if (discount) {
+      this.discount = discount;
     }
   }
 }
@@ -89,11 +87,9 @@ export class CartResponse extends BaseResponse implements Cart {
     }
     this.cadence = cadence;
 
-    // Unlike CartItemResponse (which takes only the first element), CartResponse
-    // maps the full Discounts array since cart-level discounts can stack.
-    const discounts = this.getResponseProperty("Discounts");
-    if (Array.isArray(discounts) && discounts.length > 0) {
-      this.discounts = discounts.map((d: any) => new DiscountResponse(d));
+    const discount = this.getResponseProperty("Discount");
+    if (discount) {
+      this.discounts = [new DiscountResponse(discount)];
     }
 
     this.estimatedTax = this.getResponseProperty("EstimatedTax");
