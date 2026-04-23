@@ -28,13 +28,7 @@ import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/model
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  Discount,
-  SM_STANDALONE_DISCOUNT_ID,
-  applyDiscountsSequentially,
-  isSmStandaloneTrial,
-  toDisplayableDiscounts,
-} from "@bitwarden/pricing";
+import { Discount, applyDiscountsSequentially, toDisplayableDiscounts } from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -243,9 +237,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return this.sub?.customerDiscounts ?? [];
   }
 
-  /** Exclude sm-standalone trial coupons — they shouldn't display as discount badges */
   get displayableDiscounts(): Discount[] {
-    return toDisplayableDiscounts(this.customerDiscounts, new Set([SM_STANDALONE_DISCOUNT_ID]));
+    return toDisplayableDiscounts(this.customerDiscounts);
   }
 
   get isExpired() {
@@ -419,7 +412,14 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   isSecretsManagerTrial(): boolean {
-    return isSmStandaloneTrial(this.customerDiscounts, this.sub?.subscription?.items);
+    return this.customerDiscounts.some(
+      (d) =>
+        d.active &&
+        d.id === "sm-standalone" &&
+        this.sub?.subscription?.items?.some(
+          (item) => item.productId && d.appliesTo?.includes(item.productId),
+        ),
+    );
   }
 
   discountAppliesToProduct(productId: string): boolean {

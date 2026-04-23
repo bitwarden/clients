@@ -2,22 +2,19 @@ import { Injectable } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
-import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { Discount, DiscountTypes, getCompoundedPercentOff, getLabel } from "@bitwarden/pricing";
-
 import {
-  DiscountLineItem,
-  PricingSummaryData,
-} from "../shared/pricing-summary/pricing-summary.component";
+  BillingCustomerDiscount,
+  OrganizationSubscriptionResponse,
+} from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { getCompoundedPercentOff, toDisplayableDiscounts } from "@bitwarden/pricing";
+
+import { PricingSummaryData } from "../shared/pricing-summary/pricing-summary.component";
 
 @Injectable({
   providedIn: "root",
 })
 export class PricingSummaryService {
-  constructor(private i18nService: I18nService) {}
-
   async getPricingSummaryData(
     plan: PlanResponse,
     sub: OrganizationSubscriptionResponse,
@@ -68,40 +65,16 @@ export class PricingSummaryService {
         additionalServiceAccountTotal
       : 0;
 
-    const allActiveDiscounts = isSecretsManagerTrial
-      ? []
-      : (sub?.customerDiscounts ?? []).filter(
-          (d) => d.active && ((d.percentOff ?? 0) > 0 || (d.amountOff ?? 0) > 0),
-        );
-    const compoundedDiscountPercentage = getCompoundedPercentOff(allActiveDiscounts);
+    const totalAppliedDiscount = 0;
+    const activeDiscounts = isSecretsManagerTrial ? [] : this.getActiveDiscounts(sub);
+    const discountPercentageFromSub = isSecretsManagerTrial ? 0 : this.getCompoundedPercentOff(sub);
+    const displayableDiscounts = toDisplayableDiscounts(activeDiscounts);
     const discountPercentage = 20;
     const acceptingSponsorship = false;
 
     const total = organization?.useSecretsManager
       ? passwordManagerSubtotal + secretsManagerSubtotal + estimatedTax
       : passwordManagerSubtotal + estimatedTax;
-
-    const subtotalBeforeTax = total - estimatedTax;
-    const discountLineItems: DiscountLineItem[] = [];
-    let remaining = subtotalBeforeTax;
-    for (const d of allActiveDiscounts) {
-      const percentOff = d.percentOff ?? 0;
-      const amountOff = d.amountOff ?? 0;
-      const discount: Discount = amountOff
-        ? { type: DiscountTypes.AmountOff, value: amountOff }
-        : { type: DiscountTypes.PercentOff, value: percentOff };
-      const label = getLabel(this.i18nService, discount);
-      if (amountOff > 0) {
-        remaining -= amountOff;
-        discountLineItems.push({ label, amount: amountOff });
-      } else if (percentOff > 0) {
-        const amount = remaining * (percentOff / 100);
-        remaining -= amount;
-        discountLineItems.push({ label, amount });
-      }
-    }
-
-    const totalAppliedDiscount = discountLineItems.reduce((sum, d) => sum + d.amount, 0);
 
     return {
       selectedPlanInterval: selectedInterval === PlanInterval.Annually ? "year" : "month",
@@ -120,15 +93,26 @@ export class PricingSummaryService {
       sub,
       selectedPlan: plan,
       selectedInterval,
-      compoundedDiscountPercentage,
+      discountPercentageFromSub,
+      displayableDiscounts,
+      activeDiscounts,
       discountPercentage,
       acceptingSponsorship,
       additionalServiceAccount,
       storageGb,
       isSecretsManagerTrial,
       estimatedTax,
-      discountLineItems,
     };
+  }
+
+  private getActiveDiscounts(sub: OrganizationSubscriptionResponse): BillingCustomerDiscount[] {
+    return (sub?.customerDiscounts ?? []).filter(
+      (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
+    );
+  }
+
+  private getCompoundedPercentOff(sub: OrganizationSubscriptionResponse): number {
+    return getCompoundedPercentOff(sub?.customerDiscounts ?? []);
   }
 
   getAdditionalServiceAccount(plan: PlanResponse, sub: OrganizationSubscriptionResponse): number {

@@ -215,16 +215,20 @@
         </ng-template>
 
         <!-- Discount Section -->
-        @for (d of summaryData.discountLineItems; track d.label) {
-          <p class="tw-mb-0 tw-flex tw-justify-between" bitTypography="body2">
+        <ng-container *ngIf="summaryData.displayableDiscounts?.length > 0">
+          <p
+            *ngFor="let discount of summaryData.displayableDiscounts; let i = index"
+            class="tw-mb-0 tw-flex tw-justify-between"
+            bitTypography="body2"
+          >
             <span class="tw-text-xs">
-              {{ d.label }}
+              {{ getDiscountLabel(discount) | lowercase }}
             </span>
             <span class="tw-line-through tw-text-xs">
-              {{ d.amount | currency: "$" }}
+              {{ calculateIndividualDiscountAmounts(summaryData.total)[i] | currency: "$" }}
             </span>
           </p>
-        }
+        </ng-container>
       </bit-hint>
     </div>
 

@@ -50,10 +50,9 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 import {
   Discount,
-  DiscountTypes,
   getCompoundedPercentOff,
   getLabel,
-  isSmStandaloneTrial,
+  toDisplayableDiscounts,
 } from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
@@ -186,8 +185,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected compoundedDiscountPercentage: number;
+  protected discountPercentageFromSub: number;
   protected activeDiscounts: BillingCustomerDiscount[] = [];
+  protected displayableDiscounts: Discount[] = [];
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -351,7 +351,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       : (this.sub?.customerDiscounts ?? []).filter(
           (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
         );
-    this.compoundedDiscountPercentage = getCompoundedPercentOff(this.activeDiscounts);
+    this.discountPercentageFromSub = getCompoundedPercentOff(this.activeDiscounts);
+    this.displayableDiscounts = toDisplayableDiscounts(this.activeDiscounts);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
@@ -402,7 +403,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
-    return isSmStandaloneTrial(this.sub?.customerDiscounts ?? [], this.sub?.subscription?.items);
+    return (
+      this.sub?.customerDiscounts?.some(
+        (d) =>
+          d.active &&
+          d.id === "sm-standalone" &&
+          this.sub?.subscription?.items?.some(
+            (item) => item.productId && d.appliesTo?.includes(item.productId),
+          ),
+      ) ?? false
+    );
   }
 
   async planTypeChanged() {
@@ -985,43 +995,39 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.totalOpened = !this.totalOpened;
   }
 
-  /**
-   * Returns each active discount's label and its compounded dollar amount.
-   * Percent-off discounts are applied to the running total after all prior discounts.
-   * Amount-off discounts are applied as a flat reduction.
-   *
-   * Results are cached by `total` so repeated calls with the same subtotal within
-   * the same change-detection cycle avoid recomputation.
-   */
-  private _discountCache = new Map<number, { label: string; amount: number }[]>();
-
-  calculateIndividualDiscounts(total: number): { label: string; amount: number }[] {
-    const cached = this._discountCache.get(total);
-    if (cached) {
-      return cached;
-    }
-    const result: { label: string; amount: number }[] = [];
-    let remaining = total;
-    for (const d of this.activeDiscounts) {
-      const discount: Discount = d.amountOff
-        ? { type: DiscountTypes.AmountOff, value: d.amountOff }
-        : { type: DiscountTypes.PercentOff, value: d.percentOff };
-      const label = getLabel(this.i18nService, discount);
-      if (d.amountOff > 0) {
-        remaining -= d.amountOff;
-        result.push({ label, amount: d.amountOff });
-      } else if (d.percentOff > 0) {
-        const amount = remaining * (d.percentOff / 100);
-        remaining -= amount;
-        result.push({ label, amount });
-      }
-    }
-    this._discountCache.set(total, result);
-    return result;
+  calculateTotalAppliedDiscount(total: number) {
+    return total * (this.discountPercentageFromSub / 100);
   }
 
-  get totalDiscountAmount(): number {
-    return this.calculateIndividualDiscounts(this.total).reduce((sum, d) => sum + d.amount, 0);
+  getDiscountLabel(discount: Discount): string {
+    return getLabel(this.i18nService, discount);
+  }
+
+  /**
+   * Calculates the dollar amount each individual discount saves when applied sequentially (compounding).
+   * For example, with discounts [10%, 20%, 40%] on a $100 base:
+   *   - 10% saves $10 (applied to $100)
+   *   - 20% saves $18 (applied to $90)
+   *   - 40% saves $28.80 (applied to $72)
+   */
+  calculateIndividualDiscountAmounts(baseAmount: number): number[] {
+    const amounts: number[] = [];
+    let running = baseAmount;
+    for (const d of this.activeDiscounts) {
+      if (!d.active) {
+        continue;
+      }
+      if (d.percentOff) {
+        const saved = running * (d.percentOff / 100);
+        amounts.push(Math.round(saved * 100) / 100);
+        running -= saved;
+      } else if (d.amountOff) {
+        const saved = Math.min(d.amountOff, running);
+        amounts.push(Math.round(saved * 100) / 100);
+        running -= saved;
+      }
+    }
+    return amounts;
   }
 
   resolvePlanName(productTier: ProductTierType) {

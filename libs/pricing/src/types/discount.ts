@@ -35,31 +35,6 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
 };
 
 /**
- * The coupon ID used for Secrets Manager standalone trials.
- * Product-scoped: only applies to specific product IDs via `appliesTo`.
- */
-export const SM_STANDALONE_DISCOUNT_ID = "sm-standalone";
-
-/**
- * Determines whether the given discounts and subscription items indicate an active
- * Secrets Manager standalone trial. Returns `true` when at least one active
- * "sm-standalone" discount applies to a subscription item's product.
- */
-export const isSmStandaloneTrial = (
-  customerDiscounts: { id?: string; active: boolean; appliesTo?: string[] }[],
-  subscriptionItems: { productId?: string }[] | undefined,
-): boolean => {
-  return (
-    customerDiscounts?.some(
-      (d) =>
-        d.active &&
-        d.id === SM_STANDALONE_DISCOUNT_ID &&
-        subscriptionItems?.some((item) => item.productId && d.appliesTo?.includes(item.productId)),
-    ) ?? false
-  );
-};
-
-/**
  * Calculates the total compounded percent-off from multiple active discounts.
  * For example, a 10% discount stacked with a 20% discount yields 28% (not 30%).
  *

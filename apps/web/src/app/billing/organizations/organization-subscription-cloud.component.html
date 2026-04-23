@@ -18,8 +18,10 @@
           class="tw-flex tw-items-center tw-gap-3 tw-border-0 tw-border-b tw-border-solid tw-border-secondary-300 tw-pb-2"
         >
           {{ "details" | i18n }}
-          @for (discount of displayableDiscounts; track $index) {
-            <billing-discount-badge [discount]="discount"></billing-discount-badge>
+          @if (!isSecretsManagerTrial()) {
+            @for (discount of displayableDiscounts; track $index) {
+              <billing-discount-badge [discount]="discount"></billing-discount-badge>
+            }
           }
         </strong>
         <bit-table>
@@ -111,16 +113,14 @@
 
     <ng-container *ngIf="userOrg.canEditSubscription">
       <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
-      @if (isSecretsManagerTrial()) {
-        <p bitTypography="body1">
-          {{ "smStandaloneTrialSeatCountUpdateMessageFragment1" | i18n }}
-          {{ "passwordManager" | i18n }}
-          {{ "smStandaloneTrialSeatCountUpdateMessageFragment2" | i18n }}
-          <a href="https://bitwarden.com/contact/" target="_blank" rel="noreferrer"
-            >{{ "contactSupportShort" | i18n }}.
-          </a>
-        </p>
-      }
+      <p bitTypography="body1" *ngIf="isSecretsManagerTrial()">
+        {{ "smStandaloneTrialSeatCountUpdateMessageFragment1" | i18n }}
+        {{ "passwordManager" | i18n }}
+        {{ "smStandaloneTrialSeatCountUpdateMessageFragment2" | i18n }}
+        <a href="https://bitwarden.com/contact/" target="_blank" rel="noreferrer"
+          >{{ "contactSupportShort" | i18n }}.
+        </a>
+      </p>
       <p bitTypography="body1">{{ subscriptionDesc }}</p>
       <ng-container
         *ngIf="
