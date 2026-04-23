@@ -28,7 +28,10 @@ const preview: Preview = {
   ],
   parameters: {
     a11y: {
-      context: "#storybook-root",
+      context: {
+        include: ["#storybook-root", ".cdk-overlay-container"],
+        exclude: [".cdk-visually-hidden"],
+      },
     },
     controls: {
       matchers: {
