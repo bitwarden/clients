@@ -139,7 +139,7 @@ export class AccountRecoveryDialogComponent {
       message: this.i18nService.t("resetPasswordSuccess"),
     });
 
-    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
+    await this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
   };
 
   /**
@@ -149,10 +149,7 @@ export class AccountRecoveryDialogComponent {
    */
   static open = (
     dialogService: DialogService,
-    dialogConfig: DialogConfig<
-      AccountRecoveryDialogData,
-      DialogRef<AccountRecoveryDialogResultType, unknown>
-    >,
+    dialogConfig: DialogConfig<AccountRecoveryDialogData, AccountRecoveryDialogResultType>,
   ) => {
     return dialogService.open<AccountRecoveryDialogResultType, AccountRecoveryDialogData>(
       AccountRecoveryDialogComponent,

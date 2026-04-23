@@ -26,7 +26,6 @@ import {
   DIALOG_DATA,
   DialogConfig,
   DialogModule,
-  DialogRef,
   DialogService,
   FormFieldModule,
   IconButtonModule,
@@ -228,7 +227,7 @@ export class TwoFactorSetupYubiKeyComponent
   ) {
     return dialogService.open<boolean, AuthResponse<TwoFactorYubiKeyResponse>>(
       TwoFactorSetupYubiKeyComponent,
-      config as DialogConfig<AuthResponse<TwoFactorYubiKeyResponse>, DialogRef<boolean>>,
+      config as DialogConfig<AuthResponse<TwoFactorYubiKeyResponse>, boolean>,
     );
   }
 }

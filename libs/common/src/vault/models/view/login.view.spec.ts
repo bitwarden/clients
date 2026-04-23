@@ -53,4 +53,45 @@ describe("LoginView", () => {
       });
     });
   });
+
+  describe("toSdkLoginView", () => {
+    it("should convert populated fields", () => {
+      const loginView = new LoginView();
+      loginView.username = "user";
+      loginView.password = "pass";
+      loginView.totp = "TOTP_SEED";
+
+      const result = loginView.toSdkLoginView();
+
+      expect(result.username).toBe("user");
+      expect(result.password).toBe("pass");
+      expect(result.totp).toBe("TOTP_SEED");
+    });
+
+    it("should convert empty username and password to undefined", () => {
+      const loginView = new LoginView();
+      loginView.username = "";
+      loginView.password = "";
+      loginView.totp = "";
+
+      const result = loginView.toSdkLoginView();
+
+      expect(result.username).toBeUndefined();
+      expect(result.password).toBeUndefined();
+      expect(result.totp).toBeUndefined();
+    });
+
+    it("should convert null/undefined fields to undefined", () => {
+      const loginView = new LoginView();
+      loginView.username = undefined;
+      loginView.password = undefined;
+      loginView.totp = undefined;
+
+      const result = loginView.toSdkLoginView();
+
+      expect(result.username).toBeUndefined();
+      expect(result.password).toBeUndefined();
+      expect(result.totp).toBeUndefined();
+    });
+  });
 });
