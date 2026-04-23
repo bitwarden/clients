@@ -213,8 +213,7 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
           // azure file storage returns file names in content-disposition header, otherwise available in the last path segment of the URL
           let fileName = contentDisposition?.match(/filename="?([^";\n]+)"?/i)?.[1]?.trim();
           if (!fileName) {
-            const fallback = new URL(url).pathname.split("/").pop() ?? "report";
-            fileName = fallback;
+            fileName = new URL(url).pathname.split("/").pop() ?? "report";
           }
 
           return { blob, fileName };
