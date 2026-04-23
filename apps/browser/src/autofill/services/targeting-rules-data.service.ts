@@ -2,11 +2,11 @@ import {
   catchError,
   defer,
   EMPTY,
-  exhaustMap,
   firstValueFrom,
   from,
   retry,
   Subject,
+  switchMap,
   takeUntil,
   tap,
   timer,
@@ -27,13 +27,18 @@ import {
   KeyDefinition,
 } from "@bitwarden/state";
 
-/** Fallback URI used when the server does not provide a targeting rules URI */
-const DEFAULT_TARGETING_RULES_SOURCE_URL =
-  "https://github.com/bitwarden/map-the-web/releases/latest/download/forms.v1.json";
+/** Fallback manifest URI when the server does not provide one */
+const DEFAULT_MANIFEST_URL =
+  "https://github.com/bitwarden/map-the-web/releases/latest/download/manifest.json";
+
+/** Manifest key for the forms map version this client targets */
+const TARGET_FORMS_VERSION = "v1";
 
 type TargetingRulesDataMeta = {
-  /** The last time the data set was updated  */
+  /** The last time the data source was checked */
   timestamp: number;
+  /** Content hash (cid) of the forms map file last stored to state */
+  cid?: string;
 };
 
 const SERVER_TARGETING_RULES_META = KeyDefinition.record<TargetingRulesDataMeta, string>(
@@ -42,6 +47,7 @@ const SERVER_TARGETING_RULES_META = KeyDefinition.record<TargetingRulesDataMeta,
   {
     deserializer: (value: TargetingRulesDataMeta) => ({
       timestamp: value?.timestamp ?? 0,
+      cid: value?.cid,
     }),
   },
 );
@@ -56,7 +62,8 @@ export class TargetingRulesDataService {
 
   // guard against accidental leaks.
   private _destroy$ = new Subject<void>();
-  private _triggerUpdate$ = new Subject<void>();
+  /** Emits `true` to skip the cache-age check, `false`/`undefined` for normal interval */
+  private _triggerUpdate$ = new Subject<boolean>();
   private _metaState: GlobalState<Record<string, TargetingRulesDataMeta>>;
 
   constructor(
@@ -78,7 +85,7 @@ export class TargetingRulesDataService {
    */
   async init(): Promise<void> {
     this.taskSchedulerService.registerTaskHandler(ScheduledTaskNames.targetingRulesUpdate, () =>
-      this._triggerUpdate$.next(),
+      this._triggerUpdate$.next(false),
     );
 
     this.taskSchedulerService.setInterval(
@@ -88,18 +95,30 @@ export class TargetingRulesDataService {
 
     this._triggerUpdate$
       .pipe(
-        exhaustMap(() => this._backgroundUpdate()),
+        // switchMap cancels any in-progress update (including retry delays)
+        // when a new trigger arrives, ensuring account/environment switches
+        // are not blocked by a stale retry chain
+        switchMap((skipCacheAgeCheck) => this._backgroundUpdate(skipCacheAgeCheck)),
         takeUntil(this._destroy$),
       )
       .subscribe();
 
     // Trigger a fetch whenever the server config changes (e.g. after
     // unlock, account switch, or environment change). The config lags
-    // behind environment$, so reacting here ensures _resolveSourceUrl
+    // behind environment$, so reacting here ensures _resolveManifestUrl
     // reads the correct config for the active environment.
     this.configService.serverConfig$.pipe(takeUntil(this._destroy$)).subscribe(() => {
-      this._triggerUpdate$.next();
+      this._triggerUpdate$.next(false);
     });
+  }
+
+  /**
+   * Forces an immediate manifest check, bypassing the cache-age interval.
+   * The manifest cid comparison still prevents unnecessary downloads.
+   * Intended for user-initiated actions (e.g. vault sync).
+   */
+  forceUpdate(): void {
+    this._triggerUpdate$.next(true);
   }
 
   private async _resetMeta(): Promise<void> {
@@ -107,7 +126,7 @@ export class TargetingRulesDataService {
     const apiUrl = env.getApiUrl();
     await this._metaState.update((existing) => ({
       ...existing,
-      [apiUrl]: { timestamp: 0 },
+      [apiUrl]: { cid: undefined, timestamp: 0 },
     }));
   }
 
@@ -117,12 +136,12 @@ export class TargetingRulesDataService {
     this._destroy$.complete();
   }
 
-  private _backgroundUpdate() {
+  private _backgroundUpdate(skipCacheAgeCheck = false) {
     // Use defer to restart timer if retry is activated
     return defer(() => {
       const startTime = Date.now();
 
-      return from(this._fetchAndStoreRules()).pipe(
+      return from(this._fetchAndStoreRules(skipCacheAgeCheck)).pipe(
         tap(() => {
           const elapsed = Date.now() - startTime;
           this.logService.info(`[TargetingRulesDataService] Update completed in ${elapsed}ms`);
@@ -159,7 +178,7 @@ export class TargetingRulesDataService {
     });
   }
 
-  private async _fetchAndStoreRules(): Promise<void> {
+  private async _fetchAndStoreRules(skipCacheAgeCheck = false): Promise<void> {
     const isEnabled = await this.configService.getFeatureFlag(FeatureFlag.FillAssistTargetingRules);
     if (!isEnabled) {
       this.logService.debug("[TargetingRulesDataService] Feature is not enabled, skipping fetch.");
@@ -176,22 +195,62 @@ export class TargetingRulesDataService {
     const meta = allMeta?.[apiUrl];
     const cacheAge = Date.now() - (meta?.timestamp ?? 0);
 
-    if (cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
+    if (!skipCacheAgeCheck && cacheAge < TargetingRulesDataService.UPDATE_INTERVAL) {
       this.logService.debug("[TargetingRulesDataService] Cache is still fresh, skipping fetch.");
       return;
     }
 
-    const sourceUrl = new URL(await this._resolveSourceUrl());
+    const manifestUrl = await this._resolveManifestUrl();
 
-    // Add query for CDN cache-busting; we're already caching at intervals locally
-    sourceUrl.searchParams.set("_", Date.now().toString());
+    // Step 1: Fetch the lightweight manifest to check if the data has changed
+    this.logService.info(`[TargetingRulesDataService] Checking manifest at ${manifestUrl}`);
 
-    this.logService.info(
-      `[TargetingRulesDataService] Fetching targeting rules from ${sourceUrl.href}`,
+    // Add CDN cache-buster
+    const manifestRequestURL = new URL(manifestUrl);
+    manifestRequestURL.searchParams.set("_", Date.now().toString());
+
+    const manifestResponse = await this.apiService.nativeFetch(
+      new Request(manifestRequestURL.href),
     );
+    if (!manifestResponse.ok) {
+      throw new Error(
+        `Failed to fetch manifest: ${manifestResponse.status} ${manifestResponse.statusText}`,
+      );
+    }
 
-    const response = await this.apiService.nativeFetch(new Request(sourceUrl.href));
+    const manifest = await manifestResponse.json();
 
+    // Locate the forms map entry for our target version
+    const formsEntry = manifest?.maps?.forms?.[TARGET_FORMS_VERSION];
+    if (
+      !formsEntry?.filename ||
+      typeof formsEntry.filename !== "string" ||
+      !formsEntry.filename.endsWith(".json") ||
+      formsEntry.filename.includes("/") ||
+      formsEntry.filename.includes("\\")
+    ) {
+      throw new Error(`Manifest contains no valid forms map entry for ${TARGET_FORMS_VERSION}`);
+    }
+
+    const remoteCid = formsEntry.cid;
+
+    // If the content hash matches, the data hasn't changed; skip download
+    if (remoteCid && meta?.cid && meta.cid === remoteCid) {
+      this.logService.debug(
+        `[TargetingRulesDataService] Data unchanged (cid match), skipping download.`,
+      );
+      await this._metaState.update((existing) => ({
+        ...existing,
+        [apiUrl]: { ...meta, timestamp: Date.now() },
+      }));
+      return;
+    }
+
+    // Step 2: Data has changed (or first fetch); download the map file
+    const formsMapUrl = new URL(formsEntry.filename, manifestRequestURL.href).href;
+    this.logService.info(`[TargetingRulesDataService] Fetching updated data from ${formsMapUrl}`);
+
+    const response = await this.apiService.nativeFetch(new Request(formsMapUrl));
     if (!response.ok) {
       throw new Error(`Failed to fetch rules: ${response.status} ${response.statusText}`);
     }
@@ -202,12 +261,6 @@ export class TargetingRulesDataService {
       throw new Error("Invalid targeting rules resource: not an object");
     }
 
-    // Reject incompatible schema versions (current: v1.x)
-    const version = resource.schemaVersion;
-    if (typeof version === "string" && !version.startsWith("1.")) {
-      throw new Error(`Unsupported targeting rules schema version: ${version}`);
-    }
-
     if (
       typeof resource.hosts !== "object" ||
       resource.hosts === null ||
@@ -216,16 +269,12 @@ export class TargetingRulesDataService {
       throw new Error("Invalid targeting rules resource: missing or malformed 'hosts'");
     }
 
-    if (version) {
-      this.logService.debug(`[TargetingRulesDataService] Resource schema version: ${version}`);
-    }
-
     const rules: TargetingRulesByDomain = resource.hosts;
 
     await this.domainSettingsService.setTargetingRules(rules);
     await this._metaState.update((existing) => ({
       ...existing,
-      [apiUrl]: { timestamp: Date.now() },
+      [apiUrl]: { timestamp: Date.now(), cid: remoteCid },
     }));
 
     this.logService.info(
@@ -234,11 +283,11 @@ export class TargetingRulesDataService {
   }
 
   /**
-   * Resolves the targeting rules source URL by checking the server config first,
-   * falling back to the hardcoded default if unavailable.
+   * Resolves the manifest URL by checking the server config first,
+   * falling back to the hardcoded default.
    */
-  private async _resolveSourceUrl(): Promise<string> {
+  private async _resolveManifestUrl(): Promise<string> {
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
-    return serverConfig?.environment?.fillAssistRules || DEFAULT_TARGETING_RULES_SOURCE_URL;
+    return serverConfig?.environment?.fillAssistRules || DEFAULT_MANIFEST_URL;
   }
 }
