@@ -18,7 +18,6 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import {
   ButtonModule,
   ContainerComponent,
-  DialogRef,
   DialogService,
   IconButtonModule,
   MenuModule,
@@ -141,15 +140,12 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   }
 
   async addSponsorship() {
-    const addSponsorshipDialogRef: DialogRef = AddSponsorshipDialogComponent.open(
-      this.dialogService,
-      {
-        data: {
-          organizationId: this.organizationId,
-          organizationKey: await firstValueFrom(this.organizationKey$),
-        },
+    const addSponsorshipDialogRef = AddSponsorshipDialogComponent.open(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        organizationKey: await firstValueFrom(this.organizationKey$),
       },
-    );
+    });
 
     await firstValueFrom(addSponsorshipDialogRef.closed);
 
