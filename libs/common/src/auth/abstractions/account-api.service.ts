@@ -1,4 +1,4 @@
-import { RegisterFinishRequestWithAuthUnlockDataTypes } from "../models/request/registration/register-finish-request-with-auth-unlock-data.types";
+import { RegisterFinishRequest } from "../models/request/registration/register-finish.request";
 import { RegisterSendVerificationEmailRequest } from "../models/request/registration/register-send-verification-email.request";
 import { RegisterVerificationEmailClickedRequest } from "../models/request/registration/register-verification-email-clicked.request";
 import { SetVerifyDevicesRequest } from "../models/request/set-verify-devices.request";
@@ -49,7 +49,7 @@ export abstract class AccountApiService {
    * MasterPasswordAuthenticationData and MasterPasswordUnlockData) used during the process.
    * @returns A promise that resolves when the registration process is successfully completed.
    */
-  abstract registerFinish(request: RegisterFinishRequestWithAuthUnlockDataTypes): Promise<void>;
+  abstract registerFinish(request: RegisterFinishRequest): Promise<void>;
 
   /**
    * Sets the [dbo].[User].[VerifyDevices] flag to true or false.

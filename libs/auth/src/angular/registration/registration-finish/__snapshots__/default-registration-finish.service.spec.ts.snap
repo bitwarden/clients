@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`DefaultRegistrationFinishService finishRegistration() derives the master key and registers the user with new data types 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
+exports[`DefaultRegistrationFinishService finishRegistration() derives the master key and registers the user 1`] = `
+RegisterFinishRequest {
   "acceptEmergencyAccessId": undefined,
   "acceptEmergencyAccessInviteToken": undefined,
   "email": "test@email.com",

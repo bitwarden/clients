@@ -9,7 +9,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
+import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { OrganizationInvite } from "@bitwarden/common/auth/services/organization-invite/organization-invite";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
@@ -257,8 +257,8 @@ describe("WebRegistrationFinishService", () => {
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
 
       const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
 
       expect(registerCall.masterPasswordAuthentication).toBeDefined();
       expect(registerCall.masterPasswordUnlock).toBeDefined();
@@ -278,8 +278,8 @@ describe("WebRegistrationFinishService", () => {
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
 
       const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
       expect(registerCall.masterPasswordAuthentication).toBeDefined();
       expect(registerCall.masterPasswordUnlock).toBeDefined();
 
@@ -302,8 +302,8 @@ describe("WebRegistrationFinishService", () => {
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
 
       const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
       expect(registerCall.masterPasswordAuthentication).toBeDefined();
       expect(registerCall.masterPasswordUnlock).toBeDefined();
 
@@ -327,8 +327,8 @@ describe("WebRegistrationFinishService", () => {
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
 
       const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
       expect(registerCall.masterPasswordAuthentication).toBeDefined();
       expect(registerCall.masterPasswordUnlock).toBeDefined();
 
@@ -357,8 +357,8 @@ describe("WebRegistrationFinishService", () => {
       expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
 
       const registerCall = accountApiService.registerFinish.mock
-        .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
+        .calls[0][0] as RegisterFinishRequest;
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
       expect(registerCall.masterPasswordAuthentication).toBeDefined();
       expect(registerCall.masterPasswordUnlock).toBeDefined();
 

@@ -4,7 +4,7 @@ import {
 } from "../../../../key-management/master-password/types/master-password.types";
 import { KeysRequest } from "../../../../models/request/keys.request";
 
-export class RegisterFinishRequestWithAuthUnlockDataTypes {
+export class RegisterFinishRequest {
   constructor(
     public email: string,
     public masterPasswordHint: string,

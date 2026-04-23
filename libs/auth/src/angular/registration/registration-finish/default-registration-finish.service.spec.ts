@@ -1,7 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
+import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -174,13 +174,9 @@ describe("DefaultRegistrationFinishService", () => {
       );
 
       const registerCall = accountApiService.registerFinish.mock.calls[0][0];
-      expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
-      expect(
-        (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes).masterPasswordAuthentication,
-      ).toBeDefined();
-      expect(
-        (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes).masterPasswordUnlock,
-      ).toBeDefined();
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+      expect((registerCall as RegisterFinishRequest).masterPasswordAuthentication).toBeDefined();
+      expect((registerCall as RegisterFinishRequest).masterPasswordUnlock).toBeDefined();
 
       expect(registerCall).toMatchSnapshot();
     });

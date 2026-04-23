@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
+import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
@@ -84,7 +84,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     emergencyAccessId?: string, // web only
     providerInviteToken?: string, // web only
     providerUserId?: string, // web only
-  ): Promise<RegisterFinishRequestWithAuthUnlockDataTypes> {
+  ): Promise<RegisterFinishRequest> {
     const userAsymmetricKeysRequest = new KeysRequest(
       userAsymmetricKeys[0],
       userAsymmetricKeys[1].encryptedString,
@@ -104,7 +104,7 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
       newUserKey,
     );
 
-    const registerFinishRequest = new RegisterFinishRequestWithAuthUnlockDataTypes(
+    const registerFinishRequest = new RegisterFinishRequest(
       email,
       passwordInputResult.newPasswordHint,
       userAsymmetricKeysRequest,

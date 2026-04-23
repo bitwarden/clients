@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`WebRegistrationFinishService finishRegistration() derives the master key and registers the user with new data types 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
+exports[`WebRegistrationFinishService finishRegistration() derives the master key and registers the user 1`] = `
+RegisterFinishRequest {
   "acceptEmergencyAccessId": undefined,
   "acceptEmergencyAccessInviteToken": undefined,
   "email": "test@email.com",
@@ -36,7 +36,7 @@ RegisterFinishRequestWithAuthUnlockDataTypes {
 `;
 
 exports[`WebRegistrationFinishService finishRegistration() it registers the user with org invite when given an org invite 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
+RegisterFinishRequest {
   "acceptEmergencyAccessId": undefined,
   "acceptEmergencyAccessInviteToken": undefined,
   "email": "test@email.com",
@@ -71,7 +71,7 @@ RegisterFinishRequestWithAuthUnlockDataTypes {
 `;
 
 exports[`WebRegistrationFinishService finishRegistration() registers the user when given a provider invite token 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
+RegisterFinishRequest {
   "acceptEmergencyAccessId": undefined,
   "acceptEmergencyAccessInviteToken": undefined,
   "email": "test@email.com",
@@ -106,7 +106,7 @@ RegisterFinishRequestWithAuthUnlockDataTypes {
 `;
 
 exports[`WebRegistrationFinishService finishRegistration() registers the user when given an emergency access invite token 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
+RegisterFinishRequest {
   "acceptEmergencyAccessId": "emergencyAccessId",
   "acceptEmergencyAccessInviteToken": "acceptEmergencyAccessInviteToken",
   "email": "test@email.com",
@@ -141,7 +141,7 @@ RegisterFinishRequestWithAuthUnlockDataTypes {
 `;
 
 exports[`WebRegistrationFinishService finishRegistration() registers the user when given an org sponsored free family plan token 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
+RegisterFinishRequest {
   "acceptEmergencyAccessId": undefined,
   "acceptEmergencyAccessInviteToken": undefined,
   "email": "test@email.com",
