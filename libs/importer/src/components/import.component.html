@@ -464,25 +464,9 @@
           (error)="this.handleChromeImportError($event)"
         ></import-chrome>
       } @else {
-        <bit-form-field>
+        <bit-file-upload [(files)]="selectedFiles">
           <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
-          <div class="file-selector tw-pt-2 tw-pb-1 tw-break-words">
-            <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-              {{ "chooseFile" | i18n }}
-            </button>
-            {{ this.fileSelected ? this.fileSelected.name : ("noFileChosen" | i18n) }}
-          </div>
-          <input
-            bitInput
-            #fileSelector
-            type="file"
-            id="import_input_file"
-            formControlName="file"
-            (change)="setSelectedFile($event)"
-            hidden
-            class="tw-hidden"
-          />
-        </bit-form-field>
+        </bit-file-upload>
         <bit-form-field disableMargin>
           <bit-label>{{ "orCopyPasteFileContents" | i18n }}</bit-label>
           <textarea

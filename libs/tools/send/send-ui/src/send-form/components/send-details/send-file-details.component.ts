@@ -5,6 +5,7 @@ import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angu
 import { SendFileView } from "@bitwarden/common/tools/send/models/view/send-file.view";
 import {
   ButtonModule,
+  FileUploadComponent,
   FormFieldModule,
   SectionComponent,
   TypographyModule,
@@ -20,9 +21,7 @@ import { SendFormService } from "../../abstractions/send-form.service";
     ButtonModule,
     I18nPipe,
     ReactiveFormsModule,
-    FormFieldModule,
     SectionComponent,
-    FormsModule,
     TypographyModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
