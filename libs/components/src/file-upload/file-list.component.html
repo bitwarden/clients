@@ -12,7 +12,7 @@
           bitIconButton="bwi-trash"
           buttonType="dangerGhost"
           size="small"
-          [label]="'delete' | i18n"
+          [label]="['delete' | i18n, file.name].join(' ')"
           (click)="fileRemoved.emit(file)"
         ></button>
       </li>
