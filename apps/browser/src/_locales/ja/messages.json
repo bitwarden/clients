@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "このサイトは保存されたログイン情報と一致しません。ログイン情報を入力する前に、信頼できるサイトであることを確認してください。"
   },
+  "loginHasNoSiteSaved": {
+    "message": "ログイン情報にサイトが保存されていません"
+  },
+  "siteDoesntMatch": {
+    "message": "サイトが一致しません"
+  },
+  "loginNoSiteDesc": {
+    "message": "このログイン情報にはまだサイトが保存されていません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "loginSingleSiteDesc": {
+    "message": "このサイトはこのログイン情報に保存したサイトと一致しません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "loginMultipleSitesDesc": {
+    "message": "このサイトはこのログイン情報に保存したサイトと一致しません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "autofillAndSaveThisSite": {
+    "message": "このサイトを自動入力して保存"
+  },
+  "autofillOnly": {
+    "message": "自動入力のみ"
+  },
   "showInlineMenuLabel": {
     "message": "フォームフィールドに自動入力の候補を表示する"
   },
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "ダウンロードできませんでした。"
+  },
+  "sideNavigation": {
+    "message": "サイドバーナビゲーション"
+  },
+  "skipLink": {
+    "message": "リンクをスキップ"
+  },
+  "callout": {
+    "message": "吹き出し",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "プログレスバー",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
