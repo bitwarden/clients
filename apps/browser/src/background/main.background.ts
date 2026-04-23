@@ -837,11 +837,6 @@ export default class MainBackground {
       this.apiService,
       this.configService,
     );
-    this.cipherFileUploadService = new CipherFileUploadService(
-      this.apiService,
-      this.fileUploadService,
-      this.configService,
-    );
     this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.collectionService = new DefaultCollectionService(
@@ -1058,6 +1053,13 @@ export default class MainBackground {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
+    this.cipherFileUploadService = new CipherFileUploadService(
+      this.apiService,
+      this.fileUploadService,
+      this.configService,
+      this.cipherSdkService,
+    );
 
     this.cipherService = new CipherService(
       this.keyService,
