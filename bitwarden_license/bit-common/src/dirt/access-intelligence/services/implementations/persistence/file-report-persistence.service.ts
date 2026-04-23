@@ -7,6 +7,7 @@ import {
   Observable,
   of,
   switchMap,
+  tap,
   throwError,
 } from "rxjs";
 
@@ -57,10 +58,6 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
-        if (!userId) {
-          throw new Error("User ID not found");
-        }
-
         // Encrypt view to domain model
         return from(
           AccessReport.fromView(view, this.riskInsightsEncryptionService, {
@@ -90,6 +87,14 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             } as AccessReportCreateRequest;
 
             return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
+              tap((createReportResponse) => {
+                const reportFileId = createReportResponse.reportResponse.reportFile?.id;
+                if (!reportFileId) {
+                  throw new Error(
+                    "Report file ID was not found in create report response. Unable to upload report as file",
+                  );
+                }
+              }),
               map((createReportResponse) => ({
                 createReportResponse,
                 reportFile,
@@ -124,7 +129,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
   }
 
   saveApplicationMetadata$(view: AccessReportView): Observable<void> {
-    this.logService.debug("[DefaultReportPersistenceService] Saving application metadata", {
+    this.logService.debug("[FileReportPersistenceService] Saving application metadata", {
       reportId: view.id,
       organizationId: view.organizationId,
       applicationCount: view.applications.length,
@@ -132,10 +137,6 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
-        if (!userId) {
-          throw new Error("User ID not found");
-        }
-
         // Encrypt view to domain model
         return from(
           AccessReport.fromView(view, this.riskInsightsEncryptionService, {
@@ -173,14 +174,10 @@ export class FileReportPersistenceService extends ReportPersistenceService {
   loadReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
-    this.logService.debug("[DefaultReportPersistenceService] Loading report", { organizationId });
+    this.logService.debug("[FileReportPersistenceService] Loading report", { organizationId });
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
-        if (!userId) {
-          throw new Error("User ID not found");
-        }
-
         return this.accessIntelligenceApiService.getLatestReport$(organizationId).pipe(
           catchError((error: unknown) => {
             if (error instanceof ErrorResponse && error.statusCode === 404) {
@@ -223,14 +220,8 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             return reportData$.pipe(
               switchMap((reportData) => {
                 // Convert API → Data → Domain → View (following 4-layer architecture)
-                const data = new AccessReportData();
-                data.id = apiResponse.id;
-                data.organizationId = apiResponse.organizationId;
+                const data = new AccessReportData(apiResponse);
                 data.reports = reportData;
-                data.summary = apiResponse.summary;
-                data.applications = apiResponse.applications;
-                data.creationDate = apiResponse.creationDate;
-                data.contentEncryptionKey = apiResponse.contentEncryptionKey;
 
                 const domain = new AccessReport(data);
 
@@ -251,7 +242,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
     createReportResponse: AccessReportFileApi,
   ): FileUploadApiMethods {
     const reportId = createReportResponse.reportResponse.id as OrganizationReportId;
-    const reportFileId = createReportResponse.reportResponse.reportFile?.id ?? "";
+    const reportFileId = createReportResponse.reportResponse.reportFile?.id;
 
     return {
       postDirect: (fd: FormData) =>
@@ -259,7 +250,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
           this.accessIntelligenceApiService.uploadReportFile$(
             organizationId,
             reportId,
-            reportFileId,
+            reportFileId!, // guaranteed a value since we throw error when not found in createReportResponse
             fd,
           ),
         ),
