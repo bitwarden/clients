@@ -44,15 +44,6 @@ export abstract class AbstractSelfHostingLicenseUploaderComponent {
   }
 
   /**
-   * Triggered when a different license file is selected.
-   * @param event
-   */
-  onLicenseFileSelectedChanged(event: Event): void {
-    const element = event.target as HTMLInputElement;
-    this.form.value.file = element.files.length > 0 ? element.files[0] : null;
-  }
-
-  /**
    * Submits the license upload form.
    * @protected
    */

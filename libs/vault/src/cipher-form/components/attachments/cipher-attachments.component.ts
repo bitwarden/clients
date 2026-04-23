@@ -5,7 +5,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  ElementRef,
   effect,
   inject,
   input,
@@ -45,6 +44,8 @@ import {
   ButtonComponent,
   ButtonModule,
   CardComponent,
+  FileUploadComponent,
+  FormFieldModule,
   ItemModule,
   ProgressBarComponent,
   ToastService,
@@ -67,24 +68,23 @@ type CipherAttachmentForm = FormGroup<{
   imports: [
     AsyncActionsModule,
     ButtonModule,
+    CardComponent,
     CommonModule,
+    DeleteAttachmentComponent,
+    DownloadAttachmentComponent,
+    FileUploadComponent,
+    FormFieldModule,
     ItemModule,
     JslibModule,
     ProgressBarComponent,
     ReactiveFormsModule,
     TruncatedFilenameComponent,
     TypographyModule,
-    CardComponent,
-    DeleteAttachmentComponent,
-    DownloadAttachmentComponent,
   ],
 })
 export class CipherAttachmentsComponent {
   /** `id` associated with the form element */
   static attachmentFormID = "attachmentForm";
-
-  /** Reference to the file HTMLInputElement */
-  private readonly fileInput = viewChild("fileInput", { read: ElementRef<HTMLInputElement> });
 
   /** Reference to the BitSubmitDirective */
   readonly bitSubmit = viewChild(BitSubmitDirective);
@@ -193,15 +193,6 @@ export class CipherAttachmentsComponent {
     return CipherAttachmentsComponent.attachmentFormID;
   }
 
-  /** Updates the form value when a file is selected */
-  onFileChange(event: Event): void {
-    const fileInputEl = event.target as HTMLInputElement;
-
-    if (fileInputEl.files && fileInputEl.files.length > 0) {
-      this.attachmentForm.controls.file.setValue(fileInputEl.files[0]);
-    }
-  }
-
   /** Save the attachments to the cipher */
   submit = async () => {
     //user can't edit cipher and will close the bit-dialog
@@ -259,11 +250,6 @@ export class CipherAttachmentsComponent {
       // re-decrypt the cipher to update the attachments
       this.cipher.set(await this.cipherService.decrypt(this.cipherDomain, this.activeUserId));
 
-      // Reset reactive form and input element
-      const fileInputEl = this.fileInput();
-      if (fileInputEl) {
-        fileInputEl.nativeElement.value = "";
-      }
       this.attachmentForm.controls.file.setValue(null);
 
       this.toastService.showToast({

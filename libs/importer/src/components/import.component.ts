@@ -61,6 +61,7 @@ import {
   CalloutModule,
   CardComponent,
   DialogService,
+  FileUploadComponent,
   FormFieldModule,
   IconButtonModule,
   RadioButtonModule,
@@ -95,22 +96,23 @@ import { ImportLastPassComponent } from "./lastpass";
   selector: "tools-import",
   templateUrl: "import.component.html",
   imports: [
-    CommonModule,
-    JslibModule,
-    FormFieldModule,
     AsyncActionsModule,
     ButtonModule,
-    IconButtonModule,
-    SelectModule,
     CalloutModule,
-    ReactiveFormsModule,
+    CardComponent,
+    CommonModule,
+    FileUploadComponent,
+    FormFieldModule,
+    IconButtonModule,
     ImportChromeComponent,
     ImportLastPassComponent,
-    RadioButtonModule,
-    CardComponent,
-    SectionHeaderComponent,
-    SectionComponent,
+    JslibModule,
     LinkModule,
+    RadioButtonModule,
+    ReactiveFormsModule,
+    SectionComponent,
+    SectionHeaderComponent,
+    SelectModule,
   ],
   providers: ImporterProviders,
 })
@@ -120,7 +122,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
-  fileSelected: File;
+  selectedFiles: File[] = [];
 
   folders$: Observable<FolderView[]>;
   collections$: Observable<CollectionView[]>;
@@ -600,11 +602,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.fileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-  }
-
   private getFileContents(file: File): Promise<string> {
     if (this.format === "1password1pux" && file.name.endsWith(".1pux")) {
       return this.extractZipContent(file, "export.data");
@@ -696,13 +693,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async setImportContents(): Promise<string> {
-    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const files = fileEl?.files;
     let fileContents = this.formGroup.controls.fileContents.value;
+    const selectedFile = this.selectedFiles[0];
 
-    if (files != null && files.length > 0) {
+    if (selectedFile != null) {
       try {
-        const content = await this.getFileContents(files[0]);
+        const content = await this.getFileContents(selectedFile);
         if (content != null) {
           fileContents = content;
         }
