@@ -146,11 +146,12 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
   constructor() {
     super();
     const { header, description, buttonText, showAfterEveryLogin } = this.data.controls;
-    const dependents = [header, description, buttonText, showAfterEveryLogin];
+    const dependents = [header, description, showAfterEveryLogin];
 
     if (!this.singleOrgEnabled()) {
       this.enabled.disable();
       dependents.forEach((c) => c.disable());
+      buttonText.disable();
     } else {
       this.enabled.enable();
       if (this.enabled.value) {
@@ -165,6 +166,17 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
           dependents.forEach((c) => c.enable());
         } else {
           dependents.forEach((c) => c.disable());
+          buttonText.disable();
+        }
+      });
+
+    header.valueChanges
+      .pipe(startWith(header.value), takeUntilDestroyed())
+      .subscribe((headerValue) => {
+        if (this.enabled.value && headerValue?.trim()) {
+          buttonText.enable();
+        } else {
+          buttonText.disable();
         }
       });
   }
