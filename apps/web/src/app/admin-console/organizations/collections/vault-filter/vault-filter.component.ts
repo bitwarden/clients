@@ -62,7 +62,7 @@ export class VaultFilterComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   /** Tracks which org id filters were last built for, to avoid redundant rebuilds. */
-  private readonly builtOrgId: string | undefined;
+  private readonly builtOrgId = signal<string | undefined>(undefined);
 
   readonly activeFilter = input<VaultFilter>(new VaultFilter());
   readonly searchText = model("");
@@ -151,8 +151,8 @@ export class VaultFilterComponent implements OnInit {
         filter((org): org is Organization => !!org),
         switchMap(async (org) => {
           // Skip the rebuild if ngOnInit already built filters for this org.
-          if (org.id !== this.builtOrgId) {
-            this.builtOrgId = org.id;
+          if (org.id !== this.builtOrgId()) {
+            this.builtOrgId.set(org.id);
             this.vaultFilterService.setOrganizationFilter(org);
             // Re-enter Angular's zone: toObservable's effect runs outside NgZone,
             // so signal writes here would not schedule a CD run on their own.
@@ -194,7 +194,7 @@ export class VaultFilterComponent implements OnInit {
     // before Angular checks this component's template, so setting isLoaded here means
     // the @else branch (with all filter sections) renders on the very first pass —
     // no loading spinner is ever shown.
-    this.builtOrgId = org.id;
+    this.builtOrgId.set(org.id);
     this.vaultFilterService.setOrganizationFilter(org);
     this.filters.set(this.buildAllFilters());
     this.isLoaded.set(true);
