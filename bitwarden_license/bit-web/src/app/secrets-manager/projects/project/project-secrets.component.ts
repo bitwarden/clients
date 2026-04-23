@@ -70,7 +70,7 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
-    this.dialogService.closeDrawer();
+    void this.dialogService.closeDrawer();
   }
 
   ngOnInit() {
@@ -107,8 +107,8 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
   }
 
   openEditSecret(secretId: string) {
-    this.dialogService.closeDrawer();
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    void this.dialogService.closeDrawer();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Edit,
@@ -119,7 +119,7 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
   }
 
   openViewSecret(secretId: string) {
-    this.dialogService.open<unknown, SecretViewDialogParams>(SecretViewDialogComponent, {
+    void this.dialogService.open<unknown, SecretViewDialogParams>(SecretViewDialogComponent, {
       data: {
         organizationId: this.organizationId,
         secretId: secretId,
@@ -128,7 +128,7 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
   }
 
   openDeleteSecret(event: SecretListView[]) {
-    this.dialogService.open<unknown, SecretDeleteOperation>(SecretDeleteDialogComponent, {
+    void this.dialogService.open<unknown, SecretDeleteOperation>(SecretDeleteDialogComponent, {
       data: {
         secrets: event,
       },
@@ -137,8 +137,8 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
   }
 
   openNewSecretDialog() {
-    this.dialogService.closeDrawer();
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    void this.dialogService.closeDrawer();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Add,
@@ -168,13 +168,14 @@ export class ProjectSecretsComponent implements OnInit, OnDestroy {
 
   async openVersionHistory(secretId: string) {
     const secret = await this.secretService.getBySecretId(secretId);
-    openSecretVersionDialog(this.dialogService, {
+    void openSecretVersionDialog(this.dialogService, {
       data: {
         organizationId: this.organizationId,
         secretId: secretId,
         name: secret?.name,
         currentValue: secret?.value,
         revisionDate: secret?.revisionDate,
+        canWrite: secret?.write,
       },
     });
   }

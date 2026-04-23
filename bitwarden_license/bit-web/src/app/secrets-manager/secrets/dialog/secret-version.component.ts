@@ -22,6 +22,7 @@ export interface SecretVersionDialogParams {
   name?: string;
   currentValue?: string;
   revisionDate?: string;
+  canWrite?: boolean;
 }
 
 @Component({
@@ -36,7 +37,7 @@ export class SecretVersionDialogComponent implements OnInit {
   protected readonly expandedVersionIds = signal(new Set<string>());
   protected readonly currentValueVisible = signal(false);
   protected readonly currentValue = signal<string | null>(null);
-  protected readonly revisionDate = signal<string | null>(null);
+  protected readonly revisionDate = signal<Date | null>(null);
 
   get name() {
     return this.params.name;
@@ -48,6 +49,10 @@ export class SecretVersionDialogComponent implements OnInit {
 
   get hasVersions(): boolean {
     return this.flatVersions().length > 0;
+  }
+
+  get canWrite(): boolean {
+    return this.params.canWrite ?? true;
   }
 
   constructor(
@@ -113,7 +118,7 @@ export class SecretVersionDialogComponent implements OnInit {
 
   async ngOnInit() {
     this.currentValue.set(this.params.currentValue ?? null);
-    this.revisionDate.set(this.params.revisionDate ?? null);
+    this.revisionDate.set(this.params.revisionDate ? new Date(this.params.revisionDate) : null);
     await this.load();
   }
 
@@ -135,7 +140,9 @@ export class SecretVersionDialogComponent implements OnInit {
 
       if (secretOrNull != null) {
         this.currentValue.set(secretOrNull.value);
-        this.revisionDate.set(secretOrNull.revisionDate);
+        this.revisionDate.set(
+          secretOrNull.revisionDate ? new Date(secretOrNull.revisionDate) : null,
+        );
       }
 
       this.flatVersions.set(versions);
@@ -149,6 +156,10 @@ export class SecretVersionDialogComponent implements OnInit {
 
   protected trackVersionById(_index: number, version: SecretVersionView): string {
     return version.id;
+  }
+
+  protected getVersionDate(version: SecretVersionView): Date | null {
+    return version.versionDate ? new Date(version.versionDate) : null;
   }
 
   protected getCopyAction(value: string): () => Promise<void> {

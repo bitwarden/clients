@@ -68,7 +68,7 @@ export class SecretsComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnDestroy(): void {
-    this.dialogService.closeDrawer();
+    void this.dialogService.closeDrawer();
   }
 
   ngOnInit() {
@@ -166,8 +166,8 @@ export class SecretsComponent implements OnInit, OnDestroy {
   }
 
   openEditSecret(secretId: string) {
-    this.dialogService.closeDrawer();
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    void this.dialogService.closeDrawer();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Edit,
@@ -188,13 +188,14 @@ export class SecretsComponent implements OnInit, OnDestroy {
 
   async openVersionHistory(secretId: string) {
     const secret = await this.secretService.getBySecretId(secretId);
-    openSecretVersionDialog(this.dialogService, {
+    void openSecretVersionDialog(this.dialogService, {
       data: {
         organizationId: this.organizationId,
         secretId: secretId,
         name: secret?.name,
         currentValue: secret?.value,
         revisionDate: secret?.revisionDate,
+        canWrite: secret?.write,
       },
     });
   }
@@ -209,8 +210,8 @@ export class SecretsComponent implements OnInit, OnDestroy {
   }
 
   openNewSecretDialog() {
-    this.dialogService.closeDrawer();
-    this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
+    void this.dialogService.closeDrawer();
+    void this.dialogService.open<unknown, SecretOperation>(SecretDialogComponent, {
       data: {
         organizationId: this.organizationId,
         operation: OperationType.Add,
