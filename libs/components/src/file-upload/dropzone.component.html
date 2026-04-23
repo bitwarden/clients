@@ -4,6 +4,7 @@
   class="tw-peer/dropzone-input tw-sr-only"
   [accept]="accept()"
   [multiple]="multiple()"
+  [disabled]="disabled() || null"
   (change)="onFileInputChange($event)"
 />
 
@@ -16,10 +17,18 @@
   (drop)="onDrop($event)"
 >
   <div class="tw-flex tw-flex-col tw-items-center tw-gap-1">
-    <span class="tw-text-sm tw-font-medium tw-text-fg-body-subtle">
+    <span
+      class="tw-text-sm tw-font-medium"
+      [class.tw-text-fg-body-subtle]="!disabled()"
+      [class.tw-text-fg-inactive]="disabled()"
+    >
       {{ "clickToUploadOrDragAndDrop" | i18n }}
     </span>
-    <span class="tw-text-xs tw-text-fg-body-subtle">
+    <span
+      class="tw-text-xs"
+      [class.tw-text-fg-body-subtle]="!disabled()"
+      [class.tw-text-fg-inactive]="disabled()"
+    >
       {{ "maxFileSizeParam" | i18n: maxFileSize() }}
     </span>
   </div>
@@ -31,6 +40,7 @@
     size="small"
     tabindex="-1"
     class="tw-pointer-events-none"
+    [disabled]="disabled()"
   >
     {{ "chooseFiles" | i18n }}
   </button>

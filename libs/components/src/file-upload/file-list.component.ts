@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { booleanAttribute, ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -17,6 +17,9 @@ import { IconTileComponent } from "../icon-tile/icon-tile.component";
 export class FileListComponent {
   /** Files to display in the list */
   readonly files = input<File[]>([]);
+
+  /** When true, hides the delete buttons */
+  readonly disabled = input(false, { transform: booleanAttribute });
 
   /** Emits the file when its delete button is clicked */
   readonly fileRemoved = output<File>();

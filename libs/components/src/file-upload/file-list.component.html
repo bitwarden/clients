@@ -7,14 +7,16 @@
           <span class="tw-text-sm tw-font-semibold tw-truncate">{{ file.name }}</span>
           <span class="tw-text-xs tw-text-muted">{{ formatFileSize(file.size) }}</span>
         </div>
-        <button
-          type="button"
-          bitIconButton="bwi-trash"
-          buttonType="dangerGhost"
-          size="small"
-          [label]="['delete' | i18n, file.name].join(' ')"
-          (click)="fileRemoved.emit(file)"
-        ></button>
+        @if (!disabled()) {
+          <button
+            type="button"
+            bitIconButton="bwi-trash"
+            buttonType="dangerGhost"
+            size="small"
+            [label]="['delete' | i18n, file.name].join(' ')"
+            (click)="fileRemoved.emit(file)"
+          ></button>
+        }
       </li>
     }
   </ul>

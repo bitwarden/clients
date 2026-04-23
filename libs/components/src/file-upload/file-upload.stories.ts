@@ -71,6 +71,21 @@ export const DefaultWithError: Story = {
   },
 };
 
+export const DefaultInactive: Story = {
+  render: (args) => ({
+    props: { ...args, files: [] as File[] },
+    template: /*html*/ `
+      <bit-file-upload [accept]="accept" [errorMessage]="errorMessage" [(files)]="files" [disabled]="true">
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-upload>
+    `,
+  }),
+  args: {
+    ...Default.args,
+  },
+};
+
 export const Dropzone: Story = {
   render: (args) => ({
     props: {
@@ -100,6 +115,29 @@ export const MultipleFiles: Story = {
   ...Dropzone,
   args: {
     multiple: true,
+  },
+};
+
+export const DropzoneDisabled: Story = {
+  render: (args) => ({
+    props: { ...args, files: [] as File[] },
+    template: /*html*/ `
+      <bit-file-upload
+        [maxFileSize]="maxFileSize"
+        [multiple]="multiple"
+        [accept]="accept"
+        [errorMessage]="errorMessage"
+        [(files)]="files"
+        variant="dropzone"
+        [disabled]="true"
+      >
+        <bit-label>Upload file</bit-label>
+        <bit-hint>SVG, PNG, JPG or GIF (MAX. 800x400px)</bit-hint>
+      </bit-file-upload>
+    `,
+  }),
+  args: {
+    variant: "dropzone",
   },
 };
 
