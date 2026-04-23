@@ -23,6 +23,7 @@ import {
   shareReplay,
   startWith,
   switchMap,
+  take,
 } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -49,7 +50,8 @@ import {
 @Component({
   selector: "app-organization-vault-filter",
   templateUrl: "./vault-filter.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+  changeDetection: ChangeDetectionStrategy.Default,
   standalone: false,
 })
 export class VaultFilterComponent implements OnInit {
@@ -142,6 +144,30 @@ export class VaultFilterComponent implements OnInit {
   }
 
   constructor() {
+    // The RoutedVaultFilterBridge (which navigates the URL on property writes) only
+    // becomes the activeFilter after reloadCollections() is called, which requires an
+    // HTTP response for admin collections (~200–500 ms). Until then, activeFilter is a
+    // plain VaultFilter whose setters are harmless property mutations with no URL effect.
+    //
+    // We detect bridge readiness by selectedCollectionNode becoming non-null:
+    // createLegacyFilterForAdminConsole() always sets it (AllCollections for the default
+    // URL), while the initial plain VaultFilter leaves it null.
+    //
+    // Until isLoaded is true, applyTypeFilter / applyCollectionFilter return early so
+    // early clicks do not silently no-op against the plain object.
+    toObservable(this.activeFilter)
+      .pipe(
+        filter((f) => f.selectedCollectionNode !== null),
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.ngZone.run(() => {
+          this.isLoaded.set(true);
+          this.cdr.markForCheck();
+        });
+      });
+
     // toObservable must be set up in the constructor (injection context).
     // ngOnInit handles the synchronous initial build before the first view evaluation;
     // this subscription handles org changes after the initial render and resolves the
@@ -190,17 +216,29 @@ export class VaultFilterComponent implements OnInit {
       return;
     }
 
-    // Build filters synchronously before the first view evaluation. ngOnInit runs
-    // before Angular checks this component's template, so setting isLoaded here means
-    // the @else branch (with all filter sections) renders on the very first pass —
-    // no loading spinner is ever shown.
+    // Build filters synchronously before the first view evaluation so the template
+    // can render sections on the very first pass (no spinner).
     this.builtOrgId.set(org.id);
     this.vaultFilterService.setOrganizationFilter(org);
     this.filters.set(this.buildAllFilters());
-    this.isLoaded.set(true);
+
+    // Edge case: if the RoutedVaultFilterBridge has already emitted before this
+    // component was created (e.g. collections were in state and resolved synchronously),
+    // the toObservable(activeFilter) subscription would have fired with the bridge as
+    // the initial value and then nothing more to wait for. Detect it here directly.
+    if (this.activeFilter().selectedCollectionNode !== null) {
+      this.isLoaded.set(true);
+    }
+    // Otherwise the toObservable(activeFilter) subscription set up in the constructor
+    // will set isLoaded once the bridge emits (selectedCollectionNode becomes non-null).
   }
 
   readonly applyTypeFilter = async (filterNode: TreeNode<CipherTypeFilter>): Promise<void> => {
+    // Bridge not ready yet — clicking before reloadCollections() completes would silently
+    // mutate the plain VaultFilter with no URL navigation. Wait for isLoaded.
+    if (!this.isLoaded()) {
+      return;
+    }
     const filter = this.activeFilter();
     filter.resetFilter();
     filter.selectedCipherTypeNode = filterNode;
@@ -209,6 +247,9 @@ export class VaultFilterComponent implements OnInit {
   readonly applyCollectionFilter = async (
     collectionNode: TreeNode<CollectionFilter>,
   ): Promise<void> => {
+    if (!this.isLoaded()) {
+      return;
+    }
     const filter = this.activeFilter();
     filter.resetFilter();
     filter.selectedCollectionNode = collectionNode;
