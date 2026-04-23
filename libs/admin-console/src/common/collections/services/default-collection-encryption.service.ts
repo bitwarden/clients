@@ -1,4 +1,4 @@
-import { EMPTY, catchError, concatMap, firstValueFrom } from "rxjs";
+import { catchError, concatMap, firstValueFrom } from "rxjs";
 
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
@@ -32,7 +32,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collection: ${error}`);
-          return EMPTY;
+          throw error;
         }),
       ),
     );
@@ -65,7 +65,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to decrypt collections in batch: ${error}`);
-          return EMPTY;
+          throw error;
         }),
       ),
     );
@@ -89,7 +89,7 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to encrypt collection: ${error}`);
-          return EMPTY;
+          throw error;
         }),
       ),
     );
