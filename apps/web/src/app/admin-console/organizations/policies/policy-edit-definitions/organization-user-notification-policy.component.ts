@@ -1,6 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import {
+  AbstractControl,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from "@angular/forms";
 import { map, startWith, switchMap } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
@@ -10,6 +18,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   BitFormFieldComponent,
   CheckboxModule,
@@ -23,6 +32,15 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
+
+function lengthValidCustomMessage(name: string, max: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (control.value && control.value.length > max) {
+      return { headerMaxLength: { message: `Enter a ${name} under ${max} characters.` } };
+    }
+    return null;
+  };
+}
 
 // Policy Definition Class
 export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition {
@@ -65,6 +83,7 @@ interface OrganizationUserNotificationPolicyOptions {
 export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly policyService = inject(PolicyService);
+  private readonly i18nService = inject(I18nService);
 
   private readonly singleOrgEnabled$ = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -78,9 +97,21 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
   readonly data: FormGroup<ControlsOf<OrganizationUserNotificationPolicyOptions>> =
     this.formBuilder.group({
       allowBanner: [null as boolean],
-      header: [null as string, Validators.maxLength(40)],
-      description: [null as string, [Validators.required, Validators.maxLength(250)]],
-      buttonText: [null as string, [Validators.maxLength(20)]],
+      header: [
+        null as string,
+        lengthValidCustomMessage(this.i18nService.t("header").toLocaleLowerCase(), 40),
+      ],
+      description: [
+        null as string,
+        [
+          Validators.required,
+          lengthValidCustomMessage(this.i18nService.t("description").toLocaleLowerCase(), 250),
+        ],
+      ],
+      buttonText: [
+        null as string,
+        [lengthValidCustomMessage(this.i18nService.t("button").toLocaleLowerCase(), 20)],
+      ],
       showAfterEveryLogin: [null as boolean],
     });
 
