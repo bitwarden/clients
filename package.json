@@ -128,7 +128,7 @@
     "jest": "30.3.0",
     "jest-diff": "30.3.0",
     "jest-junit": "16.0.0",
-    "jest-mock-extended": "4.0.0",
+    "jest-mock-extended": "4.0.1",
     "jest-preset-angular": "16.1.4",
     "json5": "2.2.3",
     "lint-staged": "16.4.0",
