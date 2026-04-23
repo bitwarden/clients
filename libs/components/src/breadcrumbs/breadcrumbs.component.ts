@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -40,7 +41,6 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-flex tw-items-center",
     role: "navigation",
     "[attr.aria-label]": "ariaLabel",
   },
@@ -58,7 +58,23 @@ export class BreadcrumbsComponent {
    */
   readonly size = input<"small" | "base">("base");
 
+  /**
+   * Display an arrow after the last breadcrumb in the list.
+   *
+   * Intended to support usage of the breadcrumbs above our web header component. In this case, the
+   * "active" breadcrumb is displayed as the header of the page, so showing an arrow after the last
+   * breadcrumb provides better logical continuity of breadcrumbs -> header. Do not use this if the
+   * active breadcrumb is actually passed as a breadcrumb to `bit-breadcrumbs`.
+   */
+  readonly showTrailingArrow = input(false, { transform: booleanAttribute });
+
   protected readonly breadcrumbs = contentChildren(BreadcrumbComponent);
+
+  protected readonly activeBreadcrumb = computed(() => {
+    const result = this.breadcrumbs().find((breadcrumb) => breadcrumb.isActiveRoute());
+
+    return result;
+  });
 
   /** Whether the breadcrumbs exceed the show limit and require an overflow menu */
   protected readonly hasOverflow = computed(() => this.breadcrumbs().length > this.show());

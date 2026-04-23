@@ -1,5 +1,5 @@
 <app-header [title]="title" [icon]="icon">
-  <bit-breadcrumbs *ngIf="showBreadcrumbs" slot="breadcrumbs">
+  <bit-breadcrumbs *ngIf="showBreadcrumbs" slot="breadcrumbs" showTrailingArrow>
     <bit-breadcrumb
       [route]="[]"
       [queryParams]="{ organizationId: organization.id, collectionId: null }"
