@@ -23,12 +23,7 @@ export class AtRiskCipherBadgeUpdaterService {
           .pipe(
             map((tasks) => tasks.filter((t) => t.type === SecurityTaskType.UpdateAtRiskCredential)),
           ),
-        // Use ciphers$ (encrypted) as a change signal only — actual decryption happens lazily
-        // per tab via getAllDecryptedForUrl, which hits the warm shareReplay cache on subsequent
-        // calls. This avoids triggering a write of all decrypted cipher views to
-        // LocalBackedSessionStorageService on service worker startup, which causes a WASM panic
-        // on wasm32 when the vault exceeds ~8 MiB of serialized data.
-        this.cipherService.ciphers$(user.id),
+        this.cipherService.cipherViews$(user.id).pipe(filterOutNullish()),
       ]),
     ),
   );
@@ -44,12 +39,12 @@ export class AtRiskCipherBadgeUpdaterService {
     this.badgeService.setState(StateName, (tab) => {
       return this.activeUserData$.pipe(
         concatMap(async ([userId, pendingTasks]) => {
-          const tabCiphers = tab.url
+          const ciphers = tab.url
             ? await this.cipherService.getAllDecryptedForUrl(tab.url, userId, [], undefined, true)
             : [];
 
           const hasPendingTasksForTab = pendingTasks.some((task) =>
-            tabCiphers.some((cipher) => cipher.id === task.cipherId),
+            ciphers.some((cipher) => cipher.id === task.cipherId && !cipher.isDeleted),
           );
 
           if (!hasPendingTasksForTab) {

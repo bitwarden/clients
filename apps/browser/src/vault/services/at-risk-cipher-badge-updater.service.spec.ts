@@ -22,7 +22,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
   let addListener: jest.Mock;
 
   let activeAccount$: BehaviorSubject<{ id: string }>;
-  let ciphers$: BehaviorSubject<Record<string, unknown>>;
+  let cipherViews$: BehaviorSubject<Array<{ id: string; isDeleted?: boolean }>>;
   let pendingTasks$: BehaviorSubject<SecurityTask[]>;
 
   beforeEach(async () => {
@@ -32,7 +32,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
     addListener = jest.fn();
 
     activeAccount$ = new BehaviorSubject({ id: "test-account-id" });
-    ciphers$ = new BehaviorSubject<Record<string, unknown>>({});
+    cipherViews$ = new BehaviorSubject<Array<{ id: string; isDeleted?: boolean }>>([]);
     pendingTasks$ = new BehaviorSubject<SecurityTask[]>([]);
 
     jest.spyOn(BrowserApi, "addListener").mockImplementation(addListener);
@@ -41,7 +41,7 @@ describe("AtRiskCipherBadgeUpdaterService", () => {
     service = new AtRiskCipherBadgeUpdaterService(
       { setState } as unknown as BadgeService,
       { activeAccount$ } as unknown as AccountService,
-      { ciphers$: () => ciphers$, getAllDecryptedForUrl } as unknown as CipherService,
+      { cipherViews$: () => cipherViews$, getAllDecryptedForUrl } as unknown as CipherService,
       { pendingTasks$: () => pendingTasks$ } as unknown as TaskService,
     );
 
