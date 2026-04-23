@@ -12,7 +12,7 @@
       }
     </bit-form-field>
 
-    @if (!disableHideEmail || originalSendView?.hideEmail) {
+    @if (!disableHideEmail || sendFormService.originalSendView?.hideEmail) {
       <bit-form-control>
         <input
           [disabled]="disableHideEmail && !sendOptionsForm.get('hideEmail').value"
