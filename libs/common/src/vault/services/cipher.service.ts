@@ -1336,6 +1336,24 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServer(cipher: Cipher, userId: UserId): Promise<Cipher> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      const cipherView = await this.cipherSdkService.saveCollectionsWithServer(
+        cipher.id,
+        cipher.collectionIds,
+        userId,
+      );
+      if (cipherView == null) {
+        // In the use case where the user no longer has access to this cipher, remove it from the local cache.
+        // Does not delete it from the server.
+        await this.delete(cipher.id, userId);
+        return undefined;
+      }
+      const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
+      return encryptResult.cipher;
+    }
+
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollections(cipher.id, request);
     // The response will now check for an unavailable value. This value determines whether
