@@ -147,7 +147,7 @@ export class SecretVersionDialogComponent implements OnInit {
 
       this.flatVersions.set(versions);
     } catch (e) {
-      this.logService.error(e);
+      this.logService.error("Retrieving secret versions failed", e);
       this.validationService.showError(e);
     }
 
@@ -196,7 +196,7 @@ export class SecretVersionDialogComponent implements OnInit {
         });
         await this.load(true);
       } catch (e) {
-        this.logService.error(e);
+        this.logService.error("secret restoration failed", e);
         this.validationService.showError(e);
       }
     };

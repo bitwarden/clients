@@ -101,9 +101,6 @@ export enum FeatureFlag {
   DesktopUiMigrationMilestone3 = "desktop-ui-migration-milestone-3",
   DesktopUiMigrationMilestone4 = "desktop-ui-migration-milestone-4",
 
-  /* UIF */
-  RouterFocusManagement = "router-focus-management",
-
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
 }
@@ -212,9 +209,6 @@ export const DefaultFeatureFlagValue = {
   /* Desktop */
   [FeatureFlag.DesktopUiMigrationMilestone3]: FALSE,
   [FeatureFlag.DesktopUiMigrationMilestone4]: FALSE,
-
-  /* UIF */
-  [FeatureFlag.RouterFocusManagement]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,
