@@ -42,10 +42,6 @@ const MINIMIZE_TO_TRAY_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "
   deserializer: (b) => b,
 });
 
-const START_TO_TRAY_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "startToTray", {
-  deserializer: (b) => b,
-});
-
 const TRAY_ENABLED_KEY = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "trayEnabled", {
   deserializer: (b) => b,
 });
@@ -128,12 +124,6 @@ export class DesktopSettingsService {
    * The application setting for whether or not to minimize the applicaiton into the system tray.
    */
   minimizeToTray$ = this.minimizeToTrayState.state$.pipe(map(Boolean));
-
-  private readonly startToTrayState = this.stateProvider.getGlobal(START_TO_TRAY_KEY);
-  /**
-   * The application setting for whether or not to start the application into the system tray.
-   */
-  startToTray$ = this.startToTrayState.state$.pipe(map((v) => v ?? !isDev()));
 
   private readonly trayEnabledState = this.stateProvider.getGlobal(TRAY_ENABLED_KEY);
   /**
@@ -251,14 +241,6 @@ export class DesktopSettingsService {
    */
   async setMinimizeToTray(value: boolean) {
     await this.minimizeToTrayState.update(() => value);
-  }
-
-  /**
-   * Sets the setting for whether or not the application should be started into the system tray.
-   * @param value `true` if the application should be started to the tray`, `false` if it should not.
-   */
-  async setStartToTray(value: boolean) {
-    await this.startToTrayState.update(() => value);
   }
 
   /**

@@ -42,7 +42,7 @@ import { DesktopBiometricsService } from "./key-management/biometrics/desktop.bi
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
-import { MessagingMain } from "./main/messaging.main";
+import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
@@ -370,9 +370,13 @@ export class Main {
             click: () => this.messagingService.send("lockVault"),
           },
         ]);
-        if (await firstValueFrom(this.desktopSettingsService.startToTray$)) {
+
+        // Autostart should always start to tray. Any auto-start mechanism must provide this flag.
+        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
+        if (isAutostart) {
           await this.trayMain.hideToTray();
         }
+
         this.powerMonitorMain.init();
         await this.updaterMain.init();
 
