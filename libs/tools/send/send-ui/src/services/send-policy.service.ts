@@ -8,11 +8,9 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 
 import { DatePreset } from "../models/date-preset";
-import { WhoCanAccessType } from "../models/who-can-access-type";
-
-export { WhoCanAccessType } from "../models/who-can-access-type";
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.

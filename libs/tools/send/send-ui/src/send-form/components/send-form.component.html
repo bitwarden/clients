@@ -1,4 +1,4 @@
-<form [id]="formId" [formGroup]="sendForm" [bitSubmit]="submit">
+<form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
   @if (!loading) {
     @if (sendDisabled()) {
       <bit-callout type="warning" [title]="'sendDisabledBannerTitle' | i18n">
@@ -6,7 +6,7 @@
       </bit-callout>
     }
     <tools-send-details
-      [config]="config"
+      [config]="config()"
       [originalSendView]="originalSendView"
       (openPasswordGenerator)="openPasswordGenerator.emit()"
     ></tools-send-details>
