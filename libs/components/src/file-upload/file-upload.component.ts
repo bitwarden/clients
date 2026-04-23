@@ -8,8 +8,10 @@ import {
   ElementRef,
   input,
   model,
+  signal,
   viewChild,
 } from "@angular/core";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -34,11 +36,18 @@ let nextId = 0;
     I18nPipe,
     BitErrorComponent,
   ],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: FileUploadComponent,
+      multi: true,
+    },
+  ],
   host: {
     class: "tw-block",
   },
 })
-export class FileUploadComponent {
+export class FileUploadComponent implements ControlValueAccessor {
   /**
    * Accepted file types. Uses comma separated list
    *
@@ -81,6 +90,27 @@ export class FileUploadComponent {
   /** UI variant: 'dropzone' or 'default' */
   readonly variant = input<"dropzone" | "default">("default");
 
+  private readonly cvaOnChange = signal<(value: File | null) => void>(() => {});
+  private readonly cvaOnTouched = signal<() => void>(() => {});
+
+  constructor() {}
+
+  writeValue(value: File | null): void {
+    this.files.set(value ? [value] : []);
+  }
+
+  registerOnChange(fn: (value: File | null) => void): void {
+    this.cvaOnChange.set(fn);
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.cvaOnTouched.set(fn);
+  }
+
+  setDisabledState(_isDisabled: boolean): void {
+    // TODO: propagate disabled state to the button/dropzone
+  }
+
   protected readonly inputId = `bit-file-upload-${nextId++}`;
 
   protected readonly isDropzone = computed(() => this.variant() === "dropzone" || this.multiple());
@@ -108,15 +138,18 @@ export class FileUploadComponent {
   });
 
   protected onFilesSelected(newFiles: File[]): void {
+    this.cvaOnTouched()();
     if (this.multiple()) {
       this.files.update((current) => [...current, ...newFiles]);
     } else {
       this.files.set(newFiles.length > 0 ? [newFiles[0]] : []);
     }
+    this.cvaOnChange()(this.files()[0] ?? null);
   }
 
   protected onFileRemoved(file: File): void {
     this.files.update((current) => current.filter((f) => f !== file));
+    this.cvaOnChange()(this.files()[0] ?? null);
   }
 
   protected openFilePicker(): void {
