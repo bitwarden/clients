@@ -22,8 +22,12 @@ export class AutofillBadgeUpdaterService {
   ) {}
 
   init() {
+    // Subscribe to ciphers$ (encrypted) as a change signal only — actual decryption happens
+    // lazily in calculateCountText via getAllDecryptedForUrl, which hits the warm shareReplay
+    // cache on subsequent calls. The delay gives cipherViews$ time to re-decrypt after a change
+    // before getAllDecryptedForUrl is called.
     const ciphers$ = this.accountService.activeAccount$.pipe(
-      switchMap((account) => (account?.id ? this.cipherService.ciphers$(account?.id) : of([]))),
+      switchMap((account) => (account?.id ? this.cipherService.ciphers$(account.id) : of([]))),
     );
 
     this.badgeService.setState(StateName, (tab) => {
@@ -31,7 +35,7 @@ export class AutofillBadgeUpdaterService {
         account: this.accountService.activeAccount$,
         enableBadgeCounter:
           this.badgeSettingsService.enableBadgeCounter$.pipe(distinctUntilChanged()),
-        ciphers: ciphers$.pipe(delay(100)), // Delay to allow cipherService.getAllDecryptedForUrl to pick up changes
+        ciphers: ciphers$.pipe(delay(100)),
       }).pipe(
         mergeMap(async ({ account, enableBadgeCounter }) => {
           if (!account || !enableBadgeCounter) {
