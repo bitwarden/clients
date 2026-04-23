@@ -207,25 +207,15 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
             throw new Error(`Failed to download report file: ${response.status}`);
           }
 
-          const reader = response.body!.getReader();
-          const chunks: Uint8Array<ArrayBuffer>[] = [];
-
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) {
-              break;
-            }
-            if (value) {
-              chunks.push(value);
-            }
-          }
-
-          const blob = new Blob(chunks);
+          const blob = await response.blob();
           const contentDisposition = response.headers.get("Content-Disposition");
-          const fileName =
-            contentDisposition?.match(/filename="?([^";\n]+)"?/i)?.[1]?.trim() ??
-            url.split("/").pop() ??
-            "report";
+
+          // azure file storage returns file names in content-disposition header, otherwise available in the last path segment of the URL
+          let fileName = contentDisposition?.match(/filename="?([^";\n]+)"?/i)?.[1]?.trim();
+          if (!fileName) {
+            const fallback = new URL(url).pathname.split("/").pop() ?? "report";
+            fileName = fallback;
+          }
 
           return { blob, fileName };
         }),
