@@ -1344,12 +1344,6 @@ export class CipherService implements CipherServiceAbstraction {
         cipher.collectionIds,
         userId,
       );
-      if (cipherView == null) {
-        // In the use case where the user no longer has access to this cipher, remove it from the local cache.
-        // Does not delete it from the server.
-        await this.delete(cipher.id, userId);
-        return undefined;
-      }
       const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
       return encryptResult.cipher;
     }
