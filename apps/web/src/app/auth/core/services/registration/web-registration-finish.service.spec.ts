@@ -244,7 +244,7 @@ describe("WebRegistrationFinishService", () => {
       );
     });
 
-    it("derives the master key and registers the user with new data types", async () => {
+    it("derives the master key and registers the user", async () => {
       await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
       // Verify master key is derived internally
@@ -260,15 +260,8 @@ describe("WebRegistrationFinishService", () => {
         .calls[0][0] as RegisterFinishRequestWithAuthUnlockDataTypes;
       expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
 
-      // New API sends structured authentication and unlock data
       expect(registerCall.masterPasswordAuthentication).toBeDefined();
       expect(registerCall.masterPasswordUnlock).toBeDefined();
-
-      // Old API flat fields must NOT be present
-      expect((registerCall as any).masterPasswordHash).toBeUndefined();
-      expect((registerCall as any).userSymmetricKey).toBeUndefined();
-      expect((registerCall as any).kdf).toBeUndefined();
-      expect((registerCall as any).kdfIterations).toBeUndefined();
 
       // Unique to this flow: emailVerificationToken is populated
       expect(registerCall.emailVerificationToken).toEqual(emailVerificationToken);

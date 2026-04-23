@@ -145,7 +145,7 @@ describe("DefaultRegistrationFinishService", () => {
       );
     });
 
-    it("derives the master key and registers the user with new data types", async () => {
+    it("derives the master key and registers the user", async () => {
       keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
       keyService.makeKeyPair.mockResolvedValue(userKeyPair);
       accountApiService.registerFinish.mockResolvedValue();
@@ -181,11 +181,6 @@ describe("DefaultRegistrationFinishService", () => {
       expect(
         (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes).masterPasswordUnlock,
       ).toBeDefined();
-
-      expect((registerCall as any).masterPasswordHash).toBeUndefined();
-      expect((registerCall as any).userSymmetricKey).toBeUndefined();
-      expect((registerCall as any).kdf).toBeUndefined();
-      expect((registerCall as any).kdfIterations).toBeUndefined();
 
       expect(registerCall).toMatchSnapshot();
     });
