@@ -1589,18 +1589,6 @@
   "enableTrayDesc": {
     "message": "Always show an icon in the system tray."
   },
-  "startToTray": {
-    "message": "Start to tray icon"
-  },
-  "startToTrayDesc": {
-    "message": "When the application is first started, only show an icon in the system tray."
-  },
-  "startToMenuBar": {
-    "message": "Start to menu bar"
-  },
-  "startToMenuBarDesc": {
-    "message": "When the application is first started, only show an icon in the menu bar."
-  },
   "openAtLogin": {
     "message": "Start automatically on login"
   },
