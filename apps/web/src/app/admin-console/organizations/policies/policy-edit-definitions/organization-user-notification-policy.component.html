@@ -1,19 +1,15 @@
-<!-- <bit-form-control>
-  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
-  <bit-label>Turn on</bit-label>
-</bit-form-control> -->
 @if (!singleOrgEnabled()) {
   <bit-callout type="info" [title]="'prerequisite' | i18n">{{
     "singleOrgPrerequisite" | i18n
   }}</bit-callout>
 }
 
-<ng-container [formGroup]="data">
-  <bit-form-control>
-    <input type="checkbox" bitCheckbox formControlName="allowBanner" id="allowBanner" />
-    <bit-label>{{ "allowBanner" | i18n }}</bit-label>
-  </bit-form-control>
+<bit-form-control>
+  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-label>{{ "allowBanner" | i18n }}</bit-label>
+</bit-form-control>
 
+<ng-container [formGroup]="data">
   <h3 bitTypography="h3" class="tw-mt-4">{{ "createBannerMessage" | i18n }}</h3>
 
   <bit-form-field>

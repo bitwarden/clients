@@ -57,7 +57,6 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
 }
 
 interface OrganizationUserNotificationPolicyOptions {
-  allowBanner: boolean;
   header: string;
   description: string;
   buttonText: string;
@@ -96,7 +95,6 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
   // Component implementation
   readonly data: FormGroup<ControlsOf<OrganizationUserNotificationPolicyOptions>> =
     this.formBuilder.group({
-      allowBanner: [null as boolean],
       header: [
         null as string,
         lengthValidCustomMessage(this.i18nService.t("header").toLocaleLowerCase(), 40),
@@ -117,22 +115,21 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
 
   constructor() {
     super();
-    const { allowBanner, header, description, buttonText, showAfterEveryLogin } =
-      this.data.controls;
+    const { header, description, buttonText, showAfterEveryLogin } = this.data.controls;
     const dependents = [header, description, buttonText, showAfterEveryLogin];
 
     if (!this.singleOrgEnabled()) {
-      allowBanner.disable();
+      this.enabled.disable();
       dependents.forEach((c) => c.disable());
     } else {
-      allowBanner.enable();
-      if (allowBanner.value) {
+      this.enabled.enable();
+      if (this.enabled.value) {
         dependents.forEach((c) => c.enable());
       }
     }
 
-    allowBanner.valueChanges
-      .pipe(startWith(allowBanner.value), takeUntilDestroyed())
+    this.enabled.valueChanges
+      .pipe(startWith(this.enabled.value), takeUntilDestroyed())
       .subscribe((enabled) => {
         if (enabled) {
           dependents.forEach((c) => c.enable());
