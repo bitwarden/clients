@@ -150,16 +150,13 @@ export class DefaultAccessIntelligenceApiService extends AccessIntelligenceApiSe
   uploadReportFile$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-    file: File,
     reportFileId: string,
+    data: FormData,
   ): Observable<void> {
-    const formData = new FormData();
-    formData.append("file", file, file.name);
-
     const response = this.apiService.send(
       "POST",
       `/reports/organizations/${orgId}/${reportId}/file?reportFileId=${reportFileId}`,
-      formData,
+      data,
       true,
       false,
     );

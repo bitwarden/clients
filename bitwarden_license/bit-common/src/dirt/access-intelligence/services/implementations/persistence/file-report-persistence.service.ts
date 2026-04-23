@@ -14,7 +14,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
+import {
+  FileUploadApiMethods,
+  FileUploadService,
+} from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { OrganizationReportId, OrganizationId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
@@ -24,6 +27,7 @@ import {
   AccessReport,
   AccessReportData,
   AccessReportMetricsApi,
+  AccessReportFileApi,
 } from "../../../models";
 import {
   AccessIntelligenceApiService,
@@ -86,45 +90,27 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             } as AccessReportCreateRequest;
 
             return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
-              map((result) => ({
-                result,
+              map((createReportResponse) => ({
+                createReportResponse,
                 reportFile,
                 contentEncryptionKey: domain.contentEncryptionKey!,
               })),
             );
           }),
-          switchMap(({ result, reportFile, contentEncryptionKey }) => {
-            const reportId = result.reportResponse.id as OrganizationReportId;
-            const reportFileId = result.reportResponse.reportFile?.id ?? "";
+          switchMap(({ createReportResponse, reportFile, contentEncryptionKey }) => {
+            const reportId = createReportResponse.reportResponse.id as OrganizationReportId;
 
-            const upload$ = from(reportFile.arrayBuffer()).pipe(
+            const upload$ = from(reportFile.bytes()).pipe(
               switchMap((buffer) =>
                 from(
                   this.fileUploadService.upload(
-                    { url: result.reportFileUploadUrl, fileUploadType: result.fileUploadType },
-                    new EncString(""),
-                    { buffer: new Uint8Array(buffer) } as unknown as EncArrayBuffer,
                     {
-                      postDirect: () =>
-                        firstValueFrom(
-                          this.accessIntelligenceApiService.uploadReportFile$(
-                            organizationId,
-                            reportId,
-                            reportFile,
-                            reportFileId,
-                          ),
-                        ),
-                      renewFileUploadUrl: () =>
-                        firstValueFrom(
-                          this.accessIntelligenceApiService
-                            .renewReportFileUploadLink$(organizationId, reportId)
-                            .pipe(map((res) => res.reportFileUploadUrl)),
-                        ),
-                      rollback: () =>
-                        firstValueFrom(
-                          this.accessIntelligenceApiService.deleteReport$(organizationId, reportId),
-                        ),
+                      url: createReportResponse.reportFileUploadUrl,
+                      fileUploadType: createReportResponse.fileUploadType,
                     },
+                    reportFile.name as unknown as EncString,
+                    { buffer } as unknown as EncArrayBuffer,
+                    this.generateFileUploadCallbacks(organizationId, createReportResponse),
                   ),
                 ),
               ),
@@ -258,5 +244,33 @@ export class FileReportPersistenceService extends ReportPersistenceService {
         );
       }),
     );
+  }
+
+  private generateFileUploadCallbacks(
+    organizationId: OrganizationId,
+    createReportResponse: AccessReportFileApi,
+  ): FileUploadApiMethods {
+    const reportId = createReportResponse.reportResponse.id as OrganizationReportId;
+    const reportFileId = createReportResponse.reportResponse.reportFile?.id ?? "";
+
+    return {
+      postDirect: (fd: FormData) =>
+        firstValueFrom(
+          this.accessIntelligenceApiService.uploadReportFile$(
+            organizationId,
+            reportId,
+            reportFileId,
+            fd,
+          ),
+        ),
+      renewFileUploadUrl: () =>
+        firstValueFrom(
+          this.accessIntelligenceApiService
+            .renewReportFileUploadLink$(organizationId, reportId)
+            .pipe(map((res) => res.reportFileUploadUrl)),
+        ),
+      rollback: () =>
+        firstValueFrom(this.accessIntelligenceApiService.deleteReport$(organizationId, reportId)),
+    };
   }
 }

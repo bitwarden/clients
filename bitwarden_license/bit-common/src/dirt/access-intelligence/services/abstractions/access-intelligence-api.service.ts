@@ -70,15 +70,15 @@ export abstract class AccessIntelligenceApiService {
    * Self-hosted only. Uploads a file containing the Access Intelligence report data directly to a Bitwarden self-hosted server.
    * @param orgId - the ID of the Organization the report belongs to
    * @param reportId - the ID of the report to upload the file for
-   * @param file - the file containing the Access Intelligence report data
    * @param reportFileId - the ID of the report file returned from the server upon report creation
+   * @param data - the file to upload included as a FormData instance
    * @returns observable that completes when the upload is successful
    */
   abstract uploadReportFile$(
     orgId: OrganizationId,
     reportId: OrganizationReportId,
-    file: File,
     reportFileId: string,
+    data: FormData,
   ): Observable<void>;
 
   /**
