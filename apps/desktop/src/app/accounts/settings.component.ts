@@ -119,8 +119,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   enableMinToTrayDescText: string;
   enableCloseToTrayText: string;
   enableCloseToTrayDescText: string;
-  startToTrayText: string;
-  startToTrayDescText: string;
 
   showSecurity = true;
   showAccountPreferences = true;
@@ -148,7 +146,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     enableTray: false,
     enableMinToTray: false,
     enableCloseToTray: false,
-    startToTray: false,
     openAtLogin: false,
     alwaysShowDock: false,
     enableBrowserIntegration: false,
@@ -218,10 +215,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const closeToTrayKey = this.isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
     this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
     this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
-
-    const startToTrayKey = this.isMac ? "startToMenuBar" : "startToTray";
-    this.startToTrayText = this.i18nService.t(startToTrayKey);
-    this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
     this.showOpenAtLoginOption = this.showAutostartSetting();
 
@@ -314,7 +307,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
       enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
       enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
-      startToTray: await firstValueFrom(this.desktopSettingsService.startToTray$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
       enableBrowserIntegration: await firstValueFrom(
@@ -582,7 +574,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (
       this.requireEnableTray &&
       !this.form.value.enableTray &&
-      (this.form.value.startToTray || this.form.value.enableCloseToTray)
+      this.form.value.enableCloseToTray
     ) {
       const confirm = await this.dialogService.openSimpleDialog({
         title: { key: "confirmTrayTitle" },
@@ -591,8 +583,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
 
       if (confirm) {
-        this.form.controls.startToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
         this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
         await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
       } else {
@@ -605,15 +595,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
     // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
     this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
-  }
-
-  async saveStartToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
   }
 
   async saveLocale() {
