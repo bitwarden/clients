@@ -90,11 +90,16 @@ export class FileUploadComponent implements ControlValueAccessor {
   /** UI variant: 'dropzone' or 'default' */
   readonly variant = input<"dropzone" | "default">("default");
 
+  readonly disabledInput = input(false, { transform: booleanAttribute, alias: "disabled" });
+
+  private readonly _disabledFromCva = signal(false);
+
+  readonly disabled = computed(() => this.disabledInput() || this._disabledFromCva());
+
   private readonly cvaOnChange = signal<(value: File | null) => void>(() => {});
   private readonly cvaOnTouched = signal<() => void>(() => {});
 
-  constructor() {}
-
+  /** Required for NG_VALUE_ACCESSOR */
   writeValue(value: File | null): void {
     this.files.set(value ? [value] : []);
   }
@@ -107,13 +112,15 @@ export class FileUploadComponent implements ControlValueAccessor {
     this.cvaOnTouched.set(fn);
   }
 
-  setDisabledState(_isDisabled: boolean): void {
-    // TODO: propagate disabled state to the button/dropzone
+  setDisabledState(isDisabled: boolean): void {
+    this._disabledFromCva.set(isDisabled);
   }
 
   protected readonly inputId = `bit-file-upload-${nextId++}`;
 
-  protected readonly isDropzone = computed(() => this.variant() === "dropzone" || this.multiple());
+  protected readonly useDropzoneVariant = computed(
+    () => this.variant() === "dropzone" || this.multiple(),
+  );
 
   protected readonly labelId = `${this.inputId}-label`;
   protected readonly statusId = `${this.inputId}-status`;
@@ -148,6 +155,9 @@ export class FileUploadComponent implements ControlValueAccessor {
   }
 
   protected onFileRemoved(file: File): void {
+    if (this.disabled()) {
+      return;
+    }
     this.files.update((current) => current.filter((f) => f !== file));
     this.cvaOnChange()(this.files()[0] ?? null);
   }

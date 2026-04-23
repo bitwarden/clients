@@ -2,11 +2,12 @@
   <ng-content select="bit-label"></ng-content>
 </ng-template>
 
-@if (isDropzone()) {
+@if (useDropzoneVariant()) {
   <div class="tw-flex-col tw-flex tw-gap-2 [&_bit-hint]:tw-m-0">
     <label
       [id]="labelId"
       class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
+      [class.tw-text-fg-inactive]="disabled()"
     >
       <ng-container *ngTemplateOutlet="labelContent"></ng-container>
     </label>
@@ -16,6 +17,7 @@
       [maxFileSize]="maxFileSize()!"
       [multiple]="multiple()"
       [errorMessage]="errorMessage()"
+      [disabled]="disabled()"
       (filesSelected)="onFilesSelected($event)"
     />
 
@@ -25,7 +27,11 @@
       <ng-content select="bit-hint"></ng-content>
     }
 
-    <bit-file-list [files]="files()" (fileRemoved)="onFileRemoved($event)" />
+    <bit-file-list
+      [files]="files()"
+      [disabled]="disabled()"
+      (fileRemoved)="onFileRemoved($event)"
+    />
   </div>
 } @else {
   <div class="tw-flex tw-flex-col tw-gap-2">
@@ -33,13 +39,17 @@
       [id]="labelId"
       [attr.for]="inputId"
       class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
+      [class.tw-text-fg-inactive]="disabled()"
     >
       <ng-container *ngTemplateOutlet="labelContent"></ng-container>
     </label>
 
     <div bitFieldContainer class="tw-relative" [hasError]="!!errorMessage()">
       <div
-        class="tw-relative tw-flex tw-shrink-0 tw-items-center tw-border-e tw-border-border-base tw-px-3 tw-py-2 tw-bg-bg-quaternary tw-rounded-s-[11px]"
+        class="tw-relative tw-flex tw-shrink-0 tw-items-center tw-border-e tw-border-border-base tw-px-3 tw-py-2 tw-rounded-s-[11px]"
+        [class.tw-bg-bg-quaternary]="!disabled()"
+        [class.tw-bg-bg-inactive]="disabled()"
+        [class.tw-text-fg-inactive]="disabled()"
       >
         <span class="tw-text-sm tw-pointer-events-none">{{ "chooseFile" | i18n }}</span>
       </div>
@@ -49,7 +59,8 @@
         type="button"
         [attr.aria-labelledby]="ariaLabelledBy"
         [attr.aria-describedby]="ariaDescribedBy()"
-        class="tw-absolute tw-inset-0 tw-size-full tw-opacity-0 tw-cursor-pointer"
+        [disabled]="disabled() || null"
+        class="tw-absolute tw-inset-0 tw-size-full tw-opacity-0 tw-cursor-pointer disabled:tw-cursor-not-allowed"
         (click)="openFilePicker()"
       ></button>
       <!-- Hidden file input: triggers the OS file picker, kept out of the AT -->
@@ -62,11 +73,13 @@
         [accept]="accept()"
         [multiple]="multiple()"
         (change)="onButtonFileChange($event)"
+        [disabled]="disabled() || null"
       />
       <span
         class="tw-flex-1 tw-min-w-0 tw-px-3 tw-py-2 tw-text-sm tw-truncate"
-        [class.tw-text-fg-body-subtle]="!fileLabel()"
-        [class.tw-text-fg-heading]="!!fileLabel()"
+        [class.tw-text-fg-body-subtle]="!fileLabel() && !disabled()"
+        [class.tw-text-fg-heading]="!!fileLabel() && !disabled()"
+        [class.tw-text-fg-inactive]="disabled()"
       >
         {{ fileLabel() ?? ("noFileChosen" | i18n) }}
       </span>

@@ -36,6 +36,9 @@ export class DropzoneComponent {
   /** Error state — shows danger border and message */
   readonly errorMessage = input<string>(undefined);
 
+  /** Disabled state — prevents file selection and drag/drop */
+  readonly disabled = input(false, { transform: booleanAttribute });
+
   /** Emits when files are selected or dropped */
   readonly filesSelected = output<File[]>();
 
@@ -58,8 +61,9 @@ export class DropzoneComponent {
       "tw-border",
       "tw-border-dashed",
       "tw-rounded-xl",
-      "tw-cursor-pointer",
+
       "tw-transition-colors",
+      "tw-bg-bg-secondary",
       // "peer-focus-visible/dropzone-input:tw-border-solid",
       "peer-focus-visible/dropzone-input:tw-border-transparent",
       "peer-focus-visible/dropzone-input:tw-ring",
@@ -67,18 +71,23 @@ export class DropzoneComponent {
       "peer-focus-visible/dropzone-input:tw-ring-border-focus",
     ];
 
-    if (this.errorMessage()) {
-      base.push("tw-bg-bg-secondary", "tw-border-border-danger");
+    if (this.disabled()) {
+      base.push("tw-text-fg-inactive", "tw-border-border-base", "!tw-cursor-not-allowed");
+    } else if (this.errorMessage()) {
+      base.push("tw-border-border-danger", "tw-cursor-pointer");
     } else if (this.isDragOver()) {
-      base.push("tw-bg-bg-quaternary", "tw-border-border-strong");
+      base.push("tw-border-border-strong", "tw-cursor-pointer");
     } else {
-      base.push("tw-bg-bg-secondary", "tw-border-border-strong", "hover:tw-bg-bg-quaternary");
+      base.push("tw-border-border-strong", "tw-cursor-pointer", "hover:tw-bg-bg-quaternary");
     }
 
     return base.join(" ");
   });
 
   protected onDragEnter(event: DragEvent): void {
+    if (this.disabled()) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     this.dragDepth.update((d) => d + 1);
@@ -86,11 +95,17 @@ export class DropzoneComponent {
   }
 
   protected onDragOver(event: DragEvent): void {
+    if (this.disabled()) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
   }
 
   protected onDragLeave(event: DragEvent): void {
+    if (this.disabled()) {
+      return;
+    }
     event.preventDefault();
     event.stopPropagation();
     this.dragDepth.update((d) => d - 1);
@@ -106,7 +121,7 @@ export class DropzoneComponent {
     this.dragDepth.set(0);
     this.isDragOver.set(false);
 
-    if (!event.dataTransfer?.files.length) {
+    if (this.disabled() || !event.dataTransfer?.files.length) {
       return;
     }
 
@@ -115,6 +130,9 @@ export class DropzoneComponent {
   }
 
   protected onFileInputChange(event: Event): void {
+    if (this.disabled()) {
+      return;
+    }
     const input = event.target as HTMLInputElement;
     if (!input.files?.length) {
       return;
