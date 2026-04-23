@@ -17,7 +17,7 @@ import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permi
 import { OrganizationData } from "@bitwarden/common/admin-console/models/data/organization.data";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -504,21 +504,21 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     const mockPendingOrgUserId = newGuid() as UserId;
     const mockPendingUserId = newGuid() as UserId;
     const mockPublicKey = "mockPublicKeyBase64";
-    const mockPublicKeyArray = Utils.fromB64ToArray(mockPublicKey);
+    let mockPublicKeyArray: Uint8Array<ArrayBuffer>;
     const mockConfirmRequest: OrganizationUserConfirmRequest = {
       key: "encryptedOrgKey" as any,
       defaultUserCollectionName: "encryptedCollectionName" as any,
     };
 
     beforeEach(() => {
+      mockPublicKeyArray = new Uint8Array(new ArrayBuffer(4));
+      jest.spyOn(Utils, "fromB64ToArray").mockReturnValue(mockPublicKeyArray);
+
       configService.getFeatureFlag.mockResolvedValue(true);
 
       const organizations$ = new BehaviorSubject<Organization[]>([mockOrganization]);
       organizationService.organizations$.mockReturnValue(organizations$);
       policyService.policyAppliesToUser$.mockReturnValue(of(true));
-
-      const enabledConfig = new AutoConfirmState();
-      enabledConfig.enabled = true;
 
       const pendingUser = { id: mockPendingOrgUserId, userId: mockPendingUserId } as any;
       const listResponse = {
@@ -526,10 +526,9 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       } as ListResponse<OrganizationUserPendingAutoConfirmResponse>;
       organizationUserApiService.getPendingAutoConfirmUsers.mockResolvedValue(listResponse);
 
-      apiService.getUserPublicKey.mockResolvedValue({
-        publicKey: mockPublicKey,
-        userId: mockPendingUserId,
-      } as UserKeyResponse);
+      organizationUserApiService.postOrganizationUsersPublicKey.mockResolvedValue({
+        data: [{ id: mockPendingOrgUserId, userId: mockPendingUserId, key: mockPublicKey }],
+      } as any);
 
       organizationUserService.buildConfirmRequest.mockReturnValue(of(mockConfirmRequest));
       organizationUserApiService.postBulkOrganizationUserAutoConfirm.mockResolvedValue({} as any);
@@ -585,7 +584,10 @@ describe("DefaultAutomaticUserConfirmationService", () => {
 
       await service.bulkAutoConfirmPendingUsers(mockUserId);
 
-      expect(apiService.getUserPublicKey).toHaveBeenCalledWith(mockPendingUserId);
+      expect(organizationUserApiService.postOrganizationUsersPublicKey).toHaveBeenCalledWith(
+        mockOrganizationId,
+        [mockPendingOrgUserId],
+      );
       expect(organizationUserService.buildConfirmRequest).toHaveBeenCalledWith(
         mockOrganization,
         mockPublicKeyArray,
@@ -618,10 +620,19 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       organizationUserApiService.getPendingAutoConfirmUsers.mockResolvedValue({
         data: [{ id: mockPendingOrgUserId, userId: mockPendingUserId } as any, secondPendingUser],
       } as any);
+      organizationUserApiService.postOrganizationUsersPublicKey.mockResolvedValue({
+        data: [
+          { id: mockPendingOrgUserId, userId: mockPendingUserId, key: mockPublicKey },
+          { id: secondOrgUserId, userId: secondUserId, key: mockPublicKey },
+        ],
+      } as any);
 
       await service.bulkAutoConfirmPendingUsers(mockUserId);
 
-      expect(apiService.getUserPublicKey).toHaveBeenCalledTimes(2);
+      expect(organizationUserApiService.postOrganizationUsersPublicKey).toHaveBeenCalledWith(
+        mockOrganizationId,
+        [mockPendingOrgUserId, secondOrgUserId],
+      );
       expect(organizationUserService.buildConfirmRequest).toHaveBeenCalledTimes(2);
 
       const calledWith = (
@@ -641,7 +652,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
   });
 
   describe("initBulkAutoConfirmOnLoginSweep", () => {
-    let accountsSubject: BehaviorSubject<Record<string, unknown>>;
+    let accountsSubject: BehaviorSubject<Record<UserId, AccountInfo>>;
     let authStatusSubject: BehaviorSubject<AuthenticationStatus>;
 
     const createSweepService = () =>
@@ -658,7 +669,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       );
 
     beforeEach(() => {
-      accountsSubject = new BehaviorSubject({} as Record<string, unknown>);
+      accountsSubject = new BehaviorSubject({} as Record<UserId, AccountInfo>);
       accountService.accounts$ = accountsSubject;
     });
 
@@ -672,7 +683,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         .mockResolvedValue(undefined);
 
       // Account becomes visible in accounts$ for the first time while already Unlocked
-      accountsSubject.next({ [mockUserId]: {} });
+      accountsSubject.next({ [mockUserId]: {} as AccountInfo });
 
       expect(spy).toHaveBeenCalledWith(mockUserId);
     });
@@ -686,7 +697,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
 
-      accountsSubject.next({ [mockUserId]: {} });
+      accountsSubject.next({ [mockUserId]: {} as AccountInfo });
       expect(spy).not.toHaveBeenCalled();
 
       authStatusSubject.next(AuthenticationStatus.Unlocked);
@@ -703,9 +714,29 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
 
-      accountsSubject.next({ [mockUserId]: {} });
+      accountsSubject.next({ [mockUserId]: {} as AccountInfo });
 
       expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should not re-trigger sweep when accounts$ emits again for the same already-Unlocked user (e.g. account info update)", () => {
+      authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
+      authService.authStatusFor$.mockReturnValue(authStatusSubject);
+
+      const svc = createSweepService();
+      const spy = jest
+        .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
+        .mockResolvedValue(undefined);
+
+      // First emission: userId is new, subscription is set up, sweep fires once
+      accountsSubject.next({ [mockUserId]: {} as AccountInfo });
+      expect(spy).toHaveBeenCalledTimes(1);
+
+      // Second emission: same userId, accounts$ emits again (e.g. account name/email change)
+      accountsSubject.next({ [mockUserId]: {} as AccountInfo });
+
+      // Must not have triggered a second sweep
+      expect(spy).toHaveBeenCalledTimes(1);
     });
   });
 });
