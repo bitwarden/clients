@@ -28,6 +28,13 @@ class MockSendFiltersNavComponent {}
 })
 class MockVaultFiltersNavComponent {}
 
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
