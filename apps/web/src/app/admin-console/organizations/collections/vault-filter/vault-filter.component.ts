@@ -1,14 +1,11 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   computed,
   DestroyRef,
   inject,
   input,
   model,
-  NgZone,
-  OnInit,
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
@@ -21,9 +18,7 @@ import {
   Observable,
   of,
   shareReplay,
-  startWith,
   switchMap,
-  take,
 } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -54,17 +49,12 @@ import {
   changeDetection: ChangeDetectionStrategy.Default,
   standalone: false,
 })
-export class VaultFilterComponent implements OnInit {
+export class VaultFilterComponent {
   private readonly vaultFilterService = inject(VaultFilterServiceAbstraction);
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
-  private readonly cdr = inject(ChangeDetectorRef);
-
-  /** Tracks which org id filters were last built for, to avoid redundant rebuilds. */
-  private readonly builtOrgId = signal<string | undefined>(undefined);
 
   readonly activeFilter = input<VaultFilter>(new VaultFilter());
   readonly searchText = model("");
@@ -144,101 +134,34 @@ export class VaultFilterComponent implements OnInit {
   }
 
   constructor() {
-    // The RoutedVaultFilterBridge (which navigates the URL on property writes) only
-    // becomes the activeFilter after reloadCollections() is called, which requires an
-    // HTTP response for admin collections (~200–500 ms). Until then, activeFilter is a
-    // plain VaultFilter whose setters are harmless property mutations with no URL effect.
-    //
-    // We detect bridge readiness by selectedCollectionNode becoming non-null:
-    // createLegacyFilterForAdminConsole() always sets it (AllCollections for the default
-    // URL), while the initial plain VaultFilter leaves it null.
-    //
-    // Until isLoaded is true, applyTypeFilter / applyCollectionFilter return early so
-    // early clicks do not silently no-op against the plain object.
-    toObservable(this.activeFilter)
-      .pipe(
-        filter((f) => f.selectedCollectionNode !== null),
-        take(1),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(() => {
-        this.ngZone.run(() => {
-          this.isLoaded.set(true);
-          this.cdr.markForCheck();
-        });
-      });
-
-    // toObservable must be set up in the constructor (injection context).
-    // ngOnInit handles the synchronous initial build before the first view evaluation;
-    // this subscription handles org changes after the initial render and resolves the
-    // default collection node selection (which requires an async tree emission).
     toObservable(this.organization)
       .pipe(
         filter((org): org is Organization => !!org),
         switchMap(async (org) => {
-          // Skip the rebuild if ngOnInit already built filters for this org.
-          if (org.id !== this.builtOrgId()) {
-            this.builtOrgId.set(org.id);
-            this.vaultFilterService.setOrganizationFilter(org);
-            // Re-enter Angular's zone: toObservable's effect runs outside NgZone,
-            // so signal writes here would not schedule a CD run on their own.
-            this.ngZone.run(() => {
-              this.filters.set(this.buildAllFilters());
-              this.isLoaded.set(true);
-              this.cdr.markForCheck();
-            });
-          }
+          this.vaultFilterService.setOrganizationFilter(org);
+          const filters = await this.buildAllFilters();
 
           const defaultCollectionNode = !this.activeFilter().selectedCipherTypeNode
             ? ((await firstValueFrom(
-                this.filters()!.collectionFilter!.data$,
+                filters.collectionFilter!.data$,
               )) as TreeNode<CollectionFilter>)
             : null;
 
-          return { defaultCollectionNode };
+          return { filters, defaultCollectionNode };
         }),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(({ defaultCollectionNode }) => {
+      .subscribe(({ filters, defaultCollectionNode }) => {
+        this.filters.set(filters);
         if (defaultCollectionNode) {
-          this.ngZone.run(() => {
-            this.activeFilter().resetFilter();
-            this.activeFilter().selectedCollectionNode = defaultCollectionNode;
-            this.cdr.markForCheck();
-          });
+          this.activeFilter().resetFilter();
+          this.activeFilter().selectedCollectionNode = defaultCollectionNode;
         }
+        this.isLoaded.set(true);
       });
   }
 
-  ngOnInit(): void {
-    const org = this.organization();
-    if (!org) {
-      return;
-    }
-
-    // Build filters synchronously before the first view evaluation so the template
-    // can render sections on the very first pass (no spinner).
-    this.builtOrgId.set(org.id);
-    this.vaultFilterService.setOrganizationFilter(org);
-    this.filters.set(this.buildAllFilters());
-
-    // Edge case: if the RoutedVaultFilterBridge has already emitted before this
-    // component was created (e.g. collections were in state and resolved synchronously),
-    // the toObservable(activeFilter) subscription would have fired with the bridge as
-    // the initial value and then nothing more to wait for. Detect it here directly.
-    if (this.activeFilter().selectedCollectionNode !== null) {
-      this.isLoaded.set(true);
-    }
-    // Otherwise the toObservable(activeFilter) subscription set up in the constructor
-    // will set isLoaded once the bridge emits (selectedCollectionNode becomes non-null).
-  }
-
   readonly applyTypeFilter = async (filterNode: TreeNode<CipherTypeFilter>): Promise<void> => {
-    // Bridge not ready yet — clicking before reloadCollections() completes would silently
-    // mutate the plain VaultFilter with no URL navigation. Wait for isLoaded.
-    if (!this.isLoaded()) {
-      return;
-    }
     const filter = this.activeFilter();
     filter.resetFilter();
     filter.selectedCipherTypeNode = filterNode;
@@ -247,25 +170,20 @@ export class VaultFilterComponent implements OnInit {
   readonly applyCollectionFilter = async (
     collectionNode: TreeNode<CollectionFilter>,
   ): Promise<void> => {
-    if (!this.isLoaded()) {
-      return;
-    }
     const filter = this.activeFilter();
     filter.resetFilter();
     filter.selectedCollectionNode = collectionNode;
   };
 
-  // Each add*Filter method constructs a VaultFilterSection with a lazy data$ observable.
-  // None of them do any actual async I/O, so they can all run synchronously.
-  buildAllFilters(): VaultFilterList {
-    return {
-      typeFilter: this.addTypeFilter(["favorites"], this.organization()?.id),
-      collectionFilter: this.addCollectionFilter(),
-      trashFilter: this.addTrashFilter(),
-    };
+  async buildAllFilters(): Promise<VaultFilterList> {
+    const builderFilter = {} as VaultFilterList;
+    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this.organization()?.id);
+    builderFilter.collectionFilter = await this.addCollectionFilter();
+    builderFilter.trashFilter = await this.addTrashFilter();
+    return builderFilter;
   }
 
-  protected addCollectionFilter(): VaultFilterSection {
+  protected async addCollectionFilter(): Promise<VaultFilterSection> {
     // Ensure the Collections filter is never collapsed in the org vault.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.removeCollapsibleCollection();
@@ -297,10 +215,10 @@ export class VaultFilterComponent implements OnInit {
     };
   }
 
-  protected addTypeFilter(
+  protected async addTypeFilter(
     excludeTypes: CipherStatus[] = [],
     organizationId?: string,
-  ): VaultFilterSection {
+  ): Promise<VaultFilterSection> {
     const allFilter: CipherTypeFilter = {
       id: "AllItems",
       name: "allItems",
@@ -309,11 +227,7 @@ export class VaultFilterComponent implements OnInit {
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      // startWith([]) lets combineLatest emit immediately (before allCiphers$ resolves
-      // its API call), so the type filter renders on the first CD cycle. When actual
-      // ciphers arrive, the filter recomputes; for users with no restricted types the
-      // value is identical and distinctUntilChanged suppresses a spurious re-render.
-      this.ciphers$().pipe(startWith([] as CipherView[])),
+      this.ciphers$(),
     ]).pipe(
       map(([restrictedTypes, ciphers]) => {
         const restrictedForUser = restrictedTypes
@@ -354,7 +268,7 @@ export class VaultFilterComponent implements OnInit {
     };
   }
 
-  protected addTrashFilter(): VaultFilterSection {
+  protected async addTrashFilter(): Promise<VaultFilterSection> {
     return {
       data$: this.vaultFilterService.buildTypeTree(
         {
