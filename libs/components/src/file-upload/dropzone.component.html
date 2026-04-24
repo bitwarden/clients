@@ -5,6 +5,7 @@
   [accept]="accept()"
   [multiple]="multiple()"
   [disabled]="disabled() || null"
+  [attr.aria-describedby]="ariaDescribedBy() || null"
   (change)="onFileInputChange($event)"
 />
 
