@@ -97,7 +97,7 @@ export class SetAccountVerifyDevicesDialogComponent implements OnInit, OnDestroy
         activeAccount!.id,
         request.verifyDevices,
       );
-      this.dialogRef.close();
+      await this.dialogRef.close();
       this.toastService.showToast({
         variant: "success",
         title: "",

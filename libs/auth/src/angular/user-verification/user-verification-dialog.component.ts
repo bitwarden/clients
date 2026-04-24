@@ -297,6 +297,6 @@ export class UserVerificationDialogComponent {
   }
 
   close(dialogResult: UserVerificationDialogResult) {
-    this.dialogRef.close(dialogResult);
+    void this.dialogRef.close(dialogResult);
   }
 }

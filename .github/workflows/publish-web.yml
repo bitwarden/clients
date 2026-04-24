@@ -110,36 +110,25 @@ jobs:
           description: 'Deployment ${{ needs.setup.outputs.release_version }} from branch ${{ github.ref_name }}'
           task: release
 
-      - name: Pull branch image
+      - name: Copy images
         run: |
           if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker pull "$_AZ_REGISTRY/web:latest"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:latest" \
+              "docker://$_AZ_REGISTRY/web:dryrun"
+            skopeo copy --all \
+              "docker://$_GHCR_REGISTRY/web:latest" \
+              "docker://$_GHCR_REGISTRY/web:dryrun"
           else
-            docker pull "$_AZ_REGISTRY/web:$_BRANCH_NAME"
-          fi
-
-      - name: Tag version
-        run: |
-          if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker tag "$_AZ_REGISTRY/web:latest" "$_AZ_REGISTRY/web:dryrun"
-            docker tag "$_AZ_REGISTRY/web:latest" "$_GHCR_REGISTRY/web:dryrun"
-          else
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_AZ_REGISTRY/web:latest"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
-            docker tag "$_AZ_REGISTRY/web:$_BRANCH_NAME" "$_GHCR_REGISTRY/web:latest"
-          fi
-
-      - name: Push version
-        run: |
-          if [[ "${{ inputs.publish_type }}" == "Dry Run" ]]; then
-            docker push "$_AZ_REGISTRY/web:dryrun"
-            docker push "$_GHCR_REGISTRY/web:dryrun"
-          else
-            docker push "$_AZ_REGISTRY/web:$_RELEASE_VERSION"
-            docker push "$_AZ_REGISTRY/web:latest"
-            docker push "$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
-            docker push "$_GHCR_REGISTRY/web:latest"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:$_BRANCH_NAME" \
+              "docker://$_AZ_REGISTRY/web:$_RELEASE_VERSION"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:$_BRANCH_NAME" \
+              "docker://$_AZ_REGISTRY/web:latest"
+            skopeo copy --all \
+              "docker://$_AZ_REGISTRY/web:$_BRANCH_NAME" \
+              "docker://$_GHCR_REGISTRY/web:$_RELEASE_VERSION"
           fi
 
       - name: Log out from Azure

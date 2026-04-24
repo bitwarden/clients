@@ -698,6 +698,19 @@ export class EventService {
           this.formatServiceAccountId(ev, options),
         );
         break;
+      case EventType.PhishingBlocker_SiteAccessed:
+        msg = this.i18nService.t("phishingBlockerSiteAccessed");
+        humanReadableMsg = this.i18nService.t("phishingBlockerSiteAccessed");
+        break;
+      case EventType.PhishingBlocker_SiteExited:
+        msg = this.i18nService.t("phishingBlockerSiteExited");
+        humanReadableMsg = this.i18nService.t("phishingBlockerSiteExited");
+        break;
+      case EventType.PhishingBlocker_Bypassed:
+        msg = this.i18nService.t("phishingBlockerBypassed");
+        humanReadableMsg = this.i18nService.t("phishingBlockerBypassed");
+        break;
+
       default:
         break;
     }
