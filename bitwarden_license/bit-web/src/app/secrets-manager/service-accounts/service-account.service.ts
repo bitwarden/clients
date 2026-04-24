@@ -12,6 +12,7 @@ import {
   EncString,
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -41,6 +42,7 @@ export class ServiceAccountService {
     private apiService: ApiService,
     private encryptService: EncryptService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   private getOrganizationKey$(organizationId: string) {
@@ -226,7 +228,8 @@ export class ServiceAccountService {
     try {
       const decrypted = await this.encryptService.decryptString(encString, organizationKey);
       return { value: decrypted, error: false };
-    } catch {
+    } catch (error) {
+      this.logService.error("Error decrypting service account field", error);
       return { value: DECRYPT_ERROR, error: true };
     }
   }
