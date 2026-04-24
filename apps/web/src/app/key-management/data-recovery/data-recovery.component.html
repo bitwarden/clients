@@ -66,8 +66,13 @@
           {{ "repairIssues" | i18n }}
         </button>
       }
-      <button type="button" bitButton buttonType="secondary" [bitAction]="saveDiagnosticLogs">
-        <i class="bwi bwi-download" aria-hidden="true"></i>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        [bitAction]="saveDiagnosticLogs"
+        startIcon="bwi-download"
+      >
         {{ "saveDiagnosticLogs" | i18n }}
       </button>
     </div>

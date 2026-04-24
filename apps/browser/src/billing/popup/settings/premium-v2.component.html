@@ -37,24 +37,18 @@
         <p class="tw-mt-5 tw-mb-0">{{ priceString }}</p>
       </bit-card>
     </bit-section>
-    <button bitButton type="submit" buttonType="primary" (click)="purchase()" class="tw-mb-3">
-      <b>{{ "premiumPurchase" | i18n }}</b>
-      <i class="bwi bwi-external-link" aria-hidden="true"></i>
-    </button>
     <button
-      #refreshBtn
-      type="button"
-      (click)="refresh()"
-      [disabled]="$any(refreshBtn).loading()"
-      [appApiAction]="refreshPromise"
       bitButton
+      type="submit"
+      buttonType="primary"
+      (click)="purchase()"
+      class="tw-mb-3"
+      endIcon="bwi-external-link"
     >
-      <span [hidden]="$any(refreshBtn).loading()">{{ "premiumRefresh" | i18n }}</span>
-      <i
-        class="bwi bwi-spinner bwi-spin bwi-lg bwi-fw"
-        [hidden]="!$any(refreshBtn).loading()"
-        aria-hidden="true"
-      ></i>
+      <b>{{ "premiumPurchase" | i18n }}</b>
+    </button>
+    <button type="button" (click)="refresh()" [loading]="refreshing" bitButton>
+      {{ "premiumRefresh" | i18n }}
     </button>
   </div>
 </popup-page>
