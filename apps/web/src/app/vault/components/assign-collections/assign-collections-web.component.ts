@@ -27,7 +27,7 @@ export class AssignCollectionsWebComponent {
   ) {}
 
   protected async onCollectionAssign(result: CollectionAssignmentResult) {
-    this.dialogRef.close(result);
+    await this.dialogRef.close(result);
   }
 
   static open(dialogService: DialogService, config: DialogConfig<CollectionAssignmentParams>) {
