@@ -659,7 +659,7 @@ export class ServiceContainer {
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
 
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.providerService = new ProviderService(this.stateProvider);
 
@@ -885,7 +885,6 @@ export class ServiceContainer {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -1100,6 +1099,7 @@ export class ServiceContainer {
       this.sdkService,
       this.keyService,
       this.masterPasswordService,
+      this.kdfConfigService,
     );
     this.encryptedMigrator = new DefaultEncryptedMigrator(
       this.kdfConfigService,

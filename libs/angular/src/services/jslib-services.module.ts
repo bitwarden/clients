@@ -16,6 +16,8 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
+import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
+import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import {
   ChangePasswordService,
   DefaultChangePasswordService,
@@ -543,11 +545,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: ChangeKdfService,
-    useClass: DefaultChangeKdfService,
-    deps: [ChangeKdfApiService, SdkService, KeyService, InternalMasterPasswordServiceAbstraction],
-  }),
-  safeProvider({
     provide: EncryptedMigrator,
     useClass: DefaultEncryptedMigrator,
     deps: [
@@ -645,7 +642,6 @@ const safeProviders: SafeProvider[] = [
       domainSettingsService: DomainSettingsService,
       apiService: ApiServiceAbstraction,
       i18nService: I18nServiceAbstraction,
-      searchService: SearchServiceAbstraction,
       autofillSettingsService: AutofillSettingsServiceAbstraction,
       encryptService: EncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
@@ -662,7 +658,6 @@ const safeProviders: SafeProvider[] = [
         domainSettingsService,
         apiService,
         i18nService,
-        searchService,
         autofillSettingsService,
         encryptService,
         fileUploadService,
@@ -679,7 +674,6 @@ const safeProviders: SafeProvider[] = [
       DomainSettingsService,
       ApiServiceAbstraction,
       I18nServiceAbstraction,
-      SearchServiceAbstraction,
       AutofillSettingsServiceAbstraction,
       EncryptService,
       CipherFileUploadServiceAbstraction,
@@ -1083,7 +1077,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SearchServiceAbstraction,
     useClass: SearchService,
-    deps: [LogService, I18nServiceAbstraction, StateProvider],
+    deps: [LogService, I18nServiceAbstraction],
   }),
   safeProvider({
     provide: WebPushNotificationsApiService,
@@ -1448,7 +1442,13 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ChangeKdfService,
     useClass: DefaultChangeKdfService,
-    deps: [ChangeKdfApiService, SdkService, KeyService, InternalMasterPasswordServiceAbstraction],
+    deps: [
+      ChangeKdfApiService,
+      SdkService,
+      KeyService,
+      InternalMasterPasswordServiceAbstraction,
+      KdfConfigService,
+    ],
   }),
   safeProvider({
     provide: AuthRequestServiceAbstraction,
@@ -1868,6 +1868,11 @@ const safeProviders: SafeProvider[] = [
     provide: CipherEncryptionService,
     useClass: DefaultCipherEncryptionService,
     deps: [SdkService, LogService],
+  }),
+  safeProvider({
+    provide: DeviceManagementComponentServiceAbstraction,
+    useClass: DefaultDeviceManagementComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: ChangePasswordService,
