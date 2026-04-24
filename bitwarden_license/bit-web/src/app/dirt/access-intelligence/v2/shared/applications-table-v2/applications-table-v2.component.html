@@ -1,9 +1,10 @@
 <ng-container>
   <bit-table-scroll [dataSource]="dataSource()" [rowSize]="53">
     <ng-container header>
-      <th bitCell>
+      <th bitCell colspan="2">
         @if (!onUnmarkAsCritical()) {
           <input
+            class="tw-mr-2"
             data-testid="selectAll"
             bitCheckbox
             type="checkbox"
@@ -13,9 +14,9 @@
             [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
             [disabled]="dataSource().filteredData?.length === 0"
           />
+          <span>{{ "all" | i18n }}</span>
         }
       </th>
-      <th bitCell></th>
       <th bitSortable="applicationName" bitCell tabindex="0">{{ "application" | i18n }}</th>
       <th bitSortable="atRiskPasswordCount" bitCell default="desc" tabindex="0">
         {{ "atRiskPasswords" | i18n }}
@@ -42,6 +43,7 @@
             type="checkbox"
             [checked]="selectedUrls().has(row.applicationName)"
             (change)="emitCheckboxChange(row.applicationName, $event)"
+            [attr.aria-label]="'selectApplication' | i18n"
           />
         }
       </td>

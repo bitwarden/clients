@@ -93,7 +93,8 @@ callout type. To avoid displaying any icon, pass in `null`.
 ## No Title
 
 Pass in `null` to not display a title. If no title is provided, a default title will be used if
-callout type is `warning | danger`.
+callout type is `warning | danger`. See Accessibility notes for guidelines on what to do if no title
+is provided to variants that don't have a default title.
 
 <Canvas of={stories.NoTitle} />
 
@@ -104,6 +105,13 @@ A close button will be displayed when binding to the `(dismiss)` output.
 <Canvas of={stories.WithCloseButton} />
 
 ## Accessibility
+
+Callouts use the `aside` landmark under the hood. Landmarks must have a unique accessible name if
+there is more than one instance of a given landmark on a page
+([see Deque University Axe rule](https://dequeuniversity.com/rules/axe/4.10/landmark-unique?application=axeAPI)).
+If the callout does not have a visible title, an accessible name should still be provided via the
+`accessibleName` input on the callout. If neither title or accessible name is provided, the callout
+will default to "callout \{number\}, \{type\}" as its unique accessible name.
 
 Ensure color contrast remains WCAG compliant with the callout's background. This is especially
 important when adding `bit-link` or `bit-button` to the content area since the callout background is

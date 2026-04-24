@@ -7,7 +7,6 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  Signal,
   signal,
   ChangeDetectionStrategy,
 } from "@angular/core";
@@ -143,7 +142,10 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     () => this.report()?.getCriticalApplications().length ?? 0,
   );
 
-  protected readonly milestone11Enabled!: Signal<boolean>;
+  readonly milestone11Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Milestone11AppPageImprovements),
+    { initialValue: false },
+  );
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -155,11 +157,6 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private readonly logService: LogService,
     private readonly configService: ConfigService,
   ) {
-    this.milestone11Enabled = toSignal(
-      this.configService.getFeatureFlag$(FeatureFlag.Milestone11AppPageImprovements),
-      { initialValue: false },
-    );
-
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex.set(
         !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity,
