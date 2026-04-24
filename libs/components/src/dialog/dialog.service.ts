@@ -469,7 +469,7 @@ export class DialogService {
   }
 
   /** The injector that is passed to the opened dialog */
-   
+
   private createInjector(opts: { data: unknown; dialogRef: DialogRef<any, any> }): Injector {
     return Injector.create({
       providers: [
