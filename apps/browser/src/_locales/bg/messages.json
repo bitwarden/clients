@@ -1148,6 +1148,15 @@
     "message": "Автоматично изчистване на буфера след поставяне на стойността.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Променена е настройка на буфера за обмен"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Времето на давност на буфера за обмен е зададено на стандартната си стойност, която беше актуализирана и вече е 5 минути, за по-добра сигурност."
+  },
+  "jumpToSetting": {
+    "message": "Към настройката"
+  },
   "notificationAddDesc": {
     "message": "Искате ли тази парола да бъде запазена?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Допълнителни настройки"
+  },
+  "enableFillAssist": {
+    "message": "Използване на асистираното попълване"
   },
   "enableContextMenuItem": {
     "message": "Показване на опции в контекстното меню"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Този уеб сайт не съвпада със запазените данни за вписване. Преди да попълните данните си, уверете се, че имате вяра на сайта."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Елементът за вписване няма запазен уеб сайт"
+  },
+  "siteDoesntMatch": {
+    "message": "Уеб сайтът не съвпада"
+  },
+  "loginNoSiteDesc": {
+    "message": "Този елемент за вписване все още няма запазен уеб сайт. Уверете се, че се намирате в доверен уеб сайт, преди да попълните автоматично."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Този уеб сайт не съвпада с онзи, който е запазен в този елемент за вписване. Уверете се, че се намирате в доверен уеб сайт, преди да попълните автоматично."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Този уеб сайт не съвпада с онези, които са запазени в този елемент за вписване. Уверете се, че се намирате в доверен уеб сайт, преди да попълните автоматично."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Автоматично попълване и запазване на този уеб сайт"
+  },
+  "autofillOnly": {
+    "message": "Само автоматично попълване"
+  },
   "showInlineMenuLabel": {
     "message": "Показване на предложения за авт. попълване на полетата във формуляри"
   },
@@ -2102,6 +2135,27 @@
   "typeNote": {
     "message": "Бележка"
   },
+  "typeLoginSubtitle": {
+    "message": "Уеб сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитна или дебитна карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Лична информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важен текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Идентификатор за вписване в сървъра"
+  },
+  "folderSubtitle": {
+    "message": "Организирайте данните си"
+  },
+  "collectionSubtitle": {
+    "message": "Организирайте споделените данни"
+  },
   "newItemHeaderLogin": {
     "message": "Нов елемент за вписване",
     "description": "Header for new login item type"
@@ -2177,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Преглед на SSH ключа",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Изберете елемент за добавяне"
   },
   "passwordHistory": {
     "message": "Хронология на паролата"
@@ -2837,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ иска от Вас да смените тази парола, защото е в риск. Отидете в настройките на акаунта си, за да смените паролата си.",
+  "atRiskNavigatePromptV2": {
+    "message": "Паролата Ви за този уеб сайт е в риск. $ORGANIZATION$ изисква да отворите настройките на акаунта си и да я промените.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Състояние на вписването"
+  },
+  "recentlyActive": {
+    "message": "Активно наскоро"
+  },
+  "recentlyActiveToday": {
+    "message": "Днес"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Последните 7 дни"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Последните 14 дни"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Последните 30 дни"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Преди повече от 30 дни"
   },
   "masterPasswordChanged": {
     "message": "Главната парола е запазена"
@@ -6115,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Управлява се от настолното приложение на Битуорден. Отворете него, ако искате да правите промени."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% завършено",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Надграждане"
   },
@@ -6202,6 +6289,9 @@
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "потребител@bitwarden.com, потребител@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Сваляне на приложенията на Битуорден"
   },
@@ -6217,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Неуспешно сваляне."
+  },
+  "sideNavigation": {
+    "message": "Странична навигация"
+  },
+  "skipLink": {
+    "message": "Връзка за пропускане"
+  },
+  "callout": {
+    "message": "Известие",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Лента за напредък",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

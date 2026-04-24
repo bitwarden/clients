@@ -447,7 +447,7 @@ describe("EmergencyAccessService", () => {
           params.email,
           params.activeUserId,
         ),
-      ).rejects.toThrowError("Failed to unwrap grantor key");
+      ).rejects.toThrow("Failed to unwrap grantor key");
 
       expect(keyService.userPrivateKey$).toHaveBeenCalledWith(params.activeUserId);
       expect(encryptService.decapsulateKeyUnsigned).toHaveBeenCalledWith(
@@ -651,6 +651,88 @@ describe("EmergencyAccessService", () => {
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(
         id,
         request,
+      );
+    });
+
+    it("should use server-provided salt when present in takeover response", async () => {
+      // Arrange
+      const serverSalt = "server-provided-salt";
+      const serverSaltAsMasterPasswordSalt = serverSalt as MasterPasswordSalt;
+
+      const takeoverResponseWithSalt = {
+        ...takeoverResponse,
+        salt: serverSalt,
+      } as EmergencyAccessTakeoverResponse;
+
+      emergencyAccessApiService.postEmergencyAccessTakeover.mockResolvedValue(
+        takeoverResponseWithSalt,
+      );
+
+      // Act
+      await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
+
+      // Assert
+      expect(masterPasswordService.emailToSalt).not.toHaveBeenCalled();
+      expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+        masterPassword,
+        kdfConfig,
+        serverSaltAsMasterPasswordSalt,
+      );
+      expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+        masterPassword,
+        kdfConfig,
+        serverSaltAsMasterPasswordSalt,
+        mockGrantorUserKey,
+      );
+    });
+
+    it("should fall back to emailToSalt when salt is absent from takeover response", async () => {
+      // Arrange — takeoverResponse in beforeEach has no salt property (undefined)
+
+      // Act
+      await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
+
+      // Assert
+      expect(masterPasswordService.emailToSalt).toHaveBeenCalledWith(email);
+      expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+        masterPassword,
+        kdfConfig,
+        salt,
+      );
+      expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+        masterPassword,
+        kdfConfig,
+        salt,
+        mockGrantorUserKey,
+      );
+    });
+
+    it("should fall back to emailToSalt when response salt is explicitly null", async () => {
+      // Arrange
+      const takeoverResponseWithNullSalt = {
+        ...takeoverResponse,
+        salt: null,
+      } as EmergencyAccessTakeoverResponse;
+
+      emergencyAccessApiService.postEmergencyAccessTakeover.mockResolvedValue(
+        takeoverResponseWithNullSalt,
+      );
+
+      // Act
+      await emergencyAccessService.takeover(id, masterPassword, email, activeUserId);
+
+      // Assert
+      expect(masterPasswordService.emailToSalt).toHaveBeenCalledWith(email);
+      expect(masterPasswordService.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
+        masterPassword,
+        kdfConfig,
+        salt,
+      );
+      expect(masterPasswordService.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+        masterPassword,
+        kdfConfig,
+        salt,
+        mockGrantorUserKey,
       );
     });
   });

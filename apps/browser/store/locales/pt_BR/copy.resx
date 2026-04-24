@@ -121,71 +121,71 @@
     <value>Bitwarden Gerenciador de Senhas</value>
   </data>
   <data name="Summary" xml:space="preserve">
-    <value>Onde quer que você esteja, a Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
+    <value>Onde quer que você esteja, o Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
   </data>
   <data name="Description" xml:space="preserve">
-    <value>Reconhecido como o melhor gerenciador de senhas por PCMag, WIRED, The Verge, CNET, G2, e outros!
+    <value>Reconhecido como o melhor gerenciador de senhas por PCMag, WIRED, The Verge, CNET, G2 e outros!
 
 PROTEJA A SUA VIDA DIGITAL
-Proteja a sua vida digital e proteja-se de vazamentos de dados gerando e salvando senhas únicas e seguras, para cada conta. Mantenha tudo em um cofre criptografado de ponta a ponta, que só você pode acessar.
+Proteja a sua vida digital e evite vazamentos de dados gerando e salvando senhas únicas e seguras para cada conta. Mantenha tudo em um cofre criptografado de ponta a ponta, que só você pode acessar.
 
-ACESSE SEUS DADOS, DE QUALQUER LUGAR, QUALQUER HORA, EM QUALQUER DISPOSITIVO
-Gerencie, armazene, proteja, e compartilhe senhas ilimitadas entre dispositivos ilimitados, sem restrições. Tudo de forma fácil.
+ACESSE SEUS DADOS DE QUALQUER LUGAR, A QUALQUER HORA, EM QUALQUER DISPOSITIVO
+Gerencie, armazene, proteja e compartilhe senhas ilimitadas em dispositivos ilimitados, sem restrições. Tudo de forma fácil.
 
 TODOS DEVERIAM TER AS FERRAMENTAS PARA SE PROTEGER ON-LINE
-Utilize o Bitwarden de graça, sem anúncios, e sem venda de dados. O Bitwarden acredita que todos deveriam ter a possibilidade de se proteger on-line. O plano Premium oferece acesso a recursos avançados.
+Utilize o Bitwarden de graça, sem anúncios e sem venda de dados. O Bitwarden acredita que todos deveriam ter a possibilidade de se proteger on-line. O plano Premium oferece acesso a recursos avançados.
 
-EMPODERE SUAS EQUIPES COM O BITWARDEN
-Os planos para Equipes e o Empresarial vêm com recursos empresariais profisionais. Alguns exemplos incluem integração com SSO, auto-hospedagem, integração de diretório e provisionamento de SCIM, políticas globais, acesso à API, registros de eventos, e mais.
+DÊ MAIS PODER ÀS SUAS EQUIPES COM O BITWARDEN
+Os planos para Equipes e o Empresarial vêm com recursos corporativos profissionais. Alguns exemplos incluem integração com SSO, auto-hospedagem, integração de diretório e provisionamento de SCIM, políticas globais, acesso à API, registros de eventos e mais.
 
-Use o Bitwarden para protejer a sua força de trabalho e compartilhe informações sensíveis com colegas.
+Use o Bitwarden para proteger a sua força de trabalho e compartilhe informações sensíveis com colegas.
 
 Mais motivos para escolher o Bitwarden:
 
 Criptografia reconhecida mundialmente
-As senhas são protegidas com criptografia avançada de ponta a ponta (AES de 256 bits, hashing com salting, e PBKDF2 SHA-256) para que seus dados continuem seguros e privados.
+As senhas são protegidas com criptografia avançada de ponta a ponta (AES de 256 bits, hashing com salting e PBKDF2 SHA-256) para que seus dados continuem seguros e privados.
 
 Auditoria por terceiros
-O Bitwarden conduz auditorias abrangentes de terceiros periodicamente com firmas de segurança nótaveis. Essas auditorias anuais incluem análise do código-fonte e teste de penetração entre IPs, servidores, e aplicativos web do Bitwarden.
+O Bitwarden conduz auditorias abrangentes periodicamente com firmas de segurança notáveis. Essas auditorias anuais incluem análise do código-fonte e teste de penetração em IPs, servidores e aplicativos web do Bitwarden.
 
-Autenticação de duas etapas avançada
-Proteja sua autenticação com um autenticador de terceiros, códigos enviados por e-mail, ou credenciais de WebAuthn FIDO2, como uma chave de segurança física ou uma chave de acesso.
+Autenticação avançada em duas etapas
+Proteja seu acesso com um autenticador de terceiros, códigos enviados por e-mail ou credenciais WebAuthn FIDO2, como uma chave de segurança física ou uma chave de acesso.
 
 Bitwarden Send
-Transmita dados diretamente para outros enquanto mantém a segurança da criptografia de ponta a ponta, limitando exposição.
+Transmita dados diretamente para outras pessoas enquanto mantém a segurança da criptografia de ponta a ponta, limitando a exposição da informação.
 
-Gerador embutido
-Crie senhas longas, complexas, e distintas, e nomes de usuário únicos para cada site que visita. Integre com provedores de alias de email para privacidade adicional.
+Gerador integrado
+Crie senhas longas, complexas e distintas, além de nomes de usuário únicos para cada site que visita. Integre com provedores de alias de e-mail para ter mais privacidade.
 
 Traduções globais
-O Bitwarden tem traduções para mais de 60 idiomas, traduzidos pela comunidade global, pelo Crowdin.
+O Bitwarden tem traduções para mais de 60 idiomas, feitas pela comunidade global no Crowdin.
 
 Aplicativos multiplataforma
-Proteja e compartilhe dados sensíveis dentro do seu cofre do Bitwarden de qualquer navegador, dispositivo móvel, sistema operacional de computador, e mais.
+Proteja e compartilhe dados sensíveis de dentro do seu cofre do Bitwarden usando qualquer navegador, dispositivo móvel, sistema operacional de computador e muito mais.
 
-O Bitwarden protege mais do que só senhas
-As soluções criptografadas de ponta a ponta de gerenciamento de credenciaisdo Bitwarden empoderam organizações a proteger tudo, incluindo segredos de desenvolvedor, e experiências com chaves de acesso. Visite bitwarden.com para aprender mais sobre o Bitwarden Gerenciador de Segredos e o Bitwarden Passworldless.dev!
+O Bitwarden protege mais do que apenas senhas
+As soluções de gerenciamento de credenciais com criptografia de ponta a ponta do Bitwarden capacitam as organizações a proteger tudo, incluindo segredos de desenvolvedor e experiências com chaves de acesso. Visite bitwarden.com para saber mais sobre o Bitwarden Gerenciador de Segredos e o Passwordless.dev!
 </value>
   </data>
   <data name="AssetTitle" xml:space="preserve">
-    <value>Onde quer que você esteja, a Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
+    <value>Onde quer que você esteja, o Bitwarden protege facilmente todas as suas senhas, chaves de acesso e informações sensíveis.</value>
   </data>
   <data name="ScreenshotSync" xml:space="preserve">
-    <value>Sincronize e acesse o seu cofre entre vários dispositivos</value>
+    <value>Sincronize e acesse o seu cofre em vários dispositivos</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
     <value>Gerencie todas as suas credenciais a partir de um cofre seguro</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
-    <value>Preencha automaticamente as suas credenciais dentro de qualquer site que visitar</value>
+    <value>Preencha as suas credenciais automaticamente em qualquer site que visitar</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>O seu cofre é também acessível a partir do menu de contexto pelo clique no botão direito do mouse</value>
+    <value>Seu cofre também pode ser acessado pelo menu de contexto com o botão direito do mouse</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
-    <value>Gera automaticamente senhas fortes, aleatórias e seguras</value>
+    <value>Gere senhas fortes, aleatórias e seguras automaticamente</value>
   </data>
   <data name="ScreenshotEdit" xml:space="preserve">
-    <value>A sua informação é gerenciada com segurança utilizando criptografia de AES de 256 bits</value>
+    <value>Suas informações são gerenciadas com segurança usando criptografia AES de 256 bits</value>
   </data>
 </root>

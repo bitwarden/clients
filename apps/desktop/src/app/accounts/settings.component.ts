@@ -14,6 +14,7 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -118,8 +119,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
   enableMinToTrayDescText: string;
   enableCloseToTrayText: string;
   enableCloseToTrayDescText: string;
-  startToTrayText: string;
-  startToTrayDescText: string;
 
   showSecurity = true;
   showAccountPreferences = true;
@@ -147,7 +146,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     enableTray: false,
     enableMinToTray: false,
     enableCloseToTray: false,
-    startToTray: false,
     openAtLogin: false,
     alwaysShowDock: false,
     enableBrowserIntegration: false,
@@ -218,11 +216,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
     this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
 
-    const startToTrayKey = this.isMac ? "startToMenuBar" : "startToTray";
-    this.startToTrayText = this.i18nService.t(startToTrayKey);
-    this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
-
-    this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
+    this.showOpenAtLoginOption = this.showAutostartSetting();
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
@@ -246,13 +240,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
     ];
 
     this.clearClipboardOptions = [
-      { name: this.i18nService.t("never"), value: null },
-      { name: this.i18nService.t("tenSeconds"), value: 10 },
-      { name: this.i18nService.t("twentySeconds"), value: 20 },
-      { name: this.i18nService.t("thirtySeconds"), value: 30 },
-      { name: this.i18nService.t("oneMinute"), value: 60 },
-      { name: this.i18nService.t("twoMinutes"), value: 120 },
-      { name: this.i18nService.t("fiveMinutes"), value: 300 },
+      { name: i18nService.t("never"), value: ClearClipboardDelay.Never },
+      { name: i18nService.t("tenSeconds"), value: ClearClipboardDelay.TenSeconds },
+      { name: i18nService.t("twentySeconds"), value: ClearClipboardDelay.TwentySeconds },
+      { name: i18nService.t("thirtySeconds"), value: ClearClipboardDelay.ThirtySeconds },
+      { name: i18nService.t("oneMinute"), value: ClearClipboardDelay.OneMinute },
+      { name: i18nService.t("twoMinutes"), value: ClearClipboardDelay.TwoMinutes },
+      { name: i18nService.t("fiveMinutes"), value: ClearClipboardDelay.FiveMinutes },
     ];
     this.sshAgentPromptBehaviorOptions = [
       {
@@ -313,7 +307,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
       enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
       enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
-      startToTray: await firstValueFrom(this.desktopSettingsService.startToTray$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
       enableBrowserIntegration: await firstValueFrom(
@@ -581,7 +574,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (
       this.requireEnableTray &&
       !this.form.value.enableTray &&
-      (this.form.value.startToTray || this.form.value.enableCloseToTray)
+      this.form.value.enableCloseToTray
     ) {
       const confirm = await this.dialogService.openSimpleDialog({
         title: { key: "confirmTrayTitle" },
@@ -590,8 +583,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       });
 
       if (confirm) {
-        this.form.controls.startToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
         this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
         await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
       } else {
@@ -604,15 +595,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
     // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
     this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
-  }
-
-  async saveStartToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
   }
 
   async saveLocale() {
@@ -636,6 +618,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveAlwaysShowDock() {
     await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
+  }
+
+  private showAutostartSetting(): boolean {
+    // Windows store does not support autostart
+    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
+    // Snap store has auto-start enabled through electron-builder ALWAYS
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
   }
 
   async saveOpenAtLogin() {
@@ -765,7 +754,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       } catch {
         enabled = false;
       } finally {
-        dialogRef.close();
+        await dialogRef.close();
       }
 
       if (!enabled) {

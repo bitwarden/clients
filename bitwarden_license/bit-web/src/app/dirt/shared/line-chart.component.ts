@@ -56,6 +56,8 @@ export type ChartConfig = {
   yAxisLabel?: string;
   xAxisType: "datetime" | "default";
   timeDisplayFormat?: string;
+  xMin?: Date | number;
+  xMax?: Date | number;
 };
 
 @Component({
@@ -148,6 +150,10 @@ export class LineChartComponent implements OnDestroy {
       scales: {
         x: {
           type: configuration.xAxisType === "datetime" ? "time" : "linear",
+          min:
+            configuration.xMin instanceof Date ? configuration.xMin.getTime() : configuration.xMin,
+          max:
+            configuration.xMax instanceof Date ? configuration.xMax.getTime() : configuration.xMax,
           title: {
             display: !!configuration.xAxisLabel,
             text: configuration.xAxisLabel,

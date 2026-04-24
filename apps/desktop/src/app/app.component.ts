@@ -23,6 +23,7 @@ import {
   timeout,
 } from "rxjs";
 
+import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
@@ -40,6 +41,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -77,7 +79,7 @@ import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
-import { DeleteAccountComponent } from "../auth/delete-account.component";
+import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
@@ -105,7 +107,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
 
     <div id="container">
       <div class="loading" *ngIf="loading">
-        <i class="bwi bwi-spinner bwi-spin bwi-3x" aria-hidden="true"></i>
+        <bit-spinner></bit-spinner>
       </div>
       <router-outlet *ngIf="!loading"></router-outlet>
     </div>
@@ -182,6 +184,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
     private authRequestService: AuthRequestServiceAbstraction,
     private authRequestAnsweringService: AuthRequestAnsweringService,
+    private ssoLoginService: SsoLoginServiceAbstraction,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -296,6 +299,9 @@ export class AppComponent implements OnInit, OnDestroy {
           case "openChangePasswordDialog":
             this.dialogService.open(ChangePasswordDialogComponent);
             break;
+          case "openDevicesDialog":
+            this.dialogService.open(DeviceManagementDialogComponent);
+            break;
           case "showFingerprintPhrase": {
             const activeUserId = await firstValueFrom(
               getUserId(this.accountService.activeAccount$),
@@ -333,6 +339,24 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "ssoCallback": {
+            const storedState = await this.ssoLoginService.getSsoState();
+            const storedVerifier = await this.ssoLoginService.getCodeVerifier();
+
+            if (!storedState || !storedVerifier) {
+              this.logService.warning(
+                "[App Component] SSO callback rejected: no active SSO flow in progress",
+              );
+              break;
+            }
+
+            const storedStatePrefix = storedState.split("_identifier=")[0];
+            const receivedStatePrefix = (message.state ?? "").split("_identifier=")[0];
+
+            if (storedStatePrefix !== receivedStatePrefix) {
+              this.logService.warning("[App Component] SSO callback rejected: state mismatch");
+              break;
+            }
+
             const queryParams = {
               code: message.code,
               state: message.state,
@@ -587,6 +611,10 @@ export class AppComponent implements OnInit, OnDestroy {
             multiClientPasswordManagement: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
             ),
+            // TODO: PM-34438 - remove desktopAddDevices flag read and MenuAccount field population
+            desktopAddDevices: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),
+            ),
           };
         }
       }
@@ -813,6 +841,11 @@ export class AppComponent implements OnInit, OnDestroy {
       if (userId == null) {
         continue;
       }
+      // Skip if vault timeout is suppressed by shared unlock
+      if (await this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed(userId as UserId)) {
+        continue;
+      }
+
       const options = await this.getVaultTimeoutOptions(userId);
       if (options[0] === timeout) {
         options[1] === "logOut"
@@ -900,7 +933,8 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    DeleteAccountComponent.open(this.dialogService);
+    const dialogRef = DeleteAccountDialogComponent.open(this.dialogService);
+    await lastValueFrom(dialogRef.closed);
   }
 
   private async processPendingAuthRequests() {

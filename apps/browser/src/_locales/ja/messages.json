@@ -1148,6 +1148,15 @@
     "message": "選択した時間が経過した後、自動的にクリップボードを消去します。",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "クリップボードの設定を更新しました"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "クリップボードのタイムアウトはデフォルトに設定されており、セキュリティ強化のために5分に更新されました。"
+  },
+  "jumpToSetting": {
+    "message": "設定へ移動"
+  },
   "notificationAddDesc": {
     "message": "このパスワードを Bitwarden に保存しますか？"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "追加オプション"
+  },
+  "enableFillAssist": {
+    "message": "入力補助を使用する"
   },
   "enableContextMenuItem": {
     "message": "コンテキストメニューオプションを表示"
@@ -1483,10 +1495,10 @@
     "message": "添付ファイルを保存しました。"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "暗号化を修正"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "このファイルは古い暗号化方法を使用しています。"
   },
   "attachmentUpdated": {
     "message": "Attachment updated"
@@ -1549,7 +1561,7 @@
     "message": "YubiKey、Duo などのプロプライエタリな2段階認証オプション。"
   },
   "premiumSubscriptionEnded": {
-    "message": "Your Premium subscription ended"
+    "message": "プレミアム サブスクリプションが終了しました"
   },
   "archivePremiumRestart": {
     "message": "To regain access to your archive, restart your Premium subscription. If you edit details for an archived item before restarting, it'll be moved back into your vault."
@@ -1787,6 +1799,27 @@
   },
   "confirmAutofillDesc": {
     "message": "このサイトは保存されたログイン情報と一致しません。ログイン情報を入力する前に、信頼できるサイトであることを確認してください。"
+  },
+  "loginHasNoSiteSaved": {
+    "message": "ログイン情報にサイトが保存されていません"
+  },
+  "siteDoesntMatch": {
+    "message": "サイトが一致しません"
+  },
+  "loginNoSiteDesc": {
+    "message": "このログイン情報にはまだサイトが保存されていません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "loginSingleSiteDesc": {
+    "message": "このサイトはこのログイン情報に保存したサイトと一致しません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "loginMultipleSitesDesc": {
+    "message": "このサイトはこのログイン情報に保存したサイトと一致しません。自動入力する前に、信頼できるサイトにいることをよく確認してください。"
+  },
+  "autofillAndSaveThisSite": {
+    "message": "このサイトを自動入力して保存"
+  },
+  "autofillOnly": {
+    "message": "自動入力のみ"
   },
   "showInlineMenuLabel": {
     "message": "フォームフィールドに自動入力の候補を表示する"
@@ -2102,6 +2135,27 @@
   "typeNote": {
     "message": "メモ"
   },
+  "typeLoginSubtitle": {
+    "message": "ウェブサイトまたはアプリ"
+  },
+  "typeCardSubtitle": {
+    "message": "クレジットまたはデビットカード"
+  },
+  "typeIdentitySubtitle": {
+    "message": "個人情報"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要なテキスト"
+  },
+  "typeSshKeySubtitle": {
+    "message": "サーバーのログイントークン"
+  },
+  "folderSubtitle": {
+    "message": "アイテムを整理する"
+  },
+  "collectionSubtitle": {
+    "message": "共有アイテムを整理する"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2177,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "追加するアイテムを選択"
   },
   "passwordHistory": {
     "message": "パスワードの履歴"
@@ -2837,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ wants you to change this password because it is at-risk. Navigate to your account settings to change the password.",
+  "atRiskNavigatePromptV2": {
+    "message": "このサイトのパスワードは危険です。 $ORGANIZATION$ はアカウント設定に移動して変更するよう要求しています。",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3105,7 +3162,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ 時間",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3767,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "ログイン状態"
+  },
+  "recentlyActive": {
+    "message": "最近アクティブ"
+  },
+  "recentlyActiveToday": {
+    "message": "今日"
+  },
+  "recentlyActivePast7Days": {
+    "message": "過去7日間"
+  },
+  "recentlyActivePast14Days": {
+    "message": "過去14日間"
+  },
+  "recentlyActivePast30Days": {
+    "message": "過去30日間"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30日以上前"
   },
   "masterPasswordChanged": {
     "message": "マスターパスワードが保存されました"
@@ -4890,7 +4965,7 @@
     "message": "管理コンソール"
   },
   "admin": {
-    "message": "Admin"
+    "message": "管理者"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -4905,7 +4980,7 @@
     "message": "This could impact your organization’s data security. "
   },
   "autoConfirmWarningLink": {
-    "message": "Learn about the risks"
+    "message": "リスクについて学ぶ"
   },
   "autoConfirmSetup": {
     "message": "Automatically confirm new users"
@@ -4926,7 +5001,7 @@
     "message": "アカウントのセキュリティ"
   },
   "phishingBlocker": {
-    "message": "Phishing Blocker"
+    "message": "フィッシングブロッカー"
   },
   "enablePhishingDetection": {
     "message": "Phishing detection"
@@ -5047,7 +5122,7 @@
     }
   },
   "downloadAttachmentLabel": {
-    "message": "Download Attachment"
+    "message": "添付ファイルをダウンロード"
   },
   "downloadBitwarden": {
     "message": "Bitwarden をダウンロード"
@@ -5554,7 +5629,7 @@
     "message": "You can customize your unlock and timeout settings to more quickly access your vault."
   },
   "unlockPinSet": {
-    "message": "Unlock PIN set"
+    "message": "PIN のロックを解除"
   },
   "unlockWithBiometricSet": {
     "message": "生体認証でロック解除を設定しました"
@@ -5952,7 +6027,7 @@
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "noPermissionsViewPage": {
-    "message": "You do not have permissions to view this page. Try logging in with a different account."
+    "message": "このページを表示する権限がありません。別のアカウントでログインしてください。"
   },
   "wasmNotSupported": {
     "message": "WebAssembly はお使いのブラウザでサポートされていないか、有効になっていません。WebAssembly は Bitwarden アプリを使用するために必要です。",
@@ -6027,7 +6102,7 @@
     "message": "カード番号"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "エラー: 復号できません"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -6036,10 +6111,10 @@
     "message": "Continue with log in"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "続行しない"
   },
   "domain": {
-    "message": "Domain"
+    "message": "ドメイン"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -6114,6 +6189,18 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden デスクトップアプリで管理されています。編集するにはデスクトップアプリを開いてください。"
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% 完了",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
   },
   "upgrade": {
     "message": "アップグレード"
@@ -6202,6 +6289,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Bitwarden アプリをダウンロード"
   },
@@ -6217,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "ダウンロードできませんでした。"
+  },
+  "sideNavigation": {
+    "message": "サイドバーナビゲーション"
+  },
+  "skipLink": {
+    "message": "リンクをスキップ"
+  },
+  "callout": {
+    "message": "吹き出し",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "プログレスバー",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

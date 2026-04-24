@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   ButtonModule,
   CardComponent,
-  ProgressModule,
+  ProgressBarComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -23,7 +23,14 @@ export type StorageCardAction = (typeof StorageCardActions)[keyof typeof Storage
   selector: "billing-storage-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./storage-card.component.html",
-  imports: [CommonModule, ButtonModule, CardComponent, ProgressModule, TypographyModule, I18nPipe],
+  imports: [
+    CommonModule,
+    ButtonModule,
+    CardComponent,
+    ProgressBarComponent,
+    TypographyModule,
+    I18nPipe,
+  ],
 })
 export class StorageCardComponent {
   private readonly i18nService = inject(I18nService);
@@ -47,7 +54,7 @@ export class StorageCardComponent {
     if (storage.available === 0) {
       return 0;
     }
-    return Math.min((storage.used / storage.available) * 100, 100);
+    return (storage.used / storage.available) * 100;
   });
 
   readonly title = computed<string>(() => {
