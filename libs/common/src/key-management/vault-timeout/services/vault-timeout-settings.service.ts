@@ -31,6 +31,10 @@ import { getUserId } from "../../../auth/services/account.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
+import {
+  PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+  PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+} from "../../pin/pin.state";
 import { MaximumSessionTimeoutPolicyData, SessionTimeoutTypeService } from "../../session-timeout";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
@@ -46,7 +50,6 @@ import {
   VAULT_TIMEOUT_ACTION,
   VAULT_TIMEOUT_SUPPRESSED_UNTIL,
 } from "./vault-timeout-settings.state";
-import { PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT } from "../../pin/pin.state";
 
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {
   constructor(
@@ -100,11 +103,15 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
         combineLatest([
           this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
           this.biometricStateService.biometricUnlockEnabled$(userId),
-          combineLatest([this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId),
-              this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT)
+          combineLatest([
+            this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId),
+            this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT),
           ]).pipe(
-            map(([ephemeralEnvelope, persistentEnvelope]) => !!ephemeralEnvelope || !!persistentEnvelope),
-          ),  
+            map(
+              ([ephemeralEnvelope, persistentEnvelope]) =>
+                !!ephemeralEnvelope || !!persistentEnvelope,
+            ),
+          ),
         ]),
       ),
       map(([haveMasterPassword, biometricUnlockEnabled, isPinSet]) => {

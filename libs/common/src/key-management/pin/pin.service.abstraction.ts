@@ -1,4 +1,5 @@
 import { PinLockType } from "@bitwarden/sdk-internal";
+
 import { UserId } from "../../types/guid";
 
 /**
@@ -17,7 +18,7 @@ export abstract class PinServiceAbstraction {
    * @throws If the user is locked
    * @returns The user's PIN
    */
-  abstract getPin(userId: UserId): Promise<string>;
+  abstract getPin(userId: UserId): Promise<string | undefined>;
 
   /**
    * Setup pin unlock
@@ -33,7 +34,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the user's PinLockType {@link PinLockType}.
    */
-  abstract getPinLockType(userId: UserId): Promise<PinLockType>;
+  abstract getPinLockType(userId: UserId): Promise<PinLockType | null>;
 
   /**
    * Declares whether or not the user has a PIN set (either persistent or ephemeral).

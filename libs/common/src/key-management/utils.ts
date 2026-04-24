@@ -1,8 +1,10 @@
 import { firstValueFrom, map, Observable } from "rxjs";
-import { SdkService } from "../platform/abstractions/sdk/sdk.service";
+
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
+
 import { RegisterSdkService } from "../platform/abstractions/sdk/register-sdk.service";
+import { SdkService } from "../platform/abstractions/sdk/sdk.service";
 
 export async function firstValueFromOrThrow<T>(
   value: Observable<T | null>,
@@ -19,7 +21,7 @@ export async function withPasswordManagerSdk<TResult>(
   userId: UserId,
   sdkService: SdkService,
   registerSdkService: RegisterSdkService,
-  fn: (sdk: PasswordManagerClient) => TResult
+  fn: (sdk: PasswordManagerClient) => TResult,
 ): Promise<TResult> {
   try {
     return await firstValueFrom(
@@ -27,8 +29,8 @@ export async function withPasswordManagerSdk<TResult>(
         map((sdk) => {
           using ref = sdk.take();
           return fn(ref.value);
-        })
-      )
+        }),
+      ),
     );
   } catch (error) {
     return firstValueFrom(
@@ -36,8 +38,8 @@ export async function withPasswordManagerSdk<TResult>(
         map((client) => {
           using ref = client.take();
           return fn(ref.value);
-        })
-      )
+        }),
+      ),
     );
   }
 }

@@ -19,6 +19,7 @@ import {
 } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -53,7 +54,6 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
 import { initializeClientManagedState } from "./client-managed-state";
-import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -255,7 +255,7 @@ export class DefaultSdkService implements SdkService {
   ) {
     // Initialize the client managed repositories.
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
-    
+
     client.state_bridge().registerWasmBridgeImpl(new JsWasmStateBridge(this.stateProvider, userId));
     await this.loadFeatureFlags(client);
 

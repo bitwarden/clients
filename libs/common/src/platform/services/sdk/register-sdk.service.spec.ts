@@ -172,5 +172,10 @@ function createMockClient(): MockProxy<BitwardenClient> {
     free: mock(),
     [Symbol.dispose]: jest.fn(),
   });
+  client.state_bridge.mockReturnValue({
+    registerWasmBridgeImpl: jest.fn(),
+    free: mock(),
+    [Symbol.dispose]: jest.fn(),
+  } as any);
   return client;
 }

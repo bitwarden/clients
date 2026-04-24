@@ -19,6 +19,7 @@ import {
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { UnlockService } from "@bitwarden/unlock";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
@@ -30,7 +31,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private pinService: PinServiceAbstraction,
+    private unlockService: UnlockService,
   ) {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
@@ -100,13 +101,14 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         // In case the requesting foreground context dies (popup), the userkey should still be set, so the user is unlocked / the setting should be enabled
         const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
         const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
-        if (await this.keyService.validateUserKey(userKey, userId)) {
+        try {
+          await this.unlockService.unlockWithDecryptedKey(userId, userKey.toSdk());
           await this.biometricStateService.setBiometricUnlockEnabled(true);
-          await this.keyService.setUserKey(userKey, userId);
-          await this.pinService.userUnlocked(userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
           return userKey;
+        } catch (e) {
+          this.logService.info("Biometric unlock for user failed during unlock or validation", e);
         }
       } else {
         return null;
