@@ -55,6 +55,8 @@ describe("DefaultCipherSdkService", () => {
       decrypt_fido2_private_key: jest.fn(),
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
+      bulk_update_collections: jest.fn().mockResolvedValue(undefined),
+      move_many: jest.fn().mockResolvedValue(undefined),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -1052,6 +1054,122 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to update cipher collections"),
+      );
+    });
+  });
+
+  describe("bulkUpdateCollectionsWithServer()", () => {
+    const collectionId1 = "6ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b23" as CollectionId;
+    const collectionId2 = "7ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b24" as CollectionId;
+
+    it("should call bulk_update_collections on the SDK", async () => {
+      const collectionIds = [collectionId1, collectionId2];
+
+      await cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        [cipherId],
+        collectionIds,
+        false,
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockCiphersSdk.bulk_update_collections).toHaveBeenCalledWith(
+        orgId,
+        [cipherId],
+        collectionIds,
+        false,
+      );
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+    });
+
+    it("should pass remove_collections=true to SDK", async () => {
+      await cipherSdkService.bulkUpdateCollectionsWithServer(
+        orgId,
+        [cipherId],
+        [collectionId1],
+        true,
+        userId,
+      );
+
+      expect(mockCiphersSdk.bulk_update_collections).toHaveBeenCalledWith(
+        orgId,
+        [cipherId],
+        [collectionId1],
+        true,
+      );
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(
+        cipherSdkService.bulkUpdateCollectionsWithServer(
+          orgId,
+          [cipherId],
+          [collectionId1],
+          false,
+          userId,
+        ),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to bulk update cipher collections"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.bulk_update_collections.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.bulkUpdateCollectionsWithServer(
+          orgId,
+          [cipherId],
+          [collectionId1],
+          false,
+          userId,
+        ),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to bulk update cipher collections"),
+      );
+    });
+  });
+
+  describe("moveManyWithServer()", () => {
+    const folderId = "9ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b26";
+
+    it("should call move_many on the SDK with a folder ID", async () => {
+      await cipherSdkService.moveManyWithServer([cipherId], folderId, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockCiphersSdk.move_many).toHaveBeenCalledWith([cipherId], folderId);
+    });
+
+    it("should call move_many on the SDK with null folder ID", async () => {
+      await cipherSdkService.moveManyWithServer([cipherId], null, userId);
+
+      expect(mockCiphersSdk.move_many).toHaveBeenCalledWith([cipherId], null);
+    });
+
+    it("should throw error and log when SDK client is not available", async () => {
+      sdkService.userClient$.mockReturnValue(of(null));
+
+      await expect(
+        cipherSdkService.moveManyWithServer([cipherId], folderId, userId),
+      ).rejects.toThrow("SDK not available");
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to move multiple ciphers"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error", async () => {
+      mockCiphersSdk.move_many.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.moveManyWithServer([cipherId], folderId, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to move multiple ciphers"),
       );
     });
   });

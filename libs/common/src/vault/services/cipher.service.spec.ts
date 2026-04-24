@@ -1774,4 +1774,84 @@ describe("Cipher Service", () => {
       expect(result).toBe(encryptedCipher);
     });
   });
+
+  describe("bulkUpdateCollectionsWithServer()", () => {
+    const collectionIds = ["col-id-1", "col-id-2"] as CollectionId[];
+    const cipherIds = [cipherData.id] as CipherId[];
+
+    it("should call apiService when feature flag is disabled", async () => {
+      sdkAdminOpsFeatureFlag$.next(false);
+      apiService.send.mockResolvedValue(undefined);
+
+      await cipherService.bulkUpdateCollectionsWithServer(
+        orgId,
+        mockUserId,
+        cipherIds,
+        collectionIds,
+        false,
+      );
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/ciphers/bulk-collections",
+        expect.objectContaining({ organizationId: orgId, cipherIds, collectionIds }),
+        true,
+        false,
+      );
+      expect(cipherSdkService.bulkUpdateCollectionsWithServer).not.toHaveBeenCalled();
+    });
+
+    it("should delegate to cipherSdkService when feature flag is enabled", async () => {
+      sdkAdminOpsFeatureFlag$.next(true);
+      jest.spyOn(cipherSdkService, "bulkUpdateCollectionsWithServer").mockResolvedValue(undefined);
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.bulkUpdateCollectionsWithServer(
+        orgId,
+        mockUserId,
+        cipherIds,
+        collectionIds,
+        false,
+      );
+
+      expect(cipherSdkService.bulkUpdateCollectionsWithServer).toHaveBeenCalledWith(
+        orgId,
+        cipherIds,
+        collectionIds,
+        false,
+        mockUserId,
+      );
+      expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
+      expect(apiService.send).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("moveManyWithServer()", () => {
+    const folderId = "9ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b26";
+    const ids = [cipherData.id];
+
+    it("should call apiService when feature flag is disabled", async () => {
+      sdkAdminOpsFeatureFlag$.next(false);
+      apiService.putMoveCiphers.mockResolvedValue(undefined);
+
+      await cipherService.moveManyWithServer(ids, folderId, mockUserId);
+
+      expect(apiService.putMoveCiphers).toHaveBeenCalledWith(
+        expect.objectContaining({ ids, folderId }),
+      );
+      expect(cipherSdkService.moveManyWithServer).not.toHaveBeenCalled();
+    });
+
+    it("should delegate to cipherSdkService when feature flag is enabled", async () => {
+      sdkAdminOpsFeatureFlag$.next(true);
+      jest.spyOn(cipherSdkService, "moveManyWithServer").mockResolvedValue(undefined);
+      const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
+
+      await cipherService.moveManyWithServer(ids, folderId, mockUserId);
+
+      expect(cipherSdkService.moveManyWithServer).toHaveBeenCalledWith(ids, folderId, mockUserId);
+      expect(clearCacheSpy).toHaveBeenCalledWith(mockUserId);
+      expect(apiService.putMoveCiphers).not.toHaveBeenCalled();
+    });
+  });
 });
