@@ -229,9 +229,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       throw new Error("User ID is required. Cannot verify user by PIN.");
     }
 
-    const userKey = await this.pinService.decryptUserKeyWithPin(verification.secret, userId);
-
-    return userKey != null;
+    return await this.pinService.validatePin(verification.secret, userId);
   }
 
   private async verifyUserByBiometrics(): Promise<boolean> {

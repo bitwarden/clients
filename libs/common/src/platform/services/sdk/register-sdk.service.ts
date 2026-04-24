@@ -12,9 +12,10 @@ import {
   takeWhile,
   throwIfEmpty,
   firstValueFrom,
+  filter,
 } from "rxjs";
 
-import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
+import { PasswordManagerClient, ClientSettings, TokenProvider, SymmetricKey, WasmStateBridge, PasswordProtectedKeyEnvelope } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -28,8 +29,8 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { toSdkDevice, UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
-
 import { initializeClientManagedState } from "./client-managed-state";
+import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -149,6 +150,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               client.platform().state(),
               this.stateProvider,
             );
+            await client.state_bridge().registerWasmBridgeImpl(new JsWasmStateBridge(this.stateProvider, userId));
 
             await this.loadFeatureFlags(client);
 

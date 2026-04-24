@@ -6,7 +6,6 @@ import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import {
   VAULT_TIMEOUT,
   VaultTimeoutStringType,
@@ -31,7 +30,6 @@ import {
   Kdf,
   MasterPasswordUnlockData,
   PasswordManagerClient,
-  PasswordProtectedKeyEnvelope,
   PureCrypto,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
@@ -39,6 +37,7 @@ import { StateProvider, StateService } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
 import { UnlockService } from "./unlock.service";
+import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 
 export type KeyConnectorUnlockData = {
   /**
@@ -55,7 +54,6 @@ export class DefaultUnlockService implements UnlockService {
   constructor(
     private registerSdkService: RegisterSdkService,
     private accountCryptographicStateService: AccountCryptographicStateService,
-    private pinStateService: PinStateServiceAbstraction,
     private kdfService: KdfConfigService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -82,9 +80,8 @@ export class DefaultUnlockService implements UnlockService {
             email: await this.getEmail(userId)!,
             accountCryptographicState: await this.getAccountCryptographicState(userId),
             method: {
-              pinEnvelope: {
+              pinState: {
                 pin: pin,
-                pin_protected_user_key_envelope: await this.getPinProtectedUserKeyEnvelope(userId),
               },
             },
           });
@@ -228,18 +225,6 @@ export class DefaultUnlockService implements UnlockService {
     const email = accounts[userId].email;
     assertNonNullish(email, "Email is required");
     return email;
-  }
-
-  private async getPinProtectedUserKeyEnvelope(
-    userId: UserId,
-  ): Promise<PasswordProtectedKeyEnvelope> {
-    const pinLockType = await this.pinStateService.getPinLockType(userId);
-    const pinEnvelope = await this.pinStateService.getPinProtectedUserKeyEnvelope(
-      userId,
-      pinLockType,
-    );
-    assertNonNullish(pinEnvelope, "User is not enrolled in PIN unlock");
-    return pinEnvelope!;
   }
 
   private async getMasterPasswordUnlockData(userId: UserId): Promise<MasterPasswordUnlockData> {
