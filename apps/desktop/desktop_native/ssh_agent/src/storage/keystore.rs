@@ -60,6 +60,7 @@ pub struct InMemoryEncryptedKeyStore {
 
 impl InMemoryEncryptedKeyStore {
     /// Create a new [`InMemoryEncryptedKeyStore`]
+    #[must_use]
     pub fn new() -> Self {
         Self {
             secure_memory: Arc::new(Mutex::new(EncryptedMemoryStore::new())),

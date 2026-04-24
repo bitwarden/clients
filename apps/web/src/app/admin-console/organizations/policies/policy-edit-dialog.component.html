@@ -1,7 +1,14 @@
-<form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog [loading]="loading()" [title]="'editPolicy' | i18n" [subtitle]="policy.name | i18n">
-    <ng-container bitDialogContent>
-      <div *ngIf="loading()">
+<form
+  [formGroup]="formGroup"
+  [bitSubmit]="submit"
+  bit-dialog
+  [loading]="loading()"
+  [title]="'editPolicy' | i18n"
+  [subtitle]="policy.name | i18n"
+>
+  <ng-container bitDialogContent>
+    @if (loading()) {
+      <div>
         <i
           class="bwi bwi-spinner bwi-spin tw-text-muted"
           title="{{ 'loading' | i18n }}"
@@ -9,26 +16,20 @@
         ></i>
         <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </div>
-      <div [hidden]="loading()">
-        @if (policy.showDescription) {
-          <p bitTypography="body1">{{ policy.description | i18n }}</p>
-        }
-        <ng-template #policyForm></ng-template>
-      </div>
-    </ng-container>
-    <ng-container bitDialogFooter>
-      <button
-        bitButton
-        buttonType="primary"
-        [disabled]="saveDisabled()"
-        bitFormButton
-        type="submit"
-      >
-        {{ "save" | i18n }}
-      </button>
-      <button bitButton buttonType="secondary" bitDialogClose type="button">
-        {{ "cancel" | i18n }}
-      </button>
-    </ng-container>
-  </bit-dialog>
+    }
+    <div [hidden]="loading()">
+      @if (policy.showDescription) {
+        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+      }
+      <ng-template #policyForm></ng-template>
+    </div>
+  </ng-container>
+  <ng-container bitDialogFooter>
+    <button bitButton buttonType="primary" [disabled]="saveDisabled()" bitFormButton type="submit">
+      {{ "save" | i18n }}
+    </button>
+    <button bitButton buttonType="secondary" bitDialogClose type="button">
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
 </form>
