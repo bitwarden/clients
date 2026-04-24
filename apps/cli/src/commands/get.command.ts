@@ -145,10 +145,6 @@ export class GetCommand extends DownloadCommand {
       return Response.notFound();
     }
 
-    const isNewItemEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM32009NewItemTypes,
-    );
-
     if (Array.isArray(decCipher)) {
       // Apply restricted ciphers filter
       decCipher = await this.cliRestrictedItemTypesService.filterRestrictedCiphers(decCipher);
@@ -156,8 +152,6 @@ export class GetCommand extends DownloadCommand {
       if (decCipher.length === 0) {
         return Response.error("Access to this item type is restricted by organizational policy.");
       }
-
-      decCipher = decCipher.filter((c) => isNewItemEnabled || c.type !== CipherType.BankAccount);
 
       if (filter != null) {
         decCipher = decCipher.filter(filter);
@@ -177,10 +171,6 @@ export class GetCommand extends DownloadCommand {
         await this.cliRestrictedItemTypesService.isCipherRestricted(decCipher);
       if (isCipherRestricted) {
         return Response.error("Access to this item type is restricted by organizational policy.");
-      }
-
-      if (!isNewItemEnabled && decCipher.type === CipherType.BankAccount) {
-        return Response.notFound();
       }
 
       // Apply filter if provided to single cipher
