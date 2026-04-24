@@ -12,7 +12,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { ExportHelper } from "@bitwarden/vault-export-core";
 
 import { ChartExportService } from "../../../shared/chart-export.service";
-import { LineChartComponent } from "../../../shared/line-chart.component";
+import { ChartConfig, LineChartComponent } from "../../../shared/line-chart.component";
 import { TimePeriod } from "../period-selector/period-selector.types";
 
 import {
@@ -20,6 +20,11 @@ import {
   TrendWidgetData,
   TrendWidgetViewType,
 } from "./trend-widget.component";
+
+function getChartConfig(fixture: ComponentFixture<TrendWidgetComponent>): ChartConfig {
+  const lineChart = fixture.debugElement.query(By.directive(LineChartComponent));
+  return (lineChart.componentInstance as LineChartComponent).configuration();
+}
 
 describe("TrendWidgetComponent", () => {
   let component: TrendWidgetComponent;
@@ -257,6 +262,115 @@ describe("TrendWidgetComponent", () => {
 
       expect(component.selectedView()).toBe(TrendWidgetViewType.Passwords);
       expect(viewChangedSpy).toHaveBeenCalledWith(TrendWidgetViewType.Passwords);
+    });
+  });
+
+  describe("lineChartConfiguration for AllTime", () => {
+    const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+    function mkData(
+      dataPoints: { timestamp: string; atRisk: number; total: number }[],
+    ): TrendWidgetData {
+      return {
+        timeframe: TimePeriod.AllTime,
+        dataView: TrendWidgetViewType.Applications,
+        dataPoints,
+      };
+    }
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("loading", false);
+      fixture.componentRef.setInput("error", null);
+    });
+
+    it("widens a multi-day narrow range to at least 5 days (PM-35323)", () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const today = new Date();
+
+      fixture.componentRef.setInput(
+        "data",
+        mkData([
+          { timestamp: yesterday.toISOString(), atRisk: 1, total: 2 },
+          { timestamp: today.toISOString(), atRisk: 2, total: 3 },
+        ]),
+      );
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      expect(xMin).toBeInstanceOf(Date);
+      expect(xMax).toBeInstanceOf(Date);
+      expect(xMax.getTime() - xMin.getTime()).toBeGreaterThanOrEqual(5 * MS_PER_DAY);
+    });
+
+    it("pads a single-day dataset so axis labels can render (PM-34579 regression)", () => {
+      const today = new Date();
+
+      fixture.componentRef.setInput(
+        "data",
+        mkData([{ timestamp: today.toISOString(), atRisk: 1, total: 2 }]),
+      );
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      expect(xMax.getTime() - xMin.getTime()).toBeGreaterThanOrEqual(5 * MS_PER_DAY);
+    });
+
+    it("uses the natural data range when it is already wider than the minimum span", () => {
+      const oldest = new Date();
+      oldest.setMonth(oldest.getMonth() - 6);
+      const newest = new Date();
+
+      fixture.componentRef.setInput(
+        "data",
+        mkData([
+          { timestamp: oldest.toISOString(), atRisk: 1, total: 2 },
+          { timestamp: newest.toISOString(), atRisk: 5, total: 6 },
+        ]),
+      );
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      const xMin = config.xMin as Date;
+      const xMax = config.xMax as Date;
+
+      expect(xMin.getFullYear()).toBe(oldest.getFullYear());
+      expect(xMin.getMonth()).toBe(oldest.getMonth());
+      expect(xMin.getDate()).toBe(oldest.getDate());
+      expect(xMax.getTime() - xMin.getTime()).toBeGreaterThanOrEqual(30 * MS_PER_DAY);
+    });
+
+    it("does not force a range when the period is not AllTime", () => {
+      const today = new Date();
+      fixture.componentRef.setInput(
+        "data",
+        mkData([{ timestamp: today.toISOString(), atRisk: 1, total: 2 }]),
+      );
+      component.selectedTimespan.set(TimePeriod.PastMonth);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      expect(config.xMin).toBeInstanceOf(Date);
+      expect(config.xMax).toBeInstanceOf(Date);
+    });
+
+    it("falls through to the default range for AllTime with no data points", () => {
+      fixture.componentRef.setInput("data", mkData([]));
+      component.selectedTimespan.set(TimePeriod.AllTime);
+      fixture.detectChanges();
+
+      const config = getChartConfig(fixture);
+      expect(config.xMin).toBeUndefined();
+      expect(config.xMax).toBeInstanceOf(Date);
     });
   });
 
