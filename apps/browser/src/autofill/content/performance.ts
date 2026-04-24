@@ -20,14 +20,19 @@ const namesCache: Record<string, PerfNames> = {};
 let namesCacheSize = 0;
 const NAMES_CACHE_WARN_THRESHOLD = 64;
 
+const NAMES_SUFFIX = "autofill:bw";
+function formatMark(name: string, mark: string){
+  return `${name}:${mark}:${NAMES_SUFFIX}`;
+}
+
 function resolveNames(name: string): PerfNames {
   let names = namesCache[name];
   if (!names) {
     names = {
-      measure: name,
-      start: name + ":start",
-      end: name + ":end",
-      poison: name + ":poison",
+      measure: `${name}:${NAMES_SUFFIX}`,
+      start: formatMark(name, "start"),
+      end: formatMark(name, "end"),
+      poison: formatMark(name, "poison"),
     };
     namesCache[name] = names;
     namesCacheSize++;
@@ -114,6 +119,7 @@ function flushBuffer(): void {
  */
 export function enableInstrumentation(): void {
   enabled = true;
+  console.warn("⏱️ Bitwarden autofill profiler enabled. ⏱️");
   performance.mark("perf:enabled");
 }
 

@@ -44,7 +44,7 @@ Drains the buffer and materializes each entry as a pair of `performance.mark` en
 
 ### Name stability
 
-Each stage produces entries with structured names: for a measure called `"foo"`, the marks are `foo:start`, `foo:end`, and (if poisoned) `foo:poison`. These names are part of the public contract — they are visible in browser developer tools and relied upon by test infrastructure. Changing the suffix convention (`:start`, `:end`, `:poison`) is a breaking change.
+Each stage produces entries with structured names: for a measure called `"foo:autofill:bw"`, the marks are `foo:start:autofill:bw`, `foo:end:autofill:bw`, and (if poisoned) `foo:poison:autofill:bw`. These names are part of the public contract — they are visible in browser developer tools and relied upon by test infrastructure. Changing the suffix convention (`:start:autofill:bw`, `:end:autofill:bw`, `:poison:autofill:bw`) is a breaking change.
 
 ### Privacy
 
@@ -92,7 +92,7 @@ Async functions are out of scope. If a measured function returns a Promise, the 
 
 ### Poison mechanism
 
-`poison(name)` writes a `${name}:poison` mark to the Performance Timeline. Consumers extracting measures via `performance.getEntriesByName()` should check for the corresponding poison mark before trusting the data. The convention is explicit and visible in browser developer tools — a poisoned measurement is impossible to overlook when inspecting the timeline.
+`poison(name)` writes a `${name}:poison:autofill:bw` mark to the Performance Timeline. Consumers extracting measures via `performance.getEntriesByName()` should check for the corresponding poison mark before trusting the data. The convention is explicit and visible in browser developer tools — a poisoned measurement is impossible to overlook when inspecting the timeline.
 
 Poisoning is not automatic so that the framework can instrument error paths.
 

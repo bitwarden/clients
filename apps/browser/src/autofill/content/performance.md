@@ -64,7 +64,7 @@ try {
 }
 ```
 
-Once poisoned, a `handleMutation:poison` mark appears in the Performance Timeline. Consumers should check for it before trusting extracted measures.
+Once poisoned, a `handleMutation:poison:autofill:bw` mark appears in the Performance Timeline. Consumers should check for it before trusting extracted measures.
 
 ## Extracting results
 
@@ -103,10 +103,10 @@ const poisoned = await page.evaluate(
 
 The instrumentation writes standard User Timing entries that are visible in Chrome DevTools, the Firefox Profiler, or any tool that reads the Performance API. For a measure named `"foo"`, the following entries are created:
 
-- `foo:start` — a `performance.mark` at the start of each invocation
-- `foo:end` — a `performance.mark` at the end of each invocation
-- `foo` — a `performance.measure` spanning each start/end pair
-- `foo:poison` — a `performance.mark` created by `poison("foo")`, if called
+- `foo:start:autofill:bw` — a `performance.mark` at the start of each invocation
+- `foo:end:autofill:bw` — a `performance.mark` at the end of each invocation
+- `foo:autofill:bw` — a `performance.measure` spanning each start/end pair
+- `foo:poison:autofill:bw` — a `performance.mark` created by `poison("foo")`, if called
 
 These can be queried directly via `performance.getEntriesByName()` and `performance.getEntriesByType()`, and cleared via `performance.clearMarks()` and `performance.clearMeasures()`.
 
