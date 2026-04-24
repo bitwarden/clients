@@ -24,6 +24,7 @@ import {
   FormFieldModule,
   IconComponent,
   LinkComponent,
+  SpinnerComponent,
   SwitchComponent,
   ToastService,
   TypographyModule,
@@ -51,6 +52,7 @@ import { ScimApiKeyDialogComponent } from "./scim-api-key-dialog.component";
     BitActionDirective,
     IconComponent,
     I18nPipe,
+    SpinnerComponent,
   ],
 })
 export class ScimV2Component {

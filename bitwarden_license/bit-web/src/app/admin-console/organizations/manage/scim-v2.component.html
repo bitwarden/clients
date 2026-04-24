@@ -3,11 +3,7 @@
 <form [formGroup]="formData">
   <bit-card>
     <div [hidden]="!loading()">
-      <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
+      <bit-spinner />
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
     <div [hidden]="loading()">
