@@ -150,7 +150,7 @@ After this is in place, admins can connect the integration in Event Delivery and
 ## Infrastructure clarification
 
 - Bitwarden cloud uses Azure Service Bus.
-- Self-hosted deployments use RabbitMQ.
+- Self-hosted deployments can use Azure Service Bus or RabbitMQ.
 
 No client-side change is required to choose the transport. That is handled by server and infrastructure configuration.
 
@@ -166,3 +166,5 @@ No client-side change is required to choose the transport. That is handled by se
 ## References
 
 - Service-level implementation details: [organization-integrations/services/README.md](https://github.com/bitwarden/clients/blob/main/bitwarden_license/bit-common/src/dirt/organization-integrations/services/README.md)
+- [Splunk HEC HTTP Event Collector tokens to get data in](https://help.splunk.com/en/splunk-enterprise/get-started/get-data-in/9.3/get-data-with-http-event-collector/set-up-and-use-http-event-collector-in-splunk-web#dbdcdb42_1180_4f33_8c7d_153a5e7868d3--en__Set_up_and_use_HTTP_Event_Collector_in_Splunk_Web)
+- [Splunk HEC request format documentation](https://help.splunk.com/en/splunk-enterprise/get-started/get-data-in/9.3/get-data-with-http-event-collector/format-events-for-http-event-collector)
