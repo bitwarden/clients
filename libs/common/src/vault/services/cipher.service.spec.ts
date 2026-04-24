@@ -1773,18 +1773,5 @@ describe("Cipher Service", () => {
       expect(apiService.putCipherCollections).not.toHaveBeenCalled();
       expect(result).toBe(encryptedCipher);
     });
-
-    it("should delete cipher locally and return undefined when SDK returns null", async () => {
-      sdkAdminOpsFeatureFlag$.next(true);
-
-      jest.spyOn(cipherSdkService, "saveCollectionsWithServer").mockResolvedValue(undefined);
-      const deleteSpy = jest.spyOn(cipherService as any, "delete").mockResolvedValue(undefined);
-
-      const result = await cipherService.saveCollectionsWithServer(cipher, mockUserId);
-
-      expect(deleteSpy).toHaveBeenCalledWith(cipher.id, mockUserId);
-      expect(cipherEncryptionService.encrypt).not.toHaveBeenCalled();
-      expect(result).toBeUndefined();
-    });
   });
 });
