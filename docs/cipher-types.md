@@ -8,13 +8,14 @@
 
 A **CipherType** is a frozen const object (following [ADR-0025](https://contributing.bitwarden.com/architecture/adr/0025-const-objects-vs-enums/)) with integer values 1-5:
 
-| Value | Name         |
-| ----- | ------------ |
-| 1     | `Login`      |
-| 2     | `SecureNote` |
-| 3     | `Card`       |
-| 4     | `Identity`   |
-| 5     | `SshKey`     |
+| Value | Name          |
+| ----- | ------------- |
+| 1     | `Login`       |
+| 2     | `SecureNote`  |
+| 3     | `Card`        |
+| 4     | `Identity`    |
+| 5     | `SshKey`      |
+| 6     | `BankAccount` |
 
 **Key file:** `libs/common/src/vault/enums/cipher-type.ts`
 
@@ -70,12 +71,13 @@ Each cipher type has a dedicated form section component in:
 
 `libs/vault/src/cipher-form/components/`
 
-| Type     | Directory                |
-| -------- | ------------------------ |
-| Login    | `login-details-section/` |
-| Card     | `card-details-section/`  |
-| Identity | `identity/`              |
-| SshKey   | `sshkey-section/`        |
+| Type        | Directory                |
+| ----------- | ------------------------ |
+| Login       | `login-details-section/` |
+| Card        | `card-details-section/`  |
+| Identity    | `identity/`              |
+| SshKey      | `sshkey-section/`        |
+| BankAccount | `bank-account-section/`  |
 
 **Container:** The cipher form parent that wires these together:
 
@@ -99,12 +101,13 @@ Each cipher type has a dedicated view section component in:
 
 `libs/vault/src/cipher-view/`
 
-| Type     | Directory                 |
-| -------- | ------------------------- |
-| Login    | `login-credentials/`      |
-| Card     | `card-details/`           |
-| Identity | `view-identity-sections/` |
-| SshKey   | `sshkey-sections/`        |
+| Type        | Directory                 |
+| ----------- | ------------------------- |
+| Login       | `login-credentials/`      |
+| Card        | `card-details/`           |
+| Identity    | `view-identity-sections/` |
+| SshKey      | `sshkey-sections/`        |
+| BankAccount | `bank-account-sections/`  |
 
 **Container:**
 
@@ -421,7 +424,11 @@ In the view model, properties that can be linked are decorated with `@linkedFiel
 
 ## Historical Reference
 
-The **SshKey** cipher type (value `5`) was the most recently added type and serves as the best template:
+The **BankAccount** cipher type (value `6`) was the most recently added type and serves as the best template.
+
+Use `git log --all --oneline --grep="BankAccount"` to find related commits.
+
+**SshKey** (value `5`) is the previous reference implementation:
 
 - `b18fa68acc` - Initial SshKey model stack and container switch additions
 - `081fe83d83` - SshKey UI components (form and view sections)
