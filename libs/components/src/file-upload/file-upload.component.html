@@ -22,7 +22,8 @@
     />
 
     @if (errorMessage()) {
-      <bit-error [error]="errorMessage()"></bit-error>
+      <!-- bit-error expects a [i18nKey, params] tuple; wrap the plain string to satisfy its input type -->
+      <bit-error [error]="[errorMessage(), null]"></bit-error>
     } @else {
       <ng-content select="bit-hint"></ng-content>
     }
@@ -90,7 +91,8 @@
       </span>
     </div>
     @if (errorMessage()) {
-      <bit-error [error]="errorMessage()"></bit-error>
+      <!-- bit-error expects a [i18nKey, params] tuple; wrap the plain string to satisfy its input type -->
+      <bit-error [error]="[errorMessage(), null]"></bit-error>
     } @else {
       <ng-content select="bit-hint"></ng-content>
     }
