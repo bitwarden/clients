@@ -14,6 +14,7 @@ import {
 } from "rxjs";
 import {
   catchError,
+  concatMap,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -407,7 +408,6 @@ export class VaultComponent implements OnInit, OnDestroy {
                 (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
               );
 
-              await this.searchService.indexCiphers(userId, result, organization.id);
               resolve(result);
             } catch (e) {
               reject(e);
