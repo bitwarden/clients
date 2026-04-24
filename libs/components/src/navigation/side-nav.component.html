@@ -1,7 +1,13 @@
 @let open = sideNavService.open();
 @let isOverlay = sideNavService.isOverlay();
 
-<div class="tw-relative tw-h-full">
+<div
+  class="tw-relative tw-h-full"
+  [attr.role]="isOverlay ? 'dialog' : null"
+  [attr.aria-modal]="isOverlay ? 'true' : null"
+  [cdkTrapFocus]="isOverlay"
+  [attr.aria-label]="isOverlay ? ('sideNavigation' | i18n) : null"
+>
   <nav
     id="bit-side-nav"
     class="tw-sticky tw-inset-y-0 tw-left-0 tw-z-30 tw-flex tw-h-full tw-flex-col tw-overflow-hidden tw-bg-bg-nav tw-text-fg-nav tw-outline-none"
@@ -11,10 +17,8 @@
         ? '--color-nav-fg-primary: var(--color-nav-fg-secondary); --color-nav-bg-primary: var(--color-nav-bg-secondary); --color-nav-bg-primary-strong: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-secondary-hover); --color-nav-bg-primary-hover-strong: var(--color-nav-bg-secondary-hover-strong); --color-nav-border-primary-focus: var(--color-nav-border-secondary-focus); --color-nav-border-primary: var(--color-nav-border-secondary);'
         : ''
     "
-    [cdkTrapFocus]="isOverlay"
-    [attr.role]="isOverlay ? 'dialog' : null"
-    [attr.aria-modal]="isOverlay ? 'true' : null"
     (keydown)="handleKeyDown($event)"
+    [attr.aria-label]="'sideNavigation' | i18n"
   >
     <div
       class="tw-flex-1 tw-min-h-0 tw-overflow-auto tw-overscroll-none"
