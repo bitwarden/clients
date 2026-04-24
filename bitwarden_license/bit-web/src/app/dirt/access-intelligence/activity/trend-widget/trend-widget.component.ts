@@ -68,6 +68,12 @@ export interface TrendWidgetData {
 export class TrendWidgetComponent {
   protected readonly ViewType = TrendWidgetViewType;
 
+  /**
+   * Minimum X-axis span for "All time" so Chart.js (maxTicksLimit: 6, unit: "day")
+   * always has room to render multiple day labels. See PM-35323 / PM-34579.
+   */
+  private static readonly MIN_ALL_TIME_SPAN_DAYS = 5;
+
   readonly data = input.required<TrendWidgetData>();
   readonly loading = input<boolean>(false);
   readonly error = input<string | null>(null);
@@ -185,31 +191,50 @@ export class TrendWidgetComponent {
 
   protected readonly lineChartConfiguration = computed<ChartConfig>(() => {
     const timespan = this.selectedTimespan();
-    let xMax = this.getXMaxForTimespan(timespan);
-    let xMin = this.getXMinForTimespan(timespan);
-
-    // ensure x-axis shows labels when all data points fall on the same date
     const dataPoints = this.data().dataPoints;
-    if (
-      timespan === TimePeriod.AllTime &&
-      dataPoints.length > 0 &&
-      dataPoints.every((p) => {
-        const d = new Date(p.timestamp);
-        const first = new Date(dataPoints[0].timestamp);
-        return (
-          d.getFullYear() === first.getFullYear() &&
-          d.getMonth() === first.getMonth() &&
-          d.getDate() === first.getDate()
-        );
-      })
-    ) {
-      const date = new Date(dataPoints[0].timestamp);
-      xMin = new Date(date.getFullYear(), date.getMonth(), date.getDate() - 1);
-      xMax = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+
+    if (timespan === TimePeriod.AllTime && dataPoints.length > 0) {
+      const { xMin, xMax } = this.getAllTimeRange(dataPoints);
+      return { xAxisType: "datetime", xMin, xMax };
     }
 
-    return { xAxisType: "datetime", xMin, xMax };
+    return {
+      xAxisType: "datetime",
+      xMin: this.getXMinForTimespan(timespan),
+      xMax: this.getXMaxForTimespan(timespan),
+    };
   });
+
+  private getAllTimeRange(dataPoints: TrendWidgetData["dataPoints"]): { xMin: Date; xMax: Date } {
+    // Linear scan rather than `Math.min(...arr)` / `Math.max(...arr)` — argument
+    // spread has an engine-specific hard cap (~120k in V8) and PM-34686 removed
+    // the server-side data-point limit.
+    let oldestMs = Number.POSITIVE_INFINITY;
+    let newestMs = Number.NEGATIVE_INFINITY;
+    for (const point of dataPoints) {
+      const ms = new Date(point.timestamp).getTime();
+      if (ms < oldestMs) {
+        oldestMs = ms;
+      }
+      if (ms > newestMs) {
+        newestMs = ms;
+      }
+    }
+    const oldest = new Date(oldestMs);
+    const newest = new Date(newestMs);
+
+    // Day-align: xMin starts at the oldest day's 00:00, xMax at the day after
+    // the newest so today's point is not clipped at the right edge.
+    let xMin = new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate());
+    const xMax = new Date(newest.getFullYear(), newest.getMonth(), newest.getDate() + 1);
+
+    const minSpanMs = TrendWidgetComponent.MIN_ALL_TIME_SPAN_DAYS * 24 * 60 * 60 * 1000;
+    if (xMax.getTime() - xMin.getTime() < minSpanMs) {
+      xMin = new Date(xMax.getTime() - minSpanMs);
+    }
+
+    return { xMin, xMax };
+  }
 
   private getXMaxForTimespan(timespan: TimePeriod): Date | undefined {
     const now = new Date();
