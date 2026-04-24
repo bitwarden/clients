@@ -18,12 +18,13 @@
       [multiple]="multiple()"
       [errorMessage]="errorMessage()"
       [disabled]="disabled()"
+      [ariaDescribedBy]="ariaDescribedBy()"
       (filesSelected)="onFilesSelected($event)"
     />
 
     @if (errorMessage()) {
-      <!-- bit-error expects a [i18nKey, params] tuple; wrap the plain string to satisfy its input type -->
-      <bit-error [error]="[errorMessage(), null]"></bit-error>
+      <!-- bit-error expects [i18nKey, params]; its default branch renders error[1].message for custom strings -->
+      <bit-error [error]="['', { message: errorMessage() }]"></bit-error>
     } @else {
       <ng-content select="bit-hint"></ng-content>
     }
@@ -91,8 +92,8 @@
       </span>
     </div>
     @if (errorMessage()) {
-      <!-- bit-error expects a [i18nKey, params] tuple; wrap the plain string to satisfy its input type -->
-      <bit-error [error]="[errorMessage(), null]"></bit-error>
+      <!-- bit-error expects [i18nKey, params]; its default branch renders error[1].message for custom strings -->
+      <bit-error class="!tw-mt-0" [error]="['', { message: errorMessage() }]"></bit-error>
     } @else {
       <ng-content select="bit-hint"></ng-content>
     }

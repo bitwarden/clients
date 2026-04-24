@@ -39,6 +39,9 @@ export class DropzoneComponent {
   /** Disabled state — prevents file selection and drag/drop */
   readonly disabled = input(false, { transform: booleanAttribute });
 
+  /** ID of the element that describes this input (error or hint) */
+  readonly ariaDescribedBy = input<string | null>(null);
+
   /** Emits when files are selected or dropped */
   readonly filesSelected = output<File[]>();
 
