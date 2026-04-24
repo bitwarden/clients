@@ -966,40 +966,32 @@ describe("ViewComponent", () => {
       expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("shows exact match dialog when no URIs and default strategy is Exact", async () => {
+    it("shows confirmation dialog (not exact match block) when no URIs and default strategy is Exact", async () => {
       getFeatureFlag.mockResolvedValue(true);
       component.cipher.login.uris = [];
       (component as any).uriMatchStrategy$ = of(UriMatchStrategy.Exact);
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const mockDialogRef = { closed: of(AutofillConfirmationDialogResult.Canceled) };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
 
       await component.doAutofill();
 
-      expect(openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
-      expect(doAutofill).not.toHaveBeenCalled();
+      expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
-    it("shows exact match dialog when all URIs have exact match strategy", async () => {
+    it("shows confirmation dialog (not exact match block) when all URIs have exact match strategy", async () => {
       getFeatureFlag.mockResolvedValue(true);
       component.cipher.login.uris = [
         { uri: "https://example.com", match: UriMatchStrategy.Exact } as LoginUriView,
         { uri: "https://example2.com", match: UriMatchStrategy.Exact } as LoginUriView,
       ];
+      jest.spyOn(component as any, "_domainMatched").mockResolvedValue(false);
+      const mockDialogRef = { closed: of(AutofillConfirmationDialogResult.Canceled) };
+      jest.spyOn(AutofillConfirmationDialogComponent, "open").mockReturnValue(mockDialogRef as any);
 
       await component.doAutofill();
 
-      expect(openSimpleDialog).toHaveBeenCalledWith({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
-      expect(doAutofill).not.toHaveBeenCalled();
+      expect(openSimpleDialog).not.toHaveBeenCalled();
     });
 
     it("shows error dialog when current tab URL is unavailable", async () => {
