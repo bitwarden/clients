@@ -1719,7 +1719,7 @@ export default class NotificationBackground {
   }
 
   /**
-   * Returns the first value found from the organization service organizations$ observable.
+   * Returns enabled organizations from `organizations$` for the notification bar vault selector.
    */
   private async getOrgData() {
     const activeUserId = await firstValueFrom(
@@ -1732,14 +1732,16 @@ export default class NotificationBackground {
       this.organizationService.organizations$(activeUserId),
     );
 
-    return organizations.map((org) => {
-      const { id, name, productTierType } = org;
-      return {
-        id,
-        name,
-        productTierType,
-      };
-    });
+    return organizations
+      .filter((org) => org.enabled)
+      .map((org) => {
+        const { id, name, productTierType } = org;
+        return {
+          id,
+          name,
+          productTierType,
+        };
+      });
   }
 
   /**
