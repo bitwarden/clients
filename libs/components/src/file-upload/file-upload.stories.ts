@@ -9,7 +9,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { FileUploadComponent } from "./file-upload.component";
 
 export default {
-  title: "Component Library/Form/File Upload",
+  title: "Component Library/File Upload",
   component: FileUploadComponent,
   decorators: [
     moduleMetadata({
@@ -153,6 +153,53 @@ function createMockFile(name: string, sizeBytes: number): File {
   const content = new Uint8Array(sizeBytes);
   return new File([content], name, { type: "application/octet-stream" });
 }
+
+export const LongFileName: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      files: [
+        createMockFile(
+          "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
+          2_400_000,
+        ),
+      ],
+    },
+    template: /*html*/ `
+      <bit-file-upload [accept]="accept" [(files)]="files">
+        <bit-label>Upload file</bit-label>
+      </bit-file-upload>
+    `,
+  }),
+  args: {
+    variant: "default",
+    accept: ".pdf",
+  },
+};
+
+export const LongFileNamesDropzone: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      files: [
+        createMockFile(
+          "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
+          2_400_000,
+        ),
+        createMockFile("my-super-long-backup-archive-without-an-extension", 48_000_000),
+        createMockFile("client-data-export-q4-2024-north-america-region-full-dataset.csv", 150_000),
+      ],
+    },
+    template: /*html*/ `
+      <bit-file-upload [maxFileSize]="maxFileSize" [multiple]="multiple" [(files)]="files" variant="dropzone">
+        <bit-label>Upload files</bit-label>
+      </bit-file-upload>
+    `,
+  }),
+  args: {
+    multiple: true,
+  },
+};
 
 export const WithFiles: Story = {
   render: (args) => ({

@@ -21,6 +21,7 @@ import { BitErrorComponent } from "../form-field/error.component";
 
 import { DropzoneComponent } from "./dropzone.component";
 import { FileListComponent } from "./file-list.component";
+import { TruncatedFilenameComponent } from "./truncated-filename.component";
 
 let nextId = 0;
 
@@ -32,6 +33,7 @@ let nextId = 0;
     NgTemplateOutlet,
     DropzoneComponent,
     FileListComponent,
+    TruncatedFilenameComponent,
     BitFieldContainerDirective,
     I18nPipe,
     BitErrorComponent,

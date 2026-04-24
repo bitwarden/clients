@@ -5,11 +5,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
 import { IconTileComponent } from "../icon-tile/icon-tile.component";
 
+import { TruncatedFilenameComponent } from "./truncated-filename.component";
+
 @Component({
   selector: "bit-file-list",
   templateUrl: "./file-list.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BitIconButtonComponent, IconTileComponent, I18nPipe],
+  imports: [BitIconButtonComponent, IconTileComponent, I18nPipe, TruncatedFilenameComponent],
   host: {
     class: "tw-block",
   },

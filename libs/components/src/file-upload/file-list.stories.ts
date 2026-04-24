@@ -44,3 +44,16 @@ export const Default: Story = {
     files: mockFiles,
   },
 };
+
+export const LongFileNames: Story = {
+  args: {
+    files: [
+      createMockFile(
+        "annual-report-2024-final-version-reviewed-and-approved-by-all-stakeholders.pdf",
+        2_400_000,
+      ),
+      createMockFile("my-super-long-backup-archive-without-an-extension", 48_000_000),
+      createMockFile("client-data-export-q4-2024-north-america-region-full-dataset.csv", 150_000),
+    ],
+  },
+};
