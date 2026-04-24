@@ -3,8 +3,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as lowdb from "lowdb";
-import * as FileSync from "lowdb/adapters/FileSync";
 import * as lock from "proper-lockfile";
 import { OperationOptions } from "retry";
 import { Subject } from "rxjs";
@@ -17,6 +15,29 @@ import {
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
+// Internal types for lowdb v1 (replacing deprecated @types/lowdb)
+type LowdbChain = {
+  write(): void;
+  value(): any;
+};
+
+type LowdbSyncInstance = {
+  get(key: string): LowdbChain;
+  set(key: string, value: any): LowdbChain;
+  unset(key: string): LowdbChain;
+  defaults(obj: any): LowdbChain;
+  read(): void;
+};
+
+type LowdbAdapterSync = {
+  write(data: Record<string, unknown>): void;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const createLowdb = require("lowdb") as (adapter?: LowdbAdapterSync) => LowdbSyncInstance;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const FileSync = require("lowdb/adapters/FileSync") as new (path: string) => LowdbAdapterSync;
+
 const retries: OperationOptions = {
   retries: 50,
   minTimeout: 100,
@@ -26,7 +47,7 @@ const retries: OperationOptions = {
 
 export class LowdbStorageService implements AbstractStorageService {
   protected dataFilePath: string;
-  private db: lowdb.LowdbSync<any>;
+  private db: LowdbSyncInstance;
   private defaults: any;
   private ready = false;
   private updatesSubject = new Subject<StorageUpdate>();
@@ -49,7 +70,7 @@ export class LowdbStorageService implements AbstractStorageService {
     }
 
     this.logService.info("Initializing lowdb storage service.");
-    let adapter: lowdb.AdapterSync<any>;
+    let adapter: LowdbAdapterSync;
     if (Utils.isNode && this.dir != null) {
       if (!fs.existsSync(this.dir)) {
         this.logService.warning(`Could not find dir, "${this.dir}"; creating it instead.`);
@@ -73,7 +94,7 @@ export class LowdbStorageService implements AbstractStorageService {
     }
     try {
       this.logService.info("Attempting to create lowdb storage adapter.");
-      this.db = lowdb(adapter);
+      this.db = createLowdb(adapter);
       this.logService.info("Successfully created lowdb storage adapter.");
     } catch (e) {
       if (e instanceof SyntaxError) {
@@ -90,7 +111,7 @@ export class LowdbStorageService implements AbstractStorageService {
           });
         }
         adapter.write({});
-        this.db = lowdb(adapter);
+        this.db = createLowdb(adapter);
       } else {
         this.logService.error(`Error creating lowdb storage adapter, "${e.message}".`);
         throw e;
@@ -136,8 +157,6 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.db.set(key, obj).write();
       this.updatesSubject.next({ key, updateType: "save" });
       this.logService.debug(`Successfully wrote ${key} to db`);
@@ -149,8 +168,6 @@ export class LowdbStorageService implements AbstractStorageService {
     await this.waitForReady();
     return this.lockDbFile(() => {
       this.readForNoCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.db.unset(key).write();
       this.updatesSubject.next({ key, updateType: "remove" });
       this.logService.debug(`Successfully removed ${key} from db`);

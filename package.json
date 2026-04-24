@@ -81,7 +81,6 @@
     "@types/koa__multer": "2.0.7",
     "@types/koa-bodyparser": "4.3.7",
     "@types/koa-json": "2.0.24",
-    "@types/lowdb": "1.0.15",
     "@types/lunr": "2.3.7",
     "@types/node": "22.19.7",
     "@types/node-fetch": "2.6.13",
