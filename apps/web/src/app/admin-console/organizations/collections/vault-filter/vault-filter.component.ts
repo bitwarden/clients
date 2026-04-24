@@ -45,8 +45,7 @@ import {
 @Component({
   selector: "app-organization-vault-filter",
   templateUrl: "./vault-filter.component.html",
-  // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class VaultFilterComponent {
