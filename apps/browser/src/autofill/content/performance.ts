@@ -114,13 +114,13 @@ function flushBuffer(): void {
 /**
  * Activates instrumentation for all stopwatches and measures. This is a one-way
  * latch — once enabled, instrumentation remains active for the lifetime of the
- * content script. Creates a `perf:enabled` mark to anchor the instrumentation
+ * content script. Creates a `perf:enabled:autofill:bw` mark to anchor the instrumentation
  * start in the performance timeline.
  */
 export function enableInstrumentation(): void {
   enabled = true;
   console.warn("⏱️ Bitwarden autofill profiler enabled. ⏱️");
-  performance.mark("perf:enabled");
+  performance.mark(`perf:enabled:${NAMES_SUFFIX}`);
 }
 
 /** Returns whether instrumentation is currently enabled. */

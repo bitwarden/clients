@@ -29,10 +29,12 @@ describe("Performance instrumentation", () => {
   let markSpy: jest.SpyInstance;
   let measureSpy: jest.SpyInstance;
   let requestIdleCallbackSpy: jest.SpyInstance;
+  let warnSpy: jest.SpyInstance;
 
   beforeEach(async () => {
     markSpy = jest.spyOn(performance, "mark").mockImplementation();
     measureSpy = jest.spyOn(performance, "measure").mockImplementation();
+    warnSpy = jest.spyOn(console, "warn").mockImplementation();
 
     // Execute idle callbacks synchronously by default
     requestIdleCallbackSpy = jest
@@ -56,10 +58,15 @@ describe("Performance instrumentation", () => {
       expect(perfModule.isInstrumentationEnabled()).toBe(false);
     });
 
-    it("enables instrumentation and creates a perf:enabled mark", () => {
+    it("enables instrumentation and creates a perf:enabled:autofill:bw mark", () => {
       perfModule.enableInstrumentation();
       expect(perfModule.isInstrumentationEnabled()).toBe(true);
-      expect(markSpy).toHaveBeenCalledWith("perf:enabled");
+      expect(markSpy).toHaveBeenCalledWith("perf:enabled:autofill:bw");
+    });
+
+    it("warns that the profiler is enabled", () => {
+      perfModule.enableInstrumentation();
+      expect(warnSpy).toHaveBeenCalledWith("⏱️ Bitwarden autofill profiler enabled. ⏱️");
     });
 
     it("remains enabled after being called multiple times", () => {
@@ -241,7 +248,7 @@ describe("Performance instrumentation", () => {
       wrapped();
       wrapped();
 
-      // 1 perf:enabled mark + 3 entries × 2 marks each = 7
+      // 1 perf:enabled:autofill:bw mark + 3 entries × 2 marks each = 7
       expect(markSpy).toHaveBeenCalledTimes(7);
       expect(measureSpy).toHaveBeenCalledTimes(3);
     });
@@ -349,6 +356,7 @@ describe("Performance instrumentation", () => {
       const setTimeoutSpy = jest.spyOn(globalThis, "setTimeout");
       jest.spyOn(performance, "mark").mockImplementation();
       jest.spyOn(performance, "measure").mockImplementation();
+      jest.spyOn(console, "warn").mockImplementation();
 
       let freshModule: typeof import("./performance");
       await jest.isolateModulesAsync(async () => {
