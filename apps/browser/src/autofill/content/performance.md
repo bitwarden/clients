@@ -74,7 +74,7 @@ After a test scenario completes, extract entries for a specific measure via `pag
 
 ```ts
 const entries = await page.evaluate(() =>
-  performance.getEntriesByName("handleMutation", "measure").map((e) => ({
+  performance.getEntriesByName("handleMutation:autofill:bw", "measure").map((e) => ({
     name: e.name,
     startTime: e.startTime,
     duration: e.duration,
@@ -86,7 +86,7 @@ If reliability matters, check for poison marks first:
 
 ```ts
 const poisoned = await page.evaluate(
-  () => performance.getEntriesByName("handleMutation:poison", "mark").length > 0,
+  () => performance.getEntriesByName("handleMutation:poison:autofill:bw", "mark").length > 0,
 );
 ```
 
