@@ -478,10 +478,9 @@
             >
               <p
                 *ngFor="let discount of displayableDiscounts; let i = index"
-                class="tw-mb-0 tw-flex tw-justify-between"
+                class="tw-mb-0 tw-flex tw-justify-between tw-py-1"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
-                    i > 0,
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-mt-1': i > 0,
                 }"
                 bitTypography="body2"
               >
@@ -569,10 +568,9 @@
             >
               <p
                 *ngFor="let discount of displayableDiscounts; let i = index"
-                class="tw-mb-0 tw-flex tw-justify-between"
+                class="tw-mb-0 tw-flex tw-justify-between tw-py-1"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
-                    i > 0,
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-mt-1': i > 0,
                 }"
                 bitTypography="body2"
               >
@@ -654,9 +652,9 @@
             >
               <p
                 *ngFor="let discount of displayableDiscounts; let i = index"
+                class="tw-mb-0 tw-flex tw-justify-between tw-py-1"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
-                    i > 0,
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-mt-1': i > 0,
                 }"
                 bitTypography="body2"
               >
@@ -736,10 +734,9 @@
             >
               <p
                 *ngFor="let discount of displayableDiscounts; let i = index"
-                class="tw-mb-0 tw-flex tw-justify-between"
+                class="tw-mb-0 tw-flex tw-justify-between tw-py-1"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
-                    i > 0,
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-mt-1': i > 0,
                 }"
                 bitTypography="body2"
               >
@@ -989,10 +986,9 @@
             <ng-container *ngIf="displayableDiscounts.length > 0">
               <p
                 *ngFor="let discount of displayableDiscounts; let i = index"
-                class="tw-mb-0 tw-flex tw-justify-between"
+                class="tw-mb-0 tw-flex tw-justify-between tw-py-1"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
-                    i > 0,
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-mt-1': i > 0,
                 }"
                 bitTypography="body2"
               >
@@ -1021,7 +1017,7 @@
             </p>
           </bit-hint>
         </div>
-        <div *ngIf="totalOpened" class="tw-flex tw-flex-wrap tw-mt-0">
+        <div *ngIf="totalOpened" class="tw-flex tw-flex-wrap tw-mt-1">
           <bit-hint class="tw-w-full">
             <p
               class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-1"
