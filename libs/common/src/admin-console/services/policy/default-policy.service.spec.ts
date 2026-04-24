@@ -537,6 +537,34 @@ describe("PolicyService", () => {
         },
       ]);
     });
+
+    it("returns policies for organizations where the user has Accepted status", async () => {
+      // policies$ is a simple state passthrough and does not filter by org membership status.
+      // Accepted-org policies belong in acceptedPolicies$ (on NewPolicyService) but must
+      // still pass through here so downstream consumers are not silently missing data.
+      singleUserState.nextState(
+        arrayToRecord([policyData("policy1", "accepted-org", PolicyType.DisableSend, true)]),
+      );
+
+      const result = await firstValueFrom(policyService.policies$(userId));
+
+      expect(result).toEqual([
+        expect.objectContaining({ id: "policy1", organizationId: "accepted-org" }),
+      ]);
+    });
+
+    it("returns policies for organizations where the user has Invited status", async () => {
+      // policies$ is a simple state passthrough and does not filter by org membership status.
+      singleUserState.nextState(
+        arrayToRecord([policyData("policy1", "invited-org", PolicyType.DisableSend, true)]),
+      );
+
+      const result = await firstValueFrom(policyService.policies$(userId));
+
+      expect(result).toEqual([
+        expect.objectContaining({ id: "policy1", organizationId: "invited-org" }),
+      ]);
+    });
   });
 
   describe("policyAppliesToUser$", () => {
