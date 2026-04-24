@@ -6,7 +6,7 @@ export class OrganizationInviteLinkResponseModel extends BaseResponse {
   organizationId: string;
   allowedDomains: string[];
   encryptedInviteKey: string;
-  encryptedOrgKey: string | null;
+  encryptedOrgKey: string | undefined;
   creationDate: string;
 
   constructor(response: any) {
