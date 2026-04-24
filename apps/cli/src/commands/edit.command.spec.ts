@@ -12,6 +12,9 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { KeyService } from "@bitwarden/key-management";
 import { UserId } from "@bitwarden/user-core";
 
@@ -31,6 +34,7 @@ describe("EditCommand", () => {
   const cliRestrictedItemTypesService = mock<CliRestrictedItemTypesService>();
   const policyService = mock<PolicyService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+  const cipherAuthorizationService = mock<CipherAuthorizationService>();
 
   const userId = "user-id" as UserId;
   const validOrgId = "11111111-1111-1111-1111-111111111111" as OrganizationId;
@@ -67,6 +71,7 @@ describe("EditCommand", () => {
     keyService.orgKeys$.mockReturnValue(of({ [validOrgId]: mockOrgKey }));
     encryptService.encryptString.mockResolvedValue(mockEncString);
     apiService.putCollection.mockResolvedValue({ id: validCollectionId } as any);
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
     command = new EditCommand(
       cipherService,
@@ -79,7 +84,53 @@ describe("EditCommand", () => {
       cliRestrictedItemTypesService,
       policyService,
       billingAccountProfileStateService,
+      cipherAuthorizationService,
     );
+  });
+
+  describe("editCipher", () => {
+    const cipherId = "cipher-id";
+    const encodedReq = Buffer.from(JSON.stringify({ name: "Updated" })).toString("base64");
+
+    it("returns notFound when cipher does not exist", async () => {
+      cipherService.get.mockResolvedValue(null);
+
+      const result = await command.run("item", cipherId, encodedReq, {});
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("Not found");
+      expect(cipherAuthorizationService.canEditCipher$).not.toHaveBeenCalled();
+    });
+
+    it("returns noEditPermission when user cannot edit the cipher", async () => {
+      const cipher = { id: cipherId, edit: false } as Cipher;
+      cipherService.get.mockResolvedValue(cipher);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(false));
+
+      const result = await command.run("item", cipherId, encodedReq, {});
+
+      expect(result.success).toBe(false);
+      expect(result.message).toContain("You do not have permission to edit this item");
+      expect(cipherService.updateWithServer).not.toHaveBeenCalled();
+    });
+
+    it("proceeds to update when user has edit permission", async () => {
+      const cipher = { id: cipherId, edit: true } as Cipher;
+      const cipherView = { id: cipherId, isDeleted: false } as CipherView;
+      cipherService.get.mockResolvedValue(cipher);
+      cipherService.decrypt.mockResolvedValue(cipherView);
+      cipherAuthorizationService.canEditCipher$.mockReturnValue(of(true));
+      cliRestrictedItemTypesService.isCipherRestricted.mockResolvedValue(false);
+      policyService.policyAppliesToUser$.mockReturnValue(of(false));
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      cipherService.updateWithServer.mockResolvedValue(cipherView);
+
+      const result = await command.run("item", cipherId, encodedReq, {});
+
+      expect(cipherAuthorizationService.canEditCipher$).toHaveBeenCalledWith(cipher);
+      expect(cipherService.updateWithServer).toHaveBeenCalled();
+      expect(result.success).toBe(true);
+    });
   });
 
   describe("editOrganizationCollection", () => {
