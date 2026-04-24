@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ce site ne correspond pas à vos identifiants de connexion enregistrés. Avant de remplir vos identifiants de connexion, assurez-vous que c'est un site de confiance."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Afficher les suggestions de saisie automatique dans les champs d'un formulaire"
   },
@@ -2115,25 +2136,25 @@
     "message": "Note"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Site web ou application"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Carte de débit ou de crédit"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Informations personnelles"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Texte important"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Jeton de connexion au serveur"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organisez vos éléments"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organisez vos éléments partagés"
   },
   "newItemHeaderLogin": {
     "message": "Nouvel Identifiant",
@@ -2212,7 +2233,7 @@
     "description": "Header for view SSH key item type"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Choisissez un élément à ajouter"
   },
   "passwordHistory": {
     "message": "Historique des mots de passe"
@@ -2874,7 +2895,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
+    "message": "Votre mot de passe pour ce site est compromis. $ORGANIZATION$ vous demande d'accéder aux paramètres de votre compte et de le changer.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3805,22 +3826,22 @@
     "message": "Statut de connexion"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Actif récemment"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Aujourd'hui"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "7 derniers jours"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "14 derniers jours"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "30 derniers jours"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Il y a plus de 30 jours"
   },
   "masterPasswordChanged": {
     "message": "Mot de passe principal enregistré"
@@ -6170,10 +6191,10 @@
     "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+    "message": "Géré par l'application de bureau Bitwarden. Ouvrez l'application pour éditer."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% complet",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -6269,7 +6290,7 @@
     "message": "utilisateur@bitwarden.com , utilisateur@acme.com"
   },
   "emailPlaceholderMultiple": {
-    "message": "user@bitwarden.com, user@acme.com"
+    "message": "utilisateur@bitwarden.com, utilisateur@acme.com"
   },
   "downloadBitwardenApps": {
     "message": "Télécharger les applications Bitwarden"
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Échec du téléchargement."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

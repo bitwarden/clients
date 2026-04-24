@@ -22,6 +22,7 @@ export default {
               error: "Error",
               close: "Close",
               loading: "Loading",
+              callout: "Callout",
             });
           },
         },
@@ -44,7 +45,7 @@ const calloutContent =
 export const Base: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <bit-callout [type]="type" [icon]="icon" [title]="title">${calloutContent}</bit-callout>
     `,
   }),
@@ -56,7 +57,7 @@ export const Base: Story = {
 
 export const AllVariants: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-gap-4">
         <bit-callout type="info" title="Info">${calloutContent}</bit-callout>
         <bit-callout type="success" title="Success">${calloutContent}</bit-callout>
@@ -70,7 +71,7 @@ export const AllVariants: Story = {
 
 export const CustomIcon: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <bit-callout title="${calloutTitle}" icon="bwi-star">${calloutContent}</bit-callout>
     `,
   }),
@@ -78,15 +79,26 @@ export const CustomIcon: Story = {
 
 export const NoTitle: Story = {
   render: () => ({
-    template: `
-      <bit-callout [title]="null">${calloutContent}</bit-callout>
+    template: /*html*/ `
+      <bit-callout [title]="null" accessibleName="Success callout">${calloutContent}</bit-callout>
+    `,
+  }),
+};
+
+export const WithAccessibleNameFallback: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        <bit-callout type="info">${calloutContent}</bit-callout>
+        <bit-callout type="success">${calloutContent}</bit-callout>
+      </div>
     `,
   }),
 };
 
 export const NoIcon: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <bit-callout title="${calloutTitle}" [icon]="null">${calloutContent}</bit-callout>
     `,
   }),
@@ -94,8 +106,8 @@ export const NoIcon: Story = {
 
 export const WithInlineLink: Story = {
   render: () => ({
-    template: `
-      <bit-callout>
+    template: /*html*/ `
+      <bit-callout accessibleName="Success callout">
         ${calloutContent}
         <a bitLink endIcon="bwi-angle-right" class="tw-ml-2">Visit the help center</a>
       </bit-callout>
@@ -105,7 +117,7 @@ export const WithInlineLink: Story = {
 
 export const WithFooterButtons: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-flex tw-flex-col tw-gap-4">
         <bit-callout title="${calloutTitle}">
           ${calloutContent}
@@ -124,9 +136,9 @@ export const WithFooterButtons: Story = {
 
 export const WithCloseButton: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
     <div class="tw-flex tw-flex-col tw-gap-4">
-      <bit-callout (dismiss)="onDismiss($event)">
+      <bit-callout (dismiss)="onDismiss($event)" accessibleName="Success callout">
         ${calloutContent}
       </bit-callout>
       <bit-callout title="${calloutTitle}" (dismiss)="onDismiss($event)">

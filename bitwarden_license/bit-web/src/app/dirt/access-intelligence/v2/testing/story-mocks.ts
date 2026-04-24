@@ -19,6 +19,7 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
   return new I18nMockService({
     // --- Shared ---
     loading: "Loading",
+    progressBar: "Progress bar",
 
     // --- Shared table / search ---
     search: "Search",
