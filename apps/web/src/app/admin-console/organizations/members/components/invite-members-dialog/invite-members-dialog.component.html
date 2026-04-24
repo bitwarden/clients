@@ -82,14 +82,15 @@
                 </bit-label>
               </bit-form-control>
             }
-            <span
-              role="button"
+            <button
+              bitButton
+              buttonType="primaryGhost"
               class="tw-mb-4 tw-block"
               [bitDisclosureTriggerFor]="moreSettingsRef"
             >
               {{ "moreSettings" | i18n }}
               <bit-icon [name]="moreSettingsOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"> </bit-icon>
-            </span>
+            </button>
             <bit-disclosure #moreSettingsRef [(open)]="moreSettingsOpen">
               @if (organization.useGroups) {
                 <bit-access-selector
