@@ -378,8 +378,10 @@ describe("DefaultAccessIntelligenceApiService", () => {
       mockApiService.send.mockResolvedValue(undefined);
 
       const file = new File(["file content"], "report.bin", { type: "application/octet-stream" });
+      const formData = new FormData();
+      formData.append("file", file);
 
-      await firstValueFrom(service.uploadReportFile$(orgId, reportId, file, reportFileId));
+      await firstValueFrom(service.uploadReportFile$(orgId, reportId, reportFileId, formData));
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
@@ -397,10 +399,10 @@ describe("DefaultAccessIntelligenceApiService", () => {
     it("should propagate API errors", async () => {
       mockApiService.send.mockRejectedValue(new Error("Upload failed"));
 
-      const file = new File(["content"], "report.bin");
+      const formData = new FormData();
 
       await expect(
-        firstValueFrom(service.uploadReportFile$(orgId, reportId, file, reportFileId)),
+        firstValueFrom(service.uploadReportFile$(orgId, reportId, reportFileId, formData)),
       ).rejects.toThrow("Upload failed");
     });
   });
