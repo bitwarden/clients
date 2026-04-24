@@ -1016,12 +1016,12 @@ describe("VaultTimeoutSettingsService", () => {
     if (isAvailable) {
       await stateProvider.setUserState(
         PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
-        { pin_envelope: {} as any },
+        "mockEnvelope" as any,
         userId,
       );
       await stateProvider.setUserState(
         PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
-        {} as any,
+        "mockEnvelope" as any,
         userId,
       );
       return;

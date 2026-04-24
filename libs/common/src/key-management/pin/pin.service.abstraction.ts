@@ -34,7 +34,7 @@ export abstract class PinServiceAbstraction {
   /**
    * Gets the user's PinLockType {@link PinLockType}.
    */
-  abstract getPinLockType(userId: UserId): Promise<PinLockType | null>;
+  abstract getPinLockType(userId: UserId): Promise<PinLockType | undefined>;
 
   /**
    * Declares whether or not the user has a PIN set (either persistent or ephemeral).

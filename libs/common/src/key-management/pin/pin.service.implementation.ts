@@ -39,7 +39,7 @@ export class PinService implements PinServiceAbstraction {
     });
   }
 
-  async getPin(userId: UserId): Promise<string> {
+  async getPin(userId: UserId): Promise<string | undefined> {
     assertNonNullish(userId, "userId");
     return this.withPinSettingsClient(userId, (client) => {
       return client.get_pin();

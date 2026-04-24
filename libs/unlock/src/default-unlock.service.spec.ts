@@ -9,7 +9,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
@@ -42,7 +41,6 @@ const mockMasterPasswordUnlockData = { some: "unlockData", salt: "salt", kdf: "p
 describe("DefaultUnlockService", () => {
   const registerSdkService = mock<RegisterSdkService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
-  const pinStateService = mock<PinStateServiceAbstraction>();
   const kdfService = mock<KdfConfigService>();
   const accountService = mock<AccountService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
@@ -88,10 +86,6 @@ describe("DefaultUnlockService", () => {
     accountService.accounts$ = of({
       [mockUserId]: { email: mockEmail },
     } as any);
-    pinStateService.getPinLockType.mockResolvedValue("PERSISTENT" as any);
-    pinStateService.getPinProtectedUserKeyEnvelope.mockResolvedValue(
-      mockPinProtectedUserKeyEnvelope,
-    );
     masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
       of({ toSdk: () => mockMasterPasswordUnlockData } as any),
     );
@@ -116,7 +110,6 @@ describe("DefaultUnlockService", () => {
     service = new DefaultUnlockService(
       registerSdkService,
       accountCryptographicStateService,
-      pinStateService,
       kdfService,
       accountService,
       masterPasswordService,
@@ -143,9 +136,8 @@ describe("DefaultUnlockService", () => {
         email: mockEmail,
         accountCryptographicState: mockAccountCryptographicState,
         method: {
-          pinEnvelope: {
+          pinState: {
             pin: mockPin,
-            pin_protected_user_key_envelope: mockPinProtectedUserKeyEnvelope,
           },
         },
       });
@@ -155,24 +147,6 @@ describe("DefaultUnlockService", () => {
       registerSdkService.registerClient$.mockReturnValue(of(null as any));
 
       await expect(service.unlockWithPin(mockUserId, mockPin)).rejects.toThrow("SDK not available");
-    });
-
-    it("fetches PERSISTENT pin envelope when the pin lock type is persistent", async () => {
-      pinStateService.getPinLockType.mockResolvedValue("PERSISTENT" as any);
-      await service.unlockWithPin(mockUserId, mockPin);
-      expect(pinStateService.getPinProtectedUserKeyEnvelope).toHaveBeenCalledWith(
-        mockUserId,
-        "PERSISTENT",
-      );
-    });
-
-    it("fetches EPHEMERAL pin envelope when the pin lock type is ephemeral", async () => {
-      pinStateService.getPinLockType.mockResolvedValue("EPHEMERAL" as any);
-      await service.unlockWithPin(mockUserId, mockPin);
-      expect(pinStateService.getPinProtectedUserKeyEnvelope).toHaveBeenCalledWith(
-        mockUserId,
-        "EPHEMERAL",
-      );
     });
 
     it("sets unlock side effects after successful unlock", async () => {
