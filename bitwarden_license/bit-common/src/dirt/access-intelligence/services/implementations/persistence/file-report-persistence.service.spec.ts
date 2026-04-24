@@ -69,12 +69,17 @@ describe("FileReportPersistenceService", () => {
   }
 
   beforeAll(() => {
-    // jsdom does not implement File.prototype.arrayBuffer — polyfill for tests
-    if (!File.prototype.arrayBuffer) {
-      Object.defineProperty(File.prototype, "arrayBuffer", {
-        value: function () {
-          return Promise.resolve(new ArrayBuffer(0));
-        },
+    // jsdom does not implement File.bytes() or Blob.text() — polyfill for tests
+    if (!File.prototype.bytes) {
+      Object.defineProperty(File.prototype, "bytes", {
+        value: () => Promise.resolve(new Uint8Array(0)),
+        writable: true,
+      });
+    }
+
+    if (!Blob.prototype.text) {
+      Object.defineProperty(Blob.prototype, "text", {
+        value: () => Promise.resolve(""),
         writable: true,
       });
     }
@@ -211,8 +216,8 @@ describe("FileReportPersistenceService", () => {
         expect(mockApiService.uploadReportFile$).toHaveBeenCalledWith(
           organizationId,
           reportId,
-          expect.any(File),
           reportFileId,
+          expect.any(FormData),
         );
       });
 
