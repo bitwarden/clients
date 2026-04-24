@@ -361,4 +361,69 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
     });
   });
+
+  describe("accessibility", () => {
+    it("URI display divs are keyboard focusable via tabindex", async () => {
+      const singleUriParams: AutofillConfirmationDialogParams = {
+        currentUrl: "https://example.com/path",
+        savedUris: [makeUri("https://saved.example.com/login")],
+      };
+      const { fixture: vf } = await createFreshFixture({ params: singleUriParams });
+      const savedDivs = vf.nativeElement.querySelectorAll(
+        '[data-testid="saved-uri"]',
+      ) as NodeListOf<HTMLElement>;
+      const currentDiv = vf.nativeElement.querySelector(
+        '[data-testid="current-uri"]',
+      ) as HTMLElement;
+      expect(savedDivs.length).toBe(1);
+      expect(savedDivs[0].getAttribute("tabindex")).toBe("0");
+      expect(currentDiv).toBeTruthy();
+      expect(currentDiv.getAttribute("tabindex")).toBe("0");
+    });
+
+    it("saved URI div has aria-label with the full URI", async () => {
+      const singleUriParams: AutofillConfirmationDialogParams = {
+        currentUrl: "https://example.com/path",
+        savedUris: [makeUri("https://saved.example.com/login")],
+      };
+      const { fixture: vf } = await createFreshFixture({ params: singleUriParams });
+      const savedDiv = vf.nativeElement.querySelector('[data-testid="saved-uri"]') as HTMLElement;
+      expect(savedDiv.getAttribute("aria-label")).toBe("https://saved.example.com/login");
+    });
+
+    it("current URL div has aria-label with the full URL", async () => {
+      const singleUriParams: AutofillConfirmationDialogParams = {
+        currentUrl: "https://example.com/path?q=1",
+        savedUris: [makeUri("https://saved.example.com")],
+      };
+      const { fixture: vf } = await createFreshFixture({ params: singleUriParams });
+      const currentDiv = vf.nativeElement.querySelector(
+        '[data-testid="current-uri"]',
+      ) as HTMLElement;
+      expect(currentDiv.getAttribute("aria-label")).toBe("https://example.com/path?q=1");
+    });
+
+    it("multiple saved URI divs each have aria-label with their full URI", () => {
+      const savedDivs = fixture.nativeElement.querySelectorAll(
+        '[data-testid="saved-uri"]',
+      ) as NodeListOf<HTMLElement>;
+      expect(savedDivs.length).toBe(3);
+      expect(savedDivs[0].getAttribute("aria-label")).toBe("https://one.example.com/a");
+      expect(savedDivs[1].getAttribute("aria-label")).toBe("https://two.example.com/b");
+      expect(savedDivs[2].getAttribute("aria-label")).toBe("https://three.example.com/c");
+    });
+
+    it("shows full URIs when strategy is Exact", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Exact,
+      });
+      expect(c.showFullUrls()).toBe(true);
+      expect(c.formattedCurrentUrl()).toBe("https://example.com/path?q=1");
+      expect(c.formattedSavedUrls()).toEqual([
+        "https://one.example.com/a",
+        "https://two.example.com/b",
+        "https://three.example.com/c",
+      ]);
+    });
+  });
 });
