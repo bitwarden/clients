@@ -467,4 +467,60 @@ export class DefaultCipherSdkService implements CipherSdkService {
       ),
     );
   }
+
+  async bulkUpdateCollectionsWithServer(
+    orgId: OrganizationId,
+    cipherIds: string[],
+    collectionIds: string[],
+    removeCollections: boolean,
+    userId: UserId,
+  ): Promise<void> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          await ref.value
+            .vault()
+            .ciphers()
+            .bulk_update_collections(
+              asUuid(orgId),
+              cipherIds.map((id) => asUuid(id)),
+              collectionIds.map((id) => asUuid(id)),
+              removeCollections,
+            );
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to bulk update cipher collections: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async moveManyWithServer(ids: string[], folderId: string | null, userId: UserId): Promise<void> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          await ref.value
+            .vault()
+            .ciphers()
+            .move_many(
+              ids.map((id) => asUuid(id)),
+              folderId ? asUuid(folderId) : null,
+            );
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to move multiple ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
 }

@@ -205,4 +205,34 @@ export abstract class CipherSdkService {
     userId: UserId,
     includeMemberItems: boolean,
   ): Promise<[Cipher[], CipherListView[]]>;
+
+  /**
+   * Bulk adds or removes collections from multiple ciphers using the SDK.
+   *
+   * @param orgId The organization ID
+   * @param cipherIds The cipher IDs to update
+   * @param collectionIds The collection IDs to add or remove
+   * @param removeCollections If true, removes the collections; otherwise adds them
+   * @param userId The user ID to use for SDK client
+   */
+  abstract bulkUpdateCollectionsWithServer(
+    orgId: OrganizationId,
+    cipherIds: string[],
+    collectionIds: string[],
+    removeCollections: boolean,
+    userId: UserId,
+  ): Promise<void>;
+
+  /**
+   * Moves multiple ciphers to a folder using the SDK.
+   *
+   * @param ids The cipher IDs to move
+   * @param folderId The folder ID to move to (null to remove from folder)
+   * @param userId The user ID to use for SDK client
+   */
+  abstract moveManyWithServer(
+    ids: string[],
+    folderId: string | null,
+    userId: UserId,
+  ): Promise<void>;
 }
