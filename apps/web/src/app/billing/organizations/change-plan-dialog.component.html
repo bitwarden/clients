@@ -480,7 +480,7 @@
                 *ngFor="let discount of displayableDiscounts; let i = index"
                 class="tw-mb-0 tw-flex tw-justify-between"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-1 tw-mt-1':
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
                     i > 0,
                 }"
                 bitTypography="body2"
@@ -571,7 +571,7 @@
                 *ngFor="let discount of displayableDiscounts; let i = index"
                 class="tw-mb-0 tw-flex tw-justify-between"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-1 tw-mt-1':
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
                     i > 0,
                 }"
                 bitTypography="body2"
@@ -654,9 +654,8 @@
             >
               <p
                 *ngFor="let discount of displayableDiscounts; let i = index"
-                class="tw-mb-0 tw-flex tw-justify-between"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-1 tw-mt-1':
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
                     i > 0,
                 }"
                 bitTypography="body2"
@@ -739,7 +738,7 @@
                 *ngFor="let discount of displayableDiscounts; let i = index"
                 class="tw-mb-0 tw-flex tw-justify-between"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-1 tw-mt-1':
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
                     i > 0,
                 }"
                 bitTypography="body2"
@@ -992,7 +991,7 @@
                 *ngFor="let discount of displayableDiscounts; let i = index"
                 class="tw-mb-0 tw-flex tw-justify-between"
                 [ngClass]="{
-                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-1 tw-mt-1':
+                  'tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mt-1':
                     i > 0,
                 }"
                 bitTypography="body2"
@@ -1011,25 +1010,27 @@
           <bit-hint class="tw-w-full">
             <p
               class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-0"
+              bitTypography="body2"
             >
-              <span>
+              <span class="tw-font-bold">
                 {{ "estimatedTax" | i18n }}
               </span>
-              <span>
+              <span class="tw-font-bold">
                 {{ estimatedTax | currency: "USD" : "$" }}
               </span>
             </p>
           </bit-hint>
         </div>
-        <div *ngIf="totalOpened" class="tw-flex tw-flex-wrap tw-gap-4 tw-mt-1">
+        <div *ngIf="totalOpened" class="tw-flex tw-flex-wrap tw-mt-0">
           <bit-hint class="tw-w-full">
             <p
-              class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-0"
+              class="tw-flex tw-justify-between tw-border-0 tw-border-solid tw-border-t tw-border-secondary-100 tw-pt-2 tw-mb-1"
+              bitTypography="body2"
             >
-              <span>
+              <span class="tw-font-bold">
                 {{ "total" | i18n }}
               </span>
-              <span>
+              <span class="tw-font-bold">
                 {{ total - calculateTotalAppliedDiscount(total) | currency: "USD" : "$" }}
                 <span class="tw-text-xs"> / {{ selectedPlanInterval | i18n }}</span>
               </span>
