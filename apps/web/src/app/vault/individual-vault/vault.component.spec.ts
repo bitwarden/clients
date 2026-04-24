@@ -56,16 +56,14 @@ import {
   RoutedVaultFilterService,
   VaultFilter,
   VaultFilterServiceAbstraction,
+  VaultItemDialogComponent,
+  VaultItemDialogResult,
   VaultItemEvent,
   VaultItemsTransferService,
 } from "@bitwarden/vault";
 
 import { OrganizationWarningsService } from "../../billing/organizations/warnings/services";
 import { ProductSwitcherService } from "../../layouts/product-switcher/shared/product-switcher.service";
-import {
-  VaultItemDialogComponent,
-  VaultItemDialogResult,
-} from "../components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { WebVaultExtensionPromptService } from "../services/web-vault-extension-prompt.service";
 import { WebVaultPromptService } from "../services/web-vault-prompt.service";
