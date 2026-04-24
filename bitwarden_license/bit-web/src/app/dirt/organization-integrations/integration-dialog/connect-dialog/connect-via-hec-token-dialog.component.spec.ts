@@ -192,10 +192,7 @@ describe("ConnectHuntressDialogComponent", () => {
 describe("openHuntressConnectDialog", () => {
   it("should call dialogService.open with correct params", () => {
     const dialogServiceMock = mock<DialogService>();
-    const config: DialogConfig<
-      ConnectViaHecTokenDialogParams,
-      DialogRef<ConnectViaHecTokenDialogResult>
-    > = {
+    const config: DialogConfig<ConnectViaHecTokenDialogParams, ConnectViaHecTokenDialogResult> = {
       data: { settings: { name: "Huntress" } as Integration },
     } as any;
 

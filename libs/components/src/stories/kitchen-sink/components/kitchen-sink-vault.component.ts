@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -12,9 +12,8 @@ import { KitchenSinkTableComponent } from "./kitchen-sink-table.component";
 import { KitchenSinkToggleListComponent } from "./kitchen-sink-toggle-list.component";
 import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-kitchen-sink-vault",
   imports: [
     KitchenSinkSharedModule,
@@ -98,8 +97,7 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   `,
 })
 export class KitchenSinkVaultComponent {
-  constructor(public dialogService: DialogService) {}
-
+  protected readonly dialogService = inject(DialogService);
   protected readonly tourService = inject(KitchenSinkTourService);
 
   openDialog() {
@@ -107,7 +105,7 @@ export class KitchenSinkVaultComponent {
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialogComponent);
+    void this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
   openDialogWithAutofocus() {

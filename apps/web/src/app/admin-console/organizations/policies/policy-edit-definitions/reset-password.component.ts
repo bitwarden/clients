@@ -1,7 +1,7 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, inject, OnInit } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom, map, tap } from "rxjs";
 
@@ -47,7 +47,7 @@ export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implem
   private configService = inject(ConfigService);
 
   data = this.formBuilder.group({
-    autoEnrollEnabled: false,
+    autoEnrollEnabled: [{ value: false, disabled: true }],
   });
   showKeyConnectorInfo = false;
   protected readonly adminResetTwoFactorEnabled = toSignal(
@@ -60,6 +60,15 @@ export class ResetPasswordPolicyComponent extends BasePolicyEditComponent implem
     private organizationService: OrganizationService,
   ) {
     super();
+
+    this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((enabled) => {
+      if (enabled) {
+        this.data.controls.autoEnrollEnabled.enable();
+      } else {
+        this.data.controls.autoEnrollEnabled.disable();
+        this.data.controls.autoEnrollEnabled.setValue(false);
+      }
+    });
   }
 
   async ngOnInit() {
