@@ -4,7 +4,7 @@ use std::{fs, os::unix::fs::PermissionsExt, path::PathBuf};
 
 use anyhow::{anyhow, Result};
 use tokio::net::UnixStream;
-use tracing::{error, info};
+use tracing::{debug, error, info};
 
 use super::Listener;
 use crate::server::{connection::Connection, peer_info::PeerInfo};
@@ -38,7 +38,7 @@ impl UnixListener {
 
         remove_stale_socket(&socket_path)?;
 
-        info!(?socket_path, "Binding socket");
+        debug!(?socket_path, "Binding socket");
 
         let listener = tokio::net::UnixListener::bind(&socket_path)
             .map_err(|e| anyhow!("Unable to bind to socket {}: {e}", socket_path.display()))?;
@@ -82,7 +82,7 @@ fn get_socket_path() -> Result<PathBuf> {
     if let Ok(path) = std::env::var(ENV_BITWARDEN_SSH_AUTH_SOCK) {
         Ok(PathBuf::from(path))
     } else {
-        info!(
+        debug!(
             socket_path_env_var = ENV_BITWARDEN_SSH_AUTH_SOCK,
             "not set, using default path"
         );

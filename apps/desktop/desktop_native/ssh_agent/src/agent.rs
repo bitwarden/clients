@@ -7,9 +7,7 @@ use anyhow::Result;
 use tracing::{debug, info};
 
 use crate::{
-    approval::ApprovalRequester,
-    authorization::{BitwardenAuthPolicy, LockState},
-    server::SSHAgentServer,
+    approval::ApprovalRequester, authorization::BitwardenAuthPolicy, server::SSHAgentServer,
     storage::keystore::KeyStore,
 };
 
@@ -23,8 +21,6 @@ where
 {
     /// store of ssh keys. shared with the authorization policy and server.
     keystore: Arc<K>,
-    /// logic to authorize or deny underlying server requests
-    auth_policy: Arc<BitwardenAuthPolicy<K, H>>,
     // the agent's server
     server: SSHAgentServer<K, BitwardenAuthPolicy<K, H>>,
 }
@@ -38,13 +34,9 @@ where
     pub fn new(keystore: K, approval_handler: H) -> Self {
         let keystore = Arc::new(keystore);
         let auth_policy = Arc::new(BitwardenAuthPolicy::new(keystore.clone(), approval_handler));
-        let server = SSHAgentServer::new(keystore.clone(), auth_policy.clone());
+        let server = SSHAgentServer::new(keystore.clone(), auth_policy);
 
-        Self {
-            keystore,
-            auth_policy,
-            server,
-        }
+        Self { keystore, server }
     }
 
     /// Starts the ssh agent server
@@ -67,15 +59,18 @@ where
         self.server.is_running()
     }
 
-    /// Updates the keystore with the new keys and signals the auth policy to an unlocked state.
-    pub fn set_keys(&self, _keys: Vec<K::KeyData>) -> Result<()> {
+    /// Sets the provided keys into the keystore.
+    ///
+    /// Does not clear existing keys — the caller is responsible for calling
+    /// [`clear_keys`] before a full replacement.
+    pub fn set_keys(&self, keys: Vec<K::KeyData>) -> Result<()> {
         debug!("Received new key data.");
 
-        // TODO: set keys as part of PM-30755
+        for key in keys {
+            self.keystore.insert(key)?;
+        }
 
-        self.auth_policy.set_lock_state(LockState::Unlocked);
-
-        debug!("New key data set.");
+        info!("New key data set.");
 
         Ok(())
     }
@@ -84,20 +79,6 @@ where
     pub fn clear_keys(&mut self) {
         debug!("Clearing all keys.");
         self.keystore.clear();
-        info!("Cleared all keys.");
-    }
-
-    /// Sets the auth policy to a locked state
-    pub fn lock(&self) {
-        debug!("Locking.");
-        self.auth_policy.set_lock_state(LockState::Locked);
-        info!("Locked.");
-    }
-
-    /// Sets the auth policy to an unlocked state
-    pub fn unlock(&self) {
-        debug!("Unlocking.");
-        self.auth_policy.set_lock_state(LockState::Unlocked);
-        info!("Unlocked.");
+        debug!("Cleared all keys.");
     }
 }

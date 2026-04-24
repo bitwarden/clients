@@ -1,10 +1,13 @@
 #![cfg(windows)]
 
 use serial_test::serial;
-use tokio::net::windows::named_pipe::ClientOptions;
+use tokio::{io::AsyncWriteExt, net::windows::named_pipe::ClientOptions};
 
 mod common;
-use common::{always_approving_agent, init_tracing};
+use common::{
+    agent_with_keys, always_approving_agent, framed_request_identities, init_tracing,
+    parse_first_key_name, read_framed_response, test_ed25519_key,
+};
 
 const PIPE_NAME: &str = r"\\.\pipe\openssh-ssh-agent";
 
@@ -70,5 +73,103 @@ async fn test_server_can_restart() {
 
     assert!(agent.is_running());
     assert!(ClientOptions::new().open(PIPE_NAME).is_ok());
+    agent.stop_server();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_returns_empty_when_no_keys_set() {
+    setup();
+    let mut agent = always_approving_agent();
+    agent.start_server().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
+    assert_eq!(
+        u32::from_be_bytes(response[1..5].try_into().unwrap()),
+        0,
+        "expected zero keys"
+    );
+
+    agent.stop_server();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_returns_set_keys() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start_server().unwrap();
+
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+
+    assert_eq!(response[0], 12, "expected IDENTITIES_ANSWER type byte");
+    let count = u32::from_be_bytes(response[1..5].try_into().unwrap());
+    assert_eq!(count, 1, "expected one key");
+    assert_eq!(parse_first_key_name(&response), "Test Key");
+
+    agent.stop_server();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_updates_after_set_keys() {
+    setup();
+    let mut agent = always_approving_agent();
+    agent.start_server().unwrap();
+
+    // Initially no keys
+    let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut client).await;
+    assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 0);
+
+    // Add a key
+    agent.set_keys(vec![test_ed25519_key()]).unwrap();
+
+    // New connection sees the key
+    let mut client2 = ClientOptions::new().open(PIPE_NAME).unwrap();
+    client2
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response2 = read_framed_response(&mut client2).await;
+    assert_eq!(u32::from_be_bytes(response2[1..5].try_into().unwrap()), 1);
+    assert_eq!(parse_first_key_name(&response2), "Test Key");
+
+    agent.stop_server();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_list_keys_multiple_connections_see_same_keys() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start_server().unwrap();
+
+    for _ in 0..3 {
+        let mut client = ClientOptions::new().open(PIPE_NAME).unwrap();
+        client
+            .write_all(&framed_request_identities())
+            .await
+            .unwrap();
+        let response = read_framed_response(&mut client).await;
+        assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
+    }
+
     agent.stop_server();
 }

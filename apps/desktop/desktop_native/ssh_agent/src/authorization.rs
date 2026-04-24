@@ -1,9 +1,6 @@
 //! Bitwarden's auth policy for SSH agent operations.
 
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
+use std::sync::Arc;
 
 use thiserror::Error;
 use tracing::debug;
@@ -31,16 +28,9 @@ pub enum AuthError {
     KeystoreError(#[source] anyhow::Error),
 }
 
-/// Represents the vault's lock state.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LockState {
-    Locked,
-    Unlocked,
-}
-
 /// Bitwarden's SSH operation authorization policy:
 ///
-/// - Allows listing keys after first unlock
+/// - Always allows listing keys while the agent is running
 /// - Always requires approval for signing operations
 /// - Delegates approval decisions to the provided handler
 pub struct BitwardenAuthPolicy<K, H>
@@ -50,7 +40,6 @@ where
 {
     keystore: Arc<K>,
     approval_handler: H,
-    is_locked: AtomicBool,
 }
 
 impl<K, H> BitwardenAuthPolicy<K, H>
@@ -62,19 +51,7 @@ where
         Self {
             keystore,
             approval_handler,
-            is_locked: AtomicBool::new(true),
         }
-    }
-
-    /// Sets the lock state of the vault to the provided `state`.
-    ///
-    /// When locked, operations will require approval.
-    /// When unlocked, list operations are allowed without approval.
-    pub fn set_lock_state(&self, state: LockState) {
-        debug!(?state, "Setting lock state.");
-
-        let is_locked = matches!(state, LockState::Locked);
-        self.is_locked.store(is_locked, Ordering::Relaxed);
     }
 }
 
@@ -87,23 +64,8 @@ where
     async fn authorize(&self, request: &AuthRequest) -> Result<bool, AuthError> {
         match request {
             AuthRequest::List => {
-                // if already unlocked, allow
-                if !self.is_locked.load(Ordering::Relaxed) {
-                    debug!("Already unlocked, allowing list request.");
-                    return Ok(true);
-                }
-
-                // otherwise request unlock from approval handler
-                debug!("Locked, requesting unlock approval.");
-                let unlock_approved = self.approval_handler.request_unlock().await?;
-
-                debug!(unlock_approved, "Unlock response received.");
-
-                if unlock_approved {
-                    self.set_lock_state(LockState::Unlocked);
-                }
-
-                Ok(unlock_approved)
+                debug!("Allowing list request.");
+                Ok(true)
             }
             AuthRequest::Sign(sign_request) => {
                 let cipher_id = match self.keystore.get(&sign_request.public_key) {
@@ -194,98 +156,15 @@ mod tests {
     const TEST_IS_FORWARDING: bool = false;
 
     #[tokio::test]
-    async fn test_authorize_list_when_unlocked_returns_true() {
+    async fn test_authorize_list_always_returns_true() {
         let keystore = Arc::new(MockKeyStore::new());
         let approval_handler = MockApprovalRequester::new();
 
         let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-        policy.set_lock_state(LockState::Unlocked);
 
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
+        let result = policy.authorize(&AuthRequest::List).await;
 
-        assert!(
-            matches!(result, Ok(true)),
-            "Should allow list when unlocked"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_list_when_locked_requests_unlock() {
-        let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        // Expect unlock request and deny it
-        approval_handler
-            .expect_request_unlock()
-            .times(1)
-            .returning(|| Ok(false));
-
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-        // Don't call set_lock_state - should remain locked by default
-
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(result, Ok(false)),
-            "Should deny list when unlock is denied"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_list_when_locked_unlock_approved() {
-        let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        // Expect unlock request and approve it
-        approval_handler
-            .expect_request_unlock()
-            .times(1)
-            .returning(|| Ok(true));
-
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-        // Don't call set_lock_state - should remain locked by default
-
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(result, Ok(true)),
-            "Should allow list when unlock is approved"
-        );
-
-        // Verify that the state was actually unlocked
-        assert!(
-            !policy.is_locked.load(Ordering::Relaxed),
-            "Policy should be unlocked after approval"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_list_when_locked_unlock_handler_error() {
-        let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        approval_handler
-            .expect_request_unlock()
-            .times(1)
-            .returning(|| Err(ApprovalError::HandlerFailed(anyhow!("Handler failed"))));
-
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(
-                result,
-                Err(AuthError::ApprovalUnresolved(ApprovalError::HandlerFailed(
-                    _
-                )))
-            ),
-            "Should return ApprovalUnresolved error when unlock handler fails"
-        );
+        assert!(matches!(result, Ok(true)), "Should always allow list");
     }
 
     #[tokio::test]
@@ -414,34 +293,6 @@ mod tests {
                 )))
             ),
             "Should return ApprovalUnresolved error"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_sign_when_unlocked_still_requires_approval() {
-        let mut keystore = MockKeyStore::new();
-        let mut approval_handler = MockApprovalRequester::new();
-
-        let test_pub_key = create_stub_public_key();
-
-        setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
-
-        approval_handler
-            .expect_request_sign_approval()
-            .withf(|req| req.cipher_id.as_deref() == Some("cipher-123"))
-            .times(1)
-            .returning(|_| Ok(true));
-
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
-        // Unlock the vault - Sign should still require approval
-        policy.set_lock_state(LockState::Unlocked);
-
-        let request = create_default_test_sign_request(test_pub_key);
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(result, Ok(true)),
-            "Sign should always require approval, even when unlocked"
         );
     }
 

@@ -15,6 +15,6 @@ export const SSH_AGENT_IPC_CHANNELS = {
   SIGN_REQUEST_RESPONSE: "sshagent.signrequestresponse",
   LOCK: "sshagent.lock",
   CLEAR_KEYS: "sshagent.clearkeys",
+  STOP: "sshagent.stop",
   SIGN_REQUEST: "sshagent.signrequest",
-  UNLOCK_REQUEST: "sshagent.unlockrequest",
 } as const;

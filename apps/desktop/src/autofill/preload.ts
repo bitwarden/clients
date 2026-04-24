@@ -28,6 +28,7 @@ const sshAgent = {
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },
+  stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
 };
 
 export default {
