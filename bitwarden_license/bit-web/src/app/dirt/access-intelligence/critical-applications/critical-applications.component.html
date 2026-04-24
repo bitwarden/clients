@@ -8,8 +8,8 @@
       type="button"
       [disabled]="!enableRequestPasswordChange"
       (click)="requestPasswordChange()"
+      startIcon="bwi-envelope"
     >
-      <i class="bwi bwi-envelope tw-mr-2"></i>
       {{
         enableRequestPasswordChange
           ? ("requestPasswordChange" | i18n)
