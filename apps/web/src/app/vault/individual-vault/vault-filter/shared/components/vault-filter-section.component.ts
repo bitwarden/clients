@@ -9,6 +9,7 @@ import {
   Input,
   OnDestroy,
   OnInit,
+  signal,
 } from "@angular/core";
 import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 import { map } from "rxjs/operators";
@@ -55,8 +56,8 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     () => this.coachmarkService.activeStepId() === "shareWithCollections",
   );
 
-  data: TreeNode<VaultFilterType>;
-  collapsedFilterNodes: Set<string> = new Set();
+  readonly data = signal<TreeNode<VaultFilterType> | undefined>(undefined);
+  readonly collapsedFilterNodes = signal<Set<string>>(new Set());
 
   private injectors = new Map<string, Injector>();
 
@@ -68,13 +69,13 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     this.vaultFilterService.collapsedFilterNodes$
       .pipe(takeUntil(this.destroy$))
       .subscribe((nodes) => {
-        this.collapsedFilterNodes = nodes;
+        this.collapsedFilterNodes.set(nodes);
       });
   }
 
   async ngOnInit() {
     this.section?.data$?.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.data = data;
+      this.data.set(data);
     });
   }
 
@@ -84,7 +85,7 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   }
 
   get headerNode() {
-    return this.data;
+    return this.data()!;
   }
 
   get headerInfo() {
@@ -92,11 +93,11 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   }
 
   get filters() {
-    return this.data?.children;
+    return this.data()?.children;
   }
 
   get isOrganizationFilter() {
-    return this.data.node instanceof Organization;
+    return this.data()?.node instanceof Organization;
   }
 
   get isAllVaultsSelected() {
@@ -161,17 +162,18 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   }
 
   isCollapsed(node: ITreeNodeObject) {
-    return this.collapsedFilterNodes.has(node.id);
+    return this.collapsedFilterNodes().has(node.id);
   }
 
   async toggleCollapse(node: ITreeNodeObject) {
-    if (this.collapsedFilterNodes.has(node.id)) {
-      this.collapsedFilterNodes.delete(node.id);
+    const nodes = this.collapsedFilterNodes();
+    if (nodes.has(node.id)) {
+      nodes.delete(node.id);
     } else {
-      this.collapsedFilterNodes.add(node.id);
+      nodes.add(node.id);
     }
     const userId = await firstValueFrom(this.activeUserId$);
-    await this.vaultFilterService.setCollapsedFilterNodes(this.collapsedFilterNodes, userId);
+    await this.vaultFilterService.setCollapsedFilterNodes(nodes, userId);
   }
 
   // an injector is necessary to pass data into a dynamic component
