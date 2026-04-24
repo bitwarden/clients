@@ -99,6 +99,11 @@ const localhostCallbackService = {
   },
 };
 
+const _messagingListeners = new Map<
+  (message: any) => void,
+  (_event: any, message: any) => void
+>();
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -153,18 +158,20 @@ export default {
     ipcRenderer.send("messagingService", message),
   onMessage: {
     addListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.addListener("messagingService", (_event, message: any) => {
+      const wrapper = (_event: any, message: any) => {
         if (message.command) {
           callback(message);
         }
-      });
+      };
+      _messagingListeners.set(callback, wrapper);
+      ipcRenderer.addListener("messagingService", wrapper);
     },
     removeListener: (callback: (message: { command: string } & any) => void) => {
-      ipcRenderer.removeListener("messagingService", (_event, message: any) => {
-        if (message.command) {
-          callback(message);
-        }
-      });
+      const wrapper = _messagingListeners.get(callback);
+      if (wrapper) {
+        ipcRenderer.removeListener("messagingService", wrapper);
+        _messagingListeners.delete(callback);
+      }
     },
   },
 
