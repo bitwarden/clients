@@ -40,34 +40,7 @@ export class DefaultPolicyService implements PolicyService {
   }
 
   policies$(userId: UserId) {
-    return combineLatest([
-      this.policyData$(userId).pipe(map((d) => policyRecordToArray(d))),
-      this.organizationService.organizations$(userId),
-    ]).pipe(
-      map(([policies, organizations]) => {
-        const orgDict = Object.fromEntries(organizations.map((o) => [o.id, o]));
-        return policies.filter((policy) => {
-          const org = orgDict[policy.organizationId];
-          // No org found: include the policy (consistent with enforcedPolicyFilter behaviour)
-          return !org || org.status === OrganizationUserStatusType.Confirmed;
-        });
-      }),
-    );
-  }
-
-  acceptedPolicies$(userId: UserId) {
-    return combineLatest([
-      this.policyData$(userId).pipe(map((d) => policyRecordToArray(d))),
-      this.organizationService.organizations$(userId),
-    ]).pipe(
-      map(([policies, organizations]) => {
-        const orgDict = Object.fromEntries(organizations.map((o) => [o.id, o]));
-        return policies.filter(
-          (policy) =>
-            orgDict[policy.organizationId]?.status === OrganizationUserStatusType.Accepted,
-        );
-      }),
-    );
+    return this.policyData$(userId).pipe(map((policyData) => policyRecordToArray(policyData)));
   }
 
   policiesByType$(policyType: PolicyType, userId: UserId) {

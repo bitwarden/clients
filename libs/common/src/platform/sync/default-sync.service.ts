@@ -28,6 +28,7 @@ import {
 import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
@@ -91,6 +92,7 @@ export class DefaultSyncService extends CoreSyncService {
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
+    private newPolicyService: InternalNewPolicyService,
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
@@ -192,7 +194,8 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
-      await this.syncPolicies(response.policiesNew ?? response.policies, response.profile.id);
+      await this.syncPolicies(response.policies, response.profile.id);
+      await this.syncNewPolicies(response.policiesNew, response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -425,6 +428,17 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async syncNewPolicies(response: PolicyResponse[] | undefined, userId: UserId) {
+    if (response == null) {
+      return;
+    }
+    const policies: { [id: string]: PolicyData } = {};
+    response.forEach((p) => {
+      policies[p.id] = new PolicyData(p);
+    });
+    return await this.newPolicyService.replace(policies, userId);
   }
 
   private async syncUserDecryption(

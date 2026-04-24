@@ -31,6 +31,7 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
+import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
@@ -299,6 +300,7 @@ export class ServiceContainer {
   encryptService: EncryptServiceImplementation;
   authService: AuthService;
   policyService: DefaultPolicyService;
+  newPolicyService: DefaultNewPolicyService;
   policyApiService: PolicyApiServiceAbstraction;
   logService: ConsoleLogService;
   sendService: SendService;
@@ -557,6 +559,11 @@ export class ServiceContainer {
       this.stateProvider,
       this.organizationService,
       this.accountService,
+    );
+
+    this.newPolicyService = new DefaultNewPolicyService(
+      this.stateProvider,
+      this.organizationService,
     );
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
@@ -964,6 +971,7 @@ export class ServiceContainer {
       this.collectionService,
       this.messagingService,
       this.policyService,
+      this.newPolicyService,
       this.sendService,
       this.logService,
       this.keyConnectorService,

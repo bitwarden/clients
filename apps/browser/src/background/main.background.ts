@@ -52,6 +52,7 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
@@ -449,6 +450,7 @@ export default class MainBackground {
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
+  newPolicyService: DefaultNewPolicyService;
   sendService: InternalSendServiceAbstraction;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadServiceAbstraction;
@@ -789,6 +791,11 @@ export default class MainBackground {
       this.stateProvider,
       this.organizationService,
       this.accountService,
+    );
+
+    this.newPolicyService = new DefaultNewPolicyService(
+      this.stateProvider,
+      this.organizationService,
     );
 
     const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
@@ -1135,6 +1142,7 @@ export default class MainBackground {
       this.collectionService,
       this.messagingService,
       this.policyService,
+      this.newPolicyService,
       this.sendService,
       this.logService,
       this.keyConnectorService,

@@ -18,6 +18,7 @@ import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-ma
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
@@ -61,6 +62,7 @@ describe("DefaultSyncService", () => {
   let collectionService: MockProxy<CollectionService>;
   let messageSender: MockProxy<MessageSender>;
   let policyService: MockProxy<InternalPolicyService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
@@ -92,6 +94,7 @@ describe("DefaultSyncService", () => {
     collectionService = mock();
     messageSender = mock();
     policyService = mock();
+    newPolicyService = mock();
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
@@ -122,6 +125,7 @@ describe("DefaultSyncService", () => {
       collectionService,
       messageSender,
       policyService,
+      newPolicyService,
       sendService,
       logService,
       keyConnectorService,
