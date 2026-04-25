@@ -1,8 +1,9 @@
-import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, switchMap, take } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
@@ -29,7 +30,43 @@ export class DefaultPolicyService implements PolicyService {
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private sdkService: SdkService,
   ) {}
+
+  // TODO: this will probably be in the newPolicyService assuming that's what we end up doing
+  private filterWithSdk$(
+    policyType: PolicyType,
+    organizations: Organization[],
+    policies: Policy[],
+    userId: UserId,
+  ): Observable<Policy[]> {
+    return this.sdkService.userClient$(userId).pipe(
+      map((sdk) => {
+        console.log("foo");
+        if (!sdk) {
+          throw new Error("SDK not available");
+        }
+
+        using ref = sdk.take();
+
+        const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
+        const sdkOrgs = organizations.map((o) => o.toSdkProfileOrganization());
+        const filteredViews = ref.value
+          .policies()
+          .filter_by_type(sdkPolicies, sdkOrgs, policyType as number);
+
+        const result = filteredViews.map((v) => Policy.fromSdkPolicyView(v));
+
+        console.log("In:");
+        console.log(policies);
+
+        console.log("Out:");
+        console.log(result);
+
+        return result;
+      }),
+    );
+  }
 
   private policyState(userId: UserId) {
     return this.stateProvider.getUser(userId, POLICIES);
@@ -51,9 +88,9 @@ export class DefaultPolicyService implements PolicyService {
     const allPolicies$ = this.policies$(userId);
     const organizations$ = this.organizationService.organizations$(userId);
 
+    // TODO: feature flag me!
     return combineLatest([allPolicies$, organizations$]).pipe(
-      map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
-      map((policies) => policies.filter((p) => p.type === policyType)),
+      switchMap(([policies, orgs]) => this.filterWithSdk$(policyType, orgs, policies, userId)),
     );
   }
 

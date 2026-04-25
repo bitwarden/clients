@@ -1,6 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import { PolicyView as SdkPolicyView } from "@bitwarden/sdk-internal";
+
 import { ListResponse } from "../../../models/response/list.response";
+import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import Domain from "../../../platform/models/domain/domain-base";
 import { OrganizationId, PolicyId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
@@ -41,5 +44,25 @@ export class Policy extends Domain {
 
   static fromListResponse(response: ListResponse<PolicyResponse>): Policy[] {
     return response.data.map((d) => Policy.fromResponse(d));
+  }
+
+  static fromSdkPolicyView(obj: SdkPolicyView): Policy {
+    const policy = new Policy();
+    policy.id = uuidAsString(obj.id) as PolicyId;
+    policy.organizationId = uuidAsString(obj.organization_id) as OrganizationId;
+    policy.type = obj.type as PolicyType;
+    policy.data = obj.data;
+    policy.enabled = obj.enabled;
+    return policy;
+  }
+
+  toSdkPolicyView(): SdkPolicyView {
+    return {
+      id: asUuid(this.id),
+      organization_id: asUuid(this.organizationId),
+      type: this.type as number,
+      data: (this.data as Record<string, unknown>) ?? {},
+      enabled: this.enabled,
+    };
   }
 }

@@ -2,8 +2,11 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { ProfileOrganization } from "@bitwarden/sdk-internal";
+
 import { MemberDecryptionType } from "../../../auth/enums/sso";
 import { ProductTierType } from "../../../billing/enums";
+import { asUuid } from "../../../platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "../../../types/guid";
 import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
@@ -392,6 +395,85 @@ export class Organization {
    **/
   get canManageAutoConfirm() {
     return this.isMember && this.canManageUsers && this.useAutomaticUserConfirmation;
+  }
+
+  toSdkProfileOrganization(): ProfileOrganization {
+    return {
+      id: asUuid(this.id),
+      name: this.name,
+      status: this.status as number,
+      type: this.type as number,
+      enabled: this.enabled,
+      usePolicies: this.usePolicies,
+      useGroups: this.useGroups,
+      useDirectory: this.useDirectory,
+      useEvents: this.useEvents,
+      useTotp: this.useTotp,
+      use2fa: this.use2fa,
+      useApi: this.useApi,
+      useSso: this.useSso,
+      useOrganizationDomains: this.useOrganizationDomains,
+      useKeyConnector: this.useKeyConnector,
+      useScim: this.useScim,
+      useCustomPermissions: this.useCustomPermissions,
+      useResetPassword: this.useResetPassword,
+      useSecretsManager: this.useSecretsManager,
+      usePasswordManager: this.usePasswordManager,
+      useActivateAutofillPolicy: this.useActivateAutofillPolicy,
+      useAutomaticUserConfirmation: this.useAutomaticUserConfirmation,
+      selfHost: this.selfHost,
+      usersGetPremium: this.usersGetPremium,
+      seats: this.seats,
+      maxCollections: this.maxCollections,
+      maxStorageGb: this.maxStorageGb,
+      ssoBound: this.ssoBound,
+      identifier: this.identifier ?? undefined,
+      permissions: {
+        accessEventLogs: this.permissions?.accessEventLogs,
+        accessImportExport: this.permissions?.accessImportExport,
+        accessReports: this.permissions?.accessReports,
+        createNewCollections: this.permissions?.createNewCollections,
+        editAnyCollection: this.permissions?.editAnyCollection,
+        deleteAnyCollection: this.permissions?.deleteAnyCollection,
+        manageGroups: this.permissions?.manageGroups,
+        manageSso: this.permissions?.manageSso,
+        managePolicies: this.permissions?.managePolicies,
+        manageUsers: this.permissions?.manageUsers,
+        manageResetPassword: this.permissions?.manageResetPassword,
+        manageScim: this.permissions?.manageScim,
+      },
+      resetPasswordEnrolled: this.resetPasswordEnrolled,
+      userId: this.userId ? asUuid(this.userId) : undefined,
+      organizationUserId: this.organizationUserId ? asUuid(this.organizationUserId) : undefined,
+      hasPublicAndPrivateKeys: this.hasPublicAndPrivateKeys,
+      providerId: this.providerId ? asUuid(this.providerId) : undefined,
+      providerName: this.providerName ?? undefined,
+      providerType: this.providerType as number | undefined,
+      isProviderUser: this.isProviderUser,
+      isMember: this.isMember,
+      familySponsorshipFriendlyName: this.familySponsorshipFriendlyName ?? undefined,
+      familySponsorshipAvailable: this.familySponsorshipAvailable,
+      productTierType: this.productTierType as number,
+      keyConnectorEnabled: this.keyConnectorEnabled,
+      keyConnectorUrl: this.keyConnectorUrl ?? undefined,
+      familySponsorshipLastSyncDate: this.familySponsorshipLastSyncDate?.toISOString(),
+      familySponsorshipValidUntil: this.familySponsorshipValidUntil?.toISOString(),
+      familySponsorshipToDelete: this.familySponsorshipToDelete,
+      accessSecretsManager: this.accessSecretsManager,
+      limitCollectionCreation: this.limitCollectionCreation,
+      limitCollectionDeletion: this.limitCollectionDeletion,
+      limitItemDeletion: this.limitItemDeletion,
+      allowAdminAccessToAllCollectionItems: this.allowAdminAccessToAllCollectionItems,
+      userIsManagedByOrganization: this.userIsManagedByOrganization,
+      useAccessIntelligence: this.useAccessIntelligence,
+      useAdminSponsoredFamilies: this.useAdminSponsoredFamilies,
+      useDisableSMAdsForUsers: this.useDisableSMAdsForUsers,
+      isAdminInitiated: this.isAdminInitiated,
+      ssoEnabled: this.ssoEnabled,
+      ssoMemberDecryptionType: this.ssoMemberDecryptionType as number | undefined,
+      usePhishingBlocker: this.usePhishingBlocker,
+      useMyItems: this.useMyItems,
+    };
   }
 
   static fromJSON(json: Jsonify<Organization>) {
