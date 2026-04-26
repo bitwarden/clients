@@ -20,9 +20,12 @@ describe("SearchComponent", () => {
       focusSearchResults: jest.fn(),
     };
 
-    component = new SearchComponent(searchBarService as unknown as SearchBarService, {
-      activeAccount$: of(null),
-    } as AccountService);
+    component = new SearchComponent(
+      searchBarService as unknown as SearchBarService,
+      {
+        activeAccount$: of(null),
+      } as AccountService,
+    );
   });
 
   it("moves focus to search results on forward Tab when a search is present", () => {
