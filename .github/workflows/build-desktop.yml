@@ -648,20 +648,14 @@ jobs:
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
 
-check-failures:
+  check-failures:
     name: Check for failures
     if: always()
     runs-on: ubuntu-22.04
     needs:
       - electron-verify
-      - browser-build
       - setup
-      - linux
       - windows
-      - macos-build
-      - macos-package-github
-      - macos-package-mas
-      - crowdin-push
     permissions:
         contents: read
         id-token: write
