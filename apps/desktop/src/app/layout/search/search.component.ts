@@ -47,4 +47,16 @@ export class SearchComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.activeAccountSubscription.unsubscribe();
   }
+
+  focusSearchResults(event: Event) {
+    const keyboardEvent = event as KeyboardEvent;
+
+    if (keyboardEvent.shiftKey || !this.searchText.value) {
+      return;
+    }
+
+    if (this.searchBarService.focusSearchResults()) {
+      keyboardEvent.preventDefault();
+    }
+  }
 }

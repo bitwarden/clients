@@ -6,6 +6,7 @@
     autocomplete="off"
     [formControl]="searchText"
     appAutofocus
+    (keydown.tab)="focusSearchResults($event)"
   />
   <bit-icon name="bwi-search"></bit-icon>
 </div>
