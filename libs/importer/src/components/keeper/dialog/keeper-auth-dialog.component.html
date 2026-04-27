@@ -1,0 +1,189 @@
+@let currentStage = stage();
+
+<bit-dialog>
+  <span bitDialogTitle>
+    @switch (currentStage.kind) {
+      @case ("selectApproval") {
+        {{ "selectApprovalMethod" | i18n }}
+      }
+      @case ("approvalCode") {
+        {{ "keeperDeviceApprovalRequired" | i18n }}
+      }
+      @case ("selectTwoFactor") {
+        {{ "selectTwoFactorMethod" | i18n }}
+      }
+      @case ("twoFactorCode") {
+        {{ "keeperMFARequired" | i18n }}
+      }
+      @case ("selectDuo") {
+        {{ "duoVerification" | i18n }}
+      }
+      @case ("duoPush") {
+        {{ "duoVerification" | i18n }}
+      }
+      @case ("selectDna") {
+        {{ "keeperDnaVerification" | i18n }}
+      }
+      @case ("dnaPush") {
+        {{ "keeperDnaVerification" | i18n }}
+      }
+      @case ("error") {
+        {{ "errorOccurred" | i18n }}
+      }
+    }
+  </span>
+
+  <div bitDialogContent>
+    @switch (currentStage.kind) {
+      @case ("selectApproval") {
+        <p bitTypography="body1">{{ "selectApprovalMethodDesc" | i18n }}</p>
+        <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-4">
+          @for (method of currentStage.methods; track method) {
+            <button
+              bitButton
+              buttonType="secondary"
+              type="button"
+              class="tw-w-full"
+              (click)="selectApproval(method)"
+            >
+              {{ getApprovalMethodLabel(method) | i18n }}
+            </button>
+          }
+        </div>
+      }
+
+      @case ("approvalCode") {
+        <p bitTypography="body1">
+          {{ getApprovalCodeDescription(currentStage.variant) | i18n }}
+        </p>
+        @if (currentStage.variant === "email") {
+          <form (ngSubmit)="submitCode()">
+            <bit-form-field class="tw-mt-4">
+              <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+              <input bitInput type="text" [formControl]="codeControl" />
+              <bit-hint>{{ "emailVerificationCodeHint" | i18n }}</bit-hint>
+            </bit-form-field>
+          </form>
+        }
+      }
+
+      @case ("selectTwoFactor") {
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          @for (method of currentStage.methods; track method) {
+            <button
+              bitButton
+              buttonType="secondary"
+              type="button"
+              class="tw-w-full"
+              (click)="selectTwoFactor(method)"
+            >
+              {{ getTwoFactorLabel(method) | i18n }}
+            </button>
+          }
+        </div>
+      }
+
+      @case ("twoFactorCode") {
+        @if (currentStage.needsInput) {
+          <p bitTypography="body1">{{ "mfaTotpDesc" | i18n }}</p>
+          <form (ngSubmit)="submitCode()">
+            <bit-form-field class="tw-mt-4 !tw-mb-0">
+              <bit-label>{{ "passcode" | i18n }}</bit-label>
+              <input bitInput type="text" [formControl]="codeControl" appInputVerbatim />
+              <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+            </bit-form-field>
+          </form>
+        } @else {
+          <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
+        }
+      }
+
+      @case ("selectDuo") {
+        <p bitTypography="body1">{{ currentStage.phoneNumber }}</p>
+        <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-4">
+          @for (method of currentStage.methods; track method) {
+            <button
+              bitButton
+              buttonType="secondary"
+              type="button"
+              class="tw-w-full"
+              (click)="selectDuo(method)"
+            >
+              {{ getDuoLabel(method) | i18n }}
+            </button>
+          }
+        </div>
+      }
+
+      @case ("duoPush") {
+        <p bitTypography="body1">{{ "duoPushWaiting" | i18n }}</p>
+      }
+
+      @case ("selectDna") {
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          @for (method of currentStage.methods; track method) {
+            <button
+              bitButton
+              buttonType="secondary"
+              type="button"
+              class="tw-w-full"
+              (click)="selectDna(method)"
+            >
+              {{ getDnaLabel(method) | i18n }}
+            </button>
+          }
+        </div>
+      }
+
+      @case ("dnaPush") {
+        <p bitTypography="body1">{{ "keeperDnaPushWaiting" | i18n }}</p>
+      }
+
+      @case ("error") {
+        <bit-callout type="danger">
+          {{ currentStage.message | i18n }}
+        </bit-callout>
+      }
+    }
+  </div>
+
+  <ng-container bitDialogFooter>
+    @switch (currentStage.kind) {
+      @case ("approvalCode") {
+        @if (currentStage.variant === "email") {
+          <button bitButton buttonType="primary" type="button" (click)="submitCode()">
+            {{ "submit" | i18n }}
+          </button>
+        } @else {
+          <button bitButton buttonType="secondary" type="button" (click)="tryAnother()">
+            {{ "tryAnotherMethod" | i18n }}
+          </button>
+        }
+      }
+
+      @case ("twoFactorCode") {
+        @if (currentStage.needsInput) {
+          <button bitButton buttonType="primary" type="button" (click)="submitCode()">
+            {{ "continue" | i18n }}
+          </button>
+        } @else {
+          <button bitButton buttonType="primary" type="button" (click)="submitPush()">
+            {{ "continue" | i18n }}
+          </button>
+        }
+      }
+
+      @case ("error") {
+        <button bitButton buttonType="primary" type="button" (click)="dismissError()">
+          {{ "ok" | i18n }}
+        </button>
+      }
+    }
+
+    @if (currentStage.kind !== "error") {
+      <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    }
+  </ng-container>
+</bit-dialog>

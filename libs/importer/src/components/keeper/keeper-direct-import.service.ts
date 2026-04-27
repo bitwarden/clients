@@ -16,7 +16,13 @@ export class KeeperDirectImportService {
   private readonly keeperDirectImportUIService = inject(KeeperDirectImportUIService);
   private readonly dialogService = inject(DialogService);
 
+  private inFlight: Promise<ImportResult> | undefined;
+
   async handleImport(email: string, region: KeeperRegion): Promise<ImportResult> {
+    if (this.inFlight !== undefined) {
+      return this.inFlight;
+    }
+
     const password = await KeeperPasswordPromptComponent.open(this.dialogService);
 
     if (!password) {
@@ -28,8 +34,16 @@ export class KeeperDirectImportService {
       region,
     };
 
-    const vault = await Vault.open(email, password, options);
+    this.inFlight = (async () => {
+      try {
+        const vault = await Vault.open(email, password, options);
+        return new KeeperDirectImporter().convertVaultToImportResult(vault);
+      } finally {
+        this.inFlight = undefined;
+        this.keeperDirectImportUIService.reset();
+      }
+    })();
 
-    return new KeeperDirectImporter().convertVaultToImportResult(vault);
+    return this.inFlight;
   }
 }

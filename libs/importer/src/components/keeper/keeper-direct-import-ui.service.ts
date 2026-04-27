@@ -1,5 +1,4 @@
-import { Injectable, inject } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { Injectable, inject, signal } from "@angular/core";
 
 import { DialogRef, DialogService } from "@bitwarden/components";
 
@@ -14,15 +13,25 @@ import {
   Ui,
 } from "../../importers/keeper/access";
 
-import { KeeperApprovalMethodSelectComponent } from "./dialog/keeper-approval-method-select.component";
-import { KeeperDeviceApprovalPromptComponent } from "./dialog/keeper-device-approval-prompt.component";
-import { KeeperDnaMethodSelectComponent } from "./dialog/keeper-dna-method-select.component";
-import { KeeperDnaPushPromptComponent } from "./dialog/keeper-dna-push-prompt.component";
-import { KeeperDuoMethodSelectComponent } from "./dialog/keeper-duo-method-select.component";
-import { KeeperDuoPushPromptComponent } from "./dialog/keeper-duo-push-prompt.component";
-import { KeeperErrorComponent } from "./dialog/keeper-error.component";
-import { KeeperMultifactorPromptComponent } from "./dialog/keeper-multifactor-prompt.component";
-import { KeeperTwoFactorMethodSelectComponent } from "./dialog/keeper-two-factor-method-select.component";
+import { KeeperAuthDialogComponent } from "./dialog/keeper-auth-dialog.component";
+
+export type KeeperAuthStage =
+  | { kind: "idle" }
+  | { kind: "selectApproval"; methods: DeviceApprovalChannel[] }
+  | {
+      kind: "approvalCode";
+      method: DeviceApprovalChannel;
+      variant: "email" | "push";
+    }
+  | { kind: "selectTwoFactor"; methods: TwoFactorMethod[] }
+  | { kind: "twoFactorCode"; method: TwoFactorMethod; needsInput: boolean }
+  | { kind: "selectDuo"; methods: DuoMethod[]; phoneNumber: string }
+  | { kind: "duoPush"; method: DuoMethod }
+  | { kind: "selectDna"; methods: DnaMethod[] }
+  | { kind: "dnaPush" }
+  | { kind: "error"; message: string };
+
+type PendingResolver = (value: unknown) => void;
 
 @Injectable({
   providedIn: "root",
@@ -30,7 +39,58 @@ import { KeeperTwoFactorMethodSelectComponent } from "./dialog/keeper-two-factor
 export class KeeperDirectImportUIService implements Ui {
   private readonly dialogService = inject(DialogService);
 
-  private dialogRef!: DialogRef;
+  private readonly _stage = signal<KeeperAuthStage>({ kind: "idle" });
+
+  readonly stage = this._stage.asReadonly();
+
+  private dialogRef: DialogRef | undefined;
+
+  private setStage(next: KeeperAuthStage): void {
+    this._stage.set(next);
+    if (next.kind !== "idle" && this.dialogRef === undefined) {
+      this.dialogRef = KeeperAuthDialogComponent.open(this.dialogService);
+    }
+  }
+
+  private pendingResolver: PendingResolver | undefined;
+
+  submit(value: unknown): void {
+    this.resolvePending(value);
+  }
+
+  cancel(): void {
+    this.resolvePending(Cancel);
+  }
+
+  resend(): void {
+    this.resolvePending(Resend);
+  }
+
+  tryAnother(): void {
+    this.resolvePending(TryAnother);
+  }
+
+  dismissError(): void {
+    this.resolvePending(undefined);
+  }
+
+  reset(): void {
+    this._stage.set({ kind: "idle" });
+    void this.dialogRef?.close();
+    this.dialogRef = undefined;
+  }
+
+  private waitForUser<T>(): Promise<T> {
+    return new Promise<T>((resolve) => {
+      this.pendingResolver = resolve as PendingResolver;
+    });
+  }
+
+  private resolvePending(value: unknown): void {
+    const resolver = this.pendingResolver;
+    this.pendingResolver = undefined;
+    resolver?.(value);
+  }
 
   //
   // Device approval flow
@@ -47,12 +107,8 @@ export class KeeperDirectImportUIService implements Ui {
       return methods[0];
     }
 
-    this.dialogRef = KeeperApprovalMethodSelectComponent.open(this.dialogService, {
-      methods,
-    });
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-    return result === undefined ? Cancel : (result as DeviceApprovalChannel);
+    this.setStage({ kind: "selectApproval", methods });
+    return this.waitForUser<DeviceApprovalChannel | typeof Cancel>();
   }
 
   async provideApprovalCode(
@@ -61,22 +117,14 @@ export class KeeperDirectImportUIService implements Ui {
   ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
     const variant = method === DeviceApprovalChannel.Email ? "email" : "push";
 
-    this.dialogRef = KeeperDeviceApprovalPromptComponent.open(this.dialogService, {
-      variant,
-    });
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-    if (result === undefined) {
-      return Cancel;
-    }
-    if (result === "tryAnother") {
-      return TryAnother;
-    }
-    return result as string;
+    this.setStage({ kind: "approvalCode", method, variant });
+    return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
   }
 
   closeApprovalDialog(): void {
-    void this.dialogRef?.close();
+    // No-op: the next Ui call sets the next stage. Going to "idle" mid-flow causes
+    // Angular to re-mount the email form, which re-fires the async validator and
+    // starts parallel Vault.open calls.
   }
 
   //
@@ -94,20 +142,15 @@ export class KeeperDirectImportUIService implements Ui {
       return methods[0];
     }
 
-    this.dialogRef = KeeperTwoFactorMethodSelectComponent.open(this.dialogService, {
-      methods,
-    });
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-    return result === undefined ? Cancel : (result as TwoFactorMethod);
+    this.setStage({ kind: "selectTwoFactor", methods });
+    return this.waitForUser<TwoFactorMethod | typeof Cancel>();
   }
 
   async provideTwoFactorCode(
     method: TwoFactorMethod,
     _info?: string,
   ): Promise<string | typeof Cancel | typeof Resend> {
-    // Determine if this method needs a code input or just waiting for push
-    const needsCodeInput =
+    const needsInput =
       method === TwoFactorMethod.Totp ||
       method === TwoFactorMethod.Sms ||
       method === TwoFactorMethod.Duo ||
@@ -115,25 +158,13 @@ export class KeeperDirectImportUIService implements Ui {
       method === TwoFactorMethod.Rsa ||
       method === TwoFactorMethod.KeeperDna;
 
-    const variant = needsCodeInput ? "totp" : "push";
-
-    this.dialogRef = KeeperMultifactorPromptComponent.open(this.dialogService, {
-      variant,
-    });
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-
-    if (result === "cancel" || result === undefined) {
-      return Cancel;
-    }
-
-    // For push-style methods, return empty string
-    if (!needsCodeInput) {
-      return "";
-    }
-
-    return result as string;
+    this.setStage({ kind: "twoFactorCode", method, needsInput });
+    return this.waitForUser<string | typeof Cancel | typeof Resend>();
   }
+
+  //
+  // Duo flow
+  //
 
   async selectDuoMethod(
     methods: DuoMethod[],
@@ -147,26 +178,20 @@ export class KeeperDirectImportUIService implements Ui {
       return methods[0];
     }
 
-    this.dialogRef = KeeperDuoMethodSelectComponent.open(this.dialogService, {
-      methods,
-      phoneNumber,
-    });
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-    return result === undefined ? Cancel : (result as DuoMethod);
+    this.setStage({ kind: "selectDuo", methods, phoneNumber });
+    return this.waitForUser<DuoMethod | typeof Cancel>();
   }
 
   async waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | void> {
-    this.dialogRef = KeeperDuoPushPromptComponent.open(this.dialogService, { method });
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-    if (result === "cancel" || result === undefined) {
+    this.setStage({ kind: "duoPush", method });
+    const result = await this.waitForUser<unknown>();
+    if (result === Cancel) {
       return Cancel;
     }
   }
 
   closeDuoPushDialog(): void {
-    void this.dialogRef?.close();
+    // No-op — see closeApprovalDialog.
   }
 
   //
@@ -182,25 +207,20 @@ export class KeeperDirectImportUIService implements Ui {
       return methods[0];
     }
 
-    this.dialogRef = KeeperDnaMethodSelectComponent.open(this.dialogService, {
-      methods,
-    });
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-    return result === undefined ? Cancel : (result as DnaMethod);
+    this.setStage({ kind: "selectDna", methods });
+    return this.waitForUser<DnaMethod | typeof Cancel>();
   }
 
   async waitForDnaPush(): Promise<typeof Cancel | void> {
-    this.dialogRef = KeeperDnaPushPromptComponent.open(this.dialogService);
-
-    const result = await firstValueFrom(this.dialogRef.closed);
-    if (result === "cancel" || result === undefined) {
+    this.setStage({ kind: "dnaPush" });
+    const result = await this.waitForUser<unknown>();
+    if (result === Cancel) {
       return Cancel;
     }
   }
 
   closeDnaPushDialog(): void {
-    void this.dialogRef?.close();
+    // No-op — see closeApprovalDialog.
   }
 
   //
@@ -208,6 +228,7 @@ export class KeeperDirectImportUIService implements Ui {
   //
 
   async showError(message: string): Promise<void> {
-    await KeeperErrorComponent.open(this.dialogService, message);
+    this.setStage({ kind: "error", message });
+    await this.waitForUser<unknown>();
   }
 }
