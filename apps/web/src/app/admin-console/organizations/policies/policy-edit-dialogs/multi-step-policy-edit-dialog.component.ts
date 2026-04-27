@@ -66,7 +66,7 @@ export class MultiStepPolicyEditDialogComponent
         if (policyComponent?.data) {
           return policyComponent.data.statusChanges.pipe(
             startWith(policyComponent.data.status),
-            map((status) => status !== "VALID"),
+            map((status) => status === "INVALID"),
           );
         }
         return of(false);
