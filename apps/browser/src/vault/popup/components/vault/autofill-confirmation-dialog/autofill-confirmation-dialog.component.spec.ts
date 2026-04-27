@@ -340,6 +340,16 @@ describe("AutofillConfirmationDialogComponent", () => {
       const { component: c } = await createFreshFixture();
       expect(c.dialogTitle()).toBe("siteDoesntMatch");
     });
+
+    it("returns loginNeverMatchTitle when Never strategy is active and URL matches a saved URI", async () => {
+      const { component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.dialogTitle()).toBe("loginNeverMatchTitle");
+    });
   });
 
   describe("dialogBody()", () => {
@@ -359,6 +369,17 @@ describe("AutofillConfirmationDialogComponent", () => {
 
     it("returns loginMultipleSitesDesc when multiple URIs are saved", () => {
       expect(component.dialogBody()).toBe("loginMultipleSitesDesc");
+    });
+
+    it("returns loginNeverMatchDesc when Never strategy is active and URL matches a saved URI", async () => {
+      const { component: c } = await createFreshFixture({
+        uriMatchStrategy: UriMatchStrategy.Never,
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+        },
+      });
+      expect(c.dialogBody()).toBe("loginNeverMatchDesc");
     });
   });
 
@@ -424,6 +445,55 @@ describe("AutofillConfirmationDialogComponent", () => {
         "https://two.example.com/b",
         "https://three.example.com/c",
       ]);
+    });
+  });
+
+  describe("Never strategy + current URL match", () => {
+    const neverMatchParams: AutofillConfirmationDialogParams = {
+      currentUrl: "https://example.com/path",
+      savedUris: [makeUri("https://example.com/login", UriMatchStrategy.Never)],
+    };
+
+    it("shows loginNeverMatchTitle via per-URI Never strategy", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("loginNeverMatchTitle");
+    });
+
+    it("shows loginNeverMatchTitle via global Never strategy", async () => {
+      const { fixture: vf } = await createFreshFixture({
+        params: neverMatchParams,
+        uriMatchStrategy: UriMatchStrategy.Never,
+      });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("loginNeverMatchTitle");
+    });
+
+    it("shows loginNeverMatchDesc body text", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("loginNeverMatchDesc");
+    });
+
+    it("isNeverStrategy and currentUrlMatchesSavedUri are both true, driving the green current website callout", async () => {
+      const { component: c } = await createFreshFixture({ params: neverMatchParams });
+      expect(c.isNeverStrategy()).toBe(true);
+      expect(c.currentUrlMatchesSavedUri()).toBe(true);
+    });
+
+    it("shows URI match rule label and neverMatch badge", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("uriMatchRule");
+      expect(text).toContain("neverMatch");
+    });
+
+    it("shows standard dialog buttons", async () => {
+      const { fixture: vf } = await createFreshFixture({ params: neverMatchParams });
+      const text = vf.nativeElement.textContent as string;
+      expect(text).toContain("autofillAndSaveThisSite");
+      expect(text).toContain("autofillOnly");
+      expect(text).toContain("cancel");
     });
   });
 });
