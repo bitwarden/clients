@@ -281,6 +281,48 @@ describe("SshAgentService (v2 reactive key push)", () => {
     ]);
   });
 
+  it("when an SSH key cipher is archived, updates the agent keystore", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([
+      makeSshCipher("c1", "Key A", "pem1"),
+      makeSshCipher("c2", "Key B", "pem2"),
+    ]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockClearKeys.mockClear();
+    mockSetKeys.mockClear();
+
+    cipherViewsSubject.next([
+      makeSshCipher("c1", "Key A", "pem1"),
+      { ...makeSshCipher("c2", "Key B", "pem2"), isArchived: true },
+    ]);
+    await flush();
+
+    expect(mockClearKeys).toHaveBeenCalled();
+    expect(mockSetKeys).toHaveBeenCalledWith([
+      { name: "Key A", privateKey: "pem1", cipherId: "c1" },
+    ]);
+  });
+
+  it("when all SSH key ciphers are archived, clears the keystore", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockClearKeys.mockClear();
+    mockSetKeys.mockClear();
+
+    cipherViewsSubject.next([{ ...makeSshCipher("c1", "Key A", "pem1"), isArchived: true }]);
+    await flush();
+
+    expect(mockClearKeys).toHaveBeenCalled();
+    expect(mockSetKeys).toHaveBeenCalledWith([]);
+  });
+
   it("when an SSH key cipher is renamed, updates the agent keystore", async () => {
     enabledSubject.next(true);
     accountSubject.next({ id: "user-1" as UserId });

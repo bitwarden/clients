@@ -360,7 +360,7 @@ export class SshAgentService implements OnDestroy {
     ciphers: CipherView[],
   ): { name: string; privateKey: string; cipherId: string }[] {
     return ciphers
-      .filter((c) => c.type === CipherType.SshKey && !c.isDeleted)
+      .filter((c) => c.type === CipherType.SshKey && !c.isDeleted && !c.isArchived)
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
   }
 
