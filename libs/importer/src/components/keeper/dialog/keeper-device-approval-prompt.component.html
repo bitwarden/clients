@@ -21,6 +21,10 @@
         <button bitButton buttonType="primary" type="submit" bitFormButton>
           <span>{{ "submit" | i18n }}</span>
         </button>
+      } @else {
+        <button bitButton bitDialogClose="tryAnother" buttonType="secondary" type="button">
+          <span>{{ "tryAnotherMethod" | i18n }}</span>
+        </button>
       }
       <button bitButton bitDialogClose="cancel" buttonType="secondary" type="button">
         <span>{{ "cancel" | i18n }}</span>

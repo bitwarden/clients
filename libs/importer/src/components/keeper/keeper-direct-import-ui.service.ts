@@ -9,6 +9,7 @@ import {
   DnaMethod,
   DuoMethod,
   Resend,
+  TryAnother,
   TwoFactorMethod,
   Ui,
 } from "../../importers/keeper/access";
@@ -57,7 +58,7 @@ export class KeeperDirectImportUIService implements Ui {
   async provideApprovalCode(
     method: DeviceApprovalChannel,
     _info?: string,
-  ): Promise<string | typeof Cancel | typeof Resend> {
+  ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
     const variant = method === DeviceApprovalChannel.Email ? "email" : "push";
 
     this.dialogRef = KeeperDeviceApprovalPromptComponent.open(this.dialogService, {
@@ -65,11 +66,17 @@ export class KeeperDirectImportUIService implements Ui {
     });
 
     const result = await firstValueFrom(this.dialogRef.closed);
-    return result === undefined ? Cancel : (result as string);
+    if (result === undefined) {
+      return Cancel;
+    }
+    if (result === "tryAnother") {
+      return TryAnother;
+    }
+    return result as string;
   }
 
   closeApprovalDialog(): void {
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
   }
 
   //
@@ -159,7 +166,7 @@ export class KeeperDirectImportUIService implements Ui {
   }
 
   closeDuoPushDialog(): void {
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
   }
 
   //
@@ -193,7 +200,7 @@ export class KeeperDirectImportUIService implements Ui {
   }
 
   closeDnaPushDialog(): void {
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
   }
 
   //
