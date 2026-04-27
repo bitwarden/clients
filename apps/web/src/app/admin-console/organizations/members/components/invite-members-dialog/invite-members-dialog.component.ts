@@ -47,8 +47,10 @@ import {
 } from "../../../shared/components/access-selector";
 import { MemberDialogResult } from "../member-dialog/member-dialog.component";
 import { commaSeparatedEmails } from "../member-dialog/validators/comma-separated-emails.validator";
-import { inputEmailLimitValidator } from "../member-dialog/validators/input-email-limit.validator";
-import { orgSeatLimitReachedValidator } from "../member-dialog/validators/org-seat-limit-reached.validator";
+import {
+  getEmailBatchLimit,
+  inputEmailLimitValidator,
+} from "../member-dialog/validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
@@ -192,26 +194,23 @@ export class InviteMembersDialogComponent {
 
   constructor() {
     this.organization$.pipe(takeUntilDestroyed()).subscribe((organization) => {
-      this.setFormValidators(organization);
+      const emailBatchLimit = getEmailBatchLimit(organization, this.params.occupiedSeatCount);
+      this.setFormValidators(emailBatchLimit);
     });
   }
 
-  private setFormValidators(organization: Organization) {
+  private setFormValidators(emailBatchLimit: number) {
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
-      inputEmailLimitValidator(organization, (maxEmailsCount: number) =>
-        this.i18nService.t("tooManyEmails", maxEmailsCount),
+      inputEmailLimitValidator(
+        emailBatchLimit,
+        (maxEmailsCount: number) => this.i18nService.t("tooManyEmails", maxEmailsCount),
+        this.params.allOrganizationUsers.map((u) => u.email),
       ),
       revokedEmailsValidator(
         this.params.allOrganizationUsers,
         this.i18nService.t("revokedEmailError"),
-      ),
-      orgSeatLimitReachedValidator(
-        organization,
-        this.params.allOrganizationUsers.map((u) => u.email),
-        this.i18nService.t("subscriptionUpgrade", organization.seats),
-        this.params.occupiedSeatCount,
       ),
     ];
 

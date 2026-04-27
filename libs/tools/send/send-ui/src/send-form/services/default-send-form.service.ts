@@ -68,6 +68,9 @@ export class DefaultSendFormService implements SendFormService {
 
   async initializeSendForm(config: SendFormConfig) {
     this.sendFormConfig = config;
+    (Object.keys(this._sendForm.controls) as (keyof SendForm)[]).forEach((key) => {
+      this._sendForm.removeControl(key);
+    });
     this._sendForm.reset();
     this.file = undefined;
     this.updatedSendView = new SendView();
@@ -100,6 +103,7 @@ export class DefaultSendFormService implements SendFormService {
       );
       const newSend = await this.sendApiService.save(sendData);
       const sendView = await this.decryptSend(newSend);
+      this.originalSendView = this.updatedSendView = null;
       this._submitting.set(false);
       return sendView;
     } catch (err) {

@@ -28,6 +28,12 @@ tracing = { workspace = true }
 homedir = { workspace = true }
 libc = { workspace = true }
 
+[target.'cfg(windows)'.dependencies]
+windows = { workspace = true, features = [
+    "Win32_Foundation",
+    "Win32_System_Pipes",
+] }
+
 [target.'cfg(unix)'.dev-dependencies]
 mockall = { workspace = true }
 rand = { workspace = true }
@@ -37,6 +43,8 @@ tracing-subscriber = { workspace = true }
 
 [target.'cfg(windows)'.dev-dependencies]
 mockall = { workspace = true }
+serial_test = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "macros", "net", "io-util", "time"] }
 tracing-subscriber = { workspace = true }
 
 [lints]

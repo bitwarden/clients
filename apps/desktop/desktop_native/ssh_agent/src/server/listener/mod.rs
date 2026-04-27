@@ -3,6 +3,9 @@
 #[cfg(unix)]
 pub(crate) mod unix;
 
+#[cfg(windows)]
+pub(crate) mod windows;
+
 use anyhow::Result;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -32,19 +35,7 @@ pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
 /// Creates the listeners for the Windows platform.
 #[cfg(windows)]
 pub(crate) fn create_listeners() -> Result<Vec<impl Listener>> {
-    // TODO: PM-30763 remove the stub below and add named pipe
-    struct StubListener(std::convert::Infallible);
-
-    #[async_trait::async_trait]
-    impl Listener for StubListener {
-        type Stream = tokio::io::DuplexStream;
-
-        async fn accept(&mut self) -> Result<Connection<Self::Stream>> {
-            match self.0 {}
-        }
-    }
-
-    Ok(Vec::<StubListener>::new())
+    Ok(vec![windows::WindowsListener::new()?])
 }
 
 /// Spawns an independent tokio task for each listener in `listeners`.

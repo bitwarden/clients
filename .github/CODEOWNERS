@@ -110,6 +110,7 @@ libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 libs/storage-core @bitwarden/team-platform-dev
 libs/logging @bitwarden/team-platform-dev
+libs/logging-angular @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
 libs/messaging @bitwarden/team-platform-dev
 libs/serialization @bitwarden/team-platform-dev

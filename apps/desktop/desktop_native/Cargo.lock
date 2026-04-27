@@ -3469,7 +3469,7 @@ dependencies = [
  "homedir",
  "libc",
  "mockall",
- "rand 0.9.2",
+ "rand 0.9.3",
  "rkyv",
  "serial_test",
  "ssh-key",
@@ -3479,6 +3479,7 @@ dependencies = [
  "tokio-util",
  "tracing",
  "tracing-subscriber",
+ "windows 0.62.2",
 ]
 
 [[package]]
@@ -4271,6 +4272,16 @@ name = "widestring"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd7cf3379ca1aac9eea11fba24fd7e315d621f8dfe35c8d7d2be8b793726e07d"
+
+[[package]]
+name = "win_webauthn"
+version = "0.0.0"
+dependencies = [
+ "hex",
+ "tracing",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
+]
 
 [[package]]
 name = "winapi"
