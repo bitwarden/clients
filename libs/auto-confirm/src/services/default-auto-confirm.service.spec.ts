@@ -671,9 +671,11 @@ describe("DefaultAutomaticUserConfirmationService", () => {
     beforeEach(() => {
       accountsSubject = new BehaviorSubject({} as Record<UserId, AccountInfo>);
       accountService.accounts$ = accountsSubject;
+      configService.getFeatureFlag.mockResolvedValue(true);
     });
 
-    it("should trigger sweep when a user account appears already in the Unlocked state (fresh login)", () => {
+    it("should not set up subscription when feature flag is disabled", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
       authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
       authService.authStatusFor$.mockReturnValue(authStatusSubject);
 
@@ -682,13 +684,31 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
 
+      await Promise.resolve(); // flush feature flag check
+
+      accountsSubject.next({ [mockUserId]: {} as AccountInfo });
+
+      expect(spy).not.toHaveBeenCalled();
+    });
+
+    it("should trigger sweep when a user account appears already in the Unlocked state (fresh login)", async () => {
+      authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
+      authService.authStatusFor$.mockReturnValue(authStatusSubject);
+
+      const svc = createSweepService();
+      const spy = jest
+        .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
+        .mockResolvedValue(undefined);
+
+      await Promise.resolve(); // flush feature flag check so subscription is active
+
       // Account becomes visible in accounts$ for the first time while already Unlocked
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });
 
       expect(spy).toHaveBeenCalledWith(mockUserId);
     });
 
-    it("should trigger sweep when a user transitions from Locked to Unlocked", () => {
+    it("should trigger sweep when a user transitions from Locked to Unlocked", async () => {
       authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Locked);
       authService.authStatusFor$.mockReturnValue(authStatusSubject);
 
@@ -696,6 +716,8 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const spy = jest
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
+
+      await Promise.resolve(); // flush feature flag check so subscription is active
 
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });
       expect(spy).not.toHaveBeenCalled();
@@ -705,7 +727,7 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       expect(spy).toHaveBeenCalledWith(mockUserId);
     });
 
-    it("should not trigger sweep when status stays Locked", () => {
+    it("should not trigger sweep when status stays Locked", async () => {
       authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Locked);
       authService.authStatusFor$.mockReturnValue(authStatusSubject);
 
@@ -714,12 +736,14 @@ describe("DefaultAutomaticUserConfirmationService", () => {
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
 
+      await Promise.resolve(); // flush feature flag check so subscription is active
+
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });
 
       expect(spy).not.toHaveBeenCalled();
     });
 
-    it("should not re-trigger sweep when accounts$ emits again for the same already-Unlocked user (e.g. account info update)", () => {
+    it("should not re-trigger sweep when accounts$ emits again for the same already-Unlocked user (e.g. account info update)", async () => {
       authStatusSubject = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
       authService.authStatusFor$.mockReturnValue(authStatusSubject);
 
@@ -727,6 +751,8 @@ describe("DefaultAutomaticUserConfirmationService", () => {
       const spy = jest
         .spyOn(svc as any, "bulkAutoConfirmPendingUsers")
         .mockResolvedValue(undefined);
+
+      await Promise.resolve(); // flush feature flag check so subscription is active
 
       // First emission: userId is new, subscription is set up, sweep fires once
       accountsSubject.next({ [mockUserId]: {} as AccountInfo });

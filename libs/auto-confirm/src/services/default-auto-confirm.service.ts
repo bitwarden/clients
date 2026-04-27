@@ -47,10 +47,17 @@ export class DefaultAutomaticUserConfirmationService implements AutomaticUserCon
     private accountService: AccountService,
     private configService: ConfigService,
   ) {
-    this.initBulkAutoConfirmOnLoginSweep();
+    void this.initBulkAutoConfirmOnLoginSweep();
   }
 
-  private initBulkAutoConfirmOnLoginSweep(): void {
+  private async initBulkAutoConfirmOnLoginSweep(): Promise<void> {
+    const featureEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.BulkAutoConfirmOnLogin,
+    );
+    if (!featureEnabled) {
+      return;
+    }
+
     const seenUserIds = new Set<string>();
 
     this.accountService.accounts$
