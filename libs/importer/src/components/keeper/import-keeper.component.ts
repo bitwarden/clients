@@ -84,9 +84,10 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
         if (status === "PENDING") {
           return this.i18nService.t("importingYourAccount");
         }
-        return undefined;
+        return this.i18nService.t("keeperEmailHint");
       }),
     ),
+    { initialValue: this.i18nService.t("keeperEmailHint") },
   );
 
   readonly importCompleted = output<ImportResult>();

@@ -4024,10 +4024,13 @@
     "message": "Sign in to your Keeper account to import your vault directly"
   },
   "keeperEmail": {
-    "message": "Keeper Email"
+    "message": "Email for Keeper"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data Center Location"
+    "message": "Data center location"
   },
   "keeperMasterPassword": {
     "message": "Keeper master password"
