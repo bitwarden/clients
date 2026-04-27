@@ -447,9 +447,9 @@ const routes: Routes = [
         path: AuthRoute.Login,
         canActivate: [unauthGuardFn(unauthRouteOverrides), IntroCarouselGuard],
         data: {
-          pageIcon: VaultIcon,
+          pageIcon: null,
           pageTitle: {
-            key: "logInToBitwarden",
+            key: "logIn",
           },
           elevation: 1,
           showAcctSwitcher: true,

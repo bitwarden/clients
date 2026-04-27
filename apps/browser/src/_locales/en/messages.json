@@ -275,6 +275,9 @@
   "getMasterPasswordHint": {
     "message": "Get master password hint"
   },
+  "hint": {
+    "message": "Hint"
+  },
   "continue": {
     "message": "Continue"
   },
