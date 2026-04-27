@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { combineLatest, defer, map, Observable } from "rxjs";
+import { catchError, combineLatest, defer, map, Observable, of, switchMap, timer } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { DeviceType } from "@bitwarden/common/enums";
@@ -55,7 +55,12 @@ export class DesktopLockComponentService implements LockComponentService {
       // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
       defer(() => this.biometricsService.getBiometricsStatusForUser(userId)),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-      defer(() => this.pinService.isPinDecryptionAvailable(userId)),
+      defer(() =>
+        timer(0, 1000).pipe(
+          switchMap(async () => await this.pinService.isPinDecryptionAvailable(userId)),
+          catchError(() => of(false)),
+        ),
+      ),
     ]).pipe(
       map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable]) => {
         const unlockOpts: UnlockOptions = {

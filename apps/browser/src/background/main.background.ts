@@ -942,7 +942,6 @@ export default class MainBackground {
     this.biometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
       this.logService,
-      this.keyService,
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
