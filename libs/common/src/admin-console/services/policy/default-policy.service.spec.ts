@@ -57,6 +57,15 @@ describe("PolicyService", () => {
       organization("org5", true, true, OrganizationUserStatusType.Confirmed, false),
       // Can manage policies
       organization("org6", true, true, OrganizationUserStatusType.Confirmed, true),
+      // Admin
+      organization(
+        "org7",
+        true,
+        true,
+        OrganizationUserStatusType.Confirmed,
+        false,
+        OrganizationUserType.Admin,
+      ),
     ]);
 
     organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
@@ -208,6 +217,27 @@ describe("PolicyService", () => {
       singleUserState.nextState(
         arrayToRecord([
           policyData("1", "org2", PolicyType.MasterPassword, true, { minLength: 10 }),
+        ]),
+      );
+
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
+
+      expect(result).toEqual({
+        minComplexity: 0,
+        minLength: 10,
+        requireLower: false,
+        requireNumbers: false,
+        requireSpecial: false,
+        requireUpper: false,
+        enforceOnLogin: false,
+      });
+    });
+
+    it("returns policy options for an admin (not exempt from MasterPassword policy)", async () => {
+      // org7 has OrganizationUserType.Admin; admins are NOT exempt from MasterPassword policy
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData("1", "org7", PolicyType.MasterPassword, true, { minLength: 10 }),
         ]),
       );
 
