@@ -170,6 +170,7 @@ export default {
               accept: "Accept",
               decline: "Decline",
               close: "Close",
+              callout: "Callout",
             });
           },
         },

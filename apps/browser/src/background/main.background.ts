@@ -36,6 +36,8 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LockService,
   LoginEmailServiceAbstraction,
+  DefaultLoginStrategyCacheService,
+  DefaultLoginStrategySessionTimeoutService,
   LogoutReason,
   UserDecryptionOptionsService,
 } from "@bitwarden/auth/common";
@@ -552,11 +554,12 @@ export default class MainBackground {
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
 
-  private targetingRulesDataService: TargetingRulesDataService;
+  targetingRulesDataService: TargetingRulesDataService;
 
   // DIRT
   private phishingDataService: PhishingDataService;
   private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
+  private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -839,7 +842,7 @@ export default class MainBackground {
       this.fileUploadService,
       this.configService,
     );
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.collectionService = new DefaultCollectionService(
       this.keyService,
@@ -993,6 +996,15 @@ export default class MainBackground {
       this.accountService,
     );
 
+    // Instantiated for its constructor side-effect: registers the login session timeout
+    // task handler with the task scheduler in the background
+    new DefaultLoginStrategySessionTimeoutService(
+      this.taskSchedulerService,
+      new DefaultLoginStrategyCacheService(this.globalStateProvider),
+      this.logService,
+      this.messagingService,
+      messageListener,
+    );
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
       this.stateProvider,
     );
@@ -1052,7 +1064,6 @@ export default class MainBackground {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -1589,7 +1600,7 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    PhishingDetectionService.initialize(
+    this.phishingDetectionService = new PhishingDetectionService(
       this.logService,
       this.phishingDataService,
       this.phishingDetectionSettingsService,

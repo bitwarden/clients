@@ -33,6 +33,8 @@ const numberFormats: Record<string, CardRuleEntry[]> = {
 })
 export class CreditCardNumberPipe implements PipeTransform {
   transform(creditCardNumber: string, brand: string): string {
+    creditCardNumber = creditCardNumber.replace(/\D/g, "");
+
     let rules = numberFormats[brand];
 
     if (rules == null) {
