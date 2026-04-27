@@ -4,7 +4,10 @@ import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CollectionAdminView , CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionAdminView,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";

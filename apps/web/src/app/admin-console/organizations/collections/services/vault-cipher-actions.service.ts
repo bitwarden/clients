@@ -2,7 +2,10 @@ import { Injectable } from "@angular/core";
 import { NavigationExtras, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
 
-import { CollectionAdminView , CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import {
+  CollectionAdminView,
+  CollectionView,
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
