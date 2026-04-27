@@ -13407,10 +13407,10 @@
     "message": "Back to editing"
   },
   "organizationUserNotificationPolicyTitle": {
-    "message": "Vault banner message"
+    "message": "Vault banner"
   },
   "organizationUserNotificationPolicyDesc": {
-    "message": "Create and launch a customized banner that all your organization members will see on their page after login."
+    "message": "Create and launch a customized banner that all organization members see on their vault page after login."
   },
   "singleOrgPrerequisite":{
     "message": "The single organization policy must be turned on before activating this policy."
