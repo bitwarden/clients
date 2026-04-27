@@ -1,12 +1,11 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   DestroyRef,
   Input,
   OnInit,
-  Output,
-  EventEmitter,
   Signal,
   computed,
   effect,
@@ -14,6 +13,7 @@ import {
   input,
   model,
   booleanAttribute,
+  output,
   signal,
   viewChild,
 } from "@angular/core";
@@ -43,10 +43,9 @@ import { SelectItemView } from "./models/select-item-view";
 // Increments for each instance of this component
 let nextId = 0;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-multi-select",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./multi-select.component.html",
   providers: [{ provide: BitFormFieldControl, useExisting: MultiSelectComponent }],
   imports: [
@@ -85,21 +84,21 @@ export class MultiSelectComponent
   @Input({ transform: booleanAttribute }) disabled?: boolean;
 
   // Internal tracking of selected items
-  protected selectedItems: SelectItemView[] | null = null;
+  protected readonly selectedItems = signal<SelectItemView[] | null>(null);
 
   // Default values for our implementation
-  loadingText?: string;
+  protected readonly loadingText = signal<string | undefined>(undefined);
 
-  protected searchInputId = `search-input-${nextId++}`;
+  protected readonly searchInputId = `search-input-${nextId++}`;
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
-  private notifyOnChange?: (value: SelectItemView[]) => void;
+  private readonly notifyOnChange = signal<((value: SelectItemView[]) => void) | undefined>(
+    undefined,
+  );
   /**Implemented as part of NG_VALUE_ACCESSOR */
-  private notifyOnTouched?: () => void;
+  private readonly notifyOnTouched = signal<(() => void) | undefined>(undefined);
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onItemsConfirmed = new EventEmitter<any[]>();
+  readonly onItemsConfirmed = output<any[]>();
 
   private readonly i18nService = inject(I18nService);
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
@@ -135,19 +134,19 @@ export class MultiSelectComponent
     this.placeholder.update(
       (placeholder) => placeholder ?? this.i18nService.t("multiSelectPlaceholder"),
     );
-    this.loadingText = this.i18nService.t("multiSelectLoading");
+    this.loadingText.set(this.i18nService.t("multiSelectLoading"));
   }
 
   /** Function for customizing keyboard navigation */
   /** Needs to be arrow function to retain `this` scope. */
-  keyDown = (event: KeyboardEvent) => {
+  readonly keyDown = (event: KeyboardEvent) => {
     const select = this.select();
     if (!select.isOpen() && event.key === "Enter" && !hasModifierKey(event)) {
       return false;
     }
 
     if (select.isOpen() && event.key === "Escape" && !hasModifierKey(event)) {
-      this.selectedItems = [];
+      this.selectedItems.set([]);
       select.close();
       event.stopPropagation();
       return false;
@@ -158,7 +157,9 @@ export class MultiSelectComponent
 
   /** Helper method for showing selected state in custom template */
   isSelected(item: any): boolean {
-    return this.selectedItems?.find((selected) => selected.id === item.id) != undefined;
+    return (
+      this.selectedItems()?.find((selected: SelectItemView) => selected.id === item.id) != undefined
+    );
   }
 
   /**
@@ -166,40 +167,41 @@ export class MultiSelectComponent
    * of items. Selected items will be emitted to the parent component in order to allow for separate data handling.
    */
   onDropdownClosed(): void {
+    const items = this.selectedItems();
     // Early exit
-    if (this.selectedItems == null || this.selectedItems.length == 0) {
+    if (items == null || items.length == 0) {
       return;
     }
 
     // Emit results to parent component
-    this.onItemsConfirmed.emit(this.selectedItems);
+    this.onItemsConfirmed.emit(items);
 
     // Remove selected items from base list based on input property
     if (this.removeSelectedItems()) {
       let updatedBaseItems = this.baseItems();
-      this.selectedItems.forEach((selectedItem) => {
+      items.forEach((selectedItem) => {
         updatedBaseItems = updatedBaseItems.filter((item) => selectedItem.id !== item.id);
       });
 
       // Reset Lists
-      this.selectedItems = null;
+      this.selectedItems.set(null);
       this.baseItems.set(updatedBaseItems);
     }
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   writeValue(obj: SelectItemView[]): void {
-    this.selectedItems = obj;
+    this.selectedItems.set(obj);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   registerOnChange(fn: (value: SelectItemView[]) => void): void {
-    this.notifyOnChange = fn;
+    this.notifyOnChange.set(fn);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   registerOnTouched(fn: any): void {
-    this.notifyOnTouched = fn;
+    this.notifyOnTouched.set(fn);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
@@ -209,20 +211,13 @@ export class MultiSelectComponent
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   protected onChange(items: SelectItemView[]) {
-    if (!this.notifyOnChange) {
-      return;
-    }
-
-    this.notifyOnChange(items);
+    this.selectedItems.set(items);
+    this.notifyOnChange()?.(items);
   }
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   protected onBlur() {
-    if (!this.notifyOnTouched) {
-      return;
-    }
-
-    this.notifyOnTouched();
+    this.notifyOnTouched()?.();
   }
 
   /**Implemented as part of BitFormFieldControl */
