@@ -2,16 +2,24 @@ import { ChangeDetectionStrategy, Component, computed, input } from "@angular/co
 
 import { A11yTitleDirective } from "../a11y";
 
-const splitFilename = (name: string): { firstThreeFourths: string; lastFourth: string } => {
-  const splitIndex = Math.floor((name.length * 3) / 4);
-  return { firstThreeFourths: name.slice(0, splitIndex), lastFourth: name.slice(splitIndex) };
+const splitFilename = (
+  name: string,
+): { firstFourth: string; middleHalf: string; lastFourth: string } => {
+  const firstEnd = Math.floor((name.length * 15) / 100);
+  const lastStart = Math.floor((name.length * 4) / 5);
+  return {
+    firstFourth: name.slice(0, firstEnd),
+    middleHalf: name.slice(firstEnd, lastStart),
+    lastFourth: name.slice(lastStart),
+  };
 };
 
 @Component({
   selector: "bit-truncated-filename",
   template: `
     <span class="tw-contents" [appA11yTitle]="name()">
-      <span class="tw-truncate tw-min-w-0">{{ parts().firstThreeFourths }}</span>
+      <span class="tw-flex-none">{{ parts().firstFourth }}</span>
+      <span class="tw-truncate tw-min-w-0">{{ parts().middleHalf }}</span>
       <span class="tw-flex-none">{{ parts().lastFourth }}</span>
     </span>
   `,

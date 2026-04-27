@@ -66,9 +66,28 @@ input. A file list showing each file's name, size, and a delete button renders b
 
 <Canvas of={stories.Error} />
 
+### Disabled / Inactive
+
+Set `disabled` (or bind `[disabled]="true"`) to prevent interaction. Use this when the surrounding
+form is submitting, loading, or when the upload field should be conditionally locked.
+
+<Canvas of={stories.DefaultInactive} />
+
+<Canvas of={stories.DropzoneDisabled} />
+
 ### Pre-populated file list
 
 <Canvas of={stories.WithFiles} />
+
+### Long filenames
+
+Filenames that exceed the available width are truncated in the middle so both the start and file
+extension remain visible. The first ~15% and last ~20% of the name are always shown, while the
+middle ~65% is clipped with an ellipsis.
+
+<Canvas of={stories.LongFileName} />
+
+<Canvas of={stories.LongFileNamesDropzone} />
 
 ## Guidelines
 
