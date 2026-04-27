@@ -1053,13 +1053,51 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async getMostRecentlyFocusedFieldRects(
     formFieldElement: ElementWithOpId<FormFieldElement>,
   ) {
-    const focusedFieldRects =
-      await this.getBoundingClientRectFromIntersectionObserver(formFieldElement);
-    if (focusedFieldRects) {
-      return focusedFieldRects;
+    const rect =
+      (await this.getBoundingClientRectFromIntersectionObserver(formFieldElement)) ??
+      formFieldElement.getBoundingClientRect();
+
+    const iframeOffset = this.getSameOriginIframeOffset(formFieldElement);
+    if (!iframeOffset) {
+      return rect;
     }
 
-    return formFieldElement.getBoundingClientRect();
+    return {
+      top: rect.top + iframeOffset.top,
+      left: rect.left + iframeOffset.left,
+      width: rect.width,
+      height: rect.height,
+    };
+  }
+
+  /**
+   * Returns the accumulated viewport offset for an element inside one or more
+   * same-origin iframes, or null if the element is in the top-level document.
+   * Uses frameElement to walk up the iframe chain without requiring knowledge
+   * of the selector path that was used to find the element.
+   */
+  private getSameOriginIframeOffset(element: Element): { top: number; left: number } | null {
+    if (element.ownerDocument === globalThis.document) {
+      return null;
+    }
+
+    let top = 0;
+    let left = 0;
+    let doc: Document = element.ownerDocument;
+
+    while (doc !== globalThis.document) {
+      const iframe = doc.defaultView?.frameElement as HTMLIFrameElement | null;
+      if (!iframe) {
+        break;
+      }
+
+      const iframeRect = iframe.getBoundingClientRect();
+      top += iframeRect.top;
+      left += iframeRect.left;
+      doc = iframe.ownerDocument;
+    }
+
+    return { top, left };
   }
 
   /**
