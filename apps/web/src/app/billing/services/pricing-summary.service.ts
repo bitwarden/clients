@@ -107,7 +107,7 @@ export class PricingSummaryService {
 
   private getActiveDiscounts(sub: OrganizationSubscriptionResponse): BillingCustomerDiscount[] {
     return (sub?.customerDiscounts ?? []).filter(
-      (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
+      (d) => d.active && ((d.percentOff ?? 0) > 0 || (d.amountOff ?? 0) > 0),
     );
   }
 
