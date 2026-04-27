@@ -1,4 +1,4 @@
-import { combineLatest, firstValueFrom, map, Observable, of, switchMap, take } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -30,7 +30,7 @@ export class DefaultPolicyService implements PolicyService {
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
     private accountService: AccountService,
-    private sdkService: SdkService,
+    private sdkService: () => SdkService,
   ) {}
 
   // TODO: this will probably be in the newPolicyService assuming that's what we end up doing
@@ -38,20 +38,22 @@ export class DefaultPolicyService implements PolicyService {
     policyType: PolicyType,
     organizations: Organization[],
     policies: Policy[],
-    userId: UserId,
   ): Observable<Policy[]> {
-    return this.sdkService.userClient$(userId).pipe(
+    // I was using userClient$(userId), but it was never emitting.
+    // I suspect this is because it's called during login flow when the userClient
+    // may not be fully initialized. More work required to identify what exactly
+    // this problem is and to make sure it's not a bug. However, this is stateless for now
+    // so we can use client$.
+    return this.sdkService().client$.pipe(
       map((sdk) => {
         console.log("foo");
         if (!sdk) {
           throw new Error("SDK not available");
         }
 
-        using ref = sdk.take();
-
         const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
         const sdkOrgs = organizations.map((o) => o.toSdkProfileOrganization());
-        const filteredViews = ref.value
+        const filteredViews = sdk
           .policies()
           .filter_by_type(sdkPolicies, sdkOrgs, policyType as number);
 
@@ -90,7 +92,7 @@ export class DefaultPolicyService implements PolicyService {
 
     // TODO: feature flag me!
     return combineLatest([allPolicies$, organizations$]).pipe(
-      switchMap(([policies, orgs]) => this.filterWithSdk$(policyType, orgs, policies, userId)),
+      switchMap(([policies, orgs]) => this.filterWithSdk$(policyType, orgs, policies)),
     );
   }
 
