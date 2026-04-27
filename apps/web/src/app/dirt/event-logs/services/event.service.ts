@@ -372,6 +372,23 @@ export class EventService {
       case EventType.OrganizationUser_SelfRevoked:
         msg = humanReadableMsg = this.i18nService.t("userSelfRevokedOrganizationOwnership");
         break;
+      case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance:
+        msg = this.i18nService.t("revokedUserIdTwoFactorNonCompliance", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdTwoFactorNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance:
+        msg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.formatOrgUserId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
       // Org
       case EventType.Organization_Updated:
         msg = humanReadableMsg = this.i18nService.t("editedOrgSettings");
@@ -473,7 +490,11 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
         break;
       case EventType.Organization_ItemOrganization_Declined:
-        msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        msg = this.i18nService.t("revokedUserIdDeclinedTransfer", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdDeclinedTransfer",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       case EventType.Organization_AutoConfirmEnabled_Admin:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByAdmin");
