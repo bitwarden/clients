@@ -6,7 +6,6 @@ import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateServiceAbstraction } from "@bitwarden/common/key-management/pin/pin-state.service.abstraction";
 import {
   VAULT_TIMEOUT,
   VaultTimeoutStringType,
@@ -28,11 +27,12 @@ import {
 import { LogService } from "@bitwarden/logging";
 import {
   EncString,
+  InitUserCryptoMethod,
   Kdf,
   MasterPasswordUnlockData,
   PasswordManagerClient,
-  PasswordProtectedKeyEnvelope,
   PureCrypto,
+  SymmetricKey,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
 import { StateProvider, StateService } from "@bitwarden/state";
@@ -55,7 +55,6 @@ export class DefaultUnlockService implements UnlockService {
   constructor(
     private registerSdkService: RegisterSdkService,
     private accountCryptographicStateService: AccountCryptographicStateService,
-    private pinStateService: PinStateServiceAbstraction,
     private kdfService: KdfConfigService,
     private accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -69,57 +68,22 @@ export class DefaultUnlockService implements UnlockService {
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
     const startTime = performance.now();
-    await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          await ref.value.crypto().initialize_user_crypto({
-            userId: asUuid(userId),
-            kdfParams: await this.getKdfParams(userId),
-            email: await this.getEmail(userId)!,
-            accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: {
-              pinEnvelope: {
-                pin: pin,
-                pin_protected_user_key_envelope: await this.getPinProtectedUserKeyEnvelope(userId),
-              },
-            },
-          });
-          await this.runOnUnlockSideEffects(userId, ref);
-        }),
-      ),
-    );
+    await this.unlockWithMethod(userId, {
+      pinState: {
+        pin,
+      },
+    });
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithPin");
   }
 
   async unlockWithMasterPassword(userId: UserId, masterPassword: string): Promise<void> {
     const startTime = performance.now();
-    await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          await ref.value.crypto().initialize_user_crypto({
-            userId: asUuid(userId),
-            kdfParams: await this.getKdfParams(userId),
-            email: await this.getEmail(userId),
-            accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: {
-              masterPasswordUnlock: {
-                password: masterPassword,
-                master_password_unlock: await this.getMasterPasswordUnlockData(userId),
-              },
-            },
-          });
-          await this.runOnUnlockSideEffects(userId, ref);
-        }),
-      ),
-    );
+    await this.unlockWithMethod(userId, {
+      masterPasswordUnlock: {
+        password: masterPassword,
+        master_password_unlock: await this.getMasterPasswordUnlockData(userId),
+      }
+    });
     await this.setLegacyMasterKeyFromUnlockData(
       masterPassword,
       await this.getMasterPasswordUnlockData(userId),
@@ -142,28 +106,11 @@ export class DefaultUnlockService implements UnlockService {
 
     // Now that we have the biometrics-protected user key, we can initialize the SDK with it to complete the unlock process.
     const startTime = performance.now();
-    await firstValueFrom(
-      this.registerSdkService.registerClient$(userId).pipe(
-        map(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-          using ref = sdk.take();
-          await ref.value.crypto().initialize_user_crypto({
-            userId: asUuid(userId),
-            kdfParams: await this.getKdfParams(userId),
-            email: await this.getEmail(userId),
-            accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: {
-              decryptedKey: {
-                decrypted_user_key: userKey.toBase64(),
-              },
-            },
-          });
-          await this.runOnUnlockSideEffects(userId, ref);
-        }),
-      ),
-    );
+    await this.unlockWithMethod(userId, {
+      decryptedKey: {
+        decrypted_user_key: userKey.toSdk(),
+      },
+    });
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithBiometrics");
   }
 
@@ -175,30 +122,51 @@ export class DefaultUnlockService implements UnlockService {
     // key-connector-unlock-data. It will unwrap the provided key and set it to state, unlocking
     // the vault.
     const startTime = performance.now();
+    await this.unlockWithMethod(userId, {
+      keyConnectorUrl: {
+        url: keyConnectorUnlockData.url,
+        key_connector_key_wrapped_user_key:
+          keyConnectorUnlockData.keyConnectorKeyWrappedUserKey,
+      },
+    });
+    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
+  }
+
+  async unlockWithDecryptedKey(userId: UserId, key: SymmetricKey): Promise<void> {
+    const startTime = performance.now();
+    await this.unlockWithMethod(userId, {
+      decryptedKey: {
+        decrypted_user_key: key,
+      },
+    });
+    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithDecryptedKey");
+  }
+
+  private async unlockWithMethod(
+    userId: UserId,
+    method: InitUserCryptoMethod
+  ): Promise<void> {
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {
           if (!sdk) {
             throw new Error("SDK not available");
           }
+
           using ref = sdk.take();
-          return ref.value.crypto().initialize_user_crypto({
+
+          await ref.value.crypto().initialize_user_crypto({
             userId: asUuid(userId),
             kdfParams: await this.getKdfParams(userId),
             email: await this.getEmail(userId),
             accountCryptographicState: await this.getAccountCryptographicState(userId),
-            method: {
-              keyConnectorUrl: {
-                url: keyConnectorUnlockData.url,
-                key_connector_key_wrapped_user_key:
-                  keyConnectorUnlockData.keyConnectorKeyWrappedUserKey,
-              },
-            },
+            method,
           });
+
+          await this.runOnUnlockSideEffects(userId, ref);
         }),
       ),
     );
-    this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
   }
 
   private async getAccountCryptographicState(
@@ -228,18 +196,6 @@ export class DefaultUnlockService implements UnlockService {
     const email = accounts[userId].email;
     assertNonNullish(email, "Email is required");
     return email;
-  }
-
-  private async getPinProtectedUserKeyEnvelope(
-    userId: UserId,
-  ): Promise<PasswordProtectedKeyEnvelope> {
-    const pinLockType = await this.pinStateService.getPinLockType(userId);
-    const pinEnvelope = await this.pinStateService.getPinProtectedUserKeyEnvelope(
-      userId,
-      pinLockType,
-    );
-    assertNonNullish(pinEnvelope, "User is not enrolled in PIN unlock");
-    return pinEnvelope!;
   }
 
   private async getMasterPasswordUnlockData(userId: UserId): Promise<MasterPasswordUnlockData> {
