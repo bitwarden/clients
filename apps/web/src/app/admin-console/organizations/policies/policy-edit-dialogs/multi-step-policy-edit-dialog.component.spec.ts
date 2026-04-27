@@ -7,6 +7,7 @@ import { NEVER, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -43,6 +44,8 @@ describe("MultiStepPolicyEditDialogComponent", () => {
     i18nService.t.mockReturnValue("translated");
     dialogRef = mock<DialogRef<PolicyEditDialogResult>>();
     policyComponent = mock<BasePolicyEditComponent>();
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
@@ -56,6 +59,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
+        { provide: ConfigService, useValue: configService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

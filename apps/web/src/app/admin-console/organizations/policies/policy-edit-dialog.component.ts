@@ -24,6 +24,8 @@ import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/r
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
@@ -60,6 +62,7 @@ export type PolicyEditDialogResult = "saved";
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   protected readonly destroyRef = inject(DestroyRef);
+  private readonly discardGuardEnabled = false;
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -84,6 +87,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     protected readonly keyService: KeyService,
     protected readonly dialogService: DialogService,
     protected readonly cdkDialogRef: CdkDialogRef,
+    protected readonly configService: ConfigService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
@@ -127,7 +131,14 @@ export class PolicyEditDialogComponent implements AfterViewInit {
    *
    * Call this once the child policy component has been initialised.
    */
-  protected setupDiscardGuard(): void {
+  protected async setupDiscardGuard(): Promise<void> {
+    this.discardGuardEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.BulkAutoConfirmOnLogin,
+    );
+    if (!this.discardGuardEnabled) {
+      return;
+    }
+
     if (!this.dialogRef.isDrawer) {
       this.dialogRef.disableClose = true;
       this.cdkDialogRef.backdropClick
@@ -151,7 +162,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   protected readonly cancel = async () => {
-    if (!this.isFormDirty()) {
+    if (!this.discardGuardEnabled || !this.isFormDirty()) {
       await this.dialogRef.close();
       return;
     }
@@ -165,7 +176,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   @HostListener("window:beforeunload", ["$event"])
   onBeforeUnload(event: BeforeUnloadEvent): void {
-    if (this.isFormDirty()) {
+    if (this.discardGuardEnabled && this.isFormDirty()) {
       event.preventDefault();
       event.returnValue = "";
     }
@@ -196,7 +207,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     this.cdr.detectChanges();
-    this.setupDiscardGuard();
+    await this.setupDiscardGuard();
   }
 
   async load() {
