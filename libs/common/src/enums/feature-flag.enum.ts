@@ -12,7 +12,7 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
-  BulkAutoConfirmOnLogin = "bulk-auto-confirm-on-login",
+  BulkAutoConfirmOnLogin = "pm-35803-browser-auto-confirm-log-in",
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PolicyDrawers = "pm-34804-policy-drawers",
 
