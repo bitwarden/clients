@@ -67,7 +67,7 @@ describe("regenerateIfNeeded", () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     mockClient.user_crypto_management
       .mockDeep()
-      .should_regenerate_asymmetric_keys.mockResolvedValue(true);
+      .should_regenerate_public_key_encryption_key_pair.mockResolvedValue(true);
 
     await sut.regenerateIfNeeded(userId);
 
@@ -79,7 +79,7 @@ describe("regenerateIfNeeded", () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     mockClient.user_crypto_management
       .mockDeep()
-      .should_regenerate_asymmetric_keys.mockResolvedValue(true);
+      .should_regenerate_public_key_encryption_key_pair.mockResolvedValue(true);
 
     await sut.regenerateIfNeeded(userId);
 
@@ -90,7 +90,7 @@ describe("regenerateIfNeeded", () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     mockClient.user_crypto_management
       .mockDeep()
-      .should_regenerate_asymmetric_keys.mockResolvedValue(false);
+      .should_regenerate_public_key_encryption_key_pair.mockResolvedValue(false);
 
     await sut.regenerateIfNeeded(userId);
 
@@ -100,8 +100,8 @@ describe("regenerateIfNeeded", () => {
   it("should regenerate when SDK says regeneration is needed", async () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     const mockUserCryptoMgmt = mockClient.user_crypto_management.mockDeep();
-    mockUserCryptoMgmt.should_regenerate_asymmetric_keys.mockResolvedValue(true);
-    mockUserCryptoMgmt.regenerate_asymmetric_key_pair_if_needed.mockResolvedValue({
+    mockUserCryptoMgmt.should_regenerate_public_key_encryption_key_pair.mockResolvedValue(true);
+    mockUserCryptoMgmt.regenerate_public_key_encryption_key_pair_if_needed.mockResolvedValue({
       V1: { private_key: "newEncryptedPrivateKey" as SdkEncString },
     } as WrappedAccountCryptographicState);
 
@@ -113,8 +113,8 @@ describe("regenerateIfNeeded", () => {
   it("should not set crypto state when regeneration returns null", async () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     const mockUserCryptoMgmt = mockClient.user_crypto_management.mockDeep();
-    mockUserCryptoMgmt.should_regenerate_asymmetric_keys.mockResolvedValue(true);
-    mockUserCryptoMgmt.regenerate_asymmetric_key_pair_if_needed.mockResolvedValue(
+    mockUserCryptoMgmt.should_regenerate_public_key_encryption_key_pair.mockResolvedValue(true);
+    mockUserCryptoMgmt.regenerate_public_key_encryption_key_pair_if_needed.mockResolvedValue(
       undefined as unknown as WrappedAccountCryptographicState,
     );
 
@@ -170,7 +170,7 @@ describe("shouldRegenerate", () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     mockClient.user_crypto_management
       .mockDeep()
-      .should_regenerate_asymmetric_keys.mockResolvedValue(true);
+      .should_regenerate_public_key_encryption_key_pair.mockResolvedValue(true);
 
     const result = await sut.shouldRegenerate(userId);
 
@@ -185,7 +185,7 @@ describe("shouldRegenerate", () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     mockClient.user_crypto_management
       .mockDeep()
-      .should_regenerate_asymmetric_keys.mockResolvedValue(false);
+      .should_regenerate_public_key_encryption_key_pair.mockResolvedValue(false);
 
     const result = await sut.shouldRegenerate(userId);
 
@@ -242,7 +242,7 @@ describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     mockClient.user_crypto_management
       .mockDeep()
-      .regenerate_asymmetric_key_pair_if_needed.mockResolvedValue(mockCryptoState);
+      .regenerate_public_key_encryption_key_pair_if_needed.mockResolvedValue(mockCryptoState);
 
     const result = await sut.regenerateUserPublicKeyEncryptionKeyPair(userId);
 
@@ -264,7 +264,7 @@ describe("regenerateUserPublicKeyEncryptionKeyPair", () => {
     const mockClient = sdkService.simulate.userLogin(userId);
     mockClient.user_crypto_management
       .mockDeep()
-      .regenerate_asymmetric_key_pair_if_needed.mockResolvedValue(
+      .regenerate_public_key_encryption_key_pair_if_needed.mockResolvedValue(
         undefined as unknown as WrappedAccountCryptographicState,
       );
 

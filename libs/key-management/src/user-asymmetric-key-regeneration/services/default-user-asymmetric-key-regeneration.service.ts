@@ -59,7 +59,9 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
           }
 
           using ref = sdk.take();
-          return ref.value.user_crypto_management().should_regenerate_asymmetric_keys();
+          return ref.value
+            .user_crypto_management()
+            .should_regenerate_public_key_encryption_key_pair();
         }),
       ),
     );
@@ -79,7 +81,9 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
           }
 
           using ref = sdk.take();
-          return ref.value.user_crypto_management().regenerate_asymmetric_key_pair_if_needed();
+          return ref.value
+            .user_crypto_management()
+            .regenerate_public_key_encryption_key_pair_if_needed();
         }),
       ),
     );
