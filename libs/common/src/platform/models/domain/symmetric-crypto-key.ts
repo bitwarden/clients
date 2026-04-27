@@ -5,6 +5,8 @@ import { Jsonify } from "type-fest";
 import { Utils } from "../../../platform/misc/utils";
 import { EncryptionType } from "../../enums";
 
+import { SymmetricKey } from "@bitwarden/sdk-internal";
+
 export type Aes256CbcHmacKey = {
   type: EncryptionType.AesCbc256_HmacSha256_B64;
   encryptionKey: Uint8Array;
@@ -124,5 +126,13 @@ export class SymmetricCryptoKey {
 
   static fromJSON(obj: Jsonify<SymmetricCryptoKey>): SymmetricCryptoKey {
     return SymmetricCryptoKey.fromString(obj?.keyB64);
+  }
+
+  static fromSdk(key: SymmetricKey): SymmetricCryptoKey {
+    return SymmetricCryptoKey.fromString(key);
+  }
+
+  toSdk(): SymmetricKey {
+    return this.toBase64() as SymmetricKey;
   }
 }

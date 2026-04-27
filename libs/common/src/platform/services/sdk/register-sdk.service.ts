@@ -30,6 +30,7 @@ import { Rc } from "../../misc/reference-counting/rc";
 import { StateProvider } from "../../state";
 
 import { initializeClientManagedState } from "./client-managed-state";
+import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 
 // A symbol that represents an overridden client that is explicitly set to undefined,
 // blocking the creation of an internal client for that user.
@@ -149,6 +150,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               client.platform().state(),
               this.stateProvider,
             );
+            client.state_bridge().registerWasmBridgeImpl(new JsWasmStateBridge(this.stateProvider, userId));
 
             await this.loadFeatureFlags(client);
 
