@@ -37,18 +37,20 @@
       </bit-form-field>
     }
     <bit-hint class="tw-mb-2">{{ "additionalOptions" | i18n }}</bit-hint>
-    <h3 bitTypography="h3" class="tw-mt-4">{{ "sendDeletionDays" | i18n }}</h3>
-    <div bitTypography="body1" class="tw-text-muted tw-mb-2">
-      {{ "sendDeletionDaysDescription" | i18n }}
-    </div>
-    <bit-form-field>
-      <bit-label>{{ "sendDeletionDays" | i18n }}</bit-label>
-      <bit-select formControlName="deletionHours">
-        @for (option of deletionHoursOptions; track option.value) {
-          <bit-option [value]="option.value" [label]="option.name"></bit-option>
-        }
-      </bit-select>
-    </bit-form-field>
+    <bit-form-control>
+      <bit-label>{{ "enforceDeletionDate" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox [formControl]="showDeletionHours" />
+    </bit-form-control>
+    @if (showDeletionHours.value) {
+      <bit-form-field>
+        <bit-label>{{ "sendDeletionDate" | i18n }}</bit-label>
+        <bit-select formControlName="deletionHours">
+          @for (option of deletionHoursOptions; track option.value) {
+            <bit-option [value]="option.value" [label]="option.name"></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+    }
     <bit-form-control>
       <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />
       <bit-label>{{ "sendControlHideEmailDescription" | i18n }}</bit-label>

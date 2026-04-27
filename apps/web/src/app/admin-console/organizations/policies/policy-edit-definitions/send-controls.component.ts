@@ -10,6 +10,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   AbstractControl,
+  FormControl,
   FormGroup,
   UntypedFormBuilder,
   ValidationErrors,
@@ -88,6 +89,8 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     }
   });
 
+  protected readonly showDeletionHours = new FormControl<boolean>(false);
+
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
@@ -95,7 +98,6 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   ) {
     super();
     this.deletionHoursOptions = [
-      { name: this.i18nService.t("sendDeletionDaysNoRestriction"), value: null },
       { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
       { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
       { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
@@ -125,6 +127,18 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
           allowedDomainsControl?.patchValue(null);
           this.showDomains.set(false);
         }
+      });
+    this.data
+      .get("deletionHours")
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        // We don't emit an event here to prevent the following subscription from recursing
+        this.showDeletionHours.patchValue(value != null, { emitEvent: false });
+      });
+    this.showDeletionHours.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((checked) => {
+        this.data.patchValue({ deletionHours: checked ? DatePreset.ThreeDays : null });
       });
     super.ngOnInit();
   }

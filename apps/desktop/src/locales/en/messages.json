@@ -4939,11 +4939,8 @@
   "allowedDomainsAutopopulateAlert": {
     "message": "This was filled in using claimed domains. You can edit them at any time."
   },
-  "sendDeletionDays": {
+  "sendDeletionDate": {
     "message": "Deletion date"
-  },
-  "sendDeletionDaysDescription": {
-    "message": "Set the maximum time a Send can exist before it is automatically deleted."
   },
   "sendDeletionDaysNoRestriction": {
     "message": "No restriction"
