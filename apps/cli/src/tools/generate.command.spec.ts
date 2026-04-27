@@ -430,17 +430,6 @@ describe("GenerateCommand", () => {
       expect(response.message).toContain("minimum of 5");
       expect(response.message).toContain("requested 2");
     });
-
-    it("cannot be overridden with --force", async () => {
-      const meta = mockMetadata("unused");
-      meta.profiles.account.constraints.default = { minNumber: { min: 0, max: 9 } };
-      const command = createCommand({ metadata: meta });
-
-      const response = await command.run({ minNumber: "20", force: true });
-
-      expect(response.success).toBe(false);
-      expect(response.message).toContain("maximum of 9");
-    });
   });
 
   describe("policy enforcement", () => {
@@ -454,45 +443,6 @@ describe("GenerateCommand", () => {
       expect(response.success).toBe(false);
       expect(response.message).toContain("Organization policy requires different settings");
       expect(response.message).toContain("length: 25 → 20");
-      expect(response.message).not.toContain("--force");
-    });
-
-    it("rejects org policy even with --force", async () => {
-      const meta = mockMetadata("unused");
-      const policy = overridingPolicy({ length: 20 }, true);
-      const command = createCommand({ metadata: meta, policy });
-
-      const response = await command.run({ length: "25", force: true });
-
-      expect(response.success).toBe(false);
-      expect(response.message).toContain("Organization policy requires different settings");
-    });
-
-    it("rejects default policy without --force", async () => {
-      const meta = mockMetadata("unused");
-      const policy = overridingPolicy({ length: 20 }, false);
-      const command = createCommand({ metadata: meta, policy });
-
-      const response = await command.run({ length: "25" });
-
-      expect(response.success).toBe(false);
-      expect(response.message).toContain("Default policy requires different settings");
-      expect(response.message).toContain("Use --force to override");
-    });
-
-    it("allows --force to bypass default policy only", async () => {
-      const meta = mockMetadata("generatedPassword123");
-      const policy = overridingPolicy({ length: 20 }, false);
-      const command = createCommand({ metadata: meta, policy });
-
-      const response = await command.run({ length: "25", force: true });
-
-      expect(response.success).toBe(true);
-      const engine = meta.engine.create({} as any);
-      expect(engine.generate).toHaveBeenCalledWith(
-        expect.anything(),
-        expect.objectContaining({ length: 25 }),
-      );
     });
 
     it("reports all applied constraints, not just user-specified flags", async () => {

@@ -39,7 +39,6 @@ interface GenerateCmdOptions {
   baseUrl?: string;
   prefix?: string;
   website?: string;
-  force?: boolean;
 }
 
 export class GenerateCommand {
@@ -81,7 +80,6 @@ export class GenerateCommand {
         defaultConstraints,
       );
 
-      // Hard engine limits cannot be overridden, even with --force
       if (hardLimits.length > 0) {
         return Response.badRequest(`${hardLimits.join("; ")}.`);
       }
@@ -103,22 +101,11 @@ export class GenerateCommand {
       if (adjustments.length > 0) {
         const isOrgPolicy = policyConstraints.constraints.policyInEffect;
         const lines = adjustments.map((a) => `  - ${a}`).join("\n");
-
-        if (isOrgPolicy) {
-          // Org policies cannot be overridden
-          return Response.badRequest(`Organization policy requires different settings:\n${lines}`);
-        }
-
-        // Default constraints can be overridden with --force
-        if (!options.force) {
-          return Response.badRequest(
-            `Default policy requires different settings:\n${lines}\nUse --force to override.`,
-          );
-        }
-        process.stderr.write(`Warning: Overriding default policy:\n${lines}\n`);
+        const policyName = isOrgPolicy ? "Organization policy" : "Default policy";
+        return Response.badRequest(`${policyName} requires different settings:\n${lines}`);
       }
 
-      const finalSettings = options.force ? requestedSettings : policyAdjustedSettings;
+      const finalSettings = policyAdjustedSettings;
 
       const websiteNameCredential = this.tryWebsiteNameGeneration(finalSettings, options.website);
       if (websiteNameCredential != null) {

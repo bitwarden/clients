@@ -363,7 +363,6 @@ export class Program extends BaseProgram {
       .option("--base-url <url>", "Base URL for self-hosted forwarders (Addy.io, SimpleLogin).")
       .option("--prefix <prefix>", "Prefix for forwarder email address.")
       .option("--website <domain>", "Website context for catchall/subaddress website-name type.")
-      .option("--force", "Override policy enforcement.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
