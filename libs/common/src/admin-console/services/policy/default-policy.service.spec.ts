@@ -202,8 +202,9 @@ describe("PolicyService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined when user is an owner (exempt from policy)", async () => {
-      // org2 has OrganizationUserType.Owner; owners are exempt from MasterPassword policy
+    it("returns policy options for an owner (not exempt from MasterPassword policy)", async () => {
+      // org2 has OrganizationUserType.Owner; owners are NOT exempt from MasterPassword policy
+      // The server sends MasterPassword policy to all users regardless of role
       singleUserState.nextState(
         arrayToRecord([
           policyData("1", "org2", PolicyType.MasterPassword, true, { minLength: 10 }),
@@ -212,7 +213,15 @@ describe("PolicyService", () => {
 
       const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
-      expect(result).toBeUndefined();
+      expect(result).toEqual({
+        minComplexity: 0,
+        minLength: 10,
+        requireLower: false,
+        requireNumbers: false,
+        requireSpecial: false,
+        requireUpper: false,
+        enforceOnLogin: false,
+      });
     });
   });
 
