@@ -38,7 +38,23 @@ export interface SdkRecordMapper<ClientType, SdkType> {
   fromSdk(value: SdkType): ClientType;
 }
 
+/**
+ * SDK Repository implementation backed by the client's state provider.
+ *
+ * Maps between SDK and client types via {@link SdkRecordMapper}, storing records
+ * as a `Record<string, ClientType>` in user-scoped state.
+ */
 export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType> {
+  /**
+   * @param userId The user whose state this repository manages.
+   * @param stateProvider The state provider used to read and write user-scoped state.
+   * @param mapper Converts between client and SDK representations of the stored records.
+   * @param optimisticWrite When `false` (default), writes are atomic — each mutation waits
+   * (up to 1000ms) for the `state$` observable to reflect the change before returning.
+   * This prevents race conditions where a subsequent `get` reads stale data.
+   * Set to `true` to skip this wait (e.g. for high-throughput state like ciphers
+   * where eventual consistency is acceptable).
+   */
   constructor(
     private userId: UserId,
     private stateProvider: StateProvider,
@@ -63,7 +79,8 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
       ...(state ?? {}),
       [id]: newValue,
     }));
-    await this.waitUntilChanged(id, newValue);
+    const expected = JSON.stringify(newValue);
+    await this.waitUntilChanged((state) => JSON.stringify(state[id]) === expected);
   }
 
   async setBulk(values: [string, SdkType][]): Promise<void> {
@@ -74,9 +91,10 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
       ...(state ?? {}),
       ...mapped,
     }));
-    for (const id in mapped) {
-      await this.waitUntilChanged(id, mapped[id]);
-    }
+    const expectedEntries = Object.entries(mapped).map(([k, v]) => [k, JSON.stringify(v)] as const);
+    await this.waitUntilChanged((state) =>
+      expectedEntries.every(([k, v]) => JSON.stringify(state[k]) === v),
+    );
   }
 
   async remove(id: string): Promise<void> {
@@ -84,42 +102,25 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
       if (!state || !(id in state)) {
         return state;
       }
-      // Rest sibling
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { [id]: _unused, ...rest } = state;
-      return rest;
+      return Object.fromEntries(Object.entries(state).filter(([key]) => key !== id));
     });
-    await this.waitUntilChanged(id, null);
+    await this.waitUntilChanged((state) => !(id in state));
   }
 
   async removeBulk(keys: string[]): Promise<void> {
-    const keysToRemove = new Set<string>();
+    const keysToRemove = new Set(keys);
     await this.getUserState().update((state) => {
       if (!state || !keys.some((key) => key in state)) {
         return state;
       }
-      for (const key of keys) {
-        keysToRemove.add(key);
-      }
       return Object.fromEntries(Object.entries(state).filter(([key]) => !keysToRemove.has(key)));
     });
-    for (const id of keysToRemove) {
-      await this.waitUntilChanged(id, null);
-    }
+    await this.waitUntilChanged((state) => keys.every((key) => !(key in state)));
   }
 
   async removeAll(): Promise<void> {
     await this.getUserState().update(() => ({}));
-    if (!this.optimisticWrite) {
-      await firstValueFrom(
-        race(
-          this.getUserState().state$.pipe(
-            filter((state) => state == null || Object.keys(state).length == 0),
-          ),
-          timer(1000),
-        ),
-      );
-    }
+    await this.waitUntilChanged((state) => Object.keys(state).length === 0);
   }
 
   private getUserState() {
@@ -131,11 +132,12 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
   }
 
   /**
-   * Waits until the underlying state observable reflects the change, for up to 1000ms.
-   * @param id the id of the key
-   * @param expectedValue the expected value after the change, or null if the key was removed.
+   * Waits until the underlying state observable matches the predicate, for up to 1000ms.
+   * @param predicate a check against the current state, returning true when the expected change is reflected.
    */
-  private async waitUntilChanged(id: string, expectedValue: unknown): Promise<void> {
+  private async waitUntilChanged(
+    predicate: (state: Record<string, ClientType>) => boolean,
+  ): Promise<void> {
     if (this.optimisticWrite) {
       return;
     }
@@ -143,7 +145,7 @@ export class RepositoryRecord<ClientType, SdkType> implements Repository<SdkType
       race(
         this.getUserState().state$.pipe(
           map((state) => state ?? {}),
-          filter((state) => state[id] == expectedValue),
+          filter(predicate),
         ),
         timer(1000),
       ),
