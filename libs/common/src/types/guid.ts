@@ -14,6 +14,7 @@ export type PolicyId = Opaque<string, "PolicyId">;
 export type CipherId = Opaque<string, "CipherId">;
 export type SendId = Opaque<string, "SendId">;
 export type SecurityTaskId = Opaque<string, "SecurityTaskId">;
+export type AlertDismissalId = Opaque<string, "AlertDismissalId">;
 export type NotificationId = Opaque<string, "NotificationId">;
 export type EmergencyAccessId = Opaque<string, "EmergencyAccessId">;
 export type OrganizationIntegrationId = Opaque<string, "OrganizationIntegrationId">;

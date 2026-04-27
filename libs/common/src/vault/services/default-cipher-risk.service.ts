@@ -1,5 +1,6 @@
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, from, mergeMap, Observable, switchMap, toArray } from "rxjs";
 
+import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
@@ -12,14 +13,20 @@ import {
 
 import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, CipherId } from "../../types/guid";
-import { CipherRiskService as CipherRiskServiceAbstraction } from "../abstractions/cipher-risk.service";
+import {
+  CipherRiskService as CipherRiskServiceAbstraction,
+  PersonalVaultRiskSummary,
+} from "../abstractions/cipher-risk.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
+
+const MAX_CONCURRENT_HIBP_CALLS = 5;
 
 export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
   constructor(
     private sdkService: SdkService,
     private cipherService: CipherService,
+    private auditService?: AuditService,
   ) {}
 
   async computeRiskForCiphers(
@@ -90,6 +97,74 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
         }),
       ),
     );
+  }
+
+  computeRiskForPersonalVault(
+    userId: UserId,
+    options?: Omit<CipherRiskOptions, "checkExposed">,
+  ): Observable<PersonalVaultRiskSummary> {
+    return new Observable<PersonalVaultRiskSummary>((subscriber) => {
+      (async () => {
+        const allCiphers = await firstValueFrom(
+          this.cipherService.cipherViews$(userId).pipe(filterOutNullish()),
+        );
+
+        const personalLogins = allCiphers.filter(
+          (c) =>
+            c.type === CipherType.Login && !c.organizationId && !c.isDeleted && c.login?.password,
+        );
+
+        if (personalLogins.length === 0) {
+          subscriber.next({ exposed: [], weak: [], reused: [], scannedAt: new Date() });
+          subscriber.complete();
+          return;
+        }
+
+        const passwordMap = await this.buildPasswordReuseMap(personalLogins, userId);
+        const riskResults = await this.computeRiskForCiphers(personalLogins, userId, {
+          ...options,
+          checkExposed: false,
+          passwordMap,
+        });
+
+        const cipherById = new Map<string, CipherView>(personalLogins.map((c) => [c.id, c]));
+
+        const weak: CipherView[] = [];
+        const reused: CipherView[] = [];
+        for (const result of riskResults) {
+          const cipher = cipherById.get(result.id as unknown as string);
+          if (!cipher) {
+            continue;
+          }
+          if (result.password_strength < 3) {
+            weak.push(cipher);
+          }
+          if ((result.reuse_count ?? 1) > 1) {
+            reused.push(cipher);
+          }
+        }
+
+        let exposed: CipherView[] = [];
+        if (this.auditService) {
+          const hibpResults = await firstValueFrom(
+            from(personalLogins).pipe(
+              mergeMap(
+                async (cipher) => ({
+                  cipher,
+                  count: await this.auditService!.passwordLeaked(cipher.login!.password!),
+                }),
+                MAX_CONCURRENT_HIBP_CALLS,
+              ),
+              toArray(),
+            ),
+          );
+          exposed = hibpResults.filter(({ count }) => count > 0).map(({ cipher }) => cipher);
+        }
+
+        subscriber.next({ exposed, weak, reused, scannedAt: new Date() });
+        subscriber.complete();
+      })().catch((err) => subscriber.error(err));
+    });
   }
 
   /**

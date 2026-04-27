@@ -1,5 +1,6 @@
 export * from "./account-warning.icon";
 export * from "./active-send.icon";
+export * from "./alerts";
 export { default as AdminConsoleLogo } from "./admin-console";
 export * from "./auto-confirmation";
 export * from "./background-left-illustration";

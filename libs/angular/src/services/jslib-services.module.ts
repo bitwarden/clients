@@ -328,6 +328,10 @@ import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/vau
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import {
+  AlertDismissalService,
+  DefaultAlertDismissalService,
+} from "@bitwarden/common/vault/alert-dismissals";
+import {
   DefaultEndUserNotificationService,
   EndUserNotificationService,
 } from "@bitwarden/common/vault/notifications";
@@ -687,7 +691,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherRiskService,
     useClass: DefaultCipherRiskService,
-    deps: [SdkService, CipherServiceAbstraction],
+    deps: [SdkService, CipherServiceAbstraction, AuditServiceAbstraction],
   }),
   safeProvider({
     provide: InternalFolderService,
@@ -1808,6 +1812,11 @@ const safeProviders: SafeProvider[] = [
       ServerNotificationsService,
       MessageListener,
     ],
+  }),
+  safeProvider({
+    provide: AlertDismissalService,
+    useClass: DefaultAlertDismissalService,
+    deps: [ApiServiceAbstraction, StateProvider],
   }),
   safeProvider({
     provide: SendTokenService,

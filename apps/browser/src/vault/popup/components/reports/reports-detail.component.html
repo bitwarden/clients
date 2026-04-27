@@ -1,0 +1,113 @@
+<popup-page>
+  <popup-header
+    slot="header"
+    [pageTitle]="(pageTitleKey$ | async) ? ((pageTitleKey$ | async)! | i18n) : ''"
+    showBackButton
+  >
+    <ng-container slot="end">
+      <app-pop-out></app-pop-out>
+      <app-current-account></app-current-account>
+    </ng-container>
+  </popup-header>
+
+  <ng-container *ngIf="ciphers$ | async as ciphers">
+    <ng-container *ngIf="ciphers.length === 0">
+      <div class="tw-px-4 tw-py-6 tw-text-center">
+        <p bitTypography="body1" class="tw-text-muted">{{ "noCiphersInCategory" | i18n }}</p>
+      </div>
+    </ng-container>
+
+    <bit-item-group *ngIf="ciphers.length > 0">
+      <bit-item *ngFor="let cipher of ciphers">
+        <button
+          bit-item-content
+          type="button"
+          [appA11yTitle]="'viewItemTitle' | i18n: cipher.name"
+          (click)="viewCipher(cipher)"
+        >
+          <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+            <app-vault-icon [cipher]="cipher"></app-vault-icon>
+          </div>
+          <span slot="primary">{{ cipher.name }}</span>
+          <span slot="secondary" class="tw-text-muted">
+            {{ cipher.login?.username || cipher.login?.uris?.[0]?.uri }}
+          </span>
+        </button>
+        <bit-item-action slot="end">
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            size="small"
+            appStopProp
+            (click)="changePassword(cipher)"
+          >
+            {{ "change" | i18n }}
+            <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+          </button>
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            appStopProp
+            class="tw-ml-1"
+            (click)="dismiss(cipher.id)"
+          >
+            {{ "dismissAlert" | i18n }}
+          </button>
+        </bit-item-action>
+      </bit-item>
+    </bit-item-group>
+  </ng-container>
+
+  <!-- Dismissed items accordion -->
+  <ng-container *ngIf="dismissedItems$ | async as dismissedItems">
+    <ng-container *ngIf="dismissedItems.length > 0">
+      <button
+        type="button"
+        class="tw-flex tw-items-center tw-justify-between tw-w-full tw-px-4 tw-py-3 tw-bg-transparent hover:tw-bg-hover-default tw-text-left tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
+        (click)="toggleDismissed()"
+      >
+        <span bitTypography="body1" class="tw-text-muted">
+          {{ "dismissedItems" | i18n }} ({{ dismissedItems.length }})
+        </span>
+        <i
+          class="bwi tw-text-muted"
+          [class.bwi-angle-down]="!dismissedOpen()"
+          [class.bwi-angle-up]="dismissedOpen()"
+          aria-hidden="true"
+        ></i>
+      </button>
+
+      <div *ngIf="dismissedOpen()">
+        <bit-item-group>
+          <bit-item *ngFor="let item of dismissedItems" class="tw-opacity-50">
+            <bit-item-content>
+              <div slot="start" class="tw-justify-start tw-w-7 tw-flex">
+                <app-vault-icon [cipher]="item.cipher"></app-vault-icon>
+              </div>
+              <span slot="primary" class="tw-line-through tw-text-muted">{{
+                item.cipher.name
+              }}</span>
+              <span slot="secondary" class="tw-text-muted">
+                {{ item.cipher.login?.username || item.cipher.login?.uris?.[0]?.uri }}
+              </span>
+            </bit-item-content>
+            <ng-container slot="end">
+              <button
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                (click)="undismiss(item.dismissal.id)"
+              >
+                {{ "undoDismissal" | i18n }}
+              </button>
+            </ng-container>
+          </bit-item>
+        </bit-item-group>
+      </div>
+    </ng-container>
+  </ng-container>
+</popup-page>

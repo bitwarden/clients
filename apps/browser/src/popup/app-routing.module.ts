@@ -82,6 +82,9 @@ import { ExportBrowserV2Component } from "../tools/popup/settings/export/export-
 import { ImportBrowserV2Component } from "../tools/popup/settings/import/import-browser-v2.component";
 import { SettingsV2Component } from "../tools/popup/settings/settings-v2.component";
 import { AtRiskPasswordsComponent } from "../vault/popup/components/at-risk-passwords/at-risk-passwords.component";
+import { ReportsDetailComponent } from "../vault/popup/components/reports/reports-detail.component";
+import { ReportsOverviewComponent } from "../vault/popup/components/reports/reports-overview.component";
+import { ReportsComponent } from "../vault/popup/components/reports/reports.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit/add-edit.component";
 import { AssignCollections } from "../vault/popup/components/vault/assign-collections/assign-collections.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments/attachments.component";
@@ -743,6 +746,38 @@ const routes: Routes = [
         component: SendV2Component,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        path: "reports",
+        component: ReportsComponent,
+        canActivate: [authGuard, canAccessFeature(FeatureFlag.EnableBrowserReportsTab)],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+        children: [
+          {
+            path: "",
+            component: ReportsOverviewComponent,
+            data: { elevation: 0 } satisfies RouteDataProperties,
+          },
+          {
+            path: "exposed",
+            component: ReportsDetailComponent,
+            data: { elevation: 0, type: "exposed" } satisfies RouteDataProperties & {
+              type: string;
+            },
+          },
+          {
+            path: "weak",
+            component: ReportsDetailComponent,
+            data: { elevation: 0, type: "weak" } satisfies RouteDataProperties & { type: string },
+          },
+          {
+            path: "reused",
+            component: ReportsDetailComponent,
+            data: { elevation: 0, type: "reused" } satisfies RouteDataProperties & {
+              type: string;
+            },
+          },
+        ],
       },
     ],
   },

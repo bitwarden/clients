@@ -6321,5 +6321,93 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "reports": {
+    "message": "Alerts"
+  },
+  "reportsOverview": {
+    "message": "Vault health"
+  },
+  "scanComplete": {
+    "message": "Scan complete"
+  },
+  "scanning": {
+    "message": "Scanning..."
+  },
+  "rescan": {
+    "message": "Rescan"
+  },
+  "passwordsWithIssues": {
+    "message": "$COUNT$ of $TOTAL$ passwords have issues",
+    "placeholders": {
+      "count": { "content": "$1", "example": "3" },
+      "total": { "content": "$2", "example": "25" }
+    }
+  },
+  "noPasswordIssues": {
+    "message": "No password issues found"
+  },
+  "exposedPasswords": {
+    "message": "Exposed passwords"
+  },
+  "exposedPasswordsDesc": {
+    "message": "Found in known data breaches"
+  },
+  "weakPasswords": {
+    "message": "Weak passwords"
+  },
+  "weakPasswordsDesc": {
+    "message": "Easy to guess or brute-force"
+  },
+  "reusedPasswords": {
+    "message": "Reused passwords"
+  },
+  "reusedPasswordsDesc": {
+    "message": "Used across multiple logins"
+  },
+  "changeMe": {
+    "message": "Change me"
+  },
+  "dismissAlert": {
+    "message": "Dismiss alert"
+  },
+  "dismissAlertQuestion": {
+    "message": "Dismiss alert?"
+  },
+  "dismissAlertConfirmation": {
+    "message": "This alert will be hidden. You can restore it anytime."
+  },
+  "dismissAlertNotes": {
+    "message": "Reason (optional)"
+  },
+  "dismissAlertNotesPlaceholder": {
+    "message": "e.g. legacy app, can't be changed"
+  },
+  "undoDismissal": {
+    "message": "Undo dismiss"
+  },
+  "dismissedItems": {
+    "message": "Dismissed items"
+  },
+  "showDismissedItems": {
+    "message": "Show $COUNT$ dismissed item(s)",
+    "placeholders": {
+      "count": { "content": "$1", "example": "2" }
+    }
+  },
+  "hideDismissedItems": {
+    "message": "Hide dismissed items"
+  },
+  "lastScanned": {
+    "message": "Last scanned: $DATE$",
+    "placeholders": {
+      "date": { "content": "$1", "example": "Jan 1, 2025" }
+    }
+  },
+  "noCiphersInCategory": {
+    "message": "No items in this category"
+  },
+  "reportsPremiumRequired": {
+    "message": "Password health reports require a premium subscription."
   }
 }

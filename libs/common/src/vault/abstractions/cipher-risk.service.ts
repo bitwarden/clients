@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import type {
   CipherRiskResult,
   CipherRiskOptions,
@@ -6,6 +8,13 @@ import type {
 
 import { UserId, CipherId } from "../../types/guid";
 import { CipherView } from "../models/view/cipher.view";
+
+export type PersonalVaultRiskSummary = {
+  exposed: CipherView[];
+  weak: CipherView[];
+  reused: CipherView[];
+  scannedAt: Date;
+};
 
 export abstract class CipherRiskService {
   /**
@@ -47,6 +56,18 @@ export abstract class CipherRiskService {
    * @returns A map of password to count of occurrences
    */
   abstract buildPasswordReuseMap(ciphers: CipherView[], userId: UserId): Promise<PasswordReuseMap>;
+
+  /**
+   * Scan all personal vault login ciphers and return a summary of exposed, weak, and reused passwords.
+   * Exposed check uses HIBP via AuditService with a max 5-concurrent request cap.
+   *
+   * @param userId - The user ID whose personal vault to scan
+   * @param options - Optional SDK risk options (passwordMap is built automatically)
+   */
+  abstract computeRiskForPersonalVault(
+    userId: UserId,
+    options?: Omit<CipherRiskOptions, "checkExposed">,
+  ): Observable<PersonalVaultRiskSummary>;
 }
 
 /**

@@ -6,6 +6,7 @@ import { BaseResponse } from "../../models/response/base.response";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendResponse } from "../../tools/send/models/response/send.response";
+import { AlertDismissalResponse } from "../../vault/models/response/alert-dismissal.response";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
 
@@ -18,6 +19,7 @@ export class SyncResponse extends BaseResponse {
   policies?: PolicyResponse[] = [];
   sends: SendResponse[] = [];
   userDecryption?: UserDecryptionResponse;
+  alertDismissals: AlertDismissalResponse[] = [];
 
   constructor(response: any) {
     super(response);
@@ -60,6 +62,11 @@ export class SyncResponse extends BaseResponse {
     const userDecryption = this.getResponseProperty("UserDecryption");
     if (userDecryption != null && typeof userDecryption === "object") {
       this.userDecryption = new UserDecryptionResponse(userDecryption);
+    }
+
+    const alertDismissals = this.getResponseProperty("AlertDismissals");
+    if (alertDismissals != null) {
+      this.alertDismissals = alertDismissals.map((d: any) => new AlertDismissalResponse(d));
     }
   }
 }
