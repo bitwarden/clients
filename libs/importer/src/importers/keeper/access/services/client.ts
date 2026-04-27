@@ -70,13 +70,14 @@ export class Client {
   private readonly ui: Ui;
   private serverKeyId: number = 7;
   private readonly locale: string = "en_US";
+  private password: string | null = null;
 
   constructor(options: ClientOptions) {
     this.server = options.region;
     this.ui = options.ui;
   }
 
-  async login(username: string, password: string, options: ClientOptions): Promise<LoginResult> {
+  async login(username: string, options: ClientOptions): Promise<LoginResult> {
     if (options.publicKeyId) {
       this.serverKeyId = options.publicKeyId;
     }
@@ -108,7 +109,7 @@ export class Client {
       while (iterations++ < maxIterations) {
         switch (response.loginState) {
           case LoginState.REQUIRES_AUTH_HASH:
-            response = await this.handleAuthHash(password, response);
+            response = await this.handleAuthHash(response);
             break;
 
           case LoginState.REGION_REDIRECT:
@@ -141,7 +142,7 @@ export class Client {
             break;
 
           case LoginState.LOGGED_IN:
-            return await this.extractLoginResult(response, password, devicePrivateKey);
+            return await this.extractLoginResult(response, devicePrivateKey);
 
           default:
             this.throwLoginError(response);
@@ -259,7 +260,7 @@ export class Client {
     return await unloadEcPublicKey(publicKey);
   }
 
-  private async handleAuthHash(password: string, response: LoginResponse): Promise<LoginResponse> {
+  private async handleAuthHash(response: LoginResponse): Promise<LoginResponse> {
     if (!response.salt || response.salt.length === 0) {
       throw new Error("No salt received from server");
     }
@@ -268,16 +269,22 @@ export class Client {
       throw new Error("No login token received from server");
     }
 
+    const passwordOrCancel = await this.ui.promptForPassword();
+    if (passwordOrCancel === Cancel) {
+      throw new Error("Authentication cancelled by user");
+    }
+
+    this.password = passwordOrCancel;
+
     const salt = new Uint8Array(response.salt[0].salt);
     const iterations = response.salt[0].iterations || 100000;
 
-    const authHash = await deriveV1KeyHash(password, salt, iterations);
+    const authHash = await deriveV1KeyHash(this.password, salt, iterations);
     return await this.validateAuthHash(authHash, response.encryptedLoginToken);
   }
 
   private async extractLoginResult(
     response: LoginResponse,
-    password: string,
     devicePrivateKey: CryptoKey,
   ): Promise<LoginResult> {
     if (!response.encryptedSessionToken || response.encryptedSessionToken.length === 0) {
@@ -296,8 +303,11 @@ export class Client {
         dataKey = await decryptEc(new Uint8Array(response.encryptedDataKey), devicePrivateKey);
         break;
       case EncryptedDataKeyType.BY_PASSWORD:
+        if (!this.password) {
+          throw new Error("Password required but not available");
+        }
         dataKey = await decryptEncryptionParams(
-          password,
+          this.password,
           new Uint8Array(response.encryptedDataKey),
         );
         break;

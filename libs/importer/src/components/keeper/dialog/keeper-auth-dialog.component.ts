@@ -41,6 +41,7 @@ export class KeeperAuthDialogComponent {
   protected readonly stage = this.keeperUi.stage;
 
   protected readonly codeControl = new FormControl("", { nonNullable: true });
+  protected readonly passwordControl = new FormControl("", { nonNullable: true });
 
   protected selectApproval(method: DeviceApprovalChannel): void {
     this.keeperUi.submit(method);
@@ -69,6 +70,15 @@ export class KeeperAuthDialogComponent {
 
   protected submitPush(): void {
     this.keeperUi.submit("");
+  }
+
+  protected submitPassword(): void {
+    const password = this.passwordControl.value;
+    if (!password) {
+      return;
+    }
+    this.passwordControl.reset("");
+    this.keeperUi.submit(password);
   }
 
   protected tryAnother(): void {

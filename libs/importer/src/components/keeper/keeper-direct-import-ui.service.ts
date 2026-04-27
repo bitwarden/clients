@@ -29,6 +29,7 @@ export type KeeperAuthStage =
   | { kind: "duoPush"; method: DuoMethod }
   | { kind: "selectDna"; methods: DnaMethod[] }
   | { kind: "dnaPush" }
+  | { kind: "password" }
   | { kind: "error"; message: string };
 
 type PendingResolver = (value: unknown) => void;
@@ -221,6 +222,15 @@ export class KeeperDirectImportUIService implements Ui {
 
   closeDnaPushDialog(): void {
     // No-op — see closeApprovalDialog.
+  }
+
+  //
+  // Password prompt
+  //
+
+  async promptForPassword(): Promise<string | typeof Cancel> {
+    this.setStage({ kind: "password" });
+    return this.waitForUser<string | typeof Cancel>();
   }
 
   //

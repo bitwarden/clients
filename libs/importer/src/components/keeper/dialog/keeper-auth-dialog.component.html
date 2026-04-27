@@ -27,6 +27,9 @@
       @case ("dnaPush") {
         {{ "keeperDnaVerification" | i18n }}
       }
+      @case ("password") {
+        {{ "keeperAuthRequired" | i18n }}
+      }
       @case ("error") {
         {{ "errorOccurred" | i18n }}
       }
@@ -139,6 +142,17 @@
         <p bitTypography="body1">{{ "keeperDnaPushWaiting" | i18n }}</p>
       }
 
+      @case ("password") {
+        <form (ngSubmit)="submitPassword()">
+          <bit-form-field class="!tw-mb-0">
+            <bit-label>{{ "keeperMasterPassword" | i18n }}</bit-label>
+            <input bitInput type="password" [formControl]="passwordControl" appInputVerbatim />
+            <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
+            <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
+          </bit-form-field>
+        </form>
+      }
+
       @case ("error") {
         <bit-callout type="danger">
           {{ currentStage.message | i18n }}
@@ -171,6 +185,12 @@
             {{ "continue" | i18n }}
           </button>
         }
+      }
+
+      @case ("password") {
+        <button bitButton buttonType="primary" type="button" (click)="submitPassword()">
+          {{ "submit" | i18n }}
+        </button>
       }
 
       @case ("error") {
