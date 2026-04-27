@@ -62,10 +62,10 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
 }
 
 interface OrganizationUserNotificationPolicyOptions {
-  header: string;
-  description: string;
-  buttonText: string;
-  showAfterEveryLogin: boolean;
+  header: string | null;
+  description: string | null;
+  buttonText: string | null;
+  showAfterEveryLogin: boolean | null;
 }
 
 // Policy Component Class
@@ -101,7 +101,7 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
   readonly data: FormGroup<ControlsOf<OrganizationUserNotificationPolicyOptions>> =
     this.formBuilder.group({
       header: [
-        null as string,
+        null as string | null,
         lengthValidCustomMessage(
           this.i18nService.t(
             "tooManyCharacters",
@@ -112,7 +112,7 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
         ),
       ],
       description: [
-        null as string,
+        null as string | null,
         [
           requiredCustomMessage(this.i18nService.t("enterADescription")),
           lengthValidCustomMessage(
@@ -126,7 +126,7 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
         ],
       ],
       buttonText: [
-        null as string,
+        null as string | null,
         [
           lengthValidCustomMessage(
             this.i18nService.t(
@@ -138,7 +138,7 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
           ),
         ],
       ],
-      showAfterEveryLogin: [null as boolean],
+      showAfterEveryLogin: [null as boolean | null],
     });
 
   protected override buildRequestData() {
