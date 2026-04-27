@@ -159,16 +159,16 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
         const tabs = this.tabs();
         let selectedTab: TabComponent | undefined;
 
-        for (let i = 0; i < tabs.length; i++) {
-          if (tabs[i].isActive()) {
-            // Set both selectedIndex and _selectedIndex to avoid firing a change
-            // event which could cause an infinite loop if adding a tab within the
-            // selectedIndex change event
-            this.selectedIndex.set(i);
-            this._selectedIndex.set(i);
-            selectedTab = tabs[i];
-            break;
-          }
+        const activeTab = tabs.find((tab) => tab.isActive());
+
+        if (activeTab) {
+          const activeIndex = tabs.indexOf(activeTab);
+          // Set both selectedIndex and _selectedIndex to avoid firing a change
+          // event which could cause an infinite loop if adding a tab within the
+          // selectedIndex change event
+          this.selectedIndex.set(activeIndex);
+          this._selectedIndex.set(activeIndex);
+          selectedTab = activeTab;
         }
 
         // No active tab found and a tab does exist means the active tab

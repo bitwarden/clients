@@ -69,6 +69,7 @@ export class TabListItemDirective implements FocusableOption {
     "tw-bg-transparent",
     "tw-outline-none",
     "tw-group/tab-list-item",
+    "tw-transition",
   ];
 
   readonly disabledClassList: string[] = ["tw-cursor-not-allowed"];
