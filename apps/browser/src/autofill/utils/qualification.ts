@@ -1,10 +1,16 @@
 import AutofillField from "../models/autofill-field";
+import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutoFillConstants } from "../services/autofill-constants";
 
 // Module-level cache
 const autofillFieldKeywordsCache: WeakMap<
   AutofillField,
+  { keywordsSet: Set<string>; stringValue: string }
+> = new WeakMap();
+
+const autofillFormKeywordsCache: WeakMap<
+  AutofillForm,
   { keywordsSet: Set<string>; stringValue: string }
 > = new WeakMap();
 
@@ -72,25 +78,68 @@ function buildAutofillFieldKeywords(field: AutofillField) {
 }
 
 /**
- * Returns true if any of the provided keywords is found in the field's attributes.
- * Strips hyphens from input keywords before matching.
- *
- * @param field - The AutofillField to check
- * @param keywords - Keywords to search for
- * @param substringMatch - If true (default), keyword is searched as a substring across the
- *   field's normalized attribute data. If false, keyword must be an exact token in the set.
+ * True if any keyword matches a token from the field. With `appearsWithin` (default), the
+ * keyword may appear as a substring of any token; `matchesToken` requires an exact token.
+ * Hyphens are stripped from keywords before matching.
  */
 export function fieldContainsKeyword(
   field: AutofillField,
-  keywords: string[],
-  substringMatch = true,
+  keywords: readonly string[],
+  mode: "appearsWithin" | "matchesToken" = "appearsWithin",
 ): boolean {
   const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
   const { keywordsSet, stringValue } = buildAutofillFieldKeywords(field);
-  if (substringMatch) {
+  if (mode === "appearsWithin") {
     return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
   }
   return parsedKeywords.some((k) => keywordsSet.has(k));
+}
+
+/**
+ * True if any keyword matches a token from the form. With `appearsWithin` (default), the
+ * keyword may appear as a substring of any token; `matchesToken` requires an exact token.
+ * Hyphens are stripped from keywords before matching.
+ */
+export function formContainsKeyword(
+  form: AutofillForm,
+  keywords: readonly string[],
+  mode: "appearsWithin" | "matchesToken" = "appearsWithin",
+): boolean {
+  const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
+  const { keywordsSet, stringValue } = buildAutofillFormKeywords(form);
+  if (mode === "appearsWithin") {
+    return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
+  }
+  return parsedKeywords.some((k) => keywordsSet.has(k));
+}
+
+/**
+ * Tokenize the form's string attrs and each heading separately into a unified set;
+ * per-heading tokenization keeps substring scans from spanning two headings.
+ */
+function buildAutofillFormKeywords(form: AutofillForm) {
+  if (autofillFormKeywordsCache.has(form)) {
+    return autofillFormKeywordsCache.get(form)!;
+  }
+  const stringAttributes = [form.htmlID, form.htmlName, form.htmlAction, form.htmlClass];
+  const keywordsSet = new Set<string>();
+  for (const attributeValue of stringAttributes) {
+    if (!attributeValue || typeof attributeValue !== "string") {
+      continue;
+    }
+    tokenizeValue(attributeValue).forEach((k) => keywordsSet.add(k));
+  }
+  if (Array.isArray(form.htmlAncestorHeadings)) {
+    for (const heading of form.htmlAncestorHeadings) {
+      if (typeof heading !== "string" || !heading) {
+        continue;
+      }
+      tokenizeValue(heading).forEach((k) => keywordsSet.add(k));
+    }
+  }
+  const result = { keywordsSet, stringValue: Array.from(keywordsSet).join(",") };
+  autofillFormKeywordsCache.set(form, result);
+  return result;
 }
 
 /**
@@ -134,18 +183,10 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
 }
 
 /**
- * Returns true if the field's parent form contains keywords indicating a non-login
- * context (e.g. newsletter signup, subscription forms). Checks the form's {@link AutofillForm.htmlID},
- * {@link AutofillForm.htmlName}, and {@link AutofillForm.htmlAction} attributes against
- * {@link AutoFillConstants.NonLoginFormKeywords}. Returns false when the field has no parent form.
- *
- * @param field - The AutofillField whose parent form is to be checked
- * @param pageDetails - Page details containing the forms map
+ * True if the field's parent form carries a non-login signal, scanned against
+ * {@link AutoFillConstants.StrictNonLoginKeywords}.
  */
-export function isNonLoginFormContext(
-  field: AutofillField,
-  pageDetails: AutofillPageDetails,
-): boolean {
+function isNonLoginFormContext(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
   const fieldForm = field.form;
   if (!fieldForm) {
     return false;
@@ -156,18 +197,61 @@ export function isNonLoginFormContext(
     return false;
   }
 
-  const formAttributes = [parentForm.htmlID, parentForm.htmlName, parentForm.htmlAction];
-  for (const attr of formAttributes) {
-    if (!attr || typeof attr !== "string") {
-      continue;
-    }
-    const attrLower = attr.toLowerCase();
-    for (const keyword of AutoFillConstants.NonLoginFormKeywords) {
-      if (attrLower.includes(keyword)) {
-        return true;
-      }
-    }
+  return formContainsKeyword(parentForm, AutoFillConstants.StrictNonLoginKeywords);
+}
+
+/**
+ * True if the field or any same-form sibling matches a keyword.
+ * Returns false when the field has no form to scope siblings against.
+ */
+function anyFieldInFormMatches(
+  field: AutofillField,
+  pageDetails: AutofillPageDetails,
+  keywords: readonly string[],
+): boolean {
+  if (fieldContainsKeyword(field, keywords)) {
+    return true;
   }
 
-  return false;
+  if (!field.form) {
+    return false;
+  }
+
+  return pageDetails.fields.some(
+    (sibling) =>
+      sibling !== field && sibling.form === field.form && fieldContainsKeyword(sibling, keywords),
+  );
+}
+
+/**
+ * True if the field looks like a non-login username.
+ * Checks the form context, then the field and its siblings for non-login keywords.
+ */
+export function isNonLoginUsernameField(
+  field: AutofillField,
+  pageDetails: AutofillPageDetails,
+): boolean {
+  if (isNonLoginFormContext(field, pageDetails)) {
+    return true;
+  }
+
+  return anyFieldInFormMatches(field, pageDetails, AutoFillConstants.StrictNonLoginKeywords);
+}
+
+/**
+ * Tie-break an ambiguously structured possible login input (e.g. lone username, no passwords).
+ * Uses {@link AutoFillConstants.BroadNonLoginKeywords} which are too noisy for general cases.
+ */
+export function isAmbiguousFieldNonLogin(
+  field: AutofillField,
+  pageDetails: AutofillPageDetails,
+): boolean {
+  const keywords = AutoFillConstants.BroadNonLoginKeywords;
+
+  const parentForm = field.form ? pageDetails.forms?.[field.form] : undefined;
+  if (parentForm && formContainsKeyword(parentForm, keywords)) {
+    return true;
+  }
+
+  return anyFieldInFormMatches(field, pageDetails, keywords);
 }

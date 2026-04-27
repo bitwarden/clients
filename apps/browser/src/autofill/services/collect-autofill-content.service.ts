@@ -381,13 +381,33 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.NAME),
-        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS),
+        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS) ?? "",
         htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
         htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
+        htmlAncestorHeadings: this.getAncestorHeadings(formElement),
       } as AutofillForm);
     }
 
     return this.getFormattedAutofillFormsData();
+  }
+
+  /**
+   * Each heading inside the form's nearest section/article/main/aside/form ancestor,
+   * in document order. Headings inside a sibling form are skipped.
+   */
+  private getAncestorHeadings(formElement: HTMLFormElement): string[] {
+    const scope = formElement.parentElement?.closest("section, article, main, aside, form");
+    if (!scope) {
+      return [];
+    }
+
+    return Array.from(scope.querySelectorAll("h1, h2, h3, h4, h5, h6"))
+      .filter((h) => {
+        const f = h.closest("form");
+        return f === null || f === formElement;
+      })
+      .map((h) => this.getTextContentFromElement(h))
+      .filter((text): text is string => Boolean(text));
   }
 
   /**

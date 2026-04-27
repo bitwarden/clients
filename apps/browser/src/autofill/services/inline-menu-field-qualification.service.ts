@@ -4,7 +4,8 @@ import { sendExtensionMessage } from "../utils";
 import {
   fieldContainsKeyword,
   getSubmitButtonKeywordsSet,
-  isNonLoginFormContext,
+  isNonLoginUsernameField,
+  isAmbiguousFieldNonLogin,
 } from "../utils/qualification";
 
 import {
@@ -440,11 +441,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     }
     const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
 
-    /**
-     * If a field is part of a newsletter form, or other recognized non-login type forms, it isn't a username
-     * {@link AutoFillConstants.NonLoginFormKeywords}
-     */
-    if (isNonLoginFormContext(field, pageDetails)) {
+    if (isNonLoginUsernameField(field, pageDetails)) {
       return false;
     }
 
@@ -471,8 +468,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       if (passwordFieldsInPageDetails.length === 1) {
         return true;
       }
-
       // If the page does not contain any password fields, it might be part of a multistep login form.
+      // Before defaulting to login, consult the tie-breaker.
+      if (isAmbiguousFieldNonLogin(field, pageDetails)) {
+        return false;
+      }
       return true;
     }
 
@@ -488,6 +488,10 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
           this.usernameFieldTypes.has(pageDetailsField.type),
       );
       if (loginEligibleFieldsWithinForm.length === 1) {
+        // Before defaulting to login, consult the tie-breaker.
+        if (isAmbiguousFieldNonLogin(field, pageDetails)) {
+          return false;
+        }
         return true;
       }
 
@@ -530,7 +534,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CardHolderFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.CardHolderFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -543,7 +551,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CardNumberFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.CardNumberFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -558,7 +570,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CardExpiryFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.CardExpiryFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -573,7 +589,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -588,7 +608,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.ExpiryYearFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.ExpiryYearFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -601,7 +625,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CVVFieldNames, false);
+    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CVVFieldNames, "matchesToken");
   };
 
   /**
@@ -616,7 +640,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.TitleFieldNames, false);
+    return fieldContainsKeyword(field, IdentityAutoFillConstants.TitleFieldNames, "matchesToken");
   };
 
   /**
@@ -629,7 +653,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.FirstnameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.FirstnameFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -642,7 +670,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.MiddlenameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.MiddlenameFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -655,7 +687,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.LastnameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.LastnameFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -668,7 +704,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.FullNameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.FullNameFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -687,7 +727,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
         ...IdentityAutoFillConstants.AddressFieldNames,
         ...IdentityAutoFillConstants.Address1FieldNames,
       ],
-      false,
+      "matchesToken",
     );
   };
 
@@ -701,7 +741,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.Address2FieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.Address2FieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -714,7 +758,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.Address3FieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.Address3FieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -727,7 +775,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.CityFieldNames, false);
+    return fieldContainsKeyword(field, IdentityAutoFillConstants.CityFieldNames, "matchesToken");
   };
 
   /**
@@ -740,7 +788,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.StateFieldNames, false);
+    return fieldContainsKeyword(field, IdentityAutoFillConstants.StateFieldNames, "matchesToken");
   };
 
   /**
@@ -753,7 +801,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.PostalCodeFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.PostalCodeFieldNames,
+      "matchesToken",
+    );
   };
 
   /**
@@ -766,7 +818,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.CountryFieldNames, false);
+    return fieldContainsKeyword(field, IdentityAutoFillConstants.CountryFieldNames, "matchesToken");
   };
 
   /**
@@ -779,7 +831,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.CompanyFieldNames, false);
+    return fieldContainsKeyword(field, IdentityAutoFillConstants.CompanyFieldNames, "matchesToken");
   };
 
   /**
@@ -792,7 +844,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.PhoneFieldNames, false);
+    return fieldContainsKeyword(field, IdentityAutoFillConstants.PhoneFieldNames, "matchesToken");
   };
 
   /**
@@ -813,7 +865,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.EmailFieldNames, false);
+    return fieldContainsKeyword(field, IdentityAutoFillConstants.EmailFieldNames, "matchesToken");
   };
 
   /**
@@ -826,7 +878,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.UserNameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.UserNameFieldNames,
+      "matchesToken",
+    );
   };
 
   /**

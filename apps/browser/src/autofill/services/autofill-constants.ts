@@ -154,19 +154,20 @@ export class AutoFillConstants {
     "kennwort ändern",
   ];
 
+  /** Strict non-login keywords disqualify a form for login unconditionally. */
+  static readonly StrictNonLoginKeywords = ["newsletter"] as const;
+
   /**
-   * Form-level keywords indicating a non-login context such as newsletter signup or
-   * subscription forms. Used to exclude fields within these forms from login autofill.
+   * Broad non-login keywords used only in case of ambiguously structured
+   * possible login input (e.g. lone username, no passwords).
    */
-  static readonly NonLoginFormKeywords: string[] = [
-    "newsletter",
-    // @TODO expand list thoughtfully
-    // consider possible collisions with login forms
-    // consider using a "maybe" check
-    // "subscribe",
-    // "subscription",
-    // "unsubscribe",
-  ];
+  static readonly BroadNonLoginKeywords = [
+    ...AutoFillConstants.StrictNonLoginKeywords,
+    "mailing list",
+    "subscribe",
+    "subscription",
+    "unsubscribe",
+  ] as const;
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
