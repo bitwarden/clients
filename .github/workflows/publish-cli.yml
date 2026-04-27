@@ -167,7 +167,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
-          secrets: "cli-choco-api-key"
+          secrets: "choco-api-key"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -175,7 +175,7 @@ jobs:
       - name: Setup Chocolatey
         run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
         env:
-          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.cli-choco-api-key }}
+          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.choco-api-key }}
 
       - name: Make dist dir
         run: New-Item -ItemType directory -Path ./dist
