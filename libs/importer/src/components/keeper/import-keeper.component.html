@@ -2,7 +2,9 @@
   <bit-form-field>
     <bit-label>{{ "keeperEmail" | i18n }}</bit-label>
     <input bitInput type="text" formControlName="email" />
-    <bit-hint>{{ emailHint() }}</bit-hint>
+    @if (emailHint(); as hint) {
+      <bit-hint>{{ hint }}</bit-hint>
+    }
   </bit-form-field>
   <bit-form-field>
     <bit-label>{{ "dataCenterLocation" | i18n }}</bit-label>
