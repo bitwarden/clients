@@ -7,7 +7,6 @@ import {
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
-  Validators,
 } from "@angular/forms";
 import { map, startWith, switchMap } from "rxjs";
 
@@ -42,6 +41,12 @@ function lengthValidCustomMessage(customMessage: string, max: number): Validator
   };
 }
 
+function requiredCustomMessage(customMessage: string): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    return control.value?.trim() ? null : { requiredCustom: { message: customMessage } };
+  };
+}
+
 // Policy Definition Class
 export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition {
   name = "organizationUserNotificationPolicyTitle"; // i18n key for title
@@ -49,7 +54,7 @@ export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition
   type = PolicyType.OrganizationUserNotification; // Reference to enum
   component = OrganizationUserNotificationPolicyComponent; // Reference to component
   category = PolicyCategory.VaultManagement;
-  priority = -1;
+  priority = 70;
 
   display$(organization: Organization, configService: ConfigService) {
     return configService.getFeatureFlag$(FeatureFlag.PM31948_OrgUserNotificationBanner);
@@ -109,7 +114,7 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
       description: [
         null as string,
         [
-          Validators.required,
+          requiredCustomMessage(this.i18nService.t("enterADescription")),
           lengthValidCustomMessage(
             this.i18nService.t(
               "tooManyCharacters",

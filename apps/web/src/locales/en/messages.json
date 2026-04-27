@@ -13462,6 +13462,9 @@
   "organizationUserNotificationPolicyButtonTooltip":{
     "message": "You must enter a header to create a button."
   },
+  "enterADescription": {
+    "message": "Enter a description."
+  },
   "button":{
     "message": "Button"
   },
