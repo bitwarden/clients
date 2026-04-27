@@ -8,7 +8,6 @@ import { BehaviorSubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { LogService } from "@bitwarden/logging";
 
 import { DialogService } from "./dialog.service";
 import { DrawerService } from "./drawer.service";
@@ -40,13 +39,11 @@ describe("DialogService", () => {
   let cdkDialog: MockProxy<CdkDialog>;
   let routerHarness: RouterTestingHarness;
   let authStatus$: BehaviorSubject<AuthenticationStatus>;
-  let logService: MockProxy<LogService>;
 
   beforeEach(async () => {
     drawerService = mock<DrawerService>();
     cdkDialog = mock<CdkDialog>();
     authStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
-    logService = mock<LogService>();
 
     TestBed.configureTestingModule({
       providers: [
@@ -59,7 +56,6 @@ describe("DialogService", () => {
             getAuthStatus: () => authStatus$,
           },
         },
-        { provide: LogService, useValue: logService },
         provideRouter([
           { path: "", component: InitialRouteComponent },
           { path: "other-route", component: OtherRouteComponent },
@@ -77,7 +73,7 @@ describe("DialogService", () => {
 
   describe("close drawer on navigation", () => {
     it("closes the drawer when navigating to a different route with closeOnNavigation enabled", async () => {
-      await service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
+      service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
 
       await routerHarness.navigateByUrl("/other-route");
 
@@ -85,7 +81,7 @@ describe("DialogService", () => {
     });
 
     it("does not close the drawer when navigating if closeOnNavigation is disabled", async () => {
-      await service.openDrawer(TestDrawerComponent, { closeOnNavigation: false });
+      service.openDrawer(TestDrawerComponent, { closeOnNavigation: false });
 
       await routerHarness.navigateByUrl("/other-route");
 
@@ -93,7 +89,7 @@ describe("DialogService", () => {
     });
 
     it("does not close the drawer when only query params change", async () => {
-      await service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
+      service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
 
       await routerHarness.navigateByUrl("/?foo=bar");
 
@@ -101,7 +97,7 @@ describe("DialogService", () => {
     });
 
     it("closes the drawer when the path changes but query params remain", async () => {
-      await service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
+      service.openDrawer(TestDrawerComponent, { closeOnNavigation: true });
 
       await routerHarness.navigateByUrl("/other-route?foo=bar");
 
@@ -109,10 +105,72 @@ describe("DialogService", () => {
     });
 
     it("does not close the drawer by default when closeOnNavigation is not specified", async () => {
-      await service.openDrawer(TestDrawerComponent);
+      service.openDrawer(TestDrawerComponent);
 
       await routerHarness.navigateByUrl("/other-route");
 
+      expect(drawerService.close).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("DrawerDialogRef.close() with beforeClose$", () => {
+    it("closes successfully when no subscriber cancels", () => {
+      const ref = service.openDrawer(TestDrawerComponent)!;
+      ref.beforeClose$.subscribe(() => {
+        // do not cancel
+      });
+
+      const closeRef = ref.close(undefined);
+
+      expect(closeRef.closed).toBe(true);
+      expect(drawerService.close).toHaveBeenCalled();
+    });
+
+    it("emits the result on beforeClose$ when close is triggered", () => {
+      const ref = service.openDrawer(TestDrawerComponent)!;
+      const emitted: unknown[] = [];
+      ref.beforeClose$.subscribe((event) => {
+        emitted.push(event.result);
+      });
+
+      ref.close("my-result" as any);
+
+      expect(emitted).toEqual(["my-result"]);
+    });
+
+    it("prevents close when cancel() is called synchronously", () => {
+      const ref = service.openDrawer(TestDrawerComponent)!;
+      ref.beforeClose$.subscribe((event) => {
+        event.cancel();
+      });
+
+      const closeRef = ref.close(undefined);
+
+      expect(closeRef.closed).toBe(false);
+      expect(drawerService.close).not.toHaveBeenCalled();
+    });
+
+    it("closes when beforeClose$ has no subscribers", () => {
+      const ref = service.openDrawer(TestDrawerComponent)!;
+
+      const closeRef = ref.close(undefined);
+
+      expect(closeRef.closed).toBe(true);
+      expect(drawerService.close).toHaveBeenCalled();
+    });
+
+    it("short-circuits before beforeClose$ when disableClose is true", () => {
+      const ref = service.openDrawer(TestDrawerComponent)!;
+      ref.disableClose = true;
+      const emitted: unknown[] = [];
+      ref.beforeClose$.subscribe(() => {
+        emitted.push(true);
+      });
+
+      const closeRef = ref.close(undefined);
+
+      expect(closeRef.closed).toBe(false);
+      expect(emitted).toHaveLength(0);
       expect(drawerService.close).not.toHaveBeenCalled();
     });
   });

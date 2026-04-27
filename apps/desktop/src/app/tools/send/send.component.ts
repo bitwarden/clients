@@ -23,7 +23,6 @@ import {
   DefaultSendFormConfigService,
   SendItemDialogResult,
   SendPolicyService,
-  SendFormService,
   SendFormModule,
   SendFormConfig,
 } from "@bitwarden/send-ui";
@@ -62,7 +61,6 @@ export class SendComponent {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private logService = inject(LogService);
-  private sendFormService = inject(SendFormService);
   private destroyRef = inject(DestroyRef);
 
   private activeDrawerRef?: DialogRef<SendItemDialogResult>;
@@ -116,9 +114,8 @@ export class SendComponent {
   }
 
   private async openSendDialog(formConfig: SendFormConfig) {
-    const activeDrawerRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+    const activeDrawerRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
       formConfig,
-      closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
     });
 
     // If we were unable to open the dialog (because the previous drawer failed to close, for example) exit immediately

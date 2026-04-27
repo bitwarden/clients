@@ -225,14 +225,12 @@ export class SendComponent implements OnDestroy {
 
     let sendItemDialogRef: DialogRef<SendItemDialogResult, SendAddEditDialogComponent> | undefined;
     if (useRefresh) {
-      sendItemDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      sendItemDialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     } else {
       sendItemDialogRef = SendAddEditDialogComponent.open(this.dialogService, {
         formConfig,
-        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
       });
     }
 
