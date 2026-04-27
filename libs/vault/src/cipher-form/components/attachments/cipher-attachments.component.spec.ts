@@ -333,6 +333,7 @@ describe("CipherAttachmentsComponent", () => {
           file,
           mockUserId,
           false,
+          undefined,
         );
       });
 
@@ -342,7 +343,13 @@ describe("CipherAttachmentsComponent", () => {
 
         await component.submit();
 
-        expect(saveAttachmentWithServer).toHaveBeenCalledWith(cipherDomain, file, mockUserId, true);
+        expect(saveAttachmentWithServer).toHaveBeenCalledWith(
+          cipherDomain,
+          file,
+          mockUserId,
+          true,
+          undefined,
+        );
       });
 
       it("resets form and input values", async () => {
@@ -375,6 +382,67 @@ describe("CipherAttachmentsComponent", () => {
         await component.submit();
 
         expect(emitSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("uploadProgress", () => {
+      beforeEach(async () => {
+        const configService = TestBed.inject(ConfigService);
+        (configService.getFeatureFlag as jest.Mock).mockResolvedValue(true);
+
+        fixture = TestBed.createComponent(CipherAttachmentsComponent);
+        component = fixture.componentInstance;
+        fixture.componentRef.setInput("cipherId", "5555-444-3333" as CipherId);
+        fixture.detectChanges();
+        await waitForInitialization();
+        component.attachmentForm.controls.file.setValue({ size: 100 } as File);
+      });
+
+      it("sets uploadProgress to 0 when upload starts", async () => {
+        let progressAtStart: number | null = null;
+
+        saveAttachmentWithServer.mockImplementation(() => {
+          progressAtStart = component["uploadProgress"]();
+          return Promise.resolve(cipherDomain);
+        });
+
+        await component.submit();
+
+        expect(progressAtStart).toBe(0);
+      });
+
+      it("updates uploadProgress when onProgress callback is called", async () => {
+        const progressValues: (number | null)[] = [];
+
+        saveAttachmentWithServer.mockImplementation(
+          (
+            _: unknown,
+            _file: unknown,
+            _userId: unknown,
+            _admin: unknown,
+            options: { onProgress?: (percent: number) => void },
+          ) => {
+            options?.onProgress?.(25);
+            progressValues.push(component["uploadProgress"]());
+
+            options?.onProgress?.(75);
+            progressValues.push(component["uploadProgress"]());
+
+            return Promise.resolve(cipherDomain);
+          },
+        );
+
+        await component.submit();
+
+        expect(progressValues).toEqual([25, 75]);
+      });
+
+      it("sets uploadProgress to null in the finally block after a failed upload", async () => {
+        saveAttachmentWithServer.mockRejectedValue(new Error("upload failed"));
+
+        await component.submit();
+
+        expect(component["uploadProgress"]()).toBeNull();
       });
     });
 

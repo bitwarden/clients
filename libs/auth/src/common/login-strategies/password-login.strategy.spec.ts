@@ -32,7 +32,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -51,7 +50,6 @@ import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-log
 const email = "hello@world.com";
 const masterPassword = "password";
 const hashedPassword = "HASHED_PASSWORD";
-const localHashedPassword = "LOCAL_HASHED_PASSWORD";
 const masterKey = new SymmetricCryptoKey(
   Utils.fromB64ToArray(
     "N2KWjlLpfi5uHjv+YcfUKIpZ1l+W+6HRensmIqD+BFYBf6N/dvFpJfWwYnVBdgFCK2tJTAIMLhqzIQQEUmGFgg==",
@@ -119,7 +117,9 @@ describe("PasswordLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    configService.getFeatureFlag.mockResolvedValue(false);
+    configService.getFeatureFlag
+      .calledWith(FeatureFlag.UseUnlockServiceForPasswordLogin)
+      .mockResolvedValue(false);
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -127,16 +127,13 @@ describe("PasswordLoginStrategy", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(new PBKDF2KdfConfig())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
     );
     keyService.makeMasterKey.mockResolvedValue(masterKey);
 
     keyService.hashMasterKey
-      .calledWith(masterPassword, expect.anything(), undefined)
+      .calledWith(masterPassword, expect.anything())
       .mockResolvedValue(hashedPassword);
-    keyService.hashMasterKey
-      .calledWith(masterPassword, expect.anything(), HashPurpose.LocalAuthorization)
-      .mockResolvedValue(localHashedPassword);
 
     policyService.evaluateMasterPassword.mockReturnValue(true);
 
@@ -215,10 +212,6 @@ describe("PasswordLoginStrategy", () => {
     await passwordLoginStrategy.logIn(credentials);
 
     expect(masterPasswordService.mock.setMasterKey).toHaveBeenCalledWith(masterKey, userId);
-    expect(masterPasswordService.mock.setMasterKeyHash).toHaveBeenCalledWith(
-      localHashedPassword,
-      userId,
-    );
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
       tokenResponse.key,
       userId,
@@ -231,12 +224,9 @@ describe("PasswordLoginStrategy", () => {
   });
 
   it("uses master password unlock service when feature flag is enabled", async () => {
-    configService.getFeatureFlag.mockImplementation(async (flag: FeatureFlag) => {
-      if (flag === FeatureFlag.UseUnlockServiceForPasswordLogin) {
-        return true;
-      }
-      return false;
-    });
+    configService.getFeatureFlag
+      .calledWith(FeatureFlag.UseUnlockServiceForPasswordLogin)
+      .mockResolvedValue(true);
 
     // Re-create he strategy and wait a bit to settle the feature flag
     passwordLoginStrategy = new PasswordLoginStrategy(
@@ -275,7 +265,6 @@ describe("PasswordLoginStrategy", () => {
       FeatureFlag.UseUnlockServiceForPasswordLogin,
     );
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(masterPasswordService.mock.setMasterKeyHash).not.toHaveBeenCalled();
     expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(userId, masterPassword);
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
     expect(keyService.setUserKey).not.toHaveBeenCalled();
@@ -291,7 +280,7 @@ describe("PasswordLoginStrategy", () => {
     });
 
     it("does not call getPreloginData$ when preFetchedPreloginData is provided", async () => {
-      const preloginData = new PasswordPreloginData(new PBKDF2KdfConfig());
+      const preloginData = new PasswordPreloginData(PBKDF2KdfConfig.createDefault());
       const credentialsWithPrefetch = new PasswordLoginCredentials(
         email,
         masterPassword,

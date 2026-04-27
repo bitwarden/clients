@@ -15,8 +15,6 @@ import { ScimApiKeyDialogComponent, ScimApiKeyDialogData } from "./scim-api-key-
 
 describe("ScimApiKeyDialogComponent", () => {
   const orgId = "org-id-123";
-  const testAccess = (comp: ScimApiKeyDialogComponent) => comp as any;
-
   let dialogRef: MockProxy<DialogRef>;
   let userVerificationService: MockProxy<UserVerificationService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
@@ -56,7 +54,7 @@ describe("ScimApiKeyDialogComponent", () => {
 
   describe("non-rotation mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, isRotation: false });
+      await setupTestBed({ organizationId: orgId, titleKey: "viewScimApiKey", isRotation: false });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
@@ -74,7 +72,7 @@ describe("ScimApiKeyDialogComponent", () => {
       expect(userVerificationService.buildRequest).not.toHaveBeenCalled();
     });
 
-    it("calls getOrCreateApiKey and sets clientSecret", async () => {
+    it("calls getOrCreateApiKey and closes with apiKey", async () => {
       const mockRequest = setVerificationAndMockRequest();
       organizationApiService.getOrCreateApiKey.mockResolvedValue({
         apiKey: "test-api-key",
@@ -88,31 +86,19 @@ describe("ScimApiKeyDialogComponent", () => {
       );
       expect(mockRequest.type).toBe(OrganizationApiKeyType.Scim);
       expect(organizationApiService.getOrCreateApiKey).toHaveBeenCalledWith(orgId, mockRequest);
-      expect(testAccess(component).clientSecret()).toBe("test-api-key");
+      expect(dialogRef.close).toHaveBeenCalledWith({ apiKey: "test-api-key" });
     });
 
-    it("closes with undefined when no clientSecret is set", () => {
+    it("closes with undefined when dismissed", () => {
       component.close();
 
       expect(dialogRef.close).toHaveBeenCalledWith(undefined);
-    });
-
-    it("closes with apiKey when clientSecret is set", async () => {
-      setVerificationAndMockRequest();
-      organizationApiService.getOrCreateApiKey.mockResolvedValue({
-        apiKey: "test-key",
-      } as ApiKeyResponse);
-
-      await component.submit();
-      component.close();
-
-      expect(dialogRef.close).toHaveBeenCalledWith({ apiKey: "test-key" });
     });
   });
 
   describe("rotation mode", () => {
     beforeEach(async () => {
-      await setupTestBed({ organizationId: orgId, isRotation: true });
+      await setupTestBed({ organizationId: orgId, titleKey: "rotateScimKey", isRotation: true });
       fixture = TestBed.createComponent(ScimApiKeyDialogComponent);
       component = fixture.componentInstance;
     });
@@ -121,7 +107,7 @@ describe("ScimApiKeyDialogComponent", () => {
       expect(component.isRotation).toBe(true);
     });
 
-    it("calls rotateApiKey and sets clientSecret", async () => {
+    it("calls rotateApiKey and closes with apiKey", async () => {
       const mockRequest = setVerificationAndMockRequest();
       organizationApiService.rotateApiKey.mockResolvedValue({
         apiKey: "rotated-api-key",
@@ -131,14 +117,18 @@ describe("ScimApiKeyDialogComponent", () => {
 
       expect(organizationApiService.rotateApiKey).toHaveBeenCalledWith(orgId, mockRequest);
       expect(organizationApiService.getOrCreateApiKey).not.toHaveBeenCalled();
-      expect(testAccess(component).clientSecret()).toBe("rotated-api-key");
+      expect(dialogRef.close).toHaveBeenCalledWith({ apiKey: "rotated-api-key" });
     });
   });
 
   describe("open", () => {
     it("calls dialogService.open with correct arguments", () => {
       const service = mock<DialogService>();
-      const data: ScimApiKeyDialogData = { organizationId: orgId, isRotation: true };
+      const data: ScimApiKeyDialogData = {
+        organizationId: orgId,
+        titleKey: "rotateScimKey",
+        isRotation: true,
+      };
 
       ScimApiKeyDialogComponent.open(service, data);
 

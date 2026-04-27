@@ -1,38 +1,27 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog>
     <span bitDialogTitle>
-      {{ (isRotation ? "rotateScimKey" : "viewScimApiKey") | i18n }}
+      {{ data.titleKey | i18n }}
     </span>
     <div bitDialogContent>
-      @if (isRotation && !clientSecret()) {
+      @if (isRotation) {
         <bit-callout type="warning">
           {{ "rotateScimKeyWarning" | i18n }}
         </bit-callout>
       }
 
-      @if (!clientSecret()) {
-        <app-user-verification-form-input formControlName="verification">
-        </app-user-verification-form-input>
-      }
-
-      @if (clientSecret()) {
-        <bit-form-field>
-          <bit-label>{{ "scimApiKey" | i18n }}</bit-label>
-          <input bitInput id="clientSecret" type="text" [value]="clientSecret()" disabled />
-        </bit-form-field>
-      }
+      <app-user-verification-form-input formControlName="verification">
+      </app-user-verification-form-input>
     </div>
     <ng-container bitDialogFooter>
-      @if (!clientSecret()) {
-        <button
-          type="submit"
-          bitButton
-          bitFormButton
-          [buttonType]="isRotation ? 'danger' : 'primary'"
-        >
-          {{ (isRotation ? "rotateKey" : "viewApiKey") | i18n }}
-        </button>
-      }
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        [buttonType]="isRotation ? 'danger' : 'primary'"
+      >
+        {{ (isRotation ? "rotateKey" : "viewApiKey") | i18n }}
+      </button>
       <button bitButton type="button" (click)="close()">
         {{ "close" | i18n }}
       </button>

@@ -9,7 +9,7 @@ import {
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
 import { LogService } from "@bitwarden/logging";
-import { RotateUserKeysRequest } from "@bitwarden/sdk-internal";
+import { PasswordChangeAndRotateUserKeysRequest } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import {
@@ -52,17 +52,13 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
 
           using ref = sdk.take();
           this.logService.info("[UserKey Rotation] Re-encrypting user data with new user key...");
-          await ref.value.user_crypto_management().rotate_user_keys({
-            master_key_unlock_method: {
-              Password: {
-                old_password: currentMasterPassword,
-                password: newMasterPassword,
-                hint: hint,
-              },
-            },
+          await ref.value.user_crypto_management().password_change_and_rotate_user_keys({
+            old_password: currentMasterPassword,
+            password: newMasterPassword,
+            hint: hint,
             trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
             trusted_organization_public_keys: trustedOrganizationPublicKeys,
-          } as RotateUserKeysRequest);
+          } as PasswordChangeAndRotateUserKeysRequest);
           return true;
         }),
         catchError((error: unknown) => {
@@ -141,7 +137,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     for (const details of emergencyAccessV1Memberships) {
       const dialogRef = EmergencyAccessTrustComponent.open(this.dialogService, {
         name: details.name,
-        userId: details.id as string,
+        userId: details.grantee_id as string,
         publicKey: Utils.fromB64ToArray(details.public_key),
       });
       if (!(await firstValueFrom(dialogRef.closed))) {

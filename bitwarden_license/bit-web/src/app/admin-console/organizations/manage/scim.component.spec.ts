@@ -148,7 +148,7 @@ describe("ScimComponent", () => {
       expect(dialogService.open).not.toHaveBeenCalled();
     }));
 
-    it("opens the dialog with isRotation false when showScimKey is false", fakeAsync(() => {
+    it("opens the dialog when showScimKey is false", fakeAsync(() => {
       const mockDialogRef = {
         closed: of({ apiKey: "revealed-key" }),
       } as unknown as ReturnType<typeof dialogService.open>;
@@ -158,7 +158,7 @@ describe("ScimComponent", () => {
       tick();
 
       expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
-        data: { organizationId: orgId, isRotation: false },
+        data: { organizationId: orgId, titleKey: "viewScimApiKey", isRotation: false },
       });
       expect(component.formData.get("clientSecret")!.value).toBe("revealed-key");
       expect(component.showScimKey).toBe(true);
@@ -195,7 +195,7 @@ describe("ScimComponent", () => {
       tick();
 
       expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
-        data: { organizationId: orgId, isRotation: true },
+        data: { organizationId: orgId, titleKey: "rotateScimKey", isRotation: true },
       });
       expect(component.formData.get("clientSecret")!.value).toBe("rotated-key");
       expect(toastService.showToast).toHaveBeenCalledWith({
@@ -218,6 +218,71 @@ describe("ScimComponent", () => {
     }));
   });
 
+  describe("copyScimKey", () => {
+    beforeEach(fakeAsync(() => {
+      initComponent(mockConnection(true));
+      void component.load();
+      tick();
+    }));
+
+    it("opens dialog and copies key to clipboard when no cached key", fakeAsync(() => {
+      const mockDialogRef = {
+        closed: of({ apiKey: "revealed-key" }),
+      } as unknown as ReturnType<typeof dialogService.open>;
+      dialogService.open.mockReturnValue(mockDialogRef);
+
+      void component.copyScimKey();
+      tick();
+
+      expect(dialogService.open).toHaveBeenCalledWith(ScimApiKeyDialogComponent, {
+        data: { organizationId: orgId, titleKey: "copyScimKey", isRotation: false },
+      });
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("revealed-key");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "valueCopied",
+        variant: "success",
+        title: null,
+      });
+    }));
+
+    it("uses cached key without opening dialog", fakeAsync(() => {
+      // First call to cache the key via loadApiKey
+      const mockDialogRef = {
+        closed: of({ apiKey: "cached-key" }),
+      } as unknown as ReturnType<typeof dialogService.open>;
+      dialogService.open.mockReturnValue(mockDialogRef);
+
+      void component.loadApiKey();
+      tick();
+      dialogService.open.mockClear();
+
+      // Second call should use cached key
+      void component.copyScimKey();
+      tick();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("cached-key");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        message: "valueCopied",
+        variant: "success",
+        title: null,
+      });
+    }));
+
+    it("does not copy or show toast when dialog is dismissed", fakeAsync(() => {
+      const mockDialogRef = {
+        closed: of(undefined),
+      } as unknown as ReturnType<typeof dialogService.open>;
+      dialogService.open.mockReturnValue(mockDialogRef);
+
+      void component.copyScimKey();
+      tick();
+
+      expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    }));
+  });
+
   describe("copyScimUrl", () => {
     beforeEach(fakeAsync(() => {
       initComponent(mockConnection(true));
@@ -230,28 +295,6 @@ describe("ScimComponent", () => {
       tick();
 
       expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith(scimUrl + "/" + orgId);
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        message: "valueCopied",
-        variant: "success",
-        title: null,
-      });
-    }));
-  });
-
-  describe("copyScimKey", () => {
-    beforeEach(fakeAsync(() => {
-      initComponent(mockConnection(true));
-      void component.load();
-      tick();
-    }));
-
-    it("copies the client secret value to clipboard and shows toast", fakeAsync(() => {
-      component.formData.patchValue({ clientSecret: "my-secret-key" });
-
-      void component.copyScimKey();
-      tick();
-
-      expect(platformUtilsService.copyToClipboard).toHaveBeenCalledWith("my-secret-key");
       expect(toastService.showToast).toHaveBeenCalledWith({
         message: "valueCopied",
         variant: "success",

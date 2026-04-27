@@ -1,0 +1,166 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog dialogSize="large">
+    <span bitDialogTitle>{{ "inviteMember" | i18n }}</span>
+    <div bitDialogContent>
+      <bit-tab-group
+        [selectedIndex]="selectedTabIndex()"
+        (selectedIndexChange)="selectedTabIndex.set($event)"
+      >
+        <bit-tab [label]="'byEmail' | i18n">
+          @if (organization$ | async; as organization) {
+            <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+            @if ({ seats: remainingSeats$ | async }; as remaining) {
+              <bit-form-field>
+                <bit-label>{{ "email" | i18n }}</bit-label>
+                <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
+                @if (remaining.seats > 1) {
+                  <bit-hint>{{ "inviteMultipleEmailDesc" | i18n: remaining.seats }}</bit-hint>
+                }
+                @if (remaining.seats === 1) {
+                  <bit-hint>{{ "inviteSingleEmailDesc" | i18n }}</bit-hint>
+                }
+                @if (remaining.seats === 0) {
+                  <bit-hint>{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
+                }
+              </bit-form-field>
+            }
+            <bit-radio-group formControlName="type">
+              <bit-label>
+                {{ "memberRole" | i18n }}
+                <a
+                  bitLink
+                  target="_blank"
+                  rel="noreferrer"
+                  appA11yTitle="{{ 'learnMoreAboutMemberRoles' | i18n }}"
+                  href="https://bitwarden.com/help/user-types-access-control/"
+                  slot="end"
+                  startIcon="bwi-question-circle"
+                ></a>
+              </bit-label>
+              <bit-radio-button id="userTypeUser" [value]="organizationUserType.User">
+                <bit-label>{{ "user" | i18n }}</bit-label>
+                <bit-hint>{{ "userDesc" | i18n }}</bit-hint>
+              </bit-radio-button>
+              <bit-radio-button id="userTypeAdmin" [value]="organizationUserType.Admin">
+                <bit-label>{{ "admin" | i18n }}</bit-label>
+                <bit-hint>{{ "adminDesc" | i18n }}</bit-hint>
+              </bit-radio-button>
+              <bit-radio-button id="userTypeOwner" [value]="organizationUserType.Owner">
+                <bit-label>{{ "owner" | i18n }}</bit-label>
+                <bit-hint>{{ "ownerDesc" | i18n }}</bit-hint>
+              </bit-radio-button>
+              <bit-radio-button
+                id="userTypeCustom"
+                [value]="organizationUserType.Custom"
+                [disabled]="!organization.useCustomPermissions || null"
+              >
+                <bit-label>{{ "custom" | i18n }}</bit-label>
+                <bit-hint>
+                  @if (!organization.useCustomPermissions) {
+                    <p>
+                      {{ "customDescNonEnterpriseStart" | i18n }}
+                      <a
+                        bitLink
+                        href="https://bitwarden.com/contact/"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {{ "customDescNonEnterpriseLink" | i18n }}
+                      </a>
+                      {{ "customDescNonEnterpriseEnd" | i18n }}
+                    </p>
+                  } @else {
+                    <p>{{ "customDesc" | i18n }}</p>
+                  }
+                </bit-hint>
+              </bit-radio-button>
+            </bit-radio-group>
+            @if (customUserTypeSelected) {
+              <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
+                <div class="tw-col-span-4">
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="accessEventLogs" />
+                    <bit-label>{{ "accessEventLogs" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="accessImportExport" />
+                    <bit-label>{{ "accessImportExport" | i18n }}</bit-label>
+                  </bit-form-control>
+                  <bit-form-control>
+                    <input type="checkbox" bitCheckbox formControlName="accessReports" />
+                    <bit-label>{{ "accessReports" | i18n }}</bit-label>
+                  </bit-form-control>
+                </div>
+                <div class="tw-col-span-4">
+                  <div class="tw-mb-3">
+                    <bit-form-control>
+                      <input type="checkbox" bitCheckbox formControlName="manageGroups" />
+                      <bit-label>{{ "manageGroups" | i18n }}</bit-label>
+                    </bit-form-control>
+                    <bit-form-control>
+                      <input type="checkbox" bitCheckbox formControlName="manageSso" />
+                      <bit-label>{{ "manageSso" | i18n }}</bit-label>
+                    </bit-form-control>
+                    <bit-form-control>
+                      <input type="checkbox" bitCheckbox formControlName="managePolicies" />
+                      <bit-label>{{ "managePolicies" | i18n }}</bit-label>
+                    </bit-form-control>
+                    <bit-form-control>
+                      <input
+                        id="manageUsers"
+                        type="checkbox"
+                        bitCheckbox
+                        formControlName="manageUsers"
+                      />
+                      <bit-label>{{ "manageUsers" | i18n }}</bit-label>
+                    </bit-form-control>
+                    <bit-form-control>
+                      <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
+                      <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
+                    </bit-form-control>
+                  </div>
+                </div>
+              </div>
+            }
+            @if (organization.useSecretsManager) {
+              <h3 class="tw-mt-4">
+                {{ "secretsManager" | i18n }}
+                <a
+                  bitLink
+                  target="_blank"
+                  rel="noreferrer"
+                  appA11yTitle="{{ 'learnMore' | i18n }}"
+                  href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
+                  startIcon="bwi-question-circle"
+                ></a>
+              </h3>
+              <p class="tw-text-muted">{{ "secretsManagerAccessDescription" | i18n }}</p>
+              <bit-form-control>
+                <input
+                  type="checkbox"
+                  [disabled]="isOnSecretsManagerStandalone"
+                  bitCheckbox
+                  formControlName="accessSecretsManager"
+                />
+                <bit-label>
+                  {{ "userAccessSecretsManagerGA" | i18n }}
+                </bit-label>
+              </bit-form-control>
+            }
+          }
+        </bit-tab>
+        <bit-tab [label]="'byLink' | i18n">
+          <app-by-link-tab />
+        </bit-tab>
+      </bit-tab-group>
+    </div>
+    <ng-container bitDialogFooter>
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "save" | i18n }}
+      </button>
+      <button type="button" bitButton buttonType="secondary" (click)="cancel()">
+        {{ "cancel" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

@@ -32,6 +32,7 @@ export class ScimComponent implements OnInit {
   enabled = new FormControl(false);
   showScimSettings = false;
   showScimKey = false;
+  private cachedApiKey: string | undefined;
 
   formData = this.formBuilder.group({
     endpointUrl: new FormControl({ value: "", disabled: true }),
@@ -73,16 +74,11 @@ export class ScimComponent implements OnInit {
       return;
     }
 
-    const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
-      organizationId: this.organizationId,
-      isRotation: false,
-    });
-
-    const result = await firstValueFrom(dialogRef.closed);
-    if (result?.apiKey) {
+    const apiKey = await this.getOrFetchApiKey("viewScimApiKey");
+    if (apiKey) {
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
-        clientSecret: result.apiKey,
+        clientSecret: apiKey,
       });
       this.showScimKey = true;
     }
@@ -97,33 +93,39 @@ export class ScimComponent implements OnInit {
     });
   };
 
+  copyScimKey = async () => {
+    const apiKey = await this.getOrFetchApiKey("copyScimKey");
+    if (apiKey) {
+      this.platformUtilsService.copyToClipboard(apiKey);
+      this.toastService.showToast({
+        message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
+        variant: "success",
+        title: null,
+      });
+    }
+  };
+
   rotateScimKey = async () => {
     const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
       organizationId: this.organizationId,
+      titleKey: "rotateScimKey",
       isRotation: true,
     });
 
     const result = await firstValueFrom(dialogRef.closed);
     if (result?.apiKey) {
+      this.cachedApiKey = result.apiKey;
       this.formData.setValue({
         endpointUrl: await this.getScimEndpointUrl(),
         clientSecret: result.apiKey,
       });
+      this.showScimKey = true;
       this.toastService.showToast({
         variant: "success",
         title: null,
         message: this.i18nService.t("scimApiKeyRotated"),
       });
     }
-  };
-
-  copyScimKey = async () => {
-    this.platformUtilsService.copyToClipboard(this.formData.get("clientSecret").value);
-    this.toastService.showToast({
-      message: this.i18nService.t("valueCopied", this.i18nService.t("scimApiKey")),
-      variant: "success",
-      title: null,
-    });
   };
 
   submit = async () => {
@@ -158,8 +160,30 @@ export class ScimComponent implements OnInit {
     return env.getScimUrl() + "/" + this.organizationId;
   }
 
+  private async getOrFetchApiKey(titleKey: string): Promise<string | undefined> {
+    if (this.cachedApiKey) {
+      return this.cachedApiKey;
+    }
+
+    const dialogRef = ScimApiKeyDialogComponent.open(this.dialogService, {
+      organizationId: this.organizationId,
+      titleKey,
+      isRotation: false,
+    });
+
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.apiKey) {
+      this.cachedApiKey = result.apiKey;
+      return result.apiKey;
+    }
+
+    return undefined;
+  }
+
   private async setConnectionFormValues(connection: OrganizationConnectionResponse<ScimConfigApi>) {
     this.existingConnectionId = connection?.id;
+    this.cachedApiKey = undefined;
+    this.showScimKey = false;
     if (connection !== null && connection.config?.enabled) {
       this.showScimSettings = true;
       this.enabled.setValue(true);

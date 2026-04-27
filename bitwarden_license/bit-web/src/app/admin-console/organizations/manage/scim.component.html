@@ -54,17 +54,16 @@
     <button
       type="button"
       bitSuffix
-      bitIconButton="bwi-generate"
-      [bitAction]="rotateScimKey"
-      bitFormButton
-      [label]="'rotateScimKey' | i18n"
+      bitIconButton="bwi-clone"
+      [bitAction]="copyScimKey"
+      [label]="'copyScimKey' | i18n"
     ></button>
     <button
       type="button"
       bitSuffix
-      bitIconButton="bwi-clone"
-      [bitAction]="copyScimKey"
-      [label]="'copyScimKey' | i18n"
+      bitIconButton="bwi-generate"
+      [bitAction]="rotateScimKey"
+      [label]="'rotateScimKey' | i18n"
     ></button>
     <bit-hint>{{ "scimApiKeyHelperText" | i18n }}</bit-hint>
   </bit-form-field>

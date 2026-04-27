@@ -53,7 +53,7 @@ export class AdminConsoleCipherFormConfigService implements CipherFormConfigServ
       this.organizationService.organizations$(userId).pipe(
         map((orgs) => {
           return orgs.filter(
-            (o) => o.isMember && o.enabled && o.status === OrganizationUserStatusType.Confirmed,
+            (o) => o.isMember && o.status === OrganizationUserStatusType.Confirmed,
           );
         }),
       ),

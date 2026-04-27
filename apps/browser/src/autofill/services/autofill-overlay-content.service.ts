@@ -3,11 +3,12 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import {
-  EVENTS,
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
-  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
+  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
+  EVENTS,
 } from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
@@ -53,7 +54,12 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
-import { AutoFillConstants } from "./autofill-constants";
+import {
+  AutoFillConstants,
+  loginQualifiers,
+  cardQualifiers,
+  identityQualifiers,
+} from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
@@ -207,6 +213,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (this.isHiddenField(formFieldElement, autofillFieldData)) {
+      return;
+    }
+
+    if (this.isReadonlyOrDisabledElement(formFieldElement, autofillFieldData)) {
       return;
     }
 
@@ -754,6 +764,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
+      if (this.isReadonlyOrDisabledElement(this.mostRecentlyFocusedField)) {
+        return;
+      }
       this.clearFocusInlineMenuListTimeout();
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       await this.sendExtensionMessage("openAutofillInlineMenu", { isOpeningFullInlineMenu: true });
@@ -788,6 +801,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (!elementIsFillableFormField(formFieldElement)) {
+      return;
+    }
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
       return;
     }
 
@@ -912,6 +928,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the click event.
    */
   private async triggerFormFieldClickedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+      return;
+    }
+
     if ((await this.isInlineMenuButtonVisible()) || (await this.isInlineMenuListVisible())) {
       return;
     }
@@ -940,6 +960,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async triggerFormFieldFocusedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (await this.isFieldCurrentlyFilling()) {
+      return;
+    }
+    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
       return;
     }
 
@@ -1088,6 +1111,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
+    /**
+     * This check comes first because a targeting rule is an
+     * authoritative override for subsequent checks
+     */
+    if (autofillFieldData.targeted) {
+      this.setTargetedFieldFillType(autofillFieldData);
+      return false;
+    }
+
     if (autofillFieldData.type != null && this.ignoredFieldTypes.has(autofillFieldData.type)) {
       return true;
     }
@@ -1132,6 +1164,35 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     return true;
+  }
+
+  /**
+   * Maps a targeted field's qualifier to the correct inline menu fill type,
+   * bypassing heuristic qualification.
+   */
+  private setTargetedFieldFillType(autofillFieldData: AutofillField): void {
+    // Targeted fields use AutofillTargetingRuleType values in fieldQualifier,
+    // which are distinct from the heuristic AutofillFieldQualifierType values.
+    const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
+
+    if (loginQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Login;
+      return;
+    }
+
+    if (cardQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Card;
+      return;
+    }
+
+    if (identityQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Identity;
+      return;
+    }
+
+    // Fallback: default to Login to avoid inline menu re-render churn that
+    // occurs when `inlineMenuFillType` is left undefined.
+    autofillFieldData.inlineMenuFillType = CipherType.Login;
   }
 
   /**
@@ -1301,7 +1362,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ) => {
     const autofillFieldData = this.hiddenFormFieldElements.get(formFieldElement);
     if (autofillFieldData) {
-      autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
+      autofillFieldData.readonly =
+        Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
+        getAttributeBoolean(formFieldElement, "aria-readonly", true);
       autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
 
@@ -1409,6 +1472,25 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
+  }
+
+  /**
+   * Checks if a form field element is currently readonly or disabled.
+   *
+   * @param formFieldElement - The form field element to evaluate.
+   * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
+   */
+  private isReadonlyOrDisabledElement(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData?: AutofillField,
+  ): boolean {
+    return (
+      getAttributeBoolean(formFieldElement, "disabled") ||
+      Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
+      getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
+      autofillFieldData?.readonly === true ||
+      autofillFieldData?.disabled === true
+    );
   }
 
   /**
