@@ -157,18 +157,22 @@ export class DomQueryService implements DomQueryServiceInterface {
         return null;
       }
 
-      const element = context.querySelector(segment);
+      const element: Element | null = context.querySelector(segment);
       if (!element) {
         return null;
       }
 
-      // If there are more segments, traverse into the shadow root
+      // If there are more segments, traverse into the next boundary
       if (i < segments.length - 1) {
-        const shadow = this.getShadowRoot(element);
-        if (!shadow) {
-          return null;
+        if (element instanceof HTMLIFrameElement && element.contentDocument) {
+          context = element.contentDocument;
+        } else {
+          const shadow = this.getShadowRoot(element);
+          if (!shadow) {
+            return null;
+          }
+          context = shadow;
         }
-        context = shadow;
       } else {
         return element;
       }
