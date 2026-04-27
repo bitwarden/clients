@@ -154,24 +154,27 @@
           Using the Meldium web vault, navigate to "Settings". Locate the "Export data" function and
           click "Show me my data" to save the CSV file.
         </ng-container>
-        <ng-container *ngIf="format === 'keepercsv'">
+        <ng-container *ngIf="format === 'keeperdirect'">
           <p bitTypography="body1">
-            Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
-            (top right) and select "Settings". Go to "Export" and in the "Export File" section
-            select the "CSV" option. Click "Export" to save the CSV file.
+            {{ "importDirectlyFromKeeper" | i18n }}
           </p>
-          <bit-radio-group *ngIf="showKeeperToggle" formControlName="keeperType">
-            <bit-radio-button
-              class="tw-block"
-              id="import_bit-radio-button_keeper-direct"
-              value="direct"
+          <p bitTypography="body1">
+            For detailed instructions visit our
+            <a
+              bitLink
+              linkType="primary"
+              target="_blank"
+              rel="noreferrer"
+              endIcon="bwi-external-link"
+              href="https://bitwarden.com/help/import-from-keeper/#export-from-keeper"
+              >help site</a
             >
-              <bit-label>{{ "importDirectlyFromKeeper" | i18n }}</bit-label>
-            </bit-radio-button>
-            <bit-radio-button class="tw-block" id="import_bit-radio-button_keeper-csv" value="csv">
-              <bit-label>{{ "importFromCSV" | i18n }}</bit-label>
-            </bit-radio-button>
-          </bit-radio-group>
+          </p>
+        </ng-container>
+        <ng-container *ngIf="format === 'keepercsv'">
+          Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"
+          (top right) and select "Settings". Go to "Export" and in the "Export File" section select
+          the "CSV" option. Click "Export" to save the CSV file.
         </ng-container>
         <ng-container *ngIf="format === 'keeperjson'">
           Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"

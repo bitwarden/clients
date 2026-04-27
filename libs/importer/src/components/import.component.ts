@@ -197,7 +197,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     fileContents: [],
     file: [],
     lastPassType: ["direct" as "csv" | "direct"],
-    keeperType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
     chromiumLoader: [Loader.file as DataLoader],
   });
@@ -289,16 +288,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
   }
 
-  protected get showKeeperToggle(): boolean {
+  protected get showKeeperOptions(): boolean {
     return (
-      this.format === "keepercsv" &&
+      this.format === "keeperdirect" &&
       (this.platformUtilsService.getClientType() === ClientType.Desktop ||
         this.platformUtilsService.getClientType() === ClientType.Browser)
     );
-  }
-
-  protected get showKeeperOptions(): boolean {
-    return this.showKeeperToggle && this.formGroup.controls.keeperType.value === "direct";
   }
 
   async ngOnInit() {
