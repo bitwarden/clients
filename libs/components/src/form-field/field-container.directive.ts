@@ -4,7 +4,6 @@ export type FieldContainerSize = "base" | "large";
 
 @Directive({
   selector: "[bitFieldContainer]",
-  standalone: true,
   host: { "[class]": "classes()" },
 })
 export class BitFieldContainerDirective {
