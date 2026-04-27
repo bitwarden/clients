@@ -3,9 +3,17 @@ import { DomQueryService } from "../services/dom-query.service";
 import { setupAutofillInitDisconnectAction } from "../utils";
 
 import AutofillInit from "./autofill-init";
+import { enableInstrumentation, useTimeoutForFlush } from "./performance";
 
 (function (windowContext) {
   if (!windowContext.bitwardenAutofillInit) {
+    if (windowContext.__BITWARDEN_ENABLE_INSTRUMENTATION__) {
+      enableInstrumentation();
+    }
+    if (windowContext.__BITWARDEN_USE_TIMEOUT_FLUSH__) {
+      useTimeoutForFlush();
+    }
+
     const domQueryService = new DomQueryService();
     const domElementVisibilityService = new DomElementVisibilityService();
     windowContext.bitwardenAutofillInit = new AutofillInit(

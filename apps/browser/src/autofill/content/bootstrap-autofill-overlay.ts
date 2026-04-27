@@ -7,9 +7,17 @@ import { InlineMenuFieldQualificationService } from "../services/inline-menu-fie
 import { setupAutofillInitDisconnectAction } from "../utils";
 
 import AutofillInit from "./autofill-init";
+import { enableInstrumentation, useTimeoutForFlush } from "./performance";
 
 (function (windowContext) {
   if (!windowContext.bitwardenAutofillInit) {
+    if (windowContext.__BITWARDEN_ENABLE_INSTRUMENTATION__) {
+      enableInstrumentation();
+    }
+    if (windowContext.__BITWARDEN_USE_TIMEOUT_FLUSH__) {
+      useTimeoutForFlush();
+    }
+
     let inlineMenuContentService: undefined | AutofillInlineMenuContentService;
     let overlayNotificationsContentService: undefined | OverlayNotificationsContentService;
     if (globalThis.self === globalThis.top) {
