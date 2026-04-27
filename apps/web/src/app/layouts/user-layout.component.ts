@@ -12,7 +12,6 @@ import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstra
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
@@ -66,16 +65,13 @@ export class UserLayoutComponent implements OnInit {
     private syncService: SyncService,
     private accountService: AccountService,
     private policyService: PolicyService,
-    private configService: ConfigService,
     private sendPolicyService: SendPolicyService,
     private premiumSubscriptionRoutingService: PremiumSubscriptionRoutingService,
   ) {
     this.showEmergencyAccess = toSignal(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          canAccessEmergencyAccess(userId, this.configService, this.policyService),
-        ),
+        switchMap((userId) => canAccessEmergencyAccess(userId, this.policyService)),
       ),
     );
 

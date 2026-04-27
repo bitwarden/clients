@@ -377,9 +377,10 @@ jobs:
           AZCOPY_AUTO_LOGIN_TYPE: AZCLI
           AZCOPY_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           _VAULT_NAME: ${{ steps.retrieve-secrets-azcopy.outputs.sa-bitwarden-web-vault-name }}
+          FORCE_DELETE_DESTINATION: ${{ inputs.force-delete-destination }}
         run: |
           azcopy sync ./build "https://$_VAULT_NAME.blob.core.windows.net/\$web/" \
-            --delete-destination="${{ inputs.force-delete-destination }}" --compare-hash="MD5"
+            --delete-destination="$FORCE_DELETE_DESTINATION" --compare-hash="MD5"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main

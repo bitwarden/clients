@@ -1,7 +1,15 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { RouterModule } from "@angular/router";
-import { filter, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -9,6 +17,7 @@ import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { UserId } from "@bitwarden/common/types/guid";
 import {
@@ -75,7 +84,17 @@ export class SettingsV2Component {
   );
 
   readonly showAutofillBadge$: Observable<boolean> = this.authenticatedAccount$.pipe(
-    switchMap((account) => this.nudgesService.showNudgeBadge$(NudgeType.AutofillNudge, account.id)),
+    switchMap((account) =>
+      combineLatest([
+        this.nudgesService.showNudgeBadge$(NudgeType.AutofillNudge, account.id),
+        this.autofillSettingsService.showClipboardSettingUpdateNotification$,
+      ]).pipe(
+        map(
+          ([showAutofillNudge, showClipboardNotification]) =>
+            showAutofillNudge || showClipboardNotification,
+        ),
+      ),
+    ),
   );
 
   readonly showAdminSettingsLink$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -89,6 +108,7 @@ export class SettingsV2Component {
     private readonly autoConfirmService: AutomaticUserConfirmationService,
     private readonly accountProfileStateService: BillingAccountProfileStateService,
     private readonly dialogService: DialogService,
+    private readonly autofillSettingsService: AutofillSettingsServiceAbstraction,
   ) {}
 
   protected openUpgradeDialog() {

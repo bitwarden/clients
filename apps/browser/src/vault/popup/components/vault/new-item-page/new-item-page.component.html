@@ -1,0 +1,12 @@
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'chooseItemToAdd' | i18n" [showBackButton]="true">
+  </popup-header>
+  <section class="tw-px-3 tw-py-1">
+    <vault-add-item-grid
+      [canCreateFolder]="true"
+      [canCreateCollection]="false"
+      [canCreateSshKey]="canCreateSshKey()"
+      (itemSelected)="onItemSelected($event)"
+    />
+  </section>
+</popup-page>

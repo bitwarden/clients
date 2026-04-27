@@ -115,10 +115,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   protected readonly emptyStateVideoSrc: string | null =
     "/videos/risk-insights-mark-as-critical.mp4";
 
-  protected readonly currentDialogRef = signal<DialogRef<
-    unknown,
-    AccessIntelligenceDrawerV2Component
-  > | null>(null);
+  protected readonly currentDialogRef = signal<
+    DialogRef<unknown, AccessIntelligenceDrawerV2Component> | undefined
+  >(undefined);
 
   // Prevents jarring quick transitions between progress steps
   private readonly STEP_DISPLAY_DELAY_MS = 250;
@@ -190,11 +189,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     this.setupDrawerSubscription();
 
     // Close any open dialogs (happens when navigating between orgs)
-    this.currentDialogRef()?.close();
+    void this.currentDialogRef()?.close();
   }
 
   ngOnDestroy(): void {
-    this.currentDialogRef()?.close();
+    void this.currentDialogRef()?.close();
   }
 
   /**
@@ -225,7 +224,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     // Reset drawer state and close drawer when tabs are changed
     // This ensures card selection state is cleared (PM-29263)
     this.drawerStateService.closeDrawer();
-    this.currentDialogRef()?.close();
+    await this.currentDialogRef()?.close();
   }
 
   /**
@@ -267,11 +266,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       )
       .subscribe((content) => {
         if (content) {
-          this.currentDialogRef.set(
-            this.dialogService.openDrawer(AccessIntelligenceDrawerV2Component, { data: content }),
-          );
+          void this.dialogService
+            .openDrawer(AccessIntelligenceDrawerV2Component, {
+              data: content,
+            })
+            .then((drawerRef) => this.currentDialogRef.set(drawerRef));
         } else {
-          this.currentDialogRef()?.close();
+          void this.currentDialogRef()?.close();
         }
       });
   }

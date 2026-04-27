@@ -1,9 +1,5 @@
-<form [id]="formId" [formGroup]="sendForm" [bitSubmit]="submit">
-  <ng-container *ngIf="!loading">
-    <tools-send-details
-      [config]="config"
-      [originalSendView]="originalSendView"
-      (openPasswordGenerator)="openPasswordGenerator.emit()"
-    ></tools-send-details>
-  </ng-container>
+<form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
+  @if (!loading) {
+    <tools-send-details></tools-send-details>
+  }
 </form>

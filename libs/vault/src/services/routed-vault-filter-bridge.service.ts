@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { combineLatest, map, Observable } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -41,22 +41,33 @@ export class RoutedVaultFilterBridgeService {
     this.activeFilter$ = combineLatest([
       routedVaultFilterService.filter$,
       legacyVaultFilterService.collectionTree$,
-      legacyVaultFilterService.folderTree$,
       legacyVaultFilterService.organizationTree$,
       legacyVaultFilterService.cipherTypeTree$,
     ]).pipe(
-      map(([filter, collectionTree, folderTree, organizationTree, cipherTypeTree]) => {
-        const legacyFilter = isAdminConsole(filter)
-          ? createLegacyFilterForAdminConsole(filter, collectionTree, cipherTypeTree)
-          : createLegacyFilterForEndUser(
+      switchMap(([filter, collectionTree, organizationTree, cipherTypeTree]) => {
+        if (isAdminConsole(filter)) {
+          // folderTree$ is unused in the AC context — skip the subscription to avoid
+          // triggering a personal vault decrypt via filteredFolders$ → cipherListViews$.
+          const legacyFilter = createLegacyFilterForAdminConsole(
+            filter,
+            collectionTree,
+            cipherTypeTree,
+          );
+          return of(new RoutedVaultFilterBridge(filter, legacyFilter, this));
+        }
+
+        return legacyVaultFilterService.folderTree$.pipe(
+          map((folderTree) => {
+            const legacyFilter = createLegacyFilterForEndUser(
               filter,
               collectionTree,
               folderTree,
               organizationTree,
               cipherTypeTree,
             );
-
-        return new RoutedVaultFilterBridge(filter, legacyFilter, this);
+            return new RoutedVaultFilterBridge(filter, legacyFilter, this);
+          }),
+        );
       }),
     );
   }

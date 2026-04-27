@@ -1148,6 +1148,15 @@
     "message": "Automatycznie wyczyść skopiowaną wartość ze schowka.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Ustawienia schowka zostały zaktualizowane"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+  },
+  "jumpToSetting": {
+    "message": "Przejdź do ustawień"
+  },
   "notificationAddDesc": {
     "message": "Zapisać hasło?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Dodatkowe opcje"
+  },
+  "enableFillAssist": {
+    "message": "Use fill assist"
   },
   "enableContextMenuItem": {
     "message": "Pokaż opcje w menu kontekstowym"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ta witryna nie pasuje do Twoich zapisanych danych logowania. Zanim wpiszesz dane logowania, upewnij się, że jest to zaufana witryna."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Pokaż sugestie autouzupełniania na polach formularza"
   },
@@ -2102,6 +2135,27 @@
   "typeNote": {
     "message": "Notatka"
   },
+  "typeLoginSubtitle": {
+    "message": "Strona internetowa lub aplikacja"
+  },
+  "typeCardSubtitle": {
+    "message": "Karta kredytowa lub debetowa"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organizuj elementy"
+  },
+  "collectionSubtitle": {
+    "message": "Organizuj udostępnione elementy"
+  },
   "newItemHeaderLogin": {
     "message": "Nowe dane logowania",
     "description": "Header for new login item type"
@@ -2177,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Pokaż klucz SSH",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Wybierz element do dodania"
   },
   "passwordHistory": {
     "message": "Historia hasła"
@@ -2367,10 +2424,10 @@
     "message": "Użyj silniejszego hasła, aby odpowiednio chronić konto Bitwarden. Czy na pewno chcesz użyć tego hasła głównego?"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Zmień również klucz szyfrowania konta"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Zmień klucz szyfrowania"
   },
   "rotateEncKeyConfirmation": {
     "message": "Are you sure you want to rotate your account's encryption key?"
@@ -2769,7 +2826,7 @@
     "message": "Autouzupełnianie będzie zablokowane dla tych stron internetowych. Zmiany zaczną obowiązywać po odświeżeniu strony."
   },
   "autofillBlockedNoticeV2": {
-    "message": "Autouzupełnianie będzie zablokowane dla tych stron intenretowych."
+    "message": "Autouzupełnianie będzie zablokowane dla tych stron internetowych."
   },
   "autofillBlockedNoticeGuidance": {
     "message": "Zmień to w ustawieniach"
@@ -2837,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "Organizacja $ORGANIZATION$ prosi o zmianę hasła, ponieważ jest ono zagrożone. Przejdź do ustawień konta, aby zmienić hasło.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Status logowania"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Ostatnie 7 dni"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Ostatnie 14 dni"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Ostatnie 30 dni"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Ponad 30 dni temu"
   },
   "masterPasswordChanged": {
     "message": "Hasło główne zostało zapisane"
@@ -6115,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Upgrade"
   },
@@ -6202,6 +6289,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Pobierz aplikacje Bitwarden"
   },
@@ -6217,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Pobieranie nie powiodło się."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

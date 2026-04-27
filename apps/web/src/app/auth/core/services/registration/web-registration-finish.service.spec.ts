@@ -199,7 +199,6 @@ describe("WebRegistrationFinishService", () => {
       passwordInputResult = {
         newMasterKey: masterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
-        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPasswordHint: "newPasswordHint",
         newPassword: "newPassword",
@@ -361,7 +360,7 @@ describe("WebRegistrationFinishService", () => {
     describe("when feature flag is ON (new API)", () => {
       beforeEach(() => {
         // When the Auth flag is ON, InputPasswordComponent emits newApisWithInputPasswordFlagEnabled: true
-        // and does NOT emit newMasterKey, newServerMasterKeyHash, or newLocalMasterKeyHash.
+        // and does NOT emit newMasterKey, newServerMasterKeyHash.
         passwordInputResult = {
           newPassword: "newPassword",
           kdfConfig: DEFAULT_KDF_CONFIG,

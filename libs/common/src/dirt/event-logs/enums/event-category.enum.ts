@@ -68,6 +68,7 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.OrganizationUser_ResetPassword_Enroll,
     EventType.OrganizationUser_ResetPassword_Withdraw,
     EventType.OrganizationUser_AdminResetPassword,
+    EventType.OrganizationUser_AdminResetTwoFactor,
     EventType.OrganizationUser_ResetSsoLink,
     EventType.OrganizationUser_FirstSsoLogin,
     EventType.OrganizationUser_Revoked,
