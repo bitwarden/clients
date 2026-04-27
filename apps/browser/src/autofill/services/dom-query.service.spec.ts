@@ -272,4 +272,87 @@ describe("DomQueryService", () => {
       expect(result).toBe(false);
     });
   });
+
+  describe("queryDeepSelector", () => {
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("returns null for an empty selector", () => {
+      expect(domQueryService.queryDeepSelector("")).toBeNull();
+    });
+
+    it("returns null when a selector segment is empty", () => {
+      expect(domQueryService.queryDeepSelector(">>> >>>")).toBeNull();
+    });
+
+    it("returns an element matching a simple selector", () => {
+      const input = document.createElement("input");
+      input.id = "username";
+      document.body.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#username")).toBe(input);
+    });
+
+    it("returns null when no element matches a simple selector", () => {
+      expect(domQueryService.queryDeepSelector("#nonexistent")).toBeNull();
+    });
+
+    it("traverses a shadow DOM boundary", () => {
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const input = document.createElement("input");
+      input.id = "shadow-input";
+      shadowRoot.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#shadow-host >>> #shadow-input")).toBe(input);
+    });
+
+    it("returns null when an intermediate element has no shadow root and is not an iframe", () => {
+      const div = document.createElement("div");
+      div.id = "plain-div";
+      document.body.appendChild(div);
+
+      expect(domQueryService.queryDeepSelector("#plain-div >>> #child")).toBeNull();
+    });
+
+    it("traverses a same-origin iframe boundary", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "test-iframe";
+      document.body.appendChild(iframe);
+      const input = iframe.contentDocument!.createElement("input");
+      input.id = "iframe-input";
+      iframe.contentDocument!.body.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#test-iframe >>> #iframe-input")).toBe(input);
+    });
+
+    it("returns null when the iframe contentDocument is not accessible", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "cross-origin-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      expect(domQueryService.queryDeepSelector("#cross-origin-iframe >>> #some-input")).toBeNull();
+    });
+
+    it("traverses multiple boundaries in sequence", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "outer-iframe";
+      document.body.appendChild(iframe);
+      const host = iframe.contentDocument!.createElement("div");
+      host.id = "shadow-host";
+      iframe.contentDocument!.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const input = document.createElement("input");
+      input.id = "deep-input";
+      shadowRoot.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector("#outer-iframe >>> #shadow-host >>> #deep-input"),
+      ).toBe(input);
+    });
+  });
 });
