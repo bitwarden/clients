@@ -206,8 +206,8 @@ export class ViewComponent {
 
           this.showFooter$ = of(
             cipher &&
-              (!cipher.isDeleted ||
-                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
+            (!cipher.isDeleted ||
+              (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
 
           await this.eventCollectionService.collect(

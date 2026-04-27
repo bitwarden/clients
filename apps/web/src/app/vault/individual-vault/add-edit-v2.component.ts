@@ -156,6 +156,10 @@ export class AddEditComponentV2 implements OnInit {
         ? "editItemHeaderDriversLicense"
         : "newItemHeaderDriversLicense",
       [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "newItemHeaderPassport",
+      [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "newItemHeaderPassport",
+      [CipherType.DriversLicense]: isEditMode
+        ? "editItemHeaderDriversLicense"
+        : "newItemHeaderDriversLicense",
     };
     return this.i18nService.t(translation[type]);
   }
