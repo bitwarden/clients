@@ -9,7 +9,7 @@ import { I18nMockService } from "../utils/i18n-mock.service";
 import { FileUploadComponent } from "./file-upload.component";
 
 export default {
-  title: "Component Library/File Upload",
+  title: "Component Library/Form/File Upload",
   component: FileUploadComponent,
   decorators: [
     moduleMetadata({

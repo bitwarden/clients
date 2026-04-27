@@ -401,36 +401,6 @@ export const AdvancedSelect: Story = {
   }),
 };
 
-export const FileInput: Story = {
-  render: (args) => ({
-    props: {
-      formObj: defaultFormObj,
-      submit: submit,
-      ...args,
-    },
-    template: /*html*/ `
-      <form [formGroup]="formObj">
-        <bit-form-field>
-          <bit-label>File</bit-label>
-          <div class="tw-text-main">
-            <button bitButton type="button" buttonType="secondary">
-              Choose File
-            </button>
-            No file chosen
-          </div>
-          <input
-            bitInput
-            #fileSelector
-            type="file"
-            formControlName="file"
-            hidden
-          />
-        </bit-form-field>
-      </form>
-    `,
-  }),
-};
-
 export const Textarea: Story = {
   render: (args) => ({
     props: args,

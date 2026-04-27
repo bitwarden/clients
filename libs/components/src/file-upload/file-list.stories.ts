@@ -18,7 +18,7 @@ const mockFiles = [
 ];
 
 export default {
-  title: "Component Library/File Upload/File List",
+  title: "Component Library/Form/File Upload/File List",
   component: FileListComponent,
   decorators: [
     moduleMetadata({
