@@ -3,15 +3,16 @@
 import {
   Component,
   computed,
+  DestroyRef,
   inject,
   InjectionToken,
   Injector,
   Input,
-  OnDestroy,
   OnInit,
   signal,
 } from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -34,8 +35,8 @@ import { CoachmarkService } from "../../../../components/coachmark";
   templateUrl: "vault-filter-section.component.html",
   standalone: false,
 })
-export class VaultFilterSectionComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class VaultFilterSectionComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -57,7 +58,9 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   );
 
   readonly data = signal<TreeNode<VaultFilterType> | undefined>(undefined);
-  readonly collapsedFilterNodes = signal<Set<string>>(new Set());
+  readonly collapsedFilterNodes = toSignal(this.vaultFilterService.collapsedFilterNodes$, {
+    initialValue: new Set<string>(),
+  });
 
   private injectors = new Map<string, Injector>();
 
@@ -65,23 +68,12 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     private vaultFilterService: VaultFilterService,
     private injector: Injector,
     private accountService: AccountService,
-  ) {
-    this.vaultFilterService.collapsedFilterNodes$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((nodes) => {
-        this.collapsedFilterNodes.set(nodes);
-      });
-  }
+  ) {}
 
-  async ngOnInit() {
-    this.section?.data$?.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.data.set(data);
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+  ngOnInit() {
+    this.section?.data$
+      ?.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((data) => this.data.set(data));
   }
 
   get headerNode() {
