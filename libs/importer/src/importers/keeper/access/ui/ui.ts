@@ -5,6 +5,7 @@ import { TwoFactorMethod } from "../enums/two-factor-method";
 
 import { Cancel } from "./cancel";
 import { Resend } from "./resend";
+import { TryAnother } from "./try-another";
 
 export interface Ui {
   // Device approval flow
@@ -12,7 +13,7 @@ export interface Ui {
   provideApprovalCode(
     method: DeviceApprovalChannel,
     info?: string,
-  ): Promise<string | Cancel | Resend>;
+  ): Promise<string | Cancel | Resend | TryAnother>;
   closeApprovalDialog(): void;
 
   // 2FA flow
