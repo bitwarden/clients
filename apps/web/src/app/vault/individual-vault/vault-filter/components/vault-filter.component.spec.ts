@@ -28,7 +28,7 @@ import {
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import { VaultFilterComponent, VaultFilterComponent } from "./vault-filter.component";
+import { VaultFilterComponent } from "./vault-filter.component";
 
 const USER_ID = "user-1" as UserId;
 const ORG_ID_1 = "org-1" as OrganizationId;
