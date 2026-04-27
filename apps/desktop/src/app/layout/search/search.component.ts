@@ -47,4 +47,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.activeAccountSubscription.unsubscribe();
   }
+
+  onEnterPressed() {
+    this.searchBarService.onEnterPressed();
+  }
 }

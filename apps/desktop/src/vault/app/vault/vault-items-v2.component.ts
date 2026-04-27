@@ -1,6 +1,6 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, input, output } from "@angular/core";
+import { Component, ElementRef, inject, input, output } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { distinctUntilChanged, debounceTime } from "rxjs";
 
@@ -70,6 +70,19 @@ export class VaultItemsV2Component<C extends CipherViewLike> extends BaseVaultIt
       .subscribe((searchText) => {
         this.searchText = searchText!;
       });
+
+    this.searchBarService.enterPressed$
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => this.focusFirstItem());
+  }
+
+  private elementRef = inject(ElementRef);
+
+  private focusFirstItem(): void {
+    const firstButton = this.elementRef.nativeElement.querySelector(
+      "button[cipherListItem]",
+    ) as HTMLElement | null;
+    firstButton?.focus();
   }
 
   async navigateToGetPremium() {

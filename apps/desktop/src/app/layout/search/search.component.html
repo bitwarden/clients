@@ -5,6 +5,7 @@
     id="search"
     autocomplete="off"
     [formControl]="searchText"
+    (keydown.enter)="onEnterPressed()"
     appAutofocus
   />
   <bit-icon name="bwi-search"></bit-icon>
