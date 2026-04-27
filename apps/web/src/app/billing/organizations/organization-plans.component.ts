@@ -1023,16 +1023,17 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     orgKey: SymmetricCryptoKey;
     activeUserId: UserId;
   }): Promise<string> {
-    const request = new OrganizationCreateRequest();
-    request.key = encryptionData.key;
-    request.collectionName = encryptionData.collectionCt;
+    const request = new OrganizationCreateRequest(
+      encryptionData.key,
+      new OrganizationKeysRequest(
+        encryptionData.orgKeys[0],
+        encryptionData.orgKeys[1].encryptedString as string,
+      ),
+      encryptionData.collectionCt,
+    );
     request.name = this.formGroup.controls.name.value ?? "";
     request.billingEmail = this.formGroup.controls.billingEmail.value ?? "";
     request.initiationPath = "New organization creation in-product";
-    request.keys = new OrganizationKeysRequest(
-      encryptionData.orgKeys[0],
-      encryptionData.orgKeys[1].encryptedString as string,
-    );
 
     if (this.selectedPlan()!.type === PlanType.Free) {
       request.planType = PlanType.Free;

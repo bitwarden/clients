@@ -81,15 +81,15 @@ export class WebProviderService {
       providerKey,
     );
 
-    const request = new CreateProviderOrganizationRequest();
-    request.name = name;
-    request.ownerEmail = ownerEmail;
-    request.planType = planType;
-    request.seats = seats;
-
-    request.key = encryptedProviderKey.encryptedString;
-    request.keyPair = new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString);
-    request.collectionName = encryptedCollectionName.encryptedString;
+    const request = new CreateProviderOrganizationRequest(
+      name,
+      ownerEmail,
+      planType,
+      seats,
+      encryptedProviderKey.encryptedString,
+      new OrganizationKeysRequest(publicKey, encryptedPrivateKey.encryptedString),
+      encryptedCollectionName.encryptedString,
+    );
 
     await this.providerApiService.createProviderOrganization(providerId, request);
 
