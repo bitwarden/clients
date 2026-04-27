@@ -13413,9 +13413,6 @@
     "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "export": {
-    "message": "Export"
-  },
   "sideNavigation": {
     "message": "Side navigation"
   },

@@ -1801,10 +1801,10 @@
     "message": "Bu site kayıtlı hesap bilgilerinizle eşleşmiyor. Hesap bilgilerinizi doldurmadan önce sitenin güvenilir olduğundan emin olun."
   },
   "loginHasNoSiteSaved": {
-    "message": "Login has no site saved"
+    "message": "Bu hesaba kayıtlı site yok"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "Site eşleşmiyor"
   },
   "loginNoSiteDesc": {
     "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
@@ -1816,10 +1816,10 @@
     "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Otomatik doldur ve bu siteyi kaydet"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Yalnızca otomatik doldur"
   },
   "showInlineMenuLabel": {
     "message": "Form alanlarında otomatik doldurma önerilerini göster"

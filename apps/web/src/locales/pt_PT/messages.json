@@ -13413,9 +13413,6 @@
     "message": "Falha ao guardar as alterações do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "export": {
-    "message": "Exportar"
-  },
   "sideNavigation": {
     "message": "Navegação lateral"
   },

@@ -174,7 +174,6 @@ describe("SettingsComponent", () => {
     desktopSettingsService.trayEnabled$ = of(false);
     desktopSettingsService.minimizeToTray$ = of(false);
     desktopSettingsService.closeToTray$ = of(false);
-    desktopSettingsService.startToTray$ = of(false);
     desktopSettingsService.openAtLogin$ = of(false);
     desktopSettingsService.alwaysShowDock$ = of(false);
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
