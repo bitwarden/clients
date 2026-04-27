@@ -117,8 +117,7 @@ describe("AccessIntelligenceDrawerV2Component", () => {
 
       const callArg = mockFileDownloadService.download.mock.calls[0][0];
       const firstLine = (callArg.blobData as string).split("\n")[0].trim();
-      expect(firstLine).toContain("atRiskApplications");
-      expect(firstLine).not.toContain("atRiskPasswords");
+      expect(firstLine).toBe("email,userName,userGuid,atRiskApplications");
     });
 
     it("should call FileDownloadService.download for CriticalAtRiskMembers drawer type", () => {
