@@ -1149,6 +1149,7 @@ const safeProviders: SafeProvider[] = [
       AuthRequestAnsweringService,
       ConfigService,
       InternalPolicyService,
+      InternalNewPolicyService,
       AutomaticUserConfirmationService,
     ],
   }),
@@ -1202,7 +1203,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PolicyApiServiceAbstraction,
     useClass: PolicyApiService,
-    deps: [InternalPolicyService, ApiServiceAbstraction, AccountService],
+    deps: [InternalPolicyService, InternalNewPolicyService, ApiServiceAbstraction, AccountService],
   }),
   safeProvider({
     provide: InternalMasterPasswordServiceAbstraction,

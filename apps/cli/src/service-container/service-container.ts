@@ -673,6 +673,7 @@ export class ServiceContainer {
 
     this.policyApiService = new PolicyApiService(
       this.policyService,
+      this.newPolicyService,
       this.apiService,
       this.accountService,
     );
