@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH key"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Server login token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -4909,6 +4915,85 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "discardEdits": {
     "message": "Discard edits"
