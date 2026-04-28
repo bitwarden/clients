@@ -15,51 +15,29 @@
     </ng-container>
   </popup-header>
 
-  @if (leftAlignHeader) {
-    <div class="tw-flex tw-flex-col tw-h-full tw-overflow-hidden">
-      @if (pageTitle) {
-        <div class="tw-px-6 tw-pt-6 tw-pb-3">
-          <h1 class="tw-mb-0 tw-text-left tw-text-2xl tw-font-semibold tw-text-main">
-            {{ pageTitle }}
-          </h1>
-          @if (pageSubtitle) {
-            <p class="tw-mb-0 tw-text-left tw-text-sm tw-text-muted">{{ pageSubtitle }}</p>
-          }
-        </div>
+  @if (leftAlignHeader && pageTitle) {
+    <div class="tw-p-6">
+      <h1 class="tw-mb-0 tw-text-left tw-text-2xl tw-font-semibold tw-text-main">
+        {{ pageTitle }}
+      </h1>
+      @if (pageSubtitle) {
+        <p class="tw-mt-6 tw-mb-0 tw-text-left tw-text-sm tw-text-muted">{{ pageSubtitle }}</p>
       }
-      <div class="tw-flex-1 tw-overflow-y-auto">
-        <auth-anon-layout
-          [title]="null"
-          [subtitle]="null"
-          [icon]="null"
-          [showReadonlyHostname]="showReadonlyHostname"
-          [hideLogo]="true"
-          [maxWidth]="maxWidth"
-          [hideFooter]="true"
-          [hideCardWrapper]="hideCardWrapper"
-        >
-          <router-outlet></router-outlet>
-          <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
-        </auth-anon-layout>
-      </div>
-      <div class="tw-px-6 tw-pb-6 tw-text-center">
-        <router-outlet name="secondary"></router-outlet>
-      </div>
     </div>
-  } @else {
-    <auth-anon-layout
-      [title]="pageTitle"
-      [subtitle]="pageSubtitle"
-      [icon]="pageIcon"
-      [showReadonlyHostname]="showReadonlyHostname"
-      [hideLogo]="true"
-      [maxWidth]="maxWidth"
-      [hideFooter]="hideFooter"
-      [hideCardWrapper]="hideCardWrapper"
-    >
-      <router-outlet></router-outlet>
-      <router-outlet slot="secondary" name="secondary"></router-outlet>
-      <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
-    </auth-anon-layout>
   }
+
+  <auth-anon-layout
+    [title]="leftAlignHeader ? null : pageTitle"
+    [subtitle]="leftAlignHeader ? null : pageSubtitle"
+    [icon]="pageIcon"
+    [showReadonlyHostname]="showReadonlyHostname"
+    [hideLogo]="true"
+    [maxWidth]="maxWidth"
+    [hideFooter]="hideFooter"
+    [hideCardWrapper]="hideCardWrapper"
+  >
+    <router-outlet></router-outlet>
+    <router-outlet slot="secondary" name="secondary"></router-outlet>
+    <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
+  </auth-anon-layout>
 </popup-page>
