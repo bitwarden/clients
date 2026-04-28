@@ -34,7 +34,7 @@ export interface Ui {
   closeDnaPushDialog(): void;
 
   // Password prompt (deferred until server requests it)
-  promptForPassword(): Promise<string | Cancel>;
+  promptForPassword(email: string): Promise<string | Cancel>;
 
   // Error display
   showError(message: string): Promise<void>;

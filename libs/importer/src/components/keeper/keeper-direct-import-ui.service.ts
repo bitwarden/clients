@@ -29,7 +29,7 @@ export type KeeperAuthStage =
   | { kind: "duoPush"; method: DuoMethod }
   | { kind: "selectDna"; methods: DnaMethod[] }
   | { kind: "dnaPush" }
-  | { kind: "password" }
+  | { kind: "password"; email: string }
   | { kind: "error"; message: string };
 
 type PendingResolver = (value: unknown) => void;
@@ -228,8 +228,8 @@ export class KeeperDirectImportUIService implements Ui {
   // Password prompt
   //
 
-  async promptForPassword(): Promise<string | typeof Cancel> {
-    this.setStage({ kind: "password" });
+  async promptForPassword(email: string): Promise<string | typeof Cancel> {
+    this.setStage({ kind: "password", email });
     return this.waitForUser<string | typeof Cancel>();
   }
 

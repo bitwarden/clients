@@ -1,6 +1,16 @@
 @let currentStage = stage();
 
 <bit-dialog>
+  <!-- Disable ESC and backdrop click -->
+  <button
+    bitDialogHeaderEnd
+    type="button"
+    bitIconButton="bwi-close"
+    buttonType="primaryGhost"
+    size="default"
+    [attr.aria-label]="'close' | i18n"
+    (click)="cancel()"
+  ></button>
   <span bitDialogTitle>
     @switch (currentStage.kind) {
       @case ("selectApproval") {
@@ -32,7 +42,8 @@
         {{ "keeperDnaVerification" | i18n }}
       }
       @case ("password") {
-        {{ "keeperAuthRequired" | i18n }}
+        {{ "masterPassword" | i18n }}
+        <span class="tw-text-muted tw-font-normal tw-text-sm">{{ currentStage.email }}</span>
       }
       @case ("error") {
         {{ "errorOccurred" | i18n }}
@@ -65,7 +76,6 @@
             <bit-form-field class="tw-mt-4">
               <bit-label>{{ "verificationCode" | i18n }}</bit-label>
               <input bitInput type="text" [formControl]="codeControl" />
-              <bit-hint>{{ "emailVerificationCodeHint" | i18n }}</bit-hint>
             </bit-form-field>
           </form>
         }
@@ -144,12 +154,12 @@
       }
 
       @case ("password") {
+        <p bitTypography="body2">{{ "keeperMasterPasswordPrompt" | i18n }}</p>
         <form (ngSubmit)="submitPassword()">
           <bit-form-field class="!tw-mb-0">
-            <bit-label>{{ "keeperMasterPassword" | i18n }}</bit-label>
+            <bit-label>{{ "masterPassword" | i18n }}</bit-label>
             <input bitInput type="password" [formControl]="passwordControl" appInputVerbatim />
             <button type="button" bitSuffix bitIconButton bitPasswordInputToggle></button>
-            <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
           </bit-form-field>
         </form>
       }
@@ -214,7 +224,7 @@
 
       @case ("password") {
         <button bitButton buttonType="primary" type="button" (click)="submitPassword()">
-          {{ "submit" | i18n }}
+          {{ "continue" | i18n }}
         </button>
       }
 
@@ -223,12 +233,6 @@
           {{ "ok" | i18n }}
         </button>
       }
-    }
-
-    @if (currentStage.kind !== "error") {
-      <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-        {{ "cancel" | i18n }}
-      </button>
     }
   </ng-container>
 </bit-dialog>

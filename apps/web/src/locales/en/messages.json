@@ -13409,6 +13409,9 @@
   "keeperMasterPassword": {
     "message": "Keeper master password"
   },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
   },
@@ -13429,9 +13432,6 @@
   },
   "approvalEmailDesc": {
     "message": "Check your email and click the approval link, or enter the verification code below."
-  },
-  "emailVerificationCodeHint": {
-    "message": "Enter the 6-digit code from the email, or click the link and this dialog will close automatically."
   },
   "otherDeviceApprovalPushDesc": {
     "message": "Approve the device request on your Keeper device."

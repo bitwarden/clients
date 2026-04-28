@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
-import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -45,7 +45,10 @@ export class KeeperAuthDialogComponent {
   protected readonly stage = this.keeperUi.stage;
 
   protected readonly codeControl = new FormControl("", { nonNullable: true });
-  protected readonly passwordControl = new FormControl("", { nonNullable: true });
+  protected readonly passwordControl = new FormControl("", {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
   protected readonly approvalMethodControl = new FormControl<DeviceApprovalChannel | null>(null);
 
   constructor() {
