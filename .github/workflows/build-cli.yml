@@ -247,21 +247,24 @@ jobs:
           zip "../../bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip" ./bw
 
       - name: Set up private auth key
+        id: setup-auth-key
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
-          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/auth_key.p8
-          $_APP_STORE_CONNECT_AUTH_KEY
+          KEY_PATH="$HOME/private_keys/auth_key.p8"
+          cat << EOF > "$KEY_PATH"
+          $APP_STORE_CONNECT_AUTH_KEY
           EOF
+          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
       - name: Notarize app
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/auth_key.p8
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
         run: |
           echo "Create keychain profile"
