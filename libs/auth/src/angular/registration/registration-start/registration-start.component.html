@@ -28,17 +28,19 @@
         formControlName="receiveMarketingEmails"
       />
       <bit-label for="register-start-form-input-receive-marketing-emails">
-        {{ "receiveMarketingEmailsV2" | i18n }}
-        <a
-          bitLink
-          linkType="primary"
-          href="https://bitwarden.com/email-preferences"
-          target="_blank"
-          rel="noreferrer"
-        >
-          {{ "unsubscribe" | i18n }}
-        </a>
-        {{ "atAnyTime" | i18n }}
+        {{ marketingEmailsLabelText }}
+        @if (showMarketingEmailsUnsubscribeLink) {
+          <a
+            bitLink
+            linkType="primary"
+            href="https://bitwarden.com/email-preferences"
+            target="_blank"
+            rel="noreferrer"
+          >
+            {{ "unsubscribe" | i18n }}
+          </a>
+          {{ "atAnyTime" | i18n }}
+        }
       </bit-label>
     </bit-form-control>
 

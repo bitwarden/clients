@@ -11,6 +11,7 @@ import { RegistrationCheckEmailIcon, RegistrationUserAddIcon } from "@bitwarden/
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterSendVerificationEmailRequest } from "@bitwarden/common/auth/models/request/registration/register-send-verification-email.request";
 import { RegionConfig, Region } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -25,7 +26,10 @@ import {
 } from "@bitwarden/components";
 
 import { LoginEmailService } from "../../../common";
+import { LoginComponentTranslation } from "../../login/login-component.service";
 import { RegistrationEnvSelectorComponent } from "../registration-env-selector/registration-env-selector.component";
+
+import { RegistrationStartComponentService } from "./registration-start-component.service";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -90,6 +94,9 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
 
   showErrorSummary = false;
 
+  protected marketingEmailsLabelText = "";
+  protected showMarketingEmailsUnsubscribeLink = true;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -100,8 +107,23 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     private router: Router,
     private loginEmailService: LoginEmailService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
+    private i18nService: I18nService,
+    private registrationStartComponentService: RegistrationStartComponentService,
   ) {
     this.isSelfHost = platformUtilsService.isSelfHost();
+    this.marketingEmailsLabelText = this.resolveTranslation(
+      this.registrationStartComponentService.marketingEmailsLabelText,
+    );
+    this.showMarketingEmailsUnsubscribeLink =
+      this.registrationStartComponentService.showMarketingEmailsUnsubscribeLink;
+  }
+
+  private resolveTranslation(value: string | LoginComponentTranslation): string {
+    if (typeof value === "string") {
+      return value;
+    }
+    const [p1, p2, p3] = value.placeholders ?? [];
+    return this.i18nService.t(value.key, p1, p2, p3);
   }
 
   async ngOnInit() {
@@ -200,7 +222,9 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   goBack() {
     this.state = RegistrationStartState.USER_DATA_ENTRY;
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-      pageIcon: RegistrationUserAddIcon,
+      pageIcon: this.registrationStartComponentService.shouldShowUserDataEntryPageIcon
+        ? RegistrationUserAddIcon
+        : null,
       pageTitle: {
         key: "createAccount",
       },

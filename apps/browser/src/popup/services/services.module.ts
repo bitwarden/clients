@@ -32,6 +32,7 @@ import {
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import {
   LoginComponentService,
+  RegistrationStartComponentService,
   TwoFactorAuthComponentService,
   TwoFactorAuthDuoComponentService,
   TwoFactorAuthWebAuthnComponentService,
@@ -183,6 +184,7 @@ import { ExtensionLoginComponentService } from "../../auth/popup/login/extension
 import { ExtensionLoginViaWebAuthnComponentService } from "../../auth/popup/login/extension-login-via-webauthn-component.service";
 import { ExtensionSsoComponentService } from "../../auth/popup/login/extension-sso-component.service";
 import { ExtensionLogoutService } from "../../auth/popup/logout/extension-logout.service";
+import { ExtensionRegistrationStartComponentService } from "../../auth/popup/registration/extension-registration-start-component.service";
 import { ExtensionDeviceManagementComponentService } from "../../auth/services/extension-device-management-component.service";
 import { ExtensionTwoFactorAuthComponentService } from "../../auth/services/extension-two-factor-auth-component.service";
 import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/extension-two-factor-auth-duo-component.service";
@@ -714,6 +716,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginViaWebAuthnComponentService,
     useClass: ExtensionLoginViaWebAuthnComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: RegistrationStartComponentService,
+    useClass: ExtensionRegistrationStartComponentService,
     deps: [],
   }),
   safeProvider({

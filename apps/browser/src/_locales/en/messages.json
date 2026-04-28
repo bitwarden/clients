@@ -2719,6 +2719,9 @@
   "receiveMarketingEmailsV2": {
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
+  "receiveMarketingEmailsExtension": {
+    "message": "Receive updates from Bitwarden in your inbox."
+  },
   "unsubscribe": {
     "message": "Unsubscribe"
   },

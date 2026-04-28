@@ -20,7 +20,6 @@ import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-ma
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
-  RegistrationUserAddIcon,
   TwoFactorTimeoutIcon,
   TwoFactorAuthEmailIcon,
   UserLockIcon,
@@ -398,7 +397,7 @@ const routes: Routes = [
         canActivate: [unauthGuardFn()],
         data: {
           elevation: 1,
-          pageIcon: RegistrationUserAddIcon,
+          pageIcon: null,
           pageTitle: {
             key: "createAccount",
           },

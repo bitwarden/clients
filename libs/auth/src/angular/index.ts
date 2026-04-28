@@ -30,6 +30,8 @@ export * from "./password-callout/password-callout.component";
 export * from "./password-hint/password-hint.component";
 
 // registration
+export * from "./registration/registration-start/default-registration-start-component.service";
+export * from "./registration/registration-start/registration-start-component.service";
 export * from "./registration/registration-start/registration-start.component";
 export * from "./registration/registration-finish/registration-finish.component";
 export * from "./registration/registration-link-expired/registration-link-expired.component";
