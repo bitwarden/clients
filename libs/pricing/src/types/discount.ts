@@ -116,6 +116,27 @@ export const applyDiscountsSequentially = (
   return Math.max(0, discounted);
 };
 
+/**
+ * Determines whether the organization is on a Secrets Manager standalone trial.
+ *
+ * Checks if any active customer discount has the `"sm-standalone"` coupon ID
+ * and its `appliesTo` list includes the product ID of at least one current
+ * subscription item.
+ */
+export const isSecretsManagerTrial = (
+  customerDiscounts: { active: boolean; id?: string; appliesTo?: string[] }[] | undefined,
+  subscriptionItems: { productId?: string }[] | undefined,
+): boolean => {
+  return (
+    customerDiscounts?.some(
+      (d) =>
+        d.active &&
+        d.id === "sm-standalone" &&
+        subscriptionItems?.some((item) => item.productId && d.appliesTo?.includes(item.productId)),
+    ) ?? false
+  );
+};
+
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {
   switch (discount.type) {
     case DiscountTypes.AmountOff: {

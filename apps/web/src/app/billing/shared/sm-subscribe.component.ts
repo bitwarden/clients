@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, inject, input, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subject, startWith, takeUntil } from "rxjs";
 
@@ -41,25 +41,18 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() upgradeOrganization: boolean;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() showSubmitButton = false;
+  readonly upgradeOrganization = input(false);
+  readonly showSubmitButton = input(false);
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() selectedPlan: PlanResponse;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() customerDiscounts: BillingCustomerDiscount[] = [];
+  readonly customerDiscounts = input<BillingCustomerDiscount[]>([]);
 
   logo = SecretsManagerAlt;
   productTypes = ProductTierType;
 
   private destroy$ = new Subject<void>();
-
-  constructor(private i18nService: I18nService) {}
+  private i18nService = inject(I18nService);
 
   ngOnInit() {
     this.formGroup.controls.enabled.valueChanges
@@ -81,7 +74,7 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
   }
 
   discountPrice = (price: number) => {
-    return applyDiscountsSequentially(price, this.customerDiscounts);
+    return applyDiscountsSequentially(price, this.customerDiscounts());
   };
 
   get product() {

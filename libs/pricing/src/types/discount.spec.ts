@@ -3,6 +3,7 @@ import {
   DiscountTypes,
   applyDiscountsSequentially,
   getAmount,
+  isSecretsManagerTrial,
   toDisplayableDiscounts,
 } from "./discount";
 
@@ -203,5 +204,51 @@ describe("applyDiscountsSequentially", () => {
   it("should apply non-scoped discounts regardless of productId", () => {
     const discounts = [{ active: true, percentOff: 10, appliesTo: [] as string[] }];
     expect(applyDiscountsSequentially(100, discounts, "prod_1")).toBe(90);
+  });
+});
+
+describe("isSecretsManagerTrial", () => {
+  it("should return false when customerDiscounts is undefined", () => {
+    expect(isSecretsManagerTrial(undefined, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when subscriptionItems is undefined", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, undefined)).toBe(false);
+  });
+
+  it("should return false when there are no discounts", () => {
+    expect(isSecretsManagerTrial([], [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when discount id is not sm-standalone", () => {
+    const discounts = [{ active: true, id: "other-coupon", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when sm-standalone discount is inactive", () => {
+    const discounts = [{ active: false, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when appliesTo does not include any subscription item productId", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_2"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return true when active sm-standalone discount appliesTo matches a subscription item", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(true);
+  });
+
+  it("should return true when one of multiple subscription items matches", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_2"] }];
+    const items = [{ productId: "prod_1" }, { productId: "prod_2" }];
+    expect(isSecretsManagerTrial(discounts, items)).toBe(true);
+  });
+
+  it("should return false when subscription item has no productId", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{}])).toBe(false);
   });
 });

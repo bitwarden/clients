@@ -1,4 +1,4 @@
-import { Component, Input } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PlanInterval } from "@bitwarden/common/billing/enums";
@@ -51,7 +51,7 @@ export class PricingSummaryComponent {
   @Input() summaryData!: PricingSummaryData;
   planIntervals = PlanInterval;
 
-  constructor(private i18nService: I18nService) {}
+  private i18nService = inject(I18nService);
 
   toggleTotalOpened(): void {
     if (this.summaryData) {
@@ -67,9 +67,6 @@ export class PricingSummaryComponent {
     const amounts: number[] = [];
     let running = baseAmount;
     for (const d of this.summaryData.activeDiscounts ?? []) {
-      if (!d.active) {
-        continue;
-      }
       if (d.percentOff) {
         const saved = running * (d.percentOff / 100);
         amounts.push(Math.round(saved * 100) / 100);

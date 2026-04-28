@@ -28,7 +28,12 @@ import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/model
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { Discount, applyDiscountsSequentially, toDisplayableDiscounts } from "@bitwarden/pricing";
+import {
+  Discount,
+  applyDiscountsSequentially,
+  isSecretsManagerTrial,
+  toDisplayableDiscounts,
+} from "@bitwarden/pricing";
 
 import {
   AdjustStorageDialogComponent,
@@ -180,7 +185,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           .sort(sortSubscriptionItems);
       }
 
-      if (this.customerDiscounts.some((d) => d.percentOff === 100)) {
+      if (this.customerDiscounts.some((d) => d.active && d.percentOff === 100)) {
         this.lineItems.reverse();
       }
     }
@@ -412,14 +417,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   isSecretsManagerTrial(): boolean {
-    return this.customerDiscounts.some(
-      (d) =>
-        d.active &&
-        d.id === "sm-standalone" &&
-        this.sub?.subscription?.items?.some(
-          (item) => item.productId && d.appliesTo?.includes(item.productId),
-        ),
-    );
+    return isSecretsManagerTrial(this.customerDiscounts, this.sub?.subscription?.items);
   }
 
   discountAppliesToProduct(productId: string): boolean {

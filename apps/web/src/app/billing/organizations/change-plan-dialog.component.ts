@@ -52,6 +52,7 @@ import {
   Discount,
   getCompoundedPercentOff,
   getLabel,
+  isSecretsManagerTrial,
   toDisplayableDiscounts,
 } from "@bitwarden/pricing";
 import {
@@ -403,16 +404,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
-    return (
-      this.sub?.customerDiscounts?.some(
-        (d) =>
-          d.active &&
-          d.id === "sm-standalone" &&
-          this.sub?.subscription?.items?.some(
-            (item) => item.productId && d.appliesTo?.includes(item.productId),
-          ),
-      ) ?? false
-    );
+    return isSecretsManagerTrial(this.sub?.customerDiscounts, this.sub?.subscription?.items);
   }
 
   async planTypeChanged() {
@@ -1014,9 +1006,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     const amounts: number[] = [];
     let running = baseAmount;
     for (const d of this.activeDiscounts) {
-      if (!d.active) {
-        continue;
-      }
       if (d.percentOff) {
         const saved = running * (d.percentOff / 100);
         amounts.push(Math.round(saved * 100) / 100);
