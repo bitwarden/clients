@@ -1559,7 +1559,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Retrieve Slack secret
         id: retrieve-slack-secret
