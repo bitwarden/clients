@@ -1586,7 +1586,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: bitwarden-ci
-          secrets: "slack-bot-token"
+          secrets: "slack-webhook-alerts-deploy-qa"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -1823,11 +1823,10 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         with:
-          channel-id: C074F5UESQ0
-          method: chat.postMessage
-          token: ${{ steps.retrieve-slack-secret.outputs.slack-bot-token }}
+          webhook: ${{ steps.retrieve-slack-secret.outputs.slack-webhook-alerts-deploy-qa }}
+          webhook-type: incoming-webhook
           payload: |
             {
               "blocks": [
