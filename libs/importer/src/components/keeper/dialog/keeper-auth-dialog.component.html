@@ -88,19 +88,13 @@
       }
 
       @case ("selectTwoFactor") {
-        <div class="tw-flex tw-flex-col tw-gap-2">
+        <bit-radio-group [formControl]="twoFactorMethodControl" [block]="true">
           @for (method of currentStage.methods; track method) {
-            <button
-              bitButton
-              buttonType="secondary"
-              type="button"
-              class="tw-w-full"
-              (click)="selectTwoFactor(method)"
-            >
-              {{ getTwoFactorLabel(method) | i18n }}
-            </button>
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getTwoFactorLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
           }
-        </div>
+        </bit-radio-group>
       }
 
       @case ("twoFactorCode") {
@@ -181,6 +175,15 @@
     @switch (currentStage.kind) {
       @case ("selectApproval") {
         <button bitButton buttonType="primary" type="button" (click)="confirmApproval()">
+          {{ "continue" | i18n }}
+        </button>
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
+        </button>
+      }
+
+      @case ("selectTwoFactor") {
+        <button bitButton buttonType="primary" type="button" (click)="confirmTwoFactor()">
           {{ "continue" | i18n }}
         </button>
         <button bitButton buttonType="secondary" type="button" (click)="cancel()">

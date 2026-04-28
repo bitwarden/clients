@@ -54,12 +54,15 @@ export class KeeperAuthDialogComponent {
     validators: [Validators.required],
   });
   protected readonly approvalMethodControl = new FormControl<DeviceApprovalChannel | null>(null);
+  protected readonly twoFactorMethodControl = new FormControl<TwoFactorMethod | null>(null);
 
   constructor() {
     effect(() => {
       const current = this.stage();
       if (current.kind === "selectApproval" && current.methods.length > 0) {
         this.approvalMethodControl.setValue(current.methods[0]);
+      } else if (current.kind === "selectTwoFactor" && current.methods.length > 0) {
+        this.twoFactorMethodControl.setValue(current.methods[0]);
       }
     });
   }
@@ -72,7 +75,11 @@ export class KeeperAuthDialogComponent {
     this.keeperUi.submit(method);
   }
 
-  protected selectTwoFactor(method: TwoFactorMethod): void {
+  protected confirmTwoFactor(): void {
+    const method = this.twoFactorMethodControl.value;
+    if (method == null) {
+      return;
+    }
     this.keeperUi.submit(method);
   }
 
