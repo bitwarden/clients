@@ -1,3 +1,3 @@
-cargo-deny=0.18.6
+cargo-deny=0.19.4
 cargo-sort=2.0.2
 cargo-udeps=0.1.57
