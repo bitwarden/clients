@@ -7,8 +7,12 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import {
+  DECRYPT_ERROR,
+  EncString,
+} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -38,6 +42,7 @@ export class ServiceAccountService {
     private apiService: ApiService,
     private encryptService: EncryptService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   private getOrganizationKey$(organizationId: string) {
@@ -167,12 +172,20 @@ export class ServiceAccountService {
     serviceAccountView.organizationId = serviceAccountResponse.organizationId;
     serviceAccountView.creationDate = serviceAccountResponse.creationDate;
     serviceAccountView.revisionDate = serviceAccountResponse.revisionDate;
-    serviceAccountView.name = serviceAccountResponse.name
-      ? await this.encryptService.decryptString(
-          new EncString(serviceAccountResponse.name),
+    if (serviceAccountResponse.name) {
+      try {
+        const encString = new EncString(serviceAccountResponse.name);
+        serviceAccountView.name = await this.encryptService.decryptString(
+          encString,
           organizationKey,
-        )
-      : null;
+        );
+      } catch (error) {
+        this.logService.error("Error decrypting service account name", error);
+        serviceAccountView.name = DECRYPT_ERROR;
+      }
+    } else {
+      serviceAccountView.name = null;
+    }
     return serviceAccountView;
   }
 
@@ -186,9 +199,17 @@ export class ServiceAccountService {
     view.creationDate = response.creationDate;
     view.revisionDate = response.revisionDate;
     view.accessToSecrets = response.accessToSecrets;
-    view.name = response.name
-      ? await this.encryptService.decryptString(new EncString(response.name), organizationKey)
-      : null;
+    if (response.name) {
+      try {
+        const encString = new EncString(response.name);
+        view.name = await this.encryptService.decryptString(encString, organizationKey);
+      } catch (error) {
+        this.logService.error("Error decrypting service account name", error);
+        view.name = DECRYPT_ERROR;
+      }
+    } else {
+      view.name = null;
+    }
     return view;
   }
 
