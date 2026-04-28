@@ -200,7 +200,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             //   - Server URL → authenticated API call
             // V1 fallback: reportData is inline in the response.
             let reportData$: Observable<string>;
-            if (apiResponse.fileUploadType && apiResponse.reportFileDownloadUrl) {
+            if (apiResponse.fileUploadType !== undefined && apiResponse.reportFileDownloadUrl) {
               reportData$ = (
                 apiResponse.fileUploadType === FileUploadType.Azure
                   ? this.accessIntelligenceApiService.downloadReportFileAzure$(

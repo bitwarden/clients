@@ -383,9 +383,12 @@ describe("FileReportPersistenceService", () => {
       expect(mockApiService.downloadReportFileAzure$).not.toHaveBeenCalled();
     });
 
-    it("should download file from Azure blob URL when reportFileDownloadUrl is an Azure URL", async () => {
+    it("should download file from Azure blob URL when fileUploadType is Azure", async () => {
       const azureUrl = "https://myaccount.blob.core.windows.net/container/report.json?sas=token";
-      const apiResponse = makeApiResponse({ reportFileDownloadUrl: azureUrl });
+      const apiResponse = makeApiResponse({
+        reportFileDownloadUrl: azureUrl,
+        fileUploadType: FileUploadType.Azure,
+      });
       mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
       mockApiService.downloadReportFileAzure$.mockReturnValue(
         of({ blob: new Blob(["file-content"]), fileName: "report.json" }),
@@ -398,9 +401,12 @@ describe("FileReportPersistenceService", () => {
       expect(mockApiService.downloadReportFile$).not.toHaveBeenCalled();
     });
 
-    it("should fetch file via authenticated API when reportFileDownloadUrl is a non-Azure URL", async () => {
+    it("should fetch file via authenticated API when fileUploadType is Direct", async () => {
       const serverUrl = "https://my-selfhosted-server.com/reports/download/file-id";
-      const apiResponse = makeApiResponse({ reportFileDownloadUrl: serverUrl });
+      const apiResponse = makeApiResponse({
+        reportFileDownloadUrl: serverUrl,
+        fileUploadType: FileUploadType.Direct,
+      });
       mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
       mockApiService.downloadReportFile$.mockReturnValue(
         of({ blob: new Blob(["file-content"]), fileName: "report.json" }),
