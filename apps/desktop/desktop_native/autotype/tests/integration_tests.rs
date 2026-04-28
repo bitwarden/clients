@@ -128,10 +128,27 @@ extern "system" fn show_window_proc(
 impl TestWindow {
     fn set_foreground(&self) -> Result<()> {
         unsafe {
+            use windows::Win32::System::Threading::GetCurrentThreadId;
+
+            // AttachThreadInput allows us to synchronize our input queue with the foreground
+            // thread's so Windows grants permission to call SetForegroundWindow. Without
+            // this, SetForegroundWindow silently fails when another process holds the
+            // foreground lock (e.g. the CI runners).
+            let foreground_hwnd = GetForegroundWindow();
+            let foreground_tid = GetWindowThreadProcessId(foreground_hwnd, None);
+            let current_tid = GetCurrentThreadId();
+
+            if foreground_tid != current_tid {
+                let _ = AttachThreadInput(current_tid, foreground_tid, true);
+            }
+
             let _ = ShowWindow(self.handle, SW_SHOW);
             let _ = SetForegroundWindow(self.handle);
             let _ = UpdateWindow(self.handle);
-            let _ = SetForegroundWindow(self.handle);
+
+            if foreground_tid != current_tid {
+                let _ = AttachThreadInput(current_tid, foreground_tid, false);
+            }
         }
         std::thread::sleep(std::time::Duration::from_millis(100));
         Ok(())
