@@ -2579,9 +2579,6 @@
   "chooseFileSentenceCase": {
     "message": "Choose file"
   },
-  "uploadFile": {
-    "message": "Upload File"
-  },
   "noFileChosen": {
     "message": "No file chosen"
   },
