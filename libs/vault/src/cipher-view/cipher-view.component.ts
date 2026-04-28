@@ -17,6 +17,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import {
   CipherRiskService,
   isPasswordAtRisk,
@@ -33,8 +34,6 @@ import {
   TypographyModule,
   LinkComponent,
 } from "@bitwarden/components";
-
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";

@@ -30,6 +30,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -61,7 +62,6 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
 import {
   AddChangePasswordNotificationQueueMessage,
@@ -167,6 +167,7 @@ export default class NotificationBackground {
     private themeStateService: ThemeStateService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private taskService: TaskService,
+    private changeLoginPasswordService: ChangeLoginPasswordService,
     protected messagingService: MessagingService,
     private fido2Background: Fido2Background,
   ) {}
@@ -548,8 +549,7 @@ export default class NotificationBackground {
 
     const { securityTask, cipher } = loginSecurityTaskInfo;
     const domain = Utils.getDomain(tab.url);
-    const passwordChangeUri =
-      await new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+    const passwordChangeUri = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
 
     const authStatus = await this.getAuthStatus();
 
@@ -1878,14 +1878,7 @@ export default class NotificationBackground {
             throw new Error("No at-risk cipher found for tab URL");
           }
 
-          // FIXME: TemporaryNotificationChangeLoginService uses `mode: "same-origin"` for
-          // its well-known URL probes, which will always fail from the MV3 service worker
-          // context (the worker's origin is chrome-extension://, never same-origin with the
-          // target site). The same issue exists at queue time
-          // (triggerAtRiskPasswordNotification). If the fetch mode is corrected there, it
-          // must also be corrected here or the button will appear but clicking it will
-          // silently fail.
-          return new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+          return this.changeLoginPasswordService.getChangePasswordUrl(cipher);
         }),
         map((url) => {
           if (!url) {

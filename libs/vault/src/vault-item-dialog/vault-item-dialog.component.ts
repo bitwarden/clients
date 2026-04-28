@@ -49,7 +49,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
 import {
   AttachmentDialogCloseResult,
@@ -59,7 +58,6 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
-import { DefaultChangeLoginPasswordService } from "../services/default-change-login-password.service";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -136,10 +134,7 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     PremiumBadgeComponent,
     I18nPipe,
   ],
-  providers: [
-    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
-  ],
+  providers: [{ provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService }],
 })
 export class VaultItemDialogComponent implements OnInit, OnDestroy {
   /**

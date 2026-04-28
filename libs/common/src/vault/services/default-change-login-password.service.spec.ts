@@ -58,6 +58,17 @@ describe("DefaultChangeLoginPasswordService", () => {
     expect(url).toBeNull();
   });
 
+  it("should return null when cipher.login is null", async () => {
+    const cipher = {
+      type: CipherType.Login,
+      login: null,
+    } as CipherView;
+
+    const url = await service.getChangePasswordUrl(cipher);
+
+    expect(url).toBeNull();
+  });
+
   it("should return null for logins with no URIs", async () => {
     const cipher = {
       type: CipherType.Login,
@@ -97,6 +108,23 @@ describe("DefaultChangeLoginPasswordService", () => {
         url: "https://icons.bitwarden.com/change-password-uri?uri=https%3A%2F%2Fexample.com%2F",
       }),
     );
+  });
+
+  it("should return the original URI when the API returns a non-ok response", async () => {
+    mockApiService.fetch.mockImplementation(() =>
+      Promise.resolve({ ok: false, json: () => Promise.resolve({}) } as Response),
+    );
+
+    const cipher = {
+      type: CipherType.Login,
+      login: Object.assign(new LoginView(), {
+        uris: [{ uri: "https://example.com/" }],
+      }),
+    } as CipherView;
+
+    const url = await service.getChangePasswordUrl(cipher);
+
+    expect(url).toBe("https://example.com/");
   });
 
   it("should return the original URI when unable to verify the response", async () => {
