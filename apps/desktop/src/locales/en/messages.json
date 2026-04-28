@@ -3934,6 +3934,9 @@
   "chooseFile": {
     "message": "Choose File"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "uploadFile": {
     "message": "Upload File"
   },
