@@ -58,6 +58,9 @@ where
     pub async fn handle(mut self) {
         info!(peer_info = ?self.connection.peer_info, "Connection handler starting");
 
+        // Guards against oversized allocations from untrusted length prefixes on the socket.
+        const MAX_MESSAGE_LEN: usize = 256 * 1024;
+
         loop {
             let mut len_buf = [0u8; 4];
 
@@ -75,6 +78,13 @@ where
             }
 
             let msg_len = u32::from_be_bytes(len_buf) as usize;
+            if msg_len > MAX_MESSAGE_LEN {
+                warn!(
+                    msg_len,
+                    "Message length exceeds maximum, closing connection"
+                );
+                break;
+            }
             let mut msg = vec![0u8; msg_len];
 
             tokio::select! {
@@ -240,5 +250,37 @@ mod tests {
             super::handle_message(REQUEST_IDENTITIES, &Arc::new(keystore), &auth_policy).await;
 
         assert_eq!(response, vec![FAILURE]);
+    }
+
+    #[tokio::test]
+    async fn oversized_message_length_closes_connection_without_panic() {
+        use tokio::io::{duplex, AsyncWriteExt};
+        use tokio_util::sync::CancellationToken;
+
+        let (mut client, server) = duplex(1024);
+        let keystore = Arc::new(MockKeyStore::new());
+        let auth_policy = Arc::new(AlwaysAllowPolicy);
+        let token = CancellationToken::new();
+
+        let handler = super::ConnectionHandler::new(
+            keystore,
+            auth_policy,
+            super::Connection {
+                stream: server,
+                peer_info: None,
+            },
+            token,
+        );
+
+        // Send a length one byte over the 256 KiB cap
+        let oversized_len = (256 * 1024 + 1) as u32;
+        client
+            .write_all(&oversized_len.to_be_bytes())
+            .await
+            .unwrap();
+
+        tokio::time::timeout(std::time::Duration::from_secs(1), handler.handle())
+            .await
+            .expect("handler should exit, denying oversized message length");
     }
 }
