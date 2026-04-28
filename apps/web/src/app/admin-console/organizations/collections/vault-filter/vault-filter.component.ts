@@ -24,6 +24,8 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -54,6 +56,7 @@ export class VaultFilterComponent {
   private readonly accountService = inject(AccountService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly configService = inject(ConfigService);
 
   readonly activeFilter = input<VaultFilter>(new VaultFilter());
   readonly searchText = model("");
@@ -174,14 +177,6 @@ export class VaultFilterComponent {
     filter.selectedCollectionNode = collectionNode;
   };
 
-  async buildAllFilters(): Promise<VaultFilterList> {
-    const builderFilter = {} as VaultFilterList;
-    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this.organization()?.id);
-    builderFilter.collectionFilter = await this.addCollectionFilter();
-    builderFilter.trashFilter = await this.addTrashFilter();
-    return builderFilter;
-  }
-
   protected async addCollectionFilter(): Promise<VaultFilterSection> {
     // Ensure the Collections filter is never collapsed in the org vault.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -265,6 +260,23 @@ export class VaultFilterComponent {
       },
       action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
     };
+  }
+
+  async buildAllFilters(): Promise<VaultFilterList> {
+    const newTypesEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+    );
+
+    const excludeTypes: CipherStatus[] = ["favorites"];
+    if (!newTypesEnabled) {
+      excludeTypes.push(CipherType.BankAccount);
+    }
+
+    const builderFilter = {} as VaultFilterList;
+    builderFilter.typeFilter = await this.addTypeFilter(excludeTypes, this.organization()?.id);
+    builderFilter.collectionFilter = await this.addCollectionFilter();
+    builderFilter.trashFilter = await this.addTrashFilter();
+    return builderFilter;
   }
 
   protected async addTrashFilter(): Promise<VaultFilterSection> {

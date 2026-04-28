@@ -323,6 +323,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get isBankAccountCipher(): boolean {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.BankAccount && !this.isDeleted
+    );
+  }
+
   protected get isSecureNoteCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
@@ -336,12 +342,23 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get hasBankAccountOptions(): boolean {
+    return (
+      this.isBankAccountCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "accountNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "routingNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "pin") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "iban"))
+    );
+  }
+
   protected get showMenuDivider() {
     return (
       this.hasVisibleLoginOptions ||
       this.hasVisibleCardOptions ||
       this.hasVisibleIdentityOptions ||
-      this.hasVisibleSecureNoteOptions
+      this.hasVisibleSecureNoteOptions ||
+      this.hasBankAccountOptions
     );
   }
 

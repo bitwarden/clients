@@ -149,6 +149,9 @@ export class AddEditComponentV2 implements OnInit {
       [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
       [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
       [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+      [CipherType.BankAccount]: isEditMode
+        ? "editItemHeaderBankAccount"
+        : "newItemHeaderBankAccount",
     };
     return this.i18nService.t(translation[type]);
   }

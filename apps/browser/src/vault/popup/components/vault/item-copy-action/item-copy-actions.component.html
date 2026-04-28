@@ -186,6 +186,47 @@
   ></button>
 </bit-item-action>
 
+@if (CipherViewLikeUtils.getType(cipher) === CipherType.BankAccount) {
+  <bit-item-action>
+    @if (singleCopyableBankAccount) {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="'copyFieldCipherName' | i18n: singleCopyableBankAccount.key : cipher.name"
+        [appCopyField]="singleCopyableBankAccount.field"
+        [cipher]="cipher"
+        showToast
+      ></button>
+    } @else {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="
+          hasBankAccountValues ? ('copyInfoTitle' | i18n: cipher.name) : ('noValuesToCopy' | i18n)
+        "
+        [disabled]="!hasBankAccountValues"
+        [bitMenuTriggerFor]="bankAccountOptions"
+      ></button>
+      <bit-menu #bankAccountOptions>
+        <button type="button" bitMenuItem appCopyField="accountNumber" [cipher]="cipher">
+          {{ "copyAccountNumber" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="routingNumber" [cipher]="cipher">
+          {{ "copyRoutingNumber" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="pin" [cipher]="cipher">
+          {{ "copyPin" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="iban" [cipher]="cipher">
+          {{ "copyIban" | i18n }}
+        </button>
+      </bit-menu>
+    }
+  </bit-item-action>
+}
+
 <bit-item-action *ngIf="CipherViewLikeUtils.getType(cipher) === CipherType.SshKey">
   <button
     type="button"

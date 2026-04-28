@@ -140,6 +140,14 @@ export class CopyCipherFieldDirective implements OnChanges {
         return _cipher.sshKey?.publicKey;
       case "keyFingerprint":
         return _cipher.sshKey?.keyFingerprint;
+      case "accountNumber":
+        return _cipher.bankAccount?.accountNumber;
+      case "routingNumber":
+        return _cipher.bankAccount?.routingNumber;
+      case "pin":
+        return _cipher.bankAccount?.pin;
+      case "iban":
+        return _cipher.bankAccount?.iban;
       default:
         return null;
     }

@@ -7,6 +7,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -31,6 +32,7 @@ describe("CreateCommand", () => {
   const organizationService = mock<OrganizationService>();
   const accountService = mock<AccountService>();
   const cliRestrictedItemTypesService = mock<CliRestrictedItemTypesService>();
+  const configService = mock<ConfigService>();
 
   const userId = "user-id" as UserId;
   const validOrgId = "11111111-1111-1111-1111-111111111111" as OrganizationId;
@@ -84,6 +86,7 @@ describe("CreateCommand", () => {
       organizationService,
       accountService,
       cliRestrictedItemTypesService,
+      configService,
     );
   });
 

@@ -200,6 +200,34 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientToggledBankAccountNumberVisible:
+        msg = this.i18nService.t("viewedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledBankAccountPinVisible:
+        msg = this.i18nService.t("viewedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountPinItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountNumber:
+        msg = this.i18nService.t("copiedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountPin:
+        msg = this.i18nService.t("copiedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountPinItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
       // Collection
       case EventType.Collection_Created:
         msg = this.i18nService.t("createdCollectionId", this.formatCollectionId(ev));

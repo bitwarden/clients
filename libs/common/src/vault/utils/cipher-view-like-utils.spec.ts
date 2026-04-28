@@ -257,6 +257,9 @@ describe("CipherViewLikeUtils", () => {
 
         cipherListView.type = "secureNote";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.SecureNote);
+
+        cipherListView.type = "bankAccount";
+        expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
       });
     });
   });
@@ -528,6 +531,19 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "phone")).toBe(true);
       });
 
+      it("returns true for bank account fields", () => {
+        const cipherView = createCipherView(CipherType.BankAccount);
+        cipherView.bankAccount.accountNumber = "123456789";
+        cipherView.bankAccount.routingNumber = "987654321";
+        cipherView.bankAccount.pin = "1234";
+        cipherView.bankAccount.iban = "GB29NWBK60161331926819";
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "accountNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "routingNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "pin")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "iban")).toBe(true);
+      });
+
       it("returns false when values are not populated", () => {
         const cipherView = createCipherView(CipherType.Login);
 
@@ -535,6 +551,15 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "password")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "securityCode")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "username")).toBe(false);
+      });
+
+      it("returns false for bank account fields when not populated", () => {
+        const cipherView = createCipherView(CipherType.BankAccount);
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "accountNumber")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "routingNumber")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "pin")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "iban")).toBe(false);
       });
     });
 
@@ -579,6 +604,23 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(true);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "email")).toBe(true);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "phone")).toBe(true);
+      });
+
+      it("returns true for copyable fields in a bank account cipher", () => {
+        const cipherListView = {
+          type: "bankAccount",
+          copyableFields: [
+            "BankAccountAccountNumber",
+            "BankAccountRoutingNumber",
+            "BankAccountPin",
+            "BankAccountIban",
+          ],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "accountNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "routingNumber")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "pin")).toBe(true);
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "iban")).toBe(true);
       });
 
       it("returns false for when missing a field", () => {

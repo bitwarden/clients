@@ -1012,6 +1012,9 @@
   "typeSshKeySubtitle": {
     "message": "Server login token"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
   "folderSubtitle": {
     "message": "Organize your items"
   },
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Secure notes"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
   },
   "folders": {
     "message": "Folders"
@@ -1116,6 +1122,10 @@
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
   "newItemHeaderTextSend": {
     "message": "New Text Send",
     "description": "Header for new text send"
@@ -1144,6 +1154,10 @@
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Edit Text Send",
     "description": "Header for edit text send"
@@ -1171,6 +1185,10 @@
   "viewItemHeaderSshKey": {
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
   },
   "new": {
     "message": "New",
@@ -4235,6 +4253,42 @@
   },
   "copiedSecurityCodeItemId": {
     "message": "Copied security code for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountNumberItemId": {
+    "message": "Viewed account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Viewed PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Copied account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Copied PIN for item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -13365,6 +13419,70 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "sendsTitleNoSearchResults": {
     "message": "No search results returned"

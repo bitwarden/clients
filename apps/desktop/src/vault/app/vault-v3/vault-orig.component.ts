@@ -691,6 +691,47 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
           });
         }
         break;
+      case CipherType.BankAccount:
+        if (cipher.bankAccount.accountNumber != null || cipher.bankAccount.routingNumber != null) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.bankAccount.accountNumber) {
+          menu.push({
+            label: this.i18nService.t("copyAccountNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.accountNumber,
+                "accountNumber",
+                "Account Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.routingNumber) {
+          menu.push({
+            label: this.i18nService.t("copyRoutingNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.routingNumber,
+                "routingNumber",
+                "Routing Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.pin) {
+          menu.push({
+            label: this.i18nService.t("copyPin"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.pin, "pin", "PIN"),
+          });
+        }
+        if (cipher.bankAccount.iban) {
+          menu.push({
+            label: this.i18nService.t("copyIban"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
+          });
+        }
+        break;
       default:
         break;
     }

@@ -3,6 +3,7 @@
 import { BaseResponse } from "../../../models/response/base.response";
 import { CipherType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
+import { BankAccountApi } from "../api/bank-account.api";
 import { CardApi } from "../api/card.api";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { FieldApi } from "../api/field.api";
@@ -32,6 +33,7 @@ export class CipherResponse extends BaseResponse {
   identity: IdentityApi;
   secureNote: SecureNoteApi;
   sshKey: SshKeyApi;
+  bankAccount: BankAccountApi;
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
@@ -93,6 +95,11 @@ export class CipherResponse extends BaseResponse {
     const sshKey = this.getResponseProperty("sshKey");
     if (sshKey != null) {
       this.sshKey = new SshKeyApi(sshKey);
+    }
+
+    const bankAccount = this.getResponseProperty("BankAccount");
+    if (bankAccount != null) {
+      this.bankAccount = new BankAccountApi(bankAccount);
     }
 
     const fields = this.getResponseProperty("Fields");

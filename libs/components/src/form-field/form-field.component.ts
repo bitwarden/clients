@@ -3,13 +3,14 @@ import {
   AfterContentChecked,
   booleanAttribute,
   Component,
-  ElementRef,
+  computed,
+  contentChild,
+  contentChildren,
   HostBinding,
   HostListener,
-  signal,
   input,
   Input,
-  contentChild,
+  signal,
   viewChild,
 } from "@angular/core";
 
@@ -21,6 +22,8 @@ import { inputBorderClasses } from "../input/input.directive";
 
 import { BitErrorComponent } from "./error.component";
 import { BitFormFieldControl } from "./form-field-control";
+import { BitPrefixDirective } from "./prefix.directive";
+import { BitSuffixDirective } from "./suffix.directive";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -34,9 +37,6 @@ export class BitFormFieldComponent implements AfterContentChecked {
   readonly hint = contentChild(BitHintDirective);
   readonly label = contentChild(BitLabelComponent);
 
-  readonly prefixContainer = viewChild<ElementRef<HTMLDivElement>>("prefixContainer");
-  readonly suffixContainer = viewChild<ElementRef<HTMLDivElement>>("suffixContainer");
-
   readonly error = viewChild(BitErrorComponent);
 
   readonly disableMargin = input(false, { transform: booleanAttribute });
@@ -49,8 +49,11 @@ export class BitFormFieldComponent implements AfterContentChecked {
   @Input({ transform: booleanAttribute })
   disableReadOnlyBorder = false;
 
-  protected readonly prefixHasChildren = signal(false);
-  protected readonly suffixHasChildren = signal(false);
+  private readonly prefixChildren = contentChildren(BitPrefixDirective);
+  private readonly suffixChildren = contentChildren(BitSuffixDirective);
+
+  protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
+  protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
 
   get inputBorderClasses(): string {
     const shouldFocusBorderAppear = this.defaultContentIsFocused();
@@ -115,8 +118,5 @@ export class BitFormFieldComponent implements AfterContentChecked {
     } else {
       this.input().ariaDescribedBy = undefined;
     }
-
-    this.prefixHasChildren.set((this.prefixContainer()?.nativeElement.childElementCount ?? 0) > 0);
-    this.suffixHasChildren.set((this.suffixContainer()?.nativeElement.childElementCount ?? 0) > 0);
   }
 }
