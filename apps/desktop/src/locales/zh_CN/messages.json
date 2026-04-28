@@ -3627,6 +3627,63 @@
   "deviceTrusted": {
     "message": "设备已信任"
   },
+  "device": {
+    "message": "设备"
+  },
+  "devices": {
+    "message": "设备"
+  },
+  "whatIsADevice": {
+    "message": "什么是设备？"
+  },
+  "aDeviceIs": {
+    "message": "设备是您登录过的 Bitwarden App 的独立安装。重新安装、清除 App 数据或清除 Cookie，可能会导致设备多次出现。"
+  },
+  "deviceListDescriptionTemp": {
+    "message": "您的账户在以下设备上登录过。"
+  },
+  "loginStatus": {
+    "message": "登录状态"
+  },
+  "recentlyActive": {
+    "message": "最近活跃"
+  },
+  "recentlyActiveToday": {
+    "message": "今天"
+  },
+  "recentlyActivePast7Days": {
+    "message": "过去 7 天"
+  },
+  "recentlyActivePast14Days": {
+    "message": "过去 14 天"
+  },
+  "recentlyActivePast30Days": {
+    "message": "过去 30 天"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 天以前"
+  },
+  "firstLogin": {
+    "message": "首次登录"
+  },
+  "trusted": {
+    "message": "已信任"
+  },
+  "currentSession": {
+    "message": "当前会话"
+  },
+  "requestPending": {
+    "message": "请求待处理"
+  },
+  "deviceIdMissing": {
+    "message": "缺少设备 ID"
+  },
+  "deviceTypeMissing": {
+    "message": "缺少设备类型"
+  },
+  "deviceCreationDateMissing": {
+    "message": "缺少设备创建日期"
+  },
   "trustOrganization": {
     "message": "信任组织"
   },
@@ -4854,7 +4911,7 @@
     "message": "分享此 Send 链接后，个人需要使用验证码验证他们的电子邮箱才能查看此 Send。"
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "输入多个电子邮箱（使用逗号分隔）。"
+    "message": "使用逗号分隔输入多个电子邮箱。"
   },
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
@@ -4881,5 +4938,19 @@
   "saveSendEditsFailed": {
     "message": "保存 Send 的编辑内容失败",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "侧边导航"
+  },
+  "skipLink": {
+    "message": "跳过链接"
+  },
+  "callout": {
+    "message": "提示框",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "进度条",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

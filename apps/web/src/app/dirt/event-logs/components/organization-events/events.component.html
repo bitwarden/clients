@@ -56,9 +56,9 @@
         bitFormButton
         [bitAction]="exportEvents"
         [disabled]="dirtyDates || usePlaceHolderEvents"
+        endIcon="bwi-sign-in"
       >
-        <span>{{ "export" | i18n }}</span>
-        <i class="bwi bwi-fw bwi-sign-in" aria-hidden="true"></i>
+        {{ "exportVerb" | i18n }}
       </button>
     </form>
   </div>

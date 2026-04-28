@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, filter, firstValueFrom, map, of } from "rxjs";
+import { BehaviorSubject, Observable, filter, firstValueFrom, map, of } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherResponse } from "@bitwarden/common/vault/models/response/cipher.response";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -31,7 +31,6 @@ import { CipherEncryptionService } from "../abstractions/cipher-encryption.servi
 import { CipherSdkService } from "../abstractions/cipher-sdk.service";
 import { EncryptionContext } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
-import { SearchService } from "../abstractions/search.service";
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
@@ -102,7 +101,6 @@ describe("Cipher Service", () => {
   const apiService = mock<ApiService>();
   const cipherFileUploadService = mock<CipherFileUploadService>();
   const i18nService = mock<I18nService>();
-  const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
   const configService = mock<ConfigService>();
   accountService = mockAccountServiceWith(mockUserId);
@@ -138,19 +136,20 @@ describe("Cipher Service", () => {
     // Create BehaviorSubjects for SDK feature flags - tests can update these to change behavior
     sdkCrudFeatureFlag$ = new BehaviorSubject<boolean>(false);
     sdkShareFeatureFlag$ = new BehaviorSubject<boolean>(false);
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM28190CipherSharingOpsToSdk) {
-        return sdkShareFeatureFlag$.asObservable();
-      }
-      return sdkCrudFeatureFlag$.asObservable();
-    });
+    configService.getFeatureFlag$.mockImplementation(
+      <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
+        if (flag === FeatureFlag.PM28190CipherSharingOpsToSdk) {
+          return sdkShareFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
+        }
+        return sdkCrudFeatureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
+      },
+    );
 
     cipherService = new CipherService(
       keyService,
       domainSettingsService,
       apiService,
       i18nService,
-      searchService,
       autofillSettingsService,
       encryptService,
       cipherFileUploadService,
@@ -646,8 +645,6 @@ describe("Cipher Service", () => {
         .calledWith(FeatureFlag.CipherKeyEncryption)
         .mockResolvedValue(true);
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
-
-      searchService.indexedEntityId$.mockReturnValue(of(null));
 
       const keys = { userKey: originalUserKey } as CipherDecryptionKeys;
       keyService.cipherDecryptionKeys$.mockReturnValue(of(keys));
