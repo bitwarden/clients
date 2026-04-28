@@ -11,6 +11,8 @@ pub(crate) use modifier_keys::*;
 #[cfg_attr(target_os = "windows", path = "windows/mod.rs")]
 mod windowing;
 
+// HELLO DARKNESS MY OLD FRIEND
+
 /// Gets the title bar string for the foreground window.
 ///
 /// # Errors

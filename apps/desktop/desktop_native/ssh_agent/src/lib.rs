@@ -29,6 +29,8 @@ mod crypto;
 mod server;
 mod storage;
 
+// HELLO DARKNESS MY OLD FRIEND
+
 // external exports for napi
 pub use agent::BitwardenSSHAgent;
 pub use approval::{ApprovalError, ApprovalRequester, SignApprovalRequest};
