@@ -460,6 +460,17 @@
       groupName: "jest",
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
+    {
+      // Some electron packages are version coupled
+      groupName: "electron",
+      matchPackageNames: [
+        "@electron/fuses",
+        "@electron/rebuild",
+        "electron",
+        "electron-builder",
+        "electron-updater",
+      ],
+    },
 
     // ==================== Dashboard Rules ====================
     {
