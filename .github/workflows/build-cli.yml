@@ -211,7 +211,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-KEY-NAME,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -250,9 +250,10 @@ jobs:
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          _APP_STORE_CONNECT_AUTH_KEY_NAME: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY-NAME }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          cat << EOF > ~/private_keys/AuthKey_$_APP_STORE_CONNECT_AUTH_KEY_NAME.p8
           $_APP_STORE_CONNECT_AUTH_KEY
           EOF
 
@@ -260,12 +261,12 @@ jobs:
         if: ${{ matrix.os.base == 'mac' && needs.setup.outputs.has_secrets == 'true' }}
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          APP_STORE_CONNECT_AUTH_KEY_NAME: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY-NAME }}
           _LOWER_RUNNER_OS: ${{ env.LOWER_RUNNER_OS }}
         run: |
+          APP_STORE_CONNECT_AUTH_KEY_PATH=~/private_keys/AuthKey_$APP_STORE_CONNECT_AUTH_KEY_NAME.p8
           echo "Create keychain profile"
-          xcrun notarytool store-credentials "notarytool-profile" --key-id "$APP_STORE_CONNECT_AUTH_KEY" --key "$APP_STORE_CONNECT_AUTH_KEY_PATH" --issuer "$APP_STORE_CONNECT_TEAM_ISSUER"
+          xcrun notarytool store-credentials "notarytool-profile" --key-id "$APP_STORE_CONNECT_AUTH_KEY_NAME" --key "$APP_STORE_CONNECT_AUTH_KEY_PATH" --issuer "$APP_STORE_CONNECT_TEAM_ISSUER"
 
           codesign --sign "Developer ID Application: Bitwarden Inc" --verbose=3 --force --options=runtime --timestamp "./dist/bw${{ matrix.license_type.artifact_prefix }}-$_LOWER_RUNNER_OS${{ matrix.os.target_suffix }}-$_PACKAGE_VERSION.zip"
 
