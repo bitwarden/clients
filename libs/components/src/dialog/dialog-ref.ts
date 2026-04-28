@@ -7,6 +7,13 @@ import { ComponentType } from "@angular/cdk/overlay";
 import { Portal } from "@angular/cdk/portal";
 import { Observable, Subject } from "rxjs";
 
+import { LogService } from "@bitwarden/logging";
+
+export type DialogCloseRef = {
+  /** A boolean indicating whether the close succeeded */
+  closed: boolean;
+};
+
 export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   CdkDialogRefBase<R, C>,
   "close" | "closed" | "disableClose" | "componentInstance"
@@ -14,7 +21,7 @@ export abstract class DialogRef<R = unknown, C = unknown> implements Pick<
   abstract readonly isDrawer?: boolean;
 
   // --- From CdkDialogRefBase ---
-  abstract close(result?: R, options?: DialogCloseOptions): void;
+  abstract close(result?: R, options?: DialogCloseOptions): Promise<DialogCloseRef>;
   abstract readonly closed: Observable<R | undefined>;
   abstract disableClose: boolean | undefined;
   /**
@@ -34,7 +41,9 @@ export type DialogConfig<D = unknown, R = unknown> = Pick<
   | "width"
   | "restoreFocus"
   | "closeOnNavigation"
->;
+> & {
+  closePredicate?: (result?: R) => Promise<boolean>;
+};
 
 /**
  * A reference to an open drawer. Returned by `DialogService.openDrawer()`.
@@ -66,10 +75,12 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
     /** Pushes a new entry onto the stack. Provided by DialogService. */
     private readonly onStack: <SR, SD, SC>(
       component: ComponentType<SC>,
-      config?: Omit<DialogConfig<SD, DialogRef<SR, SC>>, "closeOnNavigation">,
+      config?: Omit<DialogConfig<SD, SR>, "closeOnNavigation">,
     ) => DrawerRef<SR, SC>,
     /** Whether to close this drawer when navigating to a different route. Only meaningful on the root ref. */
     readonly closeOnNavigation = false,
+    private readonly closePredicate?: (result?: R) => Promise<boolean>,
+    private readonly logService?: LogService | null,
   ) {}
 
   /**
@@ -80,13 +91,56 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
    */
   stack<SR = unknown, SD = unknown, SC = unknown>(
     component: ComponentType<SC>,
-    config?: Omit<DialogConfig<SD, DialogRef<SR, SC>>, "closeOnNavigation">,
+    config?: Omit<DialogConfig<SD, SR>, "closeOnNavigation">,
   ): DrawerRef<SR, SC> {
     return this.onStack(component, config);
   }
 
-  /** Pop this drawer off the stack, firing the closed observable with the given result. */
-  close(result?: R, _options?: DialogCloseOptions): void {
+  /**
+   * Check whether this drawer can close (i.e., the closePredicate passes).
+   * Does not modify state.
+   */
+  async canClose(result?: R): Promise<boolean> {
+    if (this._isClosed) {
+      return false;
+    }
+    if (this.closePredicate) {
+      try {
+        return await this.closePredicate(result);
+      } catch (err) {
+        this.logService?.error(err);
+      }
+    }
+    return true;
+  }
+
+  /** Pop this drawer off the stack, firing the closed observable with the given result. Respects closePredicate. */
+  async close(result?: R, _options?: DialogCloseOptions): Promise<DialogCloseRef> {
+    if (this._isClosed) {
+      return { closed: false };
+    }
+    if (this.closePredicate) {
+      try {
+        const canClose = await this.closePredicate(result);
+        if (!canClose) {
+          return { closed: false };
+        }
+      } catch (err) {
+        this.logService?.error(err);
+      }
+    }
+    this._isClosed = true;
+    this._closedSubject.next(result);
+    this._closedSubject.complete();
+    this.onClose();
+    return { closed: true };
+  }
+
+  /**
+   * Force-close this drawer, bypassing any closePredicate.
+   * Used by DrawerService.closeAll() to tear down the entire stack.
+   */
+  _forceClose(result?: R): void {
     if (this._isClosed) {
       return;
     }
@@ -105,13 +159,29 @@ export class DrawerRef<R = unknown, C = unknown> implements DialogRef<R, C> {
 export class CdkDialogRef<R = unknown, C = unknown> implements DialogRef<R, C> {
   readonly isDrawer = false;
 
+  constructor(
+    private readonly logService?: LogService | null,
+    private readonly closePredicate?: (result?: R) => Promise<boolean>,
+  ) {}
+
   /** This is not available until after construction, @see DialogService.open. */
   cdkDialogRefBase!: CdkDialogRefBase<R, C>;
 
   // --- Delegated to CdkDialogRefBase ---
 
-  close(result?: R, options?: DialogCloseOptions): void {
+  async close(result?: R, options?: DialogCloseOptions): Promise<DialogCloseRef> {
+    if (this.closePredicate) {
+      try {
+        const canClose = await this.closePredicate(result);
+        if (!canClose) {
+          return { closed: false };
+        }
+      } catch (err) {
+        this.logService?.error(err);
+      }
+    }
     this.cdkDialogRefBase.close(result, options);
+    return { closed: true };
   }
 
   get closed(): Observable<R | undefined> {

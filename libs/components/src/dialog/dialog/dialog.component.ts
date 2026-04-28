@@ -3,6 +3,7 @@ import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   Component,
+  contentChild,
   effect,
   inject,
   viewChild,
@@ -29,6 +30,7 @@ import { DialogRef } from "../dialog-ref";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 import { DrawerService } from "../drawer.service";
+import { DialogFooterDirective } from "../simple-dialog/simple-dialog.component";
 
 type DialogSize = "small" | "default" | "large";
 
@@ -96,7 +98,6 @@ export class DialogComponent implements AfterViewInit {
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-
   private scrollableBody$ = toObservable(this.scrollableBody);
   private scrollBottom$ = toObservable(this.scrollBottom);
 
@@ -105,6 +106,9 @@ export class DialogComponent implements AfterViewInit {
       hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
     ),
   );
+
+  private readonly footerDirective = contentChild(DialogFooterDirective);
+  protected readonly hasFooter = computed(() => !!this.footerDirective());
 
   /** Background color */
   readonly background = input<"default" | "alt">("default");
@@ -181,17 +185,24 @@ export class DialogComponent implements AfterViewInit {
     () => this.dialogRef?.isDrawer === true && this.drawerService.stackDepth() > 1,
   );
 
-  protected closeDialog(): void {
+  protected async closeDialog(): Promise<void> {
     if (this.dialogRef?.isDrawer) {
+      const rootRef = this.drawerService.rootRef;
+      if (rootRef) {
+        const canClose = await rootRef.canClose();
+        if (!canClose) {
+          return;
+        }
+      }
       this.drawerService.closeAll();
     } else {
-      this.dialogRef?.close();
+      void this.dialogRef?.close();
     }
   }
 
   handleEsc(event: Event) {
     if (!this.dialogRef?.disableClose) {
-      this.dialogRef?.close();
+      void this.closeDialog();
       event.stopPropagation();
     }
   }

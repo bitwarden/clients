@@ -87,6 +87,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected onEvent = output<VaultItemEvent<C>>();
   protected onAddCipher = output<CipherType>();
   protected onAddFolder = output<void>();
+  protected onAddItemDialog = output<void>();
 
   protected cipherAuthorizationService = inject(CipherAuthorizationService);
   protected restrictedItemTypesService = inject(RestrictedItemTypesService);

@@ -20,6 +20,11 @@ export class DrawerService {
   /** The portal at the top of the stack — rendered by LayoutComponent. */
   readonly portal = computed(() => this.stack().at(-1)?.portal);
 
+  /** The root (first) ref in the stack, or undefined if the stack is empty. */
+  get rootRef(): DrawerRef<any, any> | undefined {
+    return this.stack()[0];
+  }
+
   /** Number of portals currently in the stack. */
   readonly stackDepth = computed(() => this.stack().length);
 
@@ -68,14 +73,14 @@ export class DrawerService {
     }
   }
 
-  /** Clear the entire stack, firing each ref's closed observable from top to bottom. */
+  /** Clear the entire stack, force-closing each ref from top to bottom. Bypasses closePredicates. */
   closeAll(): void {
     const refs = [...this.stack()].reverse();
     this.stack.set([]);
     this.pushWidthPx.set(0);
     this.isPushMode.set(false);
     for (const ref of refs) {
-      ref.close();
+      ref._forceClose();
     }
   }
 

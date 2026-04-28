@@ -51,7 +51,7 @@ img {
   border: none;
 }
 
-a:not([bitlink]) {
+a:not([bitlink], [bitbutton]) {
   text-decoration: none;
 
   @include themify($themes) {

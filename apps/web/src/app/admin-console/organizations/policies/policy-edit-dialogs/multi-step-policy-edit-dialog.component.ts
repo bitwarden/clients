@@ -66,7 +66,7 @@ export class MultiStepPolicyEditDialogComponent
         if (policyComponent?.data) {
           return policyComponent.data.statusChanges.pipe(
             startWith(policyComponent.data.status),
-            map((status) => status !== "VALID"),
+            map((status) => status === "INVALID"),
           );
         }
         return of(false);
@@ -140,7 +140,7 @@ export class MultiStepPolicyEditDialogComponent
           variant: "success",
           message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
         });
-        this.dialogRef.close("saved");
+        await this.dialogRef.close("saved");
         return;
       }
 
@@ -159,6 +159,16 @@ export class MultiStepPolicyEditDialogComponent
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
     return dialogService.open<PolicyEditDialogResult, PolicyEditDialogData>(
+      MultiStepPolicyEditDialogComponent,
+      config,
+    );
+  };
+
+  static override readonly openDrawer = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return dialogService.openDrawer<PolicyEditDialogResult, PolicyEditDialogData>(
       MultiStepPolicyEditDialogComponent,
       config,
     );

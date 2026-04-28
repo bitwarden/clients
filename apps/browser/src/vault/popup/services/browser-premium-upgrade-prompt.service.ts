@@ -1,5 +1,6 @@
 import { inject } from "@angular/core";
 import { Router } from "@angular/router";
+import { EMPTY, Observable } from "rxjs";
 
 import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -14,6 +15,8 @@ export class BrowserPremiumUpgradePromptService implements PremiumUpgradePromptS
   private router = inject(Router);
   private configService = inject(ConfigService);
   private dialogService = inject(DialogService);
+
+  readonly upgradeConfirmed$: Observable<boolean> = EMPTY;
 
   async promptForPremium() {
     const showNewDialog = await this.configService.getFeatureFlag(

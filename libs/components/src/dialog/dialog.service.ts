@@ -12,6 +12,7 @@ import { filter, firstValueFrom, map, switchMap, take } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { LogService } from "@bitwarden/logging";
 
 import { isAtOrLargerThanBreakpoint } from "../utils/responsive-utils";
 
@@ -110,6 +111,7 @@ export class DialogService {
   private injector = inject(Injector);
   private router = inject(Router);
   private authService = inject(AuthService, { optional: true });
+  private logService = inject(LogService, { optional: true });
 
   private backDropClasses = ["tw-fixed", "tw-bg-bg-overlay", "tw-inset-0"];
   private defaultScrollStrategy = new CustomBlockScrollStrategy();
@@ -134,8 +136,11 @@ export class DialogService {
 
   open<R = unknown, D = unknown, C = unknown>(
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
-    config?: DialogConfig<D, DialogRef<R, C>>,
+    config?: DialogConfig<D, R>,
   ): DialogRef<R, C> {
+    // We need to split out our async closePredicate here because the CDK's closePredicate is sync
+    const { closePredicate, ...otherConfig } = config ?? {};
+
     /**
      * This is a bit circular in nature:
      * We need the DialogRef instance for the DI injector that is passed *to* `Dialog.open`,
@@ -144,7 +149,7 @@ export class DialogService {
      * To break the circle, we define CDKDialogRef as a wrapper for the CDKDialogRefBase.
      * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
-    const ref = new CdkDialogRef<R, C>();
+    const ref = new CdkDialogRef<R, C>(this.logService, closePredicate);
     const injector = this.createInjector({
       data: config?.data,
       dialogRef: ref,
@@ -157,7 +162,7 @@ export class DialogService {
       positionStrategy: config?.positionStrategy ?? new ResponsivePositionStrategy(),
       closeOnNavigation: config?.closeOnNavigation,
       injector,
-      ...config,
+      ...otherConfig,
     };
 
     ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
@@ -171,13 +176,21 @@ export class DialogService {
 
   /**
    * Opens a dialog in the side drawer, replacing any currently open drawer stack.
+   * Returns undefined if the root drawer's closePredicate prevented it from closing.
    *
    * To stack a new drawer over an existing one, use `DrawerRef.stack`
    **/
-  openDrawer<R = unknown, D = unknown, C = unknown>(
+  async openDrawer<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
-    config?: DialogConfig<D, DialogRef<R, C>>,
-  ): DrawerRef<R, C> {
+    config?: DialogConfig<D, R>,
+  ): Promise<DrawerRef<R, C> | undefined> {
+    const rootRef = this.drawerService.rootRef;
+    if (rootRef) {
+      const canClose = await rootRef.canClose();
+      if (!canClose) {
+        return undefined;
+      }
+    }
     this.drawerService.closeAll();
     return this.stackDrawer(component, config, config?.closeOnNavigation ?? false);
   }
@@ -188,7 +201,7 @@ export class DialogService {
    */
   private stackDrawer<R, D, C>(
     component: ComponentType<C>,
-    config?: Omit<DialogConfig<D, DialogRef<R, C>>, "closeOnNavigation">,
+    config?: Omit<DialogConfig<D, R>, "closeOnNavigation">,
     closeOnNavigation = false,
   ): DrawerRef<R, C> {
     /**
@@ -200,6 +213,8 @@ export class DialogService {
       () => this.drawerService.pop(),
       (c, cfg) => this.stackDrawer(c, cfg),
       closeOnNavigation,
+      config?.closePredicate,
+      this.logService,
     );
     const portal = new ComponentPortal(
       component,
@@ -217,7 +232,7 @@ export class DialogService {
    * @param {SimpleDialogOptions} simpleDialogOptions - An object containing options for the dialog.
    * @returns `boolean` - True if the user accepted the dialog, false otherwise.
    */
-  async openSimpleDialog(simpleDialogOptions: SimpleDialogOptions): Promise<boolean> {
+  openSimpleDialog(simpleDialogOptions: SimpleDialogOptions): Promise<boolean> {
     const dialogRef = this.openSimpleDialogRef(simpleDialogOptions);
     return firstValueFrom(dialogRef.closed.pipe(map((v: boolean | undefined) => !!v)));
   }
@@ -240,7 +255,7 @@ export class DialogService {
     });
   }
 
-  /** Close all open dialogs and drawers. */
+  /** Close all open dialogs and drawers. Note that this will ignore any and all closePredicates */
   closeAll(): void {
     this.drawerService.closeAll();
     this.dialog.closeAll();

@@ -12,14 +12,17 @@ import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { KeyService } from "@bitwarden/key-management";
 
@@ -44,6 +47,7 @@ export class CreateCommand {
     private organizationService: OrganizationService,
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private configService: ConfigService,
   ) {}
 
   async run(
@@ -96,6 +100,16 @@ export class CreateCommand {
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
       const cipherView = CipherExport.toView(req);
+
+      if (cipherView.type === CipherType.BankAccount) {
+        const newItemTypesEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+        );
+        if (!newItemTypesEnabled) {
+          return Response.error(`Item type ${cipherView.type} is not available.`);
+        }
+      }
+
       const isCipherTypeRestricted =
         await this.cliRestrictedItemTypesService.isCipherRestricted(cipherView);
 
@@ -204,6 +218,9 @@ export class CreateCommand {
     }
     if (options.organizationId !== req.organizationId) {
       return Response.badRequest("`organizationid` option does not match request object.");
+    }
+    if (req.name == null || req.name.trim() === "") {
+      return Response.badRequest("Collection name is required.");
     }
     try {
       const orgKey = await this.keyService.getOrgKey(req.organizationId);
