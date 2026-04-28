@@ -187,14 +187,7 @@ export class DialogComponent implements AfterViewInit {
 
   protected async closeDialog(): Promise<void> {
     if (this.dialogRef?.isDrawer) {
-      const rootRef = this.drawerService.rootRef;
-      if (rootRef) {
-        const canClose = await rootRef.canClose();
-        if (!canClose) {
-          return;
-        }
-      }
-      this.drawerService.closeAll();
+      await this.drawerService.closeAll();
     } else {
       void this.dialogRef?.close();
     }

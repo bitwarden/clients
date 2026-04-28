@@ -184,14 +184,9 @@ export class DialogService {
     component: ComponentType<C>,
     config?: DialogConfig<D, R>,
   ): Promise<DrawerRef<R, C> | undefined> {
-    const rootRef = this.drawerService.rootRef;
-    if (rootRef) {
-      const canClose = await rootRef.canClose();
-      if (!canClose) {
-        return undefined;
-      }
+    if (!(await this.drawerService.closeAll())) {
+      return undefined;
     }
-    this.drawerService.closeAll();
     return this.stackDrawer(component, config, config?.closeOnNavigation ?? false);
   }
 
@@ -257,7 +252,7 @@ export class DialogService {
 
   /** Close all open dialogs and drawers. Note that this will ignore any and all closePredicates */
   closeAll(): void {
-    this.drawerService.closeAll();
+    this.drawerService.forceCloseAll();
     this.dialog.closeAll();
   }
 
