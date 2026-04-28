@@ -213,12 +213,12 @@ jobs:
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib --workspace --exclude=desktop_napi -- --test-threads=1
 
-      - name: ssh_agent integration tests
+      - name: Integration tests ssh_agent
         if: ${{ steps.changes.outputs.ssh_agent == 'true' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test -p ssh_agent --test '*' -- --test-threads=1
 
-      - name: autotype integration tests
+      - name: Integration tests autotype
         if: ${{ steps.changes.outputs.autotype == 'true' && matrix.os=='windows-2022' }}
         shell: bash
         working-directory: ./apps/desktop/desktop_native
