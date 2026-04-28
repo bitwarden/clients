@@ -19,6 +19,7 @@ import {
   FileUploadApiMethods,
   FileUploadService,
 } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
+import { FileUploadType } from "@bitwarden/common/platform/enums";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { OrganizationReportId, OrganizationId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
@@ -194,17 +195,14 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               throw new Error("Report encryption key not found");
             }
 
-            // V2: reportData lives in a file. Determine download strategy from the URL:
+            // V2: reportData lives in a file.
             //   - Azure blob URL → unauthenticated GET (SAS token in URL handles auth)
             //   - Server URL → authenticated API call
             // V1 fallback: reportData is inline in the response.
             let reportData$: Observable<string>;
-            if (apiResponse.reportFileDownloadUrl) {
-              const isAzure = new URL(apiResponse.reportFileDownloadUrl).hostname.includes(
-                "blob.core.windows.net",
-              );
+            if (apiResponse.fileUploadType && apiResponse.reportFileDownloadUrl) {
               reportData$ = (
-                isAzure
+                apiResponse.fileUploadType === FileUploadType.Azure
                   ? this.accessIntelligenceApiService.downloadReportFileAzure$(
                       apiResponse.reportFileDownloadUrl,
                     )

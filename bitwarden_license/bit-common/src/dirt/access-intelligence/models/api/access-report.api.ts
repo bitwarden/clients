@@ -1,4 +1,5 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
+import { FileUploadType } from "@bitwarden/common/platform/enums";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessReportData } from "../data/access-report.data";
@@ -28,6 +29,7 @@ export class AccessReportApi extends BaseResponse {
   contentEncryptionKey: string = "";
   reportFile?: ReportFileApi;
   reportFileDownloadUrl?: string;
+  fileUploadType?: FileUploadType;
 
   constructor(data: any = null) {
     super(data);
@@ -44,6 +46,7 @@ export class AccessReportApi extends BaseResponse {
     this.memberRegistry = this.getResponseProperty("memberRegistry") ?? "";
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
     this.reportFileDownloadUrl = this.getResponseProperty("reportFileDownloadUrl") ?? undefined;
+    this.fileUploadType = this.getResponseProperty("fileUploadType") ?? undefined;
 
     const reportFile = this.getResponseProperty("reportFile");
     this.reportFile = reportFile != null ? new ReportFileApi(reportFile) : undefined;
