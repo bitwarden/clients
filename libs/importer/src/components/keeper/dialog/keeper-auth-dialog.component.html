@@ -183,12 +183,15 @@
         <button bitButton buttonType="primary" type="button" (click)="confirmApproval()">
           {{ "continue" | i18n }}
         </button>
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
+        </button>
       }
 
       @case ("approvalCode") {
         @if (currentStage.variant === "email") {
           <button bitButton buttonType="primary" type="button" (click)="submitCode()">
-            {{ "submit" | i18n }}
+            {{ "continue" | i18n }}
           </button>
           <button bitButton buttonType="secondary" type="button" (click)="tryAnother()">
             {{ "tryAnotherMethod" | i18n }}
@@ -196,6 +199,9 @@
         } @else {
           <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
             {{ "tryAnotherMethod" | i18n }}
+          </button>
+          <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+            {{ "cancel" | i18n }}
           </button>
         }
       }
@@ -219,17 +225,26 @@
         <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
           {{ "tryAnotherMethod" | i18n }}
         </button>
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
+        </button>
       }
 
       @case ("dnaPush") {
         <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
           {{ "tryAnotherMethod" | i18n }}
         </button>
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
+        </button>
       }
 
       @case ("password") {
         <button bitButton buttonType="primary" type="button" (click)="submitPassword()">
           {{ "continue" | i18n }}
+        </button>
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
         </button>
       }
 
