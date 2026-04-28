@@ -51,6 +51,7 @@
       "@bitwarden/messaging": ["./libs/messaging/src/index.ts"],
       "@bitwarden/node/*": ["./libs/node/src/*"],
       "@bitwarden/nx-plugin": ["./libs/nx-plugin/src/index.ts"],
+      "@bitwarden/organization-invite-link": ["./libs/organization-invite-link/src/index.ts"],
       "@bitwarden/platform": ["./libs/platform/src"],
       "@bitwarden/platform/*": ["./libs/platform/src/*"],
       "@bitwarden/pricing": ["./libs/pricing/src/index.ts"],
