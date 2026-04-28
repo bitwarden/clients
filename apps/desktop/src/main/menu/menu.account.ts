@@ -21,6 +21,10 @@ export class AccountMenu implements IMenubarMenu {
     if (this._hasMasterPassword) {
       items.push(this.changeMasterPassword);
     }
+    // TODO: PM-34438 - remove flag check and always push this.devices
+    if (this._desktopAddDevices) {
+      items.push(this.devices);
+    }
     items.push(this.twoStepLogin);
     items.push(this.fingerprintPhrase);
     items.push(this.separator);
@@ -36,6 +40,8 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _hasMasterPassword: boolean;
   // TODO: PM-32419 - remove once multi client password management is fully rolled out
   private readonly _multiClientPasswordManagement: boolean;
+  // TODO: PM-34438 - remove _desktopAddDevices field and desktopAddDevices constructor param
+  private readonly _desktopAddDevices: boolean;
 
   constructor(
     i18nService: I18nService,
@@ -46,6 +52,7 @@ export class AccountMenu implements IMenubarMenu {
     hasMasterPassword: boolean,
     multiClientPasswordManagement: boolean = false,
     private shell: SafeShell,
+    desktopAddDevices: boolean = false,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
@@ -55,6 +62,8 @@ export class AccountMenu implements IMenubarMenu {
     this._hasMasterPassword = hasMasterPassword;
     // TODO: PM-32419 - remove once multi client password management is fully rolled out
     this._multiClientPasswordManagement = multiClientPasswordManagement;
+    // TODO: PM-34438 - remove this assignment
+    this._desktopAddDevices = desktopAddDevices;
   }
 
   private get premiumMembership(): MenuItemConstructorOptions {
@@ -96,6 +105,15 @@ export class AccountMenu implements IMenubarMenu {
           void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
+      enabled: !this._isLocked,
+    };
+  }
+
+  private get devices(): MenuItemConstructorOptions {
+    return {
+      label: this.localize("devices"),
+      id: "devices",
+      click: () => this.sendMessage("openDevicesDialog"),
       enabled: !this._isLocked,
     };
   }
