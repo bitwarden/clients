@@ -1,11 +1,23 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
 } from "@bitwarden/common/admin-console/enums";
+import {
+  AvatarModule,
+  BadgeModule,
+  ButtonModule,
+  FormFieldModule,
+  IconButtonModule,
+  SelectModule,
+  TableModule,
+  TabsModule,
+} from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
@@ -14,6 +26,7 @@ import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 
 import { AccessSelectorComponent, PermissionMode } from "./access-selector.component";
 import { AccessItemType, CollectionPermission } from "./access-selector.models";
+import { UserTypePipe } from "./user-type.pipe";
 
 /**
  * Helper class that makes it easier to test the AccessSelectorComponent by
@@ -24,7 +37,7 @@ class TestableAccessSelectorComponent extends AccessSelectorComponent {
     super.selectItems(items);
   }
   deselectItem(id: string) {
-    super.deselectItem(id);
+    this.selectionList.deselectItem(id);
   }
 
   /**
@@ -47,7 +60,21 @@ describe("AccessSelectorComponent", () => {
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
-      imports: [PreloadedEnglishI18nModule, TestableAccessSelectorComponent],
+      imports: [
+        ButtonModule,
+        FormFieldModule,
+        AvatarModule,
+        BadgeModule,
+        ReactiveFormsModule,
+        FormsModule,
+        TabsModule,
+        TableModule,
+        PreloadedEnglishI18nModule,
+        JslibModule,
+        IconButtonModule,
+        SelectModule,
+      ],
+      declarations: [TestableAccessSelectorComponent, UserTypePipe],
       providers: [],
     }).compileComponents();
   });
@@ -56,7 +83,7 @@ describe("AccessSelectorComponent", () => {
     fixture = TestBed.createComponent(TestableAccessSelectorComponent);
     component = fixture.componentInstance;
 
-    fixture.componentRef.setInput("emptySelectionText", "Nothing selected");
+    component.emptySelectionText = "Nothing selected";
 
     fixture.detectChanges();
   });
@@ -67,14 +94,14 @@ describe("AccessSelectorComponent", () => {
 
   describe("item selection", () => {
     beforeEach(() => {
-      fixture.componentRef.setInput("items", [
+      component.items = [
         {
           id: "123",
           type: AccessItemType.Group,
           labelName: "Group 1",
           listName: "Group 1",
         },
-      ]);
+      ];
       fixture.detectChanges();
     });
 
@@ -94,7 +121,7 @@ describe("AccessSelectorComponent", () => {
       // Arrange
       const mockChange = jest.fn();
       component.registerOnChange(mockChange);
-      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      component.permissionMode = PermissionMode.Edit;
 
       // Act
       component.selectItems([{ id: "123" } as any]);
@@ -107,7 +134,7 @@ describe("AccessSelectorComponent", () => {
     it("should emit value change when a row is modified", () => {
       // Arrange
       const mockChange = jest.fn();
-      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      component.permissionMode = PermissionMode.Edit;
       component.selectItems([{ id: "123" } as any]);
       component.registerOnChange(mockChange); // Register change listener after setup
 
@@ -126,7 +153,7 @@ describe("AccessSelectorComponent", () => {
     it("should emit value change when a row is removed", () => {
       // Arrange
       const mockChange = jest.fn();
-      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      component.permissionMode = PermissionMode.Edit;
       component.selectItems([{ id: "123" } as any]);
       component.registerOnChange(mockChange); // Register change listener after setup
 
@@ -142,7 +169,7 @@ describe("AccessSelectorComponent", () => {
       // Arrange
       const mockChange = jest.fn();
       component.registerOnChange(mockChange);
-      fixture.componentRef.setInput("permissionMode", PermissionMode.Edit);
+      component.permissionMode = PermissionMode.Edit;
 
       // Act
       component.selectItems([{ id: "123" } as any]);
@@ -157,7 +184,7 @@ describe("AccessSelectorComponent", () => {
       // Arrange
       const mockChange = jest.fn();
       component.registerOnChange(mockChange);
-      fixture.componentRef.setInput("permissionMode", PermissionMode.Hidden);
+      component.permissionMode = PermissionMode.Hidden;
 
       // Act
       component.selectItems([{ id: "123" } as any]);
@@ -171,7 +198,7 @@ describe("AccessSelectorComponent", () => {
 
   describe("column rendering", () => {
     beforeEach(() => {
-      fixture.componentRef.setInput("items", [
+      component.items = [
         {
           id: "g1",
           type: AccessItemType.Group,
@@ -187,13 +214,13 @@ describe("AccessSelectorComponent", () => {
           role: OrganizationUserType.User,
           status: OrganizationUserStatusType.Confirmed,
         },
-      ]);
+      ];
       fixture.detectChanges();
     });
 
     test.each([true, false])("should show the role column when enabled", (columnEnabled) => {
       // Act
-      fixture.componentRef.setInput("showMemberRoles", columnEnabled);
+      component.showMemberRoles = columnEnabled;
       fixture.detectChanges();
 
       // Assert
@@ -203,7 +230,7 @@ describe("AccessSelectorComponent", () => {
 
     test.each([true, false])("should show the group column when enabled", (columnEnabled) => {
       // Act
-      fixture.componentRef.setInput("showGroupColumn", columnEnabled);
+      component.showGroupColumn = columnEnabled;
       fixture.detectChanges();
 
       // Assert
@@ -221,7 +248,7 @@ describe("AccessSelectorComponent", () => {
       "should show the permission column when enabled",
       (mode: PermissionMode, shouldShowColumn) => {
         // Act
-        fixture.componentRef.setInput("permissionMode", mode);
+        component.permissionMode = mode;
         fixture.detectChanges();
 
         // Assert

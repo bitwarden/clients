@@ -1,11 +1,14 @@
-import { inject, Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform } from "@angular/core";
 
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-@Pipe({ name: "userType" })
+@Pipe({
+  name: "userType",
+  standalone: false,
+})
 export class UserTypePipe implements PipeTransform {
-  private readonly i18nService = inject(I18nService);
+  constructor(private i18nService: I18nService) {}
 
   transform(value?: OrganizationUserType, unknownText?: string): string {
     if (value == null) {

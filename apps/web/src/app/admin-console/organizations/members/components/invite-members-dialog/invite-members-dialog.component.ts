@@ -1,6 +1,6 @@
 import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
@@ -24,13 +24,8 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
-  DisclosureComponent,
-  DisclosureTriggerForDirective,
   FormFieldModule,
-  IconModule,
-  LinkModule,
   RadioButtonModule,
-  SelectModule,
   TabsModule,
   ToastService,
 } from "@bitwarden/components";
@@ -47,7 +42,6 @@ import {
   AccessItemType,
   AccessItemValue,
   AccessItemView,
-  AccessSelectorModule,
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
@@ -75,24 +69,18 @@ export interface InviteMembersDialogParams {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     A11yTitleDirective,
-    AccessSelectorModule,
     AsyncActionsModule,
     AsyncPipe,
     ButtonModule,
     ByLinkTabComponent,
     CheckboxModule,
     DialogModule,
-    DisclosureComponent,
-    DisclosureTriggerForDirective,
     FormFieldModule,
     I18nPipe,
-    LinkModule,
     NgTemplateOutlet,
     RadioButtonModule,
     ReactiveFormsModule,
-    SelectModule,
     TabsModule,
-    IconModule,
   ],
 })
 export class InviteMembersDialogComponent {
@@ -111,7 +99,6 @@ export class InviteMembersDialogComponent {
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
   protected readonly selectedTabIndex = signal(0);
-  protected readonly moreSettingsOpen = signal(false);
 
   protected readonly formGroup = this.formBuilder.group({
     emails: [""],
@@ -202,12 +189,9 @@ export class InviteMembersDialogComponent {
     ),
   );
 
-  private readonly formTypeValue = toSignal(this.formGroup.controls.type.valueChanges, {
-    initialValue: this.formGroup.value.type ?? OrganizationUserType.User,
-  });
-  protected readonly customUserTypeSelected = computed(
-    () => this.formTypeValue() === OrganizationUserType.Custom,
-  );
+  get customUserTypeSelected(): boolean {
+    return this.formGroup.value.type === OrganizationUserType.Custom;
+  }
 
   constructor() {
     this.organization$.pipe(takeUntilDestroyed()).subscribe((organization) => {
@@ -289,7 +273,7 @@ export class InviteMembersDialogComponent {
 
     const organization = await firstValueFrom(this.organization$);
 
-    if (!organization.useCustomPermissions && this.customUserTypeSelected()) {
+    if (!organization.useCustomPermissions && this.customUserTypeSelected) {
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("customNonEnterpriseError"),

@@ -777,7 +777,6 @@ export class RiskInsightsOrchestratorService {
         };
       }),
       catchError((): Observable<ReportState> => {
-        this._reportProgressSubject.next(null);
         return of({
           status: ReportStatus.Error,
           error: "Failed to generate or save report",

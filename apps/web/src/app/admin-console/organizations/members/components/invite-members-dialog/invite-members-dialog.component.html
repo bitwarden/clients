@@ -1,37 +1,32 @@
-@let organization = organization$ | async;
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="large" [disablePadding]="organization.useInviteLinks">
+  <bit-dialog dialogSize="large">
     <span bitDialogTitle>{{ "inviteMember" | i18n }}</span>
     <div bitDialogContent>
-      @if (organization.useInviteLinks) {
-        <bit-tab-group
-          [selectedIndex]="selectedTabIndex()"
-          (selectedIndexChange)="selectedTabIndex.set($event)"
-        >
-          <bit-tab [label]="'byEmail' | i18n">
-            <ng-container
-              *ngTemplateOutlet="byEmailForm; context: { organization: organization }"
-            ></ng-container>
-          </bit-tab>
-          <bit-tab [label]="'byLink' | i18n">
-            <app-by-link-tab />
-          </bit-tab>
-        </bit-tab-group>
-      } @else {
-        <ng-container
-          *ngTemplateOutlet="byEmailForm; context: { organization: organization }"
-        ></ng-container>
+      @if (organization$ | async; as organization) {
+        @if (organization.useInviteLinks) {
+          <bit-tab-group
+            [selectedIndex]="selectedTabIndex()"
+            (selectedIndexChange)="selectedTabIndex.set($event)"
+          >
+            <bit-tab [label]="'byEmail' | i18n">
+              <ng-container
+                *ngTemplateOutlet="byEmailForm; context: { organization: organization }"
+              ></ng-container>
+            </bit-tab>
+            <bit-tab [label]="'byLink' | i18n">
+              <app-by-link-tab />
+            </bit-tab>
+          </bit-tab-group>
+        } @else {
+          <ng-container
+            *ngTemplateOutlet="byEmailForm; context: { organization: organization }"
+          ></ng-container>
+        }
       }
     </div>
     <ng-container bitDialogFooter>
-      <button
-        type="submit"
-        bitButton
-        bitFormButton
-        buttonType="primary"
-        [disabled]="selectedTabIndex() === 0 && formGroup.controls.emails.invalid"
-      >
-        {{ selectedTabIndex() === 0 ? ("invite" | i18n) : ("copyLink" | i18n) }}
+      <button type="submit" bitButton bitFormButton buttonType="primary">
+        {{ "save" | i18n }}
       </button>
       <button type="button" bitButton buttonType="secondary" (click)="cancel()">
         {{ "cancel" | i18n }}
@@ -103,7 +98,7 @@
       </bit-hint>
     </bit-radio-button>
   </bit-radio-group>
-  @if (customUserTypeSelected()) {
+  @if (customUserTypeSelected) {
     <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
       <div class="tw-col-span-4">
         <bit-form-control>
@@ -170,34 +165,4 @@
       </bit-label>
     </bit-form-control>
   }
-  <button
-    type="button"
-    bitButton
-    buttonType="primaryGhost"
-    class="tw-mb-4 tw-block"
-    [bitDisclosureTriggerFor]="moreSettingsRef"
-  >
-    {{ "moreSettings" | i18n }}
-    <bit-icon [name]="moreSettingsOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"> </bit-icon>
-  </button>
-  <bit-disclosure #moreSettingsRef [(open)]="moreSettingsOpen">
-    @if (organization.useGroups) {
-      <bit-access-selector
-        formControlName="groups"
-        [items]="(groupAccessItems$ | async) ?? []"
-        [columnHeader]="'groups' | i18n"
-        [selectorLabelText]="'groups' | i18n"
-        [hideTable]="true"
-      ></bit-access-selector>
-    }
-    <bit-access-selector
-      [permissionMode]="PermissionMode.Edit"
-      formControlName="access"
-      [showGroupColumn]="organization.useGroups"
-      [items]="(collectionAccessItems$ | async) ?? []"
-      [columnHeader]="'collection' | i18n"
-      [selectorLabelText]="'collections' | i18n"
-      [emptySelectionText]="'noCollectionsAdded' | i18n"
-    ></bit-access-selector>
-  </bit-disclosure>
 </ng-template>
