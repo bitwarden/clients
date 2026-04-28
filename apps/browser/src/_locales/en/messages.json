@@ -4687,10 +4687,13 @@
     "message": "Keeper device approval required"
   },
   "selectApprovalMethod": {
-    "message": "Select approval method"
+    "message": "Approval method"
   },
   "selectApprovalMethodDesc": {
-    "message": "Choose how you want to approve this device."
+    "message": "Choose how you want to approve this device"
+  },
+  "keeperPendingApproval": {
+    "message": "Pending approval"
   },
   "keeperPush": {
     "message": "Keeper Push"
@@ -4702,7 +4705,7 @@
     "message": "Enter the 6-digit code from the email, or click the link and this dialog will close automatically."
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Approve the device request on your other Keeper device. This dialog will close automatically."
+    "message": "Approve the device request on your Keeper device."
   },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"

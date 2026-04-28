@@ -150,7 +150,7 @@ export class KeeperDirectImportUIService implements Ui {
   async provideTwoFactorCode(
     method: TwoFactorMethod,
     _info?: string,
-  ): Promise<string | typeof Cancel | typeof Resend> {
+  ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
     const needsInput =
       method === TwoFactorMethod.Totp ||
       method === TwoFactorMethod.Sms ||
@@ -160,7 +160,7 @@ export class KeeperDirectImportUIService implements Ui {
       method === TwoFactorMethod.KeeperDna;
 
     this.setStage({ kind: "twoFactorCode", method, needsInput });
-    return this.waitForUser<string | typeof Cancel | typeof Resend>();
+    return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
   }
 
   //
@@ -183,11 +183,11 @@ export class KeeperDirectImportUIService implements Ui {
     return this.waitForUser<DuoMethod | typeof Cancel>();
   }
 
-  async waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | void> {
+  async waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | typeof TryAnother | void> {
     this.setStage({ kind: "duoPush", method });
     const result = await this.waitForUser<unknown>();
-    if (result === Cancel) {
-      return Cancel;
+    if (result === Cancel || result === TryAnother) {
+      return result;
     }
   }
 
@@ -212,11 +212,11 @@ export class KeeperDirectImportUIService implements Ui {
     return this.waitForUser<DnaMethod | typeof Cancel>();
   }
 
-  async waitForDnaPush(): Promise<typeof Cancel | void> {
+  async waitForDnaPush(): Promise<typeof Cancel | typeof TryAnother | void> {
     this.setStage({ kind: "dnaPush" });
     const result = await this.waitForUser<unknown>();
-    if (result === Cancel) {
-      return Cancel;
+    if (result === Cancel || result === TryAnother) {
+      return result;
     }
   }
 

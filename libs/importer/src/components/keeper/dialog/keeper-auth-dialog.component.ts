@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -10,6 +10,8 @@ import {
   DialogService,
   FormFieldModule,
   IconButtonModule,
+  RadioButtonModule,
+  SpinnerComponent,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -31,7 +33,9 @@ import { KeeperDirectImportUIService } from "../keeper-direct-import-ui.service"
     DialogModule,
     FormFieldModule,
     IconButtonModule,
+    RadioButtonModule,
     ReactiveFormsModule,
+    SpinnerComponent,
     TypographyModule,
   ],
 })
@@ -42,8 +46,22 @@ export class KeeperAuthDialogComponent {
 
   protected readonly codeControl = new FormControl("", { nonNullable: true });
   protected readonly passwordControl = new FormControl("", { nonNullable: true });
+  protected readonly approvalMethodControl = new FormControl<DeviceApprovalChannel | null>(null);
 
-  protected selectApproval(method: DeviceApprovalChannel): void {
+  constructor() {
+    effect(() => {
+      const current = this.stage();
+      if (current.kind === "selectApproval" && current.methods.length > 0) {
+        this.approvalMethodControl.setValue(current.methods[0]);
+      }
+    });
+  }
+
+  protected confirmApproval(): void {
+    const method = this.approvalMethodControl.value;
+    if (method == null) {
+      return;
+    }
     this.keeperUi.submit(method);
   }
 

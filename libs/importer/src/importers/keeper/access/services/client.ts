@@ -348,6 +348,9 @@ export class Client {
       // TwoFactor: prompt for a code and validate with TWO_FA_CODE_NONE (server auto-detects type)
       if (method === DeviceApprovalChannel.TwoFactor) {
         const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp);
+        if (code === TryAnother) {
+          continue;
+        }
         const updatedToken = await this.validate2FA(
           currentLoginToken,
           code,
@@ -537,198 +540,223 @@ export class Client {
       throw new Error("Two-factor authentication cancelled by user");
     }
 
-    const methodOrCancel = await this.ui.selectTwoFactorMethod(methods);
-    if (methodOrCancel === Cancel) {
-      throw new Error("Two-factor authentication cancelled by user");
-    }
-
-    const method = this.twoFactorMethodFromUi.get(methodOrCancel);
-    const channel = response.channels.find((ch) => ch.channelType === method);
-    if (!channel) {
-      throw new Error("Selected two-factor method not available");
-    }
-
-    switch (method) {
-      // Google Authenticator TOTP like codes
-      case TwoFactorChannelType.TWO_FA_CT_TOTP: {
-        // TODO: We only give one attempt for TOTP codes at the moment. Should we allow retries?
-        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp);
-        currentLoginToken = await this.validate2FA(
-          currentLoginToken,
-          code,
-          channel.channelUid,
-          TwoFactorValueType.TWO_FA_CODE_TOTP,
-        );
-        break;
+    twoFactor: while (true) {
+      const methodOrCancel = await this.ui.selectTwoFactorMethod(methods);
+      if (methodOrCancel === Cancel) {
+        throw new Error("Two-factor authentication cancelled by user");
       }
 
-      // SMS codes
-      case TwoFactorChannelType.TWO_FA_CT_SMS: {
-        await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_SMS);
-        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Sms);
-        currentLoginToken = await this.validate2FA(
-          currentLoginToken,
-          code,
-          channel.channelUid,
-          TwoFactorValueType.TWO_FA_CODE_SMS,
-        );
-        break;
+      const method = this.twoFactorMethodFromUi.get(methodOrCancel);
+      const channel = response.channels.find((ch) => ch.channelType === method);
+      if (!channel) {
+        throw new Error("Selected two-factor method not available");
       }
 
-      // Keeper DNA: push or manual code entry from the Keeper app (e.g. Apple Watch)
-      case TwoFactorChannelType.TWO_FA_CT_DNA: {
-        const dnaMethod = this.throwIfCancel(
-          await this.ui.selectDnaMethod([DnaMethod.Push, DnaMethod.Code]),
-          "Two-factor authentication",
-        );
-
-        switch (dnaMethod) {
-          // Push: server sends notification, device responds with a TOTP code via websocket
-          case DnaMethod.Push: {
-            await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_DNA);
-
-            const dnaResult = await Promise.race([
-              socket.waitForMessage(),
-              this.ui.waitForDnaPush(),
-            ]);
-
-            this.ui.closeDnaPushDialog();
-
-            if (dnaResult && typeof dnaResult === "object" && "messageType" in dnaResult) {
-              const { messageType: mt, message: msg } = dnaResult as PushMessage;
-              const passcode = msg.passcode as string | undefined;
-
-              if (mt === MessageType.DNA && passcode) {
-                currentLoginToken = await this.validate2FA(
-                  currentLoginToken,
-                  passcode,
-                  channel.channelUid,
-                  TwoFactorValueType.TWO_FA_CODE_DNA,
-                );
-              } else {
-                throw new Error("Keeper DNA authentication failed or timed out");
-              }
-            } else {
-              throw new Error("Keeper DNA authentication cancelled");
-            }
-            break;
+      switch (method) {
+        // Google Authenticator TOTP like codes
+        case TwoFactorChannelType.TWO_FA_CT_TOTP: {
+          // TODO: We only give one attempt for TOTP codes at the moment. Should we allow retries?
+          const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp);
+          if (code === TryAnother) {
+            continue twoFactor;
           }
-
-          // Code: user reads the code from their device and enters it manually
-          case DnaMethod.Code: {
-            const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.KeeperDna);
-            currentLoginToken = await this.validate2FA(
-              currentLoginToken,
-              code,
-              channel.channelUid,
-              TwoFactorValueType.TWO_FA_CODE_DNA,
-            );
-            break;
-          }
-          default:
-            throw new Error("Unsupported Keeper DNA method selected");
+          currentLoginToken = await this.validate2FA(
+            currentLoginToken,
+            code,
+            channel.channelUid,
+            TwoFactorValueType.TWO_FA_CODE_TOTP,
+          );
+          break;
         }
 
-        break;
-      }
-
-      // Duo Security (can have multiple methods: push, sms, voice, passcode)
-      case TwoFactorChannelType.TWO_FA_CT_DUO: {
-        const duoMethods = channel.capabilities
-          .map((cap: string) => this.duoCapabilityToMethod.get(cap))
-          .filter((x: DuoMethod | undefined): x is DuoMethod => x !== undefined);
-
-        const duoMethod = this.throwIfCancel(
-          await this.ui.selectDuoMethod(duoMethods, channel.phoneNumber),
-          "Two-factor authentication",
-        );
-
-        switch (duoMethod) {
-          // Push first sends a notification to the user's device, then waits for them to approve it.
-          // Voice is similar but initiates an automated phone call instead.
-          case DuoMethod.Push:
-          case DuoMethod.Voice: {
-            // Trigger the action on the server to send the push or make the call
-            await this.send2FAPush(currentLoginToken, this.duoMethodToPush.get(duoMethod)!);
-
-            // Duo Push/Voice: race between a push notification or a possible cancellation by the user.
-            const result = await Promise.race([
-              socket.waitForMessage(),
-              this.ui.waitForDuoPush(duoMethod),
-            ]);
-
-            this.ui.closeDuoPushDialog();
-
-            if (result && typeof result === "object" && "messageType" in result) {
-              const { messageType: mt, message: msg } = result as PushMessage;
-              const event = msg.event as string | undefined;
-              const encryptedLoginToken = msg.encryptedLoginToken as string | undefined;
-
-              if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
-                currentLoginToken = base64UrlDecode(encryptedLoginToken);
-              } else {
-                throw new Error("DUO authentication failed or timed out");
-              }
-            } else {
-              throw new Error("DUO authentication cancelled");
-            }
-            break;
+        // SMS codes
+        case TwoFactorChannelType.TWO_FA_CT_SMS: {
+          await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_SMS);
+          const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Sms);
+          if (code === TryAnother) {
+            continue twoFactor;
           }
-
-          // Duo Passcode: user needs to enter a passcode generated by the Duo mobile app.
-          // It's a one-shot operation, no request is sent to the server to trigger it.
-          case DuoMethod.Passcode: {
-            const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo);
-            // TODO: Handle cancellation
-            currentLoginToken = await this.validate2FA(
-              currentLoginToken,
-              code,
-              channel.channelUid,
-              TwoFactorValueType.TWO_FA_CODE_DUO,
-            );
-            break;
-          }
-
-          // Duo SMS: this is like a combination of the Push and Passcode methods.
-          // First a push notification is sent to the user to trigger an SMS with a code,
-          // then the user needs to enter that code in the UI.
-          case DuoMethod.Sms: {
-            // Trigger the SMS to be sent to the user
-            await this.send2FAPush(currentLoginToken, this.duoMethodToPush.get(duoMethod)!);
-            const smsCode = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo);
-            // TODO: Handle cancellation
-            currentLoginToken = await this.validate2FA(
-              currentLoginToken,
-              smsCode,
-              channel.channelUid,
-              TwoFactorValueType.TWO_FA_CODE_DUO,
-            );
-            break;
-          }
-          default:
-            throw new Error("Unsupported two-factor method selected");
+          currentLoginToken = await this.validate2FA(
+            currentLoginToken,
+            code,
+            channel.channelUid,
+            TwoFactorValueType.TWO_FA_CODE_SMS,
+          );
+          break;
         }
 
-        break;
-      }
-      default:
-        throw new Error("Unsupported two-factor method selected");
-    }
+        // Keeper DNA: push or manual code entry from the Keeper app (e.g. Apple Watch)
+        case TwoFactorChannelType.TWO_FA_CT_DNA: {
+          const dnaMethod = this.throwIfCancel(
+            await this.ui.selectDnaMethod([DnaMethod.Push, DnaMethod.Code]),
+            "Two-factor authentication",
+          );
 
-    return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
+          switch (dnaMethod) {
+            // Push: server sends notification, device responds with a TOTP code via websocket
+            case DnaMethod.Push: {
+              await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_DNA);
+
+              const dnaResult = await Promise.race([
+                socket.waitForMessage(),
+                this.ui.waitForDnaPush(),
+              ]);
+
+              this.ui.closeDnaPushDialog();
+
+              if (dnaResult === TryAnother) {
+                continue twoFactor;
+              }
+
+              if (dnaResult && typeof dnaResult === "object" && "messageType" in dnaResult) {
+                const { messageType: mt, message: msg } = dnaResult as PushMessage;
+                const passcode = msg.passcode as string | undefined;
+
+                if (mt === MessageType.DNA && passcode) {
+                  currentLoginToken = await this.validate2FA(
+                    currentLoginToken,
+                    passcode,
+                    channel.channelUid,
+                    TwoFactorValueType.TWO_FA_CODE_DNA,
+                  );
+                } else {
+                  throw new Error("Keeper DNA authentication failed or timed out");
+                }
+              } else {
+                throw new Error("Keeper DNA authentication cancelled");
+              }
+              break;
+            }
+
+            // Code: user reads the code from their device and enters it manually
+            case DnaMethod.Code: {
+              const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.KeeperDna);
+              if (code === TryAnother) {
+                continue twoFactor;
+              }
+              currentLoginToken = await this.validate2FA(
+                currentLoginToken,
+                code,
+                channel.channelUid,
+                TwoFactorValueType.TWO_FA_CODE_DNA,
+              );
+              break;
+            }
+            default:
+              throw new Error("Unsupported Keeper DNA method selected");
+          }
+
+          break;
+        }
+
+        // Duo Security (can have multiple methods: push, sms, voice, passcode)
+        case TwoFactorChannelType.TWO_FA_CT_DUO: {
+          const duoMethods = channel.capabilities
+            .map((cap: string) => this.duoCapabilityToMethod.get(cap))
+            .filter((x: DuoMethod | undefined): x is DuoMethod => x !== undefined);
+
+          const duoMethod = this.throwIfCancel(
+            await this.ui.selectDuoMethod(duoMethods, channel.phoneNumber),
+            "Two-factor authentication",
+          );
+
+          switch (duoMethod) {
+            // Push first sends a notification to the user's device, then waits for them to approve it.
+            // Voice is similar but initiates an automated phone call instead.
+            case DuoMethod.Push:
+            case DuoMethod.Voice: {
+              // Trigger the action on the server to send the push or make the call
+              await this.send2FAPush(currentLoginToken, this.duoMethodToPush.get(duoMethod)!);
+
+              // Duo Push/Voice: race between a push notification or a possible cancellation by the user.
+              const result = await Promise.race([
+                socket.waitForMessage(),
+                this.ui.waitForDuoPush(duoMethod),
+              ]);
+
+              this.ui.closeDuoPushDialog();
+
+              if (result === TryAnother) {
+                continue twoFactor;
+              }
+
+              if (result && typeof result === "object" && "messageType" in result) {
+                const { messageType: mt, message: msg } = result as PushMessage;
+                const event = msg.event as string | undefined;
+                const encryptedLoginToken = msg.encryptedLoginToken as string | undefined;
+
+                if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
+                  currentLoginToken = base64UrlDecode(encryptedLoginToken);
+                } else {
+                  throw new Error("DUO authentication failed or timed out");
+                }
+              } else {
+                throw new Error("DUO authentication cancelled");
+              }
+              break;
+            }
+
+            // Duo Passcode: user needs to enter a passcode generated by the Duo mobile app.
+            // It's a one-shot operation, no request is sent to the server to trigger it.
+            case DuoMethod.Passcode: {
+              const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo);
+              if (code === TryAnother) {
+                continue twoFactor;
+              }
+              currentLoginToken = await this.validate2FA(
+                currentLoginToken,
+                code,
+                channel.channelUid,
+                TwoFactorValueType.TWO_FA_CODE_DUO,
+              );
+              break;
+            }
+
+            // Duo SMS: this is like a combination of the Push and Passcode methods.
+            // First a push notification is sent to the user to trigger an SMS with a code,
+            // then the user needs to enter that code in the UI.
+            case DuoMethod.Sms: {
+              // Trigger the SMS to be sent to the user
+              await this.send2FAPush(currentLoginToken, this.duoMethodToPush.get(duoMethod)!);
+              const smsCode = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo);
+              if (smsCode === TryAnother) {
+                continue twoFactor;
+              }
+              currentLoginToken = await this.validate2FA(
+                currentLoginToken,
+                smsCode,
+                channel.channelUid,
+                TwoFactorValueType.TWO_FA_CODE_DUO,
+              );
+              break;
+            }
+            default:
+              throw new Error("Unsupported two-factor method selected");
+          }
+
+          break;
+        }
+        default:
+          throw new Error("Unsupported two-factor method selected");
+      }
+
+      return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
+    }
   }
 
-  private async getTwoFactorCodeFromUi(method: TwoFactorMethod): Promise<string> {
-    const codeOrResend = this.throwIfCancel(
+  private async getTwoFactorCodeFromUi(
+    method: TwoFactorMethod,
+  ): Promise<string | typeof TryAnother> {
+    const result = this.throwIfCancel(
       await this.ui.provideTwoFactorCode(method),
       "Two-factor authentication",
     );
 
-    if (codeOrResend === Resend) {
+    if (result === Resend) {
       throw new Error("Resend not supported for TOTP");
     }
 
-    return codeOrResend;
+    return result;
   }
 
   private throwIfCancel<T>(anyOrCancel: T | typeof Cancel, what: string): T {

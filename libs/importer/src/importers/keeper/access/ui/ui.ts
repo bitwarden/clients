@@ -18,16 +18,19 @@ export interface Ui {
 
   // 2FA flow
   selectTwoFactorMethod(channels: TwoFactorMethod[]): Promise<TwoFactorMethod | Cancel>;
-  provideTwoFactorCode(method: TwoFactorMethod, info?: string): Promise<string | Cancel | Resend>;
+  provideTwoFactorCode(
+    method: TwoFactorMethod,
+    info?: string,
+  ): Promise<string | Cancel | Resend | TryAnother>;
 
   // DUO specific actions
   selectDuoMethod(methods: DuoMethod[], phoneNumber: string): Promise<DuoMethod | Cancel>;
-  waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | void>;
+  waitForDuoPush(method: DuoMethod): Promise<typeof Cancel | typeof TryAnother | void>;
   closeDuoPushDialog(): void;
 
   // Keeper DNA specific actions
   selectDnaMethod(methods: DnaMethod[]): Promise<DnaMethod | Cancel>;
-  waitForDnaPush(): Promise<typeof Cancel | void>;
+  waitForDnaPush(): Promise<typeof Cancel | typeof TryAnother | void>;
   closeDnaPushDialog(): void;
 
   // Password prompt (deferred until server requests it)

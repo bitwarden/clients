@@ -7,7 +7,11 @@
         {{ "selectApprovalMethod" | i18n }}
       }
       @case ("approvalCode") {
-        {{ "keeperDeviceApprovalRequired" | i18n }}
+        @if (currentStage.variant === "push") {
+          {{ "keeperPendingApproval" | i18n }}
+        } @else {
+          {{ "keeperDeviceApprovalRequired" | i18n }}
+        }
       }
       @case ("selectTwoFactor") {
         {{ "selectTwoFactorMethod" | i18n }}
@@ -40,25 +44,22 @@
     @switch (currentStage.kind) {
       @case ("selectApproval") {
         <p bitTypography="body1">{{ "selectApprovalMethodDesc" | i18n }}</p>
-        <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-4">
+        <bit-radio-group [formControl]="approvalMethodControl" [block]="true">
           @for (method of currentStage.methods; track method) {
-            <button
-              bitButton
-              buttonType="secondary"
-              type="button"
-              class="tw-w-full"
-              (click)="selectApproval(method)"
-            >
-              {{ getApprovalMethodLabel(method) | i18n }}
-            </button>
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getApprovalMethodLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
           }
-        </div>
+        </bit-radio-group>
       }
 
       @case ("approvalCode") {
-        <p bitTypography="body1">
-          {{ getApprovalCodeDescription(currentStage.variant) | i18n }}
-        </p>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-2">
+          <bit-spinner></bit-spinner>
+          <p bitTypography="body1" class="tw-text-center !tw-mb-0">
+            {{ getApprovalCodeDescription(currentStage.variant) | i18n }}
+          </p>
+        </div>
         @if (currentStage.variant === "email") {
           <form (ngSubmit)="submitCode()">
             <bit-form-field class="tw-mt-4">
@@ -163,13 +164,22 @@
 
   <ng-container bitDialogFooter>
     @switch (currentStage.kind) {
+      @case ("selectApproval") {
+        <button bitButton buttonType="primary" type="button" (click)="confirmApproval()">
+          {{ "continue" | i18n }}
+        </button>
+      }
+
       @case ("approvalCode") {
         @if (currentStage.variant === "email") {
           <button bitButton buttonType="primary" type="button" (click)="submitCode()">
             {{ "submit" | i18n }}
           </button>
-        } @else {
           <button bitButton buttonType="secondary" type="button" (click)="tryAnother()">
+            {{ "tryAnotherMethod" | i18n }}
+          </button>
+        } @else {
+          <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
             {{ "tryAnotherMethod" | i18n }}
           </button>
         }
@@ -185,6 +195,21 @@
             {{ "continue" | i18n }}
           </button>
         }
+        <button bitButton buttonType="secondary" type="button" (click)="tryAnother()">
+          {{ "tryAnotherMethod" | i18n }}
+        </button>
+      }
+
+      @case ("duoPush") {
+        <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
+          {{ "tryAnotherMethod" | i18n }}
+        </button>
+      }
+
+      @case ("dnaPush") {
+        <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
+          {{ "tryAnotherMethod" | i18n }}
+        </button>
       }
 
       @case ("password") {
