@@ -556,7 +556,7 @@ describe("DefaultSyncService", () => {
         );
       });
 
-      it("does not call newPolicyService.replace when policiesNew is absent from the response", async () => {
+      it("does not call newPolicyService.replace when both policiesNew and policies are absent", async () => {
         apiService.getSync.mockResolvedValue(emptySyncResponse);
 
         await sut.fullSync(true);
@@ -595,6 +595,37 @@ describe("DefaultSyncService", () => {
         );
         expect(newPolicyService.replace).toHaveBeenCalledWith(
           expect.objectContaining({ "new-policy": expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("falls back to policies when policiesNew is absent", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("falls back to policies when policiesNew is an empty array", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+          PoliciesNew: [],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
           user1,
         );
       });

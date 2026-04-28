@@ -195,7 +195,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
-      await this.syncNewPolicies(response.policiesNew, response.profile.id);
+      await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -430,12 +430,19 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.policyService.replace(policies, userId);
   }
 
-  private async syncNewPolicies(response: PolicyResponse[] | undefined, userId: UserId) {
-    if (response == null) {
+  private async syncNewPolicies(
+    response: PolicyResponse[] | undefined,
+    fallback: PolicyResponse[] | undefined,
+    userId: UserId,
+  ) {
+    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
+    // feature flag is off) so the new service is always seeded with data.
+    const source = response != null && response.length > 0 ? response : fallback;
+    if (source == null) {
       return;
     }
     const policies: { [id: string]: PolicyData } = {};
-    response.forEach((p) => {
+    source.forEach((p) => {
       policies[p.id] = new PolicyData(p);
     });
     return await this.newPolicyService.replace(policies, userId);

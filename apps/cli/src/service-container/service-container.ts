@@ -561,10 +561,7 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.newPolicyService = new DefaultNewPolicyService(
-      this.stateProvider,
-      this.organizationService,
-    );
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
 
     const sessionTimeoutTypeService = new CliSessionTimeoutTypeService();
 

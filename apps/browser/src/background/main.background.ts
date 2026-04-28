@@ -793,10 +793,7 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.newPolicyService = new DefaultNewPolicyService(
-      this.stateProvider,
-      this.organizationService,
-    );
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
 
     const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
       this.platformUtilsService,

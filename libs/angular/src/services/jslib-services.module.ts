@@ -79,10 +79,7 @@ import {
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import {
-  InternalNewPolicyService,
-  NewPolicyService as NewPolicyServiceAbstraction,
-} from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -1200,11 +1197,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: InternalNewPolicyService,
     useClass: DefaultNewPolicyService,
-    deps: [StateProvider, OrganizationServiceAbstraction],
-  }),
-  safeProvider({
-    provide: NewPolicyServiceAbstraction,
-    useExisting: InternalNewPolicyService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: PolicyApiServiceAbstraction,
