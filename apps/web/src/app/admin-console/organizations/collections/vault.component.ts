@@ -1,4 +1,14 @@
-import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  EnvironmentInjector,
+  inject,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  runInInjectionContext,
+  ViewChild,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import {
@@ -123,7 +133,6 @@ enum AddAccessStatusType {
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     { provide: CipherFormConfigService, useClass: AdminConsoleCipherFormConfigService },
-    VaultCipherActionsService,
     VaultCollectionActionsService,
   ],
 })
@@ -173,6 +182,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   private nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
+  private readonly _envInjector = inject(EnvironmentInjector);
+  private cipherActions!: VaultCipherActionsService;
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("vaultItems", { static: false }) vaultItemsComponent:
@@ -204,7 +216,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private dialogService: DialogService,
     private toastService: ToastService,
-    private cipherActions: VaultCipherActionsService,
     private collectionActions: VaultCollectionActionsService,
   ) {
     this.userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -506,20 +517,20 @@ export class VaultComponent implements OnInit, OnDestroy {
           refreshing || processing || !firstLoadComplete,
       ),
     );
+
+    this.cipherActions = runInInjectionContext(this._envInjector, () => {
+      return new VaultCipherActionsService(
+        this.organization$,
+        this.userId$,
+        this.filter$,
+        this.editableCollections$,
+        this.selectedCollection$,
+        this.routedVaultFilterBridgeService.activeFilter$,
+      );
+    });
   }
 
   async ngOnInit() {
-    this.cipherActions.init(
-      this.organization$,
-      this.userId$,
-      this.filter$,
-      this.editableCollections$,
-      this.selectedCollection$,
-      this.routedVaultFilterBridgeService.activeFilter$,
-      () => this.refresh(),
-      (queryParams, opts) => this.go(queryParams, opts),
-    );
-
     this.collectionActions.init(
       this.organization$,
       this.userId$,
@@ -558,16 +569,20 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.routedVaultFilterBridgeService.activeFilter$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((activeFilter) => {
-        this.activeFilter = activeFilter;
+    this.cipherActions.activeFilter$.pipe(takeUntil(this.destroy$)).subscribe((activeFilter) => {
+      this.activeFilter = activeFilter;
 
-        // watch the active filters. Only show toggle when viewing the collections filter
-        if (!this.activeFilter.collectionId) {
-          this.showAddAccessToggle = false;
-        }
-      });
+      // watch the active filters. Only show toggle when viewing the collections filter
+      if (!this.activeFilter.collectionId) {
+        this.showAddAccessToggle = false;
+      }
+    });
+
+    this.cipherActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
+
+    this.cipherActions.navigate$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(({ queryParams, options }) => this.go(queryParams, options));
 
     this.searchText$
       .pipe(debounceTime(SearchTextDebounceInterval), takeUntil(this.destroy$))

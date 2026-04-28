@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
+import { inject } from "@angular/core";
 import { NavigationExtras, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
+import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 
 import {
   CollectionAdminView,
@@ -47,16 +47,27 @@ import {
   openBulkDeleteDialog,
 } from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 
-@Injectable()
 export class VaultCipherActionsService {
-  private organization$!: Observable<Organization>;
-  private userId$!: Observable<UserId>;
-  private filter$!: Observable<RoutedVaultFilterModel>;
-  private editableCollections$!: Observable<CollectionAdminView[]>;
-  private selectedCollection$!: Observable<TreeNode<CollectionAdminView> | undefined>;
-  private activeFilter$!: Observable<VaultFilter>;
-  private refreshCallback!: () => void;
-  private navigateCallback!: (queryParams: unknown, options?: NavigationExtras) => void;
+  private readonly cipherService = inject(CipherService);
+  private readonly passwordRepromptService = inject(PasswordRepromptService);
+  private readonly cipherFormConfigService = inject(CipherFormConfigService);
+  private readonly totpService = inject(TotpService);
+  private readonly eventCollectionService = inject(EventCollectionService);
+  private readonly dialogService = inject(DialogService);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
+  private readonly accountService = inject(AccountService);
+  private readonly messagingService = inject(MessagingService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly router = inject(Router);
+  private readonly i18nService = inject(I18nService);
+
+  private readonly _refresh$ = new Subject<void>();
+  private readonly _navigate$ = new Subject<{ queryParams: unknown; options?: NavigationExtras }>();
+
+  readonly refresh$ = this._refresh$.asObservable();
+  readonly navigate$ = this._navigate$.asObservable();
+
   private vaultItemDialogRef?: DialogRef<VaultItemDialogResult>;
 
   get hasOpenDialog(): boolean {
@@ -64,47 +75,20 @@ export class VaultCipherActionsService {
   }
 
   constructor(
-    private cipherService: CipherService,
-    private passwordRepromptService: PasswordRepromptService,
-    private cipherFormConfigService: CipherFormConfigService,
-    private totpService: TotpService,
-    private eventCollectionService: EventCollectionService,
-    private dialogService: DialogService,
-    private toastService: ToastService,
-    private logService: LogService,
-    private accountService: AccountService,
-    private messagingService: MessagingService,
-    private platformUtilsService: PlatformUtilsService,
-    private router: Router,
-    private i18nService: I18nService,
+    private readonly organization$: Observable<Organization>,
+    private readonly userId$: Observable<UserId>,
+    private readonly filter$: Observable<RoutedVaultFilterModel>,
+    private readonly editableCollections$: Observable<CollectionAdminView[]>,
+    private readonly selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>,
+    readonly activeFilter$: Observable<VaultFilter>,
   ) {}
 
-  init(
-    organization$: Observable<Organization>,
-    userId$: Observable<UserId>,
-    filter$: Observable<RoutedVaultFilterModel>,
-    editableCollections$: Observable<CollectionAdminView[]>,
-    selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>,
-    activeFilter$: Observable<VaultFilter>,
-    refresh: () => void,
-    navigate: (queryParams: unknown, options?: NavigationExtras) => void,
-  ): void {
-    this.organization$ = organization$;
-    this.userId$ = userId$;
-    this.filter$ = filter$;
-    this.editableCollections$ = editableCollections$;
-    this.selectedCollection$ = selectedCollection$;
-    this.activeFilter$ = activeFilter$;
-    this.refreshCallback = refresh;
-    this.navigateCallback = navigate;
-  }
-
   private refresh(): void {
-    this.refreshCallback();
+    this._refresh$.next();
   }
 
   private go(queryParams: unknown, navigateOptions?: NavigationExtras): void {
-    this.navigateCallback(queryParams, navigateOptions);
+    this._navigate$.next({ queryParams, options: navigateOptions });
   }
 
   async editCipherAttachments(cipher: CipherView): Promise<void> {
@@ -191,7 +175,7 @@ export class VaultCipherActionsService {
       !(await this.passwordRepromptService.showPasswordPrompt())
     ) {
       // Didn't pass password prompt, so don't open add / edit modal.
-      await this.go(
+      this.go(
         { cipherId: null, itemId: null, action: null },
         this.configureRouterFocusToCipher(cipher.id),
       );
@@ -245,7 +229,7 @@ export class VaultCipherActionsService {
     }
 
     // Clear the query params when the dialog closes
-    await this.go(
+    this.go(
       { cipherId: null, itemId: null, action: null },
       this.configureRouterFocusToCipher(formConfig.originalCipher?.id),
     );

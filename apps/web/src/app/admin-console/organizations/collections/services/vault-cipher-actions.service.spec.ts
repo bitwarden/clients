@@ -1,3 +1,4 @@
+import { EnvironmentInjector, runInInjectionContext } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -96,16 +97,20 @@ describe("VaultCipherActionsService", () => {
   let mockFormConfig: CipherFormConfig;
 
   function initService(org = organization) {
-    service.init(
-      of(org),
-      of(USER_ID),
-      of({ type: undefined } as unknown as RoutedVaultFilterModel),
-      of([] as CollectionAdminView[]),
-      of(undefined),
-      of({ collectionId: "col-1" as CollectionId } as unknown as VaultFilter),
-      refresh,
-      navigate,
-    );
+    const envInjector = TestBed.inject(EnvironmentInjector);
+    service = runInInjectionContext(envInjector, () => {
+      return new VaultCipherActionsService(
+        of(org),
+        of(USER_ID),
+        of({ type: undefined } as unknown as RoutedVaultFilterModel),
+        of([] as CollectionAdminView[]),
+        of(undefined),
+        of({ collectionId: "col-1" as CollectionId } as unknown as VaultFilter),
+      );
+    });
+
+    service.refresh$.subscribe(refresh);
+    service.navigate$.subscribe(({ queryParams, options }) => navigate(queryParams, options));
   }
 
   beforeEach(() => {
@@ -135,7 +140,6 @@ describe("VaultCipherActionsService", () => {
 
     TestBed.configureTestingModule({
       providers: [
-        VaultCipherActionsService,
         { provide: CipherService, useValue: cipherService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: CipherFormConfigService, useValue: cipherFormConfigService },
@@ -152,7 +156,6 @@ describe("VaultCipherActionsService", () => {
       ],
     });
 
-    service = TestBed.inject(VaultCipherActionsService);
     initService();
   });
 
