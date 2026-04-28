@@ -6,7 +6,4 @@ export abstract class RegistrationStartComponentService {
 
   /** The marketing emails checkbox label text. */
   abstract marketingEmailsLabelText: string | LoginComponentTranslation;
-
-  /** When false, the unsubscribe link is hidden from the marketing emails label. */
-  abstract showMarketingEmailsUnsubscribeLink: boolean;
 }

@@ -95,7 +95,6 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
   showErrorSummary = false;
 
   protected marketingEmailsLabelText = "";
-  protected showMarketingEmailsUnsubscribeLink = true;
 
   private destroy$ = new Subject<void>();
 
@@ -114,8 +113,6 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
     this.marketingEmailsLabelText = this.resolveTranslation(
       this.registrationStartComponentService.marketingEmailsLabelText,
     );
-    this.showMarketingEmailsUnsubscribeLink =
-      this.registrationStartComponentService.showMarketingEmailsUnsubscribeLink;
   }
 
   private resolveTranslation(value: string | LoginComponentTranslation): string {

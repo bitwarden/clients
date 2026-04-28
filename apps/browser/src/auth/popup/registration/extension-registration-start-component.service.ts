@@ -12,5 +12,4 @@ export class ExtensionRegistrationStartComponentService
 {
   shouldShowUserDataEntryPageIcon = false;
   marketingEmailsLabelText = { key: "receiveMarketingEmailsExtension" };
-  showMarketingEmailsUnsubscribeLink = false;
 }
