@@ -1,3 +1,5 @@
+import { unconstrained } from "@bitwarden/common/tools/util";
+
 import { PasswordGeneratorSettings } from "../types";
 
 import { PasswordPolicyConstraints } from "./password-policy-constraints";
@@ -34,7 +36,7 @@ describe("PasswordPolicyConstraints", () => {
 
       const result = constraint.adjust(expected);
 
-      expect(result).toEqual(expected);
+      expect(result.state).toEqual(expected);
     });
 
     it.each([
@@ -66,7 +68,7 @@ describe("PasswordPolicyConstraints", () => {
 
         const result = constraint.adjust(state);
 
-        expect(result).toMatchObject({ [property]: expected });
+        expect(result.state).toMatchObject({ [property]: expected });
       },
     );
 
@@ -78,14 +80,14 @@ describe("PasswordPolicyConstraints", () => {
 
       const result = constraint.adjust(state);
 
-      expect(result).toEqual({ ...EmptyState, [property]: true });
+      expect(result.state).toEqual({ ...EmptyState, [property]: true });
     });
 
     it("sets `lowercase` and `uppercase` to `true` when no flags are defined", () => {
       const constraint = new PasswordPolicyConstraints({});
       const result = constraint.adjust(EmptyState);
 
-      expect(result).toMatchObject({ lowercase: true, uppercase: true });
+      expect(result.state).toMatchObject({ lowercase: true, uppercase: true });
     });
 
     it.each([["number"], ["special"]] as [keyof PasswordGeneratorSettings][])(
@@ -99,7 +101,7 @@ describe("PasswordPolicyConstraints", () => {
 
         const result = constraint.adjust(state);
 
-        expect(result).toMatchObject({ [property]: false });
+        expect(result.state).toMatchObject({ [property]: false });
       },
     );
 
@@ -113,9 +115,43 @@ describe("PasswordPolicyConstraints", () => {
 
         const result = constraint.adjust(state);
 
-        expect(result).toMatchObject({ [property]: false });
+        expect(result.state).toMatchObject({ [property]: false });
       },
     );
+
+    it("sets flag to true when adjusted minCount > 0", () => {
+      const constraint = new PasswordPolicyConstraints({ minSpecial: { min: 3, max: 9 } });
+      const state = { ...EmptyState, special: false, minSpecial: 0 };
+
+      const result = constraint.adjust(state);
+
+      expect(result.state.special).toBe(true);
+      expect(result.state.minSpecial).toBe(3);
+    });
+
+    it("reports applied constraints for changed fields", () => {
+      const constraint = new PasswordPolicyConstraints({ length: { min: 10, max: 128 } });
+      const state = { ...EmptyState, length: 5 };
+
+      const result = constraint.adjust(state);
+
+      expect(result.state.length).toBe(10);
+      expect(result.applied).toBeDefined();
+      expect(result.applied!.length).toEqual({ min: 10, max: 128 });
+    });
+
+    it("reports the unconstrained value when nothing changed", () => {
+      const constraint = new PasswordPolicyConstraints({});
+      const state = {
+        ...EmptyState,
+        lowercase: true,
+        uppercase: true,
+      };
+
+      const result = constraint.adjust(state);
+
+      expect(result.applied).toEqual(unconstrained());
+    });
   });
 
   describe("fix", () => {
@@ -124,7 +160,7 @@ describe("PasswordPolicyConstraints", () => {
 
       const result = policy.fix(EmptyState);
 
-      expect(result).toBe(EmptyState);
+      expect(result.state).toBe(EmptyState);
     });
   });
 });
