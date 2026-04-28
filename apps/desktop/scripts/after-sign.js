@@ -80,7 +80,7 @@ async function run(context) {
     if (process.env.APP_STORE_CONNECT_TEAM_ISSUER) {
       const appleApiIssuer = process.env.APP_STORE_CONNECT_TEAM_ISSUER;
       const appleApiKey = process.env.APP_STORE_CONNECT_AUTH_KEY_PATH;
-      const appleApiKeyId = process.env.APP_STORE_CONNECT_AUTH_KEY;
+      const appleApiKeyId = process.env.APP_STORE_CONNECT_AUTH_KEY_ID;
       return await notarize({
         tool: "notarytool",
         appPath: appPath,
