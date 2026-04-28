@@ -15,6 +15,7 @@ import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.compone
 import { ChangeEmailComponent } from "./change-email.component";
 import { DangerZoneComponent } from "./danger-zone.component";
 import { DeauthorizeSessionsComponent } from "./deauthorize-sessions.component";
+import { DownloadEventLogsComponent } from "./download-event-logs.component";
 import { ProfileComponent } from "./profile.component";
 import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-devices-dialog.component";
 
@@ -27,6 +28,7 @@ import { SetAccountVerifyDevicesDialogComponent } from "./set-account-verify-dev
     HeaderModule,
     ProfileComponent,
     ChangeEmailComponent,
+    DownloadEventLogsComponent,
     DangerZoneComponent,
   ],
 })

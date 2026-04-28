@@ -6006,6 +6006,12 @@
   "downloadAttachments": {
     "message": "Download attachments"
   },
+  "downloadEventLogs": {
+    "message": "Download event logs"
+  },
+  "download": {
+    "message": "Download"
+  },
   "sendAccessPasswordTitle": {
     "message": "Enter the password to view this Send",
     "description": "Title of the Send password authentication screen."
