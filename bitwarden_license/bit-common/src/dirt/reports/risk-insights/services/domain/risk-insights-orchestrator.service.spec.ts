@@ -190,6 +190,44 @@ describe("RiskInsightsOrchestratorService", () => {
       });
     });
 
+    it("should emit error ReportState when saveRiskInsightsReport$ throws", (done) => {
+      // Override the save mock to throw before creating the service
+      mockReportService.saveRiskInsightsReport$ = jest
+        .fn()
+        .mockReturnValue(throwError(() => new Error("Save failed")));
+
+      const testService = new RiskInsightsOrchestratorService(
+        mockAccountService,
+        mockCipherService,
+        mockCriticalAppsService,
+        mockLogService,
+        mockMemberCipherDetailsApiService,
+        mockOrganizationService,
+        mockPasswordHealthService,
+        mockReportApiService,
+        mockReportService,
+        mockRiskInsightsEncryptionService,
+      );
+
+      const privateOrganizationDetailsSubject = testService["_organizationDetailsSubject"];
+      const privateUserIdSubject = testService["_userIdSubject"];
+
+      privateOrganizationDetailsSubject.next({
+        organizationId: mockOrgId,
+        organizationName: mockOrgName,
+      });
+      privateUserIdSubject.next(mockUserId);
+
+      testService.generateReport();
+
+      testService.rawReportData$.subscribe((state) => {
+        if (state.status === ReportStatus.Error) {
+          expect(state.error).toBe("Failed to generate or save report");
+          done();
+        }
+      });
+    });
+
     describe("destroy", () => {
       it("should complete destroy$ subject and unsubscribe reportStateSubscription", () => {
         const privateDestroy = (service as any)._destroy$;
