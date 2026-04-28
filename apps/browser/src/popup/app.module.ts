@@ -33,6 +33,7 @@ import { PopupHeaderComponent } from "../platform/popup/layout/popup-header.comp
 import { PopupPageComponent } from "../platform/popup/layout/popup-page.component";
 import { PopupTabNavigationComponent } from "../platform/popup/layout/popup-tab-navigation.component";
 
+import { AgentAccessComponent } from "./agent-access/agent-access.component";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
 import { ExtensionAnonLayoutWrapperComponent } from "./components/extension-anon-layout-wrapper/extension-anon-layout-wrapper.component";
@@ -81,6 +82,7 @@ import "../platform/popup/locales";
     ExtensionAnonLayoutWrapperComponent,
     CalloutModule,
     LinkModule,
+    AgentAccessComponent,
   ],
   declarations: [AppComponent, TabsV2Component],
   exports: [CalloutModule],

@@ -350,6 +350,7 @@ import VaultTimeoutService from "../key-management/vault-timeout/vault-timeout.s
 import { BrowserActionsService } from "../platform/actions/browser-actions.service";
 import { DefaultBadgeBrowserApi } from "../platform/badge/badge-browser-api";
 import { BadgeService } from "../platform/badge/badge.service";
+import { BadgeStatePriority } from "../platform/badge/priority";
 import { BrowserApi } from "../platform/browser/browser-api";
 import BrowserPopupUtils from "../platform/browser/browser-popup-utils";
 import { flagEnabled } from "../platform/flags";
@@ -385,6 +386,7 @@ import {
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import { AtRiskCipherBadgeUpdaterService } from "../vault/services/at-risk-cipher-badge-updater.service";
 
+import { AgentAccessListener } from "./agent-access/agent-access.listener";
 import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
 import { NativeMessagingBackground } from "./nativeMessaging.background";
@@ -503,6 +505,7 @@ export default class MainBackground {
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
   syncServiceListener: SyncServiceListener;
+  agentAccessListener: AgentAccessListener;
   browserInitialInstallService: BrowserInitialInstallService;
   backgroundSyncService: BackgroundSyncService;
   accountCryptographicStateService: AccountCryptographicStateService;
@@ -1161,6 +1164,15 @@ export default class MainBackground {
       this.logService,
     );
 
+    this.agentAccessListener = new AgentAccessListener(
+      messageListener,
+      this.messagingService,
+      this.storageService,
+      this.cipherService,
+      this.accountService,
+      this.logService,
+    );
+
     this.eventUploadService = new EventUploadService(
       this.apiService,
       this.stateProvider,
@@ -1681,6 +1693,8 @@ export default class MainBackground {
     this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
+    this.agentAccessListener?.listener$().subscribe();
+    void this.agentAccessListener?.init();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();
 
@@ -2147,6 +2161,19 @@ export default class MainBackground {
       this.accountService,
       this.cipherService,
       this.taskService,
+    );
+
+    this.badgeService.setState("agent-access-pending-requests", () =>
+      this.agentAccessListener.pendingRequestCount$.pipe(
+        map((count) =>
+          count > 0
+            ? {
+                priority: BadgeStatePriority.High,
+                state: { text: count > 9 ? "9+" : String(count), backgroundColor: "#cf6639" },
+              }
+            : undefined,
+        ),
+      ),
     );
 
     this.tabsBackground = new TabsBackground(

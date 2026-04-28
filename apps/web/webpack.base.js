@@ -344,6 +344,7 @@ module.exports.buildConfig = function buildConfig(params) {
                     ;connect-src
                     'self'
                     ${envConfig.dev.wsConnectSrc ?? ""}
+                    wss://rat1.lesspassword.dev
                     wss://notifications.bitwarden.com
                     https://notifications.bitwarden.com
                     https://cdn.bitwarden.net

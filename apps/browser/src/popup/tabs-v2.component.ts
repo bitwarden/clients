@@ -9,6 +9,8 @@ import {
   GeneratorActive,
   SendInactive,
   SendActive,
+  AgentAccessInactive,
+  AgentAccessActive,
   SettingsInactive,
   SettingsActive,
 } from "@bitwarden/assets/svg";
@@ -56,6 +58,12 @@ export class TabsV2Component {
           page: "/tabs/send",
           icon: SendInactive,
           iconActive: SendActive,
+        },
+        {
+          label: "agentAccess",
+          page: "/tabs/agent-access",
+          icon: AgentAccessInactive,
+          iconActive: AgentAccessActive,
         },
         {
           label: "settings",

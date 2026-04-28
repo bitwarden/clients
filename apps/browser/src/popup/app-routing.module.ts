@@ -106,6 +106,7 @@ import { MoreFromBitwardenPageComponent } from "../vault/popup/settings/more-fro
 import { TrashComponent } from "../vault/popup/settings/trash.component";
 import { VaultSettingsComponent } from "../vault/popup/settings/vault-settings.component";
 
+import { AgentAccessComponent } from "./agent-access/agent-access.component";
 import { RouteElevation } from "./app-routing.animations";
 import {
   ExtensionAnonLayoutWrapperComponent,
@@ -741,6 +742,12 @@ const routes: Routes = [
       {
         path: "send",
         component: SendV2Component,
+        canActivate: [authGuard],
+        data: { elevation: 0 } satisfies RouteDataProperties,
+      },
+      {
+        path: "agent-access",
+        component: AgentAccessComponent,
         canActivate: [authGuard],
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
