@@ -1,4 +1,4 @@
-import { PublicKey } from "@bitwarden/sdk-internal";
+import { KeyRotationMethod, PublicKey } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 /**
@@ -32,13 +32,13 @@ export abstract class UserKeyRotationService {
 
   /**
    * Rotates the user key and associated encrypted data using the SDK without a master password change.
-   * The master password should be confirmed by proof of decryption prior to calling this method.
-   * @param currentMasterPassword The users current master password.
+   * For master password based key rotations the master password should be confirmed by proof of decryption prior to calling this method.
+   * @param keyRotationMethod The method to use for key rotation.
    * @param userId The ID of the user.
    * @returns True if the key rotation was successful, false if the user denied trust.
    * @throws If the SDK call fails or the SDK is not available.
    */
-  abstract rotateUserKey(currentMasterPassword: string, userId: UserId): Promise<boolean>;
+  abstract rotateUserKey(keyRotationMethod: KeyRotationMethod, userId: UserId): Promise<boolean>;
 
   /**
    * Verifies the trust of organizations and emergency access users by prompting the user.

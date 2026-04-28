@@ -28,12 +28,12 @@ export class KeyRotationDialogService {
    * @return True if the key rotation was successful and the dialog should be closed, false if the dialog should remain open.
    */
   async rotateKeys(masterPassword: string, userId: UserId): Promise<boolean> {
-    const proofOfDecryption = await this.masterPasswordUnlockService.proofOfDecryption(
+    const isMasterPasswordValid = await this.masterPasswordUnlockService.proofOfDecryption(
       masterPassword,
       userId,
     );
 
-    if (!proofOfDecryption) {
+    if (!isMasterPasswordValid) {
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("incorrectPassword"),
@@ -41,7 +41,10 @@ export class KeyRotationDialogService {
       return false;
     }
 
-    const success = await this.userKeyRotationService.rotateUserKey(masterPassword, userId);
+    const success = await this.userKeyRotationService.rotateUserKey(
+      { Password: { password: masterPassword } },
+      userId,
+    );
 
     if (success) {
       this.toastService.showToast({

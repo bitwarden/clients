@@ -180,7 +180,7 @@ describe("KeyRotationDialogComponent", () => {
         await callSubmit(component);
 
         expect(mockPlatformUtilsService.launchUri).toHaveBeenCalledWith(
-          "https://bitwarden.com/help/attachments/#add-storage-space",
+          "https://bitwarden.com/help/attachments/#fixing-old-attachments",
         );
       });
 

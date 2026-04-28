@@ -95,7 +95,7 @@ export class KeyRotationDialogComponent {
 
     if (learnMore) {
       this.platformUtilsService.launchUri(
-        "https://bitwarden.com/help/attachments/#add-storage-space",
+        "https://bitwarden.com/help/attachments/#fixing-old-attachments",
       );
     }
   }

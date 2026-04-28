@@ -10,6 +10,7 @@ import {
 } from "@bitwarden/key-management-ui";
 import { LogService } from "@bitwarden/logging";
 import {
+  KeyRotationMethod,
   PasswordChangeAndRotateUserKeysRequest,
   RotateUserKeysRequest,
 } from "@bitwarden/sdk-internal";
@@ -72,7 +73,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
     );
   }
 
-  async rotateUserKey(currentMasterPassword: string, userId: UserId): Promise<boolean> {
+  async rotateUserKey(keyRotationMethod: KeyRotationMethod, userId: UserId): Promise<boolean> {
     const { wasTrustDenied, trustedOrganizationPublicKeys, trustedEmergencyAccessUserPublicKeys } =
       await this.verifyTrust(userId);
     if (wasTrustDenied) {
@@ -92,11 +93,7 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
             "[UserKeyRotationService] Re-encrypting user data with new user key...",
           );
           await ref.value.user_crypto_management().rotate_user_keys({
-            key_rotation_method: {
-              Password: {
-                password: currentMasterPassword,
-              },
-            },
+            key_rotation_method: keyRotationMethod,
             trusted_emergency_access_public_keys: trustedEmergencyAccessUserPublicKeys,
             trusted_organization_public_keys: trustedOrganizationPublicKeys,
           } as RotateUserKeysRequest);
