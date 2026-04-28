@@ -377,6 +377,10 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import {
+  DefaultOrganizationInviteLinkApiService,
+  OrganizationInviteLinkApiService,
+} from "@bitwarden/organization-invite-link";
 import { DefaultTaskSchedulerService, TaskSchedulerService } from "@bitwarden/scheduling";
 import {
   ActiveUserStateProvider,
@@ -1276,6 +1280,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OrganizationUserApiService,
     useClass: DefaultOrganizationUserApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: OrganizationInviteLinkApiService,
+    useClass: DefaultOrganizationInviteLinkApiService,
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
