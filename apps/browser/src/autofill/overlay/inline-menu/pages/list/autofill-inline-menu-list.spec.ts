@@ -401,7 +401,7 @@ describe("AutofillInlineMenuList", () => {
 
           firstFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
 
-          expect((secondFillCipherElement as HTMLElement).focus).toBeCalled();
+          expect((secondFillCipherElement as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("directs focus to the first item in the cipher list if no cipher is present after the current one when pressing ArrowDown and no new item button exists", () => {
@@ -415,7 +415,7 @@ describe("AutofillInlineMenuList", () => {
 
           lastFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
 
-          expect((firstFillCipherElement as HTMLElement).focus).toBeCalled();
+          expect((firstFillCipherElement as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("directs focus to the new item button if no cipher is present after the current one when pressing ArrowDown", async () => {
@@ -435,7 +435,7 @@ describe("AutofillInlineMenuList", () => {
 
           lastFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
 
-          expect(autofillInlineMenuList["newItemButtonElement"].focus).toBeCalled();
+          expect(autofillInlineMenuList["newItemButtonElement"].focus).toHaveBeenCalled();
         });
 
         it("allows the user to move keyboard focus to the previous cipher element on ArrowUp", () => {
@@ -449,7 +449,7 @@ describe("AutofillInlineMenuList", () => {
 
           secondFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
 
-          expect((firstFillCipherElement as HTMLElement).focus).toBeCalled();
+          expect((firstFillCipherElement as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("directs focus to the last item in the cipher list if no cipher is present before the current one when pressing ArrowUp", () => {
@@ -463,7 +463,7 @@ describe("AutofillInlineMenuList", () => {
 
           firstFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
 
-          expect((lastFillCipherElement as HTMLElement).focus).toBeCalled();
+          expect((lastFillCipherElement as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("directs focus to the new item button if no cipher is present before the current one when pressing ArrowUp", async () => {
@@ -483,7 +483,7 @@ describe("AutofillInlineMenuList", () => {
 
           firstFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
 
-          expect(autofillInlineMenuList["newItemButtonElement"].focus).toBeCalled();
+          expect(autofillInlineMenuList["newItemButtonElement"].focus).toHaveBeenCalled();
         });
 
         it("allows the user to move keyboard focus to the view cipher button on ArrowRight", () => {
@@ -495,7 +495,7 @@ describe("AutofillInlineMenuList", () => {
 
           fillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowRight" }));
 
-          expect((viewCipherButton as HTMLElement).focus).toBeCalled();
+          expect((viewCipherButton as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("ignores keyup events that do not include ArrowUp, ArrowDown, or ArrowRight", () => {
@@ -505,7 +505,7 @@ describe("AutofillInlineMenuList", () => {
 
           fillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowLeft" }));
 
-          expect((fillCipherElement as HTMLElement).focus).not.toBeCalled();
+          expect((fillCipherElement as HTMLElement).focus).not.toHaveBeenCalled();
         });
       });
 
@@ -540,7 +540,7 @@ describe("AutofillInlineMenuList", () => {
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowLeft" }));
 
-          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
+          expect((fillCipherButton as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("allows the user to move keyboard to the next cipher element on ArrowDown", () => {
@@ -553,7 +553,7 @@ describe("AutofillInlineMenuList", () => {
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
 
-          expect((secondFillCipherButton as HTMLElement).focus).toBeCalled();
+          expect((secondFillCipherButton as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("allows the user to move keyboard focus to the previous cipher element on ArrowUp", () => {
@@ -566,7 +566,7 @@ describe("AutofillInlineMenuList", () => {
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
 
-          expect((firstFillCipherButton as HTMLElement).focus).toBeCalled();
+          expect((firstFillCipherButton as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("ignores keyup events that do not include ArrowUp, ArrowDown, or ArrowRight", () => {
@@ -576,7 +576,7 @@ describe("AutofillInlineMenuList", () => {
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowRight" }));
 
-          expect((viewCipherButton as HTMLElement).focus).not.toBeCalled();
+          expect((viewCipherButton as HTMLElement).focus).not.toHaveBeenCalled();
         });
       });
 
@@ -808,7 +808,7 @@ describe("AutofillInlineMenuList", () => {
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
 
-          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
+          expect((fillCipherButton as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("skips the passkeys heading when the user presses ArrowDown to focus the first list item", () => {
@@ -820,7 +820,7 @@ describe("AutofillInlineMenuList", () => {
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
 
-          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
+          expect((fillCipherButton as HTMLElement).focus).toHaveBeenCalled();
         });
 
         it("skips the logins heading when the user presses ArrowUp to focus the previous list item", () => {
@@ -832,7 +832,7 @@ describe("AutofillInlineMenuList", () => {
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
 
-          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
+          expect((fillCipherButton as HTMLElement).focus).toHaveBeenCalled();
         });
       });
     });
@@ -914,7 +914,7 @@ describe("AutofillInlineMenuList", () => {
               new KeyboardEvent("keyup", { code: "ArrowRight" }),
             );
 
-            expect((refreshGeneratedPasswordButton as HTMLElement).focus).toBeCalled();
+            expect((refreshGeneratedPasswordButton as HTMLElement).focus).toHaveBeenCalled();
           });
         });
       });
@@ -984,7 +984,7 @@ describe("AutofillInlineMenuList", () => {
               new KeyboardEvent("keyup", { code: "ArrowLeft" }),
             );
 
-            expect((fillGeneratedPasswordButton as HTMLElement).focus).toBeCalled();
+            expect((fillGeneratedPasswordButton as HTMLElement).focus).toHaveBeenCalled();
           });
         });
       });
@@ -1207,7 +1207,7 @@ describe("AutofillInlineMenuList", () => {
 
         postWindowMessage({ command: "focusAutofillInlineMenuList", token: "test-token" });
 
-        expect((unlockButton as HTMLElement).focus).toBeCalled();
+        expect((unlockButton as HTMLElement).focus).toHaveBeenCalled();
       });
 
       it("focuses the new item button element if the cipher list is empty", async () => {
@@ -1219,7 +1219,7 @@ describe("AutofillInlineMenuList", () => {
 
         postWindowMessage({ command: "focusAutofillInlineMenuList", token: "test-token" });
 
-        expect((newItemButton as HTMLElement).focus).toBeCalled();
+        expect((newItemButton as HTMLElement).focus).toHaveBeenCalled();
       });
 
       it("focuses the first cipher button element if the cipher list is populated", () => {
@@ -1230,7 +1230,7 @@ describe("AutofillInlineMenuList", () => {
 
         postWindowMessage({ command: "focusAutofillInlineMenuList", token: "test-token" });
 
-        expect((firstCipherItem as HTMLElement).focus).toBeCalled();
+        expect((firstCipherItem as HTMLElement).focus).toHaveBeenCalled();
       });
     });
 

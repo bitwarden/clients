@@ -33,6 +33,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
+  BadgeModule,
   BitIconButtonComponent,
   ButtonModule,
   CenterPositionStrategy,
@@ -48,7 +49,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
 import {
   AttachmentDialogCloseResult,
@@ -58,7 +58,6 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
-import { DefaultChangeLoginPasswordService } from "../services/default-change-login-password.service";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -130,14 +129,12 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
+    BadgeModule,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
   ],
-  providers: [
-    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
-  ],
+  providers: [{ provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService }],
 })
 export class VaultItemDialogComponent implements OnInit, OnDestroy {
   /**
@@ -345,7 +342,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
           data: { cipherIds: [this.cipher.id] },
           positionStrategy: new CenterPositionStrategy(),
         });
-        this.dialogRef.close();
+        await this.dialogRef.close();
         return;
       }
 
@@ -396,7 +393,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     }
     // If the cipher was modified, be sure we emit the saved result in case the dialog was closed with the X button or ESC key.
     if (this._cipherModified) {
-      this.dialogRef.close(VaultItemDialogResult.Saved);
+      void this.dialogRef.close(VaultItemDialogResult.Saved);
     }
   }
 
@@ -465,7 +462,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
 
   restore = async () => {
     await this.params.restore?.(this.cipher);
-    this.dialogRef.close(VaultItemDialogResult.Restored);
+    await this.dialogRef.close(VaultItemDialogResult.Restored);
   };
 
   delete = async () => {
@@ -500,7 +497,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       this.logService.error(e);
     }
     this._cipherModified = false;
-    this.dialogRef.close(VaultItemDialogResult.Deleted);
+    await this.dialogRef.close(VaultItemDialogResult.Deleted);
   };
 
   openAttachmentsDialog = async () => {
@@ -573,7 +570,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   cancel = async () => {
     // We're in View mode, we don't have a cipher, or we were cloning, close the dialog.
     if (this.params.mode === "view" || this.cipher == null || this.formConfig.mode === "clone") {
-      this.dialogRef.close(this._cipherModified ? VaultItemDialogResult.Saved : undefined);
+      await this.dialogRef.close(this._cipherModified ? VaultItemDialogResult.Saved : undefined);
       return;
     }
 
@@ -592,6 +589,17 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   };
 
   archive = async () => {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
+      type: "info",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
     const activeUserId = await firstValueFrom(this.userId$);
     try {
       const cipherResponse = await this.archiveService.archiveWithServer(
@@ -651,6 +659,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Identity]: "viewItemHeaderIdentity",
         [CipherType.SecureNote]: "viewItemHeaderNote",
         [CipherType.SshKey]: "viewItemHeaderSshKey",
+        [CipherType.BankAccount]: "viewItemHeaderBankAccount",
       },
       new: {
         [CipherType.Login]: "newItemHeaderLogin",
@@ -658,6 +667,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Identity]: "newItemHeaderIdentity",
         [CipherType.SecureNote]: "newItemHeaderNote",
         [CipherType.SshKey]: "newItemHeaderSshKey",
+        [CipherType.BankAccount]: "newItemHeaderBankAccount",
       },
       edit: {
         [CipherType.Login]: "editItemHeaderLogin",
@@ -665,6 +675,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Identity]: "editItemHeaderIdentity",
         [CipherType.SecureNote]: "editItemHeaderNote",
         [CipherType.SshKey]: "editItemHeaderSshKey",
+        [CipherType.BankAccount]: "editItemHeaderBankAccount",
       },
     };
     const type = this.cipher?.type ?? this.formConfig.cipherType;

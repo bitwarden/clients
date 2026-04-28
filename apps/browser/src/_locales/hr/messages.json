@@ -1148,6 +1148,15 @@
     "message": "Automatski očisti kopirane vrijednosti iz međuspremnika.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Ažurirane postavke međuspremnika"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Istek tvojeg međuspremnika postavljen je na zadanu vrijednost, koja je, zbog dodatne sigurnosti, postavljena na 5 minuta."
+  },
+  "jumpToSetting": {
+    "message": "Idi na postavku"
+  },
   "notificationAddDesc": {
     "message": "Treba li Bitwarden zapamtiti ovu lozinku?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Dodatne mogućnosti"
+  },
+  "enableFillAssist": {
+    "message": "Koristi pomoć pri popunjavanju"
   },
   "enableContextMenuItem": {
     "message": "Prikaži opcije kotekstualnog izbornika"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ova stranica ne odgovara tvojim spremljenim podacima za prijavu. Prije nego što uneseš svoje podatke za prijavu, provjeri je li riječ o pouzdanoj stranici."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Prikaži prijedloge auto-ispune na poljima obrazaca"
   },
@@ -2102,6 +2135,27 @@
   "typeNote": {
     "message": "Bilješka"
   },
+  "typeLoginSubtitle": {
+    "message": "Website or app"
+  },
+  "typeCardSubtitle": {
+    "message": "Credit or debit card"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Personal info"
+  },
+  "typeNoteSubtitle": {
+    "message": "Important text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server login token"
+  },
+  "folderSubtitle": {
+    "message": "Organize your items"
+  },
+  "collectionSubtitle": {
+    "message": "Organize shared items"
+  },
   "newItemHeaderLogin": {
     "message": "Nova prijava",
     "description": "Header for new login item type"
@@ -2177,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Prikaži SSH ključ",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Choose item to add"
   },
   "passwordHistory": {
     "message": "Povijest"
@@ -2837,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ želi da promjeniš ovu lozinku jer je rizična. Promijeni lozinku u postavkama računa.",
+  "atRiskNavigatePromptV2": {
+    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Status prijave"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
   },
   "masterPasswordChanged": {
     "message": "Glavna lozinka promijenjena"
@@ -6115,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Nadogradnja"
   },
@@ -6202,6 +6289,9 @@
   "emailPlaceholder": {
     "message": "korisnik@bitwarden.com , korisnik@primjer.hr"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Preuzmi Bitwarden aplikaciju"
   },
@@ -6217,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Preuzimanje neuspjelo."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

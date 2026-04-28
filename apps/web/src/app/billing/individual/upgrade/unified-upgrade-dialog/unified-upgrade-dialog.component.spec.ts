@@ -53,6 +53,7 @@ class MockUpgradeAccountComponent {
 class MockUpgradePaymentComponent {
   readonly selectedPlanId = input<PersonalSubscriptionPricingTierId | null>(null);
   readonly account = input<Account | null>(null);
+  readonly fromMarketing = input<string | null>(null);
   goBack = output<void>();
   complete = output<UpgradePaymentResult>();
 }

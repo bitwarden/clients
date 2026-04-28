@@ -30,7 +30,7 @@ export class AccessTokenDialogComponent implements OnInit {
   ngOnInit(): void {
     // TODO remove null checks once strictNullChecks in TypeScript is turned on.
     if (!this.data.subTitle || !this.data.accessToken) {
-      this.dialogRef.close();
+      void this.dialogRef.close();
       throw new Error("The access token dialog was not called with the appropriate values.");
     }
   }
@@ -42,6 +42,6 @@ export class AccessTokenDialogComponent implements OnInit {
       title: null,
       message: this.i18nService.t("accessTokenCreatedAndCopied"),
     });
-    this.dialogRef.close();
+    void this.dialogRef.close();
   }
 }

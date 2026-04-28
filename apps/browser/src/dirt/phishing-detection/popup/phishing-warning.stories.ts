@@ -3,10 +3,14 @@ import { Meta, StoryObj, moduleMetadata } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
 
 import { DeactivatedOrg } from "@bitwarden/assets/svg";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { AnonLayoutComponent, I18nMockService } from "@bitwarden/components";
 import { MessageSender } from "@bitwarden/messaging";
 
@@ -74,6 +78,7 @@ export default {
               learnMore: "Learn more",
               danger: "error",
               close: "Close",
+              callout: "Callout",
             }),
         },
         {
@@ -87,6 +92,24 @@ export default {
           },
         },
         mockActivatedRoute({ phishingUrl: "http://malicious-example.com" }),
+        {
+          provide: EventCollectionService,
+          useValue: {
+            collect: () => Promise.resolve(),
+          } as Partial<EventCollectionService>,
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            activeAccount$: of({ id: "test-user-id" as UserId }),
+          } as Partial<AccountService>,
+        },
+        {
+          provide: OrganizationService,
+          useValue: {
+            organizations$: () => of([]),
+          } as Partial<OrganizationService>,
+        },
       ],
     }),
   ],

@@ -80,6 +80,7 @@ libs/angular/src/admin-console @bitwarden/team-admin-console-dev
 libs/common/src/admin-console @bitwarden/team-admin-console-dev
 libs/admin-console @bitwarden/team-admin-console-dev
 libs/auto-confirm @bitwarden/team-admin-console-dev
+libs/organization-invite-link @bitwarden/team-admin-console-dev
 
 ## Billing team files ##
 apps/browser/src/billing @bitwarden/team-billing-dev
@@ -110,6 +111,7 @@ libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 libs/storage-core @bitwarden/team-platform-dev
 libs/logging @bitwarden/team-platform-dev
+libs/logging-angular @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
 libs/messaging @bitwarden/team-platform-dev
 libs/serialization @bitwarden/team-platform-dev
