@@ -37,16 +37,13 @@ async function run(context) {
 
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
-    const is_mas_dev = context.targets.some((e) => e.name === "mas-dev");
 
     let id;
 
     // Only use the Bitwarden Identities on CI
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
-        id = is_mas_dev
-          ? "A579B6AE496B360642D05B8AB1B650C1B143B770"
-          : "3rd Party Mac Developer Application: Bitwarden Inc";
+        id = "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
         id = "Developer ID Application: Bitwarden Inc";
       }

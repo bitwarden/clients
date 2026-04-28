@@ -19,7 +19,7 @@ if (-not (Test-Path $distDir)) {
     New-Item -ItemType Directory -Path $distDir
 }
 
-$subBuildPaths = @("mas", "masdev", "dmg")
+$subBuildPaths = @("mas", "dmg")
 $safariSrc = Join-Path $PSScriptRoot "../src/safari"
 $safariDistPath = Join-Path -Path $distDir -ChildPath "Safari"
 
@@ -43,16 +43,6 @@ foreach ($subBuildPath in $subBuildPaths) {
                 "--force",
                 "--sign",
                 '"3rd Party Mac Developer Application: Bitwarden Inc"',
-                "--entitlements",
-                $entitlementsPath
-            )
-        }
-        "masdev" {
-            $codesignArgs = @(
-                "--verbose",
-                "--force",
-                "--sign",
-                "A579B6AE496B360642D05B8AB1B650C1B143B770",
                 "--entitlements",
                 $entitlementsPath
             )
