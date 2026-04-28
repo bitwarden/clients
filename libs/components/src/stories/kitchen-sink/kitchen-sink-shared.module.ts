@@ -26,7 +26,7 @@ import { MenuModule } from "../../menu";
 import { NavigationModule } from "../../navigation";
 import { NoItemsModule } from "../../no-items";
 import { PopoverModule } from "../../popover";
-import { ProgressModule } from "../../progress";
+import { ProgressBarComponent } from "../../progress";
 import { RadioButtonModule } from "../../radio-button";
 import { SearchModule } from "../../search";
 import { SectionComponent } from "../../section";
@@ -66,7 +66,7 @@ import { TypographyModule } from "../../typography";
     NavigationModule,
     NoItemsModule,
     PopoverModule,
-    ProgressModule,
+    ProgressBarComponent,
     RadioButtonModule,
     ReactiveFormsModule,
     RouterModule,
@@ -106,7 +106,7 @@ import { TypographyModule } from "../../typography";
     NavigationModule,
     NoItemsModule,
     PopoverModule,
-    ProgressModule,
+    ProgressBarComponent,
     RadioButtonModule,
     ReactiveFormsModule,
     RouterModule,

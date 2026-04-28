@@ -99,7 +99,7 @@ describe("DefaultSdkService", () => {
         });
         kdfConfigService.getKdfConfig$
           .calledWith(userId)
-          .mockReturnValue(of(new PBKDF2KdfConfig()));
+          .mockReturnValue(of(PBKDF2KdfConfig.createDefault()));
         keyService.userKey$
           .calledWith(userId)
           .mockReturnValue(of(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey));

@@ -2,18 +2,25 @@ import { Component, Input } from "@angular/core";
 import { firstValueFrom, Observable, of, switchMap, lastValueFrom } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { ButtonModule, DialogService, IconComponent, MenuModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogRef,
+  DialogService,
+  IconComponent,
+  MenuModule,
+} from "@bitwarden/components";
 import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
+  SendFormService,
   SendItemDialogResult,
 } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendSuccessDrawerDialogComponent } from "../shared";
 
@@ -22,7 +29,7 @@ import { SendSuccessDrawerDialogComponent } from "../shared";
 @Component({
   selector: "tools-new-send-dropdown",
   templateUrl: "new-send-dropdown.component.html",
-  imports: [JslibModule, ButtonModule, MenuModule, PremiumBadgeComponent, IconComponent],
+  imports: [I18nPipe, ButtonModule, MenuModule, PremiumBadgeComponent, IconComponent],
   providers: [DefaultSendFormConfigService],
 })
 /**
@@ -40,12 +47,15 @@ export class NewSendDropdownComponent {
   /** Indicates whether the user can access premium features. */
   protected canAccessPremium$: Observable<boolean>;
 
+  private sendFormDialogRef?: DialogRef<SendItemDialogResult, SendAddEditDialogComponent>;
+
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private dialogService: DialogService,
     private addEditFormConfigService: DefaultSendFormConfigService,
     private configService: ConfigService,
+    private sendFormService: SendFormService,
   ) {
     this.canAccessPremium$ = this.accountService.activeAccount$.pipe(
       switchMap((account) =>
@@ -67,19 +77,33 @@ export class NewSendDropdownComponent {
     }
     const formConfig = await this.addEditFormConfigService.buildConfig("add", undefined, type);
     const useRefresh = await this.configService.getFeatureFlag(FeatureFlag.SendUIRefresh);
-
     if (useRefresh) {
-      const dialogRef = SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig });
-      if (dialogRef) {
-        const result = await lastValueFrom(dialogRef.closed);
+      const sendFormDialogRef = await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+        formConfig,
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
+      });
+      if (sendFormDialogRef) {
+        this.sendFormDialogRef = sendFormDialogRef;
+        const result = await lastValueFrom(this.sendFormDialogRef.closed);
         if (result?.result === SendItemDialogResult.Saved && result?.send) {
-          this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
+          await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
             data: result.send,
           });
         }
       }
     } else {
-      SendAddEditDialogComponent.open(this.dialogService, { formConfig });
+      SendAddEditDialogComponent.open(this.dialogService, {
+        formConfig,
+        closePredicate: this.sendFormService.promptForUnsavedEdits.bind(this.sendFormService),
+      });
     }
+  }
+
+  async saveUnsavedSendEdits() {
+    if (this.sendFormDialogRef) {
+      const closeResult = await this.sendFormDialogRef.close();
+      return closeResult.closed;
+    }
+    return true;
   }
 }

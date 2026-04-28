@@ -93,6 +93,9 @@ import {
   All,
   RoutedVaultFilterModel,
   VaultFilter,
+  VaultItemDialogComponent,
+  VaultItemDialogMode,
+  VaultItemDialogResult,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -104,11 +107,6 @@ import { VaultItemsComponent } from "@bitwarden/web-vault/app/vault/components/v
 
 import { SharedModule } from "../../../shared";
 import { AssignCollectionsWebComponent } from "../../../vault/components/assign-collections";
-import {
-  VaultItemDialogComponent,
-  VaultItemDialogMode,
-  VaultItemDialogResult,
-} from "../../../vault/components/vault-item-dialog/vault-item-dialog.component";
 import { VaultItemEvent } from "../../../vault/components/vault-items/vault-item-event";
 import { VaultItemsModule } from "../../../vault/components/vault-items/vault-items.module";
 import {
@@ -349,7 +347,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
         );
 
-        await this.searchService.indexCiphers(userId, ciphers, organization.id);
         return ciphers;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
@@ -391,32 +388,43 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.currentSearchText$,
       this.showCollectionAccessRestricted$,
       this.userId$,
+      this.organizationId$,
     ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText, showCollectionAccessRestricted, userId]) => {
-        if (filter.collectionId === undefined && filter.type === undefined) {
-          return [];
-        }
+      concatMap(
+        async ([
+          ciphers,
+          filter,
+          searchText,
+          showCollectionAccessRestricted,
+          userId,
+          organizationId,
+        ]) => {
+          if (filter.collectionId === undefined && filter.type === undefined) {
+            return [];
+          }
 
-        if (showCollectionAccessRestricted) {
-          // Do not show ciphers for restricted collections
-          // Ciphers belonging to multiple collections may still be present in $allCiphers and shouldn't be visible
-          return [];
-        }
+          if (showCollectionAccessRestricted) {
+            // Do not show ciphers for restricted collections
+            // Ciphers belonging to multiple collections may still be present in $allCiphers and shouldn't be visible
+            return [];
+          }
 
-        const filterFunction = createFilterFunction(filter);
+          const filterFunction = createFilterFunction(filter);
 
-        if (await this.searchService.isSearchable(userId, searchText)) {
-          return await this.searchService.searchCiphers<CipherView>(
-            userId,
-            searchText,
-            [filterFunction],
-            ciphers,
-          );
-        }
+          if (await this.searchService.isSearchable(searchText)) {
+            const searchFilteredCiphers = await this.searchService.searchCiphers<CipherView>(
+              userId,
+              organizationId,
+              searchText,
+              ciphers,
+            );
+            return searchFilteredCiphers.filter(filterFunction);
+          }
 
-        return ciphers.filter(filterFunction);
-      }),
+          return ciphers.filter(filterFunction);
+        },
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -480,7 +488,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           let collectionsToReturn: CollectionAdminView[] = [];
 
-          if (await this.searchService.isSearchable(userId, searchText)) {
+          if (await this.searchService.isSearchable(searchText)) {
             // Flatten the tree for searching through all levels
             const flatCollectionTree: CollectionAdminView[] =
               getFlatCollectionTree(searchableCollectionNodes);
@@ -1384,6 +1392,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async bulkAssignToCollections(items: CipherView[]) {
+    if (!(await this.repromptCipher(items))) {
+      return;
+    }
+
     if (items.length === 0) {
       this.toastService.showToast({
         variant: "error",

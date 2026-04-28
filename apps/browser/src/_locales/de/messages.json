@@ -1148,6 +1148,15 @@
     "message": "Kopierten Inhalt automatisch aus der Zwischenablage löschen.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Zwischenablage-Einstellung aktualisiert"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Dein Timeout für die Zwischenablage ist auf den Standardwert eingestellt, der aus Sicherheitsgründen auf 5 Minuten aktualisiert wurde."
+  },
+  "jumpToSetting": {
+    "message": "Zur Einstellung wechseln"
+  },
   "notificationAddDesc": {
     "message": "Soll Bitwarden sich dieses Passwort merken?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Weitere Optionen"
+  },
+  "enableFillAssist": {
+    "message": "Auto-Ausfüllen verwenden"
   },
   "enableContextMenuItem": {
     "message": "Kontextmenüoptionen anzeigen"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Stelle sicher, dass dies eine vertrauenswürdige Website ist, bevor du deine Zugangsdaten eingibst."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
   },
@@ -2102,6 +2135,27 @@
   "typeNote": {
     "message": "Notiz"
   },
+  "typeLoginSubtitle": {
+    "message": "Website oder App"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit- oder Debitkarte"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Persönliche Informationen"
+  },
+  "typeNoteSubtitle": {
+    "message": "Wichtiger Text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server-Anmeldetoken"
+  },
+  "folderSubtitle": {
+    "message": "Organisiere deine Einträge"
+  },
+  "collectionSubtitle": {
+    "message": "Geteilte Einträge organisieren"
+  },
   "newItemHeaderLogin": {
     "message": "Neue Zugangsdaten",
     "description": "Header for new login item type"
@@ -2177,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "SSH-Schlüssel anzeigen",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Wähle einen Eintrag zum Hinzufügen aus"
   },
   "passwordHistory": {
     "message": "Passwortverlauf"
@@ -2837,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ möchte, dass du dieses Passwort änderst, da es gefährdet ist. Gehe zu deinen Kontoeinstellungen, um das Passwort zu ändern.",
+  "atRiskNavigatePromptV2": {
+    "message": "Dein Passwort für diese Seite ist gefährdet. $ORGANIZATION$ hat darum gebeten, zu deinen Kontoeinstellungen zu gehen und es ändern.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Anmeldestatus"
+  },
+  "recentlyActive": {
+    "message": "Kürzlich aktiv"
+  },
+  "recentlyActiveToday": {
+    "message": "Heute"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Letzte 7 Tage"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Letzte 14 Tage"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Letzte 30 Tage"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Vor mehr als 30 Tagen"
   },
   "masterPasswordChanged": {
     "message": "Master-Passwort gespeichert"
@@ -6115,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Verwaltet von der Bitwarden Desktop-App. Öffne die Desktop-App zum Bearbeiten."
+  },
+  "percentageCompleted": {
+    "message": "Zu $PERCENT$% abgeschlossen",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Upgrade"
   },
@@ -6202,6 +6289,9 @@
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Bitwarden-Apps herunterladen"
   },
@@ -6217,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Download fehlgeschlagen."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
