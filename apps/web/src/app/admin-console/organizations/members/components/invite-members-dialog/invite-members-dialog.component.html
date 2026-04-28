@@ -1,5 +1,5 @@
 <form [formGroup]="formGroup" [bitSubmit]="submit">
-  <bit-dialog dialogSize="large">
+  <bit-dialog dialogSize="large" [disablePadding]="true">
     <span bitDialogTitle>{{ "inviteMember" | i18n }}</span>
     <div bitDialogContent>
       <bit-tab-group
@@ -8,7 +8,7 @@
       >
         <bit-tab [label]="'byEmail' | i18n">
           @if (organization$ | async; as organization) {
-            <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
+            <p bitTypography="body1">{{ "inviteUserDescription" | i18n }}</p>
             @if ({ seats: remainingSeats$ | async }; as remaining) {
               <bit-form-field>
                 <bit-label>{{ "email" | i18n }}</bit-label>
@@ -24,7 +24,7 @@
                 }
               </bit-form-field>
             }
-            <bit-radio-group formControlName="type">
+            <bit-form-field>
               <bit-label>
                 {{ "memberRole" | i18n }}
                 <a
@@ -37,91 +37,26 @@
                   startIcon="bwi-question-circle"
                 ></a>
               </bit-label>
-              <bit-radio-button id="userTypeUser" [value]="organizationUserType.User">
-                <bit-label>{{ "user" | i18n }}</bit-label>
-                <bit-hint>{{ "userDesc" | i18n }}</bit-hint>
-              </bit-radio-button>
-              <bit-radio-button id="userTypeAdmin" [value]="organizationUserType.Admin">
-                <bit-label>{{ "admin" | i18n }}</bit-label>
-                <bit-hint>{{ "adminDesc" | i18n }}</bit-hint>
-              </bit-radio-button>
-              <bit-radio-button id="userTypeOwner" [value]="organizationUserType.Owner">
-                <bit-label>{{ "owner" | i18n }}</bit-label>
-                <bit-hint>{{ "ownerDesc" | i18n }}</bit-hint>
-              </bit-radio-button>
-              <bit-radio-button
-                id="userTypeCustom"
-                [value]="organizationUserType.Custom"
-                [disabled]="!organization.useCustomPermissions || null"
-              >
-                <bit-label>{{ "custom" | i18n }}</bit-label>
-                <bit-hint>
-                  @if (!organization.useCustomPermissions) {
-                    <p>
-                      {{ "customDescNonEnterpriseStart" | i18n }}
-                      <a
-                        bitLink
-                        href="https://bitwarden.com/contact/"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        {{ "customDescNonEnterpriseLink" | i18n }}
-                      </a>
-                      {{ "customDescNonEnterpriseEnd" | i18n }}
-                    </p>
-                  } @else {
-                    <p>{{ "customDesc" | i18n }}</p>
-                  }
-                </bit-hint>
-              </bit-radio-button>
-            </bit-radio-group>
-            @if (customUserTypeSelected) {
-              <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
-                <div class="tw-col-span-4">
-                  <bit-form-control>
-                    <input type="checkbox" bitCheckbox formControlName="accessEventLogs" />
-                    <bit-label>{{ "accessEventLogs" | i18n }}</bit-label>
-                  </bit-form-control>
-                  <bit-form-control>
-                    <input type="checkbox" bitCheckbox formControlName="accessImportExport" />
-                    <bit-label>{{ "accessImportExport" | i18n }}</bit-label>
-                  </bit-form-control>
-                  <bit-form-control>
-                    <input type="checkbox" bitCheckbox formControlName="accessReports" />
-                    <bit-label>{{ "accessReports" | i18n }}</bit-label>
-                  </bit-form-control>
-                </div>
-                <div class="tw-col-span-4">
-                  <div class="tw-mb-3">
-                    <bit-form-control>
-                      <input type="checkbox" bitCheckbox formControlName="manageGroups" />
-                      <bit-label>{{ "manageGroups" | i18n }}</bit-label>
-                    </bit-form-control>
-                    <bit-form-control>
-                      <input type="checkbox" bitCheckbox formControlName="manageSso" />
-                      <bit-label>{{ "manageSso" | i18n }}</bit-label>
-                    </bit-form-control>
-                    <bit-form-control>
-                      <input type="checkbox" bitCheckbox formControlName="managePolicies" />
-                      <bit-label>{{ "managePolicies" | i18n }}</bit-label>
-                    </bit-form-control>
-                    <bit-form-control>
-                      <input
-                        id="manageUsers"
-                        type="checkbox"
-                        bitCheckbox
-                        formControlName="manageUsers"
-                      />
-                      <bit-label>{{ "manageUsers" | i18n }}</bit-label>
-                    </bit-form-control>
-                    <bit-form-control>
-                      <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
-                      <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
-                    </bit-form-control>
-                  </div>
-                </div>
-              </div>
-            }
+              <bit-select formControlName="type">
+                <bit-option
+                  [value]="organizationUserType.User"
+                  [label]="'user' | i18n"
+                ></bit-option>
+                <bit-option
+                  [value]="organizationUserType.Admin"
+                  [label]="'admin' | i18n"
+                ></bit-option>
+                <bit-option
+                  [value]="organizationUserType.Owner"
+                  [label]="'owner' | i18n"
+                ></bit-option>
+                <bit-option
+                  [value]="organizationUserType.Custom"
+                  [label]="'custom' | i18n"
+                  [disabled]="!organization.useCustomPermissions"
+                ></bit-option>
+              </bit-select>
+            </bit-form-field>
             @if (organization.useSecretsManager) {
               <h3 class="tw-mt-4">
                 {{ "secretsManager" | i18n }}
@@ -147,6 +82,83 @@
                 </bit-label>
               </bit-form-control>
             }
+            <button
+              type="button"
+              bitButton
+              buttonType="primaryGhost"
+              class="tw-mb-4 tw-block"
+              [bitDisclosureTriggerFor]="moreSettingsRef"
+            >
+              {{ "moreSettings" | i18n }}
+              <bit-icon [name]="moreSettingsOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"> </bit-icon>
+            </button>
+            <bit-disclosure #moreSettingsRef [(open)]="moreSettingsOpen">
+              @if (organization.useGroups) {
+                <bit-access-selector
+                  formControlName="groups"
+                  [items]="(groupAccessItems$ | async) ?? []"
+                  [columnHeader]="'groups' | i18n"
+                  [selectorLabelText]="'groups' | i18n"
+                  [hideTable]="true"
+                ></bit-access-selector>
+              }
+              @if (customUserTypeSelected()) {
+                <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
+                  <div class="tw-col-span-4">
+                    <bit-form-control>
+                      <input type="checkbox" bitCheckbox formControlName="accessEventLogs" />
+                      <bit-label>{{ "accessEventLogs" | i18n }}</bit-label>
+                    </bit-form-control>
+                    <bit-form-control>
+                      <input type="checkbox" bitCheckbox formControlName="accessImportExport" />
+                      <bit-label>{{ "accessImportExport" | i18n }}</bit-label>
+                    </bit-form-control>
+                    <bit-form-control>
+                      <input type="checkbox" bitCheckbox formControlName="accessReports" />
+                      <bit-label>{{ "accessReports" | i18n }}</bit-label>
+                    </bit-form-control>
+                  </div>
+                  <div class="tw-col-span-4">
+                    <div class="tw-mb-3">
+                      <bit-form-control>
+                        <input type="checkbox" bitCheckbox formControlName="manageGroups" />
+                        <bit-label>{{ "manageGroups" | i18n }}</bit-label>
+                      </bit-form-control>
+                      <bit-form-control>
+                        <input type="checkbox" bitCheckbox formControlName="manageSso" />
+                        <bit-label>{{ "manageSso" | i18n }}</bit-label>
+                      </bit-form-control>
+                      <bit-form-control>
+                        <input type="checkbox" bitCheckbox formControlName="managePolicies" />
+                        <bit-label>{{ "managePolicies" | i18n }}</bit-label>
+                      </bit-form-control>
+                      <bit-form-control>
+                        <input
+                          id="manageUsers"
+                          type="checkbox"
+                          bitCheckbox
+                          formControlName="manageUsers"
+                        />
+                        <bit-label>{{ "manageUsers" | i18n }}</bit-label>
+                      </bit-form-control>
+                      <bit-form-control>
+                        <input type="checkbox" bitCheckbox formControlName="manageResetPassword" />
+                        <bit-label>{{ "manageAccountRecovery" | i18n }}</bit-label>
+                      </bit-form-control>
+                    </div>
+                  </div>
+                </div>
+              }
+              <bit-access-selector
+                [permissionMode]="PermissionMode.Edit"
+                formControlName="access"
+                [showGroupColumn]="organization.useGroups"
+                [items]="(collectionAccessItems$ | async) ?? []"
+                [columnHeader]="'collection' | i18n"
+                [selectorLabelText]="'collections' | i18n"
+                [emptySelectionText]="'noCollectionsAdded' | i18n"
+              ></bit-access-selector>
+            </bit-disclosure>
           }
         </bit-tab>
         <bit-tab [label]="'byLink' | i18n">
@@ -155,8 +167,14 @@
       </bit-tab-group>
     </div>
     <ng-container bitDialogFooter>
-      <button type="submit" bitButton bitFormButton buttonType="primary">
-        {{ "save" | i18n }}
+      <button
+        type="submit"
+        bitButton
+        bitFormButton
+        buttonType="primary"
+        [disabled]="selectedTabIndex() === 0 && formGroup.controls.emails.invalid"
+      >
+        {{ selectedTabIndex() === 0 ? ("invite" | i18n) : ("copyLink" | i18n) }}
       </button>
       <button type="button" bitButton buttonType="secondary" (click)="cancel()">
         {{ "cancel" | i18n }}
