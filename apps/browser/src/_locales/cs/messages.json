@@ -1148,6 +1148,15 @@
     "message": "Automaticky vymaže zkopírované hodnoty z Vaší schránky.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Nastavení schránky bylo aktualizováno"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Časový limit schránky je nastaven na výchozí hodnotu, která byla pro zvýšení bezpečnosti aktualizována na 5 minut."
+  },
+  "jumpToSetting": {
+    "message": "Přejít na nastavení"
+  },
   "notificationAddDesc": {
     "message": "Má si Bitwarden toto heslo pamatovat?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Další volby"
+  },
+  "enableFillAssist": {
+    "message": "Použít asistenta vyplňování"
   },
   "enableContextMenuItem": {
     "message": "Zobrazit volby v kontextovém menu"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Tato stránka neodpovídá Vašim uloženým přihlašovacím údajům. Před vyplněním přihlašovacích údajů se ujistěte, že se jedná o důvěryhodný web."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Přihlášení nemá uloženo žádné weby"
+  },
+  "siteDoesntMatch": {
+    "message": "Web se neshoduje"
+  },
+  "loginNoSiteDesc": {
+    "message": "Toto přihlášení zatím nemá uloženo žádné weby. Před automatickým vyplněním ověřte, zda jste na důvěryhodné stránce."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Tento web se neshoduje s tím, který jste pro toto přihlášení uložili. Před automatickým vyplněním ověřte, zda jste na důvěryhodné stránce."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Tento web se neshoduje s těmi, které jste pro toto přihlášení uložili. Před automatickým vyplněním ověřte, zda jste na důvěryhodné stránce."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Automaticky vyplnit a uložit tento web"
+  },
+  "autofillOnly": {
+    "message": "Jen automaticky vyplnit"
+  },
   "showInlineMenuLabel": {
     "message": "Zobrazit návrhy automatického vyplňování v polích formuláře"
   },
@@ -2102,6 +2135,27 @@
   "typeNote": {
     "message": "Poznámka"
   },
+  "typeLoginSubtitle": {
+    "message": "Webová stránka nebo aplikace"
+  },
+  "typeCardSubtitle": {
+    "message": "Kreditní nebo debetní karta"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Osobní informace"
+  },
+  "typeNoteSubtitle": {
+    "message": "Důležitý text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Přihlašovací token serveru"
+  },
+  "folderSubtitle": {
+    "message": "Uspořádat položky"
+  },
+  "collectionSubtitle": {
+    "message": "Uspořádat sdílené položky"
+  },
   "newItemHeaderLogin": {
     "message": "Nové přihlášení",
     "description": "Header for new login item type"
@@ -2177,6 +2231,9 @@
   "viewItemHeaderSshKey": {
     "message": "Zobrazit SSH klíč",
     "description": "Header for view SSH key item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Vyberte položku k přidání"
   },
   "passwordHistory": {
     "message": "Historie hesel"
@@ -2837,8 +2894,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ chce, abyste změnili toto heslo, protože je zranitelné. Přejděte do nastavení účtu a změňte heslo.",
+  "atRiskNavigatePromptV2": {
+    "message": "Vaše heslo pro tuto stránku je zranitelné. $ORGANIZATION$ Vás žádá, abyste se vrátili do nastavení účtu a změnili jej.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3767,6 +3824,24 @@
   },
   "loginStatus": {
     "message": "Stav přihlášení"
+  },
+  "recentlyActive": {
+    "message": "Nedávná aktivita"
+  },
+  "recentlyActiveToday": {
+    "message": "Dnes"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Posledních 7 dnů"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Posledních 14 dnů"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Posledních 30 dnů"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Před více než 30 dny"
   },
   "masterPasswordChanged": {
     "message": "Hlavní heslo bylo uloženo"
@@ -6115,6 +6190,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metodu odemknutí, abyste změnili akci při vypršení časového limitu"
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Spravováno desktopovou aplikací Bitwarden. Pro úpravu otevřete desktopovou aplikaci."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$ % dokončeno",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Aktualizovat"
   },
@@ -6202,6 +6289,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Stáhnout aplikace Bitwarden"
   },
@@ -6217,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Stažení se nezdařilo."
+  },
+  "sideNavigation": {
+    "message": "Boční navigace"
+  },
+  "skipLink": {
+    "message": "Přeskočit odkaz"
+  },
+  "callout": {
+    "message": "Popisek",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Ukazatel průběhu",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

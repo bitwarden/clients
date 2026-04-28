@@ -14,8 +14,10 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   AuthRequestService,
+  DefaultLoginStrategyCacheService,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
+  DefaultLoginStrategySessionTimeoutService,
   UserDecryptionOptionsService,
   SsoUrlService,
   AuthRequestApiServiceAbstraction,
@@ -120,7 +122,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
-import { MessageSender } from "@bitwarden/common/platform/messaging";
+import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import {
   TaskSchedulerService,
   DefaultTaskSchedulerService,
@@ -654,7 +656,7 @@ export class ServiceContainer {
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
 
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.collectionService = new DefaultCollectionService(
       this.keyService,
@@ -799,6 +801,17 @@ export class ServiceContainer {
     );
     this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
 
+    const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
+      this.globalStateProvider,
+    );
+
+    const loginStrategySessionTimeoutService = new DefaultLoginStrategySessionTimeoutService(
+      this.taskSchedulerService,
+      loginStrategyCacheService,
+      this.logService,
+      this.messagingService,
+      MessageListener.EMPTY,
+    );
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -824,11 +837,12 @@ export class ServiceContainer {
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
-      this.taskSchedulerService,
       this.configService,
       this.accountCryptographicStateService,
       this.passwordPreloginService,
       this.unlockService,
+      loginStrategyCacheService,
+      loginStrategySessionTimeoutService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -861,7 +875,6 @@ export class ServiceContainer {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -1076,6 +1089,7 @@ export class ServiceContainer {
       this.sdkService,
       this.keyService,
       this.masterPasswordService,
+      this.kdfConfigService,
     );
     this.encryptedMigrator = new DefaultEncryptedMigrator(
       this.kdfConfigService,

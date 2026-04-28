@@ -1,21 +1,39 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, forwardRef, Input, OnDestroy, OnInit } from "@angular/core";
+import { NgClass } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  forwardRef,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   ControlValueAccessor,
   FormBuilder,
   FormControl,
   FormGroup,
+  FormsModule,
   NG_VALUE_ACCESSOR,
+  ReactiveFormsModule,
 } from "@angular/forms";
-import { Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { FormSelectionList } from "@bitwarden/angular/utils/form-selection-list";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  A11yTitleDirective,
+  BadgeComponent,
+  FormFieldModule,
+  IconButtonModule,
+  SelectModule,
+  TableModule,
+} from "@bitwarden/components";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { SelectItemView } from "@bitwarden/components/src/multi-select/models/select-item-view";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   AccessItemType,
@@ -25,6 +43,7 @@ import {
   getPermissionList,
   Permission,
 } from "./access-selector.models";
+import { UserTypePipe } from "./user-type.pipe";
 
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
@@ -45,11 +64,10 @@ export enum PermissionMode {
   Edit = "edit",
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-access-selector",
   templateUrl: "access-selector.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -57,13 +75,27 @@ export enum PermissionMode {
       multi: true,
     },
   ],
-  standalone: false,
+  imports: [
+    A11yTitleDirective,
+    BadgeComponent,
+    FormFieldModule,
+    FormsModule,
+    I18nPipe,
+    IconButtonModule,
+    NgClass,
+    ReactiveFormsModule,
+    SelectModule,
+    TableModule,
+    UserTypePipe,
+  ],
 })
-export class AccessSelectorComponent implements ControlValueAccessor, OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  private notifyOnChange: (v: unknown) => void;
-  private notifyOnTouch: () => void;
-  private pauseChangeNotification: boolean;
+export class AccessSelectorComponent implements ControlValueAccessor {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
+
+  private readonly notifyOnChange = signal<((v: unknown) => void) | null>(null);
+  private readonly notifyOnTouch = signal<(() => void) | null>(null);
+  private readonly pauseChangeNotification = signal(false);
 
   /**
    * Updates the enabled/disabled state of provided row form group based on the item's readonly state.
@@ -72,7 +104,7 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
    * @param controlRow - The form group for the row to update
    * @param item - The access item that is represented by the row
    */
-  private updateRowControlDisableState = (
+  private readonly updateRowControlDisableState = (
     controlRow: FormGroup<ControlsOf<AccessItemValue>>,
     item: AccessItemView,
   ) => {
@@ -84,8 +116,8 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
 
       // The enable() above also enables the permission control, so we need to disable it again
       // Disable permission control if not in Edit mode
-      if (this.permissionMode != PermissionMode.Edit) {
-        controlRow.controls.permission.disable();
+      if (this.permissionMode() != PermissionMode.Edit) {
+        controlRow.controls.permission?.disable();
       }
     }
   };
@@ -93,7 +125,7 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
   /**
    * Updates the enabled/disabled state of ALL row form groups based on each item's readonly state.
    */
-  private updateAllRowControlDisableStates = () => {
+  private readonly updateAllRowControlDisableStates = () => {
     this.selectionList.forEachControlItem((controlRow, item) => {
       this.updateRowControlDisableState(controlRow as FormGroup<ControlsOf<AccessItemValue>>, item);
     });
@@ -104,30 +136,35 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
    * It's responsible for keeping items sorted and synced with the rendered form controls
    * @protected
    */
-  protected selectionList = new FormSelectionList<AccessItemView, AccessItemValue>((item) => {
-    const permissionControl = this.formBuilder.control(this.initialPermission);
+  protected readonly selectionList = new FormSelectionList<AccessItemView, AccessItemValue>(
+    (item) => {
+      const permissionControl = this.formBuilder.control(this.initialPermissionValue(), {
+        nonNullable: true,
+      });
 
-    const fg = this.formBuilder.group<ControlsOf<AccessItemValue>>({
-      id: new FormControl(item.id),
-      type: new FormControl(item.type),
-      permission: permissionControl,
-    });
+      const fg = this.formBuilder.group<ControlsOf<AccessItemValue>>({
+        id: new FormControl(item.id, { nonNullable: true }),
+        type: new FormControl(item.type, { nonNullable: true }),
+        permission: permissionControl,
+      });
 
-    this.updateRowControlDisableState(fg, item);
+      this.updateRowControlDisableState(fg, item);
 
-    return fg;
-  }, this._itemComparator.bind(this));
+      return fg;
+    },
+    this._itemComparator.bind(this),
+  );
 
   /**
    * Internal form group for this component.
    * @protected
    */
-  protected formGroup = this.formBuilder.group({
+  protected readonly formGroup = this.formBuilder.group({
     items: this.selectionList.formArray,
   });
 
-  protected itemType = AccessItemType;
-  protected permissionList: Permission[];
+  protected readonly itemType = AccessItemType;
+  protected readonly permissionList: Permission[];
 
   /**
    * When disabled, the access selector will make the assumption that a readonly state is desired.
@@ -136,134 +173,134 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
    * The delete action on each row item will be hidden
    * The readonly permission label/property needs to configured on the access item views being passed into the component
    */
-  disabled: boolean;
+  protected readonly disabled = signal(false);
 
   /**
-   * List of all selectable items that. Sorted internally.
+   * List of all selectable items. Sorted internally.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get items(): AccessItemView[] {
-    return this.selectionList.allItems;
-  }
-
-  set items(val: AccessItemView[]) {
-    const selected = (this.selectionList.formArray.getRawValue() ?? []).concat(
-      val.filter((m) => m.readonly),
-    );
-    this.selectionList.populateItems(
-      val.map((m) => {
-        m.icon = m.icon ?? this.itemIcon(m); // Ensure an icon is set
-        return m;
-      }),
-      selected,
-    );
-  }
+  readonly items = input<AccessItemView[]>([]);
 
   /**
    * Permission mode that controls if the permission form controls and column should be present.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  get permissionMode(): PermissionMode {
-    return this._permissionMode;
-  }
-
-  set permissionMode(value: PermissionMode) {
-    this._permissionMode = value;
-    // Update any internal permission controls
-    this.updateAllRowControlDisableStates();
-  }
-  private _permissionMode: PermissionMode = PermissionMode.Hidden;
+  readonly permissionMode = input<PermissionMode>(PermissionMode.Hidden);
 
   /**
    * Column header for the selected items table
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  columnHeader: string;
+  readonly columnHeader = input<string>();
 
   /**
    * Label used for the ng selector
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  selectorLabelText: string;
+  readonly selectorLabelText = input<string>();
 
   /**
    * Helper text displayed under the ng selector
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  selectorHelpText: string;
+  readonly selectorHelpText = input<string>();
 
   /**
    * Text that is shown in the table when no items are selected
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  emptySelectionText: string;
+  readonly emptySelectionText = input<string>();
 
   /**
    * Flag for if the member roles column should be present
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  showMemberRoles: boolean;
+  readonly showMemberRoles = input<boolean>();
 
   /**
    * Flag for if the group column should be present
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  showGroupColumn: boolean;
+  readonly showGroupColumn = input<boolean>();
 
   /**
    * Hide the multi-select so that new items cannot be added
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  hideMultiSelect = false;
+  readonly hideMultiSelect = input(false);
+
+  /**
+   * Hide the selected items table
+   */
+  readonly hideTable = input(false);
 
   /**
    * The initial permission that will be selected in the dialog, defaults to View.
    */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  protected initialPermission: CollectionPermission = CollectionPermission.View;
+  protected readonly initialPermission = input<CollectionPermission>(CollectionPermission.View);
 
-  constructor(
-    private readonly formBuilder: FormBuilder,
-    private readonly i18nService: I18nService,
-  ) {}
+  protected readonly selectedItems = signal<AccessItemView[]>([]);
 
-  /** Required for NG_VALUE_ACCESSOR */
-  registerOnChange(fn: any): void {
-    this.notifyOnChange = fn;
+  /** Mutable copy used for the initial permission two-way binding in the template */
+  protected readonly initialPermissionValue = signal<CollectionPermission>(
+    CollectionPermission.View,
+  );
+
+  /** Holds the last value passed to writeValue so it can be re-applied when items load */
+  private readonly pendingValue = signal<AccessItemValue[] | null>(null);
+
+  constructor() {
+    this.permissionList = getPermissionList();
+
+    effect(() => {
+      const val = this.items();
+      const selected = (
+        this.pendingValue() ??
+        this.selectionList.formArray.getRawValue() ??
+        []
+      ).concat(val.filter((m) => m.readonly));
+      this.selectionList.populateItems(
+        val.map((m) => {
+          m.icon = m.icon ?? this.itemIcon(m); // Ensure an icon is set
+          return m;
+        }),
+        selected,
+      );
+      this.selectedItems.set([...this.selectionList.selectedItems]);
+    });
+
+    effect(() => {
+      this.initialPermissionValue.set(this.initialPermission());
+    });
+
+    effect(() => {
+      this.permissionMode();
+      this.updateAllRowControlDisableStates();
+    });
+
+    // Watch the internal formArray for changes and propagate them
+    this.selectionList.formArray.valueChanges.pipe(takeUntilDestroyed()).subscribe((v) => {
+      const notify = this.notifyOnChange();
+      if (!notify || this.pauseChangeNotification()) {
+        return;
+      }
+      // Disabled form arrays emit values for disabled controls, we override this to emit an empty array to avoid
+      // emitting values for disabled controls that are "readonly" in the table
+      if (this.selectionList.formArray.disabled) {
+        notify([]);
+        return;
+      }
+      notify(v);
+    });
   }
 
   /** Required for NG_VALUE_ACCESSOR */
-  registerOnTouched(fn: any): void {
-    this.notifyOnTouch = fn;
+  registerOnChange(fn: (v: unknown) => void): void {
+    this.notifyOnChange.set(fn);
+  }
+
+  /** Required for NG_VALUE_ACCESSOR */
+  registerOnTouched(fn: () => void): void {
+    this.notifyOnTouch.set(fn);
   }
 
   /** Required for NG_VALUE_ACCESSOR */
   setDisabledState(isDisabled: boolean): void {
-    this.disabled = isDisabled;
+    this.disabled.set(isDisabled);
 
     // Keep the internal FormGroup in sync
-    if (this.disabled) {
-      this.permissionMode = PermissionMode.Readonly;
+    if (isDisabled) {
       this.formGroup.disable();
     } else {
       this.formGroup.enable();
@@ -276,71 +313,77 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
 
   /** Required for NG_VALUE_ACCESSOR */
   writeValue(selectedItems: AccessItemValue[]): void {
+    if (selectedItems != null && !Array.isArray(selectedItems)) {
+      throw new Error("The access selector component only supports Array form values!");
+    }
+
+    // Store the value so the items effect can apply it once items are loaded
+    this.pendingValue.set(selectedItems ?? null);
+
     // Modifying the selection list, mistakenly fires valueChanges in the
     // internal form array, so we need to know to pause external notification
-    this.pauseChangeNotification = true;
+    this.pauseChangeNotification.set(true);
 
     // Always clear the internal selection list on a new value
     this.selectionList.deselectAll();
 
     // We need to also select any read only items to appear in the table
-    this.selectionList.selectItems(this.items.filter((m) => m.readonly).map((m) => m.id));
+    this.selectionList.selectItems(
+      this.selectionList.allItems.filter((m) => m.readonly).map((m) => m.id),
+    );
 
-    // If the new value is null, then we're done
-    if (selectedItems == null) {
-      this.pauseChangeNotification = false;
-      return;
-    }
-
-    // Unable to handle other value types, throw
-    if (!Array.isArray(selectedItems)) {
-      throw new Error("The access selector component only supports Array form values!");
-    }
-
-    // Iterate and internally select each item
-    for (const value of selectedItems) {
-      this.selectionList.selectItem(value.id, value);
-    }
-
-    this.pauseChangeNotification = false;
-  }
-
-  async ngOnInit() {
-    this.permissionList = getPermissionList();
-    // Watch the internal formArray for changes and propagate them
-    this.selectionList.formArray.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((v) => {
-      if (!this.notifyOnChange || this.pauseChangeNotification) {
-        return;
+    if (selectedItems != null) {
+      // Iterate and internally select each item
+      for (const value of selectedItems) {
+        this.selectionList.selectItem(value.id, value);
       }
-      // Disabled form arrays emit values for disabled controls, we override this to emit an empty array to avoid
-      // emitting values for disabled controls that are "readonly" in the table
-      if (this.selectionList.formArray.disabled) {
-        this.notifyOnChange([]);
-        return;
-      }
-      this.notifyOnChange(v);
-    });
-  }
+    }
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+    this.selectedItems.set([...this.selectionList.selectedItems]);
+    this.pauseChangeNotification.set(false);
   }
 
   protected handleBlur() {
-    if (!this.notifyOnTouch) {
-      return;
-    }
+    this.notifyOnTouch()?.();
+  }
 
-    this.notifyOnTouch();
+  protected deselectItem(id: string) {
+    this.selectionList.deselectItem(id);
+    this.selectedItems.set([...this.selectionList.selectedItems]);
+    this.handleBlur();
   }
 
   protected selectItems(items: SelectItemView[]) {
-    this.pauseChangeNotification = true;
+    this.pauseChangeNotification.set(true);
     this.selectionList.selectItems(items.map((i) => i.id));
-    this.pauseChangeNotification = false;
-    if (this.notifyOnChange != undefined) {
-      this.notifyOnChange(this.selectionList.formArray.value);
+    this.selectedItems.set([...this.selectionList.selectedItems]);
+    this.pauseChangeNotification.set(false);
+    const notify = this.notifyOnChange();
+    if (notify != undefined) {
+      notify(this.selectionList.formArray.value);
+    }
+  }
+
+  protected addItems(items: SelectItemView[]) {
+    this.selectionList.selectItems(items.map((i) => i.id));
+    this.selectedItems.set([...this.selectionList.selectedItems]);
+    const notify = this.notifyOnChange();
+    if (notify != undefined) {
+      notify(this.selectionList.formArray.value);
+    }
+  }
+
+  protected onInlineSelectionChange(items: SelectItemView[]) {
+    const newIds = new Set((items ?? []).map((i) => i.id));
+    for (const item of [...this.selectionList.selectedItems]) {
+      if (!newIds.has(item.id)) {
+        this.selectionList.deselectItem(item.id);
+        this.selectedItems.set([...this.selectionList.selectedItems]);
+        const notify = this.notifyOnChange();
+        if (notify != undefined) {
+          notify(this.selectionList.formArray.value);
+        }
+      }
     }
   }
 
@@ -360,7 +403,7 @@ export class AccessSelectorComponent implements ControlValueAccessor, OnInit, On
   }
 
   protected canEditItemPermission(item: AccessItemView) {
-    return this.permissionMode == PermissionMode.Edit && !item.readonly;
+    return this.permissionMode() == PermissionMode.Edit && !item.readonly && !this.disabled();
   }
 
   private _itemComparator(a: AccessItemView, b: AccessItemView) {
