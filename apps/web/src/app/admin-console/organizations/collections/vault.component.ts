@@ -7,9 +7,10 @@ import {
   OnDestroy,
   OnInit,
   runInInjectionContext,
+  Signal,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
@@ -145,7 +146,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       : "trashCleanupWarning",
   );
 
-  activeFilter: VaultFilter = new VaultFilter();
+  readonly activeFilter!: Signal<VaultFilter>;
 
   protected showAddAccessToggle = false;
   protected noItemIcon = NoResults;
@@ -528,6 +529,10 @@ export class VaultComponent implements OnInit, OnDestroy {
         this.routedVaultFilterBridgeService.activeFilter$,
       );
     });
+
+    this.activeFilter = toSignal(this.cipherActions.activeFilter$, {
+      initialValue: new VaultFilter(),
+    });
   }
 
   async ngOnInit() {
@@ -569,14 +574,13 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
     });
 
-    this.cipherActions.activeFilter$.pipe(takeUntil(this.destroy$)).subscribe((activeFilter) => {
-      this.activeFilter = activeFilter;
-
-      // watch the active filters. Only show toggle when viewing the collections filter
-      if (!this.activeFilter.collectionId) {
-        this.showAddAccessToggle = false;
-      }
-    });
+    // Reset the add-access toggle whenever the active filter leaves a specific collection view.
+    this.cipherActions.activeFilter$
+      .pipe(
+        filter((activeFilter) => !activeFilter.collectionId),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => (this.showAddAccessToggle = false));
 
     this.cipherActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
 
@@ -872,10 +876,11 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   private go(queryParams: any = null, navigateOptions?: NavigationExtras) {
     if (queryParams == null) {
+      const activeFilter = this.activeFilter();
       queryParams = {
-        type: this.activeFilter.cipherType,
-        collectionId: this.activeFilter.collectionId,
-        deleted: this.activeFilter.isDeleted || null,
+        type: activeFilter.cipherType,
+        collectionId: activeFilter.collectionId,
+        deleted: activeFilter.isDeleted || null,
       };
     }
 
