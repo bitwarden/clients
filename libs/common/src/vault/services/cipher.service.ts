@@ -54,6 +54,7 @@ import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Attachment } from "../models/domain/attachment";
+import { BankAccount } from "../models/domain/bank-account";
 import { Card } from "../models/domain/card";
 import { Cipher } from "../models/domain/cipher";
 import { Fido2Credential } from "../models/domain/fido2-credential";
@@ -2331,6 +2332,26 @@ export class CipherService implements CipherServiceAbstraction {
           model.sshKey,
           cipher.sshKey,
           { privateKey: null, publicKey: null, keyFingerprint: null },
+          key,
+        );
+        return;
+      case CipherType.BankAccount:
+        cipher.bankAccount = new BankAccount();
+        await this.encryptObjProperty(
+          model.bankAccount,
+          cipher.bankAccount,
+          {
+            bankName: null,
+            nameOnAccount: null,
+            accountType: null,
+            accountNumber: null,
+            routingNumber: null,
+            branchNumber: null,
+            pin: null,
+            swiftCode: null,
+            iban: null,
+            bankContactPhone: null,
+          },
           key,
         );
         return;
