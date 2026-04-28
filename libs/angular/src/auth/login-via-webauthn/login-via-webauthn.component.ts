@@ -27,9 +27,12 @@ import {
   ButtonModule,
   SvgModule,
   LinkModule,
+  Translation,
   TypographyModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+
+import { LoginViaWebAuthnComponentService } from "./login-via-webauthn-component.service";
 
 export type State = "assert" | "assertFailed";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -50,6 +53,9 @@ export type State = "assert" | "assertFailed";
 })
 export class LoginViaWebAuthnComponent implements OnInit {
   protected currentState: State = "assert";
+  protected shouldShowPageIcon = true;
+  protected shouldShowTroubleLoggingInText = true;
+  protected useDifferentLoginMethodLinkText = "";
   private shouldAutoClosePopout = false;
 
   protected readonly Icons = {
@@ -81,9 +87,17 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private messagingService: MessagingService,
+    private loginViaWebAuthnComponentService: LoginViaWebAuthnComponentService,
   ) {}
 
   ngOnInit(): void {
+    this.shouldShowPageIcon = this.loginViaWebAuthnComponentService.shouldShowPageIcon;
+    this.shouldShowTroubleLoggingInText =
+      this.loginViaWebAuthnComponentService.shouldShowTroubleLoggingInText;
+    this.useDifferentLoginMethodLinkText = this.resolveTranslation(
+      this.loginViaWebAuthnComponentService.useDifferentLoginMethodLinkText,
+    );
+
     // Check if we should auto-close the popout after successful authentication
     this.shouldAutoClosePopout =
       this.route.snapshot.queryParamMap.get("autoClosePopout") === "true";
@@ -154,14 +168,28 @@ export class LoginViaWebAuthnComponent implements OnInit {
   }
 
   private setDefaultIcon(): void {
+    if (!this.shouldShowPageIcon) {
+      return;
+    }
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageIcon: this.Icons.TwoFactorAuthSecurityKeyIcon,
     });
   }
 
   private setFailureIcon(): void {
+    if (!this.shouldShowPageIcon) {
+      return;
+    }
     this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
       pageIcon: this.Icons.TwoFactorAuthSecurityKeyFailedIcon,
     });
+  }
+
+  private resolveTranslation(value: string | Translation): string {
+    if (typeof value === "string") {
+      return value;
+    }
+    const [p1, p2, p3] = (value.placeholders ?? []).map(String);
+    return this.i18nService.t(value.key, p1, p2, p3);
   }
 }

@@ -27,7 +27,6 @@ import {
   VaultIcon,
   LockIcon,
   DomainIcon,
-  TwoFactorAuthSecurityKeyIcon,
 } from "@bitwarden/assets/svg";
 import {
   LoginComponent,
@@ -468,12 +467,9 @@ const routes: Routes = [
         path: AuthRoute.LoginWithPasskey,
         canActivate: [unauthGuardFn(unauthRouteOverrides), platformPopoutGuard(["linux"])],
         data: {
-          pageIcon: TwoFactorAuthSecurityKeyIcon,
+          pageIcon: null,
           pageTitle: {
             key: "logInWithPasskey",
-          },
-          pageSubtitle: {
-            key: "readingPasskeyLoadingInfo",
           },
           elevation: 1,
           showBackButton: true,

@@ -1675,6 +1675,9 @@
   "useADifferentLogInMethod": {
     "message": "Use a different log in method"
   },
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
+  },
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
   },
