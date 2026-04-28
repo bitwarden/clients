@@ -1,10 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, input, signal } from "@angular/core";
+import { Component, computed, inject, input, signal } from "@angular/core";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 import { toSignal } from "@angular/core/rxjs-interop";
-import { fromEvent, map, startWith } from "rxjs";
+import { fromEvent, map, of, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/client-type";
@@ -13,6 +13,8 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -91,16 +93,23 @@ export class ItemDetailsV2Component {
     }
   });
 
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+
+  private readonly configService = inject(ConfigService);
+
+  private readonly desktopMilestone3Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.DesktopUiMigrationMilestone3) ?? of(false),
+  );
+
   protected readonly showArchiveBadge = computed(() => {
     return (
-      this.cipher().isArchived && this.platformUtilsService.getClientType() === ClientType.Desktop
+      this.cipher().isArchived &&
+      this.platformUtilsService.getClientType() === ClientType.Desktop &&
+      !this.desktopMilestone3Enabled()
     );
   });
 
-  constructor(
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   toggleShowMore() {
     this.showAllDetails.update((value) => !value);

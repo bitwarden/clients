@@ -359,6 +359,12 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         type: CipherType.SshKey,
         icon: "bwi-key",
       },
+      {
+        id: "bankAccount",
+        name: this.i18nService.t("bankAccount"),
+        type: CipherType.BankAccount,
+        icon: "bwi-bank",
+      },
     ];
 
     return this.buildTypeTree({ id: "AllItems", name: "allItems", type: "all" }, allTypeFilters);

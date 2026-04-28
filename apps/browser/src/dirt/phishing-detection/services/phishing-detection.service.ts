@@ -1,5 +1,20 @@
-import { distinctUntilChanged, EMPTY, filter, map, merge, Subject, switchMap, tap } from "rxjs";
+import {
+  distinctUntilChanged,
+  EMPTY,
+  filter,
+  firstValueFrom,
+  map,
+  merge,
+  Subject,
+  switchMap,
+  tap,
+} from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
@@ -30,15 +45,18 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private static _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
-  private static _ignoredHostnames = new Set<string>();
-  private static _didInit = false;
+  private _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
+  private _ignoredHostnames = new Set<string>();
+  private _didInit = false;
 
-  static initialize(
+  constructor(
     logService: LogService,
     phishingDataService: PhishingDataService,
     phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction,
     messageListener: MessageListener,
+    eventCollectionService: EventCollectionService,
+    organizationService: OrganizationService,
+    accountService: AccountService,
   ) {
     if (this._didInit) {
       logService.debug("[PhishingDetectionService] Initialize already called. Aborting.");
@@ -49,11 +67,34 @@ export class PhishingDetectionService {
 
     BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
 
+    const getOrgsToNotify = async (): Promise<Organization[]> => {
+      const userId = await firstValueFrom(getUserId(accountService.activeAccount$));
+      const orgs = await firstValueFrom(organizationService.organizations$(userId));
+      return orgs.filter((o) => o.useEvents && o.usePhishingBlocker);
+    };
+
+    const recordEvents = async (
+      eventType: EventType,
+      uploadImmediately: boolean = false,
+    ): Promise<void> => {
+      try {
+        const orgs = await getOrgsToNotify();
+        // intentionally keeping this sequential
+        // using Promise.all creates a race condition in eventCollectionService
+        for (const org of orgs) {
+          await eventCollectionService.collect(eventType, undefined, uploadImmediately, org.id);
+        }
+      } catch {
+        logService.warning(`[PhishingDetectionService] Failed to record event: ${eventType}`);
+      }
+    };
+
     const onContinueCommand$ = messageListener.messages$(PHISHING_DETECTION_CONTINUE_COMMAND).pipe(
       tap((message) =>
         logService.debug(`[PhishingDetectionService] user selected continue for ${message.url}`),
       ),
       switchMap(async (message) => {
+        await recordEvents(EventType.PhishingBlocker_Bypassed);
         const url = new URL(message.url);
         this._ignoredHostnames.add(url.hostname);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
@@ -95,17 +136,21 @@ export class PhishingDetectionService {
           BrowserApi.getRuntimeURL("popup/index.html#/security/phishing-warning") +
             `?phishingUrl=${url.toString()}`,
         );
+        await recordEvents(EventType.PhishingBlocker_SiteAccessed);
         await BrowserApi.navigateTabToUrl(tabId, phishingWarningPage);
       }),
     );
 
-    const onCancelCommand$ = messageListener
-      .messages$(PHISHING_DETECTION_CANCEL_COMMAND)
-      .pipe(switchMap((message) => BrowserApi.closeTab(message.tabId)));
+    const onCancelCommand$ = messageListener.messages$(PHISHING_DETECTION_CANCEL_COMMAND).pipe(
+      switchMap(async (message) => {
+        await recordEvents(EventType.PhishingBlocker_SiteExited);
+        await BrowserApi.closeTab(message.tabId);
+      }),
+    );
 
     const phishingDetectionActive$ = phishingDetectionSettingsService.on$;
 
-    const initSub = phishingDetectionActive$
+    phishingDetectionActive$
       .pipe(
         distinctUntilChanged(),
         switchMap((activeUserHasAccess) => {
@@ -128,24 +173,9 @@ export class PhishingDetectionService {
       .subscribe();
 
     this._didInit = true;
-    return () => {
-      // Dispose phishing data service resources
-      phishingDataService.dispose();
-
-      initSub.unsubscribe();
-      this._didInit = false;
-
-      // Manually type cast to satisfy the listener signature due to the mixture
-      // of static and instance methods in this class. To be fixed when refactoring
-      // this class to be instance-based while providing a singleton instance in usage
-      BrowserApi.removeListener(
-        chrome.tabs.onUpdated,
-        PhishingDetectionService._handleTabUpdated as (...args: readonly unknown[]) => unknown,
-      );
-    };
   }
 
-  private static _handleTabUpdated(
+  private _handleTabUpdated(
     tabId: number,
     changeInfo: chrome.tabs.OnUpdatedInfo,
     tab: chrome.tabs.Tab,
@@ -156,7 +186,7 @@ export class PhishingDetectionService {
     return true;
   }
 
-  private static _isExtensionPage(url: string): boolean {
+  private _isExtensionPage(url: string): boolean {
     // Check against all common extension protocols
     return (
       url.startsWith("chrome-extension://") ||
