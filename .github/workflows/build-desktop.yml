@@ -1304,7 +1304,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -1457,15 +1457,15 @@ jobs:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          cat << EOF > ~/private_keys/auth_key.p8
           $_APP_STORE_CONNECT_AUTH_KEY
           EOF
 
       - name: Build application (dist)
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/auth_key.p8
           CSC_FOR_PULL_REQUEST: true
         run: npm run pack:mac
 
@@ -1579,7 +1579,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Retrieve Slack secret
         id: retrieve-slack-secret
@@ -1740,15 +1740,15 @@ jobs:
           _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          cat << EOF > ~/private_keys/auth_key.p8
           $_APP_STORE_CONNECT_AUTH_KEY
           EOF
 
       - name: Build application for App Store
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/auth_key.p8
           CSC_FOR_PULL_REQUEST: true
         run: npm run pack:mac:mas
 
@@ -1782,15 +1782,16 @@ jobs:
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
           _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
         run: |
           brew install gsed
 
-          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ~/private_keys/AuthKey_6TV9MKN3GP.p8)
+          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ~/private_keys/auth_key.p8)
 
           cat << EOF > ~/secrets/appstoreconnect-fastlane.json
           {
             "issuer_id": "$_APP_STORE_CONNECT_TEAM_ISSUER",
-            "key_id": "6TV9MKN3GP",
+            "key_id": "$_APP_STORE_CONNECT_AUTH_KEY_ID",
             "key": "$KEY_WITHOUT_NEWLINES"
           }
           EOF
@@ -1802,7 +1803,7 @@ jobs:
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
+          APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           BRANCH: ${{ github.ref }}
         run: |
 
