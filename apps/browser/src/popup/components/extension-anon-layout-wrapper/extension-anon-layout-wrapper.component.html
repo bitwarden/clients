@@ -14,18 +14,52 @@
       <app-current-account *ngIf="showAcctSwitcher && hasLoggedInAccount"></app-current-account>
     </ng-container>
   </popup-header>
-  <auth-anon-layout
-    [title]="pageTitle"
-    [subtitle]="pageSubtitle"
-    [icon]="pageIcon"
-    [showReadonlyHostname]="showReadonlyHostname"
-    [hideLogo]="true"
-    [maxWidth]="maxWidth"
-    [hideFooter]="hideFooter"
-    [hideCardWrapper]="hideCardWrapper"
-  >
-    <router-outlet></router-outlet>
-    <router-outlet slot="secondary" name="secondary"></router-outlet>
-    <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
-  </auth-anon-layout>
+
+  @if (leftAlignHeader) {
+    <div class="tw-flex tw-flex-col tw-h-full tw-overflow-hidden">
+      @if (pageTitle) {
+        <div class="tw-px-6 tw-pt-6 tw-pb-3">
+          <h1 class="tw-mb-0 tw-text-left tw-text-2xl tw-font-semibold tw-text-main">
+            {{ pageTitle }}
+          </h1>
+          @if (pageSubtitle) {
+            <p class="tw-mb-0 tw-text-left tw-text-sm tw-text-muted">{{ pageSubtitle }}</p>
+          }
+        </div>
+      }
+      <div class="tw-flex-1 tw-overflow-y-auto">
+        <auth-anon-layout
+          [title]="null"
+          [subtitle]="null"
+          [icon]="null"
+          [showReadonlyHostname]="showReadonlyHostname"
+          [hideLogo]="true"
+          [maxWidth]="maxWidth"
+          [hideFooter]="true"
+          [hideCardWrapper]="hideCardWrapper"
+        >
+          <router-outlet></router-outlet>
+          <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
+        </auth-anon-layout>
+      </div>
+      <div class="tw-px-6 tw-pb-6 tw-text-center">
+        <router-outlet name="secondary"></router-outlet>
+      </div>
+    </div>
+  } @else {
+    <auth-anon-layout
+      [title]="pageTitle"
+      [subtitle]="pageSubtitle"
+      [icon]="pageIcon"
+      [showReadonlyHostname]="showReadonlyHostname"
+      [hideLogo]="true"
+      [maxWidth]="maxWidth"
+      [hideFooter]="hideFooter"
+      [hideCardWrapper]="hideCardWrapper"
+    >
+      <router-outlet></router-outlet>
+      <router-outlet slot="secondary" name="secondary"></router-outlet>
+      <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
+    </auth-anon-layout>
+  }
 </popup-page>
