@@ -123,7 +123,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       }
     });
     this.restrictSendTypeOptions.set([
-      { label: this.i18nService.t("sendRestrictSendTypeNoRestriction"), value: null },
+      { label: this.i18nService.t("sendRestrictSendTypeTextAndFile"), value: null },
       { label: this.i18nService.t("sendRestrictSendTypeTextOnly"), value: SendType.Text },
       { label: this.i18nService.t("sendRestrictSendTypeFileOnly"), value: SendType.File },
     ]);
