@@ -293,6 +293,9 @@ export class DefaultPolicyService implements PolicyService {
         return false;
       case PolicyType.AutoConfirm:
         return false;
+      case PolicyType.MasterPassword:
+        // MasterPassword policy applies to everyone, including admins and owners
+        return false;
       case PolicyType.OrganizationDataOwnership:
         // organization data ownership policy applies to everyone except admins and owners
         return organization.isAdmin;
