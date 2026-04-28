@@ -1,8 +1,8 @@
 import {
   ChangeDetectorRef,
   Component,
-  EnvironmentInjector,
   inject,
+  Injector,
   NgZone,
   OnDestroy,
   OnInit,
@@ -183,7 +183,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
   private nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
-  private readonly _envInjector = inject(EnvironmentInjector);
+  private readonly _injector = inject(Injector);
   private cipherActions!: VaultCipherActionsService;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -519,7 +519,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
     );
 
-    this.cipherActions = runInInjectionContext(this._envInjector, () => {
+    this.cipherActions = runInInjectionContext(this._injector, () => {
       return new VaultCipherActionsService(
         this.organization$,
         this.userId$,
