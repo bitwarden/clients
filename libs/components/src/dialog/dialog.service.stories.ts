@@ -1,5 +1,5 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { NoopAnimationsModule, provideAnimations } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
@@ -26,8 +26,6 @@ interface DrawerLevel {
   level: number;
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-layout>
@@ -46,6 +44,7 @@ interface DrawerLevel {
     </bit-layout>
   `,
   imports: [ButtonModule, LayoutComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StoryDialogComponent {
   dialogService = inject(DialogService);
@@ -92,14 +91,12 @@ class StoryDialogComponent {
   }
 
   openStackedDrawer() {
-    this.dialogService.openDrawer(StackedDrawerContentComponent, {
+    void this.dialogService.openDrawer(StackedDrawerContentComponent, {
       data: { level: 1 },
     });
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Dialog Title">
@@ -117,6 +114,7 @@ class StoryDialogComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StoryDialogContentComponent {
   dialogRef = inject(DialogRef);
@@ -127,8 +125,6 @@ class StoryDialogContentComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog
@@ -147,6 +143,7 @@ class StoryDialogContentComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class NonDismissableContentComponent {
   dialogRef = inject(DialogRef);
@@ -157,8 +154,6 @@ class NonDismissableContentComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Small Drawer" dialogSize="small">
@@ -176,6 +171,7 @@ class NonDismissableContentComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class SmallDrawerContentComponent {
   dialogRef = inject(DialogRef);
@@ -186,8 +182,6 @@ class SmallDrawerContentComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog title="Large Drawer" dialogSize="large">
@@ -205,6 +199,7 @@ class SmallDrawerContentComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class LargeDrawerContentComponent {
   dialogRef = inject(DialogRef);
@@ -215,8 +210,6 @@ class LargeDrawerContentComponent {
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
     <bit-dialog [title]="'Level ' + level + ' Drawer'">
@@ -238,6 +231,7 @@ class LargeDrawerContentComponent {
     </bit-dialog>
   `,
   imports: [DialogModule, ButtonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class StackedDrawerContentComponent {
   private drawerRef = inject(DrawerRef, { optional: true });
