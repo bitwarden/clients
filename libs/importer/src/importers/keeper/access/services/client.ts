@@ -109,7 +109,7 @@ export class Client {
       while (iterations++ < maxIterations) {
         switch (response.loginState) {
           case LoginState.REQUIRES_AUTH_HASH:
-            response = await this.handleAuthHash(response, username);
+            response = await this.handleAuthHash(response);
             break;
 
           case LoginState.REGION_REDIRECT:
@@ -260,7 +260,7 @@ export class Client {
     return await unloadEcPublicKey(publicKey);
   }
 
-  private async handleAuthHash(response: LoginResponse, username: string): Promise<LoginResponse> {
+  private async handleAuthHash(response: LoginResponse): Promise<LoginResponse> {
     if (!response.salt || response.salt.length === 0) {
       throw new Error("No salt received from server");
     }
@@ -269,7 +269,7 @@ export class Client {
       throw new Error("No login token received from server");
     }
 
-    const passwordOrCancel = await this.ui.promptForPassword(username);
+    const passwordOrCancel = await this.ui.promptForPassword();
     if (passwordOrCancel === Cancel) {
       throw new Error("Authentication cancelled by user");
     }

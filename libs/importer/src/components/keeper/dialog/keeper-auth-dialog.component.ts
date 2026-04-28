@@ -43,8 +43,12 @@ export class KeeperAuthDialogComponent {
   private readonly keeperUi = inject(KeeperDirectImportUIService);
 
   protected readonly stage = this.keeperUi.stage;
+  protected readonly email = this.keeperUi.email;
 
-  protected readonly codeControl = new FormControl("", { nonNullable: true });
+  protected readonly codeControl = new FormControl("", {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
   protected readonly passwordControl = new FormControl("", {
     nonNullable: true,
     validators: [Validators.required],

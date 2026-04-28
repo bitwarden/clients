@@ -29,7 +29,7 @@ export type KeeperAuthStage =
   | { kind: "duoPush"; method: DuoMethod }
   | { kind: "selectDna"; methods: DnaMethod[] }
   | { kind: "dnaPush" }
-  | { kind: "password"; email: string }
+  | { kind: "password" }
   | { kind: "error"; message: string };
 
 type PendingResolver = (value: unknown) => void;
@@ -43,6 +43,14 @@ export class KeeperDirectImportUIService implements Ui {
   private readonly _stage = signal<KeeperAuthStage>({ kind: "idle" });
 
   readonly stage = this._stage.asReadonly();
+
+  private readonly _email = signal("");
+
+  readonly email = this._email.asReadonly();
+
+  setEmail(email: string): void {
+    this._email.set(email);
+  }
 
   private dialogRef: DialogRef | undefined;
 
@@ -77,6 +85,7 @@ export class KeeperDirectImportUIService implements Ui {
 
   reset(): void {
     this._stage.set({ kind: "idle" });
+    this._email.set("");
     void this.dialogRef?.close();
     this.dialogRef = undefined;
   }
@@ -228,8 +237,8 @@ export class KeeperDirectImportUIService implements Ui {
   // Password prompt
   //
 
-  async promptForPassword(email: string): Promise<string | typeof Cancel> {
-    this.setStage({ kind: "password", email });
+  async promptForPassword(): Promise<string | typeof Cancel> {
+    this.setStage({ kind: "password" });
     return this.waitForUser<string | typeof Cancel>();
   }
 

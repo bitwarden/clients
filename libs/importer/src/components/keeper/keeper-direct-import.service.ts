@@ -19,6 +19,8 @@ export class KeeperDirectImportService {
       return this.inFlight;
     }
 
+    this.keeperDirectImportUIService.setEmail(email);
+
     const options: ClientOptions = {
       ui: this.keeperDirectImportUIService,
       region,

@@ -27,7 +27,11 @@
         {{ "selectTwoFactorMethod" | i18n }}
       }
       @case ("twoFactorCode") {
-        {{ "keeperMFARequired" | i18n }}
+        @if (currentStage.needsInput) {
+          {{ "verificationCode" | i18n }}
+        } @else {
+          {{ "keeperMFARequired" | i18n }}
+        }
       }
       @case ("selectDuo") {
         {{ "duoVerification" | i18n }}
@@ -43,11 +47,13 @@
       }
       @case ("password") {
         {{ "masterPassword" | i18n }}
-        <span class="tw-text-muted tw-font-normal tw-text-sm">{{ currentStage.email }}</span>
       }
       @case ("error") {
         {{ "errorOccurred" | i18n }}
       }
+    }
+    @if (currentStage.kind !== "idle" && currentStage.kind !== "error" && email()) {
+      <span class="tw-text-muted tw-font-normal tw-text-sm">{{ email() }}</span>
     }
   </span>
 
@@ -99,12 +105,11 @@
 
       @case ("twoFactorCode") {
         @if (currentStage.needsInput) {
-          <p bitTypography="body1">{{ "mfaTotpDesc" | i18n }}</p>
+          <p bitTypography="body2">{{ "keeperVerificationCodePrompt" | i18n }}</p>
           <form (ngSubmit)="submitCode()">
-            <bit-form-field class="tw-mt-4 !tw-mb-0">
-              <bit-label>{{ "passcode" | i18n }}</bit-label>
+            <bit-form-field class="!tw-mb-0">
+              <bit-label>{{ "verificationCode" | i18n }}</bit-label>
               <input bitInput type="text" [formControl]="codeControl" appInputVerbatim />
-              <bit-hint>{{ "confirmIdentity" | i18n }}</bit-hint>
             </bit-form-field>
           </form>
         } @else {

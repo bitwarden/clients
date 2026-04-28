@@ -4683,6 +4683,9 @@
   "keeperMasterPasswordPrompt": {
     "message": "Please enter your Keeper master password"
   },
+  "keeperVerificationCodePrompt": {
+    "message": "Please enter your Keeper verification code"
+  },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
   },
@@ -4709,9 +4712,6 @@
   },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"
-  },
-  "mfaTotpDesc": {
-    "message": "Enter your one-time passcode from your authentication app"
   },
   "mfaPushDesc": {
     "message": "Approve the login request in your authentication app. This dialog will close automatically."
