@@ -9,11 +9,9 @@ import {
   from,
   switchMap,
   takeUntil,
-  combineLatest,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -92,11 +90,9 @@ export class SendComponent implements OnInit, OnDestroy {
         this.disableSend = policyAppliesToUser;
       });
 
-    combineLatest([this._searchText$, this.accountService.activeAccount$.pipe(getUserId)])
+    this._searchText$
       .pipe(
-        switchMap(([searchText, userId]) =>
-          from(this.searchService.isSearchable(userId, searchText)),
-        ),
+        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
         takeUntil(this.destroy$),
       )
       .subscribe((isSearchable) => {
