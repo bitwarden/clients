@@ -128,7 +128,10 @@ extern "system" fn show_window_proc(
 impl TestWindow {
     fn set_foreground(&self) -> Result<()> {
         unsafe {
-            use windows::Win32::System::Threading::GetCurrentThreadId;
+            use windows::Win32::{
+                System::Threading::GetCurrentThreadId,
+                UI::Input::KeyboardAndMouse::AttachThreadInput,
+            };
 
             // AttachThreadInput allows us to synchronize our input queue with the foreground
             // thread's so Windows grants permission to call SetForegroundWindow. Without
