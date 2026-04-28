@@ -5,6 +5,7 @@ import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -80,6 +81,10 @@ describe("OrganizationVaultFilterComponent", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: { restricted$: restrictedSubject.asObservable() },
+        },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(true)) },
         },
       ],
     }).compileComponents();
