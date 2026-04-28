@@ -33,6 +33,6 @@ export class ExportDesktopComponent {
     if (this.skippedAttachmentCount() > 0) {
       return;
     }
-    this.dialogRef.close();
+    await this.dialogRef.close();
   }
 }

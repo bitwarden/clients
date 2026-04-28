@@ -14,7 +14,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { concat, EMPTY, firstValueFrom, of } from "rxjs";
-import { concatMap, delay, distinctUntilChanged, map, skip, tap } from "rxjs/operators";
+import { concatMap, delay, distinctUntilChanged, map, skip, switchMap, tap } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -102,7 +102,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
 
   protected IMPORT_ICON = "bwi bwi-download";
-  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
+  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | undefined;
 
   // Current progress step for loading component (null = not loading)
   // Uses concatMap with delay to ensure each step is displayed for a minimum time
@@ -167,21 +167,25 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
             prev.activeDrawerType === curr.activeDrawerType && prev.invokerId === curr.invokerId,
         ),
         takeUntilDestroyed(this.destroyRef),
+        switchMap(async (details) => {
+          if (details.activeDrawerType !== DrawerType.None) {
+            this.currentDialogRef = await this.dialogService.openDrawer(
+              RiskInsightsDrawerDialogComponent,
+              {
+                data: details,
+              },
+            );
+          } else {
+            await this.currentDialogRef?.close();
+          }
+        }),
       )
-      .subscribe((details) => {
-        if (details.activeDrawerType !== DrawerType.None) {
-          this.currentDialogRef = this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
-            data: details,
-          });
-        } else {
-          this.currentDialogRef?.close();
-        }
-      });
+      .subscribe();
 
     // if any dialogs are open close it
     // this happens when navigating between orgs
     // or just navigating away from the page and back
-    this.currentDialogRef?.close();
+    await this.currentDialogRef?.close();
 
     // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time
     // - skip(1): Skip initial BehaviorSubject emission (may contain stale Complete from previous run)
@@ -224,7 +228,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.dataService.destroy();
-    this.currentDialogRef?.close();
+    void this.currentDialogRef?.close();
   }
 
   /**
@@ -247,7 +251,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // Reset drawer state and close drawer when tabs are changed
     // This ensures card selection state is cleared (PM-29263)
     this.dataService.closeDrawer();
-    this.currentDialogRef?.close();
+    await this.currentDialogRef?.close();
   }
 
   // Empty state methods

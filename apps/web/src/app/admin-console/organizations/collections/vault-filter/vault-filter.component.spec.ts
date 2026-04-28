@@ -3,17 +3,11 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -21,13 +15,11 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { DialogService, ToastService } from "@bitwarden/components";
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
   CipherTypeFilter,
   VaultFilterSection,
 } from "@bitwarden/vault";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { VaultFilterComponent } from "./vault-filter.component";
 
@@ -50,7 +42,6 @@ describe("OrganizationVaultFilterComponent", () => {
   let fixture: ComponentFixture<VaultFilterComponent>;
   let component: VaultFilterComponent;
   let vaultFilterService: MockProxy<VaultFilterService>;
-  let cipherService: MockProxy<CipherService>;
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
 
   /** Helper to set the ciphers$ signal input via the fixture. */
@@ -68,16 +59,12 @@ describe("OrganizationVaultFilterComponent", () => {
       });
       return of(headNode);
     });
-
-    const policyService = mock<PolicyService>();
-    policyService.policyAppliesToUser$.mockReturnValue(of(false));
-    policyService.policiesByType$.mockReturnValue(of([]));
+    vaultFilterService.collapsedFilterNodes$ = of(new Set<string>());
+    vaultFilterService.setCollapsedFilterNodes = jest.fn().mockResolvedValue(undefined);
+    vaultFilterService.setOrganizationFilter = jest.fn();
 
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
-
-    cipherService = mock<CipherService>();
-    cipherService.cipherListViews$.mockReturnValue(of([]));
 
     restrictedSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
 
@@ -88,21 +75,12 @@ describe("OrganizationVaultFilterComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: VaultFilterService, useValue: vaultFilterService },
-        { provide: PolicyService, useValue: policyService },
         { provide: I18nService, useValue: i18nService },
-        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
-        { provide: BillingApiServiceAbstraction, useValue: mock<BillingApiServiceAbstraction>() },
-        { provide: DialogService, useValue: mock<DialogService>() },
         { provide: AccountService, useValue: accountService },
         {
           provide: RestrictedItemTypesService,
           useValue: { restricted$: restrictedSubject.asObservable() },
         },
-        { provide: CipherService, useValue: cipherService },
-        { provide: CipherArchiveService, useValue: mock<CipherArchiveService>() },
-        { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
-        { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
       ],
     }).compileComponents();
 
@@ -116,13 +94,12 @@ describe("OrganizationVaultFilterComponent", () => {
       return tree.children.map((c) => c.node.id);
     }
 
-    it("does not call cipherListViews$ (prevents personal vault decrypt)", async () => {
+    it("does not depend on cipherService (prevents personal vault decrypt)", async () => {
       setCiphers(of([]));
       restrictedSubject.next([]);
 
-      await (component as any).addTypeFilter(["favorites"], ORG_ID as string);
-
-      expect(cipherService.cipherListViews$).not.toHaveBeenCalled();
+      // Verify the component has no cipherService property at all
+      expect((component as any).cipherService).toBeUndefined();
     });
 
     describe("when there are no restrictions", () => {
@@ -251,8 +228,7 @@ describe("OrganizationVaultFilterComponent", () => {
 
     describe("buildAllFilters wiring", () => {
       it("passes the organization id and excludes favorites when building type filter", async () => {
-        const org = { id: ORG_ID } as Organization;
-        component.organization = org;
+        fixture.componentRef.setInput("organization", { id: ORG_ID } as Organization);
         setCiphers(of([]));
         restrictedSubject.next([]);
 
@@ -263,7 +239,6 @@ describe("OrganizationVaultFilterComponent", () => {
         });
 
         (component as any).addCollectionFilter = jest.fn().mockResolvedValue({});
-
         (component as any).addTrashFilter = jest.fn().mockResolvedValue({});
 
         await component.buildAllFilters();
