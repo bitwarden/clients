@@ -5,7 +5,10 @@ import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sd
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { Collection as SdkCollection } from "@bitwarden/sdk-internal";
+import {
+  Collection as SdkCollection,
+  CollectionType as SdkCollectionType,
+} from "@bitwarden/sdk-internal";
 
 import { CollectionData } from "./collection.data";
 
@@ -15,6 +18,21 @@ export const CollectionTypes = {
 } as const;
 
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
+
+/**
+ * Exhaustive bidirectional maps between our numeric CollectionType and the SDK's string variant.
+ * Typed with `satisfies Record<...>` so TypeScript will fail to compile if either side gains a
+ * new member without a corresponding entry being added here.
+ */
+export const sdkTypeToCollectionType = {
+  SharedCollection: CollectionTypes.SharedCollection,
+  DefaultUserCollection: CollectionTypes.DefaultUserCollection,
+} satisfies Record<SdkCollectionType, CollectionType>;
+
+export const collectionTypeToSdkType = {
+  [CollectionTypes.SharedCollection]: "SharedCollection",
+  [CollectionTypes.DefaultUserCollection]: "DefaultUserCollection",
+} satisfies Record<CollectionType, SdkCollectionType>;
 
 export class Collection extends Domain {
   id: CollectionId;
@@ -94,10 +112,7 @@ export class Collection extends Domain {
     collection.readOnly = sdkCollection.readOnly;
     collection.manage = sdkCollection.manage;
     collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
-    collection.type =
-      sdkCollection.type === "DefaultUserCollection"
-        ? CollectionTypes.DefaultUserCollection
-        : CollectionTypes.SharedCollection;
+    collection.type = sdkTypeToCollectionType[sdkCollection.type];
     return collection;
   }
 
@@ -114,10 +129,7 @@ export class Collection extends Domain {
       readOnly: this.readOnly,
       manage: this.manage,
       defaultUserCollectionEmail: this.defaultUserCollectionEmail,
-      type:
-        this.type === CollectionTypes.DefaultUserCollection
-          ? "DefaultUserCollection"
-          : "SharedCollection",
+      type: collectionTypeToSdkType[this.type],
     };
   }
 

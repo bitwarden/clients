@@ -6,7 +6,7 @@ import {
 
 import { CollectionId, OrganizationId } from "../../../types/guid";
 
-import { Collection, CollectionTypes } from "./collection";
+import { Collection, CollectionType, CollectionTypes } from "./collection";
 import { CollectionView } from "./collection.view";
 
 /**
@@ -127,6 +127,15 @@ describe("Collection SDK mapping", () => {
       const result = collection.toSdkCollection();
       expect(result.id).toBeUndefined();
     });
+  });
+
+  it("every CollectionTypes value roundtrips through toSdkCollection → fromSdkCollection", () => {
+    for (const value of Object.values(CollectionTypes) as CollectionType[]) {
+      const collection = makeCollection({ type: value });
+      const sdkCollection = collection.toSdkCollection();
+      const result = Collection.fromSdkCollection(sdkCollection);
+      expect(result.type).toBe(value);
+    }
   });
 });
 
@@ -267,5 +276,16 @@ describe("CollectionView SDK mapping", () => {
       const result = view.toSdkCollectionView();
       expect(result.id).toBeUndefined();
     });
+  });
+
+  it("every CollectionTypes value roundtrips through toSdkCollectionView → fromSdkCollectionView", () => {
+    for (const value of Object.values(CollectionTypes) as CollectionType[]) {
+      const view = new CollectionView({ id: collectionId, organizationId: orgId, name: "Test" });
+      view.type = value;
+      const sdkView = view.toSdkCollectionView();
+      const source = makeCollection({ type: value });
+      const result = CollectionView.fromSdkCollectionView(sdkView, source);
+      expect(result.type).toBe(value);
+    }
   });
 });

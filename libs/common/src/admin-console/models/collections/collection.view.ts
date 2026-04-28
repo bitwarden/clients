@@ -10,7 +10,13 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { ITreeNodeObject } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionView as SdkCollectionView } from "@bitwarden/sdk-internal";
 
-import { Collection, CollectionType, CollectionTypes } from "./collection";
+import {
+  Collection,
+  CollectionType,
+  CollectionTypes,
+  collectionTypeToSdkType,
+  sdkTypeToCollectionType,
+} from "./collection";
 import { CollectionAccessDetailsResponse } from "./collection.response";
 
 export const NestingDelimiter = "/";
@@ -198,10 +204,7 @@ export class CollectionView implements View, ITreeNodeObject {
     view.manage = sdkView.manage;
     view.assigned = true;
     view.defaultUserCollectionEmail = sourceCollection.defaultUserCollectionEmail;
-    view.type =
-      sdkView.type === "DefaultUserCollection"
-        ? CollectionTypes.DefaultUserCollection
-        : CollectionTypes.SharedCollection;
+    view.type = sdkTypeToCollectionType[sdkView.type];
 
     return view;
   }
@@ -221,10 +224,7 @@ export class CollectionView implements View, ITreeNodeObject {
       hidePasswords: this.hidePasswords,
       readOnly: this.readOnly,
       manage: this.manage,
-      type:
-        this.type === CollectionTypes.DefaultUserCollection
-          ? "DefaultUserCollection"
-          : "SharedCollection",
+      type: collectionTypeToSdkType[this.type],
     };
   }
 
