@@ -36,31 +36,31 @@
     "message": "SSH 金鑰"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "網站或應用程式"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "信用卡或金融卡"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "個人資料"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "重要文字"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "伺服器登入憑證"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "整理您的項目"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "整理共享項目"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "選擇要新增的項目"
   },
   "chooseItemToAddDesc": {
-    "message": "Select the item type you want to add to your vault."
+    "message": "選擇要新增到保險庫的項目類型。"
   },
   "folders": {
     "message": "資料夾"
@@ -115,63 +115,63 @@
     "message": "檢視項目"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "檢視登入資訊",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "檢視付款卡",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "檢視身分",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "檢視備註",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "檢視 SSH 金鑰",
     "description": "Header for view SSH key item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "新增登入資料",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "新增付款卡",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "新增身分",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "新增備註",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "新增 SSH 金鑰",
     "description": "Header for new SSH key item type"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "編輯登入資訊",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "編輯付款卡",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "編輯身分",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "編輯備註",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "編輯 SSH 金鑰",
     "description": "Header for edit SSH key item type"
   },
   "name": {
@@ -2332,7 +2332,7 @@
     "message": "複製驗證器金鑰 (TOTP)"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "複製備註"
   },
   "totpHelperTitle": {
     "message": "無縫兩步驟驗證"
@@ -3627,6 +3627,63 @@
   "deviceTrusted": {
     "message": "裝置已信任"
   },
+  "device": {
+    "message": "裝置"
+  },
+  "devices": {
+    "message": "裝置"
+  },
+  "whatIsADevice": {
+    "message": "什麼是裝置？"
+  },
+  "aDeviceIs": {
+    "message": "裝置是您登入 Bitwarden 應用程式的唯一安裝環境。重新安裝、清除應用程式資料或清除 Cookie 可能導致裝置出現多次。"
+  },
+  "deviceListDescriptionTemp": {
+    "message": "你的帳號已在下列各裝置登入。"
+  },
+  "loginStatus": {
+    "message": "登入狀態"
+  },
+  "recentlyActive": {
+    "message": "最近活動"
+  },
+  "recentlyActiveToday": {
+    "message": "今天"
+  },
+  "recentlyActivePast7Days": {
+    "message": "過去 7 天"
+  },
+  "recentlyActivePast14Days": {
+    "message": "過去 14 天"
+  },
+  "recentlyActivePast30Days": {
+    "message": "過去 30 天"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 天前以上"
+  },
+  "firstLogin": {
+    "message": "首次登入"
+  },
+  "trusted": {
+    "message": "已信任"
+  },
+  "currentSession": {
+    "message": "目前工作階段"
+  },
+  "requestPending": {
+    "message": "等待請求"
+  },
+  "deviceIdMissing": {
+    "message": "缺少裝置 ID"
+  },
+  "deviceTypeMissing": {
+    "message": "缺少裝置類型"
+  },
+  "deviceCreationDateMissing": {
+    "message": "缺少裝置建立日期"
+  },
   "trustOrganization": {
     "message": "目前組織"
   },
@@ -4796,7 +4853,7 @@
     "message": "無法存取已停用組織中的項目。請聯絡您組織的擁有者以獲取協助。"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "完成 $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -4866,20 +4923,34 @@
     "message": "使用者驗證失敗。"
   },
   "discardEdits": {
-    "message": "Discard edits"
+    "message": "放棄變更"
   },
   "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
+    "message": "若關閉此畫面，尚未儲存的變更將會遺失"
   },
   "backToEditing": {
-    "message": "Back to editing"
+    "message": "返回編輯"
   },
   "sendHasUnsavedEdits": {
-    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "message": "Send 有未儲存的變更。確定要離開嗎？",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
+    "message": "儲存 Send 變更失敗",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
