@@ -63,6 +63,8 @@ export enum EventType {
   OrganizationUser_AutomaticallyConfirmed = 1517,
   OrganizationUser_SelfRevoked = 1518,
   OrganizationUser_AdminResetTwoFactor = 1519,
+  OrganizationUser_Revoked_TwoFactorNonCompliance = 1520,
+  OrganizationUser_Revoked_SingleOrganizationNonCompliance = 1521,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
