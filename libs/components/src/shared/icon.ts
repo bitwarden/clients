@@ -24,6 +24,7 @@ export const BITWARDEN_ICONS = [
   "bwi-arrow-up",
   "bwi-attach",
   "bwi-autofill",
+  "bwi-bank",
   "bwi-bell",
   "bwi-billing",
   "bwi-bitcoin",

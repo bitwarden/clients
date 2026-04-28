@@ -289,7 +289,6 @@ jobs:
           if [[ "${{ github.event.pull_request.head.repo.fork }}" == "true" ]]; then
             SANITIZED_REPO_NAME=$(echo "$_GITHUB_PR_REPO_NAME" | sed "s/[^a-zA-Z0-9]/-/g") # Sanitize repo name to alphanumeric only
             IMAGE_TAG="$SANITIZED_REPO_NAME-$IMAGE_TAG" # Add repo name to the tag
-            IMAGE_TAG=${IMAGE_TAG:0:128}  # Limit to 128 characters, as that's the max length for Docker image tags
           fi
 
           if [[ "$IMAGE_TAG" == "main" ]]; then
@@ -302,6 +301,7 @@ jobs:
             IMAGE_TAG="$IMAGE_TAG-$TAG_EXTENSION"
           fi
 
+          IMAGE_TAG=${IMAGE_TAG:0:128}  # Limit to 128 characters, as that's the max length for Docker image tags
           echo "image_tag=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
 
       ########## Build Image ##########
@@ -485,49 +485,3 @@ jobs:
                 'build-web-run-id': '${{ github.run_id }}'
               }
             })
-
-  check-failures:
-    name: Check for failures
-    if: always()
-    runs-on: ubuntu-24.04
-    needs:
-      - setup
-      - build-containers
-      - crowdin-push
-      - trigger-web-vault-deploy
-    permissions:
-      id-token: write
-    steps:
-      - name: Check if any job failed
-        if: |
-          github.event_name != 'pull_request_target'
-          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-web')
-          && contains(needs.*.result, 'failure')
-        run: exit 1
-
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
-        if: failure()
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        if: failure()
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "devops-alerts-slack-webhook-url"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Notify Slack on failure
-        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
-        if: failure()
-        env:
-          SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
-        with:
-          status: ${{ job.status }}
