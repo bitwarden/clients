@@ -128,6 +128,15 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
           this.showDomains.set(false);
         }
       });
+    this.enabled.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((enabled) => {
+      if (!enabled) {
+        this.data.disable();
+        this.showDeletionHours.disable();
+      } else {
+        this.data.enable();
+        this.showDeletionHours.enable();
+      }
+    });
     this.data
       .get("deletionHours")
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
