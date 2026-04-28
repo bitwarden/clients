@@ -260,13 +260,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   // we want to add this new button as a second option on the empty state card
 
   goToImportPage = () => {
-    void this.router.navigate([
-      "/organizations",
-      this.organizationId,
-      "settings",
-      "tools",
-      "import",
-    ]);
+    void this.router.navigate(
+      ["/organizations", this.organizationId, "settings", "tools", "import"],
+      { queryParams: { returnTo: "access-intelligence" } },
+    );
   };
 
   /**
