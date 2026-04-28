@@ -1,7 +1,7 @@
 import { CommonModule, Location } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Observable, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
+import { Observable, Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { LockService, LogoutService } from "@bitwarden/auth/common";
@@ -10,6 +10,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   VaultTimeoutAction,
+  VaultTimeoutService,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -32,8 +33,9 @@ import { AccountComponent } from "./account.component";
 import { CurrentAccountComponent } from "./current-account.component";
 import { AccountSwitcherService } from "./services/account-switcher.service";
 
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "account-switcher.component.html",
   imports: [
     CommonModule,
@@ -52,23 +54,25 @@ import { AccountSwitcherService } from "./services/account-switcher.service";
     TypographyModule,
   ],
 })
-export class AccountSwitcherComponent implements OnInit {
+export class AccountSwitcherComponent implements OnInit, OnDestroy {
   readonly lockedStatus = AuthenticationStatus.Locked;
+  private destroy$ = new Subject<void>();
 
-  readonly loading = signal(false);
-  readonly activeUserCanLock = signal(false);
-  readonly enableAccountSwitching$: Observable<boolean>;
+  loading = false;
+  activeUserCanLock = false;
+  enableAccountSwitching$: Observable<boolean>;
 
   constructor(
-    private readonly accountSwitcherService: AccountSwitcherService,
-    private readonly accountService: AccountService,
-    private readonly dialogService: DialogService,
-    private readonly location: Location,
-    private readonly router: Router,
-    private readonly vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private readonly authService: AuthService,
-    private readonly lockService: LockService,
-    private readonly logoutService: LogoutService,
+    private accountSwitcherService: AccountSwitcherService,
+    private accountService: AccountService,
+    private vaultTimeoutService: VaultTimeoutService,
+    private dialogService: DialogService,
+    private location: Location,
+    private router: Router,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private authService: AuthService,
+    private lockService: LockService,
+    private logoutService: LogoutService,
   ) {
     this.enableAccountSwitching$ = this.accountSwitcherService.accountSwitchingEnabled$();
   }
@@ -114,7 +118,7 @@ export class AccountSwitcherComponent implements OnInit {
     const availableVaultTimeoutActions = await firstValueFrom(
       this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
     );
-    this.activeUserCanLock.set(availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock));
+    this.activeUserCanLock = availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock);
   }
 
   back() {
@@ -122,19 +126,19 @@ export class AccountSwitcherComponent implements OnInit {
   }
 
   async lock(userId: string) {
-    this.loading.set(true);
+    this.loading = true;
     await this.lockService.lock(userId as UserId);
     await this.router.navigate(["lock"]);
   }
 
   async lockAll() {
-    this.loading.set(true);
+    this.loading = true;
     await this.lockService.lockAll();
     await this.router.navigate(["lock"]);
   }
 
   async logOut(userId: UserId) {
-    this.loading.set(true);
+    this.loading = true;
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "logOut" },
       content: { key: "logOutConfirmation" },
@@ -146,6 +150,11 @@ export class AccountSwitcherComponent implements OnInit {
       // navigate to root so redirect guard can properly route next active user or null user to correct page
       await this.router.navigate(["/"]);
     }
-    this.loading.set(false);
+    this.loading = false;
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

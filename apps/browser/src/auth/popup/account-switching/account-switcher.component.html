@@ -1,4 +1,4 @@
-<popup-page [loading]="loading()">
+<popup-page [loading]="loading">
   <popup-header slot="header" pageTitle="{{ 'accountActions' | i18n }}" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
@@ -13,7 +13,7 @@
           *ngIf="availableAccount.isActive"
           [ngClass]="{ 'tw-mb-6': enableAccountSwitching$ | async }"
         >
-          <auth-account [account]="availableAccount" (loading)="loading.set($event)"></auth-account>
+          <auth-account [account]="availableAccount" (loading)="loading = $event"></auth-account>
         </div>
 
         <ng-container *ngIf="enableAccountSwitching$ | async">
@@ -22,7 +22,7 @@
           </bit-section-header>
 
           <div *ngIf="!availableAccount.isActive">
-            <auth-account [account]="availableAccount" (loading)="loading.set($event)"></auth-account>
+            <auth-account [account]="availableAccount" (loading)="loading = $event"></auth-account>
           </div>
         </ng-container>
       </ng-container>
@@ -55,8 +55,8 @@
           type="button"
           bit-item-content
           (click)="lock(currentAccount.id)"
-          [disabled]="currentAccount.status === lockedStatus || !activeUserCanLock()"
-          [title]="!activeUserCanLock() ? ('unlockMethodNeeded' | i18n) : ''"
+          [disabled]="currentAccount.status === lockedStatus || !activeUserCanLock"
+          [title]="!activeUserCanLock ? ('unlockMethodNeeded' | i18n) : ''"
         >
           <bit-icon slot="start" name="bwi-lock" class="tw-text-lg tw-text-main"></bit-icon>
           {{ "lockNow" | i18n }}
