@@ -171,6 +171,16 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Detect changed crates
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: changes
+        with:
+          filters: |
+            ssh_agent:
+              - 'apps/desktop/desktop_native/ssh_agent/**'
+            autotype:
+              - 'apps/desktop/desktop_native/autotype/**'
+
       - name: Build
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
@@ -193,40 +203,26 @@ jobs:
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib -- --test-threads=1
 
-      - name: Linux integration tests
-        if: ${{ matrix.os=='ubuntu-22.04' }}
-        working-directory: ./apps/desktop/desktop_native
-        run: |
-          # Specify each workspace crate to run integration tests for with `-p`.
-          # Not all integration tests may be CI-ready and may require isolated environment setup.
-          cargo test -p ssh_agent --test '*' -- --test-threads=1
-
       - name: MacOS unit tests
         if: ${{ matrix.os=='macos-14' }}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib -- --test-threads=1
-
-      - name: MacOS integration tests
-        if: ${{ matrix.os=='macos-14' }}
-        working-directory: ./apps/desktop/desktop_native
-        run: |
-          # Specify each workspace crate to run integration tests for with `-p`.
-          # Not all integration tests may be CI-ready and may require isolated environment setup.
-          cargo test -p ssh_agent --test '*' -- --test-threads=1
 
       - name: Windows unit tests
         if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib --workspace --exclude=desktop_napi -- --test-threads=1
 
-      - name: Windows integration tests
-        if: ${{ matrix.os=='windows-2022'}}
+      - name: ssh_agent integration tests
+        if: ${{ steps.changes.outputs.ssh_agent == 'true' }}
         working-directory: ./apps/desktop/desktop_native
-        run: |
-          # Specify each workspace crate to run integration tests for with `-p`.
-          # Not all integration tests may be CI-ready and may require isolated environment setup.
-          cargo test -p autotype --test '*' -- --test-threads=1
-          cargo test -p ssh_agent --test '*' -- --test-threads=1
+        run: cargo test -p ssh_agent --test '*' -- --test-threads=1
+
+      - name: autotype integration tests
+        if: ${{ steps.changes.outputs.autotype == 'true' && matrix.os=='windows-2022' }}
+        shell: bash
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test -p autotype --test '*' -- --test-threads=1
 
       - name: Doc tests
         working-directory: ./apps/desktop/desktop_native
