@@ -10,7 +10,7 @@
     </bit-form-field>
 
     @if (sendFormService.sendFormConfig.sendType === SendType.Text) {
-      <tools-send-text-details></tools-send-text-details>
+      <tools-send-text-details [editing]="editing()"></tools-send-text-details>
     }
     @if (sendFormService.sendFormConfig.sendType === SendType.File) {
       <tools-send-file-details></tools-send-file-details>
@@ -22,7 +22,7 @@
         <input
           bitInput
           type="text"
-          [value]="originalSendView()?.deletionDate | date: 'short'"
+          [value]="sendFormService.originalSendView()?.deletionDate | date: 'short'"
           readonly
         />
       } @else {
@@ -48,7 +48,7 @@
         <input
           bitInput
           type="text"
-          [value]="originalSendView()?.authType | AuthTypeName"
+          [value]="sendFormService.originalSendView()?.authType | AuthTypeName"
           readonly
         />
       } @else {
@@ -60,7 +60,7 @@
       }
       <!-- To be projected correctly into the bit-hint slot <bit-hint> must be the only element in its block -->
       @let hintKey =
-        originalSendView()?.authType === AuthType.Password
+        sendFormService.originalSendView()?.authType === AuthType.Password
           ? "sendPasswordHelperText"
           : "emailVerificationDesc";
       @if (editing()) {
@@ -73,7 +73,7 @@
         <bit-label>{{ (passwordRemoved ? "newPassword" : "password") | i18n }}</bit-label>
         <input bitInput type="password" formControlName="password" [readonly]="!editing()" />
         <div bitSuffix ngProjectAs="[bitSuffix]" class="tw-flex tw-items-center">
-          @if (!hasPassword) {
+          @if (!originalHadPassword) {
             <button
               data-testid="toggle-visibility-for-password"
               type="button"
@@ -114,7 +114,7 @@
                 [label]="'removePassword' | i18n"
                 [bitAction]="removePassword"
                 showToast
-                [disabled]="!config().areSendsAllowed"
+                [disabled]="!sendFormService.sendFormConfig.areSendsAllowed"
               ></button>
             }
           }
@@ -138,5 +138,5 @@
       </bit-form-field>
     }
   </bit-card>
-  <tools-send-options></tools-send-options>
+  <tools-send-options [editing]="editing()"></tools-send-options>
 </bit-section>

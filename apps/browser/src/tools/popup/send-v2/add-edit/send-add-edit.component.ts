@@ -129,6 +129,7 @@ export class SendAddEditComponent {
   async onSendCreated(send: SendView) {
     await this.router.navigate(["/send-created"], {
       queryParams: { sendId: send.id },
+      replaceUrl: true,
     });
     return;
   }
@@ -246,8 +247,16 @@ export class SendAddEditComponent {
     this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
   }
 
-  protected async cancelEditSend() {
+  protected cancelEditSend() {
     this.editing.set(false);
     this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+  }
+
+  protected async onBackClick() {
+    if (this.editing()) {
+      this.cancelEditSend();
+    } else {
+      this.location.back();
+    }
   }
 }

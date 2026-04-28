@@ -1,4 +1,4 @@
-<form [id]="formId" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
+<form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
   @if (!loading) {
     @if (!editing()) {
       <bit-card>
@@ -21,8 +21,6 @@
       </bit-card>
     }
     <tools-send-details
-      [config]="config"
-      [originalSendView]="originalSendView"
       [editing]="editing()"
       (openPasswordGenerator)="openPasswordGenerator.emit()"
     ></tools-send-details>

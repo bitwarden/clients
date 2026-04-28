@@ -59,9 +59,9 @@ export class SendFileDetailsComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.sendFormService.originalSendView) {
+    if (this.sendFormService.originalSendView()) {
       this.sendFileDetailsForm.patchValue({
-        file: this.sendFormService.originalSendView?.file,
+        file: this.sendFormService.originalSendView()?.file,
       });
     }
 

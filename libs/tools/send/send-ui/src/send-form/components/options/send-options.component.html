@@ -7,7 +7,12 @@
       @if (maxAccessCountVisible()) {
         <bit-form-field [disableMargin]="!hideEmailVisible() && !privateNoteVisible()">
           <bit-label>{{ "maxAccessCount" | i18n }}</bit-label>
-          <input bitInput type="number" formControlName="maxAccessCount" [readonly]="!editing()" />
+          <input
+            bitInput
+            formControlName="maxAccessCount"
+            [readonly]="!editing()"
+            id="maxAccessCountInput"
+          />
           @if (editing()) {
             <bit-hint>{{ "limitSendViewsHint" | i18n }}</bit-hint>
           }

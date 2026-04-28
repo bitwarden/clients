@@ -1,9 +1,14 @@
 <popup-page>
-  <popup-header slot="header" [pageTitle]="headerText" showBackButton></popup-header>
+  <popup-header
+    slot="header"
+    [pageTitle]="headerText"
+    showBackButton
+    [backAction]="onBackClick.bind(this)"
+  ></popup-header>
 
   <tools-send-form
     formId="sendForm"
-    [configInput]="config"
+    [config]="config"
     (onSendCreated)="onSendCreated($event)"
     (onSendUpdated)="onSendUpdated($event)"
     (openPasswordGenerator)="openGenerator()"

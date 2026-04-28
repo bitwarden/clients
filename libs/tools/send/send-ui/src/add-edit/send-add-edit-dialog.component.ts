@@ -206,7 +206,7 @@ export class SendAddEditDialogComponent {
    * Handles the event when the send is updated.
    */
   async onSendUpdated(send: SendView) {
-    await this.dialogRef.close({ result: SendItemDialogResult.Updated });
+    await this.dialogRef.close({ result: SendItemDialogResult.Updated, send });
   }
 
   /**

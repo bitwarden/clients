@@ -42,21 +42,25 @@ export class SendTextDetailsComponent implements OnInit {
     this.sendFormService.registerChildForm("sendTextDetailsForm", this.sendTextDetailsForm);
 
     effect(() => {
+      // We don't emit events here to avoid triggering the subscription on 62 unnecessarily
       if (this.formDisabled()) {
-        this.sendTextDetailsForm.controls.hidden.disable();
+        this.sendTextDetailsForm.controls.hidden.disable({ emitEvent: false });
       } else {
-        this.sendTextDetailsForm.controls.hidden.enable();
+        this.sendTextDetailsForm.controls.hidden.enable({ emitEvent: false });
       }
     });
 
     effect(() => {
-      this.sendTextDetailsForm.patchValue({
-        text: this.sendFormService.originalSendView?.text?.text || "",
-        hidden: this.sendFormService.originalSendView?.text?.hidden || false,
-      });
+      if (!this.editing()) {
+        this.sendTextDetailsForm.patchValue({
+          text: this.sendFormService.originalSendView()?.text?.text || "",
+          hidden: this.sendFormService.originalSendView()?.text?.hidden || false,
+        });
+      }
     });
 
-    this.sendTextDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
+    this.sendTextDetailsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      const value = this.sendTextDetailsForm.getRawValue();
       this.sendFormService.patchSend((send) => {
         return Object.assign(send, {
           text: {
@@ -70,8 +74,8 @@ export class SendTextDetailsComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.sendTextDetailsForm.patchValue({
-      text: this.sendFormService.originalSendView?.text?.text || "",
-      hidden: this.sendFormService.originalSendView?.text?.hidden || false,
+      text: this.sendFormService.originalSendView()?.text?.text || "",
+      hidden: this.sendFormService.originalSendView()?.text?.hidden || false,
     });
 
     if (!this.sendFormService.sendFormConfig?.areSendsAllowed) {

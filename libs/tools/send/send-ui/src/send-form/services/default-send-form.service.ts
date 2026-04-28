@@ -42,7 +42,8 @@ export class DefaultSendFormService implements SendFormService {
 
   sendFormConfig: SendFormConfig | null = null;
 
-  originalSendView: SendView | null = null;
+  private readonly _originalSendView = signal<SendView | null>(null);
+  readonly originalSendView = this._originalSendView.asReadonly();
   private updatedSendView: SendView | null = null;
   private file: File | null = null;
 
@@ -72,14 +73,14 @@ export class DefaultSendFormService implements SendFormService {
     this.file = undefined;
     this.updatedSendView = new SendView();
     if (this.sendFormConfig.mode === "add") {
-      this.originalSendView = null;
+      this._originalSendView.set(null);
       this.updatedSendView.type = this.sendFormConfig.sendType;
     } else {
       if (!this.sendFormConfig.originalSend) {
         throw new Error("Original send is required for edit or clone mode");
       }
-      this.originalSendView = await this.decryptSend(this.sendFormConfig.originalSend);
-      this.updatedSendView = Object.assign(this.updatedSendView, this.originalSendView);
+      this._originalSendView.set(await this.decryptSend(this.sendFormConfig.originalSend));
+      this.updatedSendView = Object.assign(this.updatedSendView, this.originalSendView());
     }
   }
 
@@ -126,7 +127,7 @@ export class DefaultSendFormService implements SendFormService {
     };
     return (
       this.sendForm().touched &&
-      JSON.stringify(this.originalSendView, replacer) !==
+      JSON.stringify(this.originalSendView(), replacer) !==
         JSON.stringify(this.updatedSendView, replacer)
     );
   }
@@ -145,7 +146,7 @@ export class DefaultSendFormService implements SendFormService {
       );
       const unsavedEditsDialogResult = await lastValueFrom(dialogRef.closed);
       if (unsavedEditsDialogResult?.result === UnsavedEditsDialogResult.Discard) {
-        this.originalSendView = null;
+        this._originalSendView.set(null);
         this.updatedSendView = null;
         return true;
       } else {
@@ -153,5 +154,33 @@ export class DefaultSendFormService implements SendFormService {
       }
     }
     return true;
+  }
+
+  async removeSendPassword(): Promise<void> {
+    const originalSendViewId = this.originalSendView()?.id;
+    if (!originalSendViewId) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePassword" },
+      content: { key: "removePasswordConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return;
+    }
+
+    await this.sendApiService.removePassword(originalSendViewId);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("removedPassword"),
+    });
+
+    const originalSendViewCopy = this._originalSendView();
+    originalSendViewCopy.password = null;
+    this._originalSendView.set(originalSendViewCopy);
   }
 }

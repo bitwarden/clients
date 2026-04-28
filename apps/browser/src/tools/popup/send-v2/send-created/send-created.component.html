@@ -1,10 +1,5 @@
 <popup-page>
-  <popup-header
-    slot="header"
-    [pageTitle]="'createdSend' | i18n"
-    showBackButton
-    [backAction]="goToEditSend.bind(this)"
-  >
+  <popup-header slot="header" [pageTitle]="'createdSend' | i18n" showBackButton>
     <ng-container slot="end">
       <app-pop-out></app-pop-out>
     </ng-container>

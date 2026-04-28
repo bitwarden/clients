@@ -3,10 +3,10 @@
     <div>
       <div bitTypography="body2" class="tw-text-muted">{{ "file" | i18n }}</div>
       <div class="tw-text-wrap tw-break-all" data-testid="file-name">
-        {{ sendFormService.originalSendView.file.fileName }}
+        {{ sendFormService.originalSendView()?.file.fileName }}
       </div>
       <div data-testid="file-size" class="tw-text-muted">
-        {{ sendFormService.originalSendView.file.sizeName }}
+        {{ sendFormService.originalSendView()?.file.sizeName }}
       </div>
     </div>
   } @else {
@@ -18,7 +18,8 @@
         </button>
         <span
           class="tw-flex tw-items-center tw-pl-3"
-          [ngClass]="fileName ? 'tw-text-main' : 'tw-text-muted'"
+          [class.tw-text-main]="fileName()"
+          [class.tw-text-muted]="!fileName()"
         >
           {{ fileName() || ("noFileChosen" | i18n) }}</span
         >

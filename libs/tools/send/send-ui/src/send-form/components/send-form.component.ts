@@ -76,9 +76,9 @@ export class SendFormComponent implements AfterViewInit {
   protected readonly sendLink = computed(() => {
     return (
       this.environment().getSendUrl() +
-      this.originalSendView.accessId +
+      this.sendFormService.originalSendView()?.accessId +
       "/" +
-      this.originalSendView.urlB64Key
+      this.sendFormService.originalSendView()?.urlB64Key
     );
   });
 
@@ -88,24 +88,11 @@ export class SendFormComponent implements AfterViewInit {
   /** Event emitted when the send is updated successfully. */
   readonly onSendUpdated = output<SendView>();
 
-  /**
-   * Event emitted when the user requests to open the password generator.
-   */
+  /** Event emitted when the user requests to open the password generator. */
   readonly openPasswordGenerator = output<void>();
 
   readonly sendDetailsComponent = viewChild(SendDetailsComponent);
 
-  /**
-   * The original send being edited or cloned. Null for add mode.
-   */
-  originalSendView: SendView | null;
-
-  /**
-   * The value of the updated send. Starts as a new send and is updated
-   * by child components via the `patchSend` method.
-   * @protected
-   */
-  protected updatedSendView: SendView | null;
   protected loading: boolean = true;
 
   SendType = SendType;
@@ -130,24 +117,17 @@ export class SendFormComponent implements AfterViewInit {
     this.bitSubmit()
       .loading$.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((loading) => {
-        if (this.submitBtn) {
-          this.submitBtn().loading.set(loading);
-        }
+        this.submitBtn()?.loading.set(loading);
       });
     this.bitSubmit()
       .disabled$.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((disabled) => {
-        if (this.submitBtn) {
-          this.submitBtn().disabled.set(disabled);
-        }
+        this.submitBtn()?.disabled.set(disabled);
       });
   }
 
   async init() {
     this.loading = true;
-    if (this.config() == null) {
-      return;
-    }
     await this.sendFormService.initializeSendForm(this.config());
     this.loading = false;
   }
@@ -170,6 +150,6 @@ export class SendFormComponent implements AfterViewInit {
       title: null,
       message: this.i18nService.t("editedItem"),
     });
-    this.onSendUpdated.emit(this.updatedSendView);
+    this.onSendUpdated.emit(sendView);
   };
 }
