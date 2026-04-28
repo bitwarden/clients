@@ -7,6 +7,7 @@ import {
   buildSvgDomElement,
   debounce,
   generateRandomCustomElementName,
+  isReadonlyOrDisabledFormFieldElement,
   sendExtensionMessage,
   setElementStyles,
   setupAutofillInitDisconnectAction,
@@ -242,5 +243,37 @@ describe("debounce", () => {
     jest.advanceTimersByTime(100);
 
     expect(debouncedFunction).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("isReadonlyOrDisabledFormFieldElement", () => {
+  it("returns false for an enabled, editable text input", () => {
+    document.body.innerHTML = `<input type="text" id="field" />`;
+    expect(
+      isReadonlyOrDisabledFormFieldElement(document.getElementById("field") as HTMLInputElement),
+    ).toBe(false);
+  });
+
+  it("returns true when DOM or cached flags indicate the field is not writable", () => {
+    const expectTrue = (html: string, meta?: { readonly?: boolean; disabled?: boolean }) => {
+      document.body.innerHTML = html;
+      expect(
+        isReadonlyOrDisabledFormFieldElement(
+          document.getElementById("field") as HTMLInputElement,
+          meta,
+        ),
+      ).toBe(true);
+    };
+
+    expectTrue(`<input type="text" id="field" disabled />`);
+    expectTrue(`<input type="text" id="field" readonly />`);
+    expectTrue(`<input type="text" id="field" aria-readonly="true" />`);
+    expectTrue(`<input type="text" id="field" />`, { readonly: true });
+    expectTrue(`<input type="text" id="field" />`, { disabled: true });
+
+    document.body.innerHTML = `<textarea id="field"></textarea>`;
+    const textarea = document.getElementById("field") as HTMLTextAreaElement;
+    textarea.readOnly = true;
+    expect(isReadonlyOrDisabledFormFieldElement(textarea)).toBe(true);
   });
 });

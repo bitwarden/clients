@@ -692,6 +692,18 @@ describe("InsertAutofillContentService", () => {
       ).not.toHaveBeenCalled();
       expect(element.value).toBe(value);
     });
+
+    it("does not insert when aria-readonly is set", () => {
+      document.body.innerHTML = `<input type="text" id="username" aria-readonly="true" />`;
+      const element = document.getElementById("username") as HTMLInputElement;
+      jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
+
+      insertAutofillContentService["insertValueIntoField"](element, "new-value");
+
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
+    });
   });
 
   describe("handleInsertValueAndTriggerSimulatedEvents", () => {
