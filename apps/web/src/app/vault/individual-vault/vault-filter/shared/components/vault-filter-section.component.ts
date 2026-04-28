@@ -1,19 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  Component,
-  computed,
-  DestroyRef,
-  inject,
-  InjectionToken,
-  Injector,
-  Input,
-  OnInit,
-  signal,
-} from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { Component, computed, inject, input, InjectionToken, Injector, Input } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Observable } from "rxjs";
-import { map } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -35,16 +25,13 @@ import { CoachmarkService } from "../../../../components/coachmark";
   templateUrl: "vault-filter-section.component.html",
   standalone: false,
 })
-export class VaultFilterSectionComponent implements OnInit {
-  private readonly destroyRef = inject(DestroyRef);
+export class VaultFilterSectionComponent {
   private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() section: VaultFilterSection;
+  readonly section = input.required<VaultFilterSection>();
 
   /** Whether this section is the collection filter (enables coachmark) */
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -57,7 +44,9 @@ export class VaultFilterSectionComponent implements OnInit {
     () => this.coachmarkService.activeStepId() === "shareWithCollections",
   );
 
-  readonly data = signal<TreeNode<VaultFilterType> | undefined>(undefined);
+  readonly data = toSignal(toObservable(this.section).pipe(switchMap((s) => s.data$)), {
+    initialValue: undefined,
+  });
   readonly collapsedFilterNodes = toSignal(this.vaultFilterService.collapsedFilterNodes$, {
     initialValue: new Set<string>(),
   });
@@ -70,18 +59,12 @@ export class VaultFilterSectionComponent implements OnInit {
     private accountService: AccountService,
   ) {}
 
-  ngOnInit() {
-    this.section?.data$
-      ?.pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((data) => this.data.set(data));
-  }
-
   get headerNode() {
     return this.data()!;
   }
 
   get headerInfo() {
-    return this.section.header;
+    return this.section().header;
   }
 
   get filters() {
@@ -113,44 +96,44 @@ export class VaultFilterSectionComponent implements OnInit {
   }
 
   async onFilterSelect(filterNode: TreeNode<VaultFilterType>) {
-    if (this.section?.premiumOptions?.blockFilterAction) {
-      await this.section.premiumOptions.blockFilterAction();
+    if (this.section().premiumOptions?.blockFilterAction) {
+      await this.section().premiumOptions.blockFilterAction();
       return;
     }
 
-    await this.section?.action(filterNode);
+    await this.section().action(filterNode);
   }
 
   get editInfo() {
-    return this.section?.edit;
+    return this.section().edit;
   }
 
   onEdit(filterNode: TreeNode<VaultFilterType>) {
-    this.section?.edit?.action(filterNode.node);
+    this.section().edit?.action(filterNode.node);
   }
 
   get addInfo() {
-    return this.section.add;
+    return this.section().add;
   }
 
   get showAddLink() {
-    return this.section.add && this.section.add.route;
+    return this.section().add && this.section().add.route;
   }
 
   async onAdd() {
-    this.section?.add?.action();
+    this.section().add?.action();
   }
 
   get optionsInfo() {
-    return this.section?.options;
+    return this.section().options;
   }
 
   get premiumFeature() {
-    return this.section?.premiumOptions?.showBadgeForNonPremium;
+    return this.section().premiumOptions?.showBadgeForNonPremium;
   }
 
   get divider() {
-    return this.section?.divider;
+    return this.section().divider;
   }
 
   isCollapsed(node: ITreeNodeObject) {
@@ -176,7 +159,7 @@ export class VaultFilterSectionComponent implements OnInit {
     if (!inject) {
       // Pass an observable to the component in order to update the component when the data changes
       // as data binding does not work with dynamic components in Angular 15 (inputs are supported starting Angular 16)
-      const data$ = this.section.data$.pipe(
+      const data$ = this.section().data$.pipe(
         map((sectionNode) => sectionNode?.children?.find((node) => node.node.id === data.id)?.node),
       );
       inject = Injector.create({
