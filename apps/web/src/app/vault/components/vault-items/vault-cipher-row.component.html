@@ -212,6 +212,25 @@
             </button>
           }
 
+          @if (isBankAccountCipher) {
+            <button type="button" bitMenuItem appCopyField="accountNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyAccountNumber" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="routingNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyRoutingNumber" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="pin" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyPin" | i18n }}
+            </button>
+            <button type="button" bitMenuItem appCopyField="iban" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyIban" | i18n }}
+            </button>
+          }
+
           @if (showMenuDivider) {
             <bit-menu-divider></bit-menu-divider>
           }
