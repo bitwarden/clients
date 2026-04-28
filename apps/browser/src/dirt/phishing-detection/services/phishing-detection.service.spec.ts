@@ -1,5 +1,9 @@
+import { mock, MockProxy } from "jest-mock-extended";
 import { Subject, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/messaging";
@@ -22,6 +26,10 @@ type TabUpdatedListener = (
 function makeTab(url?: string): chrome.tabs.Tab {
   return { url } as chrome.tabs.Tab;
 }
+// Utility function to wait for all pending promises to resolve
+// setTimeout with 0 delay is a common trick to wait
+// until the current call stack is clear and all pending promises have a chance to resolve
+const flushPromises = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 describe("PhishingDetectionService", () => {
   let logService: LogService;
@@ -32,6 +40,9 @@ describe("PhishingDetectionService", () => {
   let messageSubject: Subject<{ command: string; [key: string]: unknown }>;
   let onEnabled$: Subject<boolean>;
   let tabUpdatedListener: TabUpdatedListener;
+  let eventCollectionService: MockProxy<EventCollectionService>;
+  let organizationService: MockProxy<OrganizationService>;
+  let accountService: MockProxy<AccountService>;
 
   beforeEach(() => {
     logService = {
@@ -52,6 +63,9 @@ describe("PhishingDetectionService", () => {
     } as unknown as jest.Mocked<PhishingDetectionSettingsServiceAbstraction>;
 
     messageSubject = new Subject();
+    eventCollectionService = mock<EventCollectionService>();
+    organizationService = mock<OrganizationService>();
+    accountService = mock<AccountService>();
 
     jest.spyOn(BrowserApi, "addListener").mockImplementation((_event, listener) => {
       tabUpdatedListener = listener as TabUpdatedListener;
@@ -74,6 +88,9 @@ describe("PhishingDetectionService", () => {
       phishingDataService as unknown as PhishingDataService,
       phishingDetectionSettingsService,
       listener,
+      eventCollectionService,
+      organizationService,
+      accountService,
     );
   }
 
@@ -173,7 +190,7 @@ describe("PhishingDetectionService", () => {
     it("redirects to warning page if URL is phishing", async () => {
       phishingDataService.isPhishingWebAddress.mockResolvedValue(true);
       tabUpdatedListener(1, { status: "complete" }, makeTab("https://evil.com"));
-      await Promise.resolve();
+      await flushPromises();
       expect(BrowserApi.navigateTabToUrl).toHaveBeenCalledWith(
         1,
         expect.objectContaining({ href: expect.stringContaining("phishing-warning") }),
@@ -183,7 +200,7 @@ describe("PhishingDetectionService", () => {
     it("includes the phishing URL as a query param in the warning page URL", async () => {
       phishingDataService.isPhishingWebAddress.mockResolvedValue(true);
       tabUpdatedListener(1, { status: "complete" }, makeTab("https://evil.com/path"));
-      await Promise.resolve();
+      await flushPromises();
       const redirectUrl: URL = (BrowserApi.navigateTabToUrl as jest.Mock).mock.calls[0][1];
       expect(redirectUrl.href).toContain("?phishingUrl=https://evil.com/path");
     });
@@ -200,7 +217,7 @@ describe("PhishingDetectionService", () => {
         tabId: 1,
         url: "https://evil.com",
       });
-      await Promise.resolve();
+      await flushPromises();
       expect(BrowserApi.navigateTabToUrl).toHaveBeenCalledWith(
         1,
         expect.objectContaining({ hostname: "evil.com" }),
@@ -212,13 +229,13 @@ describe("PhishingDetectionService", () => {
         tabId: 1,
         url: "https://evil.com",
       });
-      await Promise.resolve();
+      await flushPromises();
 
       (BrowserApi.navigateTabToUrl as jest.Mock).mockClear();
       phishingDataService.isPhishingWebAddress.mockResolvedValue(true);
 
       tabUpdatedListener(1, { status: "complete" }, makeTab("https://evil.com/other-page"));
-      await Promise.resolve();
+      await flushPromises();
 
       // Should not redirect to warning page — was ignored
       expect(BrowserApi.navigateTabToUrl).not.toHaveBeenCalledWith(
@@ -234,16 +251,16 @@ describe("PhishingDetectionService", () => {
         tabId: 1,
         url: "https://evil.com",
       });
-      await Promise.resolve();
+      await flushPromises(); // Wait for all async operations to complete
 
       // First visit after continue — ignored
       tabUpdatedListener(1, { status: "complete" }, makeTab("https://evil.com/page1"));
-      await Promise.resolve();
+      await flushPromises();
       (BrowserApi.navigateTabToUrl as jest.Mock).mockClear();
 
       // Second visit — should block again
       tabUpdatedListener(2, { status: "complete" }, makeTab("https://evil.com/page2"));
-      await Promise.resolve();
+      await flushPromises(); // Wait for all async operations to complete
 
       expect(BrowserApi.navigateTabToUrl).toHaveBeenCalledWith(
         2,
@@ -260,7 +277,7 @@ describe("PhishingDetectionService", () => {
 
     it("closes the tab with the given tabId", async () => {
       sendMessage(PHISHING_DETECTION_CANCEL_COMMAND.command, { tabId: 42 });
-      await Promise.resolve();
+      await flushPromises(); // Wait for all async operations to complete
       expect(BrowserApi.closeTab).toHaveBeenCalledWith(42);
     });
   });
