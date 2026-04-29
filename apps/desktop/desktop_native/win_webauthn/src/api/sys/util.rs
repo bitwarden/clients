@@ -3,14 +3,14 @@ use std::sync::OnceLock;
 use windows::{
     core::s,
     Win32::{
-        Foundation::{FreeLibrary, HMODULE},
+        Foundation::HMODULE,
         System::LibraryLoader::{
             GetModuleHandleExA, LoadLibraryExA, GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
             GET_MODULE_HANDLE_EX_FLAG_PIN, LOAD_LIBRARY_SEARCH_SYSTEM32,
         },
     },
 };
-use windows_core::{PCSTR, PCWSTR};
+use windows_core::PCSTR;
 
 use crate::{ErrorKind, WinWebAuthnError};
 

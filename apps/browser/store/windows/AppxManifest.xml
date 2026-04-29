@@ -44,6 +44,13 @@
           DisplayName="Bitwarden Password Manager">
         </uap3:AppExtension>
       </uap3:Extension>
+      <com:Extension Category="windows.comServer">
+        <com:ComServer>
+          <com:ExeServer Executable="Bitwarden.exe" DisplayName="Bitwarden Passkey Manager">
+            <com:Class Id="0f7dc5d9-69ce-4652-8572-6877fd695062" DisplayName="Bitwarden Passkey Manager"/>
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
       </Extensions>
  </Application>
 </Applications>

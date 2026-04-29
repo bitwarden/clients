@@ -5,17 +5,17 @@
 //! The [plugin] module has types useful for implementing a Windows passkey
 //! plugin authenticator.
 #![cfg(target_os = "windows")]
-// TODO: Temporarily allow unused code while scaffolding. Remove once PR set is finished.
-#![expect(unused)]
 
 #[allow(unsafe_code)]
 pub(crate) mod api;
+#[forbid(unsafe_code)]
+pub mod plugin;
 
 use std::{error::Error, fmt::Display};
 
 pub use api::webauthn::{
     AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
-    UserId,
+    UserId, Uuid,
 };
 
 /// Errors that may be returned when interacting with this library.

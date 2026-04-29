@@ -66,6 +66,7 @@
     "typescript.preferences.importModuleSpecifier": "project-relative",
     "javascript.preferences.importModuleSpecifier": "project-relative",
     "typescript.tsdk": "root/node_modules/typescript/lib",
+    "rust-analyzer.cargo.target": "aarch64-pc-windows-msvc",
   },
   "extensions": {
     "recommendations": [

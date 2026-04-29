@@ -72,17 +72,30 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             try? await Task.sleep(nanoseconds: UInt64(100 * attempt + (delayMs * 1_000_000))) // Convert ms to nanoseconds
             let connectionStatus = newClient!.getConnectionStatus()
             
-            logger.log("[autofill-extension] Connection attempt \(attempt), status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+            let statusString = switch connectionStatus {
+                case .connecting: "connecting",
+                case .connected: "connected",
+                case .disconnected: "disconnected",
+            }
+
+            logger.log("[autofill-extension] Connection attempt \(attempt), status: \(statusString)")
             
             if connectionStatus == .connected {
                 logger.log("[autofill-extension] Successfully connected to Bitwarden (attempt \(attempt))")
                 break
-            } else {
-                if attempt < maxRetries {
-                    logger.log("[autofill-extension] Retrying connection")
-                } else {
-                    logger.error("[autofill-extension] Failed to connect after \(maxRetries) attempts, final status: \(connectionStatus == .connected ? "connected" : "disconnected")")
+            } else if connectionStatus == .connecting {
+                // try to wait one more time while it's connecting
+                try? await Task.sleep(for: .milliseconds(100))
+                if newClient!.getConnectionStatus() == .connected {
+                    break
                 }
+            }
+
+            // client couldn't connect in deadline.
+            if attempt < maxRetries {
+                logger.log("[autofill-extension] Retrying connection")
+            } else {
+                logger.error("[autofill-extension] Failed to connect after \(maxRetries) attempts, final status: \(connectionStatus == .connected ? "connected" : "disconnected")")
             }
         }
         
@@ -152,7 +165,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     
     deinit {
         logger.log("[autofill-extension] deinitializing extension")
-        
+
         // Stop the connection monitor timer
         connectionMonitorTimer?.invalidate()
         connectionMonitorTimer = nil
@@ -187,6 +200,7 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             attempts += 1
         }
         
+        let x, y: Int32
         let finalWindowFrame = self.view.window?.frame ?? .zero
         logger.log("[autofill-extension] position: Final window frame: \(NSStringFromRect(finalWindowFrame))")
         
@@ -195,15 +209,19 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             let centerX = Int32(round(finalWindowFrame.origin.x))
             let centerY = Int32(round(screenHeight - finalWindowFrame.origin.y))
             logger.log("[autofill-extension] position: Using window position: x=\(centerX), y=\(centerY)")
-            return Position(x: centerX, y: centerY)
+            x = centerX
+            y = centerY
         } else {
             // Fallback to mouse position
             let mouseLocation = NSEvent.mouseLocation
             let mouseX = Int32(round(mouseLocation.x))
             let mouseY = Int32(round(screenHeight - mouseLocation.y))
             logger.log("[autofill-extension] position: Using mouse position fallback: x=\(mouseX), y=\(mouseY)")
-            return Position(x: mouseX, y: mouseY)
+            x = mouseX
+            y = mouseY
         }
+        // Add 100 pixels to the x-coordinate to offset the native OS dialog positioning.
+        return Position(x: x + 100, y: y)
     }
     
     override func viewDidLoad() {

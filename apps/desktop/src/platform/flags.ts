@@ -7,7 +7,9 @@ import {
 } from "@bitwarden/common/platform/misc/flags";
 
 // required to avoid linting errors when there are no flags
-export type Flags = {} & SharedFlags;
+export type Flags = {
+  nativeCredentialSync?: boolean
+} & SharedFlags;
 
 // required to avoid linting errors when there are no flags
 export type DevFlags = {} & SharedDevFlags;

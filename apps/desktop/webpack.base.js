@@ -119,6 +119,7 @@ module.exports.buildConfig = function buildConfig(params) {
       }),
       new DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+        BIT_RELEASE_CHANNEL: JSON.stringify(process.env.BITWARDEN_RELEASE_CHANNEL ?? "stable"),
       }),
       new EnvironmentPlugin({
         FLAGS: envConfig.flags,
@@ -166,6 +167,7 @@ module.exports.buildConfig = function buildConfig(params) {
     plugins: [
       new DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+        BIT_RELEASE_CHANNEL: JSON.stringify(process.env.BITWARDEN_RELEASE_CHANNEL ?? "stable"),
       }),
     ],
   };
@@ -326,6 +328,7 @@ module.exports.buildConfig = function buildConfig(params) {
       }),
       new webpack.DefinePlugin({
         BIT_ENVIRONMENT: JSON.stringify(NODE_ENV),
+        BIT_RELEASE_CHANNEL: JSON.stringify(process.env.BITWARDEN_RELEASE_CHANNEL ?? "stable"),
       }),
       new webpack.EnvironmentPlugin({
         ENV: ENV,
