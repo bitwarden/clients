@@ -1,0 +1,23 @@
+<bit-dialog [disableAnimations]="true">
+  <button
+    bitDialogHeaderEnd
+    type="button"
+    bitIconButton="bwi-close"
+    buttonType="primaryGhost"
+    size="default"
+    [attr.aria-label]="'close' | i18n"
+    (click)="close.emit()"
+  ></button>
+  <span bitDialogTitle>
+    {{ title() }}
+    @if (email()) {
+      <span class="tw-text-muted tw-font-normal tw-text-sm">{{ email() }}</span>
+    }
+  </span>
+  <ng-content select="[bitDialogContent]" ngProjectAs="[bitDialogContent]"></ng-content>
+  @if (hasFooter()) {
+    <ng-container bitDialogFooter>
+      <ng-content select="[bitDialogFooter]"></ng-content>
+    </ng-container>
+  }
+</bit-dialog>

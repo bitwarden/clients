@@ -23,6 +23,8 @@ import {
 } from "../../../importers/keeper/access";
 import { KeeperDirectImportUIService } from "../keeper-direct-import-ui.service";
 
+import { KeeperStageShellComponent } from "./keeper-stage-shell.component";
+
 @Component({
   templateUrl: "keeper-auth-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,6 +35,7 @@ import { KeeperDirectImportUIService } from "../keeper-direct-import-ui.service"
     DialogModule,
     FormFieldModule,
     IconButtonModule,
+    KeeperStageShellComponent,
     RadioButtonModule,
     ReactiveFormsModule,
     SpinnerComponent,
