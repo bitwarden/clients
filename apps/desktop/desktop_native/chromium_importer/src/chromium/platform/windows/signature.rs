@@ -7,7 +7,7 @@ use verifysign::CodeSignVerifier;
 use crate::config::ENABLE_SIGNATURE_VALIDATION;
 
 pub const EXPECTED_SIGNATURE_SHA256_THUMBPRINT: &str =
-    "6857cc574e807b84dd00050cede25c857094dd32c917f92994bf224aa93a242f";
+    "e8496f9940c5ee64c60ff1a87235af3760dedae6b067e027c61e2862a73f61b2";
 
 pub fn verify_signature(path: &Path) -> Result<bool> {
     if !ENABLE_SIGNATURE_VALIDATION {
