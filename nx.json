@@ -38,5 +38,6 @@
       "outputs": ["{options.outputPath}"],
       "cache": true
     }
-  }
+  },
+  "analytics": false
 }

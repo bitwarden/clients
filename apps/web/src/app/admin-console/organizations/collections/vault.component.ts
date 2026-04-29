@@ -336,7 +336,10 @@ export class VaultComponent implements OnInit, OnDestroy {
         // If the user can edit all ciphers for the organization then fetch them ALL.
         if (organization.canEditAllCiphers) {
           ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-          ciphers.forEach((c) => (c.edit = true));
+          ciphers.forEach((c) => {
+            c.edit = true;
+            c.viewPassword = true;
+          });
         } else {
           // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
           ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
