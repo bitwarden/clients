@@ -4,7 +4,10 @@ import { BehaviorSubject, bufferCount, firstValueFrom, Subject, ObservedValueOf 
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
-import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import {
+  InternalNewPolicyService,
+  InternalPolicyService,
+} from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 
 import { mockAccountInfoWith } from "../../../../spec";
@@ -37,6 +40,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
@@ -132,7 +136,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
 
     policyService = mock<InternalPolicyService>();
-
+    newPolicyService = mock<InternalNewPolicyService>();
     autoConfirmService = mock<AutomaticUserConfirmationService>();
 
     defaultServerNotificationsService = new DefaultServerNotificationsService(
@@ -149,6 +153,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       authRequestAnsweringService,
       configService,
       policyService,
+      newPolicyService,
       autoConfirmService,
     );
   });

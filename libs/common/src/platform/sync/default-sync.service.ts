@@ -438,7 +438,7 @@ export class DefaultSyncService extends CoreSyncService {
     // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
     // feature flag is off) so the new service is always seeded with data.
     const source = response != null && response.length > 0 ? response : fallback;
-    if (source == null) {
+    if (source == null || source.length === 0) {
       return;
     }
     const policies: { [id: string]: PolicyData } = {};
