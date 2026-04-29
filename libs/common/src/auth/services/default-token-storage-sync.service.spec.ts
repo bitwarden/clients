@@ -262,18 +262,40 @@ describe("DefaultTokenStorageSyncService", () => {
       sut = createService(false);
     });
 
-    it("does not write to disk when access token is null in memory", async () => {
+    it("wipes disk when access token becomes null (logout)", async () => {
+      // Pre-seed disk with tokens to simulate a previously logged-in state
+      singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("oldAccessToken");
+      singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("oldRefreshToken");
+      singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).nextState("oldClientId");
+      singleUserStateProvider
+        .getFake(userId, API_KEY_CLIENT_SECRET_DISK)
+        .nextState("oldClientSecret");
+
+      vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+      vaultTimeout$.next(VaultTimeoutStringType.Never);
+
       await sut.init();
 
-      // Access token is already null (default)
-      // Give time for any async subscriptions to process
-      await new Promise((r) => setTimeout(r, 10));
+      // Simulate logout: access token cleared from memory
+      accessToken$.next(null);
+      await new Promise((r) => setTimeout(r, 50));
 
-      // Disk should remain null — no writes
-      const diskValue = await firstValueFrom(
-        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).state$,
-      );
-      expect(diskValue).toBeNull();
+      expect(
+        await firstValueFrom(singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).state$),
+      ).toBeNull();
+      expect(
+        await firstValueFrom(singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).state$),
+      ).toBeNull();
+      expect(
+        await firstValueFrom(
+          singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).state$,
+        ),
+      ).toBeNull();
+      expect(
+        await firstValueFrom(
+          singleUserStateProvider.getFake(userId, API_KEY_CLIENT_SECRET_DISK).state$,
+        ),
+      ).toBeNull();
     });
 
     it("writes tokens to disk when vault timeout action is Lock (persist scenario)", async () => {

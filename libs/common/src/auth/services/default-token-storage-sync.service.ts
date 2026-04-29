@@ -242,8 +242,10 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
 
   /**
    * Dispatches to {@link writeTokensToDisk} or {@link wipeTokensFromDisk} based on the
-   * security invariant. A null access token means the user is logged out — disk is already
-   * cleared by `TokenService.clearTokens()`, so no action is taken.
+   * security invariant.
+   *
+   * A null access token means the user has logged out — disk is wiped unconditionally
+   * regardless of vault timeout action, since no credentials should persist after logout.
    */
   private async syncTokenStorage(
     userId: UserId,
@@ -255,6 +257,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     timeout: VaultTimeout,
   ): Promise<void> {
     if (!accessToken) {
+      await this.wipeTokensFromDisk(userId);
       return;
     }
     if (this.shouldPersistToDisk(action, timeout)) {
