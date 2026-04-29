@@ -48,7 +48,7 @@
     <div
       [class]="(hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4') + ' tw-flex tw-flex-col tw-min-h-0'"
     >
-      @if (showAddAccessToggle && activeFilter().selectedCollectionNode) {
+      @if (showAddAccessToggle() && activeFilter().selectedCollectionNode) {
         <bit-toggle-group
           [selected]="addAccessStatus$ | async"
           (selectedChange)="addAccessToggle($event)"
@@ -98,7 +98,7 @@
           [showBulkAddToCollections]="true"
           [viewingOrgVault]="true"
           [addAccessStatus]="addAccessStatus$ | async"
-          [addAccessToggle]="showAddAccessToggle"
+          [addAccessToggle]="showAddAccessToggle()"
           [activeCollection]="selectedCollection?.node"
         >
         </app-vault-items>

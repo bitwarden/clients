@@ -1,11 +1,10 @@
-import { inject } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { NavigationExtras, Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { distinctUntilChanged, filter, map, shareReplay, switchMap } from "rxjs/operators";
 
-import {
-  CollectionAdminView,
-  CollectionView,
-} from "@bitwarden/common/admin-console/models/collections";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -14,12 +13,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { getById } from "@bitwarden/common/platform/misc";
+import { OrganizationId , CipherId, CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   CipherViewLike,
@@ -33,7 +32,9 @@ import {
   CipherFormConfigService,
   CollectionAssignmentResult,
   PasswordRepromptService,
+  RoutedVaultFilterBridgeService,
   RoutedVaultFilterModel,
+  RoutedVaultFilterService,
   VaultFilter,
   VaultItemDialogComponent,
   VaultItemDialogMode,
@@ -47,6 +48,9 @@ import {
   openBulkDeleteDialog,
 } from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 
+import { VaultCollectionService } from "./vault-collection.service";
+
+@Injectable()
 export class VaultCipherActionsService {
   private readonly cipherService = inject(CipherService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
@@ -61,6 +65,36 @@ export class VaultCipherActionsService {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly router = inject(Router);
   private readonly i18nService = inject(I18nService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
+  private readonly routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
+  private readonly vaultCollectionService = inject(VaultCollectionService);
+
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+
+  private readonly organizationId$ = this.routedVaultFilterService.filter$.pipe(
+    map((f) => f.organizationId),
+    filter((id) => id !== undefined),
+    filter((value): value is OrganizationId => value !== Unassigned),
+    distinctUntilChanged(),
+  );
+
+  private readonly organization$: Observable<Organization> = combineLatest([
+    this.organizationId$,
+    this.userId$,
+  ]).pipe(
+    switchMap(([orgId, userId]) =>
+      this.organizationService.organizations$(userId).pipe(getById(orgId)),
+    ),
+    filter((org) => org != null),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly filter$: Observable<RoutedVaultFilterModel> =
+    this.routedVaultFilterService.filter$;
+
+  readonly activeFilter$: Observable<VaultFilter> =
+    this.routedVaultFilterBridgeService.activeFilter$;
 
   private readonly _refresh$ = new Subject<void>();
   private readonly _navigate$ = new Subject<{ queryParams: unknown; options?: NavigationExtras }>();
@@ -73,15 +107,6 @@ export class VaultCipherActionsService {
   get hasOpenDialog(): boolean {
     return this.vaultItemDialogRef != undefined;
   }
-
-  constructor(
-    private readonly organization$: Observable<Organization>,
-    private readonly userId$: Observable<UserId>,
-    private readonly filter$: Observable<RoutedVaultFilterModel>,
-    private readonly editableCollections$: Observable<CollectionAdminView[]>,
-    private readonly selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>,
-    readonly activeFilter$: Observable<VaultFilter>,
-  ) {}
 
   private refresh(): void {
     this._refresh$.next();
@@ -509,7 +534,9 @@ export class VaultCipherActionsService {
       return;
     }
 
-    const availableCollections = await firstValueFrom(this.editableCollections$);
+    const availableCollections = await firstValueFrom(
+      this.vaultCollectionService.editableCollections$,
+    );
     const organization = await firstValueFrom(this.organization$);
     const activeFilter = await firstValueFrom(this.activeFilter$);
     const dialog = AssignCollectionsWebComponent.open(this.dialogService, {
