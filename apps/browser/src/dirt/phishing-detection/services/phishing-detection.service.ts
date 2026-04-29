@@ -5,7 +5,6 @@ import {
   firstValueFrom,
   map,
   merge,
-  Subject,
   switchMap,
   tap,
 } from "rxjs";
@@ -20,14 +19,9 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CommandDefinition, MessageListener } from "@bitwarden/messaging";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { fromChromeEvent } from "../../../platform/browser/from-chrome-event";
 
 import { PhishingDataService } from "./phishing-data.service";
-
-type PhishingDetectionNavigationEvent = {
-  tabId: number;
-  changeInfo: chrome.tabs.OnUpdatedInfo;
-  tab: chrome.tabs.Tab;
-};
 
 /**
  * Sends a message to the phishing detection service to continue to the caught url
@@ -45,8 +39,9 @@ export const PHISHING_DETECTION_CANCEL_COMMAND = new CommandDefinition<{
 }>("phishing-detection-cancel");
 
 export class PhishingDetectionService {
-  private _tabUpdated$ = new Subject<PhishingDetectionNavigationEvent>();
-  private _ignoredHostnames = new Set<string>();
+  // Tracks hostname:tabId pairs that should bypass phishing checks after "Continue to this site".
+  // Entries persist for the lifetime of the background page (cleared on extension/browser restart).
+  private _ignoredEntries = new Set<string>();
   private _didInit = false;
 
   constructor(
@@ -64,8 +59,6 @@ export class PhishingDetectionService {
     }
 
     logService.debug("[PhishingDetectionService] Initialize called. Checking prerequisites...");
-
-    BrowserApi.addListener(chrome.tabs.onUpdated, this._handleTabUpdated.bind(this));
 
     const getOrgsToNotify = async (): Promise<Organization[]> => {
       const userId = await firstValueFrom(getUserId(accountService.activeAccount$));
@@ -96,35 +89,40 @@ export class PhishingDetectionService {
       switchMap(async (message) => {
         await recordEvents(EventType.PhishingBlocker_Bypassed);
         const url = new URL(message.url);
-        this._ignoredHostnames.add(url.hostname);
+        this._ignoredEntries.add(`${url.hostname}:${message.tabId}`);
         await BrowserApi.navigateTabToUrl(message.tabId, url);
       }),
     );
 
-    const onTabUpdated$ = this._tabUpdated$.pipe(
+    // onCommitted for successful navigations; onErrorOccurred for HTTP errors/DNS failures
+    // where Chrome skips onCommitted. Firefox fires both, deduplicated by distinctUntilChanged.
+    const onCommitted$ = fromChromeEvent(chrome.webNavigation.onCommitted).pipe(
+      map(([details]) => details),
+    );
+    const onErrorOccurred$ = fromChromeEvent(chrome.webNavigation.onErrorOccurred).pipe(
+      map(([details]) => details),
+    );
+
+    const onTabUpdated$ = merge(onCommitted$, onErrorOccurred$).pipe(
+      filter((details) => details.frameId === 0),
       filter(
-        (navEvent) =>
-          navEvent.changeInfo.status === "complete" &&
-          !!navEvent.tab.url &&
-          !this._isExtensionPage(navEvent.tab.url),
+        (details) =>
+          !!details.url && !details.url.startsWith("about:") && !this._isExtensionPage(details.url),
       ),
-      map(({ tab, tabId }) => {
-        const url = new URL(tab.url!);
-        return { tabId, url, ignored: this._ignoredHostnames.has(url.hostname) };
+      map((details) => {
+        const url = new URL(details.url);
+        return {
+          tabId: details.tabId,
+          url,
+          ignored: this._ignoredEntries.has(`${url.hostname}:${details.tabId}`),
+        };
       }),
       distinctUntilChanged(
-        (prev, curr) =>
-          prev.url.toString() === curr.url.toString() &&
-          prev.tabId === curr.tabId &&
-          prev.ignored === curr.ignored,
+        (prev, curr) => prev.url.toString() === curr.url.toString() && prev.tabId === curr.tabId,
       ),
-      tap((event) => logService.debug(`[PhishingDetectionService] processing event:`, event)),
-      // Use switchMap to cancel any in-progress check when navigating to a new URL
-      // This prevents race conditions where a stale check redirects the user incorrectly
+      // switchMap cancels in-progress checks when a new navigation arrives
       switchMap(async ({ tabId, url, ignored }) => {
         if (ignored) {
-          // The next time this host is visited, block again
-          this._ignoredHostnames.delete(url.hostname);
           return;
         }
         const isPhishing = await phishingDataService.isPhishingWebAddress(url);
@@ -173,17 +171,6 @@ export class PhishingDetectionService {
       .subscribe();
 
     this._didInit = true;
-  }
-
-  private _handleTabUpdated(
-    tabId: number,
-    changeInfo: chrome.tabs.OnUpdatedInfo,
-    tab: chrome.tabs.Tab,
-  ): boolean {
-    this._tabUpdated$.next({ tabId, changeInfo, tab });
-
-    // Return value for supporting BrowserApi event listener signature
-    return true;
   }
 
   private _isExtensionPage(url: string): boolean {
