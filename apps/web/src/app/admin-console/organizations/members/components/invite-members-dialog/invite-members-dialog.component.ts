@@ -1,4 +1,4 @@
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -29,6 +29,7 @@ import {
   FormFieldModule,
   IconModule,
   LinkModule,
+  RadioButtonModule,
   SelectModule,
   TabsModule,
   ToastService,
@@ -86,6 +87,8 @@ export interface InviteMembersDialogParams {
     FormFieldModule,
     I18nPipe,
     LinkModule,
+    NgTemplateOutlet,
+    RadioButtonModule,
     ReactiveFormsModule,
     SelectModule,
     TabsModule,
