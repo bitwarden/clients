@@ -13605,8 +13605,11 @@
   "rotateAccountEncryptionKeyDescription": {
     "message": "Rotating your account's encryption key generates a new encryption key that is used to re-encrypt all vault data. You should consider rotating your encryption key if your account has been compromised."
   },
+  "rotateAccountEncryptionDialogDescription": {
+    "message": "Generate a new key and re-encrypt all vault data. This is recommended if you believe your account may have been compromised."
+  },
   "rotateAccountEncryptionCallout": {
-    "message": "Rotating your account's encryption key will re-encrypt all vault data. Do not close this browser window until the process is complete."
+    "message": "You'll be logged out and prompted to re-authenticate. To avoid data corruption, do not close your browser until the process is complete."
   },
   "accountEncryptionKeyRotated": {
     "message": "Account encryption key rotated"
