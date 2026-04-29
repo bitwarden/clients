@@ -5,7 +5,6 @@ import { ApiService } from "../../../abstractions/api.service";
 import { ListResponse } from "../../../models/response/list.response";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
-import { OrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/organization-domain-sso-details.response";
 import { OrganizationDomainResponse } from "../../abstractions/organization-domain/responses/organization-domain.response";
 import { VerifiedOrganizationDomainSsoDetailsResponse } from "../../abstractions/organization-domain/responses/verified-organization-domain-sso-details.response";
 
@@ -70,18 +69,6 @@ const mockedOrgDomainServerResponse = {
 };
 
 const mockedOrgDomainResponse = new OrganizationDomainResponse(mockedOrgDomainServerResponse);
-
-const mockedOrganizationDomainSsoDetailsServerResponse = {
-  id: "fake-guid",
-  organizationIdentifier: "fake-org-identifier",
-  ssoAvailable: true,
-  domainName: "fake-domain-name",
-  verifiedDate: "2022-12-16T21:36:28.68Z",
-};
-
-const mockedOrganizationDomainSsoDetailsResponse = new OrganizationDomainSsoDetailsResponse(
-  mockedOrganizationDomainSsoDetailsServerResponse,
-);
 
 const mockedVerifiedOrganizationDomain = {
   organizationIdentifier: "fake-org-identifier",
@@ -226,23 +213,6 @@ describe("Org Domain API Service", () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       expect(lastValueFrom(orgDomainService.orgDomains$)).resolves.toHaveLength(0);
     });
-  });
-
-  it("getClaimedOrgDomainByEmail should call ApiService.send with correct parameters and return response", async () => {
-    const email = "test@example.com";
-    apiService.send.mockResolvedValue(mockedOrganizationDomainSsoDetailsServerResponse);
-
-    const result = await orgDomainApiService.getClaimedOrgDomainByEmail(email);
-
-    expect(apiService.send).toHaveBeenCalledWith(
-      "POST",
-      "/organizations/domain/sso/details",
-      new OrganizationDomainSsoDetailsRequest(email),
-      false, //anonymous
-      true,
-    );
-
-    expect(result).toEqual(mockedOrganizationDomainSsoDetailsResponse);
   });
 
   it("getVerifiedOrgDomainsByEmail should call ApiService.send with correct parameters and return response", async () => {

@@ -74,7 +74,7 @@ import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
-import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
+import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
@@ -217,6 +217,7 @@ import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-st
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -238,6 +239,7 @@ import {
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultChangeLoginPasswordService } from "@bitwarden/common/vault/services/default-change-login-password.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
@@ -531,6 +533,8 @@ export default class MainBackground {
   clipboardNotificationBadgeUpdaterService: ClipboardNotificationBadgeUpdaterService;
   atRiskCipherUpdaterService: AtRiskCipherBadgeUpdaterService;
 
+  changeLoginPasswordService: ChangeLoginPasswordService;
+
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   loginToAutoFill: CipherView = null;
@@ -554,11 +558,12 @@ export default class MainBackground {
   private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
   private popupRouterCacheBackgroundService: PopupRouterCacheBackgroundService;
 
-  private targetingRulesDataService: TargetingRulesDataService;
+  targetingRulesDataService: TargetingRulesDataService;
 
   // DIRT
   private phishingDataService: PhishingDataService;
   private phishingDetectionSettingsService: PhishingDetectionSettingsServiceAbstraction;
+  private phishingDetectionService: PhishingDetectionService;
 
   constructor() {
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -841,7 +846,7 @@ export default class MainBackground {
       this.fileUploadService,
       this.configService,
     );
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.collectionService = new DefaultCollectionService(
       this.keyService,
@@ -1025,6 +1030,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       this.policyService,
+      this.environmentService,
     );
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
@@ -1063,7 +1069,6 @@ export default class MainBackground {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -1462,6 +1467,12 @@ export default class MainBackground {
       messageListener,
     );
 
+    this.changeLoginPasswordService = new DefaultChangeLoginPasswordService(
+      this.apiService,
+      this.environmentService,
+      this.domainSettingsService,
+    );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
@@ -1478,6 +1489,7 @@ export default class MainBackground {
       this.themeStateService,
       this.userNotificationSettingsService,
       this.taskService,
+      this.changeLoginPasswordService,
       this.messagingService,
       this.fido2Background,
     );
@@ -1600,11 +1612,14 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    PhishingDetectionService.initialize(
+    this.phishingDetectionService = new PhishingDetectionService(
       this.logService,
       this.phishingDataService,
       this.phishingDetectionSettingsService,
       messageListener,
+      this.eventCollectionService,
+      this.organizationService,
+      this.accountService,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
