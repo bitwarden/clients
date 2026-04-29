@@ -148,6 +148,7 @@ import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
+import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -175,6 +176,13 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
+import {
+  BuiltIn,
+  createRandomizer,
+  CredentialGeneratorService,
+  DefaultCredentialGeneratorService,
+  providers,
+} from "@bitwarden/generator-core";
 import {
   legacyPasswordGenerationServiceFactory,
   PasswordGenerationServiceAbstraction,
@@ -282,6 +290,8 @@ export class ServiceContainer {
   eventUploadService: EventUploadServiceAbstraction;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
+  credentialGeneratorService: CredentialGeneratorService;
+  generatorDependencyProvider: providers.GeneratorDependencyProvider;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   totpService: TotpService;
   containerService: ContainerService;
@@ -987,16 +997,48 @@ export class ServiceContainer {
 
     this.importApiService = new ImportApiService(this.apiService);
 
-    this.importMetadataService = new DefaultImportMetadataService(
-      createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
-        this.stateProvider,
-        this.policyService,
-        buildExtensionRegistry(),
-        this.logService,
-        this.platformUtilsService,
-        this.configService,
-      ),
+    const systemProvider = createSystemServiceProvider(
+      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+      this.stateProvider,
+      this.policyService,
+      buildExtensionRegistry(),
+      this.logService,
+      this.platformUtilsService,
+      this.configService,
+    );
+
+    this.importMetadataService = new DefaultImportMetadataService(systemProvider);
+
+    const encryptorProvider = new KeyServiceLegacyEncryptorProvider(
+      this.encryptService,
+      this.keyService,
+    );
+    const userStateDeps = {
+      encryptor: encryptorProvider,
+      state: this.stateProvider,
+      log: systemProvider.log,
+      now: Date.now,
+    };
+
+    this.generatorDependencyProvider = {
+      randomizer: createRandomizer(),
+      client: new RestClient(this.apiService, this.i18nService),
+      i18nService: this.i18nService,
+      now: Date.now,
+    };
+
+    this.credentialGeneratorService = new DefaultCredentialGeneratorService(
+      {
+        userState: userStateDeps,
+        generator: this.generatorDependencyProvider,
+        profile: new providers.GeneratorProfileProvider(userStateDeps, this.policyService),
+        metadata: new providers.GeneratorMetadataProvider(
+          userStateDeps,
+          systemProvider,
+          Object.values(BuiltIn),
+        ),
+      },
+      systemProvider,
     );
 
     this.importService = new ImportService(
