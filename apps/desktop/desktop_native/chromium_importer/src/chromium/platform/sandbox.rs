@@ -70,6 +70,13 @@ impl ScopedBrowserAccess {
             ));
         }
 
+        // If we already have a stored bookmark for this browser, skip the picker —
+        // `resume` will validate it on the subsequent profile load and re-prompt
+        // through this flow only if the bookmark is gone or unusable.
+        if has_stored_access(browser_name).await? {
+            return Ok(());
+        }
+
         // For macOS, data_dir is always a single-element array
         let relative_path = config
             .data_dir
@@ -100,30 +107,7 @@ impl ScopedBrowserAccess {
 
     /// Resume browser directory access using previously created security bookmark
     pub async fn resume(browser_name: &str) -> Result<Self> {
-        // First check if we have stored access
-        let has_access_input = CommandInput {
-            namespace: "chromium_importer".to_string(),
-            command: "has_stored_access".to_string(),
-            params: serde_json::json!({
-                "browserName": browser_name,
-            }),
-        };
-
-        let has_access_output =
-            desktop_objc::run_command(serde_json::to_string(&has_access_input)?)
-                .await
-                .map_err(|e| anyhow!("Failed to call ObjC command: {}", e))?;
-
-        let has_access_result: CommandResult<HasStoredAccessResponse> =
-            serde_json::from_str(&has_access_output)
-                .map_err(|e| anyhow!("Failed to parse ObjC response: {}", e))?;
-
-        let has_access = match has_access_result {
-            CommandResult::Success { value } => value.has_access,
-            CommandResult::Error { error } => return Err(anyhow!("{}", error)),
-        };
-
-        if !has_access {
+        if !has_stored_access(browser_name).await? {
             return Err(anyhow!("Access has not been granted for this browser"));
         }
 
@@ -199,6 +183,28 @@ async fn is_browser_installed(browser_name: &str) -> Result<bool> {
 
     match result {
         CommandResult::Success { value } => Ok(value.is_installed),
+        CommandResult::Error { error } => Err(anyhow!("{}", error)),
+    }
+}
+
+async fn has_stored_access(browser_name: &str) -> Result<bool> {
+    let input = CommandInput {
+        namespace: "chromium_importer".to_string(),
+        command: "has_stored_access".to_string(),
+        params: serde_json::json!({
+            "browserName": browser_name,
+        }),
+    };
+
+    let output = desktop_objc::run_command(serde_json::to_string(&input)?)
+        .await
+        .map_err(|e| anyhow!("Failed to call ObjC command: {}", e))?;
+
+    let result: CommandResult<HasStoredAccessResponse> = serde_json::from_str(&output)
+        .map_err(|e| anyhow!("Failed to parse ObjC response: {}", e))?;
+
+    match result {
+        CommandResult::Success { value } => Ok(value.has_access),
         CommandResult::Error { error } => Err(anyhow!("{}", error)),
     }
 }

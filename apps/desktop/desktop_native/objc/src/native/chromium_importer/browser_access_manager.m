@@ -1,5 +1,7 @@
 #import "browser_access_manager.h"
 #import <Cocoa/Cocoa.h>
+#import <pwd.h>
+#import <unistd.h>
 
 @implementation BrowserAccessManager {
     NSString *_bookmarkKey;
@@ -19,7 +21,16 @@
         return nil;
     }
 
-    NSURL *homeDir = [[NSFileManager defaultManager] homeDirectoryForCurrentUser];
+    // Inside an App Sandbox `homeDirectoryForCurrentUser` returns the container path
+    // (~/Library/Containers/<bundle-id>/Data), so resolve the user's real $HOME via
+    // `getpwuid` — Apple's documented sandbox-safe approach — before composing the
+    // expected browser data directory.
+    struct passwd *pw = getpwuid(getuid());
+    if (pw == NULL || pw->pw_dir == NULL) {
+        return nil;
+    }
+    NSString *realHome = [NSString stringWithUTF8String:pw->pw_dir];
+    NSURL *homeDir = [NSURL fileURLWithPath:realHome isDirectory:YES];
     NSURL *browserPath = [homeDir URLByAppendingPathComponent:relativePath];
 
     // NSOpenPanel must be run on the main thread
