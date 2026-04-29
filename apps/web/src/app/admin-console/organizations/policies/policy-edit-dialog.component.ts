@@ -62,7 +62,7 @@ export type PolicyEditDialogResult = "saved";
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   protected readonly destroyRef = inject(DestroyRef);
-  private readonly discardGuardEnabled = false;
+  private readonly discardGuardEnabled = signal(false);
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -132,8 +132,10 @@ export class PolicyEditDialogComponent implements AfterViewInit {
    * Call this once the child policy component has been initialised.
    */
   protected async setupDiscardGuard(): Promise<void> {
-    this.discardGuardEnabled = await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers);
-    if (!this.discardGuardEnabled) {
+    this.discardGuardEnabled.set(
+      await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers),
+    );
+    if (!this.discardGuardEnabled()) {
       return;
     }
 
@@ -160,7 +162,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   protected readonly cancel = async () => {
-    if (!this.discardGuardEnabled || !this.isFormDirty()) {
+    if (!this.discardGuardEnabled() || !this.isFormDirty()) {
       await this.dialogRef.close();
       return;
     }
@@ -174,7 +176,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   @HostListener("window:beforeunload", ["$event"])
   onBeforeUnload(event: BeforeUnloadEvent): void {
-    if (this.discardGuardEnabled && this.isFormDirty()) {
+    if (this.discardGuardEnabled() && this.isFormDirty()) {
       event.preventDefault();
       event.returnValue = "";
     }
