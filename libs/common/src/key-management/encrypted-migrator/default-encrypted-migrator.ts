@@ -27,17 +27,17 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
   private isRunningMigration = false;
 
   constructor(
-    readonly kdfConfigService: KdfConfigService,
-    readonly changeKdfService: ChangeKdfService,
+    kdfConfigService: KdfConfigService,
+    changeKdfService: ChangeKdfService,
     private readonly logService: LogService,
-    readonly configService: ConfigService,
-    readonly masterPasswordService: MasterPasswordServiceAbstraction,
-    readonly syncService: SyncService,
-    readonly keyService: KeyService,
-    readonly biometricsService: BiometricsService,
-    readonly biometricStateService: BiometricStateService,
-    readonly platformUtilsService: PlatformUtilsService,
-    readonly sdkService: SdkService,
+    configService: ConfigService,
+    masterPasswordService: MasterPasswordServiceAbstraction,
+    syncService: SyncService,
+    keyService: KeyService,
+    biometricsService: BiometricsService,
+    biometricStateService: BiometricStateService,
+    platformUtilsService: PlatformUtilsService,
+    sdkService: SdkService,
   ) {
     // Register migrations here
     this.migrations.push({
