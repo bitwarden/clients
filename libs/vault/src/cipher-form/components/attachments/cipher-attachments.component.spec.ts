@@ -1,3 +1,10 @@
+// ResizeObserver is not available in jsdom
+globalThis.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as unknown as typeof ResizeObserver;
+
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
@@ -172,7 +179,9 @@ describe("CipherAttachmentsComponent", () => {
     const fileName = fixture.debugElement.query(By.css('[data-testid="file-name"]'));
     const fileSize = fixture.debugElement.query(By.css('[data-testid="file-size"]'));
 
-    expect(fileName.nativeElement.textContent.trim()).toEqual(attachment.fileName);
+    expect(fileName.nativeElement.querySelector("[aria-label]").getAttribute("aria-label")).toEqual(
+      attachment.fileName,
+    );
     expect(fileSize.nativeElement.textContent.trim()).toEqual(attachment.sizeName);
   });
 

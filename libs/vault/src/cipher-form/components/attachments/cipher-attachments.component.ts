@@ -52,6 +52,7 @@ import {
 } from "@bitwarden/components";
 
 import { DownloadAttachmentComponent } from "../../../components/download-attachment/download-attachment.component";
+import { TruncatedFilenameComponent } from "../../../components/truncated-filename";
 
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
@@ -71,6 +72,7 @@ type CipherAttachmentForm = FormGroup<{
     JslibModule,
     ProgressBarComponent,
     ReactiveFormsModule,
+    TruncatedFilenameComponent,
     TypographyModule,
     CardComponent,
     DeleteAttachmentComponent,

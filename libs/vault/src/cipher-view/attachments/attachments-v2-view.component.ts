@@ -23,6 +23,7 @@ import {
 import { KeyService } from "@bitwarden/key-management";
 
 import { DownloadAttachmentComponent } from "../../components/download-attachment/download-attachment.component";
+import { TruncatedFilenameComponent } from "../../components/truncated-filename";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -35,6 +36,7 @@ import { DownloadAttachmentComponent } from "../../components/download-attachmen
     ItemModule,
     IconButtonModule,
     SectionHeaderComponent,
+    TruncatedFilenameComponent,
     TypographyModule,
     DownloadAttachmentComponent,
   ],

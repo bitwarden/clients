@@ -5,6 +5,6 @@
     buttonType="primaryGhost"
     size="small"
     type="button"
-    [label]="'downloadAttachmentLabel' | i18n"
+    [label]="'downloadAttachmentName' | i18n: attachment().fileName"
   ></button>
 }
