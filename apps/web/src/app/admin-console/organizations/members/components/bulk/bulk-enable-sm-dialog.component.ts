@@ -52,7 +52,7 @@ export class BulkEnableSecretsManagerDialogComponent implements OnInit {
       title: null,
       message: this.i18nService.t("activatedAccessToSecretsManager"),
     });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   static open(dialogService: DialogService, data: BulkEnableSecretsManagerDialogData) {

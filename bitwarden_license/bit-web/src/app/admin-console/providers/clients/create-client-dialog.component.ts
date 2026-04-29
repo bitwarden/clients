@@ -33,10 +33,7 @@ export enum CreateClientDialogResultType {
 
 export const openCreateClientDialog = (
   dialogService: DialogService,
-  dialogConfig: DialogConfig<
-    CreateClientDialogParams,
-    DialogRef<CreateClientDialogResultType, unknown>
-  >,
+  dialogConfig: DialogConfig<CreateClientDialogParams, CreateClientDialogResultType>,
 ) =>
   dialogService.open<CreateClientDialogResultType, CreateClientDialogParams>(
     CreateClientDialogComponent,
@@ -220,7 +217,7 @@ export class CreateClientDialogComponent implements OnInit {
       message: this.i18nService.t("createdNewClient"),
     });
 
-    this.dialogRef.close(this.ResultType.Submitted);
+    await this.dialogRef.close(this.ResultType.Submitted);
   };
 
   protected get unassignedSeats(): number {

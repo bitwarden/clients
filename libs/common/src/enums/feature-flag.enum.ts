@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
   GenerateInviteLink = "pm-32497-generate-invite-link",
+  PolicyDrawers = "pm-34804-policy-drawers",
 
   /* Auth */
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
@@ -21,6 +22,7 @@ export enum FeatureFlag {
   PM31088_MasterPasswordServiceEmitSalt = "pm-31088-master-password-service-emit-salt",
   UseUnlockServiceForPasswordLogin = "use-unlock-service-for-password-login",
   PM32413_MultiClientPasswordManagement = "pm-32413-multi-client-password-management",
+  PM34210_DesktopAddDevices = "pm-34210-desktop-add-devices",
   // TODO: PM-34091 - Remove this flag and its DefaultFeatureFlagValue entry below.
   PM4516_DevicesLastActivityDate = "pm-4516-devices-add-last-activity-date",
 
@@ -34,7 +36,6 @@ export enum FeatureFlag {
 
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
-  TrialPaymentOptional = "PM-8163-trial-payment",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
 
@@ -48,7 +49,6 @@ export enum FeatureFlag {
   SdkKeyRotation = "pm-30144-sdk-key-rotation",
   LinuxBiometricsV2 = "pm-26340-linux-biometrics-v2",
   NoLogoutOnKdfChange = "pm-23995-no-logout-on-kdf-change",
-  PasskeyUnlock = "pm-2035-passkey-unlock",
   PM27279_V2RegistrationTdeJit = "pm-27279-v2-registration-tde-jit",
   EnableAccountEncryptionV2KeyConnectorRegistration = "enable-account-encryption-v2-key-connector-registration",
   EnableAccountEncryptionV2JitPasswordRegistration = "enable-account-encryption-v2-jit-password-registration",
@@ -74,6 +74,7 @@ export enum FeatureFlag {
   /* Vault */
   PM32009NewItemTypes = "pm-32009-new-item-types",
   PM19941MigrateCipherDomainToSdk = "pm-19941-migrate-cipher-domain-to-sdk",
+  PM28190CipherSharingOpsToSdk = "pm-28190-cipher-sharing-ops-to-sdk",
   PM22134SdkCipherListView = "pm-22134-sdk-cipher-list-view",
   PM22136_SdkCipherEncryption = "pm-22136-sdk-cipher-encryption",
   CipherKeyEncryption = "cipher-key-encryption",
@@ -118,6 +119,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AdminResetTwoFactor]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
+  [FeatureFlag.PolicyDrawers]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
@@ -150,6 +152,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM22136_SdkCipherEncryption]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
+  [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
   [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
@@ -166,12 +169,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM31088_MasterPasswordServiceEmitSalt]: FALSE,
   [FeatureFlag.UseUnlockServiceForPasswordLogin]: FALSE,
   [FeatureFlag.PM32413_MultiClientPasswordManagement]: FALSE,
+  [FeatureFlag.PM34210_DesktopAddDevices]: FALSE,
   // TODO: PM-34091 - Remove this default value entry.
   [FeatureFlag.PM4516_DevicesLastActivityDate]: FALSE,
 
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
-  [FeatureFlag.TrialPaymentOptional]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
 
@@ -185,7 +188,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
-  [FeatureFlag.PasskeyUnlock]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,

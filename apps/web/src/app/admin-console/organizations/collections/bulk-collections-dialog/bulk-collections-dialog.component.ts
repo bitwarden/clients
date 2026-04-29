@@ -145,7 +145,7 @@ export class BulkCollectionsDialogComponent implements OnDestroy {
       message: this.i18nService.t("editedCollections"),
     });
 
-    this.dialogRef.close(BulkCollectionsDialogResult.Saved);
+    await this.dialogRef.close(BulkCollectionsDialogResult.Saved);
   };
 
   static open(dialogService: DialogService, config: DialogConfig<BulkCollectionsDialogParams>) {
