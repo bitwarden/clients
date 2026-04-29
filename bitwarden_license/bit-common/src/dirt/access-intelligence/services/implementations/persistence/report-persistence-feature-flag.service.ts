@@ -11,7 +11,7 @@ import { ReportPersistenceService } from "../../abstractions/report-persistence.
 import { DefaultReportPersistenceService } from "./default-report-persistence.service";
 import { FileReportPersistenceService } from "./file-report-persistence.service";
 
-export class FilePersistenceFeatureFlagService extends ReportPersistenceService {
+export class ReportPersistenceFeatureFlagService extends ReportPersistenceService {
   constructor(
     private filePersistenceService: FileReportPersistenceService,
     private defaultPersistenceService: DefaultReportPersistenceService,
