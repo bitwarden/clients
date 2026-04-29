@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenStorageSyncService } from "@bitwarden/common/auth/abstractions/token-storage-sync.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
@@ -41,12 +42,14 @@ export class InitService {
     private taskService: TaskService,
     private readonly migrationRunner: MigrationRunner,
     @Inject(DOCUMENT) private document: Document,
+    private readonly tokenStorageSyncService: TokenStorageSyncService,
   ) {}
 
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.run();
+      await this.tokenStorageSyncService.init();
 
       const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
       if (activeAccount) {
