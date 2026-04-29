@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of, Subject } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -26,7 +27,9 @@ import {
   CipherFormConfigService,
   CollectionAssignmentResult,
   PasswordRepromptService,
+  RoutedVaultFilterBridgeService,
   RoutedVaultFilterModel,
+  RoutedVaultFilterService,
   VaultFilter,
   VaultItemDialogComponent,
   VaultItemDialogResult,
@@ -38,6 +41,7 @@ import { BulkDeleteDialogResult } from "../../../../vault/individual-vault/bulk-
 import * as BulkDeleteModule from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
 
 import { VaultCipherActionsService } from "./vault-cipher-actions.service";
+import { VaultCollectionService } from "./vault-collection.service";
 
 const USER_ID = "user-1" as UserId;
 const ORG_ID = "org-1" as OrganizationId;
@@ -90,6 +94,7 @@ describe("VaultCipherActionsService", () => {
   let messagingService: MockProxy<MessagingService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let i18nService: MockProxy<I18nService>;
+  let organizationService: MockProxy<OrganizationService>;
 
   let organization: Organization;
   let refresh: jest.Mock;
@@ -97,16 +102,11 @@ describe("VaultCipherActionsService", () => {
   let mockFormConfig: CipherFormConfig;
 
   function initService(org = organization) {
+    organizationService.organizations$.mockReturnValue(of([org]));
+
     const envInjector = TestBed.inject(EnvironmentInjector);
     service = runInInjectionContext(envInjector, () => {
-      return new VaultCipherActionsService(
-        of(org),
-        of(USER_ID),
-        of({ type: undefined } as unknown as RoutedVaultFilterModel),
-        of([] as CollectionAdminView[]),
-        of(undefined),
-        of({ collectionId: "col-1" as CollectionId } as unknown as VaultFilter),
-      );
+      return new VaultCipherActionsService();
     });
 
     service.refresh$.subscribe(refresh);
@@ -125,6 +125,7 @@ describe("VaultCipherActionsService", () => {
     messagingService = mock<MessagingService>();
     platformUtilsService = mock<PlatformUtilsService>();
     i18nService = mock<I18nService>();
+    organizationService = mock<OrganizationService>();
 
     i18nService.t.mockReturnValue("translated");
     passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
@@ -153,6 +154,28 @@ describe("VaultCipherActionsService", () => {
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: I18nService, useValue: i18nService },
         { provide: Router, useValue: mock<Router>() },
+        { provide: OrganizationService, useValue: organizationService },
+        {
+          provide: RoutedVaultFilterService,
+          useValue: {
+            filter$: of({
+              organizationId: ORG_ID,
+              type: undefined,
+            } as unknown as RoutedVaultFilterModel),
+          },
+        },
+        {
+          provide: RoutedVaultFilterBridgeService,
+          useValue: {
+            activeFilter$: of({
+              collectionId: "col-1" as CollectionId,
+            } as unknown as VaultFilter),
+          },
+        },
+        {
+          provide: VaultCollectionService,
+          useValue: { editableCollections$: of([] as CollectionAdminView[]) },
+        },
       ],
     });
 
