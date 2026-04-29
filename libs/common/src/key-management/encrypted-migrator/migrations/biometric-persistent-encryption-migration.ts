@@ -1,6 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
- 
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line
 import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
