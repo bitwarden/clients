@@ -34,7 +34,7 @@ export class BerryComponent {
   readonly value = input<number>();
   readonly type = input<"status" | "count">("count");
 
-  protected readonly content = computed(() => {
+  readonly content = computed(() => {
     const value = this.value();
     const type = this.type();
 

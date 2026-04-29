@@ -7,6 +7,7 @@ import {
   NgZone,
   Optional,
   Self,
+  inject,
   input,
   model,
 } from "@angular/core";
@@ -38,6 +39,7 @@ export function inputBorderClasses(error: boolean) {
   },
 })
 export class BitInputDirective implements BitFormFieldControl {
+  private readonly parentFormField = inject(BitFormFieldComponent, { optional: true });
   classList() {
     const classes = [
       "tw-block",
@@ -121,7 +123,6 @@ export class BitInputDirective implements BitFormFieldControl {
     @Optional() @Self() private ngControl: NgControl,
     private ngZone: NgZone,
     private elementRef: ElementRef<HTMLInputElement>,
-    @Optional() private parentFormField: BitFormFieldComponent,
   ) {}
 
   focus() {

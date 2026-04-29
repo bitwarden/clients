@@ -34,13 +34,36 @@ group.
 
 <Canvas of={stories.FullWidth} />
 
-## Label wrap
+## Inline
 
-If the labels in a toggle group would overflow the width of the toggle group container, then the
-labels will wrap to 2 lines and truncate with an ellipsis past that. The full label text is
-accessible via the `title` prop (i.e. visible on hover).
+Use the `inline` input to keep the toggle group inline-grid at all breakpoints and prevent it from
+ever expanding to fill the container width. This is useful when placing a toggle group inside a card
+or other constrained layout where full-width expansion would look wrong.
 
-<Canvas of={stories.LabelWrap} />
+```html
+<bit-toggle-group inline> ...toggle components here... </bit-toggle-group>
+```
+
+<Canvas of={stories.Inline} />
+
+## Responsive overflow
+
+By default, a toggle group adapts to its available space across three modes:
+
+1. **Inline** — the natural state; the group sizes to its content and sits inline.
+2. **Full-width** — triggered by the `fullWidth` input; each toggle expands equally to fill the
+   container.
+3. **Dropdown** — triggered automatically when the container is too narrow to fit the toggles; the
+   buttons collapse into a `<select>`-style dropdown so the selection is never lost.
+
+The transition between modes is driven by a `ResizeObserver` that compares the container's current
+width against the group's natural (unconstrained) width. When the container shrinks below that
+threshold the group switches to dropdown, and when it grows back above it the group returns to its
+previous inline or full-width state.
+
+Resize the browser window in the story below to see all three modes in action.
+
+<Canvas of={stories.Overflow} />
 
 # Accessibility
 
