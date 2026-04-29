@@ -10,7 +10,7 @@ import {
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { LogService } from "@bitwarden/logging";
 
-import { PHISHING_DOMAINS_META_KEY, PhishingDataService } from "./phishing-data.service";
+import { PhishingDataService } from "./phishing-data.service";
 import type { PhishingIndexedDbService } from "./phishing-indexeddb.service";
 
 describe("PhishingDataService", () => {
@@ -193,68 +193,6 @@ describe("PhishingDataService", () => {
       expect(mockIndexedDbService.findMatchingUrl).not.toHaveBeenCalled();
     });
 
-    it("should use cursor-based search when useCustomMatcher is enabled", async () => {
-      // Temporarily enable custom matcher for this test
-      const originalValue = (PhishingDataService as any).USE_CUSTOM_MATCHER;
-      (PhishingDataService as any).USE_CUSTOM_MATCHER = true;
-
-      try {
-        // Mock hasUrl to return false (no direct match)
-        mockIndexedDbService.hasUrl.mockResolvedValue(false);
-        // Mock findMatchingUrl to return true (custom matcher finds it)
-        mockIndexedDbService.findMatchingUrl.mockResolvedValue(true);
-
-        const url = new URL("http://phish.com/path");
-        const result = await service.isPhishingWebAddress(url);
-
-        expect(result).toBe(true);
-        expect(mockIndexedDbService.hasUrl).toHaveBeenCalled();
-        expect(mockIndexedDbService.findMatchingUrl).toHaveBeenCalled();
-      } finally {
-        // Restore original value
-        (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
-      }
-    });
-
-    it("should return false when custom matcher finds no match (when enabled)", async () => {
-      const originalValue = (PhishingDataService as any).USE_CUSTOM_MATCHER;
-      (PhishingDataService as any).USE_CUSTOM_MATCHER = true;
-
-      try {
-        mockIndexedDbService.hasUrl.mockResolvedValue(false);
-        mockIndexedDbService.findMatchingUrl.mockResolvedValue(false);
-
-        const url = new URL("http://safe.com/path");
-        const result = await service.isPhishingWebAddress(url);
-
-        expect(result).toBe(false);
-        expect(mockIndexedDbService.findMatchingUrl).toHaveBeenCalled();
-      } finally {
-        (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
-      }
-    });
-
-    it("should handle custom matcher errors gracefully (when enabled)", async () => {
-      const originalValue = (PhishingDataService as any).USE_CUSTOM_MATCHER;
-      (PhishingDataService as any).USE_CUSTOM_MATCHER = true;
-
-      try {
-        mockIndexedDbService.hasUrl.mockResolvedValue(false);
-        mockIndexedDbService.findMatchingUrl.mockRejectedValue(new Error("Cursor error"));
-
-        const url = new URL("http://error.com/path");
-        const result = await service.isPhishingWebAddress(url);
-
-        expect(result).toBe(false);
-        expect(logService.error).toHaveBeenCalledWith(
-          "[PhishingDataService] Custom matcher failed",
-          expect.any(Error),
-        );
-      } finally {
-        (PhishingDataService as any).USE_CUSTOM_MATCHER = originalValue;
-      }
-    });
-
     it("should detect HTTPS URL when block list contains HTTP version", async () => {
       mockIndexedDbService.hasUrl.mockImplementation(async (url: string) => {
         return url === "http://phish.com/malicious-page";
@@ -324,171 +262,339 @@ describe("PhishingDataService", () => {
     });
   });
 
-  describe("data updates", () => {
-    it("should update full dataset via stream", async () => {
-      // Mock full dataset update
-      const mockResponse = {
-        ok: true,
-        body: {} as ReadableStream,
-      } as Response;
-      apiService.nativeFetch.mockResolvedValue(mockResponse);
+  describe("delta sync - background update", () => {
+    const mockManifest = {
+      version: 1,
+      full_list: {
+        path: "link-blocklist.txt",
+        sha256: "current-full-sha256",
+        sorted_sha256: "current-sorted-sha256",
+        line_count: 100,
+      },
+      patches: [
+        {
+          date: "2026-03-10",
+          path: "patches/2026-03-10.patch",
+          from_sha256: "old-sha256",
+          to_sha256: "current-full-sha256",
+        },
+      ],
+    };
 
-      await firstValueFrom(service["_updateFullDataSet"]());
+    let fetchManifestSpy: jest.SpyInstance;
 
-      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+    beforeEach(() => {
+      fetchManifestSpy = jest.spyOn(service as any, "fetchManifest");
+      // saveUrlsFromStream now returns a sha256 string
+      mockIndexedDbService.saveUrlsFromStream.mockResolvedValue("current-full-sha256");
     });
 
-    it("should update daily dataset via addUrls", async () => {
-      // Mock daily update
-      const mockResponse = {
-        ok: true,
-        text: jest.fn().mockResolvedValue("newphish.com\nanotherbad.net"),
-      } as unknown as Response;
-      apiService.nativeFetch.mockResolvedValue(mockResponse);
-
-      await firstValueFrom(service["_updateDailyDataSet"]());
-
-      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["newphish.com", "anotherbad.net"]);
-    });
-
-    it("should get updated meta information", async () => {
-      fetchChecksumSpy.mockResolvedValue("new-checksum");
-      platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0");
-
-      const meta = await firstValueFrom(service["_getUpdatedMeta"]());
-
-      expect(meta).toBeDefined();
-      expect(meta.checksum).toBe("new-checksum");
-      expect(meta.applicationVersion).toBe("2.0.0");
-      expect(meta.timestamp).toBeDefined();
-    });
-  });
-
-  describe("phishing meta data updates", () => {
-    it("should not update metadata when no data updates occur", async () => {
-      // Set up existing metadata
+    it("should no-op when local sha256 matches manifest", async () => {
       const existingMeta = {
-        checksum: "existing-checksum",
-        timestamp: Date.now() - 1000, // 1 second ago (not expired)
+        checksum: "",
+        timestamp: Date.now() - 1000,
         applicationVersion: "1.0.0",
+        sha256: "current-full-sha256",
+        sortedSha256: "current-sorted-sha256",
       };
-      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
 
-      // Mock conditions where no update is needed
-      fetchChecksumSpy.mockResolvedValue("existing-checksum"); // Same checksum
-      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
-      const mockResponse = {
-        ok: true,
-        body: {} as ReadableStream,
-      } as Response;
-      apiService.nativeFetch.mockResolvedValue(mockResponse);
+      fetchManifestSpy.mockResolvedValue(mockManifest);
 
-      // Trigger background update
       const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
 
-      // Verify metadata was NOT updated (same reference returned)
-      expect(result).toEqual(existingMeta);
-      expect(result?.timestamp).toBe(existingMeta.timestamp);
-
-      // Verify no data updates were performed
+      expect(result).toBeDefined();
+      // No download should have occurred
       expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
       expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
     });
 
-    it("should update metadata when full dataset update occurs due to checksum change", async () => {
-      // Set up existing metadata
+    it("should perform full update on app version change", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "current-full-sha256",
+        sortedSha256: "current-sorted-sha256",
+      };
+
+      platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0");
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(result?.applicationVersion).toBe("2.0.0");
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+    });
+
+    it("should perform full update when no local sha256 exists (first install)", async () => {
+      const existingMeta = {
+        checksum: "old-checksum",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        // No sha256 — first install or upgrade
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+
+      const mockResponse = {
+        ok: true,
+        body: {} as ReadableStream,
+      } as Response;
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(result?.sha256).toBe("current-full-sha256");
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
+    });
+
+    it("should fall back to legacy sync when manifest fetch fails", async () => {
       const existingMeta = {
         checksum: "old-checksum",
         timestamp: Date.now() - 1000,
         applicationVersion: "1.0.0",
       };
-      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
 
-      // Mock conditions for full update
-      fetchChecksumSpy.mockResolvedValue("new-checksum"); // Different checksum
-      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0");
+      fetchManifestSpy.mockRejectedValue(new Error("Network error"));
+      fetchChecksumSpy.mockResolvedValue("new-checksum");
+
       const mockResponse = {
         ok: true,
         body: {} as ReadableStream,
       } as Response;
       apiService.nativeFetch.mockResolvedValue(mockResponse);
 
-      // Trigger background update
       const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
 
-      // Verify metadata WAS updated with new values
       expect(result?.checksum).toBe("new-checksum");
-      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
-
-      // Verify full update was performed
       expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
-      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled(); // Daily should not run
     });
 
-    it("should update metadata when full dataset update occurs due to version change", async () => {
-      // Set up existing metadata
+    it("should return previous meta when legacy sync checksum unchanged and manifest unavailable", async () => {
       const existingMeta = {
         checksum: "same-checksum",
         timestamp: Date.now() - 1000,
         applicationVersion: "1.0.0",
       };
-      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
 
-      // Mock conditions for full update
+      fetchManifestSpy.mockRejectedValue(new Error("Network error"));
       fetchChecksumSpy.mockResolvedValue("same-checksum");
-      platformUtilsService.getApplicationVersion.mockResolvedValue("2.0.0"); // Different version
+
+      await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
+    });
+
+    it("should apply single patch when one patch behind", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha256",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+      mockIndexedDbService.addUrls.mockResolvedValue(true);
+      mockIndexedDbService.removeUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: ["http://new-phish.com"],
+        removals: ["http://old-false-positive.com"],
+      });
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(fetchPatchSpy).toHaveBeenCalledWith("patches/2026-03-10.patch");
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["http://new-phish.com"]);
+      expect(mockIndexedDbService.removeUrls).toHaveBeenCalledWith([
+        "http://old-false-positive.com",
+      ]);
+      expect(result?.sha256).toBe("current-full-sha256");
+    });
+
+    it("should apply multiple patches in chain order", async () => {
+      const multiPatchManifest = {
+        ...mockManifest,
+        patches: [
+          {
+            date: "2026-03-11",
+            path: "patches/day2.patch",
+            from_sha256: "mid-sha",
+            to_sha256: "current-full-sha256",
+          },
+          {
+            date: "2026-03-10",
+            path: "patches/day1.patch",
+            from_sha256: "old-sha",
+            to_sha256: "mid-sha",
+          },
+        ],
+      };
+
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(multiPatchManifest);
+      mockIndexedDbService.addUrls.mockResolvedValue(true);
+      mockIndexedDbService.removeUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy
+        .mockResolvedValueOnce({ additions: ["http://day1.com"], removals: [] })
+        .mockResolvedValueOnce({ additions: ["http://day2.com"], removals: [] });
+
+      const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(fetchPatchSpy).toHaveBeenCalledTimes(2);
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledTimes(2);
+      expect(result?.sha256).toBe("current-full-sha256");
+    });
+
+    it("should apply patch with only additions (no removals)", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha256",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+      mockIndexedDbService.addUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: ["http://new1.com", "http://new2.com"],
+        removals: [],
+      });
+
+      await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith([
+        "http://new1.com",
+        "http://new2.com",
+      ]);
+      expect(mockIndexedDbService.removeUrls).not.toHaveBeenCalled();
+    });
+
+    it("should apply patch with only removals (no additions)", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "old-sha256",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+      mockIndexedDbService.removeUrls.mockResolvedValue(true);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: [],
+        removals: ["http://removed1.com", "http://removed2.com"],
+      });
+
+      await firstValueFrom(service["_backgroundUpdate"](existingMeta));
+
+      expect(mockIndexedDbService.removeUrls).toHaveBeenCalledWith([
+        "http://removed1.com",
+        "http://removed2.com",
+      ]);
+      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
+    });
+
+    it("should throw when addUrls fails during patch application", async () => {
+      mockIndexedDbService.addUrls.mockResolvedValue(false);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: ["http://new.com"],
+        removals: [],
+      });
+
+      // applyPatchChain should throw when addUrls returns false
+      await expect(service["applyPatchChain"](mockManifest, "old-sha256")).rejects.toThrow(
+        "Failed to add",
+      );
+
+      expect(mockIndexedDbService.addUrls).toHaveBeenCalled();
+    });
+
+    it("should throw when removeUrls fails during patch application", async () => {
+      mockIndexedDbService.removeUrls.mockResolvedValue(false);
+
+      const fetchPatchSpy = jest.spyOn(service as any, "fetchPatch");
+      fetchPatchSpy.mockResolvedValue({
+        additions: [],
+        removals: ["http://old.com"],
+      });
+
+      await expect(service["applyPatchChain"](mockManifest, "old-sha256")).rejects.toThrow(
+        "Failed to remove",
+      );
+
+      expect(mockIndexedDbService.removeUrls).toHaveBeenCalled();
+    });
+
+    it("should fall back to full download when no matching patch exists (stale client)", async () => {
+      const existingMeta = {
+        checksum: "",
+        timestamp: Date.now() - 1000,
+        applicationVersion: "1.0.0",
+        sha256: "very-old-sha256-not-in-any-patch",
+        sortedSha256: "old-sorted",
+      };
+
+      fetchManifestSpy.mockResolvedValue(mockManifest);
+
       const mockResponse = {
         ok: true,
         body: {} as ReadableStream,
       } as Response;
       apiService.nativeFetch.mockResolvedValue(mockResponse);
 
-      // Trigger background update
       const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
 
-      // Verify metadata WAS updated
-      expect(result?.applicationVersion).toBe("2.0.0");
-      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
-
-      // Verify full update was performed
+      // No matching patch → falls back to full download
       expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
-      expect(mockIndexedDbService.addUrls).not.toHaveBeenCalled();
+      expect(result?.sha256).toBe("current-full-sha256");
     });
 
-    it("should update metadata when daily update occurs due to cache expiration", async () => {
-      // Set up existing metadata (expired cache)
+    it("should fall back to legacy sync when manifest returns malformed data", async () => {
       const existingMeta = {
-        checksum: "same-checksum",
-        timestamp: Date.now() - 25 * 60 * 60 * 1000, // 25 hours ago (expired)
+        checksum: "old-checksum",
+        timestamp: Date.now() - 1000,
         applicationVersion: "1.0.0",
       };
-      await fakeGlobalStateProvider.get(PHISHING_DOMAINS_META_KEY).update(() => existingMeta);
 
-      // Mock conditions for daily update only
-      fetchChecksumSpy.mockResolvedValue("same-checksum"); // Same checksum (no full update)
-      platformUtilsService.getApplicationVersion.mockResolvedValue("1.0.0"); // Same version
-      const mockFullResponse = {
+      // Manifest fetch succeeds but returns data that causes an error downstream
+      fetchManifestSpy.mockRejectedValue(new TypeError("Cannot read properties of undefined"));
+      fetchChecksumSpy.mockResolvedValue("new-checksum");
+
+      const mockResponse = {
         ok: true,
         body: {} as ReadableStream,
       } as Response;
-      const mockDailyResponse = {
-        ok: true,
-        text: jest.fn().mockResolvedValue("newdomain.com"),
-      } as unknown as Response;
-      apiService.nativeFetch
-        .mockResolvedValueOnce(mockFullResponse)
-        .mockResolvedValueOnce(mockDailyResponse);
+      apiService.nativeFetch.mockResolvedValue(mockResponse);
 
-      // Trigger background update
       const result = await firstValueFrom(service["_backgroundUpdate"](existingMeta));
 
-      // Verify metadata WAS updated
-      expect(result?.timestamp).toBeGreaterThan(existingMeta.timestamp);
-      expect(result?.checksum).toBe("same-checksum");
-
-      // Verify only daily update was performed
-      expect(mockIndexedDbService.saveUrlsFromStream).not.toHaveBeenCalled();
-      expect(mockIndexedDbService.addUrls).toHaveBeenCalledWith(["newdomain.com"]);
+      expect(result?.checksum).toBe("new-checksum");
+      expect(mockIndexedDbService.saveUrlsFromStream).toHaveBeenCalled();
     });
   });
 });

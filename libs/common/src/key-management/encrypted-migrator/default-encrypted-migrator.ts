@@ -46,6 +46,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
         logService,
         configService,
         masterPasswordService,
+        syncService,
       ),
     });
 

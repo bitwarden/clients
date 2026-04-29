@@ -4,9 +4,9 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, firstValueFrom, map } from "rxjs";
 
 import {
-  OrganizationUserApiService,
-  OrganizationUserAcceptRequest,
   OrganizationUserAcceptInitRequest,
+  OrganizationUserAcceptRequest,
+  OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -105,9 +105,6 @@ export class AcceptOrganizationInviteService {
     invite: OrganizationInvite,
     activeUserId: UserId,
   ): Promise<OrganizationUserAcceptInitRequest> {
-    const request = new OrganizationUserAcceptInitRequest();
-    request.token = invite.token;
-
     const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
     const collection = await this.encryptService.encryptString(
@@ -115,14 +112,12 @@ export class AcceptOrganizationInviteService {
       orgKey,
     );
 
-    request.key = encryptedOrgKey.encryptedString;
-    request.keys = new OrganizationKeysRequest(
-      orgPublicKey,
-      encryptedOrgPrivateKey.encryptedString,
+    return new OrganizationUserAcceptInitRequest(
+      invite.token,
+      encryptedOrgKey.encryptedString,
+      new OrganizationKeysRequest(orgPublicKey, encryptedOrgPrivateKey.encryptedString),
+      collection.encryptedString,
     );
-    request.collectionName = collection.encryptedString;
-
-    return request;
   }
 
   private async accept(invite: OrganizationInvite): Promise<void> {

@@ -40,7 +40,7 @@
           [activeFilter]="activeFilter"
           [searchText]="currentSearchText$ | async"
           [ciphers$]="allCiphers$"
-          (searchTextChanged)="filterSearchText($event)"
+          (searchTextChange)="filterSearchText($event)"
         ></app-organization-vault-filter>
       </div>
     }
