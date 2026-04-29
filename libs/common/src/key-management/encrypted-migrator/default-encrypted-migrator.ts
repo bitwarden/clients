@@ -32,7 +32,7 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     private readonly logService: LogService,
     configService: ConfigService,
     masterPasswordService: MasterPasswordServiceAbstraction,
-    syncService: SyncService,
+    private readonly syncService: SyncService,
     keyService: KeyService,
     biometricsService: BiometricsService,
     biometricStateService: BiometricStateService,
