@@ -1,6 +1,5 @@
 import { Observable } from "rxjs";
 
-import { VaultTimeout, VaultTimeoutAction } from "../../key-management/vault-timeout";
 import { UserId } from "../../types/guid";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 import { DecodedAccessToken } from "../services/token.service";
@@ -11,15 +10,25 @@ export abstract class TokenService {
    * @param userId The user id to check for an access token.
    */
   abstract hasAccessToken$(userId: UserId): Observable<boolean>;
+
+  /** Observable stream of the plaintext access token for the given user. Used by TokenStorageSyncService. */
+  abstract accessToken$(userId: UserId): Observable<string | null>;
+
+  /** Observable stream of the plaintext refresh token for the given user. Used by TokenStorageSyncService. */
+  abstract refreshToken$(userId: UserId): Observable<string | null>;
+
+  /** Observable stream of the API key client ID for the given user. Used by TokenStorageSyncService. */
+  abstract clientId$(userId: UserId): Observable<string | null>;
+
+  /** Observable stream of the API key client secret for the given user. Used by TokenStorageSyncService. */
+  abstract clientSecret$(userId: UserId): Observable<string | null>;
+
   /**
-   * Sets the access token, refresh token, API Key Client ID, and API Key Client Secret in memory or disk
-   * based on the given vaultTimeoutAction and vaultTimeout and the derived access token user id.
-   * Note: for platforms that support secure storage, the access & refresh tokens are stored in secure storage instead of on disk.
-   * Note 2: this method also enforces always setting the access token and the refresh token together as
+   * Sets the access token, refresh token, API Key Client ID, and API Key Client Secret in memory.
+   * Disk persistence is handled reactively by TokenStorageSyncService.
+   * Note: this method also enforces always setting the access token and the refresh token together as
    * we can retrieve the user id required to set the refresh token from the access token for efficiency.
    * @param accessToken The access token to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @param refreshToken The optional refresh token to set. Note: this is undefined when using the CLI Login Via API Key flow
    * @param clientIdClientSecret The API Key Client ID and Client Secret to set.
    *
@@ -27,8 +36,6 @@ export abstract class TokenService {
    */
   abstract setTokens(
     accessToken: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
     refreshToken?: string,
     clientIdClientSecret?: [string, string],
   ): Promise<SetTokensResult>;
@@ -41,21 +48,11 @@ export abstract class TokenService {
   abstract clearTokens(userId?: UserId): Promise<void>;
 
   /**
-   * Sets the access token in memory or disk based on the given vaultTimeoutAction and vaultTimeout
-   * and the user id read off the access token. The other storage location is always cleared to
-   * enforce the invariant that only one location holds the token at a time.
-   * Note: for platforms that support secure storage, the access token is encrypted with a key stored
-   * in secure storage and the encrypted value is written to disk.
+   * Sets the access token in memory. Disk persistence is handled reactively by TokenStorageSyncService.
    * @param accessToken The access token to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @returns A promise that resolves with the access token that has been set.
    */
-  abstract setAccessToken(
-    accessToken: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
-  ): Promise<string>;
+  abstract setAccessToken(accessToken: string): Promise<string>;
 
   // TODO: revisit having this public clear method approach once the state service is fully deprecated.
   /**
@@ -84,20 +81,11 @@ export abstract class TokenService {
   abstract getRefreshToken(userId: UserId): Promise<string | null>;
 
   /**
-   * Sets the API Key Client ID for the active user id in memory or disk based on the given
-   * vaultTimeoutAction and vaultTimeout. The other storage location is always cleared to enforce
-   * the invariant that only one location holds the value at a time.
+   * Sets the API Key Client ID in memory. Disk persistence is handled reactively by TokenStorageSyncService.
    * @param clientId The API Key Client ID to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @returns A promise that resolves with the API Key Client ID that has been set.
    */
-  abstract setClientId(
-    clientId: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
-    userId?: UserId,
-  ): Promise<string>;
+  abstract setClientId(clientId: string, userId?: UserId): Promise<string>;
 
   /**
    * Gets the API Key Client ID for the given user.
@@ -106,20 +94,11 @@ export abstract class TokenService {
   abstract getClientId(userId: UserId): Promise<string | undefined>;
 
   /**
-   * Sets the API Key Client Secret for the active user id in memory or disk based on the given
-   * vaultTimeoutAction and vaultTimeout. The other storage location is always cleared to enforce
-   * the invariant that only one location holds the value at a time.
+   * Sets the API Key Client Secret in memory. Disk persistence is handled reactively by TokenStorageSyncService.
    * @param clientSecret The API Key Client Secret to set.
-   * @param vaultTimeoutAction The action to take when the vault times out.
-   * @param vaultTimeout The timeout for the vault.
    * @returns A promise that resolves with the client secret that has been set.
    */
-  abstract setClientSecret(
-    clientSecret: string,
-    vaultTimeoutAction: VaultTimeoutAction,
-    vaultTimeout: VaultTimeout,
-    userId?: UserId,
-  ): Promise<string>;
+  abstract setClientSecret(clientSecret: string, userId?: UserId): Promise<string>;
 
   /**
    * Gets the API Key Client Secret for the given user.

@@ -18,6 +18,9 @@ export const ACCESS_TOKEN_DISK = new UserKeyDefinition<string>(TOKEN_DISK, "acce
 export const ACCESS_TOKEN_MEMORY = new UserKeyDefinition<string>(TOKEN_MEMORY, "accessToken", {
   deserializer: (accessToken) => accessToken,
   clearOn: [], // Manually handled
+  // Keeps the observable cold (no shareReplay/ReplaySubject caching). Each subscription
+  // reads fresh from memory rather than replaying a cached value from a hot observable.
+  cleanupDelayMs: 0,
 });
 
 export const REFRESH_TOKEN_DISK = new UserKeyDefinition<string>(TOKEN_DISK, "refreshToken", {
@@ -28,6 +31,9 @@ export const REFRESH_TOKEN_DISK = new UserKeyDefinition<string>(TOKEN_DISK, "ref
 export const REFRESH_TOKEN_MEMORY = new UserKeyDefinition<string>(TOKEN_MEMORY, "refreshToken", {
   deserializer: (refreshToken) => refreshToken,
   clearOn: [], // Manually handled
+  // Same rationale as ACCESS_TOKEN_MEMORY — keeps the observable cold so every
+  // subscription reads fresh from memory.
+  cleanupDelayMs: 0,
 });
 
 export const EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL = KeyDefinition.record<string, string>(
@@ -49,6 +55,9 @@ export const API_KEY_CLIENT_ID_MEMORY = new UserKeyDefinition<string>(
   {
     deserializer: (apiKeyClientId) => apiKeyClientId,
     clearOn: [], // Manually handled
+    // Same rationale as ACCESS_TOKEN_MEMORY — keeps the observable cold so every
+    // subscription reads fresh from memory.
+    cleanupDelayMs: 0,
   },
 );
 
@@ -67,6 +76,9 @@ export const API_KEY_CLIENT_SECRET_MEMORY = new UserKeyDefinition<string>(
   {
     deserializer: (apiKeyClientSecret) => apiKeyClientSecret,
     clearOn: [], // Manually handled
+    // Same rationale as ACCESS_TOKEN_MEMORY — keeps the observable cold so every
+    // subscription reads fresh from memory.
+    cleanupDelayMs: 0,
   },
 );
 
