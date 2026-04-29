@@ -118,6 +118,20 @@ export class ItemCopyActionsComponent {
     return this.getNumberOfSecureNoteValues() > 0;
   }
 
+  get hasBankAccountValues() {
+    return this.getNumberOfBankAccountValues() > 0;
+  }
+
+  get singleCopyableBankAccount() {
+    const bankAccountItems: CipherItem[] = [
+      { key: "copyAccountNumber", field: "accountNumber" },
+      { key: "copyRoutingNumber", field: "routingNumber" },
+      { key: "copyPin", field: "pin" },
+      { key: "copyIban", field: "iban" },
+    ];
+    return this.findSingleCopyableItem(bankAccountItems);
+  }
+
   get hasSshKeyValues() {
     return this.getNumberOfSshKeyValues() > 0;
   }
@@ -179,6 +193,16 @@ export class ItemCopyActionsComponent {
     }
 
     return this.cipher.notes ? 1 : 0;
+  }
+
+  /** Sets the number of populated bank account values for the cipher */
+  private getNumberOfBankAccountValues() {
+    return [
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "accountNumber"),
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "routingNumber"),
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "pin"),
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "iban"),
+    ].filter(Boolean).length;
   }
 
   /** Sets the number of populated SSH key values for the cipher */

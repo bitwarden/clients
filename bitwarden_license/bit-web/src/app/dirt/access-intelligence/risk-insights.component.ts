@@ -14,7 +14,16 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { concat, EMPTY, firstValueFrom, of } from "rxjs";
-import { concatMap, delay, distinctUntilChanged, map, skip, switchMap, tap } from "rxjs/operators";
+import {
+  concatMap,
+  delay,
+  distinctUntilChanged,
+  filter,
+  map,
+  skip,
+  switchMap,
+  tap,
+} from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -35,6 +44,7 @@ import {
   DialogRef,
   DialogService,
   TabsModule,
+  ToastService,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
@@ -122,6 +132,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private fileDownloadService: FileDownloadService,
     private logService: LogService,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
@@ -157,6 +168,19 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         // Update report state
         this.appsCount = report?.reportData.length ?? 0;
         this.dataLastUpdated = report?.creationDate ?? null;
+      });
+
+    // Show error toast when report generation or save fails
+    this.dataService.reportStatus$
+      .pipe(
+        filter((status) => status === ReportStatus.Error),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.toastService.showToast({
+          message: this.i18nService.t("reportGenerationFailed"),
+          variant: "error",
+        });
       });
 
     // Subscribe to drawer state changes

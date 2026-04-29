@@ -11,12 +11,15 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { singleOrganizationPolicyApplies$ } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -114,6 +117,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       type: CipherType.SshKey,
       icon: "bwi-key",
     },
+    {
+      id: "bankAccount",
+      name: this.i18nService.t("bankAccount"),
+      type: CipherType.BankAccount,
+      icon: "bwi-bank",
+    },
   ];
 
   get searchPlaceholder() {
@@ -140,6 +149,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     }
     if (this.activeFilter.cipherType === CipherType.SshKey) {
       return "searchSshKey";
+    }
+    if (this.activeFilter.cipherType === CipherType.BankAccount) {
+      return "searchBankAccount";
     }
     if (this.activeFilter.selectedFolderNode?.node) {
       return "searchFolder";
@@ -172,6 +184,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected cipherService: CipherService,
     protected cipherArchiveService: CipherArchiveService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
+    protected configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -191,6 +204,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           merge(
             this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
+            this.policyService.policiesByType$(PolicyType.AutoConfirm, userId).pipe(getFirstPolicy),
             this.policyService
               .policiesByType$(PolicyType.OrganizationDataOwnership, userId)
               .pipe(getFirstPolicy),
@@ -254,11 +268,21 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const [userId, newItemTypesEnabled] = await firstValueFrom(
+      combineLatest([
+        this.accountService.activeAccount$.pipe(getUserId),
+        this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+      ]),
+    );
+
+    const excludeTypes: CipherStatus[] = [];
+    if (!newItemTypesEnabled) {
+      excludeTypes.push(CipherType.BankAccount);
+    }
 
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
-    builderFilter.typeFilter = await this.addTypeFilter();
+    builderFilter.typeFilter = await this.addTypeFilter(excludeTypes);
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.archiveFilter = await this.addArchiveFilter(userId);
@@ -270,9 +294,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const singleOrgPolicy = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        ),
+        switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
       ),
     );
 
