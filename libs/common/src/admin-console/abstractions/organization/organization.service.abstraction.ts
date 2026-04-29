@@ -1,4 +1,4 @@
-import { map, Observable } from "rxjs";
+import { combineLatest, map, Observable } from "rxjs";
 
 import { UserId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
@@ -69,6 +69,18 @@ export function canAccessEmergencyAccess(userId: UserId, policyService: PolicySe
   return policyService
     .policyAppliesToUser$(PolicyType.AutoConfirm, userId)
     .pipe(map((policyAppliesToUser) => !policyAppliesToUser));
+}
+
+/**
+ * Returns true when the user is constrained to a single organization.
+ * Combines SingleOrg and AutoConfirm policy checks — AutoConfirm implies
+ * a single-organization constraint for all members.
+ */
+export function singleOrganizationPolicyApplies$(userId: UserId, policyService: PolicyService) {
+  return combineLatest([
+    policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
+    policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
+  ]).pipe(map(([singleOrg, autoConfirm]) => singleOrg || autoConfirm));
 }
 
 /**

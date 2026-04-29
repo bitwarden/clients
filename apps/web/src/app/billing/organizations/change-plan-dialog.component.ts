@@ -20,9 +20,9 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import {
   getOrganizationById,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/models/request/organization-upgrade.request";
@@ -312,9 +312,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.accountService.activeAccount$
       .pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        ),
+        switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
         takeUntil(this.destroy$),
       )
       .subscribe((policyAppliesToActiveUser) => {
