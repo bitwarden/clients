@@ -33,6 +33,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   AsyncActionsModule,
+  BadgeModule,
   BitIconButtonComponent,
   ButtonModule,
   CenterPositionStrategy,
@@ -48,7 +49,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 import { CipherFormComponent, CipherFormConfig, CipherFormModule } from "../cipher-form";
 import {
   AttachmentDialogCloseResult,
@@ -58,7 +58,6 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
-import { DefaultChangeLoginPasswordService } from "../services/default-change-login-password.service";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -130,14 +129,12 @@ export type VaultItemDialogResult = UnionOfValues<typeof VaultItemDialogResult>;
     CommonModule,
     CipherFormModule,
     AsyncActionsModule,
+    BadgeModule,
     ItemModule,
     PremiumBadgeComponent,
     I18nPipe,
   ],
-  providers: [
-    { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
-  ],
+  providers: [{ provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService }],
 })
 export class VaultItemDialogComponent implements OnInit, OnDestroy {
   /**
@@ -662,6 +659,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Identity]: "viewItemHeaderIdentity",
         [CipherType.SecureNote]: "viewItemHeaderNote",
         [CipherType.SshKey]: "viewItemHeaderSshKey",
+        [CipherType.BankAccount]: "viewItemHeaderBankAccount",
       },
       new: {
         [CipherType.Login]: "newItemHeaderLogin",
@@ -669,6 +667,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Identity]: "newItemHeaderIdentity",
         [CipherType.SecureNote]: "newItemHeaderNote",
         [CipherType.SshKey]: "newItemHeaderSshKey",
+        [CipherType.BankAccount]: "newItemHeaderBankAccount",
       },
       edit: {
         [CipherType.Login]: "editItemHeaderLogin",
@@ -676,6 +675,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.Identity]: "editItemHeaderIdentity",
         [CipherType.SecureNote]: "editItemHeaderNote",
         [CipherType.SshKey]: "editItemHeaderSshKey",
+        [CipherType.BankAccount]: "editItemHeaderBankAccount",
       },
     };
     const type = this.cipher?.type ?? this.formConfig.cipherType;
