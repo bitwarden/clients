@@ -713,6 +713,24 @@
   "deleteAttachment": {
     "message": "Delete attachment"
   },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Do you really want to send to the trash?"
   },
@@ -3915,6 +3933,9 @@
   },
   "chooseFile": {
     "message": "Choose File"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
   },
   "noFileChosen": {
     "message": "No file chosen"
