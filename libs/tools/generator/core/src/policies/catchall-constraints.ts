@@ -1,6 +1,5 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Constraints, StateConstraints } from "@bitwarden/common/tools/types";
+import { Constraints, StateConstraints, WithConstraints } from "@bitwarden/common/tools/types";
+import { unconstrained } from "@bitwarden/common/tools/util";
 
 import { CatchallGenerationOptions } from "../types";
 
@@ -20,28 +19,30 @@ export class CatchallConstraints implements StateConstraints<CatchallGenerationO
     }
 
     const parsed = DOMAIN_PARSER.exec(email);
-    if (parsed && parsed.groups?.domain) {
-      this.domain = parsed.groups.domain;
-    }
+    this.domain = parsed?.groups?.domain ?? "";
   }
   readonly domain: string;
 
   constraints: Readonly<Constraints<CatchallGenerationOptions>> = {};
 
-  adjust(state: CatchallGenerationOptions) {
+  adjust(state: CatchallGenerationOptions): WithConstraints<CatchallGenerationOptions> {
     const currentDomain = (state.catchallDomain ?? "").trim();
 
     if (currentDomain !== "") {
-      return state;
+      return { state, constraints: this.constraints, applied: unconstrained() };
     }
 
-    const options = { ...state };
-    options.catchallDomain = this.domain;
+    const result = { ...state };
+    result.catchallDomain = this.domain;
 
-    return options;
+    return {
+      state: result,
+      constraints: this.constraints,
+      applied: { catchallDomain: {} },
+    };
   }
 
-  fix(state: CatchallGenerationOptions) {
-    return state;
+  fix(state: CatchallGenerationOptions): WithConstraints<CatchallGenerationOptions> {
+    return { state, constraints: this.constraints, applied: unconstrained() };
   }
 }

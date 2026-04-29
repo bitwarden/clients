@@ -70,6 +70,7 @@ export class OssServeConfigurator {
       this.serviceContainer.billingAccountProfileStateService,
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.configService,
     );
     this.listCommand = new ListCommand(
       this.serviceContainer.cipherService,
@@ -96,6 +97,7 @@ export class OssServeConfigurator {
       this.serviceContainer.organizationService,
       this.serviceContainer.accountService,
       this.serviceContainer.cliRestrictedItemTypesService,
+      this.serviceContainer.configService,
     );
     this.editCommand = new EditCommand(
       this.serviceContainer.cipherService,
@@ -110,8 +112,8 @@ export class OssServeConfigurator {
       this.serviceContainer.billingAccountProfileStateService,
     );
     this.generateCommand = new GenerateCommand(
-      this.serviceContainer.passwordGenerationService,
-      this.serviceContainer.tokenService,
+      this.serviceContainer.credentialGeneratorService,
+      this.serviceContainer.generatorDependencyProvider,
       this.serviceContainer.accountService,
     );
     this.syncCommand = new SyncCommand(this.serviceContainer.syncService);
