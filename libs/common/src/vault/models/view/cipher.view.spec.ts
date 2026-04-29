@@ -220,6 +220,7 @@ describe("CipherView", () => {
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
+        bankAccount: undefined,
         fields: [
           {
             name: "fieldName",

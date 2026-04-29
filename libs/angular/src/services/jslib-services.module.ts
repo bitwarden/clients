@@ -313,6 +313,7 @@ import {
   InternalSendService,
   SendService as SendServiceAbstraction,
 } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
@@ -337,6 +338,7 @@ import {
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultChangeLoginPasswordService } from "@bitwarden/common/vault/services/default-change-login-password.service";
 import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { DefaultCipherRiskService } from "@bitwarden/common/vault/services/default-cipher-risk.service";
@@ -377,6 +379,10 @@ import {
   UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+import {
+  DefaultOrganizationInviteLinkApiService,
+  OrganizationInviteLinkApiService,
+} from "@bitwarden/organization-invite-link";
 import { DefaultTaskSchedulerService, TaskSchedulerService } from "@bitwarden/scheduling";
 import {
   ActiveUserStateProvider,
@@ -1276,6 +1282,11 @@ const safeProviders: SafeProvider[] = [
     deps: [ApiServiceAbstraction],
   }),
   safeProvider({
+    provide: OrganizationInviteLinkApiService,
+    useClass: DefaultOrganizationInviteLinkApiService,
+    deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
     provide: PasswordResetEnrollmentServiceAbstraction,
     useClass: PasswordResetEnrollmentServiceImplementation,
     deps: [
@@ -1947,6 +1958,11 @@ const safeProviders: SafeProvider[] = [
     provide: PremiumInterestStateService,
     useClass: NoopPremiumInterestStateService,
     deps: [],
+  }),
+  safeProvider({
+    provide: ChangeLoginPasswordService,
+    useClass: DefaultChangeLoginPasswordService,
+    deps: [ApiServiceAbstraction, EnvironmentService, DomainSettingsService],
   }),
 ];
 
