@@ -5,7 +5,8 @@ import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { FakeActiveUserAccessor, FakeStateProvider } from "@bitwarden/state-test-utils";
 
@@ -16,7 +17,7 @@ import { ORGANIZATION_INVITE_LINK_KEY } from "../state/organization-invite-link-
 import { DefaultOrganizationInviteLinkService } from "./default-organization-invite-link.service";
 
 const mockUserId = "user-1" as UserId;
-const mockOrgId = "org-1";
+const mockOrgId = "org-1" as OrganizationId;
 
 function makeKey(keyB64 = "dGVzdGtleWJ5dGVzZm9ydGVzdGluZw=="): SymmetricCryptoKey {
   const key = mock<SymmetricCryptoKey>();
@@ -62,9 +63,9 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("inviteLink$", () => {
-    it("emits null initially", async () => {
+    it("emits undefined initially", async () => {
       const value = await firstValueFrom(sut.inviteLink$(mockUserId));
-      expect(value).toBeNull();
+      expect(value).toBeUndefined();
     });
 
     it("emits stored value after upsert", async () => {
@@ -74,11 +75,11 @@ describe("DefaultOrganizationInviteLinkService", () => {
       expect(value).toEqual(response);
     });
 
-    it("emits null after clear", async () => {
+    it("emits undefined after clear", async () => {
       await sut.upsert(mockUserId, makeResponse());
       await sut.clear(mockUserId);
       const value = await firstValueFrom(sut.inviteLink$(mockUserId));
-      expect(value).toBeNull();
+      expect(value).toBeUndefined();
     });
   });
 
@@ -100,7 +101,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toBeNull();
+      expect(stored).toBeFalsy();
       expect(apiService.delete).not.toHaveBeenCalled();
     });
   });
@@ -116,7 +117,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toBeNull();
+      expect(stored).toBeFalsy();
     });
   });
 
@@ -129,13 +130,11 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const response = makeResponse({ code: "code1", allowedDomains: ["bitwarden.com"] });
 
       keyGenerationService.createKey.mockResolvedValue(rawKey);
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey }));
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
       apiService.create.mockResolvedValue(response);
 
-      const url = await firstValueFrom(
-        sut.createInviteLink(mockUserId, mockOrgId, ["bitwarden.com"]),
-      );
+      const url = await sut.createInviteLink(mockUserId, mockOrgId, ["bitwarden.com"]);
 
       expect(keyGenerationService.createKey).toHaveBeenCalledWith(256);
       expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(rawKey, orgKey);
@@ -154,9 +153,9 @@ describe("DefaultOrganizationInviteLinkService", () => {
       keyGenerationService.createKey.mockResolvedValue(rawKey);
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
 
-      await expect(
-        firstValueFrom(sut.createInviteLink(mockUserId, mockOrgId, ["example.com"])),
-      ).rejects.toThrow(`Organization key not found for org ${mockOrgId}`);
+      await expect(sut.createInviteLink(mockUserId, mockOrgId, ["example.com"])).rejects.toThrow(
+        `Organization key not found for org ${mockOrgId}`,
+      );
     });
   });
 
@@ -172,11 +171,11 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const response = makeResponse({ code: "refreshed", allowedDomains: ["cached.com"] });
 
       keyGenerationService.createKey.mockResolvedValue(rawKey);
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey }));
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
       apiService.create.mockResolvedValue(response);
 
-      const url = await firstValueFrom(sut.refreshInviteLink(mockUserId, mockOrgId));
+      const url = await sut.refreshInviteLink(mockUserId, mockOrgId);
 
       expect(apiService.create).toHaveBeenCalledWith(
         mockOrgId,
@@ -192,10 +191,10 @@ describe("DefaultOrganizationInviteLinkService", () => {
       (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
 
       keyGenerationService.createKey.mockResolvedValue(rawKey);
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey }));
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
 
-      await expect(firstValueFrom(sut.refreshInviteLink(mockUserId, mockOrgId))).rejects.toThrow(
+      await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
         "At least one allowed domain is required.",
       );
     });
@@ -211,10 +210,10 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const rawKey = makeKey("unwrapped==");
 
       apiService.get.mockResolvedValue(response);
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey }));
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.unwrapSymmetricKey.mockResolvedValue(rawKey);
 
-      const url = await firstValueFrom(sut.reconstructUrl(mockUserId, mockOrgId));
+      const url = await sut.reconstructUrl(mockUserId, mockOrgId);
 
       expect(apiService.get).toHaveBeenCalledWith(mockOrgId);
       expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(expect.any(EncString), orgKey);
@@ -224,12 +223,12 @@ describe("DefaultOrganizationInviteLinkService", () => {
       expect(stored).toEqual(response);
     });
 
-    it("emits null when API returns null", async () => {
+    it("returns undefined when API returns null", async () => {
       apiService.get.mockResolvedValue(null);
 
-      const url = await firstValueFrom(sut.reconstructUrl(mockUserId, mockOrgId));
+      const url = await sut.reconstructUrl(mockUserId, mockOrgId);
 
-      expect(url).toBeNull();
+      expect(url).toBeUndefined();
     });
   });
 });
