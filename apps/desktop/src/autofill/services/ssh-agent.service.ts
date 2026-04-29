@@ -329,12 +329,14 @@ export class SshAgentService implements OnDestroy {
                   map((views) => this.toAgentKeys(views)),
                   // Skip re-push when the SSH key set hasn't actually changed.
                   distinctUntilChanged((prev, curr) => {
+                    // if the length is different, replace keys
                     if (prev.length !== curr.length) {
                       return false;
                     }
                     const prevMap = new Map(
                       prev.map((k) => [k.cipherId, { privateKey: k.privateKey, name: k.name }]),
                     );
+                    // if any has either private key changed or the name changed, replace keys
                     return curr.every((k) => {
                       const p = prevMap.get(k.cipherId);
                       return p?.privateKey === k.privateKey && p?.name === k.name;
