@@ -1,135 +1,170 @@
-<div class="tw-flex" *ngIf="!hideMultiSelect">
-  <bit-form-field *ngIf="permissionMode == 'edit'" class="tw-mr-3 tw-shrink-0 tw-basis-2/5">
-    <bit-label>{{ "permission" | i18n }}</bit-label>
-    <bit-select
-      bitInput
-      [disabled]="disabled"
-      [(ngModel)]="initialPermission"
-      [ngModelOptions]="{ standalone: true }"
-      (closed)="handleBlur()"
-    >
-      <bit-option *ngFor="let p of permissionList" [value]="p.perm" [label]="p.labelId | i18n">
-      </bit-option>
-    </bit-select>
-  </bit-form-field>
+@if (!hideMultiSelect()) {
+  <div class="tw-flex">
+    @if (permissionMode() == "edit") {
+      <bit-form-field class="tw-mr-3 tw-shrink-0 tw-basis-2/5">
+        <bit-label>{{ "permission" | i18n }}</bit-label>
+        <bit-select
+          bitInput
+          [disabled]="disabled()"
+          [ngModel]="initialPermissionValue()"
+          (ngModelChange)="initialPermissionValue.set($event)"
+          [ngModelOptions]="{ standalone: true }"
+          (closed)="handleBlur()"
+        >
+          @for (p of permissionList; track p) {
+            <bit-option [value]="p.perm" [label]="p.labelId | i18n" />
+          }
+        </bit-select>
+      </bit-form-field>
+    }
+    @if (!disabled()) {
+      <bit-form-field class="tw-grow tw-py-3">
+        <bit-label>{{ selectorLabelText() }}</bit-label>
+        @if (!hideTable()) {
+          <bit-multi-select
+            class="tw-w-full"
+            [baseItems]="selectionList.deselectedItems"
+            [removeSelectedItems]="true"
+            [disabled]="disabled()"
+            (onItemsConfirmed)="selectItems($event)"
+            (blur)="handleBlur()"
+          />
+        } @else {
+          <bit-multi-select
+            class="tw-w-full"
+            [baseItems]="selectionList.allItems"
+            [removeSelectedItems]="false"
+            [disabled]="disabled()"
+            [ngModel]="selectedItems()"
+            [ngModelOptions]="{ standalone: true }"
+            (ngModelChange)="onInlineSelectionChange($event)"
+            (onItemsConfirmed)="addItems($event)"
+            (blur)="handleBlur()"
+          />
+        }
+        @if (selectorHelpText()) {
+          <bit-hint>{{ selectorHelpText() }}</bit-hint>
+        }
+      </bit-form-field>
+    }
+  </div>
+}
 
-  <bit-form-field class="tw-grow tw-p-3" *ngIf="!disabled">
-    <bit-label>{{ selectorLabelText }}</bit-label>
-    <bit-multi-select
-      class="tw-w-full"
-      [baseItems]="selectionList.deselectedItems"
-      [removeSelectedItems]="true"
-      [disabled]="disabled"
-      (onItemsConfirmed)="selectItems($event)"
-      (blur)="handleBlur()"
-    ></bit-multi-select>
-    <bit-hint *ngIf="selectorHelpText">{{ selectorHelpText }}</bit-hint>
-  </bit-form-field>
-</div>
-
-<bit-table [formGroup]="formGroup">
-  <ng-container header>
-    <tr>
-      <th bitCell>{{ columnHeader }}</th>
-      <th bitCell id="permissionColHeading" *ngIf="permissionMode != 'hidden'">
-        <div class="tw-border tw-border-solid tw-border-transparent">
-          {{ "permission" | i18n }}
-        </div>
-      </th>
-      <th bitCell id="roleColHeading" *ngIf="showMemberRoles">{{ "role" | i18n }}</th>
-      <th bitCell id="groupColHeading" *ngIf="showGroupColumn">{{ "group" | i18n }}</th>
-      <th bitCell class="tw-w-20"></th>
-    </tr>
-  </ng-container>
-  <ng-template body formArrayName="items">
-    <tr
-      bitRow
-      *ngFor="let item of selectionList.selectedItems; let i = index"
-      [formGroupName]="i"
-      [ngClass]="{ 'tw-text-muted': item.readonly }"
-    >
-      <td bitCell [ngSwitch]="item.type" class="tw-w-5/12">
-        <div class="tw-flex tw-items-center" *ngSwitchCase="itemType.Member">
-          <i class="bwi tw-mr-3 {{ item.icon }}" aria-hidden="true"></i>
-          <div class="tw-flex tw-flex-col">
-            <div>
-              {{ item.labelName }}
-              <span *ngIf="$any(item).status == 0" bitBadge variant="secondary">
-                {{ "invited" | i18n }}
-              </span>
+@if (!hideTable()) {
+  <bit-table [formGroup]="formGroup">
+    <ng-container header>
+      <tr>
+        <th bitCell>{{ columnHeader() }}</th>
+        @if (permissionMode() != "hidden") {
+          <th bitCell id="permissionColHeading">
+            <div class="tw-border tw-border-solid tw-border-transparent">
+              {{ "permission" | i18n }}
             </div>
-            <div
-              class="tw-text-xs tw-text-muted"
-              *ngIf="$any(item).status != 0 && item.labelName != $any(item).email"
-            >
-              {{ $any(item).email }}
-            </div>
-          </div>
-        </div>
-
-        <div class="tw-flex tw-items-center" *ngSwitchDefault>
-          <i
-            class="bwi tw-mr-3 tw-px-0.5 tw-text-2xl"
-            [ngClass]="item.icon || itemIcon(item)"
-            aria-hidden="true"
-          ></i>
-          <span>{{ item.labelName }}</span>
-        </div>
-      </td>
-
-      <td bitCell *ngIf="permissionMode != 'hidden'">
-        <ng-container *ngIf="canEditItemPermission(item); else readOnlyPerm">
-          <bit-form-field>
-            <bit-select
-              bitInput
-              formControlName="permission"
-              appA11yTitle="{{ item.labelName }} {{ 'permission' | i18n }}"
-              [id]="'permission' + i"
-              (closed)="handleBlur()"
-            >
-              <bit-option
-                *ngFor="let p of permissionList"
-                [value]="p.perm"
-                [label]="p.labelId | i18n"
-              >
-              </bit-option>
-            </bit-select>
-          </bit-form-field>
-        </ng-container>
-
-        <ng-template #readOnlyPerm>
-          <div
-            *ngIf="item.readonly || disabled"
-            class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-medium tw-text-muted"
-            [title]="permissionLabelId(item.readonlyPermission) | i18n"
-          >
-            {{ permissionLabelId(item.readonlyPermission) | i18n }}
-          </div>
-        </ng-template>
-      </td>
-
-      <td bitCell *ngIf="showMemberRoles">
-        {{ $any(item).role | userType: "-" }}
-      </td>
-
-      <td bitCell *ngIf="showGroupColumn">
-        {{ $any(item).viaGroupName ?? "-" }}
-      </td>
-
-      <td bitCell class="tw-text-right">
-        <button
-          *ngIf="!disabled && !item.readonly"
-          type="button"
-          bitIconButton="bwi-close"
-          buttonType="primaryGhost"
-          label="{{ 'remove' | i18n }} {{ item.labelName }}"
-          [disabled]="disabled"
-          (click)="selectionList.deselectItem(item.id); handleBlur()"
-        ></button>
-      </td>
-    </tr>
-    <tr *ngIf="selectionList.selectedItems.length == 0">
-      <td bitCell>{{ emptySelectionText }}</td>
-    </tr>
-  </ng-template>
-</bit-table>
+          </th>
+        }
+        @if (showMemberRoles()) {
+          <th bitCell id="roleColHeading">{{ "role" | i18n }}</th>
+        }
+        @if (showGroupColumn()) {
+          <th bitCell id="groupColHeading">{{ "group" | i18n }}</th>
+        }
+        <th bitCell class="tw-w-20"></th>
+      </tr>
+    </ng-container>
+    <ng-template body formArrayName="items">
+      @for (item of selectedItems(); track item; let i = $index) {
+        <tr bitRow [formGroupName]="i" [ngClass]="{ 'tw-text-muted': item.readonly }">
+          <td bitCell class="tw-w-5/12">
+            @switch (item.type) {
+              @case (itemType.Member) {
+                <div class="tw-flex tw-items-center">
+                  <i class="bwi tw-mr-3 {{ item.icon }}" aria-hidden="true"></i>
+                  <div class="tw-flex tw-flex-col">
+                    <div>
+                      {{ item.labelName }}
+                      @if ($any(item).status == 0) {
+                        <span bitBadge variant="secondary">
+                          {{ "invited" | i18n }}
+                        </span>
+                      }
+                    </div>
+                    @if ($any(item).status != 0 && item.labelName != $any(item).email) {
+                      <div class="tw-text-xs tw-text-muted">
+                        {{ $any(item).email }}
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              @default {
+                <div class="tw-flex tw-items-center">
+                  <i
+                    class="bwi tw-mr-3 tw-px-0.5 tw-text-2xl"
+                    [ngClass]="item.icon || itemIcon(item)"
+                    aria-hidden="true"
+                  ></i>
+                  <span>{{ item.labelName }}</span>
+                </div>
+              }
+            }
+          </td>
+          @if (permissionMode() != "hidden") {
+            <td bitCell>
+              @if (canEditItemPermission(item)) {
+                <bit-form-field>
+                  <bit-select
+                    bitInput
+                    formControlName="permission"
+                    appA11yTitle="{{ item.labelName }} {{ 'permission' | i18n }}"
+                    [id]="'permission' + i"
+                    (closed)="handleBlur()"
+                  >
+                    @for (p of permissionList; track p) {
+                      <bit-option [value]="p.perm" [label]="p.labelId | i18n" />
+                    }
+                  </bit-select>
+                </bit-form-field>
+              } @else {
+                @if (item.readonly || disabled()) {
+                  <div
+                    class="tw-max-w-40 tw-overflow-hidden tw-overflow-ellipsis tw-whitespace-nowrap tw-font-medium tw-text-muted"
+                    [title]="permissionLabelId(item.readonlyPermission) | i18n"
+                  >
+                    {{ permissionLabelId(item.readonlyPermission) | i18n }}
+                  </div>
+                }
+              }
+            </td>
+          }
+          @if (showMemberRoles()) {
+            <td bitCell>
+              {{ $any(item).role | userType: "-" }}
+            </td>
+          }
+          @if (showGroupColumn()) {
+            <td bitCell>
+              {{ $any(item).viaGroupName ?? "-" }}
+            </td>
+          }
+          <td bitCell class="tw-text-right">
+            @if (!disabled() && !item.readonly) {
+              <button
+                type="button"
+                bitIconButton="bwi-close"
+                buttonType="primaryGhost"
+                label="{{ 'remove' | i18n }} {{ item.labelName }}"
+                [disabled]="disabled()"
+                (click)="deselectItem(item.id)"
+              ></button>
+            }
+          </td>
+        </tr>
+      }
+      @if (selectedItems().length == 0) {
+        <tr>
+          <td bitCell>{{ emptySelectionText() }}</td>
+        </tr>
+      }
+    </ng-template>
+  </bit-table>
+}
