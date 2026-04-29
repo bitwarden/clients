@@ -132,9 +132,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
    * Call this once the child policy component has been initialised.
    */
   protected async setupDiscardGuard(): Promise<void> {
-    this.discardGuardEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.BulkAutoConfirmOnLogin,
-    );
+    this.discardGuardEnabled = await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers);
     if (!this.discardGuardEnabled) {
       return;
     }
