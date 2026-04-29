@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
-  contentChild,
   input,
   output,
   viewChild,
@@ -13,9 +12,6 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button/icon-button.module";
 import { TypographyModule } from "../typography";
-
-import { PopoverFooterDirective } from "./popover-footer.directive";
-import { PopoverHeaderDirective } from "./popover-header.directive";
 
 /**
  * Popover component for displaying contextual content in an overlay.
@@ -37,10 +33,4 @@ export class PopoverComponent {
 
   /** Emitted when the close button is clicked */
   readonly closed = output();
-
-  /** @internal — slot detection only */
-  protected readonly headerSlot = contentChild(PopoverHeaderDirective);
-
-  /** @internal — slot detection only */
-  protected readonly footerSlot = contentChild(PopoverFooterDirective);
 }

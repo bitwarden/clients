@@ -15,11 +15,6 @@
   @apply tw-top-6 -tw-translate-y-1/2;
 }
 
-.bit-popover-has-header.bit-popover-right-start .bit-popover-arrow,
-.bit-popover-has-header.bit-popover-left-start .bit-popover-arrow {
-  @apply tw-top-[184px];
-}
-
 .bit-popover-right-center .bit-popover-arrow,
 .bit-popover-left-center .bit-popover-arrow {
   @apply tw-top-1/2 -tw-translate-y-1/2;
