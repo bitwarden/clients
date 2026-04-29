@@ -38,6 +38,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import {
   buildPasswordUseMap,
   createNewSummaryData,
@@ -66,7 +67,6 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 export class RiskInsightsOrchestratorService {
@@ -163,7 +163,7 @@ export class RiskInsightsOrchestratorService {
     private passwordHealthService: PasswordHealthService,
     private reportApiService: RiskInsightsApiService,
     private reportService: RiskInsightsReportService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: LegacyRiskInsightsEncryptionService,
   ) {
     this.logService.debug("[RiskInsightsOrchestratorService] Setting up");
     this._setupCriticalApplicationContext();

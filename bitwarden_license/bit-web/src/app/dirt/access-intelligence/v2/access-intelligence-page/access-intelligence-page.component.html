@@ -4,8 +4,8 @@
   <!-- Show at top level so it's not destroyed when report data changes -->
   @if (currentProgressStep(); as step) {
     <dirt-report-loading [progressStep]="step"></dirt-report-loading>
-  } @else if (loading()) {
-    <dirt-report-loading></dirt-report-loading>
+  } @else if (loading() || initializing()) {
+    <dirt-page-loading></dirt-page-loading>
   } @else {
     <!-- Check if we have report data -->
     @if (!hasReportData()) {
@@ -28,7 +28,7 @@
         <div>
           @if (appsCount() > 0) {
             <div class="tw-text-main tw-max-w-4xl tw-mb-2">
-              {{ "reviewAtRiskPasswords" | i18n }}
+              {{ "reviewAccessIntelligence" | i18n }}
             </div>
           }
           <div
@@ -64,9 +64,26 @@
             <bit-tab label="{{ 'activity' | i18n }}">
               <app-activity-tab [organizationId]="organizationId()"></app-activity-tab>
             </bit-tab>
-            <bit-tab label="{{ 'applications' | i18n }}">
-              <dirt-applications-tab [organizationId]="organizationId()"></dirt-applications-tab>
-            </bit-tab>
+            @if (milestone11Enabled()) {
+              <bit-tab label="{{ 'applications' | i18n }}">
+                <dirt-applications-tab [organizationId]="organizationId()"></dirt-applications-tab>
+              </bit-tab>
+            } @else {
+              <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount() }}">
+                <dirt-all-applications-tab
+                  [organizationId]="organizationId()"
+                ></dirt-all-applications-tab>
+              </bit-tab>
+              <bit-tab>
+                <ng-template bitTabLabel>
+                  <bit-icon name="bwi-star"></bit-icon>
+                  {{ "criticalApplicationsWithCount" | i18n: criticalAppsCount() }}
+                </ng-template>
+                <dirt-critical-applications-tab
+                  [organizationId]="organizationId()"
+                ></dirt-critical-applications-tab>
+              </bit-tab>
+            }
           </bit-tab-group>
         </div>
       </div>

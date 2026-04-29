@@ -9,6 +9,7 @@ import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { LogService } from "@bitwarden/logging";
 
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { createNewSummaryData } from "../../helpers";
 import { ReportStatus, RiskInsightsData, SaveRiskInsightsReportResponse } from "../../models";
 import { RiskInsightsMetrics } from "../../models/domain/risk-insights-metrics";
@@ -23,7 +24,6 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsOrchestratorService } from "./risk-insights-orchestrator.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
@@ -60,7 +60,7 @@ describe("RiskInsightsOrchestratorService", () => {
   let mockPasswordHealthService: PasswordHealthService;
   const mockReportApiService = mock<RiskInsightsApiService>();
   let mockReportService: RiskInsightsReportService;
-  const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>();
+  const mockRiskInsightsEncryptionService = mock<LegacyRiskInsightsEncryptionService>();
   const mockLogService = mock<LogService>();
 
   beforeEach(() => {

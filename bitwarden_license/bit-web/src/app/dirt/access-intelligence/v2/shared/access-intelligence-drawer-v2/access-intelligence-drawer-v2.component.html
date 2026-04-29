@@ -116,7 +116,7 @@
 @if (data.type === DrawerType.CriticalAtRiskMembers) {
   <bit-dialog dialogSize="small" disablePadding="false">
     <ng-container bitDialogTitle>
-      <span>{{ "criticalAtRiskMembersWithCount" | i18n: data.members?.length ?? 0 }}</span>
+      <span>{{ "atRiskMembersWithCount" | i18n: data.members?.length ?? 0 }}</span>
     </ng-container>
     <ng-container bitDialogContent>
       <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
@@ -161,9 +161,7 @@
 @if (data.type === DrawerType.CriticalAtRiskApps) {
   <bit-dialog dialogSize="small" disablePadding="false">
     <ng-container bitDialogTitle>
-      <span>{{
-        "criticalAtRiskApplicationsWithCount" | i18n: data.applications?.length ?? 0
-      }}</span>
+      <span>{{ "atRiskApplicationsWithCount" | i18n: data.applications?.length ?? 0 }}</span>
     </ng-container>
     <ng-container bitDialogContent>
       <span bitTypography="body1" class="tw-text-muted tw-text-sm">{{
