@@ -90,6 +90,9 @@ export class EmergencyViewDialogComponent {
       case CipherType.SshKey:
         this.title = this.i18nService.t("viewItemHeaderSshKey");
         break;
+      case CipherType.BankAccount:
+        this.title = this.i18nService.t("viewItemHeaderBankAccount");
+        break;
     }
   }
 
