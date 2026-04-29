@@ -28,13 +28,9 @@ export interface PasswordInputResult {
   currentMasterKey?: MasterKey;
   /** @deprecated */
   currentServerMasterKeyHash?: string;
-  /** @deprecated */
-  currentLocalMasterKeyHash?: string;
 
   /** @deprecated */
   newMasterKey?: MasterKey;
   /** @deprecated */
   newServerMasterKeyHash?: string;
-  /** @deprecated */
-  newLocalMasterKeyHash?: string;
 }

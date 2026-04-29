@@ -29,6 +29,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -44,11 +46,13 @@ import {
   ButtonModule,
   CardComponent,
   ItemModule,
+  ProgressBarComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
 
 import { DownloadAttachmentComponent } from "../../../components/download-attachment/download-attachment.component";
+import { TruncatedFilenameComponent } from "../../../components/truncated-filename";
 
 import { DeleteAttachmentComponent } from "./delete-attachment/delete-attachment.component";
 
@@ -66,7 +70,9 @@ type CipherAttachmentForm = FormGroup<{
     CommonModule,
     ItemModule,
     JslibModule,
+    ProgressBarComponent,
     ReactiveFormsModule,
+    TruncatedFilenameComponent,
     TypographyModule,
     CardComponent,
     DeleteAttachmentComponent,
@@ -111,6 +117,7 @@ export class CipherAttachmentsComponent {
 
   protected readonly organization = signal<Organization | null>(null);
   protected readonly cipher = signal<CipherView | null>(null);
+  protected readonly uploadProgress = signal<number | null>(null);
 
   attachmentForm: CipherAttachmentForm = this.formBuilder.group({
     file: new FormControl<File | null>(null, [Validators.required]),
@@ -129,6 +136,7 @@ export class CipherAttachmentsComponent {
     private accountService: AccountService,
     private apiService: ApiService,
     private organizationService: OrganizationService,
+    private configService: ConfigService,
   ) {
     this.attachmentForm.statusChanges.pipe(takeUntilDestroyed()).subscribe((status) => {
       const btn = this.submitBtn();
@@ -228,12 +236,24 @@ export class CipherAttachmentsComponent {
       return;
     }
 
+    const progressEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM34410AttachmentUploadProgress,
+    );
+
     try {
+      if (progressEnabled) {
+        this.uploadProgress.set(0);
+      }
       this.cipherDomain = await this.cipherService.saveAttachmentWithServer(
         this.cipherDomain,
         file,
         this.activeUserId,
         this.admin(),
+        progressEnabled
+          ? {
+              onProgress: (p) => this.uploadProgress.set(p),
+            }
+          : undefined,
       );
 
       // re-decrypt the cipher to update the attachments
@@ -268,6 +288,10 @@ export class CipherAttachmentsComponent {
         message: errorMessage,
       });
       this.onUploadFailed.emit();
+    } finally {
+      if (progressEnabled) {
+        this.uploadProgress.set(null);
+      }
     }
   };
 

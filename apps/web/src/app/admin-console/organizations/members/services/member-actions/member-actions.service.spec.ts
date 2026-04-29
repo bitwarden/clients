@@ -635,12 +635,14 @@ describe("MemberActionsService", () => {
 
   describe("allowResetPassword", () => {
     const resetPasswordEnabled = true;
+    const adminResetTwoFactorEnabled = true;
 
     it("should allow reset password for Owner over User", () => {
       const result = service.allowResetPassword(
         mockOrgUser,
         mockOrganization,
         resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
       );
 
       expect(result).toBe(true);
@@ -649,7 +651,12 @@ describe("MemberActionsService", () => {
     it("should allow reset password for Admin over User", () => {
       const adminOrg = { ...mockOrganization, type: OrganizationUserType.Admin } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, adminOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        adminOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(true);
     });
@@ -661,7 +668,12 @@ describe("MemberActionsService", () => {
         type: OrganizationUserType.Owner,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(ownerUser, adminOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        ownerUser,
+        adminOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -669,7 +681,12 @@ describe("MemberActionsService", () => {
     it("should allow reset password for Custom over User", () => {
       const customOrg = { ...mockOrganization, type: OrganizationUserType.Custom } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, customOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        customOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(true);
     });
@@ -681,7 +698,12 @@ describe("MemberActionsService", () => {
         type: OrganizationUserType.Admin,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(adminUser, customOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        adminUser,
+        customOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -693,7 +715,12 @@ describe("MemberActionsService", () => {
         type: OrganizationUserType.Owner,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(ownerUser, customOrg, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        ownerUser,
+        customOrg,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -701,7 +728,12 @@ describe("MemberActionsService", () => {
     it("should not allow reset password when organization cannot manage users password", () => {
       const org = { ...mockOrganization, canManageUsersPassword: false } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, org, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        org,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -709,7 +741,12 @@ describe("MemberActionsService", () => {
     it("should not allow reset password when organization does not use reset password", () => {
       const org = { ...mockOrganization, useResetPassword: false } as Organization;
 
-      const result = service.allowResetPassword(mockOrgUser, org, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        mockOrgUser,
+        org,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
@@ -717,18 +754,55 @@ describe("MemberActionsService", () => {
     it("should not allow reset password when user is not enrolled in reset password", () => {
       const user = { ...mockOrgUser, resetPasswordEnrolled: false } as OrganizationUserView;
 
-      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });
 
-    it("should not allow reset password when user status is not confirmed", () => {
+    it("should allow reset password when user status is revoked and AdminResetTwoFactor is enabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Revoked,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled, true);
+
+      expect(result).toBe(true);
+    });
+
+    it("should not allow reset password when user status is revoked and AdminResetTwoFactor is disabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Revoked,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        false,
+      );
+
+      expect(result).toBe(false);
+    });
+
+    it("should not allow reset password when user status is invited", () => {
       const user = {
         ...mockOrgUser,
         status: OrganizationUserStatusType.Invited,
       } as OrganizationUserView;
 
-      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled);
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        adminResetTwoFactorEnabled,
+      );
 
       expect(result).toBe(false);
     });

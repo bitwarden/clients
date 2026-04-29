@@ -244,18 +244,29 @@ export class ApplicationsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          this.updatingCriticalApps.set(false);
+
+          if (response.error) {
+            this.toastService.showToast({
+              variant: "error",
+              title: "",
+              message: this.i18nService.t("applicationsMarkedAsCriticalFail"),
+            });
+            return;
+          }
+
           this.toastService.showToast({
             variant: "success",
             title: "",
             message: this.i18nService.t("numCriticalApplicationsMarkedSuccess", count),
           });
           this.selectedUrls.set(new Set<string>());
-          this.updatingCriticalApps.set(false);
           this.criticalApplicationsCount.set(
             response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
           );
         },
         error: () => {
+          this.updatingCriticalApps.set(false);
           this.toastService.showToast({
             variant: "error",
             title: "",
@@ -274,6 +285,17 @@ export class ApplicationsComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          this.updatingCriticalApps.set(false);
+
+          if (response.error) {
+            this.toastService.showToast({
+              variant: "error",
+              title: "",
+              message: this.i18nService.t("applicationsUnmarkedAsCriticalFail"),
+            });
+            return;
+          }
+
           this.toastService.showToast({
             message: this.i18nService.t(
               "numApplicationsUnmarkedCriticalSuccess",
@@ -282,16 +304,16 @@ export class ApplicationsComponent implements OnInit {
             variant: "success",
           });
           this.selectedUrls.set(new Set<string>());
-          this.updatingCriticalApps.set(false);
           this.criticalApplicationsCount.set(
             response?.data?.summaryData?.totalCriticalApplicationCount ?? 0,
           );
         },
         error: () => {
+          this.updatingCriticalApps.set(false);
           this.toastService.showToast({
-            message: this.i18nService.t("unexpectedError"),
             variant: "error",
-            title: this.i18nService.t("error"),
+            title: "",
+            message: this.i18nService.t("applicationsUnmarkedAsCriticalFail"),
           });
         },
       });

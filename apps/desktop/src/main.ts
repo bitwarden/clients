@@ -11,6 +11,7 @@ import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -41,7 +42,7 @@ import { DesktopBiometricsService } from "./key-management/biometrics/desktop.bi
 import { MainBiometricsIPCListener } from "./key-management/biometrics/main-biometrics-ipc.listener";
 import { MainBiometricsService } from "./key-management/biometrics/main-biometrics.service";
 import { MenuMain } from "./main/menu/menu.main";
-import { MessagingMain } from "./main/messaging.main";
+import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
@@ -53,6 +54,8 @@ import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronStorageService } from "./platform/main/electron-storage.service";
 import { SafeShell } from "./platform/main/safe-shell.main";
+import { CachedBackend } from "./platform/main/storage/cached-backend";
+import { ElectronStoreBackend } from "./platform/main/storage/electron-store-backend";
 import { VersionMain } from "./platform/main/version.main";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
@@ -130,8 +133,24 @@ export class Main {
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
 
-    const storageDefaults: any = {};
-    this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
+    const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
+    const cachedBackend = new CachedBackend(electronStoreBackend);
+
+    // Main doesn't have access to ConfigService or the feature flags easily at this
+    // early stage, so instead we try to read the raw feature flag value directly
+    // from the storage to determine whether to use the cached backend or not.
+    let isCacheEnabled = false;
+    try {
+      isCacheEnabled = Object.values(
+        (electronStoreBackend.read() as any)?.global_config_byServer ?? {},
+      ).some((s: any) => s?.featureStates?.[FeatureFlag.ElectronStorageCache] === true);
+    } catch {
+      // Ignore errors
+    }
+    this.logService.info(`Electron storage cache enabled: ${isCacheEnabled}`);
+    this.storageService = new ElectronStorageService(
+      isCacheEnabled ? cachedBackend : electronStoreBackend,
+    );
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();
     const storageServiceProvider = new StorageServiceProvider(
@@ -323,6 +342,7 @@ export class Main {
 
     app.on("will-quit", () => {
       this.mainDesktopAutotypeService.dispose();
+      this.storageService.dispose();
     });
   }
 
@@ -350,9 +370,13 @@ export class Main {
             click: () => this.messagingService.send("lockVault"),
           },
         ]);
-        if (await firstValueFrom(this.desktopSettingsService.startToTray$)) {
+
+        // Autostart should always start to tray. Any auto-start mechanism must provide this flag.
+        const isAutostart = process.argv.some((val) => val === AUTOSTART_FLAG);
+        if (isAutostart) {
           await this.trayMain.hideToTray();
         }
+
         this.powerMonitorMain.init();
         await this.updaterMain.init();
 

@@ -151,6 +151,7 @@ export default {
               hasBadgeDismissed: true,
               hasSpotlightDismissed: true,
             } as NudgeStatus),
+            showNudgeSpotlight$: () => new BehaviorSubject(false),
           },
         },
         {
@@ -273,7 +274,7 @@ export default {
         {
           provide: PolicyService,
           useValue: {
-            policiesByType$: new BehaviorSubject([]),
+            policiesByType$: () => new BehaviorSubject([]),
           },
         },
         {

@@ -14,8 +14,10 @@ import {
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   AuthRequestService,
+  DefaultLoginStrategyCacheService,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
+  DefaultLoginStrategySessionTimeoutService,
   UserDecryptionOptionsService,
   SsoUrlService,
   AuthRequestApiServiceAbstraction,
@@ -120,7 +122,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
-import { MessageSender } from "@bitwarden/common/platform/messaging";
+import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import {
   TaskSchedulerService,
   DefaultTaskSchedulerService,
@@ -146,6 +148,7 @@ import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
+import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -173,6 +176,13 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
+import {
+  BuiltIn,
+  createRandomizer,
+  CredentialGeneratorService,
+  DefaultCredentialGeneratorService,
+  providers,
+} from "@bitwarden/generator-core";
 import {
   legacyPasswordGenerationServiceFactory,
   PasswordGenerationServiceAbstraction,
@@ -280,6 +290,8 @@ export class ServiceContainer {
   eventUploadService: EventUploadServiceAbstraction;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
+  credentialGeneratorService: CredentialGeneratorService;
+  generatorDependencyProvider: providers.GeneratorDependencyProvider;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   totpService: TotpService;
   containerService: ContainerService;
@@ -617,9 +629,16 @@ export class ServiceContainer {
       this.stateProvider,
       this.policyService,
       this.accountService,
+      this.configService,
+      this.environmentService,
+      this.authService,
     );
 
-    this.fileUploadService = new FileUploadService(this.logService, this.apiService);
+    this.fileUploadService = new FileUploadService(
+      this.logService,
+      this.apiService,
+      this.configService,
+    );
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
@@ -636,6 +655,7 @@ export class ServiceContainer {
     this.cipherFileUploadService = new CipherFileUploadService(
       this.apiService,
       this.fileUploadService,
+      this.configService,
     );
 
     this.sendApiService = this.sendApiService = new SendApiService(
@@ -646,7 +666,7 @@ export class ServiceContainer {
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
 
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.collectionService = new DefaultCollectionService(
       this.keyService,
@@ -699,10 +719,12 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.accountService,
       this.masterPasswordService,
-      this.cryptoFunctionService,
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),
+      this.platformUtilsService,
+      this.stateService,
+      this.biometricStateService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -789,6 +811,17 @@ export class ServiceContainer {
     );
     this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
 
+    const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
+      this.globalStateProvider,
+    );
+
+    const loginStrategySessionTimeoutService = new DefaultLoginStrategySessionTimeoutService(
+      this.taskSchedulerService,
+      loginStrategyCacheService,
+      this.logService,
+      this.messagingService,
+      MessageListener.EMPTY,
+    );
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -814,10 +847,12 @@ export class ServiceContainer {
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
-      this.taskSchedulerService,
       this.configService,
       this.accountCryptographicStateService,
       this.passwordPreloginService,
+      this.unlockService,
+      loginStrategyCacheService,
+      loginStrategySessionTimeoutService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -850,7 +885,6 @@ export class ServiceContainer {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -867,7 +901,6 @@ export class ServiceContainer {
       this.cipherService,
       this.apiService,
       this.billingAccountProfileStateService,
-      this.configService,
     );
 
     this.folderService = new FolderService(
@@ -964,16 +997,48 @@ export class ServiceContainer {
 
     this.importApiService = new ImportApiService(this.apiService);
 
-    this.importMetadataService = new DefaultImportMetadataService(
-      createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
-        this.stateProvider,
-        this.policyService,
-        buildExtensionRegistry(),
-        this.logService,
-        this.platformUtilsService,
-        this.configService,
-      ),
+    const systemProvider = createSystemServiceProvider(
+      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+      this.stateProvider,
+      this.policyService,
+      buildExtensionRegistry(),
+      this.logService,
+      this.platformUtilsService,
+      this.configService,
+    );
+
+    this.importMetadataService = new DefaultImportMetadataService(systemProvider);
+
+    const encryptorProvider = new KeyServiceLegacyEncryptorProvider(
+      this.encryptService,
+      this.keyService,
+    );
+    const userStateDeps = {
+      encryptor: encryptorProvider,
+      state: this.stateProvider,
+      log: systemProvider.log,
+      now: Date.now,
+    };
+
+    this.generatorDependencyProvider = {
+      randomizer: createRandomizer(),
+      client: new RestClient(this.apiService, this.i18nService),
+      i18nService: this.i18nService,
+      now: Date.now,
+    };
+
+    this.credentialGeneratorService = new DefaultCredentialGeneratorService(
+      {
+        userState: userStateDeps,
+        generator: this.generatorDependencyProvider,
+        profile: new providers.GeneratorProfileProvider(userStateDeps, this.policyService),
+        metadata: new providers.GeneratorMetadataProvider(
+          userStateDeps,
+          systemProvider,
+          Object.values(BuiltIn),
+        ),
+      },
+      systemProvider,
     );
 
     this.importService = new ImportService(
@@ -1066,6 +1131,7 @@ export class ServiceContainer {
       this.sdkService,
       this.keyService,
       this.masterPasswordService,
+      this.kdfConfigService,
     );
     this.encryptedMigrator = new DefaultEncryptedMigrator(
       this.kdfConfigService,

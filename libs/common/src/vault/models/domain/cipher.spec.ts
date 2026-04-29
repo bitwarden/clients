@@ -1063,6 +1063,7 @@ describe("Cipher DTO", () => {
           fido2Credentials: undefined,
         },
         identity: undefined,
+        bankAccount: undefined,
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,

@@ -216,8 +216,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem);
   }
 
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-
   constructor(
     private route: ActivatedRoute,
     private i18nService: I18nService,
@@ -469,6 +467,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
       [CipherType.Identity]: isEditMode ? "editItemHeaderIdentity" : "newItemHeaderIdentity",
       [CipherType.SecureNote]: isEditMode ? "editItemHeaderNote" : "newItemHeaderNote",
       [CipherType.SshKey]: isEditMode ? "editItemHeaderSshKey" : "newItemHeaderSshKey",
+      [CipherType.BankAccount]: isEditMode
+        ? "editItemHeaderBankAccount"
+        : "newItemHeaderBankAccount",
     };
     return this.i18nService.t(translation[type]);
   }

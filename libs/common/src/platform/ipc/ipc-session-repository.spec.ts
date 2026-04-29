@@ -14,35 +14,35 @@ describe("IpcSessionRepository", () => {
   });
 
   it("returns undefined when empty", async () => {
-    const result = await repository.get("BrowserBackground");
+    const result = await repository.get({ BrowserBackground: { id: "Own" } });
 
     expect(result).toBeUndefined();
   });
 
   it("saves and retrieves a session", async () => {
     const session = { some: "data" };
-    await repository.save("BrowserBackground", session);
+    await repository.save({ BrowserBackground: { id: "Own" } }, session);
 
-    const result = await repository.get("BrowserBackground");
+    const result = await repository.get({ BrowserBackground: { id: "Own" } });
 
     expect(result).toEqual(session);
   });
 
   it("saves and retrieves a web session", async () => {
     const session = { some: "data" };
-    await repository.save({ Web: { id: 9001 } }, session);
+    await repository.save({ Web: { tab_id: 9001, document_id: "doc-abc-123" } }, session);
 
-    const result = await repository.get({ Web: { id: 9001 } });
+    const result = await repository.get({ Web: { tab_id: 9001, document_id: "doc-abc-123" } });
 
     expect(result).toEqual(session);
   });
 
   it("removes a session", async () => {
     const session = { some: "data" };
-    await repository.save("BrowserBackground", session);
+    await repository.save({ BrowserBackground: { id: "Own" } }, session);
 
-    await repository.remove("BrowserBackground");
-    const result = await repository.get("BrowserBackground");
+    await repository.remove({ BrowserBackground: { id: "Own" } });
+    const result = await repository.get({ BrowserBackground: { id: "Own" } });
 
     expect(result).toBeUndefined();
   });

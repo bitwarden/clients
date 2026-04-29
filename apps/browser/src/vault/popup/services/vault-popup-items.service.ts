@@ -22,10 +22,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
@@ -136,20 +134,12 @@ export class VaultPopupItemsService {
 
   private _activeCipherList$: Observable<PopupCipherViewLike[]> = this._allDecryptedCiphers$.pipe(
     switchMap((ciphers) =>
-      combineLatest([
-        this.organizations$,
-        this.decryptedCollections$,
-        this.cipherArchiveService.hasArchiveFlagEnabled$,
-      ]).pipe(
-        map(([organizations, collections, archiveFlag]) => {
+      combineLatest([this.organizations$, this.decryptedCollections$]).pipe(
+        map(([organizations, collections]) => {
           const orgMap = Object.fromEntries(organizations.map((org) => [org.id, org]));
           const collectionMap = Object.fromEntries(collections.map((col) => [col.id, col]));
           return ciphers
-            .filter(
-              (c) =>
-                !CipherViewLikeUtils.isDeleted(c) &&
-                (!archiveFlag || !CipherViewLikeUtils.isArchived(c)),
-            )
+            .filter((c) => !CipherViewLikeUtils.isDeleted(c) && !CipherViewLikeUtils.isArchived(c))
 
             .map((cipher) => {
               (cipher as PopupCipherViewLike).collections = cipher.collectionIds?.map(
@@ -168,12 +158,9 @@ export class VaultPopupItemsService {
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText = combineLatest([
-    this.searchText$,
-    getUserId(this.accountService.activeAccount$),
-  ]).pipe(
-    switchMap(([searchText, userId]) => {
-      return this.searchService.isSearchable(userId, searchText);
+  private _hasSearchText = this.searchText$.pipe(
+    switchMap((searchText) => {
+      return this.searchService.isSearchable(searchText);
     }),
   );
 
@@ -192,7 +179,7 @@ export class VaultPopupItemsService {
     ),
     switchMap(
       ([ciphers, searchText, userId]) =>
-        this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
+        this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
           PopupCipherViewLike[]
         >,
     ),
@@ -342,8 +329,6 @@ export class VaultPopupItemsService {
     private accountService: AccountService,
     private ngZone: NgZone,
     private restrictedItemTypesService: RestrictedItemTypesService,
-    private configService: ConfigService,
-    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   applyFilter(newSearchText: string) {

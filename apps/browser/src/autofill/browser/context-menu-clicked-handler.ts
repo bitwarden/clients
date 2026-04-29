@@ -37,7 +37,6 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
 import { AutofillCipherTypeId } from "../types";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
@@ -86,20 +85,13 @@ export class ContextMenuClickedHandler {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsData = {
+      await openUnlockPopout(tab, {
         commandToRetry: {
           message: { command: ExtensionCommand.NoopCommand, contextMenuOnClickData: info },
           sender: { tab: tab },
         },
         target: "contextmenus.background",
-      };
-      await BrowserApi.tabSendMessageData(
-        tab,
-        "addToLockedVaultPendingNotifications",
-        retryMessage,
-      );
-
-      await openUnlockPopout(tab);
+      });
       return;
     }
 
@@ -246,7 +238,7 @@ export class ContextMenuClickedHandler {
   private async isPasswordRepromptRequired(cipher: CipherView): Promise<boolean> {
     return (
       cipher.reprompt === CipherRepromptType.Password &&
-      (await this.userVerificationService.hasMasterPasswordAndMasterKeyHash())
+      (await this.userVerificationService.hasMasterPassword())
     );
   }
 

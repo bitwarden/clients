@@ -284,3 +284,254 @@ export const Inactive: Story = {
     loading: false,
   },
 };
+
+export const InteractionStates: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4 tw-max-w-[800px]">
+        <div class="tw-grid tw-grid-cols-3 tw-gap-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primary" bitIconButton="bwi-plus" label="Primary"></button>
+            <p class="tw-m-0" bitTypography="helper">primary</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primary" bitIconButton="bwi-plus" label="Primary" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">primary:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primary" bitIconButton="bwi-plus" label="Primary" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">primary:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryOutline" bitIconButton="bwi-plus" label="Primary Outline"></button>
+            <p class="tw-m-0" bitTypography="helper">primaryOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryOutline" bitIconButton="bwi-plus" label="Primary Outline" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">primaryOutline:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryOutline" bitIconButton="bwi-plus" label="Primary Outline" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">primaryOutline:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryGhost" bitIconButton="bwi-plus" label="Primary Ghost"></button>
+            <p class="tw-m-0" bitTypography="helper">primaryGhost</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryGhost" bitIconButton="bwi-plus" label="Primary Ghost" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">primaryGhost:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="primaryGhost" bitIconButton="bwi-plus" label="Primary Ghost" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">primaryGhost:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="secondary" bitIconButton="bwi-plus" label="Secondary"></button>
+            <p class="tw-m-0" bitTypography="helper">secondary</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="secondary" bitIconButton="bwi-plus" label="Secondary" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">secondary:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="secondary" bitIconButton="bwi-plus" label="Secondary" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">secondary:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtle" bitIconButton="bwi-plus" label="Subtle"></button>
+            <p class="tw-m-0" bitTypography="helper">subtle</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtle" bitIconButton="bwi-plus" label="Subtle" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">subtle:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtle" bitIconButton="bwi-plus" label="Subtle" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">subtle:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleOutline" bitIconButton="bwi-plus" label="Subtle Outline"></button>
+            <p class="tw-m-0" bitTypography="helper">subtleOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleOutline" bitIconButton="bwi-plus" label="Subtle Outline" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">subtleOutline:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleOutline" bitIconButton="bwi-plus" label="Subtle Outline" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">subtleOutline:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleGhost" bitIconButton="bwi-plus" label="Subtle Ghost"></button>
+            <p class="tw-m-0" bitTypography="helper">subtleGhost</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleGhost" bitIconButton="bwi-plus" label="Subtle Ghost" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">subtleGhost:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="subtleGhost" bitIconButton="bwi-plus" label="Subtle Ghost" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">subtleGhost:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="danger" bitIconButton="bwi-plus" label="Danger"></button>
+            <p class="tw-m-0" bitTypography="helper">danger</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="danger" bitIconButton="bwi-plus" label="Danger" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">danger:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="danger" bitIconButton="bwi-plus" label="Danger" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">danger:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerOutline" bitIconButton="bwi-plus" label="Danger Outline"></button>
+            <p class="tw-m-0" bitTypography="helper">dangerOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerOutline" bitIconButton="bwi-plus" label="Danger Outline" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">dangerOutline:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerOutline" bitIconButton="bwi-plus" label="Danger Outline" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">dangerOutline:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerGhost" bitIconButton="bwi-plus" label="Danger Ghost"></button>
+            <p class="tw-m-0" bitTypography="helper">dangerGhost</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerGhost" bitIconButton="bwi-plus" label="Danger Ghost" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">dangerGhost:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="dangerGhost" bitIconButton="bwi-plus" label="Danger Ghost" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">dangerGhost:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warning" bitIconButton="bwi-plus" label="Warning"></button>
+            <p class="tw-m-0" bitTypography="helper">warning</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warning" bitIconButton="bwi-plus" label="Warning" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">warning:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warning" bitIconButton="bwi-plus" label="Warning" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">warning:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningOutline" bitIconButton="bwi-plus" label="Warning Outline"></button>
+            <p class="tw-m-0" bitTypography="helper">warningOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningOutline" bitIconButton="bwi-plus" label="Warning Outline" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">warningOutline:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningOutline" bitIconButton="bwi-plus" label="Warning Outline" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">warningOutline:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningGhost" bitIconButton="bwi-plus" label="Warning Ghost"></button>
+            <p class="tw-m-0" bitTypography="helper">warningGhost</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningGhost" bitIconButton="bwi-plus" label="Warning Ghost" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">warningGhost:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="warningGhost" bitIconButton="bwi-plus" label="Warning Ghost" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">warningGhost:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="success" bitIconButton="bwi-plus" label="Success"></button>
+            <p class="tw-m-0" bitTypography="helper">success</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="success" bitIconButton="bwi-plus" label="Success" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">success:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="success" bitIconButton="bwi-plus" label="Success" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">success:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successOutline" bitIconButton="bwi-plus" label="Success Outline"></button>
+            <p class="tw-m-0" bitTypography="helper">successOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successOutline" bitIconButton="bwi-plus" label="Success Outline" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">successOutline:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successOutline" bitIconButton="bwi-plus" label="Success Outline" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">successOutline:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successGhost" bitIconButton="bwi-plus" label="Success Ghost"></button>
+            <p class="tw-m-0" bitTypography="helper">successGhost</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successGhost" bitIconButton="bwi-plus" label="Success Ghost" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">successGhost:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="successGhost" bitIconButton="bwi-plus" label="Success Ghost" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">successGhost:focus-visible</p>
+          </div>
+        </div>
+
+        <div class="tw-grid tw-grid-cols-3 tw-gap-4 tw-bg-bg-contrast tw-text-contrast tw-p-4">
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrast" bitIconButton="bwi-plus" label="Contrast"></button>
+            <p class="tw-m-0" bitTypography="helper">contrast</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrast" bitIconButton="bwi-plus" label="Contrast" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">contrast:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrast" bitIconButton="bwi-plus" label="Contrast" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">contrast:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastOutline" bitIconButton="bwi-plus" label="Contrast Outline"></button>
+            <p class="tw-m-0" bitTypography="helper">contrastOutline</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastOutline" bitIconButton="bwi-plus" label="Contrast Outline" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">contrastOutline:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastOutline" bitIconButton="bwi-plus" label="Contrast Outline" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">contrastOutline:focus-visible</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastGhost" bitIconButton="bwi-plus" label="Contrast Ghost"></button>
+            <p class="tw-m-0" bitTypography="helper">contrastGhost</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastGhost" bitIconButton="bwi-plus" label="Contrast Ghost" class="tw-test-hover"></button>
+            <p class="tw-m-0" bitTypography="helper">contrastGhost:hover</p>
+          </div>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-2">
+            <button buttonType="contrastGhost" bitIconButton="bwi-plus" label="Contrast Ghost" class="tw-test-focus-visible"></button>
+            <p class="tw-m-0" bitTypography="helper">contrastGhost:focus-visible</p>
+          </div>
+        </div>
+      </div>
+    `,
+  }),
+  parameters: {
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
+    },
+  },
+};

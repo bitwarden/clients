@@ -73,7 +73,6 @@ describe("AddEditComponent", () => {
     navigateAfterDeletion.mockClear();
     openSimpleDialog.mockClear();
 
-    cipherArchiveService.hasArchiveFlagEnabled$ = of(true);
     cipherArchiveService.userCanArchive$.mockReturnValue(of(false));
 
     addEditCipherInfo$ = new BehaviorSubject<AddEditCipherInfo | null>(null);

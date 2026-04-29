@@ -25,10 +25,10 @@ export class SingleOrgPolicyComponent extends BasePolicyEditComponent implements
   async ngOnInit() {
     super.ngOnInit();
 
-    if (!this.policyResponse) {
+    if (!this.policyResponse()) {
       throw new Error("Policies not found");
     }
-    if (!this.policyResponse.canToggleState) {
+    if (!this.policyResponse()!.canToggleState) {
       this.enabled.disable();
     }
   }

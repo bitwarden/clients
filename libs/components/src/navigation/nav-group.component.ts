@@ -7,6 +7,7 @@ import {
   contentChildren,
   ChangeDetectionStrategy,
   computed,
+  ElementRef,
 } from "@angular/core";
 import { RouterLinkActive } from "@angular/router";
 
@@ -31,6 +32,7 @@ import { SideNavService } from "./side-nav.service";
 export class NavGroupComponent extends NavBaseComponent {
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupComponent, { optional: true, skipSelf: true });
+  private readonly el = inject(ElementRef);
 
   // Query direct children for hideIfEmpty functionality
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
