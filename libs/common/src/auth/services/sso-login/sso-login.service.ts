@@ -1,86 +1,40 @@
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
+import { GlobalState, SingleUserState, StateProvider } from "../../../platform/state";
 import {
-  GlobalState,
-  KeyDefinition,
-  SingleUserState,
-  SSO_DISK,
-  SSO_DISK_LOCAL,
-  StateProvider,
-  UserKeyDefinition,
-} from "../../platform/state";
-import { SsoLoginServiceAbstraction } from "../abstractions/sso-login.service.abstraction";
+  SsoLoginServiceAbstraction,
+  SsoRequiredCacheEntry,
+} from "../../abstractions/sso-login.service.abstraction";
 
-/**
- * Uses disk storage so that the code verifier can be persisted across sso redirects.
- */
-export const CODE_VERIFIER = new KeyDefinition<string>(SSO_DISK, "ssoCodeVerifier", {
-  deserializer: (codeVerifier) => codeVerifier,
-});
-
-/**
- * Uses disk storage so that the sso state can be persisted across sso redirects.
- */
-export const SSO_STATE = new KeyDefinition<string>(SSO_DISK, "ssoState", {
-  deserializer: (state) => state,
-});
-
-/**
- * Uses disk storage so that the organization sso identifier can be persisted across sso redirects.
- */
-export const USER_ORGANIZATION_SSO_IDENTIFIER = new UserKeyDefinition<string>(
-  SSO_DISK,
-  "organizationSsoIdentifier",
-  {
-    deserializer: (organizationIdentifier) => organizationIdentifier,
-    clearOn: ["logout"], // Used for login, so not needed past logout
-  },
-);
-
-/**
- * Uses disk storage so that the organization sso identifier can be persisted across sso redirects.
- */
-export const GLOBAL_ORGANIZATION_SSO_IDENTIFIER = new KeyDefinition<string>(
-  SSO_DISK,
-  "organizationSsoIdentifier",
-  {
-    deserializer: (organizationIdentifier) => organizationIdentifier,
-  },
-);
-
-/**
- * Uses disk storage so that the user's email can be persisted across sso redirects.
- */
-export const SSO_EMAIL = new KeyDefinition<string>(SSO_DISK, "ssoEmail", {
-  deserializer: (state) => state,
-});
-
-/**
- * A cache list of user emails for whom the `PolicyType.RequireSso` policy is applied (that is, a list
- * of users who are required to authenticate via SSO only). The cache lives on the current device only.
- */
-export const SSO_REQUIRED_CACHE = new KeyDefinition<string[]>(SSO_DISK_LOCAL, "ssoRequiredCache", {
-  deserializer: (ssoRequiredCache) => ssoRequiredCache,
-});
+import {
+  CODE_VERIFIER,
+  GLOBAL_ORGANIZATION_SSO_IDENTIFIER,
+  SSO_EMAIL,
+  SSO_REQUIRED_CACHE,
+  SSO_STATE,
+  USER_ORGANIZATION_SSO_IDENTIFIER,
+} from "./sso-login.state";
 
 export class SsoLoginService implements SsoLoginServiceAbstraction {
   private codeVerifierState: GlobalState<string>;
   private ssoState: GlobalState<string>;
   private orgSsoIdentifierState: GlobalState<string>;
   private ssoEmailState: GlobalState<string>;
-  private ssoRequiredCacheState: GlobalState<string[]>;
+  private ssoRequiredCacheState: GlobalState<SsoRequiredCacheEntry[]>;
 
-  ssoRequiredCache$: Observable<Set<string> | null>;
+  ssoRequiredCache$: Observable<SsoRequiredCacheEntry[] | null>;
 
   constructor(
     private stateProvider: StateProvider,
     private logService: LogService,
     private policyService: PolicyService,
+    private environmentService: EnvironmentService,
   ) {
     this.codeVerifierState = this.stateProvider.getGlobal(CODE_VERIFIER);
     this.ssoState = this.stateProvider.getGlobal(SSO_STATE);
@@ -88,7 +42,7 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
     this.ssoEmailState = this.stateProvider.getGlobal(SSO_EMAIL);
     this.ssoRequiredCacheState = this.stateProvider.getGlobal(SSO_REQUIRED_CACHE);
 
-    this.ssoRequiredCache$ = this.ssoRequiredCacheState.state$.pipe(map((cache) => new Set(cache)));
+    this.ssoRequiredCache$ = this.ssoRequiredCacheState.state$;
   }
 
   getCodeVerifier(): Promise<string | null> {
@@ -149,51 +103,78 @@ export class SsoLoginService implements SsoLoginServiceAbstraction {
   }
 
   /**
-   * Add an email to the cached list of emails that must authenticate via SSO.
+   * Add an entry to a cache list of users who must authenticate via SSO.
    */
-  private async addToSsoRequiredCache(email: string): Promise<void> {
+  private async addToSsoRequiredCache(email: string, userId: UserId): Promise<void> {
+    const newEntry = await this.makeEntry(email, userId);
+
     await this.ssoRequiredCacheState.update(
-      (cache) => (cache == null ? [email] : [...cache, email]),
+      (cache) => (cache == null ? [newEntry] : [...cache, newEntry]),
       {
         shouldUpdate: (cache) => {
+          // Always update if cache does not yet exist
           if (cache == null) {
             return true;
           }
-          return !cache.includes(email);
+
+          // Don't update if entry is already in the cache
+          return !cache.some((e) => this.entriesMatch(e, newEntry));
         },
       },
     );
   }
 
-  async removeFromSsoRequiredCacheIfPresent(email: string): Promise<void> {
+  async removeFromSsoRequiredCacheIfPresent(email: string, userId: UserId): Promise<void> {
+    const entryToRemove = await this.makeEntry(email, userId);
+
     await this.ssoRequiredCacheState.update(
-      (cache) => cache?.filter((cachedEmail) => cachedEmail !== email) ?? cache,
+      (cache) => cache?.filter((e) => !this.entriesMatch(e, entryToRemove)) ?? cache,
       {
         shouldUpdate: (cache) => {
+          // Don't update if cache does not exist
           if (cache == null) {
             return false;
           }
-          return cache.includes(email);
+
+          // Only update if entry is found in the cache
+          return cache.some((e) => this.entriesMatch(e, entryToRemove));
         },
       },
     );
   }
 
-  async updateSsoRequiredCache(ssoLoginEmail: string, userId: UserId): Promise<void> {
+  async updateSsoRequiredCache(email: string, userId: UserId): Promise<void> {
     const ssoRequired = await firstValueFrom(
       this.policyService.policyAppliesToUser$(PolicyType.RequireSso, userId),
     );
 
     if (ssoRequired) {
-      await this.addToSsoRequiredCache(ssoLoginEmail.toLowerCase());
+      await this.addToSsoRequiredCache(email, userId);
     } else {
       /**
-       * If user is not required to authenticate via SSO, remove email from the cache
+       * If user is not required to authenticate via SSO, remove their entry from the cache
        * list (if it was on the list). This is necessary because the user may have been
        * required to authenticate via SSO at some point in the past, but now their org
-       * no longer requires SSO authenticaiton.
+       * no longer requires SSO authentication.
        */
-      await this.removeFromSsoRequiredCacheIfPresent(ssoLoginEmail.toLowerCase());
+      await this.removeFromSsoRequiredCacheIfPresent(email, userId);
     }
+  }
+
+  /**
+   * Makes an `SsoRequiredCacheEntry` object based on the user's email and resolved webVaultUrl
+   */
+  private async makeEntry(email: string, userId: UserId): Promise<SsoRequiredCacheEntry> {
+    const env = await firstValueFrom(this.environmentService.getEnvironment$(userId));
+    const webVaultUrl = env.getWebVaultUrl();
+
+    return { email: email.toLowerCase(), webVaultUrl };
+  }
+
+  /**
+   * Determines if two `SsoRequiredCacheEntry` objects have matching values
+   */
+  private entriesMatch(a: SsoRequiredCacheEntry, b: SsoRequiredCacheEntry): boolean {
+    return a.email === b.email && a.webVaultUrl === b.webVaultUrl;
   }
 }

@@ -2,11 +2,9 @@ import { MockProxy, mock } from "jest-mock-extended";
 
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/encrypted-migrator.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
-import { LogService } from "@bitwarden/logging";
 
 import { LoginEmailService } from "../login-email/login-email.service";
 
@@ -15,34 +13,28 @@ import { DefaultLoginSuccessHandlerService } from "./default-login-success-handl
 describe("DefaultLoginSuccessHandlerService", () => {
   let service: DefaultLoginSuccessHandlerService;
 
-  let configService: MockProxy<ConfigService>;
   let loginEmailService: MockProxy<LoginEmailService>;
   let ssoLoginService: MockProxy<SsoLoginServiceAbstraction>;
   let syncService: MockProxy<SyncService>;
   let userAsymmetricKeysRegenerationService: MockProxy<UserAsymmetricKeysRegenerationService>;
   let encryptedMigrator: MockProxy<EncryptedMigrator>;
-  let logService: MockProxy<LogService>;
 
   const userId = "USER_ID" as UserId;
   const testEmail = "test@bitwarden.com";
 
   beforeEach(() => {
-    configService = mock<ConfigService>();
     loginEmailService = mock<LoginEmailService>();
     ssoLoginService = mock<SsoLoginServiceAbstraction>();
     syncService = mock<SyncService>();
     userAsymmetricKeysRegenerationService = mock<UserAsymmetricKeysRegenerationService>();
     encryptedMigrator = mock<EncryptedMigrator>();
-    logService = mock<LogService>();
 
     service = new DefaultLoginSuccessHandlerService(
-      configService,
       loginEmailService,
       ssoLoginService,
       syncService,
       userAsymmetricKeysRegenerationService,
       encryptedMigrator,
-      logService,
     );
 
     syncService.fullSync.mockResolvedValue(true);
@@ -72,11 +64,11 @@ describe("DefaultLoginSuccessHandlerService", () => {
         ssoLoginService.getSsoEmail.mockResolvedValue(null);
       });
 
-      it("should not check SSO requirements", async () => {
+      it("should not call updateSsoRequiredCache() and clearSsoEmail()", async () => {
         await service.run(userId, null);
 
-        expect(logService.debug).toHaveBeenCalledWith("SSO login email not found.");
         expect(ssoLoginService.updateSsoRequiredCache).not.toHaveBeenCalled();
+        expect(ssoLoginService.clearSsoEmail).not.toHaveBeenCalled();
       });
     });
 
