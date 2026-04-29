@@ -46,6 +46,7 @@ export class LandingContentComponent {
    * @default "md"
    */
   readonly maxWidth = input<LandingContentMaxWidthType>("md");
+  readonly leftAlign = input<boolean>(false);
 
   private readonly maxWidthClassMap: Record<LandingContentMaxWidthType, string> = {
     md: "tw-max-w-md",

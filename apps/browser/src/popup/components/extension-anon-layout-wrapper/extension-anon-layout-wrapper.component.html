@@ -15,21 +15,11 @@
     </ng-container>
   </popup-header>
 
-  @if (leftAlignHeader && pageTitle) {
-    <div class="tw-p-6">
-      <h1 class="tw-mb-0 tw-text-left tw-text-2xl tw-font-semibold tw-text-main">
-        {{ pageTitle }}
-      </h1>
-      @if (pageSubtitle) {
-        <p class="tw-mt-6 tw-mb-0 tw-text-left tw-text-sm tw-text-muted">{{ pageSubtitle }}</p>
-      }
-    </div>
-  }
-
   <auth-anon-layout
-    [title]="leftAlignHeader ? null : pageTitle"
-    [subtitle]="leftAlignHeader ? null : pageSubtitle"
+    [title]="pageTitle"
+    [subtitle]="pageSubtitle"
     [icon]="pageIcon"
+    [leftAlign]="leftAlignHero"
     [showReadonlyHostname]="showReadonlyHostname"
     [hideLogo]="true"
     [maxWidth]="maxWidth"

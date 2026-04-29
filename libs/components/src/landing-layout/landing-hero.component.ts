@@ -1,3 +1,4 @@
+import { NgClass } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import { BitSvg } from "@bitwarden/assets/svg";
@@ -31,10 +32,11 @@ import { TypographyModule } from "../typography";
   selector: "bit-landing-hero",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-hero.component.html",
-  imports: [SvgModule, TypographyModule],
+  imports: [NgClass, SvgModule, TypographyModule],
 })
 export class LandingHeroComponent {
   readonly icon = input<BitSvg | null>(null);
   readonly title = input<string | undefined>();
   readonly subtitle = input<string | undefined>();
+  readonly leftAlign = input<boolean>(false);
 }

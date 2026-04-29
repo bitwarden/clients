@@ -27,7 +27,7 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
-  leftAlignHeader?: boolean;
+  leftAlignHero?: boolean;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -61,7 +61,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hasLoggedInAccount: boolean = false;
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
-  protected leftAlignHeader = false;
+  protected leftAlignHero = false;
 
   protected theme: string;
   protected logo = BitwardenLogo;
@@ -140,8 +140,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     }
 
-    if (firstChildRouteData["leftAlignHeader"] !== undefined) {
-      this.leftAlignHeader = Boolean(firstChildRouteData["leftAlignHeader"]);
+    if (firstChildRouteData["leftAlignHero"] !== undefined) {
+      this.leftAlignHero = Boolean(firstChildRouteData["leftAlignHero"]);
     }
   }
 
@@ -199,8 +199,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showLogo = data.showLogo;
     }
 
-    if (data.leftAlignHeader !== undefined) {
-      this.leftAlignHeader = data.leftAlignHeader;
+    if (data.leftAlignHero !== undefined) {
+      this.leftAlignHero = data.leftAlignHero;
     }
   }
 
@@ -225,7 +225,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.maxWidth = null;
     this.hideFooter = null;
     this.hideCardWrapper = null;
-    this.leftAlignHeader = false;
+    this.leftAlignHero = false;
   }
 
   ngOnDestroy() {

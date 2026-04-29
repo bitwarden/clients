@@ -3,8 +3,13 @@
     <ng-content select="[slot=header-actions]"></ng-content>
   </bit-landing-header>
 
-  <bit-landing-content [maxWidth]="maxWidth()">
-    <bit-landing-hero [icon]="icon()" [title]="title()" [subtitle]="subtitle()"></bit-landing-hero>
+  <bit-landing-content [maxWidth]="maxWidth()" [leftAlign]="leftAlign()">
+    <bit-landing-hero
+      [icon]="icon()"
+      [title]="title()"
+      [subtitle]="subtitle()"
+      [leftAlign]="leftAlign()"
+    ></bit-landing-hero>
     @if (hideCardWrapper()) {
       <div class="tw-mb-6 sm:tw-mb-10">
         <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
