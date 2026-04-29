@@ -117,7 +117,9 @@ describe("PasswordLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
-    configService.getFeatureFlag.mockResolvedValue(false);
+    configService.getFeatureFlag
+      .calledWith(FeatureFlag.UseUnlockServiceForPasswordLogin)
+      .mockResolvedValue(false);
 
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.mockResolvedValue({
@@ -125,7 +127,7 @@ describe("PasswordLoginStrategy", () => {
     });
 
     passwordPreloginService.getPreloginData$.mockReturnValue(
-      of(new PasswordPreloginData(new PBKDF2KdfConfig())),
+      of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
     );
     keyService.makeMasterKey.mockResolvedValue(masterKey);
 
@@ -222,12 +224,9 @@ describe("PasswordLoginStrategy", () => {
   });
 
   it("uses master password unlock service when feature flag is enabled", async () => {
-    configService.getFeatureFlag.mockImplementation(async (flag: FeatureFlag) => {
-      if (flag === FeatureFlag.UseUnlockServiceForPasswordLogin) {
-        return true;
-      }
-      return false;
-    });
+    configService.getFeatureFlag
+      .calledWith(FeatureFlag.UseUnlockServiceForPasswordLogin)
+      .mockResolvedValue(true);
 
     // Re-create he strategy and wait a bit to settle the feature flag
     passwordLoginStrategy = new PasswordLoginStrategy(
@@ -281,7 +280,7 @@ describe("PasswordLoginStrategy", () => {
     });
 
     it("does not call getPreloginData$ when preFetchedPreloginData is provided", async () => {
-      const preloginData = new PasswordPreloginData(new PBKDF2KdfConfig());
+      const preloginData = new PasswordPreloginData(PBKDF2KdfConfig.createDefault());
       const credentialsWithPrefetch = new PasswordLoginCredentials(
         email,
         masterPassword,

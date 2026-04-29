@@ -64,6 +64,7 @@ import { IdentitySsoRequiredResponse } from "../auth/models/response/identity-ss
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
 import { KeyConnectorUserKeyResponse } from "../auth/models/response/key-connector-user-key.response";
+import { RefreshTokenResponse } from "../auth/models/response/refresh-token.response";
 import { SsoPreValidateResponse } from "../auth/models/response/sso-pre-validate.response";
 import { BitPayInvoiceRequest } from "../billing/models/request/bit-pay-invoice.request";
 import { BillingHistoryResponse } from "../billing/models/response/billing-history.response";
@@ -1565,7 +1566,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     if (response.status === 200) {
       const responseJson = await response.json();
-      const tokenResponse = new IdentityTokenResponse(responseJson);
+      const tokenResponse = new RefreshTokenResponse(responseJson);
 
       const newDecodedAccessToken = await this.tokenService.decodeAccessToken(
         tokenResponse.accessToken,
@@ -1693,11 +1694,19 @@ export class ApiService implements ApiServiceAbstraction {
     const responseType = response.headers.get("content-type");
     const responseIsJson = responseType != null && responseType.indexOf("application/json") !== -1;
     const responseIsCsv = responseType != null && responseType.indexOf("text/csv") !== -1;
+    const responseIsBlob =
+      responseType != null && responseType.indexOf("application/octet-stream") !== -1;
     if (hasResponse && response.status === HttpStatusCode.Ok && responseIsJson) {
       const responseJson = await response.json();
       return responseJson;
     } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsCsv) {
       return await response.text();
+    } else if (hasResponse && response.status === HttpStatusCode.Ok && responseIsBlob) {
+      const disposition = response.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      const fileName = match ? match[1].replace(/['"]/g, "") : "download";
+      const blob = await response.blob();
+      return { blob, fileName };
     } else if (
       response.status !== HttpStatusCode.Ok &&
       response.status !== HttpStatusCode.NoContent

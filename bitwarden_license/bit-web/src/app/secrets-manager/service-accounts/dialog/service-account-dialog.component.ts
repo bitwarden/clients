@@ -114,7 +114,7 @@ export class ServiceAccountDialogComponent implements OnInit {
       title: null,
       message: serviceAccountMessage,
     });
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private getServiceAccountView() {

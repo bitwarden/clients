@@ -738,26 +738,12 @@ describe("OrganizationPlansComponent", () => {
       });
     });
 
-    describe("feature flags", () => {
-      it("should use FamiliesAnnually when PM26462_Milestone_3 is enabled", async () => {
-        mockConfigService.getFeatureFlag.mockResolvedValue(true);
+    it("should use FamiliesAnnually as the family plan", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
 
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const familyPlan = component["_familyPlan"];
-        expect(familyPlan).toBe(PlanType.FamiliesAnnually);
-      });
-
-      it("should use FamiliesAnnually2025 when feature flag is disabled", async () => {
-        mockConfigService.getFeatureFlag.mockResolvedValue(false);
-
-        fixture.detectChanges();
-        await fixture.whenStable();
-
-        const familyPlan = component["_familyPlan"];
-        expect(familyPlan).toBe(PlanType.FamiliesAnnually2025);
-      });
+      const familyPlan = component["_familyPlan"];
+      expect(familyPlan).toBe(PlanType.FamiliesAnnually);
     });
 
     describe("initialPlan and initialProductTier inputs", () => {

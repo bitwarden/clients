@@ -128,6 +128,13 @@ export class SessionTimeoutSettingsComponent implements OnInit {
   protected readonly sessionTimeoutActionFromPolicy = toSignal(
     this.sessionTimeoutActionFromPolicy$,
   );
+  protected readonly isTimeoutSuppressed = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed$(userId)),
+    ),
+    { initialValue: false },
+  );
 
   private userId!: UserId;
 
@@ -184,19 +191,25 @@ export class SessionTimeoutSettingsComponent implements OnInit {
             this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(this.userId),
             this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(this.userId),
             this.sessionTimeoutActionFromPolicy$,
+            this.vaultTimeoutSettingsService.isVaultTimeoutSuppressed$(this.userId),
           ]),
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe(([availableActions, action, sessionTimeoutActionFromPolicy]) => {
+      .subscribe(([availableActions, action, sessionTimeoutActionFromPolicy, isSuppressed]) => {
         this.availableTimeoutActions.set(availableActions);
         this.formGroup.controls.timeoutAction.setValue(action, { emitEvent: false });
 
-        // Enable/disable the action control based on policy or available actions
-        if (sessionTimeoutActionFromPolicy != null || availableActions.length <= 1) {
-          this.formGroup.controls.timeoutAction.disable({ emitEvent: false });
+        // Disable the entire form when vault timeout is suppressed by shared unlock
+        if (isSuppressed) {
+          this.formGroup.disable({ emitEvent: false });
         } else {
-          this.formGroup.controls.timeoutAction.enable({ emitEvent: false });
+          this.formGroup.enable({ emitEvent: false });
+
+          // Enable/disable the action control based on policy or available actions
+          if (sessionTimeoutActionFromPolicy != null || availableActions.length <= 1) {
+            this.formGroup.controls.timeoutAction.disable({ emitEvent: false });
+          }
         }
       });
 
