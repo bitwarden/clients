@@ -2,20 +2,16 @@ import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/a
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
-import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { WindowMain } from "../../main/window.main";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
@@ -30,7 +26,6 @@ export class MainBiometricsService extends DesktopBiometricsService {
     private biometricStateService: BiometricStateService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
-    private sdkService: SdkService,
   ) {
     super();
     if (platform === "win32") {
@@ -148,15 +143,12 @@ export class MainBiometricsService extends DesktopBiometricsService {
     return true;
   }
 
+  /**
+   * Please note, this should only be called via the renderer service, and never directly.
+   * This is missing the setting of the key-id.
+   */
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
     await this.osBiometricsService.enrollPersistent(userId, key);
-    const keyId = (await this.sdkService.client()).crypto().get_key_id_for_symmetric_key(key.toEncoded());
-    if (keyId != null) {
-      await this.biometricStateService.setBiometricEnrolledKeyId(
-        userId,
-        Utils.fromBufferToB64(keyId),
-      );
-    }
   }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {

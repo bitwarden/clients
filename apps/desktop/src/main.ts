@@ -8,12 +8,17 @@ import { app } from "electron";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { SsoUrlService } from "@bitwarden/auth/common";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { RegionConfig } from "@bitwarden/common/platform/abstractions/environment.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
@@ -22,7 +27,13 @@ import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/d
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { DefaultBiometricStateService, KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
+import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import {
+  DefaultBiometricStateService,
+  KdfConfigService,
+  KeyService,
+} from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
   DefaultActiveUserStateProvider,
@@ -65,13 +76,6 @@ import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-c
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
-import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
-import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -259,9 +263,8 @@ export class Main {
       this.accountCryptographicStateService,
       this.apiService,
       stateProvider,
-      this.configService
+      this.configService,
     );
-
 
     this.biometricsService = new MainBiometricsService(
       this.i18nService,
@@ -271,7 +274,6 @@ export class Main {
       biometricStateService,
       encryptService,
       this.mainCryptoFunctionService,
-      this.sdkService,
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
