@@ -11,11 +11,7 @@
       class="tw-overflow-hidden tw-rounded-xl tw-shadow-lg tw-border tw-border-solid tw-border-border-base"
     >
       <div class="tw-relative tw-z-20 tw-max-w-80 tw-break-words tw-bg-background tw-text-fg-body">
-        <div
-          class="empty:tw-hidden tw-p-2 tw-pb-0 tw-overflow-hidden tw-rounded-lg [img]:tw-w-full"
-        >
-          <ng-content select="[slot=media]"></ng-content>
-        </div>
+        <ng-content select="bit-popover-header"></ng-content>
         <div class="tw-p-6">
           <div class="tw-absolute tw-top-2 tw-right-2">
             <button
@@ -35,9 +31,7 @@
                 <ng-content></ng-content>
               </span>
             </div>
-            <div class="empty:tw-hidden">
-              <ng-content select="[slot=footer]"></ng-content>
-            </div>
+            <ng-content select="bit-popover-footer"></ng-content>
           </div>
         </div>
       </div>

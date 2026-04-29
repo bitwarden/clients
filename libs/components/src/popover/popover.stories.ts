@@ -70,12 +70,16 @@ type Story = StoryObj<PopoverAnchorForDirective>;
 
 const withMediaAndFooterContent = /*html*/ `
   <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
-    <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Slot" alt="" />
+    <bit-popover-header>
+      <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Slot" alt="" />
+    </bit-popover-header>
     A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
-    <div slot="footer" class="tw-flex tw-gap-2">
-      <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="secondary">Read more</button>
-      <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="primary">Confirm</button>
-    </div>
+    <bit-popover-footer>
+      <div class="tw-flex tw-gap-2">
+        <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="secondary">Read more</button>
+        <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="primary">Confirm</button>
+      </div>
+    </bit-popover-footer>
   </bit-popover>
 `;
 
@@ -127,10 +131,12 @@ export const WithFooter: Story = {
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
         A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
-        <div slot="footer" class="tw-flex tw-gap-2">
-          <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="secondary">Read more</button>
-          <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="primary">Confirm</button>
-        </div>
+        <bit-popover-footer>
+          <div class="tw-flex tw-gap-2">
+            <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="secondary">Read more</button>
+            <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="primary">Confirm</button>
+          </div>
+        </bit-popover-footer>
       </bit-popover>
       `,
   }),
@@ -159,7 +165,9 @@ export const WithMedia: Story = {
         </button>
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
-        <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Slot" alt="" />
+        <bit-popover-header>
+          <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Slot" alt="" />
+        </bit-popover-header>
         A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
       </bit-popover>
       `,
@@ -224,7 +232,9 @@ export const Stepper: Story = {
         </button>
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
-        <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" />
+        <bit-popover-header>
+          <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" />
+        </bit-popover-header>
         <p class="tw-mb-2 tw-mt-0">A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.</p>
         <ul class="tw-list-none tw-ps-0 tw-mb-2 tw-mt-0">
           <li class="tw-flex tw-items-center tw-gap-2 tw-mb-1">
@@ -241,18 +251,20 @@ export const Stepper: Story = {
           </li>
         </ul>
         <a href="#" bitLink>Learn more <bit-icon name="bwi-arrow-right"></bit-icon></a>
-        <div slot="footer" class="tw-flex tw-items-center tw-justify-between tw-w-full">
-          <span class="tw-text-sm">{{ step() }} of 5</span>
-          <div class="tw-flex tw-items-center tw-gap-2">
-            <button type="button" bitButton buttonType="secondary" [disabled]="step() === 1" (click)="prevStep()">Back</button>
-            <button
-              type="button"
-              bitButton
-              buttonType="primary"
-              (click)="step() < 5 ? nextStep() : triggerRef.closePopover()"
-            >{{ step() === 5 ? 'Finish' : 'Next' }}</button>
+        <bit-popover-footer>
+          <div class="tw-flex tw-items-center tw-justify-between tw-w-full">
+            <span class="tw-text-sm">{{ step() }} of 5</span>
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <button type="button" bitButton buttonType="secondary" [disabled]="step() === 1" (click)="prevStep()">Back</button>
+              <button
+                type="button"
+                bitButton
+                buttonType="primary"
+                (click)="step() < 5 ? nextStep() : triggerRef.closePopover()"
+              >{{ step() === 5 ? 'Finish' : 'Next' }}</button>
+            </div>
           </div>
-        </div>
+        </bit-popover-footer>
       </bit-popover>
       `,
   }),
