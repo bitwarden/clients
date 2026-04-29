@@ -1149,13 +1149,13 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "Налаштування буфера обміну оновлено"
   },
   "clipboardSettingUpdatedMessage": {
-    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+    "message": "Час очікування буфера обміну встановлено за замовчуванням; у цілях безпеки його подовжено до 5 хвилин."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "Перейти до налаштування"
   },
   "notificationAddDesc": {
     "message": "Чи має Bitwarden зберегти цей пароль?"
@@ -1311,7 +1311,7 @@
     "message": "Додаткові налаштування"
   },
   "enableFillAssist": {
-    "message": "Use fill assist"
+    "message": "Скористатись помічником із заповнення"
   },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Адреса цього вебсайту відрізняється від збережених даних вашого запису. Перш ніж заповнити облікові дані, переконайтеся, що це надійний сайт."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Login has no site saved"
+  },
+  "siteDoesntMatch": {
+    "message": "Site doesn't match"
+  },
+  "loginNoSiteDesc": {
+    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+  },
+  "loginSingleSiteDesc": {
+    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Autofill and save this site"
+  },
+  "autofillOnly": {
+    "message": "Autofill only"
+  },
   "showInlineMenuLabel": {
     "message": "Пропозиції автозаповнення на полях форм"
   },
@@ -2115,25 +2136,25 @@
     "message": "Нотатка"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Веб-сайт або застосунок"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Кредитна або дебетова картка"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Особисті дані"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Важливий текст"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Токен входу на сервер"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Організуйте свої записи"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Організуйте спільні записи"
   },
   "newItemHeaderLogin": {
     "message": "Новий запис",
@@ -2212,7 +2233,7 @@
     "description": "Header for view SSH key item type"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Виберіть запис, щоб додати"
   },
   "passwordHistory": {
     "message": "Історія паролів"
@@ -2403,28 +2424,28 @@
     "message": "Обраний вами головний пароль є слабким. Для належного захисту свого облікового запису Bitwarden, вам слід використовувати надійний головний пароль (або парольну фразу). Ви впевнені, що хочете використати цей пароль?"
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Також оновити ключ шифрування мого облікового запису"
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Оновити ключ шифрування"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Ви справді хочете оновити ключ шифрування облікового запису?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Після оновлення вашого ключа шифрування вам необхідно вийти з системи і потім виконати повторний вхід у всіх програмах Bitwarden, які ви використовуєте (як-от мобільний застосунок або розширення для браузера). Збій при виході та повторному вході (що завантажує ваш новий ключ шифрування) може призвести до пошкодження даних. Ми спробуємо завершити ваші сеанси автоматично, однак, цей процес може відбутися із затримкою."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Будь-які збережені експорти, обмежені обліковим записом, стануть недійсними."
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "У вашому сховищі є старі вкладені файли, які необхідно виправити перед тим, як оновлювати ключ шифрування облікового запису."
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Наслідки оновлення ключа шифрування"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Одна або декілька політик організації вимагають дотримання таких вимог для головного пароля:"
   },
   "pin": {
     "message": "PIN-код",
@@ -2517,7 +2538,7 @@
     "message": "Дія після часу очікування сховища"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "Показувати сповіщення про паролі із ризиком"
   },
   "lock": {
     "message": "Блокувати",
@@ -2874,7 +2895,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
+    "message": "Ваш пароль для цього сайту містить ризик. $ORGANIZATION$ просить вас перейти до налаштувань облікового запису і змінити його.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3805,22 +3826,22 @@
     "message": "Стан входу в систему"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Нещодавно активний"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Сьогодні"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Минулі 7 днів"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Минулі 14 днів"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Минулі 30 днів"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Понад 30 днів тому"
   },
   "masterPasswordChanged": {
     "message": "Головний пароль збережено"
@@ -6170,10 +6191,10 @@
     "message": "Встановіть спосіб розблокування, щоб змінити дію під час очікування"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+    "message": "Керується розширенням для браузера Bitwarden. Щоб редагувати, відкрийте браузер."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% виконано",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Не вдалося завантажити."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

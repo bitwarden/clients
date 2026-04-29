@@ -160,7 +160,7 @@ describe("OverlayBackground", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation(() => of(true));
+    configService.getFeatureFlag$.mockReturnValue(of(true));
     accountService = mockAccountServiceWith(mockUserId);
     fakeStateProvider = new FakeStateProvider(accountService);
     showFaviconsMock$ = new BehaviorSubject(true);

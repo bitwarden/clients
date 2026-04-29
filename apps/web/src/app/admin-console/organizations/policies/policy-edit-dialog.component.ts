@@ -117,7 +117,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     if (component.data) {
       component.data.statusChanges
         .pipe(
-          map((status) => status !== "VALID" || !policyResponse.canToggleState),
+          map((status) => status === "INVALID" || !policyResponse.canToggleState),
           takeUntilDestroyed(this.destroyRef),
         )
         .subscribe((disabled) => this._saveDisabled.set(disabled));
@@ -196,5 +196,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
+  };
+
+  static readonly openDrawer = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

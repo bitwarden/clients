@@ -31,6 +31,10 @@ export interface PolicyDialogComponent {
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => DialogRef<PolicyEditDialogResult>;
+  openDrawer?: (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => Promise<DialogRef<PolicyEditDialogResult> | undefined>;
 }
 
 /**
@@ -208,7 +212,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
    */
   protected buildRequestData() {
     if (this.data != null) {
-      return this.data.value;
+      return this.data.getRawValue();
     }
 
     return null;

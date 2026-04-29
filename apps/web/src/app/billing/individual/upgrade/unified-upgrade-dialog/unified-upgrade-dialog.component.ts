@@ -1,6 +1,13 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, Inject, OnInit, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  Inject,
+  OnInit,
+  signal,
+} from "@angular/core";
 import { Router } from "@angular/router";
 
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
@@ -40,6 +47,7 @@ export type UnifiedUpgradeDialogResult = {
   status: UnifiedUpgradeDialogStatus;
   organizationId?: string | null;
 };
+const FROM_MARKETING_DEFAULT = "premium";
 
 /**
  * Parameters for the UnifiedUpgradeDialog component.
@@ -84,6 +92,14 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
   protected readonly planSelectionStepTitleOverride = signal<string | null>(null);
   protected readonly hideContinueWithoutUpgradingButton = signal<boolean>(false);
   protected readonly hasPremiumInterest = signal(false);
+
+  // Determines if user originated from a marketing flow for premium upgrade
+  protected readonly fromMarketing = computed(() => {
+    if (this.hasPremiumInterest()) {
+      return FROM_MARKETING_DEFAULT;
+    }
+    return null;
+  });
 
   protected readonly PaymentStep = UnifiedUpgradeDialogStep.Payment;
   protected readonly PlanSelectionStep = UnifiedUpgradeDialogStep.PlanSelection;
