@@ -15,6 +15,7 @@ import { WindowMain } from "../../main/window.main";
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 import { LinuxBiometricsSystem, WindowsBiometricsSystem } from "./native-v2";
 import { OsBiometricService } from "./os-biometrics.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 export class MainBiometricsService extends DesktopBiometricsService {
   private osBiometricsService: OsBiometricService;
@@ -29,6 +30,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
     private biometricStateService: BiometricStateService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
+    private sdkService: SdkService,
   ) {
     super();
     if (platform === "win32") {
@@ -148,8 +150,7 @@ export class MainBiometricsService extends DesktopBiometricsService {
 
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
     await this.osBiometricsService.enrollPersistent(userId, key);
-    await SdkLoadService.Ready;
-    const keyId = CryptoClient.get_key_id_for_symmetric_key(key.toEncoded());
+    const keyId = (await this.sdkService.client()).crypto().get_key_id_for_symmetric_key(key.toEncoded());
     if (keyId != null) {
       await this.biometricStateService.setBiometricEnrolledKeyId(
         userId,

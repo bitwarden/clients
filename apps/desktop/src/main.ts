@@ -22,7 +22,7 @@ import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/d
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { DefaultBiometricStateService } from "@bitwarden/key-management";
+import { DefaultBiometricStateService, KdfConfigService, KeyService } from "@bitwarden/key-management";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
   DefaultActiveUserStateProvider,
@@ -65,6 +65,13 @@ import { SSOLocalhostCallbackService } from "./platform/services/sso-localhost-c
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { MainSdkLoadService } from "./services/main-sdk-load-service";
 import { isMacAppStore } from "./utils";
+import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
+import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -96,6 +103,14 @@ export class Main {
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
+  sdkService: DefaultSdkService;
+  platformUtilsService: PlatformUtilsService;
+  accountService: AccountService;
+  kdfConfigService: KdfConfigService;
+  keyService: KeyService;
+  accountCryptographicStateService: AccountCryptographicStateService;
+  apiService: ApiService;
+  configService: ConfigService;
   mainDesktopAutotypeService: MainDesktopAutotypeService;
   ssoCookieMain: SsoCookieMain;
 
@@ -166,6 +181,7 @@ export class Main {
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
+    const sdkClientFactory = new DefaultSdkClientFactory();
     this.sdkLoadService = new MainSdkLoadService();
 
     this.mainCryptoFunctionService = new NodeCryptoFunctionService();
@@ -233,6 +249,20 @@ export class Main {
       (win) => this.trayMain.setupWindowListeners(win),
     );
 
+    this.sdkService = new DefaultSdkService(
+      sdkClientFactory,
+      this.environmentService,
+      this.platformUtilsService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
+      this.accountCryptographicStateService,
+      this.apiService,
+      stateProvider,
+      this.configService
+    );
+
+
     this.biometricsService = new MainBiometricsService(
       this.i18nService,
       this.windowMain,
@@ -241,6 +271,7 @@ export class Main {
       biometricStateService,
       encryptService,
       this.mainCryptoFunctionService,
+      this.sdkService,
     );
 
     this.messagingMain = new MessagingMain(this, this.desktopSettingsService);
