@@ -38,6 +38,7 @@ import {
   elementIsFillableFormField,
   elementIsSelectElement,
   getAttributeBoolean,
+  isReadonlyOrDisabledFormFieldElement,
   nodeIsAnchorElement,
   nodeIsButtonElement,
   nodeIsTypeSubmitElement,
@@ -216,7 +217,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (this.isReadonlyOrDisabledElement(formFieldElement, autofillFieldData)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement, autofillFieldData)) {
       return;
     }
 
@@ -764,7 +765,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
-      if (this.isReadonlyOrDisabledElement(this.mostRecentlyFocusedField)) {
+      if (isReadonlyOrDisabledFormFieldElement(this.mostRecentlyFocusedField)) {
         return;
       }
       this.clearFocusInlineMenuListTimeout();
@@ -803,7 +804,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!elementIsFillableFormField(formFieldElement)) {
       return;
     }
-    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement)) {
       return;
     }
 
@@ -928,7 +929,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the click event.
    */
   private async triggerFormFieldClickedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
-    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement)) {
       return;
     }
 
@@ -962,7 +963,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (await this.isFieldCurrentlyFilling()) {
       return;
     }
-    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement)) {
       return;
     }
 
@@ -1472,25 +1473,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
-  }
-
-  /**
-   * Checks if a form field element is currently readonly or disabled.
-   *
-   * @param formFieldElement - The form field element to evaluate.
-   * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
-   */
-  private isReadonlyOrDisabledElement(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-    autofillFieldData?: AutofillField,
-  ): boolean {
-    return (
-      getAttributeBoolean(formFieldElement, "disabled") ||
-      Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
-      getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
-      autofillFieldData?.readonly === true ||
-      autofillFieldData?.disabled === true
-    );
   }
 
   /**
