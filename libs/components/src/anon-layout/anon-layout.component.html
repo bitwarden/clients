@@ -26,11 +26,15 @@
 
   @if (!hideFooter()) {
     <bit-landing-footer>
-      @if (showReadonlyHostname()) {
-        <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
-      } @else {
-        <ng-content select="[slot=environment-selector]"></ng-content>
-      }
+      <div [ngClass]="{ 'tw-grid tw-gap-6': leftAlign() }">
+        <ng-content select="[slot=footer-secondary]"></ng-content>
+
+        @if (showReadonlyHostname()) {
+          <div bitTypography="body2">{{ "accessing" | i18n }} {{ hostname }}</div>
+        } @else {
+          <ng-content select="[slot=environment-selector]"></ng-content>
+        }
+      </div>
 
       @if (!hideYearAndVersion) {
         <div bitTypography="body2">&copy; {{ year }} Bitwarden Inc.</div>
