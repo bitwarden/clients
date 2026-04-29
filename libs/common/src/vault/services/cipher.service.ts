@@ -519,10 +519,12 @@ export class CipherService implements CipherServiceAbstraction {
     try {
       const result = await this.cipherSdkService.getAllDecrypted(userId);
 
-      await this.setDecryptedCipherCache(result.successes, userId);
+      const sortedSuccesses = result.successes.sort(this.getLocaleSortingFunction());
+
+      await this.setDecryptedCipherCache(sortedSuccesses, userId);
       await this.setFailedDecryptedCiphers(result.failures, userId);
 
-      return result.successes;
+      return sortedSuccesses;
     } catch {
       // Return empty array on error to maintain existing behavior
       return [];
