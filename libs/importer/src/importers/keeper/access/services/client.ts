@@ -378,53 +378,56 @@ export class Client {
         socketMessagePromise = socket.waitForMessage();
       }
 
-      let approvalResult: string | typeof Resend | typeof TryAnother | PushMessage;
+      const promptMessage =
+        method === DeviceApprovalChannel.KeeperPush
+          ? "Approve the request on your Keeper device"
+          : "Check your email for the verification code";
 
-      switch (method) {
-        case DeviceApprovalChannel.KeeperPush:
-          approvalResult = this.throwIfCancel(
-            await Promise.race([
-              this.ui.provideApprovalCode(method, "Approve the request on your Keeper device"),
-              socketMessagePromise,
-            ]),
-            "Device approval",
-          );
+      let restartOuter = false;
+      while (true) {
+        const approvalResult = this.throwIfCancel(
+          await Promise.race([
+            this.ui.provideApprovalCode(method, promptMessage),
+            socketMessagePromise,
+          ]),
+          "Device approval",
+        );
+
+        if (approvalResult === TryAnother) {
+          restartOuter = true;
           break;
-        case DeviceApprovalChannel.Email:
-          approvalResult = this.throwIfCancel(
-            await Promise.race([
-              this.ui.provideApprovalCode(method, "Check your email for the verification code"),
-              socketMessagePromise,
-            ]),
-            "Device approval",
-          );
-          break;
-        default:
-          throw new Error("Unsupported device approval method");
-      }
-
-      if (approvalResult === TryAnother) {
-        continue;
-      }
-
-      if (approvalResult === Resend) {
-        if (method === DeviceApprovalChannel.Email) {
-          await this.requestDeviceVerification(username, deviceToken, messageSessionUid, true);
         }
-        throw new Error("Device approval failed or timed out");
-      } else if (typeof approvalResult === "string" && approvalResult.length > 0) {
-        await this.validateDeviceVerificationCode(username, approvalResult);
-        return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
-      } else if (typeof approvalResult === "object" && "messageType" in approvalResult) {
-        const { messageType, message } = approvalResult as PushMessage;
-        if (
-          messageType === MessageType.SESSION &&
-          message.command === "device_verified" &&
-          message.username === username
-        ) {
-          this.ui.closeApprovalDialog();
+
+        if (approvalResult === Resend) {
+          if (method === DeviceApprovalChannel.Email) {
+            await this.requestDeviceVerification(username, deviceToken, messageSessionUid, true);
+            continue;
+          }
+          throw new Error("Resend not supported for this approval method");
+        }
+
+        if (typeof approvalResult === "string" && approvalResult.length > 0) {
+          await this.validateDeviceVerificationCode(username, approvalResult);
           return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
         }
+
+        if (typeof approvalResult === "object" && "messageType" in approvalResult) {
+          const { messageType, message } = approvalResult as PushMessage;
+          if (
+            messageType === MessageType.SESSION &&
+            message.command === "device_verified" &&
+            message.username === username
+          ) {
+            this.ui.closeApprovalDialog();
+            return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
+          }
+        }
+
+        break;
+      }
+
+      if (restartOuter) {
+        continue;
       }
 
       throw new Error("Device approval failed or timed out");

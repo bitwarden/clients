@@ -4693,10 +4693,10 @@
     "message": "Keeper device approval required"
   },
   "selectApprovalMethod": {
-    "message": "Approval method"
+    "message": "Approval methods"
   },
   "selectApprovalMethodDesc": {
-    "message": "Choose how you want to approve this device"
+    "message": "Approve this device by selecting a method below"
   },
   "keeperPendingApproval": {
     "message": "Pending approval"
@@ -4704,8 +4704,14 @@
   "keeperPush": {
     "message": "Keeper Push"
   },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
   "approvalEmailDesc": {
-    "message": "Check your email and click the approval link, or enter the verification code below."
+    "message": "Please check your email and enter the verification code below:"
   },
   "otherDeviceApprovalPushDesc": {
     "message": "Approve the device request on your Keeper device."

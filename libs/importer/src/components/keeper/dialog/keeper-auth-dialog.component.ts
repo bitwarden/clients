@@ -1,44 +1,15 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
-import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import {
-  CalloutModule,
-  DialogModule,
-  DialogRef,
-  DialogService,
-  FormFieldModule,
-  IconButtonModule,
-  RadioButtonModule,
-  SpinnerComponent,
-  TypographyModule,
-} from "@bitwarden/components";
+import { DialogRef, DialogService } from "@bitwarden/components";
 
-import {
-  DeviceApprovalChannel,
-  DnaMethod,
-  DuoMethod,
-  TwoFactorMethod,
-} from "../../../importers/keeper/access";
 import { KeeperDirectImportUIService } from "../keeper-direct-import-ui.service";
 
-import { KeeperStageShellComponent } from "./keeper-stage-shell.component";
+import { KeeperAuthStageViewComponent } from "./keeper-auth-stage-view.component";
 
 @Component({
   templateUrl: "keeper-auth-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    JslibModule,
-    CalloutModule,
-    DialogModule,
-    FormFieldModule,
-    IconButtonModule,
-    KeeperStageShellComponent,
-    RadioButtonModule,
-    ReactiveFormsModule,
-    SpinnerComponent,
-    TypographyModule,
-  ],
+  imports: [KeeperAuthStageViewComponent],
 })
 export class KeeperAuthDialogComponent {
   private readonly keeperUi = inject(KeeperDirectImportUIService);
@@ -46,172 +17,24 @@ export class KeeperAuthDialogComponent {
   protected readonly stage = this.keeperUi.stage;
   protected readonly email = this.keeperUi.email;
 
-  protected readonly codeControl = new FormControl("", {
-    nonNullable: true,
-    validators: [Validators.required],
-  });
-  protected readonly passwordControl = new FormControl("", {
-    nonNullable: true,
-    validators: [Validators.required],
-  });
-  protected readonly approvalMethodControl = new FormControl<DeviceApprovalChannel | null>(null);
-  protected readonly twoFactorMethodControl = new FormControl<TwoFactorMethod | null>(null);
-  protected readonly duoMethodControl = new FormControl<DuoMethod | null>(null);
-  protected readonly dnaMethodControl = new FormControl<DnaMethod | null>(null);
-
-  constructor() {
-    effect(() => {
-      const current = this.stage();
-      if (current.kind === "selectApproval" && current.methods.length > 0) {
-        this.approvalMethodControl.setValue(current.methods[0]);
-      } else if (current.kind === "selectTwoFactor" && current.methods.length > 0) {
-        this.twoFactorMethodControl.setValue(current.methods[0]);
-      } else if (current.kind === "selectDuo" && current.methods.length > 0) {
-        this.duoMethodControl.setValue(current.methods[0]);
-      } else if (current.kind === "selectDna" && current.methods.length > 0) {
-        this.dnaMethodControl.setValue(current.methods[0]);
-      }
-    });
+  protected onSubmitted(value: unknown): void {
+    this.keeperUi.submit(value);
   }
 
-  protected confirmApproval(): void {
-    const method = this.approvalMethodControl.value;
-    if (method == null) {
-      return;
-    }
-    this.keeperUi.submit(method);
-  }
-
-  protected confirmTwoFactor(): void {
-    const method = this.twoFactorMethodControl.value;
-    if (method == null) {
-      return;
-    }
-    this.keeperUi.submit(method);
-  }
-
-  protected confirmDuo(): void {
-    const method = this.duoMethodControl.value;
-    if (method == null) {
-      return;
-    }
-    this.keeperUi.submit(method);
-  }
-
-  protected confirmDna(): void {
-    const method = this.dnaMethodControl.value;
-    if (method == null) {
-      return;
-    }
-    this.keeperUi.submit(method);
-  }
-
-  protected submitCode(): void {
-    const code = this.codeControl.value.trim();
-    if (!code) {
-      return;
-    }
-    this.codeControl.reset("");
-    this.keeperUi.submit(code);
-  }
-
-  protected submitPush(): void {
-    this.keeperUi.submit("");
-  }
-
-  protected submitPassword(): void {
-    const password = this.passwordControl.value;
-    if (!password) {
-      return;
-    }
-    this.passwordControl.reset("");
-    this.keeperUi.submit(password);
-  }
-
-  protected tryAnother(): void {
-    this.keeperUi.tryAnother();
-  }
-
-  protected cancel(): void {
+  protected onCancelled(): void {
     this.keeperUi.cancel();
   }
 
-  protected dismissError(): void {
+  protected onTriedAnother(): void {
+    this.keeperUi.tryAnother();
+  }
+
+  protected onResent(): void {
+    this.keeperUi.resend();
+  }
+
+  protected onErrorDismissed(): void {
     this.keeperUi.dismissError();
-  }
-
-  protected getApprovalMethodLabel(method: DeviceApprovalChannel): string {
-    switch (method) {
-      case DeviceApprovalChannel.Email:
-        return "email";
-      case DeviceApprovalChannel.KeeperPush:
-        return "keeperPush";
-      case DeviceApprovalChannel.TwoFactor:
-        return "twoFactorAuthentication";
-      default:
-        return "email";
-    }
-  }
-
-  protected getApprovalCodeDescription(variant: "email" | "push"): string {
-    switch (variant) {
-      case "push":
-        return "otherDeviceApprovalPushDesc";
-      case "email":
-      default:
-        return "approvalEmailDesc";
-    }
-  }
-
-  protected getTwoFactorLabel(method: TwoFactorMethod): string {
-    switch (method) {
-      case TwoFactorMethod.Totp:
-        return "authenticatorAppTotp";
-      case TwoFactorMethod.Sms:
-        return "textMessageSms";
-      case TwoFactorMethod.Duo:
-        return "duoSecurity";
-      case TwoFactorMethod.Rsa:
-        return "rsaSecurId";
-      case TwoFactorMethod.Backup:
-        return "backupCodes";
-      case TwoFactorMethod.U2f:
-        return "securityKeyU2f";
-      case TwoFactorMethod.WebAuthn:
-        return "securityKeyWebAuthn";
-      case TwoFactorMethod.KeeperPush:
-        return "keeperPush";
-      case TwoFactorMethod.KeeperDna:
-        return "keeperDna";
-      default:
-        return "unknownMethod";
-    }
-  }
-
-  protected getDuoLabel(method: DuoMethod): string {
-    switch (method) {
-      case DuoMethod.Push:
-        return "duoPush";
-      case DuoMethod.Sms:
-        return "textMessageSms";
-      case DuoMethod.Voice:
-        return "phoneCall";
-      case DuoMethod.Passcode:
-        return "passcode";
-      default:
-        return "unknownMethod";
-    }
-  }
-
-  protected getDnaLabel(method: DnaMethod): string {
-    switch (method) {
-      case DnaMethod.Push:
-        return "pushNotification";
-      case DnaMethod.Code:
-        return "enterCodeManually";
-      default:
-        return "unknownMethod";
-    }
   }
 
   static open(dialogService: DialogService): DialogRef {
