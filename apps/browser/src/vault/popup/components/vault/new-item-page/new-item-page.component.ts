@@ -5,9 +5,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
@@ -36,17 +33,6 @@ import { AddEditQueryParams } from "../add-edit/add-edit.component";
   ],
 })
 export class NewItemPageComponent {
-  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
-
-  protected readonly canCreateSshKey = toSignal(
-    this.activeUserId$.pipe(
-      switchMap((userId) =>
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
-      ),
-    ),
-    { initialValue: false },
-  );
-
   protected readonly folderId = toSignal<string | undefined>(
     this.route.queryParams.pipe(switchMap(async (p) => p["folderId"])),
     { initialValue: undefined },
@@ -63,8 +49,6 @@ export class NewItemPageComponent {
   );
 
   constructor(
-    private readonly accountService: AccountService,
-    private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
     private readonly dialogService: DialogService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
