@@ -77,7 +77,11 @@
 }
 @if (showPermissionsColumn) {
   <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 lg:tw-table-cell tw-text-sm">
-    <p class="tw-mb-0 tw-truncate tw-text-muted" [title]="permissionTooltip">
+    <p
+      class="tw-mb-0 tw-truncate tw-text-muted"
+      [bitTooltip]="permissionTooltip"
+      [title]="permissionText"
+    >
       {{ permissionText }}
     </p>
   </td>
