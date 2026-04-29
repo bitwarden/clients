@@ -59,7 +59,7 @@ describe("BiometricPersistentMigration", () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
+      ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
       mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue("differentKeyId");
 
       const result = await sut.needsMigration(mockUserId);
@@ -71,7 +71,7 @@ describe("BiometricPersistentMigration", () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
+      ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
       mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(null);
 
       const result = await sut.needsMigration(mockUserId);
@@ -83,7 +83,7 @@ describe("BiometricPersistentMigration", () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
-      (CryptoClient.get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
+      ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
       mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdB64);
 
       const result = await sut.needsMigration(mockUserId);
@@ -102,6 +102,10 @@ describe("BiometricPersistentMigration", () => {
   });
 
   describe("runMigrations", () => {
+    beforeEach(() => {
+      ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(mockKeyId);
+    });
+
     it("should re-enroll persistent and ephemeral key on every migration", async () => {
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(false);
