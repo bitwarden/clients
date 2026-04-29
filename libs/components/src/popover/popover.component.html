@@ -12,7 +12,7 @@
     >
       <div class="tw-relative tw-z-20 tw-max-w-80 tw-break-words tw-bg-background tw-text-fg-body">
         <div
-          class="tw-hidden has-[*]:tw-block tw-p-2 tw-pb-0 tw-overflow-hidden tw-rounded-lg [img]:tw-w-full"
+          class="empty:tw-hidden tw-p-2 tw-pb-0 tw-overflow-hidden tw-rounded-lg [img]:tw-w-full"
         >
           <ng-content select="[slot=media]"></ng-content>
         </div>
@@ -35,7 +35,7 @@
                 <ng-content></ng-content>
               </span>
             </div>
-            <div class="tw-hidden has-[*]:tw-block">
+            <div class="empty:tw-hidden">
               <ng-content select="[slot=footer]"></ng-content>
             </div>
           </div>
