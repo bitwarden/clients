@@ -848,7 +848,6 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.globalStateProvider,
       this.billingAccountProfileStateService,
-      this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.configService,
       this.accountCryptographicStateService,
