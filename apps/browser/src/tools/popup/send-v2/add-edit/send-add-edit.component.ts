@@ -14,6 +14,7 @@ import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  ButtonComponent,
   ButtonModule,
   DialogService,
   IconButtonModule,
@@ -109,6 +110,7 @@ export class SendAddEditComponent {
 
   private sendFormGenerationService = inject(SendFormGenerationService);
   private readonly sendFormComponent = viewChild(SendFormComponent);
+  readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
 
   constructor(
     private route: ActivatedRoute,
