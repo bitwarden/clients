@@ -16,7 +16,7 @@ import { LegacyEncryptorProvider } from "../cryptography/legacy-encryptor-provid
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { disabledSemanticLoggerProvider } from "../log";
 import { PrivateClassifier } from "../private-classifier";
-import { StateConstraints } from "../types";
+import { Constraints, StateConstraints } from "../types";
 
 import { ObjectKey } from "./object-key";
 import { UserStateSubject } from "./user-state-subject";
@@ -99,15 +99,25 @@ const SomeProvider = {
 function fooMaxLength(maxLength: number): StateConstraints<TestType> {
   return Object.freeze({
     constraints: { foo: { maxLength } },
-    adjust: function (state: TestType): TestType {
-      return {
+    adjust: function (state: TestType) {
+      const adjusted = {
         foo: state.foo.slice(0, this.constraints.foo.maxLength),
       };
+      const applied: Constraints<TestType> = {};
+      if (state.foo !== adjusted.foo) {
+        applied.foo = { maxLength };
+      }
+      return { state: adjusted, constraints: this.constraints, applied };
     },
-    fix: function (state: TestType): TestType {
-      return {
+    fix: function (state: TestType) {
+      const fixed = {
         foo: `finalized|${state.foo.slice(0, this.constraints.foo.maxLength)}`,
       };
+      const applied: Constraints<TestType> = {};
+      if (state.foo !== fixed.foo) {
+        applied.foo = { maxLength };
+      }
+      return { state: fixed, constraints: this.constraints, applied };
     },
   });
 }
