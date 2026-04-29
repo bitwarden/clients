@@ -253,8 +253,15 @@ export class VaultPopupListFiltersService {
               return false;
             }
 
-            if (filters.folder && cipher.folderId !== filters.folder.id) {
-              return false;
+            if (filters.folder) {
+              if (!filters.folder.id) {
+                // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+                if (cipher.folderId) {
+                  return false;
+                }
+              } else if (cipher.folderId !== filters.folder.id) {
+                return false;
+              }
             }
 
             const isMyVault = filters.organization?.id === MY_VAULT_ID;
@@ -439,7 +446,13 @@ export class VaultPopupListFiltersService {
           const orgCiphers = cipherViews.filter((c) => c.organizationId === organizationId);
 
           // Return only the folders that have ciphers within the filtered organization
-          return folders.filter((f) => orgCiphers.some((oc) => oc.folderId === f.id));
+          return folders.filter((f) => {
+            if (!f.id) {
+              // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+              return orgCiphers.some((oc) => !oc.folderId);
+            }
+            return orgCiphers.some((oc) => oc.folderId === f.id);
+          });
         }),
         map((folders) => {
           const nestedFolders = this.getAllFoldersNested(folders);
