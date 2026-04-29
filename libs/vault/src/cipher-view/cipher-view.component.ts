@@ -38,6 +38,7 @@ import {
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
+import { BankAccountViewComponent } from "./bank-account-sections/bank-account-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
@@ -63,6 +64,7 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     CustomFieldV2Component,
     CardDetailsComponent,
     SshKeyViewComponent,
+    BankAccountViewComponent,
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
@@ -234,6 +236,14 @@ export class CipherViewComponent {
   readonly hasSshKey = computed(() => {
     const cipher = this.cipher();
     return !!cipher?.sshKey?.privateKey;
+  });
+
+  readonly hasBankAccount = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+    return Array.from(Object.values(cipher.bankAccount)).some((value) => Boolean(value));
   });
 
   readonly hasLoginUri = computed(() => {
