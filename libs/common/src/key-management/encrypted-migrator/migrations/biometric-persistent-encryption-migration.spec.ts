@@ -25,6 +25,7 @@ describe("BiometricPersistentMigration", () => {
   const mockBiometricsService = mock<BiometricsService>();
   const mockBiometricStateService = mock<BiometricStateService>();
   const mockLogService = mock<LogService>();
+  const mockSdkService = { client$: of({ crypto: () => (CryptoClient as any) }) } as any;
 
   let sut: BiometricPersistentMigration;
 
@@ -41,6 +42,7 @@ describe("BiometricPersistentMigration", () => {
       mockBiometricsService,
       mockBiometricStateService,
       mockLogService,
+      mockSdkService,
     );
   });
 
