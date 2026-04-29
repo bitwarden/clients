@@ -1,25 +1,29 @@
 import { DestroyRef, inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { combineLatest, Observable, shareReplay } from "rxjs";
-import { concatMap, filter, map, switchMap } from "rxjs/operators";
+import { ActivatedRoute } from "@angular/router";
+import { BehaviorSubject, combineLatest, Observable, shareReplay } from "rxjs";
+import { concatMap, distinctUntilChanged, filter, map, switchMap } from "rxjs/operators";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionAdminView,
   Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import {
   getFlatCollectionTree,
   getNestedCollectionTree,
 } from "@bitwarden/common/admin-console/utils";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { getById } from "@bitwarden/common/platform/misc";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
-import { All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import { All, RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { AddAccessStatusType, VaultCollectionService } from "./vault-collection.service";
 
@@ -30,30 +34,49 @@ export class DefaultVaultCollectionService extends VaultCollectionService {
   private readonly searchService = inject(SearchService);
   private readonly searchPipe = inject(SearchPipe);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly accountService = inject(AccountService);
+  private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
+  private readonly route = inject(ActivatedRoute);
 
-  allCollectionsWithoutUnassigned$!: Observable<CollectionAdminView[]>;
-  allCollections$!: Observable<CollectionAdminView[]>;
-  editableCollections$!: Observable<CollectionAdminView[]>;
-  collections$!: Observable<CollectionAdminView[]>;
-  selectedCollection$!: Observable<TreeNode<CollectionAdminView> | undefined>;
-  showCollectionAccessRestricted$!: Observable<boolean>;
-  showAddAccessToggle$!: Observable<boolean>;
+  private readonly _addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(
+    AddAccessStatusType.All,
+  );
+  readonly addAccessStatus$ = this._addAccessStatus$.asObservable();
 
-  private nestedCollections$!: Observable<TreeNode<CollectionAdminView>[]>;
+  readonly allCollectionsWithoutUnassigned$: Observable<CollectionAdminView[]>;
+  readonly allCollections$: Observable<CollectionAdminView[]>;
+  readonly editableCollections$: Observable<CollectionAdminView[]>;
+  readonly collections$: Observable<CollectionAdminView[]>;
+  readonly selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
+  readonly showCollectionAccessRestricted$: Observable<boolean>;
+  readonly showAddAccessToggle$: Observable<boolean>;
 
-  init(
-    organization$: Observable<Organization>,
-    userId$: Observable<UserId>,
-    filter$: Observable<RoutedVaultFilterModel>,
-    currentSearchText$: Observable<string>,
-    addAccessStatus$: Observable<AddAccessStatusType>,
-    refreshingSubject$: Observable<boolean>,
-  ): void {
-    const organizationId$ = organization$.pipe(map((org) => org.id));
+  private readonly nestedCollections$: Observable<TreeNode<CollectionAdminView>[]>;
 
-    this.allCollectionsWithoutUnassigned$ = refreshingSubject$.pipe(
-      filter((refreshing) => refreshing),
-      switchMap(() => combineLatest([organizationId$, userId$])),
+  constructor() {
+    super();
+
+    const userId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+    const organizationId$ = this.routedVaultFilterService.filter$.pipe(
+      map((f) => f.organizationId),
+      filter((id): id is OrganizationId => id !== undefined && id !== Unassigned),
+      distinctUntilChanged(),
+    );
+
+    const organization$ = combineLatest([organizationId$, userId$]).pipe(
+      switchMap(([orgId, userId]) =>
+        this.organizationService.organizations$(userId).pipe(getById(orgId)),
+      ),
+      filter((org) => org != null),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    const filter$ = this.routedVaultFilterService.filter$;
+    const currentSearchText$ = this.route.queryParams.pipe(map((qp) => qp["search"]));
+
+    this.allCollectionsWithoutUnassigned$ = combineLatest([organizationId$, userId$]).pipe(
       switchMap(([orgId, userId]) =>
         this.collectionAdminService.collectionAdminViews$(orgId, userId),
       ),
@@ -131,7 +154,7 @@ export class DefaultVaultCollectionService extends VaultCollectionService {
       this.nestedCollections$,
       filter$,
       currentSearchText$,
-      addAccessStatus$,
+      this._addAccessStatus$,
       userId$,
       organization$,
     ]).pipe(
@@ -193,5 +216,9 @@ export class DefaultVaultCollectionService extends VaultCollectionService {
 
     this.collections$ = collectionsState$.pipe(map((s) => s.collections));
     this.showAddAccessToggle$ = collectionsState$.pipe(map((s) => s.showAddAccessToggle));
+  }
+
+  setAddAccessStatus(status: AddAccessStatusType): void {
+    this._addAccessStatus$.next(status);
   }
 }

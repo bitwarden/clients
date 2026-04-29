@@ -1,10 +1,7 @@
 import { Observable } from "rxjs";
 
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { UserId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { RoutedVaultFilterModel } from "@bitwarden/vault";
 
 export const AddAccessStatusType = Object.freeze({
   All: 0,
@@ -37,12 +34,9 @@ export abstract class VaultCollectionService {
   /** Whether the "Add Access" filter toggle should be shown. */
   abstract readonly showAddAccessToggle$: Observable<boolean>;
 
-  abstract init(
-    organization$: Observable<Organization>,
-    userId$: Observable<UserId>,
-    filter$: Observable<RoutedVaultFilterModel>,
-    currentSearchText$: Observable<string>,
-    addAccessStatus$: Observable<AddAccessStatusType>,
-    refreshingSubject$: Observable<boolean>,
-  ): void;
+  /** Current add-access filter state. */
+  abstract readonly addAccessStatus$: Observable<AddAccessStatusType>;
+
+  /** Updates the add-access filter state. */
+  abstract setAddAccessStatus(status: AddAccessStatusType): void;
 }

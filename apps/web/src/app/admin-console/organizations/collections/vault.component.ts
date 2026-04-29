@@ -148,7 +148,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private dialogService = inject(DialogService);
   private toastService = inject(ToastService);
   private collectionActions = inject(VaultCollectionActionsService);
-  private collectionService = inject(VaultCollectionService);
+  protected collectionService = inject(VaultCollectionService);
   private cipherActions = inject(VaultCipherActionsService);
 
   protected Unassigned = Unassigned;
@@ -180,9 +180,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   private organizationId$: Observable<OrganizationId>;
 
   private searchText$ = new Subject<string>();
-  protected refreshingSubject$ = new BehaviorSubject<boolean>(true);
+  private readonly refresh$ = new Subject<void>();
+  protected readonly isRefreshing$ = new BehaviorSubject<boolean>(true);
   private destroy$ = new Subject<void>();
-  protected addAccessStatus$ = new BehaviorSubject<AddAccessStatusType>(AddAccessStatusType.All);
 
   protected editableCollections$!: Observable<CollectionAdminView[]>;
   protected allCollectionsWithoutUnassigned$!: Observable<CollectionAdminView[]>;
@@ -221,16 +221,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       map((organization) => organization.isProviderUser && !organization.isMember),
     );
 
-    this.collectionService.init(
-      this.organization$,
-      this.userId$,
-      this.filter$,
-      this.currentSearchText$,
-      this.addAccessStatus$,
-      this.refreshingSubject$,
+    this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
+      startWith(undefined),
+      switchMap(() => this.collectionService.allCollectionsWithoutUnassigned$),
     );
-
-    this.allCollectionsWithoutUnassigned$ = this.collectionService.allCollectionsWithoutUnassigned$;
     this.allCollections$ = this.collectionService.allCollections$;
     this.editableCollections$ = this.collectionService.editableCollections$;
     this.collections$ = this.collectionService.collections$;
@@ -245,40 +239,39 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    this.allCiphers$ = combineLatest([
-      this.organization$,
-      this.userId$,
-      this.restrictedItemTypesService.restricted$,
-      this.refreshingSubject$,
-    ]).pipe(
-      filter(([, , , refreshing]) => refreshing),
-      switchMap(async ([organization, userId, restricted]) => {
-        // Reset the add-access filter whenever ciphers reload (e.g. on org switch or refresh)
-        this.addAccessToggle(AddAccessStatusType.All);
-        let ciphers;
+    this.allCiphers$ = this.refresh$.pipe(
+      startWith(undefined),
+      switchMap(() =>
+        combineLatest([this.organization$, this.restrictedItemTypesService.restricted$]).pipe(
+          switchMap(async ([organization, restricted]) => {
+            // Reset the add-access filter whenever ciphers reload (e.g. on org switch or refresh)
+            this.collectionService.setAddAccessStatus(AddAccessStatusType.All);
+            let ciphers;
 
-        // Restricted providers (who are not members) do not have access org cipher endpoint below
-        // Return early to avoid 404 response
-        if (!organization.isMember && organization.isProviderUser) {
-          return [];
-        }
+            // Restricted providers (who are not members) do not have access org cipher endpoint below
+            // Return early to avoid 404 response
+            if (!organization.isMember && organization.isProviderUser) {
+              return [];
+            }
 
-        // If the user can edit all ciphers for the organization then fetch them ALL.
-        if (organization.canEditAllCiphers) {
-          ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
-          ciphers.forEach((c) => (c.edit = true));
-        } else {
-          // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
-          ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
-        }
+            // If the user can edit all ciphers for the organization then fetch them ALL.
+            if (organization.canEditAllCiphers) {
+              ciphers = await this.cipherService.getAllFromApiForOrganization(organization.id);
+              ciphers.forEach((c) => (c.edit = true));
+            } else {
+              // Otherwise, only fetch ciphers they have access to (includes unassigned for admins).
+              ciphers = await this.cipherService.getManyFromApiForOrganization(organization.id);
+            }
 
-        // Filter out restricted ciphers before indexing
-        ciphers = ciphers.filter(
-          (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
-        );
+            // Filter out restricted ciphers before indexing
+            ciphers = ciphers.filter(
+              (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
+            );
 
-        return ciphers;
-      }),
+            return ciphers;
+          }),
+        ),
+      ),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -359,7 +352,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.loading$ = combineLatest([
-      this.refreshingSubject$,
+      this.isRefreshing$,
       this.processingEvent$,
       firstLoadComplete$,
     ]).pipe(
@@ -542,7 +535,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.vaultFilterService.reloadCollections(allCollections);
         }
 
-        this.refreshingSubject$.next(false);
+        this.isRefreshing$.next(false);
       });
 
     this.isEmpty$ = combineLatest([this.ciphers$, this.collections$]).pipe(
@@ -561,7 +554,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   addAccessToggle(e: AddAccessStatusType) {
-    this.addAccessStatus$.next(e);
+    this.collectionService.setAddAccessStatus(e);
   }
 
   ngOnDestroy() {
@@ -699,7 +692,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly CollectionDialogTabType = CollectionDialogTabType;
 
   private refresh() {
-    this.refreshingSubject$.next(true);
+    this.isRefreshing$.next(true);
+    this.refresh$.next();
     this.vaultItemsComponent()?.clearSelection();
   }
 
