@@ -75,8 +75,6 @@ import { EventRequest, EventResponse } from "../dirt/event-logs";
 import { ClientType, DeviceType, HttpStatusCode } from "../enums";
 import { KeyConnectorUserKeyRequest } from "../key-management/key-connector/models/key-connector-user-key.request";
 import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/models/set-key-connector-key.request";
-import { VaultTimeoutSettingsService } from "../key-management/vault-timeout";
-import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-timeout-action.enum";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
@@ -152,7 +150,6 @@ export class ApiService implements ApiServiceAbstraction {
     private refreshAccessTokenErrorCallback: () => void,
     private logService: LogService,
     private logoutCallback: (logoutReason: LogoutReason) => Promise<void>,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly accountService: AccountService,
     private readonly httpOperations: HttpOperations,
     private customUserAgent: string = null,
@@ -1568,22 +1565,8 @@ export class ApiService implements ApiServiceAbstraction {
       const responseJson = await response.json();
       const tokenResponse = new RefreshTokenResponse(responseJson);
 
-      const newDecodedAccessToken = await this.tokenService.decodeAccessToken(
-        tokenResponse.accessToken,
-      );
-      const userId = newDecodedAccessToken.sub;
-
-      const vaultTimeoutAction = await firstValueFrom(
-        this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
-      );
-      const vaultTimeout = await firstValueFrom(
-        this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
-      );
-
       const refreshedTokens = await this.tokenService.setTokens(
         tokenResponse.accessToken,
-        vaultTimeoutAction as VaultTimeoutAction,
-        vaultTimeout,
         tokenResponse.refreshToken,
       );
       return refreshedTokens.accessToken;
@@ -1619,18 +1602,7 @@ export class ApiService implements ApiServiceAbstraction {
       );
     }
 
-    const vaultTimeoutAction = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
-    );
-    const vaultTimeout = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
-    );
-
-    const refreshedToken = await this.tokenService.setAccessToken(
-      response.accessToken,
-      vaultTimeoutAction as VaultTimeoutAction,
-      vaultTimeout,
-    );
+    const refreshedToken = await this.tokenService.setAccessToken(response.accessToken);
     return refreshedToken;
   }
 

@@ -10,11 +10,6 @@ import { mockAccountInfoWith } from "../../spec";
 import { AccountService } from "../auth/abstractions/account.service";
 import { TokenService } from "../auth/abstractions/token.service";
 import { DeviceType } from "../enums";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-  VaultTimeoutStringType,
-} from "../key-management/vault-timeout";
 import { ErrorResponse } from "../models/response/error.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { Environment, EnvironmentService } from "../platform/abstractions/environment.service";
@@ -32,7 +27,6 @@ describe("ApiService", () => {
   let refreshAccessTokenErrorCallback: jest.Mock<void, []>;
   let logService: MockProxy<LogService>;
   let logoutCallback: jest.Mock<Promise<void>, [reason: LogoutReason]>;
-  let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let accountService: MockProxy<AccountService>;
   let httpOperations: MockProxy<HttpOperations>;
 
@@ -52,7 +46,6 @@ describe("ApiService", () => {
     refreshAccessTokenErrorCallback = jest.fn();
     logService = mock();
     logoutCallback = jest.fn();
-    vaultTimeoutSettingsService = mock();
     accountService = mock();
 
     accountService.activeAccount$ = of({
@@ -73,7 +66,6 @@ describe("ApiService", () => {
       refreshAccessTokenErrorCallback,
       logService,
       logoutCallback,
-      vaultTimeoutSettingsService,
       accountService,
       httpOperations,
       "custom-user-agent",
@@ -260,19 +252,9 @@ describe("ApiService", () => {
         .calledWith(`${expectedEffectiveUser}_new_access_token`)
         .mockResolvedValue({ sub: expectedEffectiveUser });
 
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
-        .calledWith(expectedEffectiveUser)
-        .mockReturnValue(of(VaultTimeoutAction.Lock));
-
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
-        .calledWith(expectedEffectiveUser)
-        .mockReturnValue(of(VaultTimeoutStringType.Never));
-
       tokenService.setTokens
         .calledWith(
           `${expectedEffectiveUser}_new_access_token`,
-          VaultTimeoutAction.Lock,
-          VaultTimeoutStringType.Never,
           `${expectedEffectiveUser}_new_refresh_token`,
         )
         .mockResolvedValue({ accessToken: `${expectedEffectiveUser}_refreshed_access_token` });
@@ -497,21 +479,8 @@ describe("ApiService", () => {
         .calledWith("new_access_token")
         .mockResolvedValue({ sub: testActiveUser });
 
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutAction.Lock));
-
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutStringType.Never));
-
       tokenService.setTokens
-        .calledWith(
-          "new_access_token",
-          VaultTimeoutAction.Lock,
-          VaultTimeoutStringType.Never,
-          "new_refresh_token",
-        )
+        .calledWith("new_access_token", "new_refresh_token")
         .mockResolvedValue({ accessToken: "new_access_token" });
 
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
@@ -808,21 +777,8 @@ describe("ApiService", () => {
         .calledWith("active_new_access_token")
         .mockResolvedValue({ sub: testActiveUser });
 
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutAction.Lock));
-
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutStringType.Never));
-
       tokenService.setTokens
-        .calledWith(
-          "active_new_access_token",
-          VaultTimeoutAction.Lock,
-          VaultTimeoutStringType.Never,
-          "active_new_refresh_token",
-        )
+        .calledWith("active_new_access_token", "active_new_refresh_token")
         .mockResolvedValue({ accessToken: "active_new_access_token" });
 
       // Mock tokens for inactive user (should NOT be used)
@@ -946,21 +902,8 @@ describe("ApiService", () => {
         .calledWith("new_access_token")
         .mockResolvedValue({ sub: testActiveUser });
 
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutAction.Lock));
-
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutStringType.Never));
-
       tokenService.setTokens
-        .calledWith(
-          "new_access_token",
-          VaultTimeoutAction.Lock,
-          VaultTimeoutStringType.Never,
-          "new_refresh_token",
-        )
+        .calledWith("new_access_token", "new_refresh_token")
         .mockResolvedValue({ accessToken: "new_access_token" });
 
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
@@ -1069,21 +1012,8 @@ describe("ApiService", () => {
         .calledWith("new_access_token")
         .mockResolvedValue({ sub: testActiveUser });
 
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutAction.Lock));
-
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
-        .calledWith(testActiveUser)
-        .mockReturnValue(of(VaultTimeoutStringType.Never));
-
       tokenService.setTokens
-        .calledWith(
-          "new_access_token",
-          VaultTimeoutAction.Lock,
-          VaultTimeoutStringType.Never,
-          "new_refresh_token",
-        )
+        .calledWith("new_access_token", "new_refresh_token")
         .mockResolvedValue({ accessToken: "new_access_token" });
 
       const nativeFetch = jest.fn<Promise<Response>, [request: Request]>();
@@ -1358,14 +1288,6 @@ describe("ApiService", () => {
         .calledWith(newAccessToken)
         .mockResolvedValue({ sub: userId } as any);
 
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
-        .calledWith(userId)
-        .mockReturnValue(of(VaultTimeoutAction.Lock));
-
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
-        .calledWith(userId)
-        .mockReturnValue(of(VaultTimeoutStringType.Never));
-
       tokenService.setTokens.mockResolvedValue({ accessToken: refreshedAccessToken } as any);
 
       httpOperations.createRequest.mockImplementation((url, request) => {
@@ -1395,12 +1317,7 @@ describe("ApiService", () => {
       const result = await (sut as any).refreshAccessToken(userId);
 
       expect(result).toEqual(refreshedAccessToken);
-      expect(tokenService.setTokens).toHaveBeenCalledWith(
-        newAccessToken,
-        VaultTimeoutAction.Lock,
-        VaultTimeoutStringType.Never,
-        newRefreshToken,
-      );
+      expect(tokenService.setTokens).toHaveBeenCalledWith(newAccessToken, newRefreshToken);
     });
 
     it("does not crash when server includes KDF fields (PM-35246 regression)", async () => {
@@ -1430,12 +1347,7 @@ describe("ApiService", () => {
 
       await (sut as any).refreshAccessToken(userId);
 
-      expect(tokenService.setTokens).toHaveBeenCalledWith(
-        newAccessToken,
-        VaultTimeoutAction.Lock,
-        VaultTimeoutStringType.Never,
-        undefined,
-      );
+      expect(tokenService.setTokens).toHaveBeenCalledWith(newAccessToken, undefined);
     });
 
     it("rejects on non-200 response", async () => {

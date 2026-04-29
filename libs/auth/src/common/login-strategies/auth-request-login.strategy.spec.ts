@@ -1,5 +1,4 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -10,10 +9,6 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -53,7 +48,6 @@ describe("AuthRequestLoginStrategy", () => {
   let userDecryptionOptions: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let deviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
@@ -90,7 +84,6 @@ describe("AuthRequestLoginStrategy", () => {
     userDecryptionOptions = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     deviceTrustService = mock<DeviceTrustServiceAbstraction>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
-    vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
@@ -122,7 +115,6 @@ describe("AuthRequestLoginStrategy", () => {
       twoFactorService,
       userDecryptionOptions,
       billingAccountProfileStateService,
-      vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
       configService,
@@ -131,21 +123,6 @@ describe("AuthRequestLoginStrategy", () => {
 
     tokenResponse = identityTokenResponseFactory();
     apiService.postIdentityToken.mockResolvedValue(tokenResponse);
-
-    const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
-    const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
-      mockVaultTimeoutAction,
-    );
-    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-      mockVaultTimeoutActionBSub.asObservable(),
-    );
-
-    const mockVaultTimeout = 1000;
-
-    const mockVaultTimeoutBSub = new BehaviorSubject<number>(mockVaultTimeout);
-    vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-      mockVaultTimeoutBSub.asObservable(),
-    );
   });
 
   it("sets keys after a successful authentication when only userKey provided in login credentials", async () => {

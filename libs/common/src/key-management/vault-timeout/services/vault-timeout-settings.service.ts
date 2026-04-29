@@ -26,7 +26,6 @@ import { PolicyService } from "../../../admin-console/abstractions/policy/policy
 import { PolicyType } from "../../../admin-console/enums";
 import { getFirstPolicy } from "../../../admin-console/services/policy/default-policy.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { TokenService } from "../../../auth/abstractions/token.service";
 import { getUserId } from "../../../auth/services/account.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
@@ -54,7 +53,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private pinStateService: PinStateServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private keyService: KeyService,
-    private tokenService: TokenService,
     private policyService: PolicyService,
     private biometricStateService: BiometricStateService,
     private stateProvider: StateProvider,
@@ -83,8 +81,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     await this.setVaultTimeout(userId, timeout);
 
     await this.setVaultTimeoutAction(userId, action);
-
-    await this.migrateTokenStorage(userId, action, timeout);
 
     await this.keyService.refreshAdditionalKeys(userId);
   }
@@ -247,30 +243,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     return currentVaultTimeout;
   }
 
-  /**
-   * Re-stores tokens in the correct location (memory vs disk) for the given action and timeout.
-   */
-  private async migrateTokenStorage(
-    userId: UserId,
-    action: VaultTimeoutAction,
-    timeout: VaultTimeout,
-  ): Promise<void> {
-    // Read tokens before any clearing so they can be re-stored in the new location
-    const accessToken = await this.tokenService.getAccessToken(userId);
-    const refreshToken = await this.tokenService.getRefreshToken(userId);
-    const clientId = await this.tokenService.getClientId(userId);
-    const clientSecret = await this.tokenService.getClientSecret(userId);
-
-    if (!accessToken) {
-      return;
-    }
-
-    await this.tokenService.setTokens(accessToken, action, timeout, refreshToken, [
-      clientId,
-      clientSecret,
-    ]);
-  }
-
   private async setVaultTimeoutAction(userId: UserId, action: VaultTimeoutAction): Promise<void> {
     if (!userId) {
       throw new Error("User id required. Cannot set vault timeout action.");
@@ -292,14 +264,12 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       this.stateProvider.getUserState$(VAULT_TIMEOUT_ACTION, userId),
       this.getMaxSessionTimeoutPolicyDataByUserId$(userId),
       this.availableVaultTimeoutActions$(userId),
-      this.getVaultTimeoutByUserId$(userId),
     ]).pipe(
       concatMap(
         async ([
           currentVaultTimeoutAction,
           maxSessionTimeoutPolicyData,
           availableVaultTimeoutActions,
-          vaultTimeout,
         ]) => {
           const vaultTimeoutAction = this.determineVaultTimeoutAction(
             availableVaultTimeoutActions,
@@ -310,30 +280,14 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
           // As a side effect, persist the determined action back to state when needed.
           const oneActionAvailable = availableVaultTimeoutActions.length === 1;
           if (oneActionAvailable) {
-            const availableAction = availableVaultTimeoutActions[0];
             // Always reset to null when only one action is available — even if the stored action
             // matches. Ensures the default (Lock) is used when an unlock method (e.g. PIN) is
             // re-enabled later.
             if (currentVaultTimeoutAction !== null) {
               await this.stateProvider.setUserState(VAULT_TIMEOUT_ACTION, null, userId);
-              // Only migrate tokens if the actual action changes (e.g. Lock → LogOut).
-              // No migration needed when stored action already matches the only available one.
-              if (currentVaultTimeoutAction !== availableAction) {
-                await this.migrateTokenStorage(userId, availableAction, vaultTimeout);
-              }
             }
           } else if (vaultTimeoutAction !== currentVaultTimeoutAction) {
             await this.stateProvider.setUserState(VAULT_TIMEOUT_ACTION, vaultTimeoutAction, userId);
-
-            // Migrate tokens when effective action changes from LogOut (memory) to Lock (disk).
-            // currentVaultTimeoutAction is null when forced LogOut was reset to null by the
-            // side effect (no unlock methods) or the state migrator.
-            if (
-              currentVaultTimeoutAction === null &&
-              vaultTimeoutAction === VaultTimeoutAction.Lock
-            ) {
-              await this.migrateTokenStorage(userId, vaultTimeoutAction, vaultTimeout);
-            }
           }
 
           return vaultTimeoutAction;

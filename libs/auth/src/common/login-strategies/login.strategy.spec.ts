@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -29,10 +29,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -140,7 +136,6 @@ describe("LoginStrategy", () => {
   let policyService: MockProxy<PolicyService>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
@@ -174,8 +169,6 @@ describe("LoginStrategy", () => {
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
-    vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-
     appIdService.getAppId.mockResolvedValue(deviceId);
     tokenService.decodeAccessToken.calledWith(accessToken).mockResolvedValue(decodedToken);
 
@@ -205,7 +198,6 @@ describe("LoginStrategy", () => {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
-      vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
       configService,
@@ -215,50 +207,13 @@ describe("LoginStrategy", () => {
   });
 
   describe("base class", () => {
-    beforeEach(() => {
-      const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
-      const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
-        mockVaultTimeoutAction,
-      );
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-        mockVaultTimeoutActionBSub.asObservable(),
-      );
-
-      const mockVaultTimeout = 1000;
-
-      const mockVaultTimeoutBSub = new BehaviorSubject<number>(mockVaultTimeout);
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-        mockVaultTimeoutBSub.asObservable(),
-      );
-    });
-
     it("sets the local environment after a successful login with master password", async () => {
       const idTokenResponse = identityTokenResponseFactory();
       apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
 
-      const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
-      const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
-        mockVaultTimeoutAction,
-      );
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-        mockVaultTimeoutActionBSub.asObservable(),
-      );
-
-      const mockVaultTimeout = 1000;
-
-      const mockVaultTimeoutBSub = new BehaviorSubject<number>(mockVaultTimeout);
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-        mockVaultTimeoutBSub.asObservable(),
-      );
-
       await passwordLoginStrategy.logIn(credentials);
 
-      expect(tokenService.setTokens).toHaveBeenCalledWith(
-        accessToken,
-        mockVaultTimeoutAction,
-        mockVaultTimeout,
-        refreshToken,
-      );
+      expect(tokenService.setTokens).toHaveBeenCalledWith(accessToken, refreshToken);
 
       expect(environmentService.seedUserEnvironment).toHaveBeenCalled();
 
@@ -280,22 +235,6 @@ describe("LoginStrategy", () => {
     it("throws if new account isn't active after being initialized", async () => {
       const idTokenResponse = identityTokenResponseFactory();
       apiService.postIdentityToken.mockResolvedValue(idTokenResponse);
-
-      const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
-
-      const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
-        mockVaultTimeoutAction,
-      );
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-        mockVaultTimeoutActionBSub.asObservable(),
-      );
-
-      const mockVaultTimeout = 1000;
-
-      const mockVaultTimeoutBSub = new BehaviorSubject<number>(mockVaultTimeout);
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-        mockVaultTimeoutBSub.asObservable(),
-      );
 
       accountService.switchAccount = jest.fn(); // block internal switch to new account
       accountService.activeAccountSubject.next(null); // simulate no active account
@@ -338,22 +277,6 @@ describe("LoginStrategy", () => {
   });
 
   describe("Two-factor authentication", () => {
-    beforeEach(() => {
-      const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
-      const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
-        mockVaultTimeoutAction,
-      );
-      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-        mockVaultTimeoutActionBSub.asObservable(),
-      );
-
-      const mockVaultTimeout = 1000;
-      const mockVaultTimeoutBSub = new BehaviorSubject<number>(mockVaultTimeout);
-      vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-        mockVaultTimeoutBSub.asObservable(),
-      );
-    });
-
     it("rejects login if 2FA is required", async () => {
       // Sample response where TOTP 2FA required
       const tokenResponse = new IdentityTwoFactorResponse({
@@ -486,7 +409,6 @@ describe("LoginStrategy", () => {
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,
-        vaultTimeoutSettingsService,
         kdfConfigService,
         environmentService,
         configService,
@@ -549,7 +471,6 @@ describe("LoginStrategy", () => {
         twoFactorService,
         userDecryptionOptionsService,
         billingAccountProfileStateService,
-        vaultTimeoutSettingsService,
         kdfConfigService,
         environmentService,
         configService,

@@ -22,7 +22,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -106,7 +105,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private stateProvider: GlobalStateProvider,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private kdfConfigService: KdfConfigService,
     private configService: ConfigService,
     private accountCryptographicStateService: AccountCryptographicStateService,
@@ -313,7 +311,6 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
       this.twoFactorService,
       this.userDecryptionOptionsService,
       this.billingAccountProfileStateService,
-      this.vaultTimeoutSettingsService,
       this.kdfConfigService,
       this.environmentService,
       this.configService,

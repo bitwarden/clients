@@ -10,10 +10,6 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
@@ -58,16 +54,12 @@ describe("UserApiLoginStrategy", () => {
   let unlockService: MockProxy<UnlockService>;
   let environmentService: MockProxy<EnvironmentService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
 
   let apiLogInStrategy: UserApiLoginStrategy;
   let credentials: UserApiLoginCredentials;
-
-  const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
-  const mockVaultTimeout = 1000;
 
   const userId = Utils.newGuid() as UserId;
   const deviceId = Utils.newGuid();
@@ -97,7 +89,6 @@ describe("UserApiLoginStrategy", () => {
     unlockService = mock<UnlockService>();
     environmentService = mock<EnvironmentService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
-    vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
@@ -126,7 +117,6 @@ describe("UserApiLoginStrategy", () => {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
-      vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
       configService,
@@ -134,18 +124,6 @@ describe("UserApiLoginStrategy", () => {
     );
 
     credentials = new UserApiLoginCredentials(apiClientId, apiClientSecret);
-
-    const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
-      mockVaultTimeoutAction,
-    );
-    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-      mockVaultTimeoutActionBSub.asObservable(),
-    );
-
-    const mockVaultTimeoutBSub = new BehaviorSubject<number>(mockVaultTimeout);
-    vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-      mockVaultTimeoutBSub.asObservable(),
-    );
   });
 
   it("sends api key credentials to the server", async () => {
@@ -172,16 +150,8 @@ describe("UserApiLoginStrategy", () => {
 
     await apiLogInStrategy.logIn(credentials);
 
-    expect(tokenService.setClientId).toHaveBeenCalledWith(
-      apiClientId,
-      mockVaultTimeoutAction,
-      mockVaultTimeout,
-    );
-    expect(tokenService.setClientSecret).toHaveBeenCalledWith(
-      apiClientSecret,
-      mockVaultTimeoutAction,
-      mockVaultTimeout,
-    );
+    expect(tokenService.setClientId).toHaveBeenCalledWith(apiClientId);
+    expect(tokenService.setClientSecret).toHaveBeenCalledWith(apiClientSecret);
     expect(environmentService.seedUserEnvironment).toHaveBeenCalled();
   });
 

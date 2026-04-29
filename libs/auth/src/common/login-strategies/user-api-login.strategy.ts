@@ -1,13 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, BehaviorSubject } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
-import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -112,25 +111,10 @@ export class UserApiLoginStrategy extends LoginStrategy {
   protected async saveAccountInformation(tokenResponse: IdentityTokenResponse): Promise<UserId> {
     const userId = await super.saveAccountInformation(tokenResponse);
 
-    const vaultTimeoutAction = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$(userId),
-    );
-    const vaultTimeout = await firstValueFrom(
-      this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
-    );
-
     const tokenRequest = this.cache.value.tokenRequest;
 
-    await this.tokenService.setClientId(
-      tokenRequest.clientId,
-      vaultTimeoutAction as VaultTimeoutAction,
-      vaultTimeout,
-    );
-    await this.tokenService.setClientSecret(
-      tokenRequest.clientSecret,
-      vaultTimeoutAction as VaultTimeoutAction,
-      vaultTimeout,
-    );
+    await this.tokenService.setClientId(tokenRequest.clientId);
+    await this.tokenService.setClientSecret(tokenRequest.clientSecret);
     return userId;
   }
 

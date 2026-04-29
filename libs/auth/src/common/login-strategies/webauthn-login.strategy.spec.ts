@@ -1,5 +1,4 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -12,10 +11,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "@bitwarden/common/key-management/vault-timeout";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -53,7 +48,6 @@ describe("WebAuthnLoginStrategy", () => {
   let twoFactorService!: MockProxy<TwoFactorService>;
   let userDecryptionOptionsService: MockProxy<InternalUserDecryptionOptionsServiceAbstraction>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
-  let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let kdfConfigService: MockProxy<KdfConfigService>;
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
@@ -99,7 +93,6 @@ describe("WebAuthnLoginStrategy", () => {
     twoFactorService = mock<TwoFactorService>();
     userDecryptionOptionsService = mock<InternalUserDecryptionOptionsServiceAbstraction>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
-    vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     kdfConfigService = mock<KdfConfigService>();
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
@@ -127,7 +120,6 @@ describe("WebAuthnLoginStrategy", () => {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
-      vaultTimeoutSettingsService,
       kdfConfigService,
       environmentService,
       configService,
@@ -139,22 +131,6 @@ describe("WebAuthnLoginStrategy", () => {
     const deviceResponse = new WebAuthnLoginAssertionResponseRequest(publicKeyCredential);
     const prfKey = new SymmetricCryptoKey(randomBytes(32)) as PrfKey;
     webAuthnCredentials = new WebAuthnLoginCredentials(token, deviceResponse, prfKey);
-
-    // Mock vault timeout settings
-    const mockVaultTimeoutAction = VaultTimeoutAction.Lock;
-    const mockVaultTimeoutActionBSub = new BehaviorSubject<VaultTimeoutAction>(
-      mockVaultTimeoutAction,
-    );
-    vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
-      mockVaultTimeoutActionBSub.asObservable(),
-    );
-
-    const mockVaultTimeout = 1000;
-
-    const mockVaultTimeoutBSub = new BehaviorSubject<number>(mockVaultTimeout);
-    vaultTimeoutSettingsService.getVaultTimeoutByUserId$.mockReturnValue(
-      mockVaultTimeoutBSub.asObservable(),
-    );
   });
 
   afterAll(() => {
