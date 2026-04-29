@@ -11,6 +11,7 @@ module.exports = {
   testEnvironment: "node",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
   moduleNameMapper: {
+    "^jsdom$": "<rootDir>/../../libs/shared/__mocks__/jsdom.js",
     "@bitwarden/common/platform/services/sdk/default-sdk-client-factory":
       "<rootDir>/../../libs/common/spec/jest-sdk-client-factory",
     ...pathsToModuleNameMapper(
