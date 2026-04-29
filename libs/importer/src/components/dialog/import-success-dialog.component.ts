@@ -54,7 +54,9 @@ export class ImportSuccessDialogComponent implements OnInit {
 
   protected navigateBack(): void {
     void this.dialogRef.close();
-    void this.router.navigateByUrl(this.data.returnUrl);
+    if (this.data.returnUrl) {
+      void this.router.navigateByUrl(this.data.returnUrl);
+    }
   }
 
   private buildResultList(): ResultList[] {
