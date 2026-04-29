@@ -16,6 +16,7 @@ describe("CipherType", () => {
         3: "Card",
         4: "Identity",
         5: "SshKey",
+        6: "BankAccount",
       });
     });
   });
@@ -27,6 +28,7 @@ describe("CipherType", () => {
       expect(toCipherTypeName(3)).toBe("Card");
       expect(toCipherTypeName(4)).toBe("Identity");
       expect(toCipherTypeName(5)).toBe("SshKey");
+      expect(toCipherTypeName(6)).toBe("BankAccount");
     });
 
     it("returns undefined for an invalid cipher type", () => {
@@ -37,7 +39,7 @@ describe("CipherType", () => {
 
   describe("isCipherType", () => {
     it("returns true for valid CipherType values", () => {
-      [1, 2, 3, 4, 5].forEach((value) => {
+      [1, 2, 3, 4, 5, 6].forEach((value) => {
         expect(isCipherType(value)).toBe(true);
       });
     });

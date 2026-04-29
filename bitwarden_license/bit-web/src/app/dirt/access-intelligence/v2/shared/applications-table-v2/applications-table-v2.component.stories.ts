@@ -15,9 +15,10 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { ScrollLayoutHostDirective, TableDataSource, I18nMockService } from "@bitwarden/components";
+import { ScrollLayoutHostDirective, TableDataSource } from "@bitwarden/components";
 
 import { createApplicationHandlers } from "../../testing/story-callbacks";
+import { createAccessIntelligenceI18nMock } from "../../testing/story-mocks";
 
 import {
   ApplicationsTableV2Component,
@@ -68,30 +69,11 @@ export default {
   decorators: [
     componentWrapperDecorator(
       (story) =>
-        `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-screen tw-overflow-auto">${story}</div>`,
+        `<div bitScrollLayoutHost class="tw-flex tw-flex-col tw-h-[600px] tw-w-full tw-min-w-[1100px] tw-px-4">${story}</div>`,
     ),
     moduleMetadata({
       imports: [ApplicationsTableV2Component, ScrollLayoutHostDirective],
-      providers: [
-        {
-          provide: I18nService,
-          useFactory: () => {
-            return new I18nMockService({
-              application: "Application",
-              atRiskPasswords: "At-Risk Passwords",
-              totalPasswords: "Total Passwords",
-              atRiskMembers: "At-Risk Members",
-              totalMembers: "Total Members",
-              criticalBadge: "Critical",
-              selectAll: "Select all",
-              deselectAll: "Deselect all",
-              select: "Select",
-              all: "All",
-              selectApplication: "Select application",
-            });
-          },
-        },
-      ],
+      providers: [{ provide: I18nService, useFactory: createAccessIntelligenceI18nMock }],
     }),
     applicationConfig({
       providers: [
@@ -183,38 +165,6 @@ export const Empty: Story = {
 };
 
 /**
- * Table with selected applications
- */
-export const WithSelections: Story = {
-  render: (args) => {
-    const dataSource = new TableDataSource<ApplicationTableRowV2>();
-    dataSource.data = createSampleData();
-
-    const selectedUrls = new Set<string>(["github.com", "gitlab.com"]);
-    const { showAppAtRiskMembers, checkboxChange } = createApplicationHandlers();
-
-    return {
-      props: {
-        dataSource,
-        selectedUrls,
-        openApplication: "",
-        showAppAtRiskMembers,
-        checkboxChange,
-      },
-      template: `
-        <dirt-applications-table-v2
-          [dataSource]="dataSource"
-          [selectedUrls]="selectedUrls"
-          [openApplication]="openApplication"
-          (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
-          (checkboxChange)="checkboxChange($event)"
-        ></dirt-applications-table-v2>
-      `,
-    };
-  },
-};
-
-/**
  * Table with highlighted open application
  */
 export const WithOpenApplication: Story = {
@@ -229,7 +179,7 @@ export const WithOpenApplication: Story = {
       props: {
         dataSource,
         selectedUrls,
-        openApplication: "github.com", // Highlights this row
+        openApplication: "github.com",
         showAppAtRiskMembers,
         checkboxChange,
       },
@@ -247,32 +197,30 @@ export const WithOpenApplication: Story = {
 };
 
 /**
- * Table with only critical applications
+ * Critical tab: star icons and unmark menu instead of checkboxes (onUnmarkAsCritical provided)
  */
-export const CriticalOnly: Story = {
+export const CriticalTab: Story = {
   render: (args) => {
     const dataSource = new TableDataSource<ApplicationTableRowV2>();
     const criticalData = createSampleData().filter((row) => row.isMarkedAsCritical);
     dataSource.data = criticalData;
 
-    const selectedUrls = new Set<string>();
-    const { showAppAtRiskMembers, checkboxChange } = createApplicationHandlers();
+    const { showAppAtRiskMembers } = createApplicationHandlers();
+    const onUnmarkAsCritical = action("onUnmarkAsCritical");
 
     return {
       props: {
         dataSource,
-        selectedUrls,
         openApplication: "",
         showAppAtRiskMembers,
-        checkboxChange,
+        onUnmarkAsCritical,
       },
       template: `
         <dirt-applications-table-v2
           [dataSource]="dataSource"
-          [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
+          [onUnmarkAsCritical]="onUnmarkAsCritical"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
-          (checkboxChange)="checkboxChange($event)"
         ></dirt-applications-table-v2>
       `,
     };
@@ -280,16 +228,12 @@ export const CriticalOnly: Story = {
 };
 
 /**
- * Table with applications missing icons (shows globe fallback)
+ * Applications tab view with critical badges visible (showCriticalBadge=true)
  */
-export const WithoutIcons: Story = {
+export const WithCriticalBadge: Story = {
   render: (args) => {
     const dataSource = new TableDataSource<ApplicationTableRowV2>();
-    const dataWithoutIcons = createSampleData().map((row) => ({
-      ...row,
-      iconCipher: undefined as CipherView | undefined,
-    }));
-    dataSource.data = dataWithoutIcons;
+    dataSource.data = createSampleData();
 
     const selectedUrls = new Set<string>();
     const { showAppAtRiskMembers, checkboxChange } = createApplicationHandlers();
@@ -307,6 +251,7 @@ export const WithoutIcons: Story = {
           [dataSource]="dataSource"
           [selectedUrls]="selectedUrls"
           [openApplication]="openApplication"
+          [showCriticalBadge]="true"
           (showAppAtRiskMembers)="showAppAtRiskMembers($event)"
           (checkboxChange)="checkboxChange($event)"
         ></dirt-applications-table-v2>

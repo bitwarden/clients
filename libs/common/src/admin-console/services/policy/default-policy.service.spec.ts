@@ -57,6 +57,15 @@ describe("PolicyService", () => {
       organization("org5", true, true, OrganizationUserStatusType.Confirmed, false),
       // Can manage policies
       organization("org6", true, true, OrganizationUserStatusType.Confirmed, true),
+      // Admin
+      organization(
+        "org7",
+        true,
+        true,
+        OrganizationUserStatusType.Confirmed,
+        false,
+        OrganizationUserType.Admin,
+      ),
     ]);
 
     organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
@@ -202,8 +211,9 @@ describe("PolicyService", () => {
       expect(result).toBeUndefined();
     });
 
-    it("returns undefined when user is an owner (exempt from policy)", async () => {
-      // org2 has OrganizationUserType.Owner; owners are exempt from MasterPassword policy
+    it("returns policy options for an owner (not exempt from MasterPassword policy)", async () => {
+      // org2 has OrganizationUserType.Owner; owners are NOT exempt from MasterPassword policy
+      // The server sends MasterPassword policy to all users regardless of role
       singleUserState.nextState(
         arrayToRecord([
           policyData("1", "org2", PolicyType.MasterPassword, true, { minLength: 10 }),
@@ -212,7 +222,36 @@ describe("PolicyService", () => {
 
       const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
 
-      expect(result).toBeUndefined();
+      expect(result).toEqual({
+        minComplexity: 0,
+        minLength: 10,
+        requireLower: false,
+        requireNumbers: false,
+        requireSpecial: false,
+        requireUpper: false,
+        enforceOnLogin: false,
+      });
+    });
+
+    it("returns policy options for an admin (not exempt from MasterPassword policy)", async () => {
+      // org7 has OrganizationUserType.Admin; admins are NOT exempt from MasterPassword policy
+      singleUserState.nextState(
+        arrayToRecord([
+          policyData("1", "org7", PolicyType.MasterPassword, true, { minLength: 10 }),
+        ]),
+      );
+
+      const result = await firstValueFrom(policyService.masterPasswordPolicyOptions$(userId));
+
+      expect(result).toEqual({
+        minComplexity: 0,
+        minLength: 10,
+        requireLower: false,
+        requireNumbers: false,
+        requireSpecial: false,
+        requireUpper: false,
+        enforceOnLogin: false,
+      });
     });
   });
 
@@ -623,7 +662,7 @@ describe("PolicyService", () => {
     });
 
     describe("SingleOrg policy exemptions", () => {
-      it("returns true for SingleOrg policy when AutoConfirm is enabled, even for users who can manage policies", async () => {
+      it("returns false for SingleOrg policy when user can manage policies, even when AutoConfirm is enabled", async () => {
         singleUserState.nextState(
           arrayToRecord([
             policyData("policy1", "org6", PolicyType.SingleOrg, true),
@@ -635,27 +674,12 @@ describe("PolicyService", () => {
           policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
         );
 
-        expect(result).toBe(true);
+        expect(result).toBe(false);
       });
 
       it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is not enabled", async () => {
         singleUserState.nextState(
           arrayToRecord([policyData("policy1", "org6", PolicyType.SingleOrg, true)]),
-        );
-
-        const result = await firstValueFrom(
-          policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        );
-
-        expect(result).toBe(false);
-      });
-
-      it("returns false for SingleOrg policy when user can manage policies and AutoConfirm is disabled", async () => {
-        singleUserState.nextState(
-          arrayToRecord([
-            policyData("policy1", "org6", PolicyType.SingleOrg, true),
-            policyData("policy2", "org6", PolicyType.AutoConfirm, false),
-          ]),
         );
 
         const result = await firstValueFrom(
