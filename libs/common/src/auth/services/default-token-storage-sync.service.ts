@@ -220,8 +220,18 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       this.vaultTimeoutSettingsService.getVaultTimeoutByUserId$(userId),
     ])
       .pipe(
-        switchMap(([accessToken, , , , action, timeout]) =>
-          from(this.syncTokenStorage(userId, accessToken, action, timeout)),
+        switchMap(([accessToken, refreshToken, clientId, clientSecret, action, timeout]) =>
+          from(
+            this.syncTokenStorage(
+              userId,
+              accessToken,
+              refreshToken,
+              clientId,
+              clientSecret,
+              action,
+              timeout,
+            ),
+          ),
         ),
       )
       .subscribe({
@@ -238,6 +248,9 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
   private async syncTokenStorage(
     userId: UserId,
     accessToken: string | null,
+    refreshToken: string | null,
+    clientId: string | null,
+    clientSecret: string | null,
     action: VaultTimeoutAction,
     timeout: VaultTimeout,
   ): Promise<void> {
@@ -245,7 +258,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       return;
     }
     if (this.shouldPersistToDisk(action, timeout)) {
-      await this.writeTokensToDisk(userId, accessToken);
+      await this.writeTokensToDisk(userId, accessToken, refreshToken, clientId, clientSecret);
     } else {
       await this.wipeTokensFromDisk(userId);
     }
@@ -271,7 +284,13 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    *   JSON on secure storage save failure.
    * - Client ID / secret: plaintext JSON on all platforms.
    */
-  private async writeTokensToDisk(userId: UserId, accessToken: string): Promise<void> {
+  private async writeTokensToDisk(
+    userId: UserId,
+    accessToken: string,
+    refreshToken: string | null,
+    clientId: string | null,
+    clientSecret: string | null,
+  ): Promise<void> {
     // Access token
     if (this.platformSupportsSecureStorage) {
       try {
@@ -299,7 +318,6 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     }
 
     // Refresh token
-    const refreshToken = await this.tokenService.getRefreshToken(userId);
     if (this.platformSupportsSecureStorage) {
       try {
         if (refreshToken != null) {
@@ -329,12 +347,10 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     }
 
     // Client ID and client secret: plaintext on all platforms
-    const clientId = await this.tokenService.getClientId(userId);
     await this.singleUserStateProvider
       .get(userId, API_KEY_CLIENT_ID_DISK)
       .update((_) => clientId ?? null, { shouldUpdate: (prev) => prev !== (clientId ?? null) });
 
-    const clientSecret = await this.tokenService.getClientSecret(userId);
     await this.singleUserStateProvider
       .get(userId, API_KEY_CLIENT_SECRET_DISK)
       .update((_) => clientSecret ?? null, {

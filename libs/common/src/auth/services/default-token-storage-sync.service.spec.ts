@@ -550,17 +550,13 @@ describe("DefaultTokenStorageSyncService", () => {
     });
 
     describe("syncForUser — subscription error handler", () => {
-      it("logs error when the sync subscription throws", async () => {
+      it("logs error when a source observable in the sync pipeline errors", async () => {
         sut = createService(false);
 
-        // Make getRefreshToken throw after a token is emitted so syncTokenStorage errors
-        tokenService.getRefreshToken.mockRejectedValue(new Error("getRefreshToken exploded"));
-
-        vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
-        vaultTimeout$.next(VaultTimeoutStringType.Never);
-
         await sut.init();
-        accessToken$.next("someToken");
+
+        // Erroring any combineLatest source propagates to the subscribe error handler.
+        refreshToken$.error(new Error("stream error"));
         await new Promise((r) => setTimeout(r, 50));
 
         expect(logService.error).toHaveBeenCalledWith(
@@ -616,14 +612,11 @@ describe("DefaultTokenStorageSyncService", () => {
         // save throws to simulate secure storage failure
         secureStorageService.save.mockRejectedValue(new Error("Secure storage save failed"));
 
-        tokenService.getRefreshToken.mockResolvedValue("myRefreshToken");
-        tokenService.getClientId.mockResolvedValue(undefined);
-        tokenService.getClientSecret.mockResolvedValue(undefined);
-
         vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
         vaultTimeout$.next(VaultTimeoutStringType.Never);
 
         await sut.init();
+        refreshToken$.next("myRefreshToken");
         accessToken$.next("plaintextToken");
         await new Promise((r) => setTimeout(r, 50));
 
@@ -776,6 +769,73 @@ describe("DefaultTokenStorageSyncService", () => {
     });
   });
 
+  describe("emitted token values used directly (no re-read race condition)", () => {
+    // These tests verify that writeTokensToDisk uses the values emitted by combineLatest
+    // rather than re-reading them via tokenService.getXxx(). If the implementation
+    // re-reads, there is a race window where a second update can overwrite the first
+    // mid-flight, causing the wrong value to be written to disk.
+    beforeEach(() => {
+      sut = createService(false);
+    });
+
+    it("writes the refresh token value that was emitted, not a subsequently changed mock value", async () => {
+      vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+      vaultTimeout$.next(VaultTimeoutStringType.Never);
+
+      await sut.init();
+
+      // Emit a consistent set of token values
+      refreshToken$.next("refreshToken-v1");
+      accessToken$.next("accessToken-v1");
+
+      await new Promise((r) => setTimeout(r, 50));
+
+      const diskRefreshToken = await firstValueFrom(
+        singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).state$,
+      );
+      // The value emitted by refreshToken$ should be on disk — not a re-read
+      expect(diskRefreshToken).toEqual("refreshToken-v1");
+      // tokenService.getRefreshToken should NOT have been called
+      expect(tokenService.getRefreshToken).not.toHaveBeenCalled();
+    });
+
+    it("writes the client id value that was emitted, not a subsequent re-read", async () => {
+      vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+      vaultTimeout$.next(VaultTimeoutStringType.Never);
+
+      await sut.init();
+
+      clientId$.next("clientId-v1");
+      accessToken$.next("accessToken-v1");
+
+      await new Promise((r) => setTimeout(r, 50));
+
+      const diskClientId = await firstValueFrom(
+        singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).state$,
+      );
+      expect(diskClientId).toEqual("clientId-v1");
+      expect(tokenService.getClientId).not.toHaveBeenCalled();
+    });
+
+    it("writes the client secret value that was emitted, not a subsequent re-read", async () => {
+      vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+      vaultTimeout$.next(VaultTimeoutStringType.Never);
+
+      await sut.init();
+
+      clientSecret$.next("clientSecret-v1");
+      accessToken$.next("accessToken-v1");
+
+      await new Promise((r) => setTimeout(r, 50));
+
+      const diskClientSecret = await firstValueFrom(
+        singleUserStateProvider.getFake(userId, API_KEY_CLIENT_SECRET_DISK).state$,
+      );
+      expect(diskClientSecret).toEqual("clientSecret-v1");
+      expect(tokenService.getClientSecret).not.toHaveBeenCalled();
+    });
+  });
+
   describe("writeTokensToDisk with secure storage", () => {
     it("encrypts access token before writing to disk on secure storage platforms", async () => {
       sut = createService(true);
@@ -813,15 +873,12 @@ describe("DefaultTokenStorageSyncService", () => {
       const mockEncString = { encryptedString: "2.encrypted==|data==|iv==" } as EncString;
       encryptService.encryptString.mockResolvedValue(mockEncString);
 
-      tokenService.getRefreshToken.mockResolvedValue("myRefreshToken");
-      tokenService.getClientId.mockResolvedValue(undefined);
-      tokenService.getClientSecret.mockResolvedValue(undefined);
-
       vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
       vaultTimeout$.next(VaultTimeoutStringType.Never);
 
       await sut.init();
 
+      refreshToken$.next("myRefreshToken");
       accessToken$.next("plaintextAccessToken");
       await new Promise((r) => setTimeout(r, 50));
 
