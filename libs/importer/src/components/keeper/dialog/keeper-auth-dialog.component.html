@@ -140,31 +140,27 @@
     </keeper-stage-shell>
   }
 
-  <!-- Pick which Duo Security method to use (push, SMS, voice, passcode).
-       No footer — the X in the header cancels. -->
+  <!-- Pick which Duo Security method to use (push, SMS, voice, passcode). -->
   @case ("selectDuo") {
-    <keeper-stage-shell
-      [title]="'duoVerification' | i18n"
-      [email]="email()"
-      [hasFooter]="false"
-      (close)="cancel()"
-    >
+    <keeper-stage-shell [title]="'duoVerification' | i18n" [email]="email()" (close)="cancel()">
       <div bitDialogContent>
         <p bitTypography="body1">{{ currentStage.phoneNumber }}</p>
-        <div class="tw-flex tw-flex-col tw-gap-2 tw-mt-4">
+        <bit-radio-group [formControl]="duoMethodControl" [block]="true" class="tw-mt-4">
           @for (method of currentStage.methods; track method) {
-            <button
-              bitButton
-              buttonType="secondary"
-              type="button"
-              class="tw-w-full"
-              (click)="selectDuo(method)"
-            >
-              {{ getDuoLabel(method) | i18n }}
-            </button>
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getDuoLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
           }
-        </div>
+        </bit-radio-group>
       </div>
+      <ng-container bitDialogFooter>
+        <button bitButton buttonType="primary" type="button" (click)="confirmDuo()">
+          {{ "continue" | i18n }}
+        </button>
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
+        </button>
+      </ng-container>
     </keeper-stage-shell>
   }
 
@@ -185,30 +181,30 @@
     </keeper-stage-shell>
   }
 
-  <!-- Pick how to handle Keeper DNA (push or manual code entry).
-       No footer — the X in the header cancels. -->
+  <!-- Pick how to handle Keeper DNA (push or manual code entry). -->
   @case ("selectDna") {
     <keeper-stage-shell
       [title]="'keeperDnaVerification' | i18n"
       [email]="email()"
-      [hasFooter]="false"
       (close)="cancel()"
     >
       <div bitDialogContent>
-        <div class="tw-flex tw-flex-col tw-gap-2">
+        <bit-radio-group [formControl]="dnaMethodControl" [block]="true">
           @for (method of currentStage.methods; track method) {
-            <button
-              bitButton
-              buttonType="secondary"
-              type="button"
-              class="tw-w-full"
-              (click)="selectDna(method)"
-            >
-              {{ getDnaLabel(method) | i18n }}
-            </button>
+            <bit-radio-button [value]="method">
+              <bit-label>{{ getDnaLabel(method) | i18n }}</bit-label>
+            </bit-radio-button>
           }
-        </div>
+        </bit-radio-group>
       </div>
+      <ng-container bitDialogFooter>
+        <button bitButton buttonType="primary" type="button" (click)="confirmDna()">
+          {{ "continue" | i18n }}
+        </button>
+        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+          {{ "cancel" | i18n }}
+        </button>
+      </ng-container>
     </keeper-stage-shell>
   }
 

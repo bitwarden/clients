@@ -58,6 +58,8 @@ export class KeeperAuthDialogComponent {
   });
   protected readonly approvalMethodControl = new FormControl<DeviceApprovalChannel | null>(null);
   protected readonly twoFactorMethodControl = new FormControl<TwoFactorMethod | null>(null);
+  protected readonly duoMethodControl = new FormControl<DuoMethod | null>(null);
+  protected readonly dnaMethodControl = new FormControl<DnaMethod | null>(null);
 
   constructor() {
     effect(() => {
@@ -66,6 +68,10 @@ export class KeeperAuthDialogComponent {
         this.approvalMethodControl.setValue(current.methods[0]);
       } else if (current.kind === "selectTwoFactor" && current.methods.length > 0) {
         this.twoFactorMethodControl.setValue(current.methods[0]);
+      } else if (current.kind === "selectDuo" && current.methods.length > 0) {
+        this.duoMethodControl.setValue(current.methods[0]);
+      } else if (current.kind === "selectDna" && current.methods.length > 0) {
+        this.dnaMethodControl.setValue(current.methods[0]);
       }
     });
   }
@@ -86,11 +92,19 @@ export class KeeperAuthDialogComponent {
     this.keeperUi.submit(method);
   }
 
-  protected selectDuo(method: DuoMethod): void {
+  protected confirmDuo(): void {
+    const method = this.duoMethodControl.value;
+    if (method == null) {
+      return;
+    }
     this.keeperUi.submit(method);
   }
 
-  protected selectDna(method: DnaMethod): void {
+  protected confirmDna(): void {
+    const method = this.dnaMethodControl.value;
+    if (method == null) {
+      return;
+    }
     this.keeperUi.submit(method);
   }
 

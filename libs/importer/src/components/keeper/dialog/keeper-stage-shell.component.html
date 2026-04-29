@@ -15,9 +15,7 @@
     }
   </span>
   <ng-content select="[bitDialogContent]" ngProjectAs="[bitDialogContent]"></ng-content>
-  @if (hasFooter()) {
-    <ng-container bitDialogFooter>
-      <ng-content select="[bitDialogFooter]"></ng-content>
-    </ng-container>
-  }
+  <ng-container bitDialogFooter>
+    <ng-content select="[bitDialogFooter]"></ng-content>
+  </ng-container>
 </bit-dialog>
