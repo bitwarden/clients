@@ -15,6 +15,7 @@ const itemTypes = [
   "identity",
   "note",
   "sshKey",
+  "bankAccount",
   "archive",
   "trash",
   All,

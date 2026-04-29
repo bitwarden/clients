@@ -3,32 +3,18 @@ import { NgModule } from "@angular/core";
 import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   AccessReportEncryptionService,
-  DefaultAccessReportEncryptionService,
   ApplicationVersioningService,
+  DefaultAccessReportEncryptionService,
   ReportVersioningService,
   SummaryVersioningService,
 } from "@bitwarden/bit-common/dirt/access-intelligence/services";
-import { CriticalAppsService } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import {
-  AllActivitiesService,
-  CriticalAppsApiService,
-  MemberCipherDetailsApiService,
-  PasswordHealthService,
   RiskInsightsApiService,
-  RiskInsightsDataService,
-  RiskInsightsReportService,
   SecurityTasksApiService,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
-import { RiskInsightsEncryptionService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-encryption.service";
-import { RiskInsightsOrchestratorService } from "@bitwarden/bit-common/dirt/reports/risk-insights/services/domain/risk-insights-orchestrator.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
@@ -37,23 +23,16 @@ import { DefaultAdminTaskService } from "../../vault/services/default-admin-task
 import { AccessIntelligenceRoutingModule } from "./access-intelligence-routing.module";
 import { NewApplicationsDialogComponent } from "./activity/application-review-dialog/new-applications-dialog.component";
 import { RiskInsightsComponent } from "./risk-insights.component";
-import { DefaultRiskOverTimeService } from "./services/default-risk-over-time.service";
-import { RiskOverTimeService } from "./services/risk-over-time.service";
-import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.service";
+import { AccessIntelligencePageComponent } from "./v2/access-intelligence-page/access-intelligence-page.component";
 
 @NgModule({
-  imports: [RiskInsightsComponent, AccessIntelligenceRoutingModule, NewApplicationsDialogComponent],
+  imports: [
+    RiskInsightsComponent,
+    AccessIntelligenceRoutingModule,
+    NewApplicationsDialogComponent,
+    AccessIntelligencePageComponent,
+  ],
   providers: [
-    safeProvider({
-      provide: CriticalAppsApiService,
-      useClass: CriticalAppsApiService,
-      deps: [ApiService],
-    }),
-    safeProvider({
-      provide: MemberCipherDetailsApiService,
-      useClass: MemberCipherDetailsApiService,
-      deps: [ApiService],
-    }),
     safeProvider({
       provide: RiskInsightsApiService,
       useClass: RiskInsightsApiService,
@@ -65,54 +44,6 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
       deps: [ApiService],
     }),
     safeProvider(DefaultAdminTaskService),
-    safeProvider({
-      provide: AccessIntelligenceSecurityTasksService,
-      useClass: AccessIntelligenceSecurityTasksService,
-      deps: [DefaultAdminTaskService, SecurityTasksApiService, RiskInsightsDataService],
-    }),
-    safeProvider({
-      provide: PasswordHealthService,
-      useClass: PasswordHealthService,
-      deps: [AuditService, PasswordStrengthServiceAbstraction],
-    }),
-    safeProvider({
-      provide: RiskInsightsReportService,
-      useClass: RiskInsightsReportService,
-      deps: [RiskInsightsApiService, RiskInsightsEncryptionService],
-    }),
-    safeProvider({
-      provide: RiskInsightsOrchestratorService,
-      deps: [
-        AccountServiceAbstraction,
-        CipherService,
-        CriticalAppsService,
-        LogService,
-        MemberCipherDetailsApiService,
-        OrganizationService,
-        PasswordHealthService,
-        RiskInsightsApiService,
-        RiskInsightsReportService,
-        RiskInsightsEncryptionService,
-      ],
-    }),
-    safeProvider({
-      provide: RiskInsightsDataService,
-      deps: [RiskInsightsOrchestratorService],
-    }),
-    safeProvider({
-      provide: RiskInsightsEncryptionService,
-      deps: [KeyService, EncryptService, KeyGenerationService, LogService],
-    }),
-    safeProvider({
-      provide: CriticalAppsService,
-      useClass: CriticalAppsService,
-      deps: [KeyService, EncryptService, CriticalAppsApiService],
-    }),
-    safeProvider({
-      provide: AllActivitiesService,
-      useClass: AllActivitiesService,
-      deps: [RiskInsightsDataService],
-    }),
     safeProvider({
       provide: ReportVersioningService,
       deps: [LogService],
@@ -135,16 +66,6 @@ import { AccessIntelligenceSecurityTasksService } from "./shared/security-tasks.
         ReportVersioningService,
         ApplicationVersioningService,
         SummaryVersioningService,
-        LogService,
-      ],
-    }),
-    safeProvider({
-      provide: RiskOverTimeService,
-      useClass: DefaultRiskOverTimeService,
-      deps: [
-        RiskInsightsApiService,
-        AccessReportEncryptionService,
-        AccountServiceAbstraction,
         LogService,
       ],
     }),
