@@ -3,7 +3,6 @@ import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
-  ButtonModule,
   CalloutModule,
   DialogModule,
   DialogRef,
@@ -30,7 +29,6 @@ import { KeeperStageShellComponent } from "./keeper-stage-shell.component";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     JslibModule,
-    ButtonModule,
     CalloutModule,
     DialogModule,
     FormFieldModule,

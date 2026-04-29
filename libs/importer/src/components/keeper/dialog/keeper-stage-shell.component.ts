@@ -13,5 +13,10 @@ export class KeeperStageShellComponent {
   readonly title = input.required<string>();
   readonly email = input<string>("");
 
+  readonly primaryLabel = input<string>("");
+  readonly secondaryLabel = input<string>("");
+
+  readonly primary = output<void>();
+  readonly secondary = output<void>();
   readonly close = output<void>();
 }

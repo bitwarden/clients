@@ -6,6 +6,10 @@
     <keeper-stage-shell
       [title]="'selectApprovalMethod' | i18n"
       [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmApproval()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
       (close)="cancel()"
     >
       <div bitDialogContent>
@@ -18,14 +22,6 @@
           }
         </bit-radio-group>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="confirmApproval()">
-          {{ "continue" | i18n }}
-        </button>
-        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
@@ -38,6 +34,10 @@
           | i18n
       "
       [email]="email()"
+      [primaryLabel]="(currentStage.variant === 'email' ? 'continue' : 'tryAnotherMethod') | i18n"
+      (primary)="currentStage.variant === 'email' ? submitCode() : tryAnother()"
+      [secondaryLabel]="(currentStage.variant === 'email' ? 'tryAnotherMethod' : 'cancel') | i18n"
+      (secondary)="currentStage.variant === 'email' ? tryAnother() : cancel()"
       (close)="cancel()"
     >
       <div bitDialogContent>
@@ -56,23 +56,6 @@
           </form>
         }
       </div>
-      <ng-container bitDialogFooter>
-        @if (currentStage.variant === "email") {
-          <button bitButton buttonType="primary" type="button" (click)="submitCode()">
-            {{ "continue" | i18n }}
-          </button>
-          <button bitButton buttonType="secondary" type="button" (click)="tryAnother()">
-            {{ "tryAnotherMethod" | i18n }}
-          </button>
-        } @else {
-          <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
-            {{ "tryAnotherMethod" | i18n }}
-          </button>
-          <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-            {{ "cancel" | i18n }}
-          </button>
-        }
-      </ng-container>
     </keeper-stage-shell>
   }
 
@@ -81,6 +64,10 @@
     <keeper-stage-shell
       [title]="'selectTwoFactorMethod' | i18n"
       [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmTwoFactor()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
       (close)="cancel()"
     >
       <div bitDialogContent>
@@ -92,14 +79,6 @@
           }
         </bit-radio-group>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="confirmTwoFactor()">
-          {{ "continue" | i18n }}
-        </button>
-        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
@@ -108,6 +87,10 @@
     <keeper-stage-shell
       [title]="(currentStage.needsInput ? 'verificationCode' : 'keeperMFARequired') | i18n"
       [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="currentStage.needsInput ? submitCode() : submitPush()"
+      [secondaryLabel]="'tryAnotherMethod' | i18n"
+      (secondary)="tryAnother()"
       (close)="cancel()"
     >
       <div bitDialogContent>
@@ -123,26 +106,20 @@
           <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
         }
       </div>
-      <ng-container bitDialogFooter>
-        @if (currentStage.needsInput) {
-          <button bitButton buttonType="primary" type="button" (click)="submitCode()">
-            {{ "continue" | i18n }}
-          </button>
-        } @else {
-          <button bitButton buttonType="primary" type="button" (click)="submitPush()">
-            {{ "continue" | i18n }}
-          </button>
-        }
-        <button bitButton buttonType="secondary" type="button" (click)="tryAnother()">
-          {{ "tryAnotherMethod" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
   <!-- Pick which Duo Security method to use (push, SMS, voice, passcode). -->
   @case ("selectDuo") {
-    <keeper-stage-shell [title]="'duoVerification' | i18n" [email]="email()" (close)="cancel()">
+    <keeper-stage-shell
+      [title]="'duoVerification' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmDuo()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
       <div bitDialogContent>
         <p bitTypography="body1">{{ currentStage.phoneNumber }}</p>
         <bit-radio-group [formControl]="duoMethodControl" [block]="true" class="tw-mt-4">
@@ -153,31 +130,23 @@
           }
         </bit-radio-group>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="confirmDuo()">
-          {{ "continue" | i18n }}
-        </button>
-        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
   <!-- Waiting for the user to approve a Duo push or voice call. -->
   @case ("duoPush") {
-    <keeper-stage-shell [title]="'duoVerification' | i18n" [email]="email()" (close)="cancel()">
+    <keeper-stage-shell
+      [title]="'duoVerification' | i18n"
+      [email]="email()"
+      [primaryLabel]="'tryAnotherMethod' | i18n"
+      (primary)="tryAnother()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
       <div bitDialogContent>
         <p bitTypography="body1">{{ "duoPushWaiting" | i18n }}</p>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
-          {{ "tryAnotherMethod" | i18n }}
-        </button>
-        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
@@ -186,6 +155,10 @@
     <keeper-stage-shell
       [title]="'keeperDnaVerification' | i18n"
       [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="confirmDna()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
       (close)="cancel()"
     >
       <div bitDialogContent>
@@ -197,14 +170,6 @@
           }
         </bit-radio-group>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="confirmDna()">
-          {{ "continue" | i18n }}
-        </button>
-        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
@@ -213,25 +178,29 @@
     <keeper-stage-shell
       [title]="'keeperDnaVerification' | i18n"
       [email]="email()"
+      [primaryLabel]="'tryAnotherMethod' | i18n"
+      (primary)="tryAnother()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
       (close)="cancel()"
     >
       <div bitDialogContent>
         <p bitTypography="body1">{{ "keeperDnaPushWaiting" | i18n }}</p>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="tryAnother()">
-          {{ "tryAnotherMethod" | i18n }}
-        </button>
-        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
   <!-- Master password prompt. Server only requests it after device approval / 2FA. -->
   @case ("password") {
-    <keeper-stage-shell [title]="'masterPassword' | i18n" [email]="email()" (close)="cancel()">
+    <keeper-stage-shell
+      [title]="'masterPassword' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="submitPassword()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
       <div bitDialogContent>
         <p bitTypography="body2">{{ "keeperMasterPasswordPrompt" | i18n }}</p>
         <form (ngSubmit)="submitPassword()">
@@ -242,30 +211,22 @@
           </bit-form-field>
         </form>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="submitPassword()">
-          {{ "continue" | i18n }}
-        </button>
-        <button bitButton buttonType="secondary" type="button" (click)="cancel()">
-          {{ "cancel" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 
   <!-- Generic error display. The OK button dismisses and ends the flow. -->
   @case ("error") {
-    <keeper-stage-shell [title]="'errorOccurred' | i18n" (close)="dismissError()">
+    <keeper-stage-shell
+      [title]="'errorOccurred' | i18n"
+      [primaryLabel]="'ok' | i18n"
+      (primary)="dismissError()"
+      (close)="dismissError()"
+    >
       <div bitDialogContent>
         <bit-callout type="danger">
           {{ currentStage.message | i18n }}
         </bit-callout>
       </div>
-      <ng-container bitDialogFooter>
-        <button bitButton buttonType="primary" type="button" (click)="dismissError()">
-          {{ "ok" | i18n }}
-        </button>
-      </ng-container>
     </keeper-stage-shell>
   }
 }
