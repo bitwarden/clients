@@ -1,17 +1,9 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  Component,
-  computed,
-  inject,
-  InjectionToken,
-  Injector,
-  Input,
-  OnDestroy,
-  OnInit,
-} from "@angular/core";
-import { firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
-import { map } from "rxjs/operators";
+import { Component, computed, inject, input, InjectionToken, Injector, Input } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, Observable } from "rxjs";
+import { map, switchMap } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -33,16 +25,13 @@ import { CoachmarkService } from "../../../../components/coachmark";
   templateUrl: "vault-filter-section.component.html",
   standalone: false,
 })
-export class VaultFilterSectionComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class VaultFilterSectionComponent {
   private activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() activeFilter: VaultFilter;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() section: VaultFilterSection;
+  readonly section = input.required<VaultFilterSection>();
 
   /** Whether this section is the collection filter (enables coachmark) */
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -55,8 +44,12 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     () => this.coachmarkService.activeStepId() === "shareWithCollections",
   );
 
-  data: TreeNode<VaultFilterType>;
-  collapsedFilterNodes: Set<string> = new Set();
+  readonly data = toSignal(toObservable(this.section).pipe(switchMap((s) => s.data$)), {
+    initialValue: undefined,
+  });
+  readonly collapsedFilterNodes = toSignal(this.vaultFilterService.collapsedFilterNodes$, {
+    initialValue: new Set<string>(),
+  });
 
   private injectors = new Map<string, Injector>();
 
@@ -64,39 +57,22 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     private vaultFilterService: VaultFilterService,
     private injector: Injector,
     private accountService: AccountService,
-  ) {
-    this.vaultFilterService.collapsedFilterNodes$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((nodes) => {
-        this.collapsedFilterNodes = nodes;
-      });
-  }
-
-  async ngOnInit() {
-    this.section?.data$?.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-      this.data = data;
-    });
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
+  ) {}
 
   get headerNode() {
-    return this.data;
+    return this.data()!;
   }
 
   get headerInfo() {
-    return this.section.header;
+    return this.section().header;
   }
 
   get filters() {
-    return this.data?.children;
+    return this.data()?.children;
   }
 
   get isOrganizationFilter() {
-    return this.data.node instanceof Organization;
+    return this.data()?.node instanceof Organization;
   }
 
   get isAllVaultsSelected() {
@@ -120,58 +96,59 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
   }
 
   async onFilterSelect(filterNode: TreeNode<VaultFilterType>) {
-    if (this.section?.premiumOptions?.blockFilterAction) {
-      await this.section.premiumOptions.blockFilterAction();
+    if (this.section().premiumOptions?.blockFilterAction) {
+      await this.section().premiumOptions.blockFilterAction();
       return;
     }
 
-    await this.section?.action(filterNode);
+    await this.section().action(filterNode);
   }
 
   get editInfo() {
-    return this.section?.edit;
+    return this.section().edit;
   }
 
   onEdit(filterNode: TreeNode<VaultFilterType>) {
-    this.section?.edit?.action(filterNode.node);
+    this.section().edit?.action(filterNode.node);
   }
 
   get addInfo() {
-    return this.section.add;
+    return this.section().add;
   }
 
   get showAddLink() {
-    return this.section.add && this.section.add.route;
+    return this.section().add && this.section().add.route;
   }
 
   async onAdd() {
-    this.section?.add?.action();
+    this.section().add?.action();
   }
 
   get optionsInfo() {
-    return this.section?.options;
+    return this.section().options;
   }
 
   get premiumFeature() {
-    return this.section?.premiumOptions?.showBadgeForNonPremium;
+    return this.section().premiumOptions?.showBadgeForNonPremium;
   }
 
   get divider() {
-    return this.section?.divider;
+    return this.section().divider;
   }
 
   isCollapsed(node: ITreeNodeObject) {
-    return this.collapsedFilterNodes.has(node.id);
+    return this.collapsedFilterNodes().has(node.id);
   }
 
   async toggleCollapse(node: ITreeNodeObject) {
-    if (this.collapsedFilterNodes.has(node.id)) {
-      this.collapsedFilterNodes.delete(node.id);
+    const nodes = this.collapsedFilterNodes();
+    if (nodes.has(node.id)) {
+      nodes.delete(node.id);
     } else {
-      this.collapsedFilterNodes.add(node.id);
+      nodes.add(node.id);
     }
     const userId = await firstValueFrom(this.activeUserId$);
-    await this.vaultFilterService.setCollapsedFilterNodes(this.collapsedFilterNodes, userId);
+    await this.vaultFilterService.setCollapsedFilterNodes(nodes, userId);
   }
 
   // an injector is necessary to pass data into a dynamic component
@@ -182,7 +159,7 @@ export class VaultFilterSectionComponent implements OnInit, OnDestroy {
     if (!inject) {
       // Pass an observable to the component in order to update the component when the data changes
       // as data binding does not work with dynamic components in Angular 15 (inputs are supported starting Angular 16)
-      const data$ = this.section.data$.pipe(
+      const data$ = this.section().data$.pipe(
         map((sectionNode) => sectionNode?.children?.find((node) => node.node.id === data.id)?.node),
       );
       inject = Injector.create({
