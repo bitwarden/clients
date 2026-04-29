@@ -133,7 +133,7 @@ export class MainSshAgentService {
   // V1, delete with PM-30758
   private registerV1IpcHandlers() {
     ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.SET_KEYS,
+      SSH_AGENT_IPC_CHANNELS.REPLACE,
       async (event: any, keys: { name: string; privateKey: string; cipherId: string }[]) => {
         if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
           sshagent.setKeys(this.agentState, keys);
@@ -163,10 +163,10 @@ export class MainSshAgentService {
 
   private registerV2IpcHandlers() {
     ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.SET_KEYS,
+      SSH_AGENT_IPC_CHANNELS.REPLACE,
       async (_, keys: { name: string; privateKey: string; cipherId: string }[]) => {
         if (this.agentStateV2 != null && this.agentStateV2.isRunning()) {
-          this.agentStateV2.setKeys(keys);
+          this.agentStateV2.replace(keys);
         }
       },
     );
@@ -178,12 +178,6 @@ export class MainSshAgentService {
         this.pendingRequests.delete(requestId);
       },
     );
-
-    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.CLEAR_KEYS, async () => {
-      if (this.agentStateV2 != null) {
-        this.agentStateV2.clearKeys();
-      }
-    });
 
     ipcMain.handle(SSH_AGENT_IPC_CHANNELS.STOP, async () => {
       if (this.agentStateV2 != null) {

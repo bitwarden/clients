@@ -165,7 +165,7 @@ pub mod sshagent_v2 {
             let mut agent = ssh_agent::BitwardenSSHAgent::new(keystore, approval_handler);
 
             // TODO after PM-31827 is merged, can use simplified error conversion
-            agent.start_server().map_err(|error| {
+            agent.start().map_err(|error| {
                 error!(%error, "Failed to start the server.");
                 napi::Error::from_reason(error.to_string())
             })?;
@@ -177,7 +177,7 @@ pub mod sshagent_v2 {
 
         #[napi]
         pub fn stop(&mut self) {
-            self.agent.stop_server();
+            self.agent.stop();
         }
 
         #[napi]
@@ -186,7 +186,7 @@ pub mod sshagent_v2 {
         }
 
         #[napi]
-        pub fn set_keys(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
+        pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
             let parsed = new_keys
                 .into_iter()
                 .map(|k| {
@@ -196,13 +196,8 @@ pub mod sshagent_v2 {
                 .collect::<napi::Result<Vec<_>>>()?;
 
             self.agent
-                .set_keys(parsed)
+                .replace(parsed)
                 .map_err(|e| napi::Error::from_reason(e.to_string()))
-        }
-
-        #[napi]
-        pub fn clear_keys(&mut self) {
-            self.agent.clear_keys();
         }
     }
 }

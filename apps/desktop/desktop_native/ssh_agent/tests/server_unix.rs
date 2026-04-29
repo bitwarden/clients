@@ -33,10 +33,10 @@ async fn test_start_creates_socket() {
     setup();
     let mut agent = always_approving_agent();
 
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
     assert!(std::fs::exists(test_socket_path()).unwrap());
-    agent.stop_server();
+    agent.stop();
 }
 
 #[serial]
@@ -44,7 +44,7 @@ async fn test_start_creates_socket() {
 async fn test_client_can_connect() {
     setup();
     let mut agent = always_approving_agent();
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
     // The socket is bound synchronously before start_server() returns,
     // so no sleep is needed — the OS queues the connection until accepted.
@@ -54,7 +54,7 @@ async fn test_client_can_connect() {
         result.is_ok(),
         "client connection to unix socket should succeed"
     );
-    agent.stop_server();
+    agent.stop();
 }
 
 #[serial]
@@ -62,9 +62,9 @@ async fn test_client_can_connect() {
 async fn test_stop_clears_running_state() {
     setup();
     let mut agent = always_approving_agent();
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
-    agent.stop_server();
+    agent.stop();
 
     assert!(!agent.is_running());
 }
@@ -74,7 +74,7 @@ async fn test_stop_clears_running_state() {
 async fn test_socket_has_user_only_permissions() {
     setup();
     let mut agent = always_approving_agent();
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
     let permissions = std::fs::metadata(test_socket_path())
         .unwrap()
@@ -84,7 +84,7 @@ async fn test_socket_has_user_only_permissions() {
     // explicitly) yields 0o140600
     assert_eq!(permissions, 0o140_600);
 
-    agent.stop_server();
+    agent.stop();
 }
 
 #[serial]
@@ -93,13 +93,49 @@ async fn test_server_can_restart() {
     setup();
     let mut agent = always_approving_agent();
 
-    agent.start_server().unwrap();
-    agent.stop_server();
-    agent.start_server().unwrap();
+    agent.start().unwrap();
+    agent.stop();
+    agent.start().unwrap();
 
     assert!(agent.is_running());
     assert!(std::fs::exists(test_socket_path()).unwrap());
-    agent.stop_server();
+    agent.stop();
+}
+
+#[serial]
+#[tokio::test(flavor = "multi_thread")]
+async fn test_stop_clears_keys() {
+    setup();
+    let mut agent = agent_with_keys(vec![test_ed25519_key()]);
+    agent.start().unwrap();
+
+    // Verify a key is visible before stop
+    let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response = read_framed_response(&mut stream).await;
+    assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
+
+    // Stop clears keys; restart to re-open the socket for a new connection
+    agent.stop();
+    agent.start().unwrap();
+
+    // New connection sees an empty keystore
+    let mut stream2 = UnixStream::connect(test_socket_path()).await.unwrap();
+    stream2
+        .write_all(&framed_request_identities())
+        .await
+        .unwrap();
+    let response2 = read_framed_response(&mut stream2).await;
+    assert_eq!(
+        u32::from_be_bytes(response2[1..5].try_into().unwrap()),
+        0,
+        "stop() must clear the keystore"
+    );
+
+    agent.stop();
 }
 
 #[serial]
@@ -107,7 +143,7 @@ async fn test_server_can_restart() {
 async fn test_list_keys_returns_empty_when_no_keys_set() {
     setup();
     let mut agent = always_approving_agent();
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
     let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
     stream
@@ -123,15 +159,15 @@ async fn test_list_keys_returns_empty_when_no_keys_set() {
         "expected zero keys"
     );
 
-    agent.stop_server();
+    agent.stop();
 }
 
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
-async fn test_list_keys_returns_set_keys() {
+async fn test_list_keys_returns_keys_after_replace() {
     setup();
     let mut agent = agent_with_keys(vec![test_ed25519_key()]);
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
     let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
     stream
@@ -145,15 +181,15 @@ async fn test_list_keys_returns_set_keys() {
     assert_eq!(count, 1, "expected one key");
     assert_eq!(parse_first_key_name(&response), "Test Key");
 
-    agent.stop_server();
+    agent.stop();
 }
 
 #[serial]
 #[tokio::test(flavor = "multi_thread")]
-async fn test_list_keys_updates_after_set_keys() {
+async fn test_list_keys_updates_after_replace() {
     setup();
     let mut agent = always_approving_agent();
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
     // Initially no keys
     let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
@@ -165,7 +201,7 @@ async fn test_list_keys_updates_after_set_keys() {
     assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 0);
 
     // Add a key
-    agent.set_keys(vec![test_ed25519_key()]).unwrap();
+    agent.replace(vec![test_ed25519_key()]).unwrap();
 
     // New connection sees the key
     let mut stream2 = UnixStream::connect(test_socket_path()).await.unwrap();
@@ -177,7 +213,7 @@ async fn test_list_keys_updates_after_set_keys() {
     assert_eq!(u32::from_be_bytes(response2[1..5].try_into().unwrap()), 1);
     assert_eq!(parse_first_key_name(&response2), "Test Key");
 
-    agent.stop_server();
+    agent.stop();
 }
 
 #[serial]
@@ -185,7 +221,7 @@ async fn test_list_keys_updates_after_set_keys() {
 async fn test_list_keys_multiple_connections_see_same_keys() {
     setup();
     let mut agent = agent_with_keys(vec![test_ed25519_key()]);
-    agent.start_server().unwrap();
+    agent.start().unwrap();
 
     for _ in 0..3 {
         let mut stream = UnixStream::connect(test_socket_path()).await.unwrap();
@@ -197,5 +233,5 @@ async fn test_list_keys_multiple_connections_see_same_keys() {
         assert_eq!(u32::from_be_bytes(response[1..5].try_into().unwrap()), 1);
     }
 
-    agent.stop_server();
+    agent.stop();
 }

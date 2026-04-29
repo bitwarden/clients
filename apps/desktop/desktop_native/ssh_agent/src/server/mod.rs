@@ -19,7 +19,7 @@ use connection::{Connection, ConnectionHandler};
 pub(crate) use listener::Listener;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
 use crate::KeyStore;
 
@@ -99,7 +99,7 @@ where
 
     pub(crate) fn stop(&mut self) {
         if let Some(cancel_token) = self.cancellation_token.take() {
-            info!("Stopping server");
+            debug!("Stopping server");
 
             // Signal cancellation to all tasks
             cancel_token.cancel();
@@ -111,7 +111,7 @@ where
 
             info!("Server stopped");
         } else {
-            debug!("Cancellation token is None, server already stopped.");
+            warn!("Cancellation token is None, server already stopped.");
         }
     }
 

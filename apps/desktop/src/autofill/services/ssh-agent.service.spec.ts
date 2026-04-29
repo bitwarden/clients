@@ -32,8 +32,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
 
   let mockIsLoaded: jest.Mock;
   let mockInit: jest.Mock;
-  let mockSetKeys: jest.Mock;
-  let mockClearKeys: jest.Mock;
+  let mockReplace: jest.Mock;
   let mockStop: jest.Mock;
 
   function authSubjectFor(userId: string): BehaviorSubject<AuthenticationStatus> {
@@ -54,8 +53,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
 
     mockIsLoaded = jest.fn().mockResolvedValue(false);
     mockInit = jest.fn().mockResolvedValue(undefined);
-    mockSetKeys = jest.fn().mockResolvedValue(undefined);
-    mockClearKeys = jest.fn().mockResolvedValue(undefined);
+    mockReplace = jest.fn().mockResolvedValue(undefined);
     mockStop = jest.fn().mockResolvedValue(undefined);
 
     (global as any).ipc = {
@@ -63,8 +61,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
         sshAgent: {
           isLoaded: mockIsLoaded,
           init: mockInit,
-          setKeys: mockSetKeys,
-          clearKeys: mockClearKeys,
+          replace: mockReplace,
           stop: mockStop,
           signRequestResponse: jest.fn().mockResolvedValue(undefined),
           lock: jest.fn().mockResolvedValue(undefined),
@@ -124,26 +121,23 @@ describe("SshAgentService (v2 reactive key push)", () => {
     await flush();
 
     expect(mockInit).toHaveBeenCalledWith(true);
-    expect(mockClearKeys).toHaveBeenCalled();
-    expect(mockSetKeys).toHaveBeenCalledWith([
+    expect(mockReplace).toHaveBeenCalledWith([
       { name: "My Key", privateKey: "pem", cipherId: "c1" },
     ]);
   });
 
-  it("when vault re-locks, retains keys in the agent (no clearKeys or stop)", async () => {
+  it("when vault re-locks, retains keys in the agent (no stop)", async () => {
     enabledSubject.next(true);
     accountSubject.next({ id: "user-1" as UserId });
     cipherViewsSubject.next([]);
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    const clearKeysCalls = mockClearKeys.mock.calls.length;
     const stopCalls = mockStop.mock.calls.length;
 
     authSubjectFor("user-1").next(AuthenticationStatus.Locked);
     await flush();
 
-    expect(mockClearKeys.mock.calls.length).toBe(clearKeysCalls);
     expect(mockStop.mock.calls.length).toBe(stopCalls);
   });
 
@@ -154,14 +148,12 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
     mockStop.mockClear();
     mockIsLoaded.mockResolvedValue(true);
 
     enabledSubject.next(false);
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
     expect(mockStop).toHaveBeenCalled();
   });
 
@@ -171,14 +163,14 @@ describe("SshAgentService (v2 reactive key push)", () => {
     await flush();
 
     mockInit.mockClear();
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     enabledSubject.next(true);
     cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
     await flush();
 
     expect(mockInit).toHaveBeenCalledWith(true);
-    expect(mockSetKeys).toHaveBeenCalled();
+    expect(mockReplace).toHaveBeenCalled();
   });
 
   it("when all accounts log out, clears keys and stops the server", async () => {
@@ -188,14 +180,12 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
     mockStop.mockClear();
     mockIsLoaded.mockResolvedValue(true);
 
     accountSubject.next(null);
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
     expect(mockStop).toHaveBeenCalled();
   });
 
@@ -206,16 +196,14 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     cipherViewsSubject.next([makeSshCipher("c2", "User2 Key", "pem2")]);
     authSubjectFor("user-2").next(AuthenticationStatus.Unlocked);
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
-    expect(mockSetKeys).toHaveBeenCalledWith([
+    expect(mockReplace).toHaveBeenCalledWith([
       { name: "User2 Key", privateKey: "pem2", cipherId: "c2" },
     ]);
   });
@@ -227,13 +215,13 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    const clearKeysBefore = mockClearKeys.mock.calls.length;
+    const stopBefore = mockStop.mock.calls.length;
 
     // user-2 is locked by default in authStatusPerUser
     accountSubject.next({ id: "user-2" as UserId });
     await flush();
 
-    expect(mockClearKeys.mock.calls.length).toBe(clearKeysBefore);
+    expect(mockStop.mock.calls.length).toBe(stopBefore);
   });
 
   it("when an SSH key cipher is added, updates the agent keystore", async () => {
@@ -243,8 +231,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     cipherViewsSubject.next([
       makeSshCipher("c1", "Key A", "pem1"),
@@ -252,8 +239,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
     ]);
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
-    expect(mockSetKeys).toHaveBeenCalledWith([
+    expect(mockReplace).toHaveBeenCalledWith([
       { name: "Key A", privateKey: "pem1", cipherId: "c1" },
       { name: "Key B", privateKey: "pem2", cipherId: "c2" },
     ]);
@@ -269,14 +255,12 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     cipherViewsSubject.next([makeSshCipher("c1", "Key A", "pem1")]);
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
-    expect(mockSetKeys).toHaveBeenCalledWith([
+    expect(mockReplace).toHaveBeenCalledWith([
       { name: "Key A", privateKey: "pem1", cipherId: "c1" },
     ]);
   });
@@ -291,8 +275,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     cipherViewsSubject.next([
       makeSshCipher("c1", "Key A", "pem1"),
@@ -300,8 +283,7 @@ describe("SshAgentService (v2 reactive key push)", () => {
     ]);
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
-    expect(mockSetKeys).toHaveBeenCalledWith([
+    expect(mockReplace).toHaveBeenCalledWith([
       { name: "Key A", privateKey: "pem1", cipherId: "c1" },
     ]);
   });
@@ -313,14 +295,12 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     cipherViewsSubject.next([{ ...makeSshCipher("c1", "Key A", "pem1"), isArchived: true }]);
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
-    expect(mockSetKeys).toHaveBeenCalledWith([]);
+    expect(mockReplace).toHaveBeenCalledWith([]);
   });
 
   it("when an SSH key cipher is renamed, updates the agent keystore", async () => {
@@ -330,14 +310,12 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockClearKeys.mockClear();
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     cipherViewsSubject.next([makeSshCipher("c1", "New Name", "pem1")]);
     await flush();
 
-    expect(mockClearKeys).toHaveBeenCalled();
-    expect(mockSetKeys).toHaveBeenCalledWith([
+    expect(mockReplace).toHaveBeenCalledWith([
       { name: "New Name", privateKey: "pem1", cipherId: "c1" },
     ]);
   });
@@ -349,12 +327,26 @@ describe("SshAgentService (v2 reactive key push)", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    mockSetKeys.mockClear();
+    mockReplace.mockClear();
 
     cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
     await flush();
 
-    expect(mockSetKeys).not.toHaveBeenCalled();
+    expect(mockReplace).not.toHaveBeenCalled();
+  });
+
+  it("when service is destroyed, stops the agent", async () => {
+    mockIsLoaded.mockResolvedValue(true);
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockStop.mockClear();
+    service.ngOnDestroy();
+    await flush();
+
+    expect(mockStop).toHaveBeenCalled();
   });
 
   it("when server is already loaded, does not call init again on unlock", async () => {

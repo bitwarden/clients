@@ -40,15 +40,16 @@ where
     }
 
     /// Starts the ssh agent server
-    pub fn start_server(&mut self) -> Result<()> {
+    pub fn start(&mut self) -> Result<()> {
         debug!("Starting the server.");
         self.server.start_with_default_listeners()
     }
 
-    /// Stops the ssh agent server
-    pub fn stop_server(&mut self) {
-        debug!("Stopping the server.");
+    /// Stops the server and clears the keystore.
+    pub fn stop(&mut self) {
+        debug!("Stopping server and clearing keys.");
         self.server.stop();
+        self.keystore.clear();
     }
 
     /// # Returns
@@ -59,26 +60,11 @@ where
         self.server.is_running()
     }
 
-    /// Sets the provided keys into the keystore.
-    ///
-    /// Does not clear existing keys — the caller is responsible for calling
-    /// [`clear_keys`] before a full replacement.
-    pub fn set_keys(&self, keys: Vec<K::KeyData>) -> Result<()> {
-        debug!("Received new key data.");
-
-        for key in keys {
-            self.keystore.insert(key)?;
-        }
-
-        info!("New key data set.");
-
+    /// Atomically replaces the keystore contents with the provided keys.
+    pub fn replace(&self, keys: Vec<K::KeyData>) -> Result<()> {
+        debug!("Replacing key data.");
+        self.keystore.replace(keys)?;
+        info!("Key data replaced.");
         Ok(())
-    }
-
-    /// Clears all keys from keystore
-    pub fn clear_keys(&mut self) {
-        debug!("Clearing all keys.");
-        self.keystore.clear();
-        debug!("Cleared all keys.");
     }
 }

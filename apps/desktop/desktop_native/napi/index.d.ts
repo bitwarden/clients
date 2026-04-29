@@ -291,8 +291,7 @@ export declare namespace sshagent_v2 {
     static serve(signCallback: (data: SignRequestData) => Promise<boolean>): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
-    setKeys(newKeys: Array<SshKeyData>): void
-    clearKeys(): void
+    replace(newKeys: Array<SshKeyData>): void
   }
   export type SSHAgentState = SshAgentState
   /** SSH public key data */

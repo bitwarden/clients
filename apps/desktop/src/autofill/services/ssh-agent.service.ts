@@ -171,7 +171,7 @@ export class SshAgentService implements OnDestroy {
 
           // V1, delete with PM-30758: isListRequest is not present in v2.
           if (isListRequest) {
-            await ipc.autofill.sshAgent.setKeys(this.toAgentKeys(ciphers));
+            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
             await ipc.autofill.sshAgent.signRequestResponse(requestId, true);
             return;
           }
@@ -226,18 +226,30 @@ export class SshAgentService implements OnDestroy {
       // Triggered by an unexpected error propagating from the account service observable
       error: (e: unknown) => {
         this.logService.error("Error in active account observable", e);
-        ipc.autofill.sshAgent
-          .clearKeys()
-          .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        if (useV2) {
+          this.stopAgent().catch((e: unknown) =>
+            this.logService.error("Failed to clear and stop SSH agent", e),
+          );
+        } else {
+          ipc.autofill.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        }
       },
       // Triggered when the service is torn down: ngOnDestroy emits on destroy$, which
       // completes this observable via takeUntil. Happens on app quit or service teardown.
       complete: () => {
         this.logService.info("Active account observable completed, clearing SSH keys");
         this.authorizedSshKeys = {};
-        ipc.autofill.sshAgent
-          .clearKeys()
-          .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        if (useV2) {
+          this.stopAgent().catch((e: unknown) =>
+            this.logService.error("Failed to clear and stop SSH agent", e),
+          );
+        } else {
+          ipc.autofill.sshAgent
+            .clearKeys()
+            .catch((e) => this.logService.error("Failed to clear SSH keys", e));
+        }
       },
     });
 
@@ -268,7 +280,7 @@ export class SshAgentService implements OnDestroy {
               return;
             }
 
-            await ipc.autofill.sshAgent.setKeys(this.toAgentKeys(ciphers));
+            await ipc.autofill.sshAgent.replace(this.toAgentKeys(ciphers));
           }),
           takeUntil(this.destroy$),
         )
@@ -285,7 +297,7 @@ export class SshAgentService implements OnDestroy {
           switchMap((account) => {
             // All accounts logged out: clear keys and stop the server if it was running.
             if (account == null) {
-              return from(this.clearAndStopAgent());
+              return from(this.stopAgent());
             }
             // React to vault status and feature toggle changes for the active account.
             return combineLatest([
@@ -296,7 +308,7 @@ export class SshAgentService implements OnDestroy {
               switchMap(([status, enabled]) => {
                 // Feature disabled: stop the server if running, then idle.
                 if (!enabled) {
-                  return from(this.clearAndStopAgent());
+                  return from(this.stopAgent());
                 }
                 // Vault locked or logged out: leave existing keys in place, wait for unlock.
                 if (status !== AuthenticationStatus.Unlocked) {
@@ -328,10 +340,8 @@ export class SshAgentService implements OnDestroy {
                       return p?.privateKey === k.privateKey && p?.name === k.name;
                     });
                   }),
-                  // Atomically replace the agent's keystore with the current set.
                   concatMap(async (keys) => {
-                    await ipc.autofill.sshAgent.clearKeys();
-                    await ipc.autofill.sshAgent.setKeys(keys);
+                    await ipc.autofill.sshAgent.replace(keys);
                   }),
                 );
               }),
@@ -348,10 +358,9 @@ export class SshAgentService implements OnDestroy {
     this.destroy$.complete();
   }
 
-  private async clearAndStopAgent(): Promise<void> {
+  private async stopAgent(): Promise<void> {
     const loaded = await ipc.autofill.sshAgent.isLoaded();
     if (loaded) {
-      await ipc.autofill.sshAgent.clearKeys();
       await ipc.autofill.sshAgent.stop();
     }
   }

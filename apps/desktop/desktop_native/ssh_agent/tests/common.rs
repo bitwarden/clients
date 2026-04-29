@@ -31,7 +31,7 @@ pub fn agent_with_keys(
     keys: Vec<SSHKeyData>,
 ) -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester> {
     let agent = always_approving_agent();
-    agent.set_keys(keys).expect("failed to set test keys");
+    agent.replace(keys).expect("failed to replace test keys");
     agent
 }
 
