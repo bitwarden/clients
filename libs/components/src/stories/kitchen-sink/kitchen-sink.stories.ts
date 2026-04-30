@@ -2,7 +2,14 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { userEvent, getAllByRole, getByRole, fireEvent, getAllByLabelText } from "storybook/test";
+import {
+  userEvent,
+  getAllByRole,
+  getByRole,
+  fireEvent,
+  getAllByLabelText,
+  waitFor,
+} from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -103,15 +110,17 @@ type Story = StoryObj<KitchenSinkAppComponent>;
 
 type KitchenSinkRoute = "/bitwarden" | "/virtual-scroll";
 
-async function navigateTo(path: KitchenSinkRoute) {
+async function navigateAndWaitFor<T>(path: KitchenSinkRoute, ready: () => T): Promise<T> {
   window.location.hash = path;
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  return waitFor(ready);
 }
 
-/** Waits for the ResizeObserver + Angular CD to settle, then opens the side nav if it's closed. */
+/** Opens the side nav if it's closed, waiting for it to appear first. */
 async function openSideNav(canvas: HTMLElement) {
-  await new Promise((resolve) => setTimeout(resolve, 200));
-  const toggleButton = getByRole(canvas, "button", { name: "Toggle side navigation" });
+  const toggleButton = await waitFor(
+    () => getByRole(canvas, "button", { name: "Toggle side navigation" }),
+    { timeout: 5000 },
+  );
   if (toggleButton.getAttribute("aria-expanded") === "false") {
     await userEvent.click(toggleButton);
   }
@@ -128,8 +137,7 @@ export const Default: Story = {
 export const MenuOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
-    const table = getByRole(canvas, "table");
+    const table = await navigateAndWaitFor("/bitwarden", () => getByRole(canvas, "table"));
     const menuButton = getAllByRole(table, "button")[0];
     await userEvent.click(menuButton);
   },
@@ -141,10 +149,9 @@ export const MenuOpen: Story = {
 export const DialogOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
-    const dialogButton = getByRole(canvas, "button", {
-      name: "Open Dialog",
-    });
+    const dialogButton = await navigateAndWaitFor("/bitwarden", () =>
+      getByRole(canvas, "button", { name: "Open Dialog" }),
+    );
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(dialogButton);
@@ -154,10 +161,9 @@ export const DialogOpen: Story = {
 export const DrawerOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
-    const drawerButton = getByRole(canvas, "button", {
-      name: "Open Drawer",
-    });
+    const drawerButton = await navigateAndWaitFor("/bitwarden", () =>
+      getByRole(canvas, "button", { name: "Open Drawer" }),
+    );
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(drawerButton);
@@ -167,10 +173,9 @@ export const DrawerOpen: Story = {
 export const PopoverOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
-    const popoverLink = getByRole(canvas, "button", {
-      name: "Popover trigger link",
-    });
+    const popoverLink = await navigateAndWaitFor("/bitwarden", () =>
+      getByRole(canvas, "button", { name: "Popover trigger link" }),
+    );
 
     await userEvent.click(popoverLink);
   },
@@ -179,10 +184,9 @@ export const PopoverOpen: Story = {
 export const SimpleDialogOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
-    const submitButton = getByRole(canvas, "button", {
-      name: "Submit",
-    });
+    const submitButton = await navigateAndWaitFor("/bitwarden", () =>
+      getByRole(canvas, "button", { name: "Submit" }),
+    );
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(submitButton);
@@ -192,8 +196,9 @@ export const SimpleDialogOpen: Story = {
 export const EmptyTab: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
-    const emptyTab = getByRole(canvas, "link", { name: "Empty" });
+    const emptyTab = await navigateAndWaitFor("/bitwarden", () =>
+      getByRole(canvas, "link", { name: "Empty" }),
+    );
     await userEvent.click(emptyTab);
   },
 };
@@ -201,12 +206,10 @@ export const EmptyTab: Story = {
 export const VirtualScrollBlockingDialog: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/virtual-scroll");
-
-    const htmlEl = canvas.ownerDocument.documentElement;
-    htmlEl.scrollTop = 2000;
-
-    const dialogButton = getAllByLabelText(canvas, "Options")[0];
+    const dialogButton = await navigateAndWaitFor("/virtual-scroll", () => {
+      canvas.ownerDocument.documentElement.scrollTop = 2000;
+      return getAllByLabelText(canvas, "Options")[0];
+    });
 
     await userEvent.click(dialogButton);
   },
@@ -216,7 +219,9 @@ export const SideNavOpen: Story = {
   render: Default.render,
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
+    await navigateAndWaitFor("/bitwarden", () =>
+      getByRole(canvas, "button", { name: "Toggle side navigation" }),
+    );
     await openSideNav(canvas);
   },
   parameters: {
@@ -229,9 +234,11 @@ export const DrawerOpenBeforeSideNavOpen: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
-    await fireEvent.click(getByRole(canvas, "button", { name: "Open Drawer" }));
-
-    await navigateTo("/bitwarden");
+    await fireEvent.click(
+      await navigateAndWaitFor("/bitwarden", () =>
+        getByRole(canvas, "button", { name: "Open Drawer" }),
+      ),
+    );
     await openSideNav(canvas);
   },
   parameters: {
@@ -250,11 +257,9 @@ export const ResponsiveSidebar: Story = {
 export const GuidedTour: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await navigateTo("/bitwarden");
-
-    const tourButton = getByRole(canvas, "button", {
-      name: "Start Tour",
-    });
+    const tourButton = await navigateAndWaitFor("/bitwarden", () =>
+      getByRole(canvas, "button", { name: "Start Tour" }),
+    );
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(tourButton);
