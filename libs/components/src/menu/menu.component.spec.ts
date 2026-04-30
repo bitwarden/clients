@@ -6,6 +6,22 @@ import { MenuTriggerForDirective } from "./menu-trigger-for.directive";
 
 import { MenuModule } from "./index";
 
+// eslint-disable-next-line no-console
+const originalError = console.error;
+
+// eslint-disable-next-line no-console
+console.error = (...args: unknown[]) => {
+  if (
+    typeof args[0] === "object" &&
+    (args[0] as Error).message.includes("Could not parse CSS stylesheet")
+  ) {
+    // Opening the overlay container in tests causes stylesheets to be parsed,
+    // which can lead to JSDOM unable to parse CSS errors. These can be ignored safely.
+    return;
+  }
+  originalError(...args);
+};
+
 describe("Menu", () => {
   let fixture: ComponentFixture<TestAppComponent>;
   const getMenuTriggerDirective = () => {

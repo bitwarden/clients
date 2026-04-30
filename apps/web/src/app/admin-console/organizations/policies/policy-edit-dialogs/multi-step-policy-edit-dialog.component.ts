@@ -1,3 +1,4 @@
+import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -17,6 +18,7 @@ import { map, of, startWith, switchMap } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -85,6 +87,9 @@ export class MultiStepPolicyEditDialogComponent
     dialogRef: DialogRef<PolicyEditDialogResult>,
     toastService: ToastService,
     keyService: KeyService,
+    dialogService: DialogService,
+    cdkDialogRef: CdkDialogRef,
+    configService: ConfigService,
   ) {
     super(
       data,
@@ -96,6 +101,9 @@ export class MultiStepPolicyEditDialogComponent
       dialogRef,
       toastService,
       keyService,
+      dialogService,
+      cdkDialogRef,
+      configService,
     );
   }
 
@@ -120,6 +128,8 @@ export class MultiStepPolicyEditDialogComponent
     // Read step configuration from child component.
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
+
+    await this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {
