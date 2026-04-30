@@ -10,4 +10,7 @@ export abstract class OrganizationInviteLinkApiService {
 
   /** Retrieve the current invite link for the given organization */
   abstract get(organizationId: string): Promise<OrganizationInviteLinkResponseModel>;
+
+  /** Delete (revoke) the invite link for the given organization */
+  abstract delete(organizationId: string): Promise<void>;
 }
