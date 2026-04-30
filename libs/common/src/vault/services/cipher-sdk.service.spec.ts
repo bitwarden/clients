@@ -885,7 +885,10 @@ describe("DefaultCipherSdkService", () => {
       expect(result?.id).toBe(testCipherId);
     });
 
-    it("should delete attachment using SDK admin API and resolve undefined when asAdmin is true", async () => {
+    it("should delete attachment using SDK admin API and return mapped cipher when asAdmin is true", async () => {
+      const mockSdkCipher = createMockSdkCipher(testCipherId);
+      mockAdminSdk.delete_attachment.mockResolvedValue(mockSdkCipher);
+
       const result = await cipherSdkService.deleteAttachmentWithServer(
         testCipherId,
         testAttachmentId,
@@ -898,7 +901,8 @@ describe("DefaultCipherSdkService", () => {
       expect(mockCiphersSdk.admin).toHaveBeenCalled();
       expect(mockAdminSdk.delete_attachment).toHaveBeenCalledWith(testCipherId, testAttachmentId);
       expect(mockCiphersSdk.delete_attachment).not.toHaveBeenCalled();
-      expect(result).toBeUndefined();
+      expect(result).toBeInstanceOf(Cipher);
+      expect(result?.id).toBe(testCipherId);
     });
 
     it("should throw error and log when SDK throws an error on user path", async () => {

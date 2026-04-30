@@ -157,14 +157,12 @@ export abstract class CipherSdkService {
 
   /**
    * Deletes an attachment from a cipher on the server using the SDK.
-   * The user path returns the updated cipher; the admin path resolves to undefined
-   * (SDK admin endpoint is server-only and does not return a cipher).
    *
    * @param cipherId The cipher that owns the attachment
    * @param attachmentId The attachment to delete
    * @param userId The user ID to use for SDK client
    * @param asAdmin Whether this is an organization admin operation
-   * @returns A promise that resolves to the updated cipher (user path) or undefined (admin path)
+   * @returns A promise that resolves to the updated cipher
    */
   abstract deleteAttachmentWithServer(
     cipherId: CipherId,

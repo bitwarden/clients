@@ -354,19 +354,13 @@ export class DefaultCipherSdkService implements CipherSdkService {
         switchMap(async (sdk) => {
           using ref = sdk.take();
 
-          if (asAdmin) {
-            await ref.value
-              .vault()
-              .ciphers()
-              .admin()
-              .delete_attachment(asUuid(cipherId), attachmentId);
-            return undefined;
-          }
-
-          const result = await ref.value
-            .vault()
-            .ciphers()
-            .delete_attachment(asUuid(cipherId), attachmentId);
+          const result = asAdmin
+            ? await ref.value
+                .vault()
+                .ciphers()
+                .admin()
+                .delete_attachment(asUuid(cipherId), attachmentId)
+            : await ref.value.vault().ciphers().delete_attachment(asUuid(cipherId), attachmentId);
 
           return Cipher.fromSdkCipher(result);
         }),

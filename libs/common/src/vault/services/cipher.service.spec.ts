@@ -1337,9 +1337,12 @@ describe("Cipher Service", () => {
     it("should clearCache and use SDK admin path when feature flag is enabled and admin is true", async () => {
       sdkAttachmentOpsFeatureFlag$.next(true);
 
+      const updatedCipher = new Cipher(cipherData);
+      updatedCipher.revisionDate = new Date("2026-04-23T12:00:00.000Z");
+
       const sdkServiceSpy = jest
         .spyOn(cipherSdkService, "deleteAttachmentWithServer")
-        .mockResolvedValue(undefined);
+        .mockResolvedValue(updatedCipher);
       const apiSpy = jest.spyOn(apiService, "deleteCipherAttachmentAdmin");
       const deleteAttachmentSpy = jest.spyOn(cipherService, "deleteAttachment");
       const clearCacheSpy = jest.spyOn(cipherService as any, "clearCache");
@@ -1355,7 +1358,7 @@ describe("Cipher Service", () => {
       expect(sdkServiceSpy).toHaveBeenCalledWith(testCipherId, testAttachmentId, userId, true);
       expect(apiSpy).not.toHaveBeenCalled();
       expect(deleteAttachmentSpy).not.toHaveBeenCalled();
-      expect(result).toBeUndefined();
+      expect(result).toEqual(updatedCipher.toCipherData());
     });
   });
 
