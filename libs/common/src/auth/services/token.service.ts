@@ -1157,6 +1157,17 @@ export class TokenService implements TokenServiceAbstraction {
     return await firstValueFrom(this.singleUserStateProvider.get(userId, storageLocation).state$);
   }
 
+  /**
+   * Determines where tokens should be stored based on vault timeout settings.
+   *
+   * | Vault Timeout Action | Vault Timeout   | Token Storage        |
+   * |----------------------|-----------------|----------------------|
+   * | Lock                 | Any             | Disk / Secure Storage|
+   * | Log Out              | Never           | Disk / Secure Storage|
+   * | Log Out              | Any other value | Memory only          |
+   *
+   * Memory-only tokens are cleared when the app closes.
+   */
   private async determineStorageLocation(
     vaultTimeoutAction: VaultTimeoutAction,
     vaultTimeout: VaultTimeout,
