@@ -5,7 +5,7 @@
     xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
     xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
     xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
-    IgnorableNamespaces="uap desktop rescap com">
+    IgnorableNamespaces="uap desktop rescap">
     <!-- use single quotes to avoid double quotes escaping in the publisher value  -->
     <Identity Name="${identityName}"
         ProcessorArchitecture="${arch}"
@@ -82,9 +82,9 @@
         <Resource Language="zh-tw" />
     </Resources>
     <Dependencies>
-        <!-- MinVersion 10.0.14316.0 = Windows 10 2016 Anniversary Update (April 2016) -->
+        <!-- MinVersion 10.0.14393.0 = Windows 10 Anniversary Update (1607), required for com:Extension -->
         <TargetDeviceFamily Name="Windows.Desktop"
-          MinVersion="10.0.14316.0" MaxVersionTested="10.0.14316.0" />
+          MinVersion="10.0.14393.0" MaxVersionTested="10.0.22000.0" />
     </Dependencies>
     <Capabilities>
         <rescap:Capability Name="runFullTrust" />
