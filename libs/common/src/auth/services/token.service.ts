@@ -958,6 +958,15 @@ export class TokenService implements TokenServiceAbstraction {
     ]);
   }
 
+  async cleanupTokenStorage(userIds: UserId[]): Promise<void> {
+    for (const userId of userIds) {
+      const accessToken = await this.getAccessToken(userId);
+      if (accessToken == null) {
+        await this.clearTokens(userId);
+      }
+    }
+  }
+
   // jwthelper methods
   // ref https://github.com/auth0/angular-jwt/blob/master/src/angularJwt/services/jwt.js
 
