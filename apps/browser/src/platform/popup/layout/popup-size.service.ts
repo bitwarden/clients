@@ -91,7 +91,38 @@ export class PopupSizeService {
    * To keep the popup size from flickering on bootstrap, we store the width in `localStorage` so we can quickly & synchronously reference it.
    **/
   static initBodyWidthFromLocalStorage() {
-    const storedValue = localStorage.getItem(PopupSizeService.LocalStorageKey);
-    void this.setStyle(storedValue as any);
+    let storedValue = localStorage.getItem(PopupSizeService.LocalStorageKey);
+
+    // Migrate old width option keys that no longer exist
+    const migratedValue = PopupSizeService.migrateOldWidthOption(storedValue);
+    if (migratedValue !== storedValue && migratedValue != null) {
+      storedValue = migratedValue;
+      localStorage.setItem(PopupSizeService.LocalStorageKey, storedValue);
+    }
+
+    void this.setStyle(PopupSizeService.toPopupWidthOption(migratedValue));
+  }
+
+  /**
+   * Maps old popup width option keys to their new equivalents.
+   * Old "wide" (480px) is now "default", and old "extraWide" (600px) is now "wide".
+   */
+  private static migrateOldWidthOption(value: string | null): string | null {
+    if (value === "extraWide") {
+      return "wide";
+    }
+    return value;
+  }
+
+  private static isPopupWidthOption(value: string | null): value is PopupWidthOption {
+    return value != null && value in PopupWidthOptions;
+  }
+
+  private static toPopupWidthOption(value: string | null): PopupWidthOption {
+    const migrated = PopupSizeService.migrateOldWidthOption(value);
+    if (PopupSizeService.isPopupWidthOption(migrated)) {
+      return migrated;
+    }
+    return "default";
   }
 }

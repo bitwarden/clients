@@ -11,7 +11,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -89,8 +88,6 @@ export class ItemMoreOptionsComponent {
   readonly showViewOption = input(false, { transform: booleanAttribute });
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
-
-  protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
 
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
@@ -202,26 +199,6 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
-    const uris = cipher.login?.uris ?? [];
-    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-
-    const showExactMatchDialog =
-      uris.length === 0
-        ? uriMatchStrategy === UriMatchStrategy.Exact
-        : // all saved URIs are exact match
-          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
-
-    if (showExactMatchDialog) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
-      return;
-    }
-
     //this tab checking should be moved into the vault-popup-autofill service in case the current tab is changed
     //ticket: https://bitwarden.atlassian.net/browse/PM-32467
     const currentTab = await firstValueFrom(this.vaultPopupAutofillService.currentAutofillTab$);
@@ -232,6 +209,11 @@ export class ItemMoreOptionsComponent {
         content: { key: "errorGettingAutoFillData" },
         type: "danger",
       });
+      return;
+    }
+
+    if (await this._domainMatched(currentTab.url)) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
       return;
     }
 
@@ -255,6 +237,17 @@ export class ItemMoreOptionsComponent {
         await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
         return;
     }
+  }
+
+  private async _domainMatched(url: string): Promise<boolean> {
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(url),
+    );
+    const defaultMatch = await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
+
+    return CipherViewLikeUtils.matchesUri(this.cipher, url, equivalentDomains, defaultMatch);
   }
 
   async onView() {

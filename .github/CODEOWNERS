@@ -10,9 +10,6 @@
 
 ## Desktop native module ##
 apps/desktop/desktop_native @bitwarden/team-platform-dev
-apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/core/src/autofill @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/autofill_provider @bitwarden/team-autofill-desktop-dev
 apps/desktop/desktop_native/core/src/secure_memory @bitwarden/team-key-management-dev
 
 ## No ownership for Cargo.lock and Cargo.toml to allow dependency updates
@@ -83,6 +80,7 @@ libs/angular/src/admin-console @bitwarden/team-admin-console-dev
 libs/common/src/admin-console @bitwarden/team-admin-console-dev
 libs/admin-console @bitwarden/team-admin-console-dev
 libs/auto-confirm @bitwarden/team-admin-console-dev
+libs/organization-invite-link @bitwarden/team-admin-console-dev
 
 ## Billing team files ##
 apps/browser/src/billing @bitwarden/team-billing-dev
@@ -113,6 +111,7 @@ libs/common/src/state-migrations @bitwarden/team-platform-dev
 libs/platform @bitwarden/team-platform-dev
 libs/storage-core @bitwarden/team-platform-dev
 libs/logging @bitwarden/team-platform-dev
+libs/logging-angular @bitwarden/team-platform-dev
 libs/storage-test-utils @bitwarden/team-platform-dev
 libs/messaging @bitwarden/team-platform-dev
 libs/serialization @bitwarden/team-platform-dev
@@ -146,6 +145,7 @@ apps/web/src/translation-constants.ts @bitwarden/team-platform-dev
 .github/workflows/locales-lint.yml @bitwarden/team-platform-dev
 .github/workflows/repository-management.yml @bitwarden/team-platform-dev
 .github/workflows/scan.yml @bitwarden/team-platform-dev
+.github/workflows/sdk-update.yml @bitwarden/team-platform-dev
 .github/workflows/stale-bot.yml @bitwarden/team-platform-dev
 .github/workflows/test.yml @bitwarden/team-platform-dev
 .github/workflows/version-auto-bump.yml @bitwarden/team-platform-dev
@@ -160,25 +160,35 @@ nx.json @bitwarden/team-platform-dev
 
 ## Autofill team files ##
 apps/browser/src/autofill @bitwarden/team-autofill-dev
-apps/desktop/src/autofill @bitwarden/team-autofill-desktop-dev
 libs/common/src/autofill @bitwarden/team-autofill-dev
-apps/desktop/macos/autofill-extension @bitwarden/team-autofill-desktop-dev
 .github/workflows/test-browser-interactions.yml @bitwarden/team-autofill-dev
-# Autofill desktop files
-apps/desktop/src/app/components/fido2placeholder.component.ts @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/autotype @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
-apps/desktop/desktop_native/ssh_agent @bitwarden/team-autofill-desktop-dev @bitwarden/wg-ssh-keys
-apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-autofill-desktop-dev
-apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-autofill-desktop-dev
+
+## Desktop Native team files ##
+apps/desktop/src/autofill @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/autotype @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/core/src/ssh_agent @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/ssh_agent @bitwarden/team-desktop-native-dev @bitwarden/wg-ssh-keys
+apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-desktop-native-dev
+
+## Desktop Native + Skunkworks co-owned files 
+apps/desktop/desktop_native/autofill_provider @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/desktop_native/core/src/autofill @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/desktop_native/objc/src/native/autofill @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/desktop_native/win_webauthn @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/macos/autofill-extension @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/modal/credentials @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-autofill* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-fido2* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+
 # DuckDuckGo integration
-apps/desktop/native-messaging-test-runner @bitwarden/team-autofill-desktop-dev
-apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
-apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-autofill-desktop-dev
-.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-autofill-desktop-dev
+apps/desktop/native-messaging-test-runner @bitwarden/team-desktop-native-dev
+apps/desktop/src/services/duckduckgo-message-handler.service.ts @bitwarden/team-desktop-native-dev
+apps/desktop/src/services/encrypted-message-handler.service.ts @bitwarden/team-desktop-native-dev
+.github/workflows/alert-ddg-files-modified.yml @bitwarden/team-desktop-native-dev
 
 ## UI Foundation ##
 .github/workflows/chromatic.yml @bitwarden/team-ui-foundation

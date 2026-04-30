@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -95,18 +95,18 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           toolchain: stable
           components: rustfmt, clippy
 
       - name: Install Rust nightly
-        uses: dtolnay/rust-toolchain@efa25f7f19611383d5b0ccf2d1c8914531636bf9 # stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
         with:
           toolchain: nightly
           components: rustfmt
@@ -127,24 +127,16 @@ jobs:
         env:
           RUSTFLAGS: "-D warnings"
 
-      - name: Install cargo-sort
-        run: cargo install cargo-sort --locked --git https://github.com/DevinR528/cargo-sort.git --rev ac6e328faf467a39e38ab48dc60dcf4f6a46d7a5 # v2.0.2
+      - name: Install cargo tool dependencies
+        run: ./scripts/prepare-env-unix-rust.sh
 
       - name: Cargo sort
         working-directory: ./apps/desktop/desktop_native
         run: cargo sort --workspace --check
 
-      - name: Install cargo-udeps
-        run: cargo install cargo-udeps --version 0.1.57 --locked
-
       - name: Cargo udeps
         working-directory: ./apps/desktop/desktop_native
         run: cargo +nightly udeps --workspace --all-features --all-targets
-
-      - name: Install cargo-deny
-        uses: taiki-e/install-action@205eb1d74c6feda89abb1f3a09360601953286c0 # v2.68.18
-        with:
-          tool: cargo-deny@0.18.6
 
       - name: Run cargo deny
         working-directory: ./apps/desktop/desktop_native

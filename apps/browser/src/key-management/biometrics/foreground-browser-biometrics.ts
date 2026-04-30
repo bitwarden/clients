@@ -70,4 +70,13 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
       }>(BiometricsCommands.CanEnableBiometricUnlock)
     ).result;
   }
+  async setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void> {}
+
+  async enrollPersistent(userId: UserId): Promise<void> {}
+  async hasPersistentKey(userId: UserId): Promise<boolean> {
+    return false;
+  }
 }

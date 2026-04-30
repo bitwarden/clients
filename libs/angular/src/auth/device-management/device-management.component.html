@@ -31,16 +31,20 @@
   </div>
 } @else {
   <!-- Table View: displays on medium to large screens -->
+  <!-- TODO: PM-34091 - Remove the [showRecentlyActive] binding once the input is deleted from the table component. -->
   <auth-device-management-table
     ngClass="tw-hidden md:tw-block"
     [devices]="devices"
+    [showRecentlyActive]="showRecentlyActive"
     (onAuthRequestAnswered)="handleAuthRequestAnswered($event)"
   ></auth-device-management-table>
 
   <!-- List View: displays on small screens -->
+  <!-- TODO: PM-34091 - Remove the [showRecentlyActive] binding once the input is deleted from the item group component. -->
   <auth-device-management-item-group
     ngClass="md:tw-hidden"
     [devices]="devices"
+    [showRecentlyActive]="showRecentlyActive"
     (onAuthRequestAnswered)="handleAuthRequestAnswered($event)"
   ></auth-device-management-item-group>
 }

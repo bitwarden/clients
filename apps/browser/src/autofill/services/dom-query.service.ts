@@ -1,4 +1,8 @@
-import { EVENTS, MAX_DEEP_QUERY_RECURSION_DEPTH } from "@bitwarden/common/autofill/constants";
+import {
+  DEEP_QUERY_SELECTOR_COMBINATOR,
+  EVENTS,
+  MAX_DEEP_QUERY_RECURSION_DEPTH,
+} from "@bitwarden/common/autofill/constants";
 
 import { nodeIsElement } from "../utils";
 
@@ -129,6 +133,49 @@ export class DomQueryService implements DomQueryServiceInterface {
   resetObservedShadowRoots = (): void => {
     this.observedShadowRoots = new WeakSet<ShadowRoot>();
   };
+
+  /**
+   * Queries the DOM for elements based on the given selector string.
+   * Supports the special `>>>` combinator to indicate the need for
+   * shadow DOM traversal; each segment separated by `>>>` is queried
+   * within the shadow root of the previous result.
+   *
+   * @param selector selector string, supports shadow DOM piercing with `>>>`
+   * @returns The first matching element, or null if no match is found
+   */
+  queryDeepSelector(selector: string): Element | null {
+    if (!selector) {
+      return null;
+    }
+
+    const segments = selector.split(DEEP_QUERY_SELECTOR_COMBINATOR);
+    let context: Document | ShadowRoot | Element = globalThis.document;
+
+    for (let i = 0; i < segments.length; i++) {
+      const segment = (segments[i] || "").trim();
+      if (segment.length < 1) {
+        return null;
+      }
+
+      const element = context.querySelector(segment);
+      if (!element) {
+        return null;
+      }
+
+      // If there are more segments, traverse into the shadow root
+      if (i < segments.length - 1) {
+        const shadow = this.getShadowRoot(element);
+        if (!shadow) {
+          return null;
+        }
+        context = shadow;
+      } else {
+        return element;
+      }
+    }
+
+    return null;
+  }
 
   /**
    * Initializes the DomQueryService, checking for the presence of shadow DOM elements on the page.

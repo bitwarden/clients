@@ -1,23 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   Component,
   DestroyRef,
-  EventEmitter,
-  forwardRef,
-  inject,
-  Input,
+  input,
   OnChanges,
   OnInit,
   output,
-  Output,
   viewChild,
-  ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule } from "@angular/forms";
+import { combineLatest } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -35,7 +30,6 @@ import {
 
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
-import { SendForm, SendFormContainer } from "../send-form-container";
 
 import { SendDetailsComponent } from "./send-details/send-details.component";
 
@@ -44,12 +38,7 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
 @Component({
   selector: "tools-send-form",
   templateUrl: "./send-form.component.html",
-  providers: [
-    {
-      provide: SendFormContainer,
-      useExisting: forwardRef(() => SendFormComponent),
-    },
-  ],
+  providers: [],
   imports: [
     AsyncActionsModule,
     TypographyModule,
@@ -57,54 +46,27 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     FormFieldModule,
     ReactiveFormsModule,
     SelectModule,
-    NgIf,
     SendDetailsComponent,
   ],
 })
-export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, SendFormContainer {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(BitSubmitDirective)
-  private bitSubmit: BitSubmitDirective;
-  private destroyRef = inject(DestroyRef);
+export class SendFormComponent implements AfterViewInit, OnInit, OnChanges {
+  private readonly bitSubmit = viewChild.required(BitSubmitDirective);
   private _firstInitialized = false;
-  private file: File | null = null;
 
-  /**
-   * The form ID to use for the form. Used to connect it to a submit button.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) formId: string;
+  /** The form ID to use for the form. Used to connect it to a submit button. */
+  readonly formId = input.required<string>();
 
-  /**
-   * The configuration for the add/edit form. Used to determine which controls are shown and what values are available.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ required: true }) config: SendFormConfig;
+  /** The configuration for the add/edit form. Used to determine which controls are shown and what values are available. */
+  readonly config = input.required<SendFormConfig>();
 
-  /**
-   * Optional submit button that will be disabled or marked as loading when the form is submitting.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input()
-  submitBtn?: ButtonComponent;
+  /** Optional submit button that will be disabled or marked as loading when the form is submitting. */
+  readonly submitBtn = input<ButtonComponent>();
 
-  /**
-   * Event emitted when the send is created successfully.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onSendCreated = new EventEmitter<SendView>();
+  /** Event emitted when the send is created successfully. */
+  readonly onSendCreated = output<SendView>();
 
-  /**
-   * Event emitted when the send is updated successfully.
-   */
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() onSendUpdated = new EventEmitter<SendView>();
+  /** Event emitted when the send is updated successfully. */
+  readonly onSendUpdated = output<SendView>();
 
   /**
    * Event emitted when the user requests to open the password generator.
@@ -119,12 +81,6 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
   originalSendView: SendView | null;
 
   /**
-   * The form group for the send. Starts empty and is populated by child components via the `registerChildForm` method.
-   * @protected
-   */
-  protected sendForm = this.formBuilder.group<SendForm>({});
-
-  /**
    * The value of the updated send. Starts as a new send and is updated
    * by child components via the `patchSend` method.
    * @protected
@@ -134,37 +90,27 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
 
   SendType = SendType;
 
+  constructor(
+    protected sendFormService: SendFormService,
+    private toastService: ToastService,
+    private i18nService: I18nService,
+    private destroyRef: DestroyRef,
+  ) {}
+
   ngAfterViewInit(): void {
-    if (this.submitBtn) {
-      this.bitSubmit.loading$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((loading) => {
-        this.submitBtn.loading.set(loading);
-      });
+    if (this.submitBtn()) {
+      combineLatest([this.bitSubmit().loading$, this.sendFormService.submitting])
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(([submitDirectiveDisabled, formServiceLoading]) => {
+          this.submitBtn().loading.set(submitDirectiveDisabled || formServiceLoading);
+        });
 
-      this.bitSubmit.disabled$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((disabled) => {
-        this.submitBtn.disabled.set(disabled);
-      });
+      combineLatest([this.bitSubmit().disabled$, this.sendFormService.submitting])
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(([submitDirectiveDisabled, formServiceLoading]) => {
+          this.submitBtn().disabled.set(submitDirectiveDisabled || formServiceLoading);
+        });
     }
-  }
-
-  /**
-   * Registers a child form group with the parent form group. Used by child components to add their form groups to
-   * the parent form for validation.
-   * @param name - The name of the form group.
-   * @param group - The form group to add.
-   */
-  registerChildForm<K extends keyof SendForm>(
-    name: K,
-    group: Exclude<SendForm[K], undefined>,
-  ): void {
-    this.sendForm.setControl(name, group);
-  }
-
-  /**
-   * Method to update the sendView with the new values. This method should be called by the child form components
-   * @param updateFn - A function that takes the current sendView and returns the updated sendView
-   */
-  patchSend(updateFn: (current: SendView) => SendView): void {
-    this.updatedSendView = updateFn(this.updatedSendView);
   }
 
   /**
@@ -184,53 +130,22 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges, Send
 
   async init() {
     this.loading = true;
-    this.updatedSendView = new SendView();
-    this.originalSendView = null;
-    this.sendForm.reset();
-
-    if (this.config == null) {
+    if (this.config() == null) {
       return;
     }
-
-    if (this.config.mode !== "add") {
-      if (this.config.originalSend == null) {
-        throw new Error("Original send is required for edit or clone mode");
-      }
-
-      this.originalSendView = await this.addEditFormService.decryptSend(this.config.originalSend);
-
-      this.updatedSendView = Object.assign(this.updatedSendView, this.originalSendView);
-    } else {
-      this.updatedSendView.type = this.config.sendType;
-    }
-
+    await this.sendFormService.initializeSendForm(this.config());
     this.loading = false;
   }
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private addEditFormService: SendFormService,
-    private toastService: ToastService,
-    private i18nService: I18nService,
-  ) {}
-
-  onFileSelected(file: File): void {
-    this.file = file;
-  }
-
   submit = async () => {
-    if (this.sendForm.invalid) {
-      this.sendForm.markAllAsTouched();
+    const sendView = await this.sendFormService.submitSendForm();
+
+    // Send form had errors or otherwise failed to submit
+    if (!sendView) {
       return;
     }
 
-    const sendView = await this.addEditFormService.saveSend(
-      this.updatedSendView,
-      this.file,
-      this.config,
-    );
-
-    if (this.config.mode === "add") {
+    if (this.config().mode === "add") {
       this.onSendCreated.emit(sendView);
       return;
     }

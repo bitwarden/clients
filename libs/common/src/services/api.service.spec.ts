@@ -40,6 +40,7 @@ describe("ApiService", () => {
 
   const testActiveUser = "activeUser" as UserId;
   const testInactiveUser = "inactiveUser" as UserId;
+  const kdfFields = { Kdf: 0, KdfIterations: 600_000 };
 
   beforeEach(() => {
     tokenService = mock();
@@ -300,6 +301,7 @@ describe("ApiService", () => {
                 access_token: `${expectedEffectiveUser}_new_access_token`,
                 token_type: "Bearer",
                 refresh_token: `${expectedEffectiveUser}_new_refresh_token`,
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -540,6 +542,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -869,6 +872,7 @@ describe("ApiService", () => {
                 access_token: "active_new_access_token",
                 token_type: "Bearer",
                 refresh_token: "active_new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -987,6 +991,7 @@ describe("ApiService", () => {
                 access_token: "new_access_token",
                 token_type: "Bearer",
                 refresh_token: "new_refresh_token",
+                ...kdfFields,
               }),
           } satisfies Partial<Response> as Response);
         }
@@ -1100,6 +1105,8 @@ describe("ApiService", () => {
                       access_token: "new_access_token",
                       token_type: "Bearer",
                       refresh_token: "new_refresh_token",
+                      Kdf: 0,
+                      KdfIterations: 600_000,
                     }),
                 } satisfies Partial<Response> as Response),
               100,
@@ -1324,6 +1331,120 @@ describe("ApiService", () => {
       expect(middleware1).toHaveBeenCalledTimes(1);
       expect(middleware2).toHaveBeenCalledTimes(1);
       expect(nativeFetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("refreshAccessToken", () => {
+    const userId = testActiveUser;
+    const refreshTokenValue = "refresh_token_value";
+    const newAccessToken = "new_access_token";
+    const newRefreshToken = "new_refresh_token";
+    const refreshedAccessToken = "refreshed_access_token";
+
+    beforeEach(() => {
+      environmentService.getEnvironment$.calledWith(userId).mockReturnValue(
+        of({
+          getIdentityUrl: () => "https://identity.example.com",
+        } satisfies Partial<Environment> as Environment),
+      );
+
+      tokenService.getRefreshToken.calledWith(userId).mockResolvedValue(refreshTokenValue);
+
+      tokenService.decodeAccessToken
+        .calledWith(userId)
+        .mockResolvedValue({ client_id: "web" } as any);
+
+      tokenService.decodeAccessToken
+        .calledWith(newAccessToken)
+        .mockResolvedValue({ sub: userId } as any);
+
+      vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$
+        .calledWith(userId)
+        .mockReturnValue(of(VaultTimeoutAction.Lock));
+
+      vaultTimeoutSettingsService.getVaultTimeoutByUserId$
+        .calledWith(userId)
+        .mockReturnValue(of(VaultTimeoutStringType.Never));
+
+      tokenService.setTokens.mockResolvedValue({ accessToken: refreshedAccessToken } as any);
+
+      httpOperations.createRequest.mockImplementation((url, request) => {
+        return {
+          url: url,
+          cache: request.cache,
+          credentials: request.credentials,
+          method: request.method,
+          mode: request.mode,
+          signal: request.signal,
+          headers: new Headers(request.headers),
+        } satisfies Partial<Request> as unknown as Request;
+      });
+    });
+
+    it("returns new access token on success", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            access_token: newAccessToken,
+            token_type: "Bearer",
+            refresh_token: newRefreshToken,
+          }),
+      } satisfies Partial<Response> as Response);
+
+      const result = await (sut as any).refreshAccessToken(userId);
+
+      expect(result).toEqual(refreshedAccessToken);
+      expect(tokenService.setTokens).toHaveBeenCalledWith(
+        newAccessToken,
+        VaultTimeoutAction.Lock,
+        VaultTimeoutStringType.Never,
+        newRefreshToken,
+      );
+    });
+
+    it("does not crash when server includes KDF fields (PM-35246 regression)", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            access_token: newAccessToken,
+            token_type: "Bearer",
+            refresh_token: newRefreshToken,
+            ...kdfFields,
+          }),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(userId)).resolves.toEqual(refreshedAccessToken);
+    });
+
+    it("handles missing refresh_token in response", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 200,
+        json: () =>
+          Promise.resolve({
+            access_token: newAccessToken,
+            token_type: "Bearer",
+          }),
+      } satisfies Partial<Response> as Response);
+
+      await (sut as any).refreshAccessToken(userId);
+
+      expect(tokenService.setTokens).toHaveBeenCalledWith(
+        newAccessToken,
+        VaultTimeoutAction.Lock,
+        VaultTimeoutStringType.Never,
+        undefined,
+      );
+    });
+
+    it("rejects on non-200 response", async () => {
+      sut.nativeFetch = jest.fn().mockResolvedValue({
+        status: 400,
+        headers: new Headers(),
+      } satisfies Partial<Response> as Response);
+
+      await expect((sut as any).refreshAccessToken(userId)).rejects.toBeInstanceOf(ErrorResponse);
     });
   });
 });

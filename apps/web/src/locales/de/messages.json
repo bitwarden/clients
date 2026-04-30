@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivität"
   },
-  "applicationsAtRisk": {
-    "message": "Gefährdete Anwendungen"
+  "criticalAppsAtRisk": {
+    "message": "Gefährdete kritische Apps"
+  },
+  "allCriticalApps": {
+    "message": "Alle kritischen Apps"
   },
   "appLogoLabel": {
     "message": "Bitwarden-Logo"
@@ -325,6 +328,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Anwendungen konnten nicht als kritisch markiert werden"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Das Aufheben der Markierung als kritisch ist fehlgeschlagen"
+  },
   "application": {
     "message": "Anwendung"
   },
@@ -631,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
+  },
   "autoFillOnPageLoad": {
     "message": "Auto-Ausfüllen beim Laden einer Seite?"
   },
@@ -750,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden kann Zwei-Faktor-Authentifizierungsscodes speichern und ausfüllen. Wähle das Kamerasymbol aus, um einen Screenshot des Authenticator-QR-Codes dieser Website zu machen oder kopiere und füge den Schlüssel in dieses Feld ein."
+  },
+  "totpCapture": {
+    "message": "Den Authenticator-QR-Code von der aktuellen Website scannen"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Erfahre mehr über Authenticator-Apps"
@@ -982,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "typeLoginSubtitle": {
+    "message": "Website oder App"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit- oder Debitkarte"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Persönliche Informationen"
+  },
+  "typeNoteSubtitle": {
+    "message": "Wichtiger Text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server-Anmeldetoken"
+  },
+  "folderSubtitle": {
+    "message": "Organisiere deine Einträge"
+  },
+  "collectionSubtitle": {
+    "message": "Geteilte Einträge organisieren"
+  },
   "typeLoginPlural": {
     "message": "Zugangsdaten"
   },
@@ -1050,6 +1086,9 @@
   },
   "addItem": {
     "message": "Eintrag hinzufügen"
+  },
+  "chooseItemToAdd": {
+    "message": "Wähle einen Eintrag zum Hinzufügen aus"
   },
   "editItem": {
     "message": "Eintrag bearbeiten"
@@ -3913,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Lade einen neuen Benutzer zu deinem Anbieter ein, indem du die E-Mail-Adresse seines Bitwarden-Kontos unten einträgst. Falls dieser noch kein Bitwarden-Konto besitzt, wird er/sie zur Erstellung eines neuen Kontos aufgefordert."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "Gib bis zu $COUNT$ E-Mail-Adressen mit Komma getrennt ein.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3927,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "Du hast 0 Einladungen übrig."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Dieser Benutzer hat sein Konto mit einer Zwei-Faktor-Authentifizierung geschützt."
@@ -4301,6 +4353,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "Eine oder mehrere E-Mail-Adressen gehören zu widerrufenen Mitgliedern. Stelle ihren Zugriff wieder her, um sie erneut einzuladen."
+  },
   "restoredUserId": {
     "message": "Zugriff auf die Organisation für $ID$ wiederhergestellt.",
     "placeholders": {
@@ -4450,6 +4505,24 @@
   },
   "loginStatus": {
     "message": "Anmeldestatus"
+  },
+  "recentlyActive": {
+    "message": "Kürzlich aktiv"
+  },
+  "recentlyActiveToday": {
+    "message": "Heute"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Letzte 7 Tage"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Letzte 14 Tage"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Letzte 30 Tage"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Vor mehr als 30 Tagen"
   },
   "firstLogin": {
     "message": "Erste Anmeldung"
@@ -5176,6 +5249,12 @@
   },
   "atAnyTime": {
     "message": "jederzeit."
+  },
+  "byEmail": {
+    "message": "Per E-Mail"
+  },
+  "byLink": {
+    "message": "Über einen Link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Indem du fortfährst, stimmst du den"
@@ -6238,6 +6317,16 @@
     "message": "Aufgrund einer Unternehmensrichtlinie kannst du ein bestehendes Send nur löschen.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Send-Einstellungen"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Lege Optionen für das Erstellen und Bearbeiten von Sends fest, einschließlich der Möglichkeit, Sends zu entfernen.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Organisationsmitglieder, die die Richtlinien der Organisation verwalten können, sind von der Durchsetzung dieser Richtlinie ausgenommen."
+  },
   "sendOptions": {
     "message": "Send Einstellungen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6593,6 +6682,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Master-Passwort für Benutzer $ID$ zurückgesetzt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Zwei-Faktor-Authentifizierung für Benutzer $ID$ zurückgesetzt.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7051,6 +7149,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Aktion bei Sitzungs-Timeout"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Verwaltet von der Bitwarden Browser-Erweiterungsapp. Öffne die Browser-App zum Bearbeiten."
   },
   "immediately": {
     "message": "Sofort"
@@ -8203,6 +8304,10 @@
     "message": "Den SCIM API-Schlüssel in deine Zwischenablage kopieren",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "SCIM API-Schlüssel anzeigen",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Den SCIM API-Schlüssel erneuern",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8233,6 +8338,28 @@
   "scimSettingsSaved": {
     "message": "SCIM Einstellungen gespeichert",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Es ist nur eine Integration dieses Typs ($TYPE$) zulässig. Die in Konflikt stehende Integration ist: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Es gibt bereits eine andere Integration desselben Typs ($TYPE$). Aktualisiere den Browser und versuche es erneut.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Eingabe ist erforderlich."
@@ -8395,6 +8522,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Korallenrot"
+  },
+  "purple": {
+    "message": "Lila"
+  },
+  "blue": {
+    "message": "Blau"
   },
   "customColor": {
     "message": "Eigene Farbe"
@@ -9446,6 +9582,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "Der Benutzer hat versucht, auf eine bekannte Phishing-Website zuzugreifen"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Der Benutzer hat die Website mit der Phishing-Warnung verlassen"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Der Benutzer hat die Phishing-Warnung ignoriert"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -9690,6 +9835,30 @@
   },
   "recoverAccount": {
     "message": "Konto wiederherstellen"
+  },
+  "recoverAccountWarning": {
+    "message": "Wenn du das Passwort oder die Zwei-Faktor-Authentifizierung für dieses Mitglied zurücksetzt, wird es über die Änderung benachrichtigt und abgemeldet."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Konten wiederherstellen, wenn das Master-Passwort, die Zwei-Faktor-Authentifizierung oder vertrauenswürdige Geräte vergessen wurden oder verloren gegangen sind."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Bei bestehenden Konten mit Master-Passwörtern müssen sich die Mitglieder selbst registrieren, bevor Administratoren ihre Konten wiederherstellen können."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Neue Mitglieder automatisch für die Kontowiederherstellung registrieren"
+  },
+  "resetMasterPassword": {
+    "message": "Master-Passwort zurücksetzen"
+  },
+  "resetTwoStepLogin": {
+    "message": "Zwei-Faktor-Authentifizierung zurücksetzen"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Der Zugriff des Mitglieds wird widerrufen, bis es die Zwei-Faktor-Authentifizierung eingerichtet hat"
+  },
+  "recoverAccountSuccess": {
+    "message": "Konto erfolgreich wiederhergestellt!"
   },
   "updatedTempPassword": {
     "message": "Der Benutzer hat ein Passwort aktualisiert, das durch die Kontowiederherstellung ausgestellt wurde."
@@ -10244,6 +10413,46 @@
   "switchToFreeOrg": {
     "message": "Wechseln zur kostenlosen Organisation",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Fehlende Funktionen oder Leistungsmerkmale",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Etwas, das wir brauchten, war nicht verfügbar",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Zu schwierig einzurichten oder zu verwalten",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Die Einarbeitung, die Administration oder die tägliche Nutzung waren zu kompliziert",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Das Preis-Leistungs-Verhältnis stimmt nicht",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "Der Preis steht in keinem Verhältnis zu dem, was wir dafür bekommen",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Zu geringe Nutzung durch unser Team",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Wir konnten die Leute nicht dazu bewegen, es tatsächlich zu nutzen",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Unsere Bedürfnisse haben sich geändert",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Umstrukturierung, Übernahme, veränderte Prioritäten oder wir brauchen keinen Passwort-Manager mehr",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "Kostenlos für 1 Jahr"
@@ -11831,6 +12040,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Dein Abonnement wird sich in Kürze erneuern. Um eine unterbrechungsfreie Nutzung zu gewährleisten, wende dich bitte vor dem $RENEWAL_DATE$ an deinen Bitwarden-Anbieter, um die Verlängerung zu bestätigen.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Eine Rechnung für dein Abonnement wurde am $ISSUED_DATE$ ausgestellt. Um einen ununterbrochenen Betrieb zu gewährleisten, kontaktiere $RESELLER$, um deine Verlängerung vor dem $DUE_DATE$ zu bestätigen.",
     "placeholders": {
@@ -11857,6 +12075,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "Die Rechnung für dein Abonnement wurde nicht bezahlt. Um eine unterbrechungsfreie Nutzung zu gewährleisten, kontaktiere deinen Bitwarden-Anbieter vor dem $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -12992,6 +13219,9 @@
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Wenn du Speicherplatz entfernst, erhältst du eine anteilige Gutschrift, die automatisch mit deiner nächsten Rechnung verrechnet wird."
   },
@@ -13162,5 +13392,39 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Dein Bankkonto muss verifiziert werden, bevor es für dieses Upgrade verwendet werden kann. Bitte verifiziere dein Bankkonto oder wähle eine andere Zahlungsmethode."
+  },
+  "discardEdits": {
+    "message": "Änderungen verwerfen"
+  },
+  "discardEditsMessage": {
+    "message": "Wenn du diese Ansicht schließt, werden deine ungespeicherten Änderungen verworfen"
+  },
+  "backToEditing": {
+    "message": "Zurück zur Bearbeitung"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Speichern der Send-Änderungen fehlgeschlagen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

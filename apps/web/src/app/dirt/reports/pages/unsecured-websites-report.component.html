@@ -93,16 +93,14 @@
             </td>
             @if (!isAdminConsoleActive) {
               <td bitCell>
-                @if (!organization) {
-                  <app-org-badge
-                    [disabled]="disabled"
-                    [organizationId]="row.organizationId"
-                    [organizationName]="
-                      row.organizationId | orgNameFromId: (organizations$ | async)
-                    "
-                    appStopProp
-                  >
-                  </app-org-badge>
+                @if (row.organizationId) {
+                  <bit-badge variant="secondary">
+                    {{ row.organizationId | orgNameFromId: (organizations$ | async) }}
+                  </bit-badge>
+                } @else {
+                  <bit-badge variant="secondary">
+                    {{ "me" | i18n }}
+                  </bit-badge>
                 }
               </td>
             }

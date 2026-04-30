@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH anahtarı"
   },
+  "typeLoginSubtitle": {
+    "message": "Web sitesi veya uygulama"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredi veya banka kartı"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Kişisel bilgiler"
+  },
+  "typeNoteSubtitle": {
+    "message": "Önemli metinler"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Sunucu giriş token'ı"
+  },
+  "folderSubtitle": {
+    "message": "Kayıtlarınızı organize edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan kayıtları organize edin"
+  },
+  "chooseItemToAdd": {
+    "message": "Eklenecek kaydı seçin"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Kasanıza eklemek istediğiniz kayıt türünü seçin."
+  },
   "folders": {
     "message": "Klasörler"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Kaydı göster"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Hesabı göster",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Kartı göster",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Kimliği göster",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notu göster",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH anahtarını göster",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Yeni hesap",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Yeni kart",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Yeni kimlik",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Yeni not",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Yeni SSH anahtarı",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Hesabı düzenle",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Kartı düzenle",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Kimliği düzenle",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notu düzenle",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH anahtarını düzenle",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Ad"
@@ -2126,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "Kaydedilmemiş değişiklikler"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
+  },
+  "installLater": {
+    "message": "Install later"
+  },
+  "continueWithInstall": {
+    "message": "Continue with install"
+  },
   "clone": {
     "message": "Klonla"
   },
@@ -2234,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Kimlik doğrulama anahtarını kopyala (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Notları kopyala"
   },
   "totpHelperTitle": {
     "message": "2 adımlı doğrulamayı sorunsuz hale getirin"
@@ -3528,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Cihaza güvenildi"
   },
+  "device": {
+    "message": "Cihaz"
+  },
+  "devices": {
+    "message": "Cihazlar"
+  },
+  "whatIsADevice": {
+    "message": "Cihaz nedir?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Hesabınıza aşağıdaki cihazlardan giriş yapıldı."
+  },
+  "loginStatus": {
+    "message": "Oturum açma durumu"
+  },
+  "recentlyActive": {
+    "message": "Yakın zamanda aktif"
+  },
+  "recentlyActiveToday": {
+    "message": "Bugün"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Son 7 gün"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Son 14 gün"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Son 30 gün"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 günden önce"
+  },
+  "firstLogin": {
+    "message": "İlk giriş"
+  },
+  "trusted": {
+    "message": "Güvenilen"
+  },
+  "currentSession": {
+    "message": "Geçerli oturum"
+  },
+  "requestPending": {
+    "message": "İstek bekliyor"
+  },
+  "deviceIdMissing": {
+    "message": "Cihaz kimliği eksik"
+  },
+  "deviceTypeMissing": {
+    "message": "Cihaz türü eksik"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Cihaz oluşturma tarihi eksik"
+  },
   "trustOrganization": {
     "message": "Organizasyona güven"
   },
@@ -4696,6 +4852,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
   },
+  "percentageCompleted": {
+    "message": "%$PERCENT$ tamamlandı",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Çöp kutusunda hiç kayıt yok"
   },
@@ -4751,7 +4916,41 @@
   "emailPlaceholder": {
     "message": "kullanici@bitwarden.com , kullanici@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "kullanici@bitwarden.com, kullanici@acme.com"
+  },
   "userVerificationFailed": {
     "message": "Kullanıcı doğrulaması başarısız oldu."
+  },
+  "discardEdits": {
+    "message": "Düzenlemeleri sil"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Düzenlemeye dön"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

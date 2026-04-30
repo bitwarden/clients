@@ -1,11 +1,18 @@
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import {
   DomainSettingsService,
   DefaultDomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import {
+  Environment,
+  EnvironmentService,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -59,13 +66,26 @@ describe("ScriptInjectorService", () => {
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
   let domainSettingsService: DomainSettingsService;
   const policyService = mock<PolicyService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(() => {
     jest.spyOn(BrowserApi, "getTab").mockImplementation(async () => tabMock);
+
+    const mockEnvironment = mock<Environment>();
+    mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
+    const environmentService = mock<EnvironmentService>();
+    environmentService.environment$ = new BehaviorSubject(mockEnvironment);
+
+    const authService = mock<AuthService>();
+    authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
+
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,
       policyService,
       accountService,
+      configService,
+      environmentService,
+      authService,
     );
     domainSettingsService.equivalentDomains$ = of(mockEquivalentDomains);
     domainSettingsService.blockedInteractionsUris$ = of({});

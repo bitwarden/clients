@@ -1,4 +1,4 @@
-import { I18nKeyOrLiteral } from "./types";
+import { Constraints, I18nKeyOrLiteral } from "./types";
 
 /** Recursively freeze an object's own keys
  *  @param value the value to freeze
@@ -30,4 +30,12 @@ export function isI18nKey(value: I18nKeyOrLiteral): value is string {
  */
 export function isLiteral(value: I18nKeyOrLiteral): value is { literal: string } {
   return typeof value === "object" && "literal" in value;
+}
+
+const EMPTY = Object.freeze({});
+/** Utility type to provide an empty set of constraints.
+ * Freezing `EMPTY` protects all callers from aliased edits creating spooky action at a distance.
+ */
+export function unconstrained<T>(): Constraints<T> {
+  return EMPTY;
 }

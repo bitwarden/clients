@@ -166,7 +166,7 @@ export class SessionTimeoutPolicyComponent
   }
 
   private get policyData(): MaximumSessionTimeoutPolicyData | null {
-    return this.policyResponse?.data ?? null;
+    return this.policyResponse()?.data ?? null;
   }
 
   private async confirmTypeChange(newType: SessionTimeoutType): Promise<boolean> {

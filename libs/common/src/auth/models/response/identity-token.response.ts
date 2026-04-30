@@ -3,6 +3,7 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KeyConnectorUnlockData } from "@bitwarden/unlock";
 
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
@@ -76,14 +77,23 @@ export class IdentityTokenResponse extends BaseResponse {
       this.key = new EncString(key);
     }
     this.twoFactorToken = this.getResponseProperty("TwoFactorToken");
+
     const kdf = this.getResponseProperty("Kdf");
     const kdfIterations = this.getResponseProperty("KdfIterations");
     const kdfMemory = this.getResponseProperty("KdfMemory");
     const kdfParallelism = this.getResponseProperty("KdfParallelism");
-    this.kdfConfig =
-      kdf == KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(kdfIterations)
-        : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+
+    switch (kdf) {
+      case KdfType.PBKDF2_SHA256:
+        this.kdfConfig = new PBKDF2KdfConfig(kdfIterations);
+        break;
+      case KdfType.Argon2id:
+        this.kdfConfig = new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+        break;
+      default:
+        throw new Error("kdf is required on IdentityTokenResponse");
+    }
+
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset");
     this.apiUseKeyConnector = this.getResponseProperty("ApiUseKeyConnector");
 
@@ -99,5 +109,20 @@ export class IdentityTokenResponse extends BaseResponse {
 
   hasMasterKeyEncryptedUserKey(): boolean {
     return Boolean(this.key);
+  }
+
+  canUnlockWithKeyConnector(): boolean {
+    return this.userDecryptionOptions?.keyConnectorOption != null;
+  }
+
+  intoKeyConnectorUnlockData(): KeyConnectorUnlockData {
+    if (!this.canUnlockWithKeyConnector()) {
+      throw new Error("Identity token response cannot be used for key connector unlock");
+    }
+
+    return {
+      url: this.userDecryptionOptions!.keyConnectorOption.keyConnectorUrl,
+      keyConnectorKeyWrappedUserKey: this.key.toSdk(),
+    };
   }
 }

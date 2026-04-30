@@ -52,7 +52,6 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
     IconButtonModule,
     MenuModule,
     TypographyModule,
-    BaseChipDirective,
     ChipContentComponent,
     ChipDismissButtonComponent,
     IconComponent,

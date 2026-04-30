@@ -107,7 +107,7 @@ describe("ContextMenuClickedHandler", () => {
   describe("run", () => {
     beforeEach(() => {
       authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
-      userVerificationService.hasMasterPasswordAndMasterKeyHash.mockResolvedValue(false);
+      userVerificationService.hasMasterPassword.mockResolvedValue(false);
     });
 
     const runWithUrl = (data: chrome.contextMenus.OnClickData) =>
@@ -195,9 +195,9 @@ describe("ContextMenuClickedHandler", () => {
     it("can generate password", async () => {
       await sut.run(createData(GENERATE_PASSWORD_ID), { id: 5 } as any);
 
-      expect(generatePasswordToClipboard).toBeCalledTimes(1);
+      expect(generatePasswordToClipboard).toHaveBeenCalledTimes(1);
 
-      expect(generatePasswordToClipboard).toBeCalledWith({
+      expect(generatePasswordToClipboard).toHaveBeenCalledWith({
         id: 5,
       });
     });
@@ -208,9 +208,9 @@ describe("ContextMenuClickedHandler", () => {
 
       await sut.run(createData(`${AUTOFILL_ID}_1`, AUTOFILL_ID), { id: 5 } as any);
 
-      expect(autofill).toBeCalledTimes(1);
+      expect(autofill).toHaveBeenCalledTimes(1);
 
-      expect(autofill).toBeCalledWith({ id: 5 }, cipher);
+      expect(autofill).toHaveBeenCalledWith({ id: 5 }, cipher);
     });
 
     it("copies username to clipboard", async () => {
@@ -222,7 +222,7 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(copyToClipboard).toBeCalledTimes(1);
+      expect(copyToClipboard).toHaveBeenCalledTimes(1);
 
       expect(copyToClipboard).toHaveBeenCalledWith({
         text: "TEST_USERNAME",
@@ -239,7 +239,7 @@ describe("ContextMenuClickedHandler", () => {
         url: "https://test.com",
       } as any);
 
-      expect(copyToClipboard).toBeCalledTimes(1);
+      expect(copyToClipboard).toHaveBeenCalledTimes(1);
 
       expect(copyToClipboard).toHaveBeenCalledWith({
         text: "TEST_PASSWORD",

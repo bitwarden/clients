@@ -1,4 +1,5 @@
 import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType, FormContent } from "@bitwarden/common/autofill/types";
 
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
@@ -42,6 +43,11 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private readonly getPropertyOrAttribute = getPropertyOrAttribute;
   private noFieldsFound = false;
   private domRecentlyMutated = true;
+  /**
+   * undefined = not yet fetched, null = no rules (use heuristics),
+   * [] = blocklisted (suppress autofill), [...] = use targeted fill
+   */
+  private pageTargetingRules: FormContent[] | null | undefined = undefined;
   private _autofillFormElements: AutofillFormElements = new Map();
   private autofillFieldElements: AutofillFieldElements = new Map();
   private autofillFieldsByOpid: Map<string, FormFieldElement> = new Map();
@@ -113,12 +119,29 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       this.setupInitialTopLayerListeners();
     }
 
+    // FIXME we might be able to use an alternate (less expensive) mutation observer setup when targeting rules are being used
     if (this.mutationObserver === null) {
       this.setupMutationObserver();
     }
 
+    // FIXME should we move this logic down (e.g. allow a targeted rule to fill fields outside the viewport)?
     if (this.intersectionObserver === null) {
       this.setupIntersectionObserver();
+    }
+
+    // Check for targeting rules before running heuristic collection
+    if (this.pageTargetingRules === undefined) {
+      this.pageTargetingRules =
+        (await this.sendExtensionMessage("getUrlAutofillTargetingRules")).result ?? null;
+    }
+
+    const targetingRules = this.pageTargetingRules;
+    if (targetingRules != null) {
+      if (targetingRules.length === 0) {
+        // Blocklisted; return empty page details, skip heuristics
+        return this.getFormattedPageDetails({}, []);
+      }
+      return this.getTargetedPageDetails(targetingRules);
     }
 
     if (!this.domRecentlyMutated && this.noFieldsFound) {
@@ -228,6 +251,95 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       fields: autofillFieldsData,
       collectedTimestamp: Date.now(),
     };
+  }
+
+  /**
+   * Builds page details using targeting rule selectors instead of heuristic
+   * detection. Iterates through form definitions, resolving each field type's
+   * selector array by trying each `DeepSelector` in order and stopping at the
+   * first DOM match.
+   */
+  private getTargetedPageDetails(forms: FormContent[]): AutofillPageDetails {
+    const fields: AutofillField[] = [];
+
+    for (let formIndex = 0; formIndex < forms.length; formIndex++) {
+      const form = forms[formIndex];
+
+      for (const [fieldType, selectorAlternatives] of Object.entries(form.fields)) {
+        if (!selectorAlternatives?.length) {
+          continue;
+        }
+
+        // Try each selector alternative in order, use the first match found.
+        // Composite selectors (string[]) are skipped for now; only single
+        // selectors (string) are supported.
+        let matchedElement: Element | null = null;
+        for (const selector of selectorAlternatives) {
+          if (typeof selector !== "string") {
+            continue;
+          }
+          matchedElement = this.domQueryService.queryDeepSelector(selector);
+          if (matchedElement) {
+            break;
+          }
+        }
+
+        if (!matchedElement) {
+          continue;
+        }
+
+        const fieldId = `targeted_field_${formIndex}_${fieldType}`;
+        const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
+        formFieldElement.opid = fieldId;
+
+        const autofillField = this.buildTargetedAutofillField(
+          formFieldElement,
+          fieldType as AutofillTargetingRuleType,
+          fields.length,
+        );
+
+        fields.push(autofillField);
+        this.autofillFieldElements.set(formFieldElement, autofillField);
+      }
+    }
+
+    this.domRecentlyMutated = false;
+    /**
+     * @TODO check if need to utilize targeting rules for forms/submits within closed
+     * shadow roots as well, in order to detect cipher additions/updates
+     */
+    const pageDetails = this.getFormattedPageDetails({}, fields);
+    this.setupOverlayListeners(pageDetails);
+
+    return pageDetails;
+  }
+
+  /**
+   * Builds a minimal AutofillField for a targeted element, setting the
+   * fieldQualifier and targeted flag so the fill pipeline can identify it.
+   */
+  private buildTargetedAutofillField(
+    element: ElementWithOpId<FormFieldElement>,
+    fieldType: AutofillTargetingRuleType,
+    index: number,
+  ): AutofillField {
+    const field = new AutofillField();
+    field.opid = element.opid;
+    field.elementNumber = index;
+    // Targeted fields are always treated as viewable regardless of actual
+    // visibility. Targeting rules may deliberately select hidden fields
+    // (e.g. tabbed forms, fields revealed by user interaction).
+    field.viewable = true;
+    field.htmlID = element.id || null;
+    field.htmlName = (element as HTMLInputElement).name || null;
+    field.htmlClass = element.className || null;
+    field.tabindex = element.getAttribute("tabindex");
+    field.title = element.getAttribute("title");
+    field.tagName = element.tagName?.toLowerCase();
+    field.type = (element as HTMLInputElement).type?.toLowerCase() || undefined;
+    field.fieldQualifier = fieldType as AutofillField["fieldQualifier"];
+    field.targeted = true;
+    return field;
   }
 
   /**

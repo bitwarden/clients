@@ -20,12 +20,20 @@ export class PasswordRepromptService {
     private userVerificationService: UserVerificationService,
   ) {}
 
-  enabled$ = Utils.asyncToObservable(() =>
-    this.userVerificationService.hasMasterPasswordAndMasterKeyHash(),
-  );
+  enabled$ = Utils.asyncToObservable(() => this.userVerificationService.hasMasterPassword());
 
   protectedFields() {
-    return ["TOTP", "Password", "H_Field", "Card Number", "Security Code"];
+    return [
+      "TOTP",
+      "Password",
+      "H_Field",
+      "Card Number",
+      "Security Code",
+      "PIN",
+      "Account Number",
+      "IBAN",
+      "SWIFT",
+    ];
   }
 
   async passwordRepromptCheck(cipher: CipherViewLike) {
@@ -41,7 +49,7 @@ export class PasswordRepromptService {
       return true;
     }
 
-    const dialog = this.dialogService.open<boolean>(PasswordRepromptComponent, {
+    const dialog = await this.dialogService.open<boolean>(PasswordRepromptComponent, {
       ariaModal: true,
     });
 

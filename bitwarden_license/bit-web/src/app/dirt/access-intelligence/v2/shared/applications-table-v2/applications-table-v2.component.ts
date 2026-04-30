@@ -7,12 +7,7 @@ import { MenuModule, TableDataSource, TableModule, TooltipDirective } from "@bit
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
-/**
- * V2 Application Table Row Data
- *
- * Simple type that works directly with V2 models (ApplicationHealthView + AccessReportSettingsView).
- * No dependency on V1 ApplicationHealthReportDetail types.
- */
+/** Row data for a single application entry in the applications table. */
 export type ApplicationTableRowV2 = {
   applicationName: string;
   atRiskPasswordCount: number;
@@ -24,12 +19,12 @@ export type ApplicationTableRowV2 = {
 };
 
 /**
- * Displays a virtualized, scrollable table of applications with at-risk password
- * and member counts, critical badges, and per-row actions.
+ * Displays a table of applications with at-risk password and member counts,
+ * critical badges, and per-row actions.
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: "app-applications-table-v2",
+  selector: "dirt-applications-table-v2",
   standalone: true,
   imports: [
     CommonModule,
@@ -44,8 +39,15 @@ export type ApplicationTableRowV2 = {
 })
 export class ApplicationsTableV2Component {
   readonly dataSource = input.required<TableDataSource<ApplicationTableRowV2>>();
-  readonly selectedUrls = input.required<Set<string>>();
+  readonly selectedUrls = input<Set<string>>(new Set());
   readonly openApplication = input<string>("");
+  /** When true, shows the critical badge on app name and always uses checkboxes (combined tab). */
+  readonly showCriticalBadge = input<boolean>(false);
+  /**
+   * When provided, shows the unmark-as-critical row menu and hides checkboxes and select-all (critical tab).
+   * Called with the application name when the user selects "Unmark as critical".
+   */
+  readonly onUnmarkAsCritical = input<(appName: string) => void>();
   readonly showAppAtRiskMembers = output<string>();
   readonly checkboxChange = output<{ applicationName: string; checked: boolean }>();
   readonly selectAllChange = output<boolean>();
@@ -70,5 +72,15 @@ export class ApplicationsTableV2Component {
 
   selectAllChanged(target: HTMLInputElement) {
     this.selectAllChange.emit(target.checked);
+  }
+
+  /** Returns true when the row should show a star icon instead of a checkbox. */
+  protected showStar(isMarkedAsCritical: boolean): boolean {
+    return !!this.onUnmarkAsCritical() || (!this.showCriticalBadge() && isMarkedAsCritical);
+  }
+
+  /** Returns true when the row should show a checkbox. */
+  protected showCheckbox(isMarkedAsCritical: boolean): boolean {
+    return !this.onUnmarkAsCritical() && (this.showCriticalBadge() || !isMarkedAsCritical);
   }
 }

@@ -24,8 +24,8 @@ on:
         type: string
 
 env:
-  _BOT_NAME: "github-actions[bot]"
-  _BOT_EMAIL: "github-actions[bot]@users.noreply.github.com"
+  _BOT_NAME: "bw-ghapp[bot]"
+  _BOT_EMAIL: "178206702+bw-ghapp[bot]@users.noreply.github.com"
 
 defaults:
   run:
@@ -37,10 +37,36 @@ jobs:
     if: ${{ inputs.run-mode == 'Update' }}
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
-      pull-requests: write
+      id-token: write
 
     steps:
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-org-bitwarden
+          secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GH App token
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        id: app-token
+        with:
+          app-id: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-ID }}
+          private-key: ${{ steps.get-kv-secrets.outputs.BW-GHAPP-KEY }}
+          permission-pull-requests: write
+          permission-actions: read
+          permission-contents: write
+
       - name: Log inputs to job summary
         env:
           RUN_MODE: ${{ inputs.run-mode }}
@@ -55,8 +81,9 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
+          token: ${{ steps.app-token.outputs.token }}
           ref: ${{ inputs.base-branch }}
           fetch-depth: 0
           persist-credentials: true
@@ -127,29 +154,32 @@ jobs:
             exit 1
           fi
 
-      - name: Switch to branch
-        id: switch-branch
+      - name: Check for existing branch
+        id: check-branch
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           BRANCH_NAME="sdlc/sdk-update"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
-          if git switch "$BRANCH_NAME" 2>/dev/null; then
-            echo "✅ Switched to existing branch: $BRANCH_NAME"
-            echo "updating_existing_branch=true" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --heads origin "$BRANCH_NAME" > /dev/null 2>&1; then
+            echo "branch_exists=true" >> "$GITHUB_OUTPUT"
+            echo "📋 Branch $BRANCH_NAME exists on remote"
           else
-            echo "📝 Creating new branch: $BRANCH_NAME"
-            git switch -c "$BRANCH_NAME"
-            echo "updating_existing_branch=false" >> "$GITHUB_OUTPUT"
+            echo "branch_exists=false" >> "$GITHUB_OUTPUT"
+            echo "📋 Branch $BRANCH_NAME does not exist"
           fi
 
       - name: Prevent updating branch with manual changes
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        if: ${{ steps.check-branch.outputs.branch_exists == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
-          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "$_BRANCH_NAME")
+          git fetch origin "$_BRANCH_NAME"
+          LATEST_COMMIT_AUTHOR=$(git log -1 --format='%ae' "origin/$_BRANCH_NAME")
 
           echo "Latest commit author in branch ($_BRANCH_NAME): $LATEST_COMMIT_AUTHOR"
           echo "Expected bot email: $_BOT_EMAIL"
@@ -174,10 +204,10 @@ jobs:
           echo "✅ Branch tip commit was made by the bot. Safe to proceed."
 
       - name: Check for stop-updates label
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+        if: ${{ steps.check-branch.outputs.branch_exists == 'true' }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          _BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
           EXISTING_PR=$(gh pr list --head "$_BRANCH_NAME" --base "$BASE_BRANCH" --state open --json number,labels --jq '.[0] // empty')
@@ -201,18 +231,17 @@ jobs:
           git config user.name "$_BOT_NAME"
           git config user.email "$_BOT_EMAIL"
 
-      - name: Rebase the existing branch onto base branch to clean up diff
-        if: ${{ steps.switch-branch.outputs.updating_existing_branch == 'true' }}
+      - name: Create fresh branch from base
         env:
+          _BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           BASE_BRANCH: ${{ inputs.base-branch }}
         run: |
-          echo "🔄 Rebasing onto origin/$BASE_BRANCH..."
-          if ! git rebase "origin/$BASE_BRANCH"; then
-            git rebase --abort
-            echo "::error::Rebase onto $BASE_BRANCH failed due to conflicts. Resolve conflicts manually and re-run."
-            exit 1
-          fi
-          echo "✅ Rebase complete."
+          # Delete local branch if it exists (from fetch)
+          git branch -D "$_BRANCH_NAME" 2>/dev/null || true
+
+          # Create fresh branch from base
+          echo "📝 Creating fresh branch $_BRANCH_NAME from $BASE_BRANCH"
+          git switch -c "$_BRANCH_NAME"
 
       - name: Update SDK versions
         env:
@@ -226,7 +255,7 @@ jobs:
       - name: Generate changelog
         id: changelog
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           OLD_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           NEW_VERSION: ${{ inputs.sdk-version }}
         run: |
@@ -236,14 +265,13 @@ jobs:
 
           if [ -n "$OLD_REF" ] && [ -n "$NEW_REF" ]; then
             echo "Fetching changelog for sdk-internal: $OLD_REF...$NEW_REF"
-            CHANGELOG=$(gh api "repos/bitwarden/sdk-internal/compare/$OLD_REF...$NEW_REF" \
-              --jq '.commits | map("- " + .commit.message | split("\n")[0]) | join("\n")' 2>/dev/null || echo "")
+            CHANGELOG=$(./scripts/get-repo-changelog.sh "bitwarden/sdk-internal" "$OLD_REF" "$NEW_REF" 2>/dev/null || echo "")
 
             if [ -n "$CHANGELOG" ]; then
               echo "changelog<<__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
               echo "$CHANGELOG" >> "$GITHUB_OUTPUT"
               echo "__CHANGELOG_END__" >> "$GITHUB_OUTPUT"
-              echo "✅ Generated changelog with $(echo "$CHANGELOG" | wc -l) commits"
+              echo "✅ Generated changelog"
             else
               echo "::warning::Could not generate changelog"
             fi
@@ -269,7 +297,7 @@ jobs:
       - name: Commit changes
         env:
           SDK_VERSION: ${{ inputs.sdk-version }}
-          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
         run: |
           echo "👀 Committing SDK version update..."
 
@@ -285,8 +313,8 @@ jobs:
 
       - name: Create or Update Pull Request
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BRANCH_NAME: ${{ steps.switch-branch.outputs.branch_name }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BRANCH_NAME: ${{ steps.check-branch.outputs.branch_name }}
           SDK_VERSION: ${{ inputs.sdk-version }}
           OLD_SDK_VERSION: ${{ steps.get-current-sdk.outputs.current-sdk-version }}
           OLD_COMMERCIAL_VERSION: ${{ steps.get-current-sdk.outputs.current-commercial-version }}
@@ -366,7 +394,7 @@ jobs:
           } >> $GITHUB_STEP_SUMMARY
 
       - name: Checkout repository
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           ref: ${{ inputs.base-branch }}
           persist-credentials: false

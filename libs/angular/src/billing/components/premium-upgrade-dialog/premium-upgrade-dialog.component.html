@@ -3,6 +3,7 @@
     class="tw-min-w-[332px] md:tw-max-w-sm tw-overflow-y-auto tw-self-center tw-bg-background tw-rounded-xl tw-shadow-lg tw-border-secondary-100 tw-border-solid tw-border"
     cdkTrapFocus
     cdkTrapFocusAutoCapture
+    tabindex="0"
   >
     <header
       class="tw-flex tw-items-center tw-justify-end tw-pl-6 tw-pt-3 tw-pr-2 !tw-bg-background !tw-border-none"
@@ -56,17 +57,18 @@
             [block]="true"
             (click)="upgrade()"
             type="button"
+            [startIcon]="
+              cardDetails.button.icon?.position === 'before'
+                ? $any(cardDetails.button.icon.type)
+                : undefined
+            "
+            [endIcon]="
+              cardDetails.button.icon && cardDetails.button.icon.position !== 'before'
+                ? $any(cardDetails.button.icon.type)
+                : undefined
+            "
           >
-            @if (cardDetails.button.icon?.position === "before") {
-              <i class="bwi {{ cardDetails.button.icon.type }} tw-me-2" aria-hidden="true"></i>
-            }
             {{ cardDetails.button.text }}
-            @if (
-              cardDetails.button.icon &&
-              (cardDetails.button.icon.position === "after" || !cardDetails.button.icon.position)
-            ) {
-              <i class="bwi {{ cardDetails.button.icon.type }} tw-ms-2" aria-hidden="true"></i>
-            }
           </button>
         </div>
 

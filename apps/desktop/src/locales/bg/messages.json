@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeLoginSubtitle": {
+    "message": "Уеб сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитна или дебитна карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Лична информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важен текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Идентификатор за вписване в сървъра"
+  },
+  "folderSubtitle": {
+    "message": "Организирайте данните си"
+  },
+  "collectionSubtitle": {
+    "message": "Организирайте споделените данни"
+  },
+  "chooseItemToAdd": {
+    "message": "Изберете елемент за добавяне"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Изберете вида на елемента, който искате да добавите в трезора си."
+  },
   "folders": {
     "message": "Папки"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Преглед на елемента"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Преглед на елемента за вписване",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Преглед на картата",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Преглед на самоличността",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Преглед на бележката",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Преглед на SSH ключа",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Нов елемент за вписване",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Нова карта",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Нова самоличност",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Нова бележка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Нов SSH ключ",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Редактиране на елемента за вписване",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактиране на картата",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактиране на самоличността",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактиране на бележката",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактиране на SSH ключа",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Наименование"
@@ -2126,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "Незапазени промени"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Ако прекъснете сега, промените няма да бъдат запазени. Инсталирайте обновлението по-късно, за да може сега да останете и запазите промените си."
+  },
+  "installLater": {
+    "message": "Инсталиране по-късно"
+  },
+  "continueWithInstall": {
+    "message": "Продължаване с инсталирането"
+  },
   "clone": {
     "message": "Дублиране"
   },
@@ -2234,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Копиране на удостоверителния ключ (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Копиране на бележките"
   },
   "totpHelperTitle": {
     "message": "Направете 2-стъпковото удостоверяване безпроблемно и незабележимо"
@@ -3528,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Устройството е доверено"
   },
+  "device": {
+    "message": "Устройство"
+  },
+  "devices": {
+    "message": "Устройства"
+  },
+  "whatIsADevice": {
+    "message": "Какво представлява едно устройство?"
+  },
+  "aDeviceIs": {
+    "message": "Едно устройство наричаме инсталацията на приложението Битуорден, където сте се вписали. Ако преинсталирате приложението, изчистите данните му или изтриете бисквитките си, това устройство може да се появи няколко пъти в списъка."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Вашият акаунт е вписан във всяко от устройствата по-долу."
+  },
+  "loginStatus": {
+    "message": "Състояние на вписването"
+  },
+  "recentlyActive": {
+    "message": "Активно наскоро"
+  },
+  "recentlyActiveToday": {
+    "message": "Днес"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Последните 7 дни"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Последните 14 дни"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Последните 30 дни"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Преди повече от 30 дни"
+  },
+  "firstLogin": {
+    "message": "Първо вписване"
+  },
+  "trusted": {
+    "message": "Доверено"
+  },
+  "currentSession": {
+    "message": "Текуща сесия"
+  },
+  "requestPending": {
+    "message": "Чакаща заявка"
+  },
+  "deviceIdMissing": {
+    "message": "Липсва идентификатор на устройството"
+  },
+  "deviceTypeMissing": {
+    "message": "Липсва тип на устройството"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Липсва дата на създаване на устройството"
+  },
   "trustOrganization": {
     "message": "Даване на доверие на организацията"
   },
@@ -4696,6 +4852,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Записите в организации с преустановен достъп не са достъпни. Свържете се със собственика на организацията си за помощ."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% завършено",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Няма елементи в кошчето"
   },
@@ -4751,7 +4916,41 @@
   "emailPlaceholder": {
     "message": "потребител@bitwarden.com , потребител@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "потребител@bitwarden.com, потребител@acme.com"
+  },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
+  },
+  "discardEdits": {
+    "message": "Отхвърляне на промените"
+  },
+  "discardEditsMessage": {
+    "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани"
+  },
+  "backToEditing": {
+    "message": "Назад към редактирането"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Запазването на промените по Изпращането беше неуспешно",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Странична навигация"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Известие",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Лента за напредък",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
