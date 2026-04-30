@@ -91,7 +91,11 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   routingNumber: { typeI18nKey: "bankRoutingNumber", protected: false },
   pin: { typeI18nKey: "pin", protected: true, event: EventType.Cipher_ClientCopiedBankAccountPin },
   iban: { typeI18nKey: "iban", protected: true },
-  licenseNumber: { typeI18nKey: "licenseNumber", protected: true },
+  licenseNumber: {
+    typeI18nKey: "licenseNumber",
+    protected: true,
+    event: EventType.Cipher_ClientCopiedLicenseNumber,
+  },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,

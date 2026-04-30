@@ -1,0 +1,68 @@
+import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { mock } from "jest-mock-extended";
+
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
+
+import { DriversLicenseViewComponent } from "./drivers-license-view.component";
+
+describe("DriversLicenseViewComponent", () => {
+  let component: DriversLicenseViewComponent;
+  let fixture: ComponentFixture<DriversLicenseViewComponent>;
+
+  const collect = jest.fn();
+
+  const cipher = new CipherView();
+  cipher.id = "cipher-id";
+  cipher.organizationId = null;
+
+  const driversLicense = new DriversLicenseView();
+  driversLicense.licenseNumber = "DL123456";
+
+  beforeEach(async () => {
+    collect.mockClear();
+
+    await TestBed.configureTestingModule({
+      imports: [DriversLicenseViewComponent],
+      providers: [
+        { provide: EventCollectionService, useValue: mock<EventCollectionService>({ collect }) },
+        { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    })
+      .overrideComponent(DriversLicenseViewComponent, {
+        set: { template: "<div></div>", imports: [] },
+      })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(DriversLicenseViewComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput("driversLicense", driversLicense);
+    fixture.componentRef.setInput("cipher", cipher);
+    fixture.detectChanges();
+  });
+
+  describe("toggleLicenseNumberVisible", () => {
+    it("sets revealLicenseNumber to true and collects event when made visible", async () => {
+      await component.toggleLicenseNumberVisible(true);
+
+      expect(component.revealLicenseNumber()).toBe(true);
+      expect(collect).toHaveBeenCalledWith(
+        EventType.Cipher_ClientToggledLicenseNumberVisible,
+        cipher.id,
+        false,
+        cipher.organizationId,
+      );
+    });
+
+    it("sets revealLicenseNumber to false without collecting event", async () => {
+      await component.toggleLicenseNumberVisible(false);
+
+      expect(component.revealLicenseNumber()).toBe(false);
+      expect(collect).not.toHaveBeenCalled();
+    });
+  });
+});

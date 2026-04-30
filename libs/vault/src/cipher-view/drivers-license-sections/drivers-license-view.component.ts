@@ -1,7 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
 import {
   CopyClickDirective,
@@ -11,6 +13,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
+import { CopyCipherFieldDirective } from "../../components/copy-cipher-field.directive";
 import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-cipher-card.component";
 
 @Component({
@@ -26,9 +29,25 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     FormFieldModule,
     IconButtonModule,
     CopyClickDirective,
+    CopyCipherFieldDirective,
   ],
 })
 export class DriversLicenseViewComponent {
+  private readonly eventCollectionService = inject(EventCollectionService);
+
   readonly driversLicense = input.required<DriversLicenseView>();
+  readonly cipher = input.required<CipherView>();
   readonly revealLicenseNumber = signal(false);
+
+  async toggleLicenseNumberVisible(visible: boolean) {
+    this.revealLicenseNumber.set(visible);
+    if (visible) {
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledLicenseNumberVisible,
+        this.cipher().id,
+        false,
+        this.cipher().organizationId,
+      );
+    }
+  }
 }

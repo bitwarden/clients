@@ -67,16 +67,15 @@
           bitIconButton
           bitPasswordInputToggle
           [toggled]="revealLicenseNumber()"
-          (toggledChange)="revealLicenseNumber.set($event)"
+          (toggledChange)="toggleLicenseNumberVisible($event)"
         ></button>
         <button
           bitIconButton="bwi-clone"
           bitSuffix
           type="button"
           [label]="'copyLicenseNumber' | i18n"
-          [appCopyClick]="driversLicense().licenseNumber"
-          showToast
-          [valueLabel]="'licenseNumber' | i18n"
+          appCopyField="licenseNumber"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }

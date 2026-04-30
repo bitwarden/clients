@@ -84,6 +84,7 @@
   @if (hasDriversLicense()) {
     <app-drivers-license-view
       [driversLicense]="cipher()!.driversLicense"
+      [cipher]="cipher()!"
     ></app-drivers-license-view>
   }
 
