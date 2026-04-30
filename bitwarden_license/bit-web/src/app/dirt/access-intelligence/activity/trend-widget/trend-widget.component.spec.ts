@@ -266,8 +266,6 @@ describe("TrendWidgetComponent", () => {
   });
 
   describe("lineChartConfiguration for AllTime", () => {
-    const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
     function mkData(
       dataPoints: { timestamp: string; atRisk: number; total: number }[],
     ): TrendWidgetData {
@@ -283,7 +281,7 @@ describe("TrendWidgetComponent", () => {
       fixture.componentRef.setInput("error", null);
     });
 
-    it("widens a multi-day narrow range to at least 5 days (PM-35323)", () => {
+    it("pads a multi-day narrow range with one day on each side (PM-35323)", () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const today = new Date();
@@ -302,12 +300,17 @@ describe("TrendWidgetComponent", () => {
       const xMin = config.xMin as Date;
       const xMax = config.xMax as Date;
 
-      expect(xMin).toBeInstanceOf(Date);
-      expect(xMax).toBeInstanceOf(Date);
-      expect(xMax.getTime() - xMin.getTime()).toBeGreaterThanOrEqual(5 * MS_PER_DAY);
+      const expectedXMin = new Date(
+        yesterday.getFullYear(),
+        yesterday.getMonth(),
+        yesterday.getDate() - 1,
+      );
+      const expectedXMax = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
     });
 
-    it("pads a single-day dataset so axis labels can render (PM-34579 regression)", () => {
+    it("pads a single-day dataset by ±1 day (PM-34579 regression)", () => {
       const today = new Date();
 
       fixture.componentRef.setInput(
@@ -321,10 +324,13 @@ describe("TrendWidgetComponent", () => {
       const xMin = config.xMin as Date;
       const xMax = config.xMax as Date;
 
-      expect(xMax.getTime() - xMin.getTime()).toBeGreaterThanOrEqual(5 * MS_PER_DAY);
+      const expectedXMin = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+      const expectedXMax = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
     });
 
-    it("uses the natural data range when it is already wider than the minimum span", () => {
+    it("pads a wide natural data range by one day on each side", () => {
       const oldest = new Date();
       oldest.setMonth(oldest.getMonth() - 6);
       const newest = new Date();
@@ -343,10 +349,10 @@ describe("TrendWidgetComponent", () => {
       const xMin = config.xMin as Date;
       const xMax = config.xMax as Date;
 
-      expect(xMin.getFullYear()).toBe(oldest.getFullYear());
-      expect(xMin.getMonth()).toBe(oldest.getMonth());
-      expect(xMin.getDate()).toBe(oldest.getDate());
-      expect(xMax.getTime() - xMin.getTime()).toBeGreaterThanOrEqual(30 * MS_PER_DAY);
+      const expectedXMin = new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate() - 1);
+      const expectedXMax = new Date(newest.getFullYear(), newest.getMonth(), newest.getDate() + 1);
+      expect(xMin.getTime()).toBe(expectedXMin.getTime());
+      expect(xMax.getTime()).toBe(expectedXMax.getTime());
     });
 
     it("does not force a range when the period is not AllTime", () => {

@@ -68,12 +68,6 @@ export interface TrendWidgetData {
 export class TrendWidgetComponent {
   protected readonly ViewType = TrendWidgetViewType;
 
-  /**
-   * Minimum X-axis span for "All time" so Chart.js (maxTicksLimit: 6, unit: "day")
-   * always has room to render multiple day labels. See PM-35323 / PM-34579.
-   */
-  private static readonly MIN_ALL_TIME_SPAN_DAYS = 5;
-
   readonly data = input.required<TrendWidgetData>();
   readonly loading = input<boolean>(false);
   readonly error = input<string | null>(null);
@@ -206,9 +200,9 @@ export class TrendWidgetComponent {
   });
 
   private getAllTimeRange(dataPoints: TrendWidgetData["dataPoints"]): { xMin: Date; xMax: Date } {
-    // Linear scan rather than `Math.min(...arr)` / `Math.max(...arr)` — argument
-    // spread has an engine-specific hard cap (~120k in V8) and PM-34686 removed
-    // the server-side data-point limit.
+    // Linear scan rather than `Math.min(...arr)` / `Math.max(...arr)`: argument
+    // spread has an engine-specific hard cap (~120k in V8) and the server no
+    // longer caps the number of data points returned for "All time".
     let oldestMs = Number.POSITIVE_INFINITY;
     let newestMs = Number.NEGATIVE_INFINITY;
     for (const point of dataPoints) {
@@ -223,15 +217,10 @@ export class TrendWidgetComponent {
     const oldest = new Date(oldestMs);
     const newest = new Date(newestMs);
 
-    // Day-align: xMin starts at the oldest day's 00:00, xMax at the day after
-    // the newest so today's point is not clipped at the right edge.
-    let xMin = new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate());
+    // Pad one day on each side so the data points have breathing room on the
+    // axis, matching the existing same-date pad pattern.
+    const xMin = new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate() - 1);
     const xMax = new Date(newest.getFullYear(), newest.getMonth(), newest.getDate() + 1);
-
-    const minSpanMs = TrendWidgetComponent.MIN_ALL_TIME_SPAN_DAYS * 24 * 60 * 60 * 1000;
-    if (xMax.getTime() - xMin.getTime() < minSpanMs) {
-      xMin = new Date(xMax.getTime() - minSpanMs);
-    }
 
     return { xMin, xMax };
   }
