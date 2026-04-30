@@ -23,7 +23,7 @@ export class NewItemNudgeComponent {
   activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
   showNewItemSpotlight$ = combineLatest([this.activeUserId$, toObservable(this.configType)]).pipe(
     switchMap(([userId, cipherType]) => {
-      if (cipherType === null) {
+      if (cipherType == null) {
         return of(false);
       }
       const nudgeType = this.mapToNudgeType(cipherType);
