@@ -5,7 +5,8 @@
     "module": "commonjs",
     "moduleResolution": "node10",
     "types": ["jest", "node"],
-    "isolatedModules": true
+    "isolatedModules": true,
+    "emitDecoratorMetadata": false
   },
   "include": ["jest.config.ts", "src/**/*.test.ts", "src/**/*.spec.ts", "src/**/*.d.ts"]
 }
