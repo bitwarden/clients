@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, Subject, take, takeUntil, skip } from "rxjs";
+import { firstValueFrom, Subject, take, takeUntil, skip, combineLatest, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
@@ -208,9 +208,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       await this.loadRememberedEmail();
     }
 
-    // This SSO required check should come after email has had a chance to be pre-filled (if it
-    // was found in query params or was the remembered email)
-    await this.determineIfSsoRequired();
+    // This SSO required tracking should be initialized after email has had a chance to be pre-filled
+    // (if it was found in query params or was the remembered email)
+    await this.initSsoRequiredTracking();
 
     // Listen for region/environment changes after initialization.
     // If the user switches region while on the password entry screen, we need to clear
@@ -256,37 +256,31 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.messagingService.send("getWindowIsFocused");
   }
 
-  private async determineIfSsoRequired() {
+  private async initSsoRequiredTracking() {
     const ssoRequiredCache = await firstValueFrom(this.ssoLoginService.ssoRequiredCache$);
 
-    // Only perform initial update and setup a subscription if there is actually a populated ssoRequiredCache
-    if (ssoRequiredCache != null && ssoRequiredCache.size > 0) {
-      // If the pre-filled/remembered email field value exists in the cache, set to true
-      if (
-        this.emailFormControl.value &&
-        ssoRequiredCache.has(this.emailFormControl.value.toLowerCase())
-      ) {
-        this.ssoRequired = true;
-      }
-
-      this.listenForEmailChanges(ssoRequiredCache);
+    // Only set up a subscription if there is actually a populated ssoRequiredCache
+    if (ssoRequiredCache == null || ssoRequiredCache.length < 1) {
+      return;
     }
-  }
 
-  private listenForEmailChanges(ssoRequiredCache: Set<string>) {
-    // On subsequent email field value changes, check and set again. This allows alternate login buttons
-    // to dynamically enable/disable depending on whether or not the entered email is in the ssoRequiredCache
-    this.formGroup.controls.email.valueChanges
+    // React to both email and environment changes
+    combineLatest([
+      // startWith email form field value (it could be empty, a remembered email, or pre-filled from query params)
+      this.formGroup.controls.email.valueChanges.pipe(startWith(this.emailFormControl.value)),
+      // Changing environments on Extension/Desktop does not reload the page, so we must listen for environment
+      // changes and re-evaluate the SSO required state accordingly. Web only ever uses the initial emission, because
+      // changing environments on Web navigates the page.
+      this.environmentService.globalEnvironment$,
+    ])
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        if (
-          this.emailFormControl.value &&
-          ssoRequiredCache.has(this.emailFormControl.value.toLowerCase())
-        ) {
-          this.ssoRequired = true;
-        } else {
-          this.ssoRequired = false;
-        }
+      .subscribe(([email, env]) => {
+        const emailValue = email?.toLowerCase();
+        const webVaultUrl = env.getWebVaultUrl();
+
+        this.ssoRequired = emailValue
+          ? ssoRequiredCache.some((e) => e.email === emailValue && e.webVaultUrl === webVaultUrl)
+          : false;
       });
   }
 

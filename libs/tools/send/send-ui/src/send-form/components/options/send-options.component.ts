@@ -48,8 +48,6 @@ export class SendOptionsComponent implements OnInit {
   protected sendFormService = inject(SendFormService);
   private formBuilder = inject(FormBuilder);
 
-  disableHideEmail = false;
-
   sendOptionsForm = this.formBuilder.group({
     maxAccessCount: [null as number],
     accessCount: [null as number],
@@ -58,6 +56,8 @@ export class SendOptionsComponent implements OnInit {
   });
 
   private sendPolicyService = inject(SendPolicyService);
+
+  protected readonly disableHideEmail$ = this.sendPolicyService.disableHideEmail$;
 
   get shouldShowCount(): boolean {
     return (
@@ -76,12 +76,6 @@ export class SendOptionsComponent implements OnInit {
 
   constructor() {
     this.sendFormService.registerChildForm("sendOptionsForm", this.sendOptionsForm);
-
-    this.sendPolicyService.disableHideEmail$
-      .pipe(takeUntilDestroyed())
-      .subscribe((disableHideEmail) => {
-        this.disableHideEmail = disableHideEmail;
-      });
 
     this.sendOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       this.sendFormService.patchSend((send) => {

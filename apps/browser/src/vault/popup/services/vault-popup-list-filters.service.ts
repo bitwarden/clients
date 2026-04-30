@@ -29,6 +29,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -45,7 +47,10 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import {
+  CIPHER_MENU_ITEMS,
+  DIALOG_CIPHER_MENU_ITEMS,
+} from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
@@ -191,6 +196,7 @@ export class VaultPopupListFiltersService {
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -247,8 +253,15 @@ export class VaultPopupListFiltersService {
               return false;
             }
 
-            if (filters.folder && cipher.folderId !== filters.folder.id) {
-              return false;
+            if (filters.folder) {
+              if (!filters.folder.id) {
+                // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+                if (cipher.folderId) {
+                  return false;
+                }
+              } else if (cipher.folderId !== filters.folder.id) {
+                return false;
+              }
             }
 
             const isMyVault = filters.organization?.id === MY_VAULT_ID;
@@ -269,22 +282,28 @@ export class VaultPopupListFiltersService {
     );
 
   /**
-   * All available cipher types (filtered by policy restrictions)
+   * All available cipher types (filtered by policy restrictions and feature flags)
    */
-  readonly cipherTypes$: Observable<ChipFilterOption<CipherType>[]> =
-    this.restrictedItemTypesService.restricted$.pipe(
-      map((restrictedTypes) => {
-        return CIPHER_MENU_ITEMS.filter((item) => {
+  readonly cipherTypes$: Observable<ChipFilterOption<CipherType>[]> = combineLatest([
+    this.restrictedItemTypesService.restricted$,
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+  ]).pipe(
+    map(([restrictedTypes, allowNewItemTypes]) => {
+      const cipherMenuItems = allowNewItemTypes ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
+
+      return cipherMenuItems
+        .filter((item) => {
           const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
           // Show if no restriction or if the restriction allows viewing in at least one org
           return !restriction || restriction.allowViewOrgIds.length > 0;
-        }).map((item) => ({
+        })
+        .map((item) => ({
           value: item.type,
           label: this.i18nService.t(item.labelKey),
-          icon: item.icon,
+          icon: item.icon as BitwardenIcon,
         }));
-      }),
-    );
+    }),
+  );
 
   /** Resets `filterForm` to the original state */
   resetFilterForm(): void {
@@ -427,7 +446,13 @@ export class VaultPopupListFiltersService {
           const orgCiphers = cipherViews.filter((c) => c.organizationId === organizationId);
 
           // Return only the folders that have ciphers within the filtered organization
-          return folders.filter((f) => orgCiphers.some((oc) => oc.folderId === f.id));
+          return folders.filter((f) => {
+            if (!f.id) {
+              // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+              return orgCiphers.some((oc) => !oc.folderId);
+            }
+            return orgCiphers.some((oc) => oc.folderId === f.id);
+          });
         }),
         map((folders) => {
           const nestedFolders = this.getAllFoldersNested(folders);
