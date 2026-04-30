@@ -7,9 +7,11 @@ import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
-  OrganizationUserApiService,
-  DefaultOrganizationUserApiService,
+  CollectionEncryptionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
+  DefaultOrganizationUserApiService,
+  OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -360,6 +362,7 @@ export class ServiceContainer {
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
   cipherEncryptionService: CipherEncryptionService;
+  collectionEncryptionService: CollectionEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   encryptedMigrator: EncryptedMigrator;
@@ -668,13 +671,6 @@ export class ServiceContainer {
 
     this.searchService = new SearchService(this.logService, this.i18nService);
 
-    this.collectionService = new DefaultCollectionService(
-      this.keyService,
-      this.encryptService,
-      this.i18nService,
-      this.stateProvider,
-    );
-
     this.providerService = new ProviderService(this.stateProvider);
 
     this.policyApiService = new PolicyApiService(
@@ -710,6 +706,20 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       customUserAgent,
+    );
+
+    this.collectionEncryptionService = new DefaultCollectionEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.collectionService = new DefaultCollectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      this.stateProvider,
+      this.configService,
+      this.collectionEncryptionService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -1140,11 +1150,6 @@ export class ServiceContainer {
       this.configService,
       this.masterPasswordService,
       this.syncService,
-      this.keyService,
-      new CliBiometricsService(),
-      this.biometricStateService,
-      this.platformUtilsService,
-      this.sdkService,
     );
   }
 
@@ -1163,7 +1168,7 @@ export class ServiceContainer {
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
 
     await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearAccessToken(userId);
+    await this.tokenService.clearTokens(userId);
     await this.accountService.clean(userId as UserId);
     await this.accountService.switchAccount(null);
     process.env.BW_SESSION = undefined;
@@ -1182,6 +1187,9 @@ export class ServiceContainer {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
+
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.

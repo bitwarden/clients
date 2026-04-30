@@ -4397,6 +4397,21 @@
       }
     }
   },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "keepEditing": {
+    "message": "Keep editing"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
   "editedPolicyId": {
     "message": "Edited policy $ID$.",
     "placeholders": {
@@ -4471,6 +4486,9 @@
   },
   "revokedEmailError": {
     "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
+  "revocationReasonUnknown": {
+    "message": "Unknown reason"
   },
   "revocationReasonManual": {
     "message": "Revoked by an admin"
