@@ -46,14 +46,20 @@
               <input bitInput type="text" [formControl]="codeControl" />
             </bit-form-field>
           </form>
-          <button type="button" bitLink linkType="primary" class="tw-mt-2" (click)="resend()">
+          <button
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-mt-2 tw-text-xs"
+            (click)="resend()"
+          >
             {{ "resendCode" | i18n }}
           </button>
         </div>
       </keeper-stage-shell>
     } @else {
       <keeper-stage-shell
-        [title]="'keeperPendingApproval' | i18n"
+        [title]="'keeperPush' | i18n"
         [email]="email()"
         [primaryLabel]="'tryAnotherMethod' | i18n"
         (primary)="tryAnother()"

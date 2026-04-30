@@ -4053,9 +4053,6 @@
   "selectApprovalMethodDesc": {
     "message": "Approve this device by selecting a method below"
   },
-  "keeperPendingApproval": {
-    "message": "Pending approval"
-  },
   "keeperPush": {
     "message": "Keeper Push"
   },
@@ -4069,7 +4066,7 @@
     "message": "Please check your email and enter the verification code below:"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Approve the device request on your Keeper device."
+    "message": "Login to the Keeper vault on any previous approved device to approve this request."
   },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"

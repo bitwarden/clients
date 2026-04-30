@@ -1,4 +1,4 @@
-<bit-dialog [disableAnimations]="true">
+<bit-dialog [disableAnimations]="true" [title]="title()" [subtitle]="email()">
   <button
     bitDialogHeaderEnd
     type="button"
@@ -8,12 +8,6 @@
     [attr.aria-label]="'close' | i18n"
     (click)="close.emit()"
   ></button>
-  <span bitDialogTitle>
-    {{ title() }}
-    @if (email()) {
-      <span class="tw-text-muted tw-font-normal tw-text-sm">{{ email() }}</span>
-    }
-  </span>
   <ng-content select="[bitDialogContent]" ngProjectAs="[bitDialogContent]"></ng-content>
   <ng-container bitDialogFooter>
     @if (primaryLabel()) {
