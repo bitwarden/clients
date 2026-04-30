@@ -147,6 +147,7 @@ export class InviteMembersDialogComponent {
         if (organization == null) {
           throw new Error("Organization not found");
         }
+        organization.useInviteLinks = true;
         return organization;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),
