@@ -38,7 +38,7 @@ export class NewItemNudgeComponent {
     private i18nService: I18nService,
     private accountService: AccountService,
     private nudgesService: NudgesService,
-  ) {}
+  ) { }
 
   mapToNudgeType(cipherType: CipherType): NudgeType {
     switch (cipherType) {
@@ -84,6 +84,9 @@ export class NewItemNudgeComponent {
         this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
         return NudgeType.NewBankAccountItemStatus;
 
+      case CipherType.DriversLicense: {
+        return null;
+      }
       default:
         throw new Error("Unsupported cipher type");
     }

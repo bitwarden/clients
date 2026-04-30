@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Organize shared items"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "chooseItemToAdd": {
     "message": "Choose item to add"
   },
@@ -4987,6 +4993,15 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
   },
   "bankAccount": {
     "message": "Bank account"

@@ -106,6 +106,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       icon: "bwi-id-card",
     },
     {
+      id: "driversLicense",
+      name: this.i18nService.t("typeDriversLicense"),
+      type: CipherType.DriversLicense,
+      icon: "bwi-id-card",
+    },
+    {
       id: "note",
       name: this.i18nService.t("note"),
       type: CipherType.SecureNote,
@@ -152,6 +158,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     }
     if (this.activeFilter.cipherType === CipherType.BankAccount) {
       return "searchBankAccount";
+    }
+    if (this.activeFilter.cipherType === CipherType.DriversLicense) {
+      return "searchDriversLicense";
     }
     if (this.activeFilter.selectedFolderNode?.node) {
       return "searchFolder";

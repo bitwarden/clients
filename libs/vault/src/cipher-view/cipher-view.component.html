@@ -80,6 +80,13 @@
     ></app-bank-account-view>
   }
 
+  <!-- DRIVER'S LICENSE SECTIONS -->
+  @if (hasDriversLicense()) {
+    <app-drivers-license-view
+      [driversLicense]="cipher()!.driversLicense"
+    ></app-drivers-license-view>
+  }
+
   <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher()?.notes">
     <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>

@@ -351,6 +351,12 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         icon: "bwi-id-card",
       },
       {
+        id: "driversLicense",
+        name: this.i18nService.t("typeDriversLicense"),
+        type: CipherType.DriversLicense,
+        icon: "bwi-id-card",
+      },
+      {
         id: "note",
         name: this.i18nService.t("typeSecureNote"),
         type: CipherType.SecureNote,

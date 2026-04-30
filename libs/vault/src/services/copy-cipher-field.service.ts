@@ -36,7 +36,8 @@ export type CopyAction =
   | "accountNumber"
   | "routingNumber"
   | "pin"
-  | "iban";
+  | "iban"
+  | "licenseNumber";
 
 /**
  * Copy actions that can be used with the appCopyField directive.
@@ -90,6 +91,7 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   routingNumber: { typeI18nKey: "bankRoutingNumber", protected: false },
   pin: { typeI18nKey: "pin", protected: true, event: EventType.Cipher_ClientCopiedBankAccountPin },
   iban: { typeI18nKey: "iban", protected: true },
+  licenseNumber: { typeI18nKey: "licenseNumber", protected: true },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,

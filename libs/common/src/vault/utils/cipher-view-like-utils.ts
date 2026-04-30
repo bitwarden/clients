@@ -290,6 +290,8 @@ export class CipherViewLikeUtils {
         return !!cipher.bankAccount?.pin;
       case "iban":
         return !!cipher.bankAccount?.iban;
+      case "licenseNumber":
+        return !!cipher.driversLicense?.licenseNumber;
       default:
         return false;
     }

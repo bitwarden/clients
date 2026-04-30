@@ -107,6 +107,12 @@ export class VaultFilterComponent {
       type: CipherType.SshKey,
       icon: "bwi-key",
     },
+    {
+      id: "driversLicense",
+      name: this.i18nService.t("typeDriversLicense"),
+      type: CipherType.DriversLicense,
+      icon: "bwi-id-card",
+    },
   ];
 
   get searchPlaceholder() {
@@ -128,6 +134,9 @@ export class VaultFilterComponent {
     }
     if (filter.cipherType === CipherType.SshKey) {
       return "searchSshKey";
+    }
+    if (filter.cipherType === CipherType.DriversLicense) {
+      return "searchDriversLicense";
     }
     if (filter.selectedCollectionNode?.node) {
       return "searchCollection";
