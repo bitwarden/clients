@@ -66,10 +66,9 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           }
 
           using ref = sdk.take();
-          const sdkCollection = ref.value
-            .vault()
-            .collections()
-            .encrypt(collectionView.toSdkCollectionView());
+          const sdkCollection = (ref.value.vault().collections() as any).encrypt(
+            collectionView.toSdkCollectionView(),
+          );
 
           return Collection.fromSdkCollection(sdkCollection);
         }),

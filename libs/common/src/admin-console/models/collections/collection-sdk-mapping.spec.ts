@@ -2,6 +2,7 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
+  EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
 import { CollectionId, OrganizationId } from "../../../types/guid";
@@ -19,7 +20,7 @@ function sdkUuid(value: string): any {
 
 const collectionId = "bdc4ef23-1116-477e-ae73-247854af58cb" as CollectionId;
 const orgId = "c5e9654f-6cc5-44c4-8e09-3d323522668c" as OrganizationId;
-const encryptedName = "2.abc123|def456|ghi789";
+const encryptedName = "2.abc123|def456|ghi789" as SdkEncString;
 
 function makeSdkCollection(overrides: Partial<SdkCollection> = {}): SdkCollection {
   return {
