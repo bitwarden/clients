@@ -1140,11 +1140,6 @@ export class ServiceContainer {
       this.configService,
       this.masterPasswordService,
       this.syncService,
-      this.keyService,
-      new CliBiometricsService(),
-      this.biometricStateService,
-      this.platformUtilsService,
-      this.sdkService,
     );
   }
 
