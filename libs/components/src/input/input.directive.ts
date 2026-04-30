@@ -101,9 +101,6 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     );
   });
 
-  protected readonly hasPrefix = input(false);
-  protected readonly hasSuffix = input(false);
-
   protected readonly showErrorsWhenDisabled = input<boolean>(false);
 
   private readonly destroyRef = inject(DestroyRef);
