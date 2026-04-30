@@ -888,6 +888,9 @@ export default class MainBackground {
       this.organizationService,
       this.organizationUserApiService,
       this.policyService,
+      this.authService,
+      this.accountService,
+      this.configService,
     );
 
     const sdkClientFactory = flagEnabled("sdk")
