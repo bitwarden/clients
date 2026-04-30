@@ -86,6 +86,7 @@ import { AddEditComponent } from "../vault/popup/components/vault/add-edit/add-e
 import { AssignCollections } from "../vault/popup/components/vault/assign-collections/assign-collections.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments/attachments.component";
 import { IntroCarouselComponent } from "../vault/popup/components/vault/intro-carousel/intro-carousel.component";
+import { NewItemPageComponent } from "../vault/popup/components/vault/new-item-page/new-item-page.component";
 import { PasswordHistoryComponent } from "../vault/popup/components/vault/vault-password-history/vault-password-history.component";
 import { VaultComponent } from "../vault/popup/components/vault/vault.component";
 import { ViewComponent } from "../vault/popup/components/vault/view/view.component";
@@ -230,6 +231,15 @@ const routes: Routes = [
     component: PasswordHistoryComponent,
     canActivate: [authGuard],
     data: { elevation: 4 } satisfies RouteDataProperties,
+  },
+  {
+    path: "new-item",
+    component: NewItemPageComponent,
+    canActivate: [
+      authGuard,
+      canAccessFeature(FeatureFlag.PM32009NewItemTypes, true, undefined, false),
+    ],
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
     path: "add-cipher",

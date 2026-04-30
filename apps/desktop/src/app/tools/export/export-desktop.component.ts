@@ -28,6 +28,6 @@ export class ExportDesktopComponent {
    * Callback that is called after a successful export.
    */
   protected async onSuccessfulExport(organizationId: string): Promise<void> {
-    this.dialogRef.close();
+    await this.dialogRef.close();
   }
 }

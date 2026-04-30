@@ -46,10 +46,11 @@ describe("MigrationRunner", () => {
     it("should wait until stateVersion is current before completing", async () => {
       let stateVersion: number | null = null;
 
-      storage.get.mockImplementation((key) => {
+      storage.get.mockImplementation(<T>(key: string): Promise<T> => {
         if (key === "stateVersion") {
-          return Promise.resolve(stateVersion);
+          return Promise.resolve(stateVersion) as Promise<T>;
         }
+        return Promise.resolve(null) as Promise<T>;
       });
 
       let promiseCompleted = false;

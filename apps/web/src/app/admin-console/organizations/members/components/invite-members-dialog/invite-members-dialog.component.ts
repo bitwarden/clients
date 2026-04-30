@@ -1,6 +1,6 @@
-import { AsyncPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
@@ -24,8 +24,13 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  DisclosureComponent,
+  DisclosureTriggerForDirective,
   FormFieldModule,
+  IconModule,
+  LinkModule,
   RadioButtonModule,
+  SelectModule,
   TabsModule,
   ToastService,
 } from "@bitwarden/components";
@@ -42,13 +47,16 @@ import {
   AccessItemType,
   AccessItemValue,
   AccessItemView,
+  AccessSelectorModule,
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
 import { MemberDialogResult } from "../member-dialog/member-dialog.component";
 import { commaSeparatedEmails } from "../member-dialog/validators/comma-separated-emails.validator";
-import { inputEmailLimitValidator } from "../member-dialog/validators/input-email-limit.validator";
-import { orgSeatLimitReachedValidator } from "../member-dialog/validators/org-seat-limit-reached.validator";
+import {
+  getEmailBatchLimit,
+  inputEmailLimitValidator,
+} from "../member-dialog/validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
@@ -67,17 +75,24 @@ export interface InviteMembersDialogParams {
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     A11yTitleDirective,
+    AccessSelectorModule,
     AsyncActionsModule,
     AsyncPipe,
     ButtonModule,
     ByLinkTabComponent,
     CheckboxModule,
     DialogModule,
+    DisclosureComponent,
+    DisclosureTriggerForDirective,
     FormFieldModule,
     I18nPipe,
+    LinkModule,
+    NgTemplateOutlet,
     RadioButtonModule,
     ReactiveFormsModule,
+    SelectModule,
     TabsModule,
+    IconModule,
   ],
 })
 export class InviteMembersDialogComponent {
@@ -96,6 +111,7 @@ export class InviteMembersDialogComponent {
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
   protected readonly selectedTabIndex = signal(0);
+  protected readonly moreSettingsOpen = signal(false);
 
   protected readonly formGroup = this.formBuilder.group({
     emails: [""],
@@ -186,32 +202,32 @@ export class InviteMembersDialogComponent {
     ),
   );
 
-  get customUserTypeSelected(): boolean {
-    return this.formGroup.value.type === OrganizationUserType.Custom;
-  }
+  private readonly formTypeValue = toSignal(this.formGroup.controls.type.valueChanges, {
+    initialValue: this.formGroup.value.type ?? OrganizationUserType.User,
+  });
+  protected readonly customUserTypeSelected = computed(
+    () => this.formTypeValue() === OrganizationUserType.Custom,
+  );
 
   constructor() {
     this.organization$.pipe(takeUntilDestroyed()).subscribe((organization) => {
-      this.setFormValidators(organization);
+      const emailBatchLimit = getEmailBatchLimit(organization, this.params.occupiedSeatCount);
+      this.setFormValidators(emailBatchLimit);
     });
   }
 
-  private setFormValidators(organization: Organization) {
+  private setFormValidators(emailBatchLimit: number) {
     const emailsControlValidators = [
       Validators.required,
       commaSeparatedEmails,
-      inputEmailLimitValidator(organization, (maxEmailsCount: number) =>
-        this.i18nService.t("tooManyEmails", maxEmailsCount),
+      inputEmailLimitValidator(
+        emailBatchLimit,
+        (maxEmailsCount: number) => this.i18nService.t("tooManyEmails", maxEmailsCount),
+        this.params.allOrganizationUsers.map((u) => u.email),
       ),
       revokedEmailsValidator(
         this.params.allOrganizationUsers,
         this.i18nService.t("revokedEmailError"),
-      ),
-      orgSeatLimitReachedValidator(
-        organization,
-        this.params.allOrganizationUsers.map((u) => u.email),
-        this.i18nService.t("subscriptionUpgrade", organization.seats),
-        this.params.occupiedSeatCount,
       ),
     ];
 
@@ -273,7 +289,7 @@ export class InviteMembersDialogComponent {
 
     const organization = await firstValueFrom(this.organization$);
 
-    if (!organization.useCustomPermissions && this.customUserTypeSelected) {
+    if (!organization.useCustomPermissions && this.customUserTypeSelected()) {
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("customNonEnterpriseError"),
@@ -290,7 +306,7 @@ export class InviteMembersDialogComponent {
   }
 
   private close(result: MemberDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 
   static readonly open = (

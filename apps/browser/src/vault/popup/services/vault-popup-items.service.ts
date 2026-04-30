@@ -158,12 +158,9 @@ export class VaultPopupItemsService {
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText = combineLatest([
-    this.searchText$,
-    getUserId(this.accountService.activeAccount$),
-  ]).pipe(
-    switchMap(([searchText, userId]) => {
-      return this.searchService.isSearchable(userId, searchText);
+  private _hasSearchText = this.searchText$.pipe(
+    switchMap((searchText) => {
+      return this.searchService.isSearchable(searchText);
     }),
   );
 
@@ -182,7 +179,7 @@ export class VaultPopupItemsService {
     ),
     switchMap(
       ([ciphers, searchText, userId]) =>
-        this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
+        this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
           PopupCipherViewLike[]
         >,
     ),

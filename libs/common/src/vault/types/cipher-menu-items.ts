@@ -10,15 +10,74 @@ export type CipherMenuItem = {
   icon: string;
   /** The i18n key for the label text */
   labelKey: string;
+  /** The i18n key for the subtitle text */
+  subtitleKey: string;
 };
 
 /**
  * All available cipher menu items with their associated icons and labels
  */
 export const CIPHER_MENU_ITEMS = Object.freeze([
-  { type: CipherType.Login, icon: "bwi-globe", labelKey: "typeLogin" },
-  { type: CipherType.Card, icon: "bwi-credit-card", labelKey: "typeCard" },
-  { type: CipherType.Identity, icon: "bwi-id-card", labelKey: "typeIdentity" },
-  { type: CipherType.SecureNote, icon: "bwi-sticky-note", labelKey: "typeNote" },
-  { type: CipherType.SshKey, icon: "bwi-key", labelKey: "typeSshKey" },
+  {
+    type: CipherType.Login,
+    icon: "bwi-globe",
+    labelKey: "typeLogin",
+    subtitleKey: "typeLoginSubtitle",
+  },
+  {
+    type: CipherType.Card,
+    icon: "bwi-credit-card",
+    labelKey: "typeCard",
+    subtitleKey: "typeCardSubtitle",
+  },
+  {
+    type: CipherType.Identity,
+    icon: "bwi-id-card",
+    labelKey: "typeIdentity",
+    subtitleKey: "typeIdentitySubtitle",
+  },
+  {
+    type: CipherType.SecureNote,
+    icon: "bwi-sticky-note",
+    labelKey: "typeNote",
+    subtitleKey: "typeNoteSubtitle",
+  },
+  {
+    type: CipherType.SshKey,
+    icon: "bwi-key",
+    labelKey: "typeSshKey",
+    subtitleKey: "typeSshKeySubtitle",
+  },
 ] as const) satisfies readonly CipherMenuItem[];
+
+const bankAccountItem: CipherMenuItem = {
+  type: CipherType.BankAccount,
+  icon: "bwi-bank",
+  labelKey: "typeBankAccount",
+  subtitleKey: "typeBankAccountSubtitle",
+};
+
+/**
+ * Updated menu items for new item dialog. This list should only be used
+ * when `FeatureFlag.PM32009NewItemTypes` is enabled, otherwise use `CIPHER_MENU_ITEMS`.
+ */
+export const DIALOG_CIPHER_MENU_ITEMS = [
+  ...CIPHER_MENU_ITEMS.slice(0, 2),
+  bankAccountItem,
+  ...CIPHER_MENU_ITEMS.slice(2),
+].map((item) => {
+  if (item.type === CipherType.Login) {
+    return {
+      ...item,
+      icon: "bwi-lock",
+    };
+  }
+
+  if (item.type === CipherType.Identity) {
+    return {
+      ...item,
+      icon: "bwi-user",
+    };
+  }
+  return item;
+});

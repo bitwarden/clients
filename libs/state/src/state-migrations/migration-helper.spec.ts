@@ -134,7 +134,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
       it("should throw if the current version is less than 9", () => {
         expect(() =>
           sut.getFromGlobal({ stateDefinition: { name: "serviceName" }, key: "key" }),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
 
@@ -154,7 +154,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
             { stateDefinition: { name: "serviceName" }, key: "key" },
             "global_serviceName_key",
           ),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
 
@@ -171,7 +171,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
       it("should throw if the current version is less than 9", () => {
         expect(() =>
           sut.getFromUser("userId", { stateDefinition: { name: "serviceName" }, key: "key" }),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
 
@@ -193,7 +193,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
             { stateDefinition: { name: "serviceName" }, key: "key" },
             "new_value",
           ),
-        ).toThrowError("No key builder should be used for versions prior to 9.");
+        ).toThrow("No key builder should be used for versions prior to 9.");
       });
     });
   });
