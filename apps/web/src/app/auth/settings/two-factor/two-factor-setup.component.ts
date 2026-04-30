@@ -216,7 +216,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = authComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            authComp.close();
+            void authComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Authenticator);
           });
         break;
@@ -255,7 +255,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = duoComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            duoComp.close();
+            void duoComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Duo);
           });
         break;
@@ -275,7 +275,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = emailComp.componentInstance.onChangeStatus
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            emailComp.close();
+            void emailComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.Email);
           });
         break;
@@ -293,7 +293,7 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         this.twoFactorSetupSubscription = webAuthnComp.componentInstance.onUpdated
           .pipe(first(), takeUntil(this.destroy$))
           .subscribe((enabled: boolean) => {
-            webAuthnComp.close();
+            void webAuthnComp.close();
             this.updateStatus(enabled, TwoFactorProviderType.WebAuthn);
           });
         break;

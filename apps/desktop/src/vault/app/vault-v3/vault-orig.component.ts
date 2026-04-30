@@ -39,7 +39,9 @@ import { Account, AccountService } from "@bitwarden/common/auth/abstractions/acc
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -72,9 +74,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  ChangeLoginPasswordService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -84,7 +90,6 @@ import {
   CollectionAssignmentResult,
   createFilterFunction,
   DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   CipherFormComponent,
@@ -129,10 +134,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     {
       provide: CipherFormConfigService,
       useClass: DefaultCipherFormConfigService,
-    },
-    {
-      provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
     },
     {
       provide: ViewPasswordHistoryService,
@@ -257,6 +258,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     private routedVaultFilterService: RoutedVaultFilterService,
     private vaultFilterService: VaultFilterService,
     private vaultItemTransferService: VaultItemsTransferService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -689,6 +691,47 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
           });
         }
         break;
+      case CipherType.BankAccount:
+        if (cipher.bankAccount.accountNumber != null || cipher.bankAccount.routingNumber != null) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.bankAccount.accountNumber) {
+          menu.push({
+            label: this.i18nService.t("copyAccountNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.accountNumber,
+                "accountNumber",
+                "Account Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.routingNumber) {
+          menu.push({
+            label: this.i18nService.t("copyRoutingNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.routingNumber,
+                "routingNumber",
+                "Routing Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.pin) {
+          menu.push({
+            label: this.i18nService.t("copyPin"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.pin, "pin", "PIN"),
+          });
+        }
+        if (cipher.bankAccount.iban) {
+          menu.push({
+            label: this.i18nService.t("copyIban"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
+          });
+        }
+        break;
       default:
         break;
     }
@@ -882,7 +925,34 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   }
 
   async addFolder() {
-    this.messagingService.send("newFolder");
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM32009NewItemTypes)) {
+      const folderRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const folderResult = await firstValueFrom(folderRef.closed);
+      if (folderResult === AddEditFolderDialogResult.Created) {
+        await this.syncService.fullSync(false);
+      }
+    } else {
+      this.messagingService.send("newFolder");
+    }
+  }
+
+  protected async openAddItemDialog(): Promise<void> {
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: true,
+      canCreateCollection: false,
+      canCreateSshKey: true,
+    });
+
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (result == null) {
+      return;
+    }
+
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Folder) {
+      await this.addFolder();
+    }
   }
 
   async editFolder(folderId: string) {

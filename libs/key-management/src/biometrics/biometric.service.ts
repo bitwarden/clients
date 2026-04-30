@@ -1,3 +1,4 @@
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
@@ -40,4 +41,24 @@ export abstract class BiometricsService {
   abstract getShouldAutopromptNow(): Promise<boolean>;
   abstract setShouldAutopromptNow(value: boolean): Promise<void>;
   abstract canEnableBiometricUnlock(): Promise<boolean>;
+  abstract setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void>;
+
+  /**
+   * Enrolls a persistent biometric key for the given user. The persistent key survives app restarts.
+   * Default no-op for platforms that don't support persistent biometric keys.
+   * @param userId the user to enroll
+   * @param key the user key to enroll
+   */
+  abstract enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
+
+  /**
+   * Checks if the given user has a persistent biometric key enrolled.
+   * Default returns false for platforms that don't support persistent biometric keys.
+   * @param userId the user to check
+   * @returns true if a persistent key is enrolled
+   */
+  abstract hasPersistentKey(userId: UserId): Promise<boolean>;
 }

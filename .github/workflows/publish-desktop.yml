@@ -212,7 +212,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -250,9 +250,10 @@ jobs:
         if: ${{ inputs.publish_type != 'Dry Run' }}
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ steps.retrieve-secrets.outputs.snapcraft-store-token }}
+          SNAP_CHANNEL: ${{ inputs.snap_channel }}
         run: |
-          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release ${{ inputs.snap_channel }}
-          snapcraft upload "bitwarden_${_PKG_VERSION}_arm64.snap" --release ${{ inputs.snap_channel }}
+          snapcraft upload "bitwarden_${_PKG_VERSION}_amd64.snap" --release $SNAP_CHANNEL
+          snapcraft upload "bitwarden_${_PKG_VERSION}_arm64.snap" --release $SNAP_CHANNEL
           snapcraft logout
         working-directory: apps/desktop/dist
 
@@ -269,7 +270,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -290,7 +291,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
-          secrets: "cli-choco-api-key"
+          secrets: "choco-api-key"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -298,7 +299,7 @@ jobs:
       - name: Setup Chocolatey
         run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
         env:
-          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.cli-choco-api-key }}
+          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.choco-api-key }}
 
       - name: Make dist dir
         run: New-Item -ItemType directory -Path ./dist
@@ -326,7 +327,7 @@ jobs:
       _RELEASE_TAG: ${{ needs.setup.outputs.tag_name }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -364,7 +365,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -372,6 +373,7 @@ jobs:
       - name: Publish to App Store
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
           CHANGELOG: ${{ inputs.release_notes }}
           PUBLISH_TYPE: ${{ inputs.publish_type }}

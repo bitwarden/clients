@@ -156,7 +156,7 @@ mod tests {
     ) -> AuthRequest {
         AuthRequest::Sign(crate::server::SignRequest {
             public_key,
-            process_name: process_name.map(|s| s.to_string()),
+            process_name: process_name.map(std::string::ToString::to_string),
             is_forwarding,
             namespace,
         })

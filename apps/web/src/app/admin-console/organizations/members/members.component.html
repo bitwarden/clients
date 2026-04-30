@@ -112,7 +112,7 @@
                       size="small"
                       [bitAction]="exportMembers"
                       [disabled]="!firstLoaded"
-                      label="{{ 'export' | i18n }}"
+                      label="{{ 'exportVerb' | i18n }}"
                     ></button>
                     <button
                       [bitMenuTriggerFor]="headerMenu"
@@ -344,6 +344,7 @@
                   <span class="tw-sr-only">{{ "userUsingTwoStep" | i18n }}</span>
                 }
                 @let resetPasswordPolicyEnabled = resetPasswordPolicyEnabled$ | async;
+                @let adminResetTwoFactorEnabled = adminResetTwoFactorEnabled$ | async;
                 @if (showEnrolledStatus(u, organization, resetPasswordPolicyEnabled)) {
                   <i
                     class="bwi bwi-key"
@@ -431,7 +432,14 @@
                   }
 
                   <!-- Account recovery is available to all users with appropriate permissions -->
-                  @if (allowResetPassword(u, organization, resetPasswordPolicyEnabled)) {
+                  @if (
+                    allowResetPassword(
+                      u,
+                      organization,
+                      resetPasswordPolicyEnabled,
+                      adminResetTwoFactorEnabled
+                    )
+                  ) {
                     <button
                       type="button"
                       bitMenuItem

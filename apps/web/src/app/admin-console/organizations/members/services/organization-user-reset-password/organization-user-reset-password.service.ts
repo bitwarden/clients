@@ -292,6 +292,9 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
   ): Promise<Pick<OrganizationUserResetPasswordRequest, "newMasterPasswordHash" | "key">> {
     // In the Account Recovery flow, the target user's UserId is not available (only orgUserId),
     // so salt is always derived from the target user's email via emailToSalt().
+    //
+    // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
+    // a server-provided salt for the target user rather than email derivation.
     const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
 
     const authenticationData =

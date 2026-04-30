@@ -107,6 +107,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   private readonly INITIAL_TAX_VALUE = 0;
   protected readonly selectedPlanId = input.required<PersonalSubscriptionPricingTierId>();
   protected readonly account = input.required<Account>();
+  protected readonly fromMarketing = input<string | null>(null);
   protected goBack = output<void>();
   protected complete = output<UpgradePaymentResult>();
 
@@ -388,6 +389,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       paymentMethod,
       billingAddress,
       this.eligibleCouponIds(),
+      this.fromMarketing(),
     );
     return { status: UpgradePaymentStatus.UpgradedToPremium, organizationId: null };
   }

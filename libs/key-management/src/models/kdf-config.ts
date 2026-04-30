@@ -1,5 +1,6 @@
 import { Jsonify } from "type-fest";
 
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { RangeWithDefault } from "@bitwarden/common/platform/misc/range-with-default";
 import { Kdf } from "@bitwarden/sdk-internal";
 
@@ -17,10 +18,13 @@ export class PBKDF2KdfConfig {
   static ITERATIONS = new RangeWithDefault(600_000, 2_000_000, 600_000);
   static PRELOGIN_ITERATIONS_MIN = 5000;
   kdfType: KdfType.PBKDF2_SHA256 = KdfType.PBKDF2_SHA256;
-  iterations: number;
 
-  constructor(iterations?: number) {
-    this.iterations = iterations ?? PBKDF2KdfConfig.ITERATIONS.defaultValue;
+  constructor(readonly iterations: number) {
+    assertNonNullish(iterations, "iterations");
+  }
+
+  static createDefault(): PBKDF2KdfConfig {
+    return new PBKDF2KdfConfig(PBKDF2KdfConfig.ITERATIONS.defaultValue);
   }
 
   /**
@@ -64,23 +68,32 @@ export class PBKDF2KdfConfig {
  * Argon2 KDF configuration.
  */
 export class Argon2KdfConfig {
-  static MEMORY = new RangeWithDefault(16, 1024, 64);
+  static MEMORY = new RangeWithDefault(16, 1024, 32);
   static PARALLELISM = new RangeWithDefault(1, 16, 4);
-  static ITERATIONS = new RangeWithDefault(2, 10, 3);
+  static ITERATIONS = new RangeWithDefault(2, 10, 6);
 
   static PRELOGIN_MEMORY_MIN = 16;
   static PRELOGIN_PARALLELISM_MIN = 1;
   static PRELOGIN_ITERATIONS_MIN = 2;
 
   kdfType: KdfType.Argon2id = KdfType.Argon2id;
-  iterations: number;
-  memory: number;
-  parallelism: number;
 
-  constructor(iterations?: number, memory?: number, parallelism?: number) {
-    this.iterations = iterations ?? Argon2KdfConfig.ITERATIONS.defaultValue;
-    this.memory = memory ?? Argon2KdfConfig.MEMORY.defaultValue;
-    this.parallelism = parallelism ?? Argon2KdfConfig.PARALLELISM.defaultValue;
+  constructor(
+    readonly iterations: number,
+    readonly memory: number,
+    readonly parallelism: number,
+  ) {
+    assertNonNullish(iterations, "iterations");
+    assertNonNullish(memory, "memory");
+    assertNonNullish(parallelism, "parallelism");
+  }
+
+  static createDefault(): Argon2KdfConfig {
+    return new Argon2KdfConfig(
+      Argon2KdfConfig.ITERATIONS.defaultValue,
+      Argon2KdfConfig.MEMORY.defaultValue,
+      Argon2KdfConfig.PARALLELISM.defaultValue,
+    );
   }
 
   /**

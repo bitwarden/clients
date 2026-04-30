@@ -177,7 +177,7 @@ describe("AccountSwitcherService", () => {
 
       expect(messagingService.send).toHaveBeenCalledWith("switchAccount", { userId: null });
 
-      expect(removeListenerSpy).toBeCalledTimes(1);
+      expect(removeListenerSpy).toHaveBeenCalledTimes(1);
     });
 
     it("initiates an account switch with an account id", async () => {
@@ -199,13 +199,13 @@ describe("AccountSwitcherService", () => {
       await selectAccountPromise;
 
       expect(messagingService.send).toHaveBeenCalledWith("switchAccount", { userId: "1" });
-      expect(messagingService.send).toBeCalledWith(
+      expect(messagingService.send).toHaveBeenCalledWith(
         "switchAccount",
         matches((payload) => {
           return payload.userId === "1";
         }),
       );
-      expect(removeListenerSpy).toBeCalledTimes(1);
+      expect(removeListenerSpy).toHaveBeenCalledTimes(1);
     });
   });
 });
