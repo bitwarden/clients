@@ -13,7 +13,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { BadgeComponent, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
+import { BerryComponent, ItemModule, ToastOptions, ToastService } from "@bitwarden/components";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -32,7 +32,7 @@ import { BrowserPremiumUpgradePromptService } from "../services/browser-premium-
     PopupHeaderComponent,
     PopOutComponent,
     ItemModule,
-    BadgeComponent,
+    BerryComponent,
     PremiumBadgeComponent,
   ],
   providers: [
@@ -48,8 +48,6 @@ export class VaultSettingsComponent implements OnInit, OnDestroy {
   protected readonly userCanArchive = toSignal(
     this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
   );
-
-  protected readonly showArchiveItem = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$);
 
   protected readonly userHasArchivedItems = toSignal(
     this.userId$.pipe(

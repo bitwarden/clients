@@ -220,6 +220,18 @@ export abstract class OrganizationUserApiService {
   ): Promise<void>;
 
   /**
+   * Recover an organization user's account (password and/or two-step login)
+   * @param organizationId - Identifier for the organization the user belongs to
+   * @param id - Organization user identifier
+   * @param request - Account recovery details
+   */
+  abstract putOrganizationUserRecoverAccount(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserResetPasswordRequest,
+  ): Promise<void>;
+
+  /**
    * Enable Secrets Manager for many users
    * @param organizationId - Identifier for the organization the user belongs to
    * @param ids - List of organization user identifiers to enable

@@ -11,15 +11,15 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
-
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
 
 import { CipherViewComponent } from "./cipher-view.component";
 
@@ -41,6 +41,8 @@ describe("CipherViewComponent", () => {
   let mockLogService: LogService;
   let mockCipherRiskService: CipherRiskService;
   let mockBillingAccountProfileStateService: BillingAccountProfileStateService;
+  let mockVaultSettingsService: VaultSettingsService;
+  let showAtRiskPasswordNotifications$: BehaviorSubject<boolean>;
 
   // Mock data
   let mockCipherView: CipherView;
@@ -79,6 +81,10 @@ describe("CipherViewComponent", () => {
       .fn()
       .mockReturnValue(hasPremiumFromAnySource$);
 
+    showAtRiskPasswordNotifications$ = new BehaviorSubject(true);
+    mockVaultSettingsService = mock<VaultSettingsService>();
+    mockVaultSettingsService.showAtRiskPasswordNotifications$ = showAtRiskPasswordNotifications$;
+
     // Setup mock cipher view
     mockCipherView = new CipherView();
     mockCipherView.id = "cipher-id";
@@ -103,6 +109,7 @@ describe("CipherViewComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: mockBillingAccountProfileStateService,
         },
+        { provide: VaultSettingsService, useValue: mockVaultSettingsService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -261,6 +268,76 @@ describe("CipherViewComponent", () => {
       // Should remain false for safe password
       expect(mockCipherRiskService.computeCipherRiskForUser).toHaveBeenCalled();
       expect(component.passwordIsAtRisk()).toBe(false);
+    }));
+  });
+
+  describe("showChangePasswordLink", () => {
+    // Helper: cipher with a login URI so hasLoginUri() returns true
+    const createCipherWithUri = (): CipherView => {
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.type = CipherType.Login;
+      cipher.edit = true;
+      cipher.login = {
+        password: "pw",
+        hasUris: true,
+        uris: [{ uri: "https://example.com" } as any],
+      } as any;
+      return cipher;
+    };
+
+    beforeEach(() => {
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    });
+
+    it("returns false when cipher has no login URI", fakeAsync(() => {
+      const cipher = new CipherView();
+      cipher.type = CipherType.Login;
+      cipher.login = { hasUris: false, uris: [] } as any;
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+      tick();
+
+      expect(component.showChangePasswordLink()).toBe(false);
+    }));
+
+    it("returns true when cipher has URI and passwordIsAtRisk and notifications enabled", fakeAsync(() => {
+      showAtRiskPasswordNotifications$.next(true);
+
+      // Make passwordIsAtRisk return true via weak password risk result
+      mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue({
+        password_strength: 1,
+        exposed_result: { type: "NotFound" },
+        reuse_count: 1,
+      });
+
+      const cipher = createCipherWithUri();
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component.showChangePasswordLink()).toBe(true);
+    }));
+
+    it("returns false when passwordIsAtRisk but notifications are disabled", fakeAsync(() => {
+      showAtRiskPasswordNotifications$.next(false);
+
+      mockCipherRiskService.computeCipherRiskForUser = jest.fn().mockResolvedValue({
+        password_strength: 1,
+        exposed_result: { type: "NotFound" },
+        reuse_count: 1,
+      });
+
+      const cipher = createCipherWithUri();
+      // No pending task so hadPendingChangePasswordTask stays false
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+      tick();
+      fixture.detectChanges();
+
+      expect(component.showChangePasswordLink()).toBe(false);
     }));
   });
 });

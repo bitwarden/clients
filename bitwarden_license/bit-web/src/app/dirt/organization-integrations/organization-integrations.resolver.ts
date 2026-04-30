@@ -226,6 +226,23 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
       },
     ];
 
+    const blumiraFeatureEnabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.EventManagementForBlumira),
+    );
+
+    if (blumiraFeatureEnabled) {
+      integrations.push({
+        name: OrganizationIntegrationServiceName.Blumira,
+        linkURL: "https://bitwarden.com/help/blumira-siem/",
+        image: "../../../../../../../images/integrations/logo-blumira-color.svg",
+        imageDarkMode: "../../../../../../../images/integrations/logo-blumira-darkmode.svg",
+        type: IntegrationType.EVENT,
+        canSetupConnection: true,
+        integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://<BLUMIRA_HEC_URL>/services/collector/",
+      });
+    }
+
     const featureEnabled = await firstValueFrom(
       this.configService.getFeatureFlag$(FeatureFlag.EventManagementForDataDogAndCrowdStrike),
     );
@@ -235,18 +252,22 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         {
           name: OrganizationIntegrationServiceName.CrowdStrike,
           linkURL: "https://bitwarden.com/help/crowdstrike-siem/",
-          image: "../../../../../../../images/integrations/logo-crowdstrike-black.svg",
+          image: "../../../../../../../images/integrations/logo-crowdstrike-lightmode.svg",
+          imageDarkMode: "../../../../../../../images/integrations/logo-crowdstrike-darkmode.svg",
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Hec,
+          urlHelperLinkText: "https://<customer-id>.crowdstrike.com",
         },
         {
           name: OrganizationIntegrationServiceName.Datadog,
           linkURL: "https://bitwarden.com/help/datadog-siem/",
-          image: "../../../../../../../images/integrations/logo-datadog-color.svg",
+          image: "../../../../../../../images/integrations/logo-datadog-lightmode.svg",
+          imageDarkMode: "../../../../../../../images/integrations/logo-datadog-darkmode.svg",
           type: IntegrationType.EVENT,
           canSetupConnection: true,
           integrationType: OrganizationIntegrationType.Datadog,
+          urlHelperLinkText: "https://api.<region>.datadoghq.com",
         },
       );
     }
@@ -266,6 +287,7 @@ export class OrganizationIntegrationsResolver implements Resolve<boolean> {
         description: "huntressEventIntegrationDesc",
         canSetupConnection: true,
         integrationType: OrganizationIntegrationType.Hec,
+        urlHelperLinkText: "https://hec.huntress.io/services/collector",
       });
     }
 

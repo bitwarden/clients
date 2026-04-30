@@ -1,0 +1,75 @@
+<div class="tw-space-y-3">
+  <bit-search
+    [placeholder]="'searchApps' | i18n"
+    [(ngModel)]="searchText"
+    (ngModelChange)="onSearchTextChanged($event)"
+  ></bit-search>
+
+  <div class="tw-overflow-x-auto">
+    <table class="tw-w-full tw-border-collapse">
+      <thead>
+        <tr class="tw-border-b tw-border-secondary-300">
+          <th bitTypography="body2" class="tw-text-left tw-py-3 tw-px-2 tw-w-12">
+            <button
+              type="button"
+              [bitIconButton]="isAllSelected() ? 'bwi-star-f' : 'bwi-star'"
+              [label]="(isAllSelected() ? 'unselectAll' : 'selectAll') | i18n"
+              (click)="toggleAll()"
+            ></button>
+          </th>
+          <th bitTypography="body2" class="tw-text-left tw-py-3 tw-px-2 tw-font-medium">
+            {{ "application" | i18n }}
+          </th>
+          <th bitTypography="body2" class="tw-text-right tw-py-3 tw-px-2 tw-font-medium">
+            {{ "atRiskPasswords" | i18n }}
+          </th>
+          <th bitTypography="body2" class="tw-text-right tw-py-3 tw-px-2 tw-font-medium">
+            {{ "totalPasswords" | i18n }}
+          </th>
+          <th bitTypography="body2" class="tw-text-right tw-py-3 tw-px-2 tw-font-medium">
+            {{ "atRiskMembers" | i18n }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (app of filteredApplications(); track app.applicationName) {
+          <tr class="tw-border-b tw-border-secondary-300 hover:tw-bg-background-alt">
+            <td class="tw-py-3 tw-px-2">
+              <button
+                type="button"
+                (click)="toggleSelection(app.applicationName)"
+                [bitIconButton]="
+                  selectedApplications().has(app.applicationName) ? 'bwi-star-f' : 'bwi-star'
+                "
+                [label]="
+                  selectedApplications().has(app.applicationName)
+                    ? ('unselectApplication' | i18n)
+                    : ('selectApplication' | i18n)
+                "
+              ></button>
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2">
+              <div class="tw-flex tw-items-center tw-gap-2">
+                @if (getIconCipher(app); as iconCipher) {
+                  <app-vault-icon [cipher]="iconCipher"></app-vault-icon>
+                } @else {
+                  <bit-icon name="bwi-globe" class="tw-text-2xl tw-text-muted"></bit-icon>
+                }
+                <span>{{ app.applicationName }}</span>
+              </div>
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-right">
+              {{ app.atRiskPasswordCount }}
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-right">
+              {{ app.passwordCount }}
+            </td>
+            <td bitTypography="body1" class="tw-py-3 tw-px-2 tw-text-right">
+              {{ app.atRiskMemberCount }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

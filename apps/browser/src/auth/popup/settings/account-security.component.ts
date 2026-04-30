@@ -20,7 +20,6 @@ import {
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -56,6 +55,7 @@ import {
   TypographyModule,
   ToastService,
   SwitchComponent,
+  CalloutModule,
   SpinnerComponent,
 } from "@bitwarden/components";
 import {
@@ -101,9 +101,9 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
     SectionHeaderComponent,
     SelectModule,
     SessionTimeoutSettingsComponent,
-    SpotlightComponent,
     TypographyModule,
     SwitchComponent,
+    CalloutModule,
     SpinnerComponent,
   ],
 })
@@ -444,7 +444,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         // prevent duplicate dialog
         biometricsResponseReceived = true;
         if (awaitDesktopDialogRef) {
-          awaitDesktopDialogRef.close(result);
+          await awaitDesktopDialogRef.close(result);
         }
 
         if (!result) {
@@ -461,7 +461,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         // prevent duplicate dialog
         biometricsResponseReceived = true;
         if (awaitDesktopDialogRef) {
-          awaitDesktopDialogRef.close(true);
+          await awaitDesktopDialogRef.close(true);
         }
 
         if (e.message == "canceled") {
@@ -485,7 +485,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         }
       } finally {
         if (awaitDesktopDialogRef) {
-          awaitDesktopDialogRef.close(true);
+          await awaitDesktopDialogRef.close(true);
         }
       }
     };
@@ -506,7 +506,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
     );
 
     if (multiClientPasswordManagementFlagEnabled) {
-      await this.router.navigate(["/" + AuthExtensionRoute.ChangePassword]);
+      await this.router.navigate(["/" + AuthExtensionRoute.SettingsPassword]);
       return;
     }
 

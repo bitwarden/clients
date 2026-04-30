@@ -8,7 +8,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportSummaryData } from "../../../models";
+import { AccessReportSummaryView } from "../../../models";
 import {
   AccessReportEncryptionService,
   DecryptedAccessReportData,
@@ -193,7 +193,7 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
     context: { organizationId: OrganizationId; userId: UserId },
     encryptedSummary: EncString,
     wrappedKey: EncString,
-  ): Observable<AccessReportSummaryData> {
+  ): Observable<AccessReportSummaryView> {
     this.logService.info("[DefaultAccessReportEncryptionService] Decrypting summary");
     const { userId, organizationId } = context;
 

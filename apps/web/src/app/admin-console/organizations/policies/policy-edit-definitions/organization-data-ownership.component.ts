@@ -14,6 +14,7 @@ import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 type VNextSaveOrganizationDataOwnershipPolicyRequest = VNextSavePolicyRequest<{
   defaultUserCollectionName: string;
@@ -23,6 +24,8 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "organizationDataOwnership";
   description = "organizationDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
+  category = PolicyCategory.DataControl;
+  priority = 20;
   component = OrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 
@@ -55,8 +58,8 @@ export class OrganizationDataOwnershipPolicyComponent
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("dialog", { static: true }) warningContent!: TemplateRef<unknown>;
 
-  override async confirm(): Promise<boolean> {
-    if (this.policyResponse?.enabled && !this.enabled.value) {
+  async confirm(): Promise<boolean> {
+    if (this.policyResponse()?.enabled && !this.enabled.value) {
       const dialogRef = this.dialogService.open(this.warningContent, {
         positionStrategy: new CenterPositionStrategy(),
       });
@@ -69,7 +72,7 @@ export class OrganizationDataOwnershipPolicyComponent
   async buildVNextRequest(
     orgKey: OrgKey,
   ): Promise<VNextSaveOrganizationDataOwnershipPolicyRequest> {
-    if (!this.policy) {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 

@@ -7,7 +7,7 @@ import {
   MemberRegistryEntryData,
   AccessReportSettingsData,
   ApplicationHealthData,
-  AccessReportSummaryData,
+  AccessReportSummaryView,
 } from "../../models";
 
 /**
@@ -56,7 +56,7 @@ export interface AccessReportPayload {
  */
 export interface DecryptedAccessReportData {
   reportData: AccessReportPayload;
-  summaryData: AccessReportSummaryData;
+  summaryData: AccessReportSummaryView;
   applicationData: AccessReportSettingsData[];
   hadLegacyBlobs?: boolean;
 }
@@ -110,5 +110,5 @@ export abstract class AccessReportEncryptionService {
     context: { organizationId: OrganizationId; userId: UserId },
     encryptedSummary: EncString,
     wrappedKey: EncString,
-  ): Observable<AccessReportSummaryData>;
+  ): Observable<AccessReportSummaryView>;
 }

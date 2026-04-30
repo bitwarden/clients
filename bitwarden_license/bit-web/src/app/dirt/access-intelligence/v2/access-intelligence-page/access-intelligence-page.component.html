@@ -1,0 +1,92 @@
+<app-header> </app-header>
+
+<ng-container>
+  <!-- Show at top level so it's not destroyed when report data changes -->
+  @if (currentProgressStep(); as step) {
+    <dirt-report-loading [progressStep]="step"></dirt-report-loading>
+  } @else if (loading() || initializing()) {
+    <dirt-page-loading></dirt-page-loading>
+  } @else {
+    <!-- Check if we have report data -->
+    @if (!hasReportData()) {
+      <!-- Show empty state when there's no report data -->
+      <div @fadeIn class="tw-flex tw-justify-center tw-items-center tw-min-h-[70vh] tw-w-full">
+        <!-- V2: Show empty state for no reports run -->
+        <empty-state-card
+          [videoSrc]="emptyStateVideoSrc"
+          [title]="this.i18nService.t('noReportsRunTitle')"
+          [description]="this.i18nService.t('noReportsRunDescription')"
+          [benefits]="emptyStateBenefits"
+          [buttonText]="this.i18nService.t('riskInsightsRunReport')"
+          [buttonIcon]="''"
+          [buttonAction]="this.generateReport.bind(this)"
+        ></empty-state-card>
+      </div>
+    } @else {
+      <!-- Show screen when there is report data -->
+      <div @fadeIn class="tw-min-h-screen tw-flex tw-flex-col">
+        <div>
+          @if (appsCount() > 0) {
+            <div class="tw-text-main tw-max-w-4xl tw-mb-2">
+              {{ "reviewAccessIntelligence" | i18n }}
+            </div>
+          }
+          <div
+            class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-p-4 tw-my-4 tw-flex tw-flex-col tw-gap-3 sm:tw-flex-row sm:tw-items-center sm:tw-gap-4 md:tw-px-8"
+          >
+            <div class="tw-flex tw-items-center tw-gap-3 tw-flex-1 sm:tw-gap-4">
+              <bit-icon
+                name="bwi-exclamation-triangle"
+                class="tw-text-[1.2rem] tw-text-muted tw-flex-shrink-0"
+                aria-hidden="true"
+              />
+              @if (dataLastUpdated()) {
+                <span class="tw-flex-1">{{
+                  "dataLastUpdated" | i18n: (dataLastUpdated() | date: "MMMM d, y 'at' h:mm a")
+                }}</span>
+              }
+            </div>
+            <button
+              type="button"
+              bitButton
+              buttonType="secondary"
+              class="tw-border-none !tw-font-normal tw-cursor-pointer !tw-py-0 tw-w-full sm:tw-w-auto"
+              tabindex="0"
+              [bitAction]="generateReport.bind(this)"
+            >
+              {{ "riskInsightsRunReport" | i18n }}
+            </button>
+          </div>
+        </div>
+
+        <div class="tw-flex-1 tw-flex tw-flex-col">
+          <bit-tab-group [selectedIndex]="tabIndex()" (selectedIndexChange)="onTabChange($event)">
+            <bit-tab label="{{ 'activity' | i18n }}">
+              <app-activity-tab [organizationId]="organizationId()"></app-activity-tab>
+            </bit-tab>
+            @if (milestone11Enabled()) {
+              <bit-tab label="{{ 'applications' | i18n }}">
+                <dirt-applications-tab [organizationId]="organizationId()"></dirt-applications-tab>
+              </bit-tab>
+            } @else {
+              <bit-tab label="{{ 'allApplicationsWithCount' | i18n: appsCount() }}">
+                <dirt-all-applications-tab
+                  [organizationId]="organizationId()"
+                ></dirt-all-applications-tab>
+              </bit-tab>
+              <bit-tab>
+                <ng-template bitTabLabel>
+                  <bit-icon name="bwi-star"></bit-icon>
+                  {{ "criticalApplicationsWithCount" | i18n: criticalAppsCount() }}
+                </ng-template>
+                <dirt-critical-applications-tab
+                  [organizationId]="organizationId()"
+                ></dirt-critical-applications-tab>
+              </bit-tab>
+            }
+          </bit-tab-group>
+        </div>
+      </div>
+    }
+  }
+</ng-container>

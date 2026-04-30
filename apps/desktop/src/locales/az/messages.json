@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "SSH açarı"
   },
+  "typeLoginSubtitle": {
+    "message": "Veb sayt və ya tətbiq"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit və ya debet kart"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Fərdi məlumatlar"
+  },
+  "typeNoteSubtitle": {
+    "message": "Mühüm mətn"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server giriş tokeni"
+  },
+  "folderSubtitle": {
+    "message": "Elementlərinizi təşkil edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan elementləri təşkil edin"
+  },
+  "chooseItemToAdd": {
+    "message": "Əlavə olunacaq elementi seç"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Seyfinizə əlavə etmək istədiyiniz element növünü seçin."
+  },
   "folders": {
     "message": "Qovluqlar"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Elementə bax"
+  },
+  "viewItemHeaderLogin": {
+    "message": "View Login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "View Card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "View Identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "View Note",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "View SSH key",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "New Login",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "New Card",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "New Identity",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "New Note",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "New SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Edit Login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Edit Card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Edit Identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Edit Note",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Edit SSH key",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Ad"
@@ -921,6 +1008,9 @@
   "masterPassHintLabel": {
     "message": "Ana parol ipucusu"
   },
+  "masterPasswordChanged": {
+    "message": "Ana parol saxlanıldı"
+  },
   "passwordStrengthScore": {
     "message": "Parolun güc xalı: $SCORE$",
     "placeholders": {
@@ -1212,6 +1302,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Tövsiyə edilən yeni şifrələmə ayarları, hesabınızın təhlükəsizliyini artıracaq. İndi güncəlləmək üçün ana parolunuzu daxil edin."
   },
+  "rotateAccountEncKey": {
+    "message": "Həmçinin hesabımın şifrələmə açarını da döndər"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Şifrələmə açarınızı döndərməyin təsiri"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Hesabınızın şifrələmə açarını döndərməzdən əvvəl, seyfinizdəki köhnə fayl qoşmalarını düzəltməlisiniz."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Şifrələmə açarını döndər"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Hesabınızın şifrələmə açarını döndərmək istədiyinizə əminsiniz?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Şifrələmə açarını güncəllədikdən sonra, hazırda istifadə etdiyiniz (mobil tətbiq və ya brauzer uzantıları kimi) bütün Bitwarden tətbiqlərində çıxış edib yenidən giriş etməlisiniz. Çıxış edib təkrar giriş etməmək (yeni şifrələmə açarının endirilməsi prosesi) verilərin zədələnməsi ilə nəticələnə bilər. Sizi avtomatik olaraq çıxış etməyə çalışacağıq, ancaq burada gecikmə ola bilər."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Məhdudiyyətli hesablara aid saxladığınız xaricə köçürmələr yararsız olacaq."
+  },
   "confirmIdentityToContinue": {
     "message": "Davam etmək üçün kimliyinizi təsdiqləyin"
   },
@@ -1296,8 +1407,8 @@
   "changeMasterPass": {
     "message": "Ana parolu dəyişdir"
   },
-  "masterPasswordChanged": {
-    "message": "Ana parol saxlanıldı"
+  "changeMasterPassword": {
+    "message": "Ana parolu dəyişdir"
   },
   "continueToWebApp": {
     "message": "Veb tətbiqlə davam edilsin?"
@@ -2102,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "Saxlanılmamış dəyişikliklər"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "İndi tərk etsəniz, dəyişiklikləriniz saxlanılmayacaq. Dəyişikliklərinizi saxlamaq üçün güncəlləməni daha sonra quraşdırın."
+  },
+  "installLater": {
+    "message": "Daha sonra quraşdır"
+  },
+  "continueWithInstall": {
+    "message": "Quraşdırmağa davam"
+  },
   "clone": {
     "message": "Klonla"
   },
@@ -2211,6 +2331,9 @@
   "copyTOTP": {
     "message": "Kimlik doğrulayıcı açarını kopyala (TOTP)"
   },
+  "copyNotes": {
+    "message": "Notları kopyala"
+  },
   "totpHelperTitle": {
     "message": "2 addımlı doğrulamanı problemsiz edin"
   },
@@ -2299,6 +2422,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Yeni ana parolunuz siyasət tələblərini qarşılamır."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Bir və ya daha çox təşkilat siyasəti, aşağıdakı tələbləri qarşılamaq üçün ana parolu tələb edir:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Bitwarden-in tövsiyə, elan və araşdırma imkanlarını gələn qutunuzda əldə edin."
@@ -3501,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Cihaz güvənlidir"
   },
+  "device": {
+    "message": "Device"
+  },
+  "devices": {
+    "message": "Devices"
+  },
+  "whatIsADevice": {
+    "message": "What is a device?"
+  },
+  "aDeviceIs": {
+    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Your account was logged in to each of the devices below."
+  },
+  "loginStatus": {
+    "message": "Login status"
+  },
+  "recentlyActive": {
+    "message": "Recently active"
+  },
+  "recentlyActiveToday": {
+    "message": "Today"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Past 7 days"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Past 14 days"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Past 30 days"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Over 30 days ago"
+  },
+  "firstLogin": {
+    "message": "First login"
+  },
+  "trusted": {
+    "message": "Trusted"
+  },
+  "currentSession": {
+    "message": "Current session"
+  },
+  "requestPending": {
+    "message": "Request pending"
+  },
+  "deviceIdMissing": {
+    "message": "Device ID is missing"
+  },
+  "deviceTypeMissing": {
+    "message": "Device type is missing"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Device creation date is missing"
+  },
   "trustOrganization": {
     "message": "Təşkilata güvən"
   },
@@ -4669,6 +4852,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Fəaliyyəti dayandırılmış təşkilatlardakı elementlərə erişilə bilməz. Kömək üçün təşkilatınızın sahibi ilə əlaqə saxlayın."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Tullantıda element yoxdur"
   },
@@ -4724,7 +4916,41 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Side navigation"
+  },
+  "skipLink": {
+    "message": "Skip link"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -1,3 +1,4 @@
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -7,21 +8,18 @@ import { AccessReportSummaryData } from "../data/access-report-summary.data";
 import { AccessReportSummaryView } from "../view/access-report-summary.view";
 
 /**
- * Domain model for report summary in Access Intelligence containing encrypted properties
+ * Encrypted domain model for an access report summary.
+ * Holds the encrypted aggregate blob and its associated encryption key.
  *
  * - See {@link AccessReportSummaryApi} for API model
  * - See {@link AccessReportSummaryData} for data model
  * - See {@link AccessReportSummaryView} from View Model
  */
 export class AccessReportSummary extends Domain {
-  totalMemberCount: number = 0;
-  totalApplicationCount: number = 0;
-  totalAtRiskMemberCount: number = 0;
-  totalAtRiskApplicationCount: number = 0;
-  totalCriticalApplicationCount: number = 0;
-  totalCriticalMemberCount: number = 0;
-  totalCriticalAtRiskMemberCount: number = 0;
-  totalCriticalAtRiskApplicationCount: number = 0;
+  organizationId: string = "";
+  encryptedData: EncString | undefined;
+  encryptionKey: EncString | undefined;
+  date: Date = new Date(0);
 
   constructor(obj?: AccessReportSummaryData) {
     super();
@@ -29,22 +27,18 @@ export class AccessReportSummary extends Domain {
       return;
     }
 
-    this.totalMemberCount = obj.totalMemberCount;
-    this.totalApplicationCount = obj.totalApplicationCount;
-    this.totalAtRiskMemberCount = obj.totalAtRiskMemberCount;
-    this.totalAtRiskApplicationCount = obj.totalAtRiskApplicationCount;
-    this.totalCriticalApplicationCount = obj.totalCriticalApplicationCount;
-    this.totalCriticalMemberCount = obj.totalCriticalMemberCount;
-    this.totalCriticalAtRiskMemberCount = obj.totalCriticalAtRiskMemberCount;
-    this.totalCriticalAtRiskApplicationCount = obj.totalCriticalAtRiskApplicationCount;
+    this.organizationId = obj.organizationId ?? "";
+    this.encryptedData = obj.encryptedData ? new EncString(obj.encryptedData) : undefined;
+    this.encryptionKey = obj.encryptionKey ? new EncString(obj.encryptionKey) : undefined;
+    this.date = obj.date ? new Date(obj.date) : new Date(0);
   }
 
-  // [TODO] Domain level methods
-  // static fromJSON(): AccessReportSummary {}
-  // decrypt(): AccessReportSummaryView {}
-  // toData(): AccessReportSummaryData {}
-
-  // [TODO] SDK Mapping
-  // toSdkAccessReportSummary(): SdkAccessReportSummary {}
-  // static fromSdkAccessReportSummary(obj?: SdkAccessReportSummary): AccessReportSummary | undefined {}
+  toData(): AccessReportSummaryData {
+    const data = new AccessReportSummaryData();
+    data.organizationId = this.organizationId;
+    data.encryptedData = this.encryptedData?.encryptedString ?? "";
+    data.encryptionKey = this.encryptionKey?.encryptedString ?? "";
+    data.date = this.date.toISOString();
+    return data;
+  }
 }

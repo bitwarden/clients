@@ -27,6 +27,7 @@
       (onEditCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
       (onDeleteCollection)="deleteCollection(selectedCollection?.node)"
       (searchTextChanged)="filterSearchText($event)"
+      (onOpenAddItemDialog)="openAddItemDialog()"
     ></app-org-vault-header>
   }
 
@@ -38,7 +39,8 @@
           [organization]="organization"
           [activeFilter]="activeFilter"
           [searchText]="currentSearchText$ | async"
-          (searchTextChanged)="filterSearchText($event)"
+          [ciphers$]="allCiphers$"
+          (searchTextChange)="filterSearchText($event)"
         ></app-organization-vault-filter>
       </div>
     }

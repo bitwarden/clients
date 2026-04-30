@@ -11,7 +11,7 @@
       bitDialogHeaderEnd
       type="button"
       bitIconButton="bwi-close"
-      buttonType="main"
+      buttonType="primaryGhost"
       size="default"
       [label]="'close' | i18n"
       (click)="closeGenerator()"
@@ -65,7 +65,7 @@
         <button
           *ngIf="config?.mode !== 'add'"
           type="button"
-          buttonType="danger"
+          buttonType="dangerGhost"
           slot="end"
           bitIconButton="bwi-trash"
           [bitAction]="deleteSend"

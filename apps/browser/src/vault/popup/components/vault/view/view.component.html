@@ -1,7 +1,7 @@
 <popup-page>
   <popup-header slot="header" [pageTitle]="headerText" showBackButton>
     <ng-container slot="end">
-      @if (cipher?.isArchived && (archiveFlagEnabled$ | async)) {
+      @if (cipher?.isArchived) {
         <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
           {{ "archived" | i18n }}
         </span>
@@ -40,7 +40,7 @@
       </button>
     }
     <ng-container slot="end">
-      @if ((archiveFlagEnabled$ | async) && cipher.isArchived && !cipher.isDeleted) {
+      @if (cipher.isArchived && !cipher.isDeleted) {
         <button
           type="button"
           [bitAction]="unarchive"
@@ -60,7 +60,7 @@
         <button
           [bitAction]="delete"
           type="button"
-          buttonType="danger"
+          buttonType="dangerGhost"
           bitIconButton="bwi-trash"
           [label]="(cipher.isDeleted ? 'deleteForever' : 'delete') | i18n"
         ></button>

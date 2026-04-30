@@ -10,6 +10,7 @@ import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
+import jest from "eslint-plugin-jest";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
@@ -126,6 +127,11 @@ export default tseslint.config(
               target: ["libs/**/*"],
               from: ["apps/**/*"],
               message: "Libs should not import app-specific code.",
+            },
+            {
+              target: ["libs/**/*"],
+              from: ["bitwarden_license/**/*"],
+              message: "Libs should not import licensed code from bitwarden_license/.",
             },
             {
               // avoid specific frameworks or large dependencies in common
@@ -371,7 +377,6 @@ export default tseslint.config(
             "logo",
             "logo-themed",
             "file-selector",
-            "mfaType.*",
             "filter.*", // Temporary until filters are migrated
             "tw-app-region*", // Custom utility for native passkey modals
             "tw-@container",
@@ -673,6 +678,17 @@ export default tseslint.config(
     },
   },
 
+  // Jest test files configuration
+  {
+    files: ["**/*.spec.ts", "**/*.spec.js"],
+    plugins: {
+      jest,
+    },
+    rules: {
+      "jest/no-alias-methods": "error",
+    },
+  },
+
   // Keep ignores at the end
   {
     ignores: [
@@ -688,11 +704,9 @@ export default tseslint.config(
       "**/jest.config.js",
 
       "apps/browser/config/config.js",
-      "apps/browser/src/auth/scripts/duo.js",
       "apps/browser/webpack/manifest.js",
 
       "apps/desktop/desktop_native",
-      "apps/desktop/src/auth/scripts/duo.js",
 
       "apps/web/config.js",
       "apps/web/scripts/*.js",

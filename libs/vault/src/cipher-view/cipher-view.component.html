@@ -12,10 +12,10 @@
   </bit-callout>
 
   <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
-    @if (changePasswordUrl?.value()) {
+    @if (changePasswordLink()) {
       <a
         bitLink
-        [href]="changePasswordUrl?.value()"
+        [href]="changePasswordLink()"
         appStopClick
         (click)="launchChangePassword()"
         linkType="secondary"
@@ -50,7 +50,7 @@
     [cipher]="cipher()"
     [activeUserId]="activeUserId$ | async"
     [showChangePasswordLink]="showChangePasswordLink()"
-    [changePasswordUrl]="changePasswordUrl"
+    [changePasswordLink]="changePasswordLink()"
     (handleChangePassword)="launchChangePassword()"
   ></app-login-credentials-view>
 
@@ -71,6 +71,14 @@
 
   <!-- SshKEY SECTIONS -->
   <app-sshkey-view *ngIf="hasSshKey()" [sshKey]="cipher()!.sshKey"></app-sshkey-view>
+
+  <!-- BANK ACCOUNT SECTIONS -->
+  @if (hasBankAccount()) {
+    <app-bank-account-view
+      [bankAccount]="cipher()!.bankAccount"
+      [cipher]="cipher()!"
+    ></app-bank-account-view>
+  }
 
   <!-- ADDITIONAL OPTIONS -->
   <ng-container *ngIf="cipher()?.notes">

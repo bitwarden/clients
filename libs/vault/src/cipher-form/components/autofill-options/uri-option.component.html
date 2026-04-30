@@ -15,7 +15,7 @@
         <button
           type="button"
           bitIconButton="bwi-minus-circle"
-          buttonType="danger"
+          buttonType="dangerGhost"
           bitSuffix
           [label]="'deleteWebsite' | i18n"
           *ngIf="canRemove"
@@ -25,6 +25,7 @@
       </bit-form-field>
       <div class="tw-flex tw-items-center tw-ml-1.5" *ngIf="canReorder">
         <button
+          role="application"
           type="button"
           bitIconButton="bwi-drag-and-drop"
           class="!tw-py-0 !tw-px-1"

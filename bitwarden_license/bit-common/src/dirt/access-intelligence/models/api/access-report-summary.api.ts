@@ -8,35 +8,24 @@ import { AccessReportSummary } from "../domain/access-report-summary";
 import { AccessReportSummaryView } from "../view/access-report-summary.view";
 
 /**
- * Converts an AccessReportSummary API response
+ * API response model for an encrypted access report summary entry.
  *
  * - See {@link AccessReportSummary} for domain model
  * - See {@link AccessReportSummaryData} for data model
- * - See {@link AccessReportSummaryView} from View Model
+ * - See {@link AccessReportSummaryView} for view model
  */
 export class AccessReportSummaryApi extends BaseResponse {
-  totalMemberCount: number = 0;
-  totalApplicationCount: number = 0;
-  totalAtRiskMemberCount: number = 0;
-  totalAtRiskApplicationCount: number = 0;
-  totalCriticalApplicationCount: number = 0;
-  totalCriticalMemberCount: number = 0;
-  totalCriticalAtRiskMemberCount: number = 0;
-  totalCriticalAtRiskApplicationCount: number = 0;
+  organizationId: string = "";
+  encryptedData: string = "";
+  encryptionKey: string = "";
+  date: string = "";
 
   constructor(data: any) {
     super(data);
 
-    this.totalMemberCount = this.getResponseProperty("totalMemberCount") || 0;
-    this.totalApplicationCount = this.getResponseProperty("totalApplicationCount") || 0;
-    this.totalAtRiskMemberCount = this.getResponseProperty("totalAtRiskMemberCount") || 0;
-    this.totalAtRiskApplicationCount = this.getResponseProperty("totalAtRiskApplicationCount") || 0;
-    this.totalCriticalApplicationCount =
-      this.getResponseProperty("totalCriticalApplicationCount") || 0;
-    this.totalCriticalMemberCount = this.getResponseProperty("totalCriticalMemberCount") || 0;
-    this.totalCriticalAtRiskMemberCount =
-      this.getResponseProperty("totalCriticalAtRiskMemberCount") || 0;
-    this.totalCriticalAtRiskApplicationCount =
-      this.getResponseProperty("totalCriticalAtRiskApplicationCount") || 0;
+    this.organizationId = this.getResponseProperty("OrganizationId") ?? "";
+    this.encryptedData = this.getResponseProperty("EncryptedData") ?? "";
+    this.encryptionKey = this.getResponseProperty("EncryptionKey") ?? "";
+    this.date = this.getResponseProperty("Date") ?? "";
   }
 }

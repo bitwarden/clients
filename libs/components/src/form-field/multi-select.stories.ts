@@ -46,6 +46,7 @@ export default {
               required: "required",
               inputRequired: "Input is required.",
               loading: "loading",
+              removeItem: "remove item",
             });
           },
         },

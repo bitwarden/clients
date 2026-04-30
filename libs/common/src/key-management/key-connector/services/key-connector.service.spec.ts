@@ -296,7 +296,6 @@ describe("KeyConnectorService", () => {
         keyConnectorRequest,
       );
       expect(apiService.postConvertToKeyConnector).toHaveBeenCalled();
-      expect(masterPasswordService.mock.clearMasterKeyHash).toHaveBeenCalledWith(mockUserId);
       expect(masterPasswordService.mock.clearMasterPasswordUnlockData).toHaveBeenCalledWith(
         mockUserId,
       );
@@ -336,7 +335,6 @@ describe("KeyConnectorService", () => {
           keyConnectorRequest,
         );
         // Verify state clearing operations were not called due to error
-        expect(masterPasswordService.mock.clearMasterKeyHash).not.toHaveBeenCalled();
         expect(masterPasswordService.mock.clearMasterPasswordUnlockData).not.toHaveBeenCalled();
         expect(userDecryptionOptionsService.setUserDecryptionOptionsById).not.toHaveBeenCalled();
       }
