@@ -182,10 +182,7 @@ export class AccessReportView implements View {
    *   or 0 if the application is not in the report or the member has no at-risk
    *   ciphers there
    */
-  getAtRiskPasswordCountForMemberInApplication(
-    memberId: string,
-    applicationName: string,
-  ): number {
+  getAtRiskPasswordCountForMemberInApplication(memberId: string, applicationName: string): number {
     const app = this.getApplicationByName(applicationName);
     if (!app || !app.isMemberAtRisk(memberId)) {
       return 0;

@@ -10,11 +10,7 @@ import {
   createReport,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
 import { CipherId, OrganizationId } from "@bitwarden/common/types/guid";
-import {
-  SecurityTask,
-  SecurityTaskStatus,
-  SecurityTaskType,
-} from "@bitwarden/common/vault/tasks";
+import { SecurityTask, SecurityTaskStatus, SecurityTaskType } from "@bitwarden/common/vault/tasks";
 
 import { AdminTaskService } from "../../../../../vault/services/abstractions/admin-task.abstraction";
 
@@ -188,11 +184,7 @@ describe("DefaultAccessSecurityTasksService", () => {
       securityTasksApiServiceMock.getAllTasks.mockResolvedValue([]);
 
       await firstValueFrom(
-        service.requestPasswordChangeForCriticalApplications$(organizationId, [
-          "c1",
-          "c2",
-          "c1",
-        ]),
+        service.requestPasswordChangeForCriticalApplications$(organizationId, ["c1", "c2", "c1"]),
       );
 
       expect(adminTaskServiceMock.bulkCreateTasks).toHaveBeenCalledWith(organizationId, [

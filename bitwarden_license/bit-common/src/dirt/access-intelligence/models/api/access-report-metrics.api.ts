@@ -21,8 +21,7 @@ export class AccessReportMetricsApi extends BaseResponse {
     }
 
     this.totalApplicationCount = this.getResponseProperty("totalApplicationCount") ?? 0;
-    this.totalAtRiskApplicationCount =
-      this.getResponseProperty("totalAtRiskApplicationCount") ?? 0;
+    this.totalAtRiskApplicationCount = this.getResponseProperty("totalAtRiskApplicationCount") ?? 0;
     this.totalCriticalApplicationCount =
       this.getResponseProperty("totalCriticalApplicationCount") ?? 0;
     this.totalCriticalAtRiskApplicationCount =
