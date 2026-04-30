@@ -208,8 +208,6 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
             this.form.controls.biometric.enable({ emitEvent: false });
           }
 
-          // Biometrics status shouldn't be checked if permissions are needed.
-
           const status = await this.biometricsService.getBiometricsStatusForUser(activeAccount.id);
           if (status === BiometricsStatus.DesktopDisconnected && !biometricSettingAvailable) {
             this.biometricUnavailabilityReason = this.i18nService.t(
