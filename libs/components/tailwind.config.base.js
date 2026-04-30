@@ -1,20 +1,33 @@
 /* eslint-disable */
 const colors = require("tailwindcss/colors");
 const plugin = require("tailwindcss/plugin");
+const path = require("path");
 
 function rgba(color) {
   return "rgb(var(" + color + ") / <alpha-value>)";
 }
 
+// shared lib paths; add app-specific paths to the app's tailwind.config.js, not here
+const libContent = [
+  "./src/**/*.{html,ts,mdx}",
+  "../../libs/admin-console/src/**/*.{html,ts,mdx}",
+  "../../libs/angular/src/**/*.{html,ts,mdx}",
+  "../../libs/assets/src/**/*.{html,ts,mdx}",
+  "../../libs/auth/src/**/*.{html,ts,mdx}",
+  "../../libs/billing/src/**/*.{html,ts,mdx}",
+  "../../libs/dirt/card/src/**/*.{html,ts,mdx}",
+  "../../libs/key-management-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/platform/src/**/*.{html,ts,mdx}",
+  "../../libs/pricing/src/**/*.{html,ts,mdx}",
+  "../../libs/subscription/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/vault/src/**/*.{html,ts,mdx}",
+].map((libPath) => path.resolve(__dirname, libPath));
+
 module.exports = {
   prefix: "tw-",
-  content: [
-    "./src/**/*.{html,ts,mdx}",
-    "../../libs/assets/src/**/*.{html,ts}",
-    "../../libs/components/src/**/*.{html,ts,mdx}",
-    "../../libs/key-management-ui/src/**/*.{html,ts}",
-    "../../libs/auth/src/**/*.{html,ts}",
-  ],
+  content: libContent,
   safelist: [],
   corePlugins: { preflight: false },
   theme: {
