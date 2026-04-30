@@ -13,23 +13,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { IconButtonModule } from "../icon-button/icon-button.module";
 import { TypographyModule } from "../typography";
 
-import { PopoverFooterComponent } from "./popover-footer.component";
-import { PopoverHeaderComponent } from "./popover-header.component";
-
 /**
  * Popover component for displaying contextual content in an overlay.
  * Used with `bitPopoverAnchorFor` or `bitPopoverTriggerFor` directives.
  */
 @Component({
   selector: "bit-popover",
-  imports: [
-    A11yModule,
-    I18nPipe,
-    IconButtonModule,
-    TypographyModule,
-    PopoverHeaderComponent,
-    PopoverFooterComponent,
-  ],
+  imports: [A11yModule, I18nPipe, IconButtonModule, TypographyModule],
   templateUrl: "./popover.component.html",
   exportAs: "popoverComponent",
   changeDetection: ChangeDetectionStrategy.OnPush,
