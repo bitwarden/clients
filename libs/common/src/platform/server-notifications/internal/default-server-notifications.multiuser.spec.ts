@@ -6,6 +6,7 @@ import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 
 import { mockAccountInfoWith } from "../../../../spec";
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -38,6 +39,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
   let activeUserAccount$: BehaviorSubject<ObservedValueOf<AccountService["activeAccount$"]>>;
   let userAccounts$: BehaviorSubject<ObservedValueOf<AccountService["accounts$"]>>;
@@ -134,6 +136,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
     policyService = mock<InternalPolicyService>();
 
     autoConfirmService = mock<AutomaticUserConfirmationService>();
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
     defaultServerNotificationsService = new DefaultServerNotificationsService(
       mock<LogService>(),
@@ -150,6 +153,7 @@ describe("DefaultServerNotificationsService (multi-user)", () => {
       configService,
       policyService,
       autoConfirmService,
+      billingAccountProfileStateService,
     );
   });
 
