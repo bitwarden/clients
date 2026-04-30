@@ -43,7 +43,14 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
-          secrets: "crowdin-api-token, github-gpg-private-key, github-gpg-private-key-passphrase"
+          secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
+
+      - name: Retrieve secrets
+        id: retrieve-secrets-crowdin
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "gh-clients"
+          secrets: "CROWDIN-API-TOKEN"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -67,7 +74,7 @@ jobs:
         uses: bitwarden/gh-actions/crowdin@main
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
+          CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets-crowdin.outputs.CROWDIN-API-TOKEN }}
           CROWDIN_PROJECT_ID: ${{ matrix.crowdin_project_id }}
         with:
           config: crowdin.yml
