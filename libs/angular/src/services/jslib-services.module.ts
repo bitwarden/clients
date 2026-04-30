@@ -381,7 +381,9 @@ import {
 } from "@bitwarden/key-management";
 import {
   DefaultOrganizationInviteLinkApiService,
+  DefaultOrganizationInviteLinkService,
   OrganizationInviteLinkApiService,
+  OrganizationInviteLinkService,
 } from "@bitwarden/organization-invite-link";
 import { DefaultTaskSchedulerService, TaskSchedulerService } from "@bitwarden/scheduling";
 import {
@@ -1127,6 +1129,9 @@ const safeProviders: SafeProvider[] = [
       InternalOrganizationServiceAbstraction,
       OrganizationUserApiService,
       InternalPolicyService,
+      AuthServiceAbstraction,
+      AccountServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1285,6 +1290,17 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationInviteLinkApiService,
     useClass: DefaultOrganizationInviteLinkApiService,
     deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: OrganizationInviteLinkService,
+    useClass: DefaultOrganizationInviteLinkService,
+    deps: [
+      KeyService,
+      EncryptService,
+      KeyGenerationService,
+      OrganizationInviteLinkApiService,
+      StateProvider,
+    ],
   }),
   safeProvider({
     provide: PasswordResetEnrollmentServiceAbstraction,
