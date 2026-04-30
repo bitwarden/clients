@@ -21,6 +21,10 @@ export class AccountMenu implements IMenubarMenu {
     if (this._hasMasterPassword) {
       items.push(this.changeMasterPassword);
     }
+    // TODO: PM-34438 - remove flag check and always push this.devices
+    if (this._desktopAddDevices) {
+      items.push(this.devices);
+    }
     items.push(this.twoStepLogin);
     items.push(this.fingerprintPhrase);
     items.push(this.separator);
@@ -34,6 +38,10 @@ export class AccountMenu implements IMenubarMenu {
   private readonly _window: BrowserWindow;
   private readonly _isLocked: boolean;
   private readonly _hasMasterPassword: boolean;
+  // TODO: PM-32419 - remove once multi client password management is fully rolled out
+  private readonly _multiClientPasswordManagement: boolean;
+  // TODO: PM-34438 - remove _desktopAddDevices field and desktopAddDevices constructor param
+  private readonly _desktopAddDevices: boolean;
 
   constructor(
     i18nService: I18nService,
@@ -42,7 +50,9 @@ export class AccountMenu implements IMenubarMenu {
     window: BrowserWindow,
     isLocked: boolean,
     hasMasterPassword: boolean,
+    multiClientPasswordManagement: boolean = false,
     private shell: SafeShell,
+    desktopAddDevices: boolean = false,
   ) {
     this._i18nService = i18nService;
     this._messagingService = messagingService;
@@ -50,6 +60,10 @@ export class AccountMenu implements IMenubarMenu {
     this._window = window;
     this._isLocked = isLocked;
     this._hasMasterPassword = hasMasterPassword;
+    // TODO: PM-32419 - remove once multi client password management is fully rolled out
+    this._multiClientPasswordManagement = multiClientPasswordManagement;
+    // TODO: PM-34438 - remove this assignment
+    this._desktopAddDevices = desktopAddDevices;
   }
 
   private get premiumMembership(): MenuItemConstructorOptions {
@@ -63,6 +77,17 @@ export class AccountMenu implements IMenubarMenu {
   }
 
   private get changeMasterPassword(): MenuItemConstructorOptions {
+    // TODO: PM-32419 - remove feature flag check once fully rolled out
+    if (this._multiClientPasswordManagement) {
+      return {
+        // TODO: PM-32419 - remove "changeMasterPass" translation since we now use changeMasterPassword
+        label: this.localize("changeMasterPassword"),
+        id: "changeMasterPassword",
+        click: () => this.sendMessage("openChangePasswordDialog"),
+        enabled: !this._isLocked,
+      };
+    }
+    // TODO: PM-32419 - remove old change password menu item once multi client password management is fully rolled out
     return {
       label: this.localize("changeMasterPass"),
       id: "changeMasterPass",
@@ -80,6 +105,15 @@ export class AccountMenu implements IMenubarMenu {
           void this.shell.openExternal(this._webVaultUrl, UrlType.WebUrl);
         }
       },
+      enabled: !this._isLocked,
+    };
+  }
+
+  private get devices(): MenuItemConstructorOptions {
+    return {
+      label: this.localize("devices"),
+      id: "devices",
+      click: () => this.sendMessage("openDevicesDialog"),
       enabled: !this._isLocked,
     };
   }

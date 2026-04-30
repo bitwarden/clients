@@ -29,6 +29,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -45,9 +47,12 @@ import { ITreeNodeObject, TreeNode } from "@bitwarden/common/vault/models/domain
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import {
+  CIPHER_MENU_ITEMS,
+  DIALOG_CIPHER_MENU_ITEMS,
+} from "@bitwarden/common/vault/types/cipher-menu-items";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { ChipSelectOption } from "@bitwarden/components";
+import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
@@ -175,7 +180,7 @@ export class VaultPopupListFiltersService {
       });
   }
 
-  private flattenOptions<T>(option: ChipSelectOption<T>): ChipSelectOption<T>[] {
+  private flattenOptions<T>(option: ChipFilterOption<T>): ChipFilterOption<T>[] {
     return [option, ...(option.children?.flatMap((c) => this.flattenOptions(c)) || [])];
   }
 
@@ -191,6 +196,7 @@ export class VaultPopupListFiltersService {
     private accountService: AccountService,
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -247,8 +253,15 @@ export class VaultPopupListFiltersService {
               return false;
             }
 
-            if (filters.folder && cipher.folderId !== filters.folder.id) {
-              return false;
+            if (filters.folder) {
+              if (!filters.folder.id) {
+                // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+                if (cipher.folderId) {
+                  return false;
+                }
+              } else if (cipher.folderId !== filters.folder.id) {
+                return false;
+              }
             }
 
             const isMyVault = filters.organization?.id === MY_VAULT_ID;
@@ -269,22 +282,28 @@ export class VaultPopupListFiltersService {
     );
 
   /**
-   * All available cipher types (filtered by policy restrictions)
+   * All available cipher types (filtered by policy restrictions and feature flags)
    */
-  readonly cipherTypes$: Observable<ChipSelectOption<CipherType>[]> =
-    this.restrictedItemTypesService.restricted$.pipe(
-      map((restrictedTypes) => {
-        return CIPHER_MENU_ITEMS.filter((item) => {
+  readonly cipherTypes$: Observable<ChipFilterOption<CipherType>[]> = combineLatest([
+    this.restrictedItemTypesService.restricted$,
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+  ]).pipe(
+    map(([restrictedTypes, allowNewItemTypes]) => {
+      const cipherMenuItems = allowNewItemTypes ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
+
+      return cipherMenuItems
+        .filter((item) => {
           const restriction = restrictedTypes.find((r) => r.cipherType === item.type);
           // Show if no restriction or if the restriction allows viewing in at least one org
           return !restriction || restriction.allowViewOrgIds.length > 0;
-        }).map((item) => ({
+        })
+        .map((item) => ({
           value: item.type,
           label: this.i18nService.t(item.labelKey),
-          icon: item.icon,
+          icon: item.icon as BitwardenIcon,
         }));
-      }),
-    );
+    }),
+  );
 
   /** Resets `filterForm` to the original state */
   resetFilterForm(): void {
@@ -292,10 +311,10 @@ export class VaultPopupListFiltersService {
   }
 
   /**
-   * Organization array structured to be directly passed to `ChipSelectComponent`
+   * Organization array structured to be directly passed to `ChipFilterComponent`
    */
 
-  organizations$: Observable<ChipSelectOption<Organization>[]> =
+  organizations$: Observable<ChipFilterOption<Organization>[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
@@ -321,7 +340,7 @@ export class VaultPopupListFiltersService {
           return [];
         }
 
-        const myVaultOrg: ChipSelectOption<Organization>[] = [];
+        const myVaultOrg: ChipFilterOption<Organization>[] = [];
 
         // Only add "My vault" if organization data ownership policy does not apply
         if (!organizationDataOwnership) {
@@ -335,11 +354,13 @@ export class VaultPopupListFiltersService {
         return [
           ...myVaultOrg,
           ...orgs.map((org) => {
-            let icon = "bwi-business";
+            let icon: BitwardenIcon = "bwi-business";
+            let iconClass: string | undefined = undefined;
 
             if (!org.enabled) {
               // Show a warning icon if the organization is deactivated
-              icon = "bwi-exclamation-triangle tw-text-danger";
+              icon = "bwi-exclamation-triangle";
+              iconClass = "tw-text-danger";
             } else if (
               org.productTierType === ProductTierType.Families ||
               org.productTierType === ProductTierType.Free
@@ -352,6 +373,7 @@ export class VaultPopupListFiltersService {
               value: org,
               label: org.name,
               icon,
+              iconClass,
             };
           }),
         ];
@@ -360,9 +382,9 @@ export class VaultPopupListFiltersService {
     );
 
   /**
-   * Folder array structured to be directly passed to `ChipSelectComponent`
+   * Folder array structured to be directly passed to `ChipFilterComponent`
    */
-  folders$: Observable<ChipSelectOption<FolderView>[]> = this.activeUserId$.pipe(
+  folders$: Observable<ChipFilterOption<FolderView>[]> = this.activeUserId$.pipe(
     switchMap((userId) => {
       // Observable of cipher views
       const cipherViews$ = this.cipherService.cipherListViews$(userId).pipe(
@@ -424,7 +446,13 @@ export class VaultPopupListFiltersService {
           const orgCiphers = cipherViews.filter((c) => c.organizationId === organizationId);
 
           // Return only the folders that have ciphers within the filtered organization
-          return folders.filter((f) => orgCiphers.some((oc) => oc.folderId === f.id));
+          return folders.filter((f) => {
+            if (!f.id) {
+              // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+              return orgCiphers.some((oc) => !oc.folderId);
+            }
+            return orgCiphers.some((oc) => oc.folderId === f.id);
+          });
         }),
         map((folders) => {
           const nestedFolders = this.getAllFoldersNested(folders);
@@ -434,7 +462,7 @@ export class VaultPopupListFiltersService {
           });
         }),
         map((folders) =>
-          folders.nestedList.map((f) => this.convertToChipSelectOption(f, "bwi-folder")),
+          folders.nestedList.map((f) => this.convertToChipFilterOption(f, "bwi-folder")),
         ),
       );
     }),
@@ -442,9 +470,9 @@ export class VaultPopupListFiltersService {
   );
 
   /**
-   * Collection array structured to be directly passed to `ChipSelectComponent`
+   * Collection array structured to be directly passed to `ChipFilterComponent`
    */
-  collections$: Observable<ChipSelectOption<CollectionView>[]> =
+  collections$: Observable<ChipFilterOption<CollectionView>[]> =
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) =>
@@ -473,7 +501,7 @@ export class VaultPopupListFiltersService {
       }),
       map((tree) =>
         tree.nestedList.map((c) =>
-          this.convertToChipSelectOption(
+          this.convertToChipFilterOption(
             c,
             c.node.type === CollectionTypes.DefaultUserCollection
               ? "bwi-user"
@@ -493,18 +521,18 @@ export class VaultPopupListFiltersService {
   }
 
   /**
-   * Converts the given item into the `ChipSelectOption` structure
+   * Converts the given item into the `ChipFilterOption` structure
    */
-  private convertToChipSelectOption<T extends ITreeNodeObject>(
+  private convertToChipFilterOption<T extends ITreeNodeObject>(
     item: TreeNode<T>,
-    icon: string,
-  ): ChipSelectOption<T> {
+    icon: BitwardenIcon,
+  ): ChipFilterOption<T> {
     return {
       value: item.node,
       label: item.node.name,
       icon,
       children: item.children
-        ? item.children.map((i) => this.convertToChipSelectOption(i, icon))
+        ? item.children.map((i) => this.convertToChipFilterOption(i, icon))
         : undefined,
     };
   }

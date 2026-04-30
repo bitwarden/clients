@@ -310,12 +310,15 @@ export const WithPercentDiscount: Story = {
         },
       },
       cadence: "monthly",
-      discount: {
-        type: DiscountTypes.PercentOff,
-        value: 20,
-      },
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 20,
+        },
+      ],
       estimatedTax: 10.4,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 
@@ -337,12 +340,15 @@ export const WithAmountDiscount: Story = {
         },
       },
       cadence: "annually",
-      discount: {
-        type: DiscountTypes.AmountOff,
-        value: 50.0,
-      },
+      discounts: [
+        {
+          type: DiscountTypes.AmountOff,
+          value: 50.0,
+        },
+      ],
       estimatedTax: 95.0,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 
@@ -422,16 +428,19 @@ export const WithDiscountAndCredit: Story = {
         },
       },
       cadence: "annually",
-      discount: {
-        type: DiscountTypes.PercentOff,
-        value: 15,
-      },
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 15,
+        },
+      ],
       credit: {
         translationKey: "premiumSubscriptionCredit",
         value: 50.0,
       },
       estimatedTax: 15.0,
     } satisfies Cart,
+    showDiscountBadges: true,
   },
 };
 
@@ -458,6 +467,17 @@ export const WithItemDiscount: Story = {
 
 export const WithCartAndItemDiscount: Story = {
   name: "With Both Cart-Level and Item-Level Discounts",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Represents the **membership card (post-purchase)** view. " +
+          "The item-level discount renders inline under its line item. " +
+          "The cart-level discount badge is intentionally hidden (`showDiscountBadges` defaults to `false`) " +
+          "because post-purchase the user's concern is billing amount and date, not promotional persuasion.",
+      },
+    },
+  },
   args: {
     cart: {
       passwordManager: {
@@ -477,17 +497,51 @@ export const WithCartAndItemDiscount: Story = {
         },
       },
       cadence: "monthly",
-      discount: {
-        type: DiscountTypes.PercentOff,
-        value: 10,
-      },
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+        },
+      ],
       estimatedTax: 8.55,
     } satisfies Cart,
   },
 };
 
+export const WithMultipleDiscounts: Story = {
+  name: "With Multiple Stacked Discounts",
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "annually",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 20,
+        },
+        {
+          type: DiscountTypes.PercentOff,
+          value: 10,
+        },
+      ],
+      estimatedTax: 8.64,
+    } satisfies Cart,
+    showDiscountBadges: true,
+  },
+};
+
 export const HiddenPricingTerm: Story = {
-  name: "Hidden Pricing Term",
   args: {
     cart: {
       passwordManager: {

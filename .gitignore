@@ -56,3 +56,7 @@ apps/**/config/local.json
 
 # Nx
 .nx
+
+# DevContainer generated files
+.devcontainer/native-gui/docker-compose.override.yml
+.devcontainer/common/.env

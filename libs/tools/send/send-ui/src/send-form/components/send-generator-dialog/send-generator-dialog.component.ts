@@ -62,19 +62,19 @@ export class SendGeneratorDialogComponent {
   }
 
   protected readonly close = () => {
-    this.dialogRef.close({ action: SendGeneratorDialogAction.Canceled });
+    void this.dialogRef.close({ action: SendGeneratorDialogAction.Canceled });
   };
 
   protected readonly selectValue = () => {
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: SendGeneratorDialogAction.Selected,
       generatedValue: this.generatedValue(),
     });
   };
 
-  onValueGenerated(value: string) {
+  readonly onValueGenerated = (value: string) => {
     this.generatedValue.set(value);
-  }
+  };
 
   readonly onAlgorithmSelected = (selected?: AlgorithmInfo) => {
     if (selected) {

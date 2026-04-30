@@ -1,5 +1,8 @@
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
+import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 /**
@@ -352,6 +355,29 @@ export function getAttributeBoolean(
 }
 
 /**
+ * Checks if a form field element is currently readonly or disabled.
+ *
+ * @param formFieldElement - The form field element to evaluate.
+ * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
+ */
+export function isReadonlyOrDisabledFormFieldElement(
+  formFieldElement: FormFieldElement,
+  autofillFieldData?: AutofillFieldReadonlyDisabledState,
+): boolean {
+  const readOnlyByProperty =
+    (elementIsInputElement(formFieldElement) || elementIsTextAreaElement(formFieldElement)) &&
+    formFieldElement.readOnly;
+
+  return (
+    getAttributeBoolean(formFieldElement, AUTOFILL_ATTRIBUTES.DISABLED) ||
+    readOnlyByProperty ||
+    getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
+    autofillFieldData?.readonly === true ||
+    autofillFieldData?.disabled === true
+  );
+}
+
+/**
  * Get the value of a property or attribute from a FormFieldElement.
  *
  * @param element
@@ -417,47 +443,6 @@ export function debounce<FunctionType extends (...args: unknown[]) => unknown>(
       callback.apply(this, args);
     }
   };
-}
-
-/**
- * Gathers and normalizes keywords from a potential submit button element. Used
- * to verify if the element submits a login or change password form.
- *
- * @param element - The element to gather keywords from.
- */
-export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
-  const keywords = [
-    element.textContent,
-    element.getAttribute("type"),
-    element.getAttribute("value"),
-    element.getAttribute("aria-label"),
-    element.getAttribute("aria-labelledby"),
-    element.getAttribute("aria-describedby"),
-    element.getAttribute("title"),
-    element.getAttribute("id"),
-    element.getAttribute("name"),
-    element.getAttribute("class"),
-  ];
-
-  const keywordsSet = new Set<string>();
-  for (let i = 0; i < keywords.length; i++) {
-    const keyword = keywords[i];
-    if (typeof keyword === "string") {
-      // Iterate over all keywords metadata and split them by non-letter characters.
-      // This ensures we check against individual words and not the entire string.
-      keyword
-        .toLowerCase()
-        .replace(/[-\s]/g, "")
-        .split(/[^\p{L}]+/gu)
-        .forEach((splitKeyword) => {
-          if (splitKeyword) {
-            keywordsSet.add(splitKeyword);
-          }
-        });
-    }
-  }
-
-  return keywordsSet;
 }
 
 /**

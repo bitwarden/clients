@@ -5,6 +5,7 @@ import { Jsonify } from "type-fest";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AuthenticationType } from "@bitwarden/common/auth/enums/authentication-type";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
+import { PasswordPreloginData } from "@bitwarden/common/auth/password-prelogin";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -17,6 +18,9 @@ export class PasswordLoginCredentials {
     public masterPassword: string,
     public twoFactor?: TokenTwoFactorRequest,
     public masterPasswordPoliciesFromOrgInvite?: MasterPasswordPolicyOptions,
+
+    /** Prefetched prelogin data. If provided, skips the prelogin API call during login. */
+    public preFetchedPreloginData?: PasswordPreloginData,
   ) {}
 }
 

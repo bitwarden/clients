@@ -1,14 +1,6 @@
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
-export type AutofillKeywordsMap = WeakMap<
-  AutofillField,
-  {
-    keywordsSet: Set<string>;
-    stringValue: string;
-  }
->;
-
 export type SubmitButtonKeywordsMap = WeakMap<HTMLElement, string>;
 
 export interface InlineMenuFieldQualificationService {

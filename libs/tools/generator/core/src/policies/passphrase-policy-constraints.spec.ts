@@ -78,7 +78,7 @@ describe("PassphrasePolicyConstraints", () => {
     it("allows an empty word separator", () => {
       const policy = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
-      const { wordSeparator } = policy.adjust({ ...SomeSettings, wordSeparator: "" });
+      const { wordSeparator } = policy.adjust({ ...SomeSettings, wordSeparator: "" }).state;
 
       expect(wordSeparator).toEqual("");
     });
@@ -86,7 +86,7 @@ describe("PassphrasePolicyConstraints", () => {
     it("takes only the first character of wordSeparator", () => {
       const policy = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
-      const { wordSeparator } = policy.adjust({ ...SomeSettings, wordSeparator: "?." });
+      const { wordSeparator } = policy.adjust({ ...SomeSettings, wordSeparator: "?." }).state;
 
       expect(wordSeparator).toEqual("?");
     });
@@ -99,7 +99,7 @@ describe("PassphrasePolicyConstraints", () => {
       (value, _, expected, __) => {
         const policy = new PassphrasePolicyConstraints(disabledPolicy, someConstraints);
 
-        const { numWords } = policy.adjust({ ...SomeSettings, numWords: value });
+        const { numWords } = policy.adjust({ ...SomeSettings, numWords: value }).state;
 
         expect(numWords).toEqual(expected);
       },
@@ -119,7 +119,7 @@ describe("PassphrasePolicyConstraints", () => {
           someConstraints,
         );
 
-        const { numWords } = policy.adjust({ ...SomeSettings, numWords: value });
+        const { numWords } = policy.adjust({ ...SomeSettings, numWords: value }).state;
 
         expect(numWords).toEqual(expected);
       },
@@ -134,7 +134,7 @@ describe("PassphrasePolicyConstraints", () => {
         someConstraints,
       );
 
-      const { capitalize } = policy.adjust({ ...SomeSettings, capitalize: false });
+      const { capitalize } = policy.adjust({ ...SomeSettings, capitalize: false }).state;
 
       expect(capitalize).toBeTruthy();
     });
@@ -148,7 +148,7 @@ describe("PassphrasePolicyConstraints", () => {
         someConstraints,
       );
 
-      const { includeNumber } = policy.adjust({ ...SomeSettings, capitalize: false });
+      const { includeNumber } = policy.adjust({ ...SomeSettings, capitalize: false }).state;
 
       expect(includeNumber).toBeTruthy();
     });
@@ -160,7 +160,7 @@ describe("PassphrasePolicyConstraints", () => {
 
       const result = policy.fix(SomeSettings);
 
-      expect(result).toBe(SomeSettings);
+      expect(result.state).toBe(SomeSettings);
     });
   });
 });

@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
-import { map } from "rxjs";
+import { map, switchMap } from "rxjs";
 
 import { organizationPolicyGuard } from "@bitwarden/angular/admin-console/guards";
 import { AuthenticationTimeoutComponent } from "@bitwarden/angular/auth/components/authentication-timeout.component";
@@ -51,6 +51,7 @@ import {
 } from "@bitwarden/auth/angular";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -87,6 +88,7 @@ import { SMLandingComponent } from "./secrets-manager/secrets-manager-landing/sm
 import { AppearanceComponent } from "./settings/appearance.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { CredentialGeneratorComponent } from "./tools/credential-generator/credential-generator.component";
+import { unsavedSendEditsGuard } from "./tools/guards/unsaved-send-edits.guard";
 import { AccessComponent, SendAccessExplainerComponent } from "./tools/send/send-access";
 import { SendComponent } from "./tools/send/send.component";
 import { BrowserExtensionPromptInstallComponent } from "./vault/components/browser-extension-prompt/browser-extension-prompt-install.component";
@@ -641,12 +643,25 @@ const routes: Routes = [
         component: SendComponent,
         data: { titleId: "send" } satisfies RouteDataProperties,
         canActivate: [
-          organizationPolicyGuard((userId, _configService, policyService) =>
-            policyService
-              .policyAppliesToUser$(PolicyType.DisableSend, userId)
-              .pipe(map((policyApplies) => !policyApplies)),
+          organizationPolicyGuard((userId, policyService, configService) =>
+            configService
+              .getFeatureFlag$(FeatureFlag.SendControls)
+              .pipe(
+                switchMap((sendControlsEnabled) =>
+                  sendControlsEnabled
+                    ? policyService
+                        .policiesByType$(PolicyType.SendControls, userId)
+                        .pipe(
+                          map((policies) => !policies?.some((p) => p.data?.disableSend === true)),
+                        )
+                    : policyService
+                        .policyAppliesToUser$(PolicyType.DisableSend, userId)
+                        .pipe(map((policyApplies) => !policyApplies)),
+                ),
+              ),
           ),
         ],
+        canDeactivate: [unsavedSendEditsGuard],
       },
       {
         path: "sm-landing",

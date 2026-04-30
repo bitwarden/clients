@@ -85,14 +85,14 @@ export class VaultGeneratorDialogComponent {
    * Close the dialog without selecting a value.
    */
   protected close = () => {
-    this.dialogRef.close({ action: GeneratorDialogAction.Canceled });
+    void this.dialogRef.close({ action: GeneratorDialogAction.Canceled });
   };
 
   /**
    * Close the dialog and select the currently generated value.
    */
   protected selectValue = () => {
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: GeneratorDialogAction.Selected,
       generatedValue: this.generatedValue,
     });

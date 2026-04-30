@@ -6,6 +6,7 @@ export type NotificationTypeData = {
   removeIndividualVault?: boolean;
   importType?: string;
   launchTimestamp?: number;
+  showAnimations?: boolean;
 };
 
 export type NotificationsExtensionMessage = {

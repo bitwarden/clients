@@ -1,0 +1,91 @@
+<bit-chip-content size="large">
+  <button
+    bit-chip-content
+    [startIcon]="icon"
+    [endIcon]="
+      !selectedOption ? (menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down') : undefined
+    "
+    type="button"
+    class="tw-truncate tw-bg-transparent hover:tw-bg-transparent tw-border-none tw-outline-none tw-w-full tw-text-[color:inherit] tw-text-[length:inherit] tw-ps-2"
+    [class]="'tw-pb-[calc(theme(spacing.1)_-_1px)]'"
+    [class.tw-cursor-not-allowed]="disabled()"
+    [bitMenuTriggerFor]="menu"
+    [disabled]="disabled()"
+    [title]="label"
+    #menuTrigger="menuTrigger"
+    (click)="setMenuWidth()"
+    #chipSelectButton
+  >
+    <span class="tw-block tw-truncate tw-min-w-0">{{ label }}</span>
+  </button>
+  @if (selectedOption) {
+    <!-- manually position dismiss button due to padding inconsistency necessary for menu alignment -->
+    <button
+      bit-chip-dismiss-button
+      slot="end"
+      class="tw-relative tw-bottom-[1px]"
+      type="button"
+      [attr.aria-label]="'removeItem' | i18n: label"
+      [disabled]="disabled()"
+      (click)="clear()"
+    ></button>
+  }
+</bit-chip-content>
+
+<bit-menu #menu (closed)="handleMenuClosed()">
+  @if (renderedOptions) {
+    <div
+      class="tw-max-h-80 tw-min-w-32 tw-max-w-80 tw-text-sm"
+      [ngStyle]="menuWidth && { width: menuWidth + 'px' }"
+    >
+      @if (getParent(renderedOptions); as parent) {
+        <button
+          type="button"
+          bitMenuItem
+          (click)="viewOption(parent, $event)"
+          class="tw-text-[length:inherit]"
+          [title]="'backTo' | i18n: parent.label ?? placeholderText()"
+        >
+          <bit-icon slot="start" name="bwi-angle-left" aria-hidden="true"></bit-icon>
+          {{ "backTo" | i18n: parent.label ?? placeholderText() }}
+        </button>
+        <button
+          type="button"
+          bitMenuItem
+          (click)="selectOption(renderedOptions, $event)"
+          [title]="'viewItemsIn' | i18n: renderedOptions.label"
+          class="tw-text-[length:inherit]"
+        >
+          <bit-icon slot="start" name="bwi-list" aria-hidden="true"></bit-icon>
+          {{ "viewItemsIn" | i18n: renderedOptions.label }}
+        </button>
+      }
+      @for (option of renderedOptions.children; track option.value) {
+        <button
+          type="button"
+          bitMenuItem
+          (click)="
+            option.children?.length ? viewOption(option, $event) : selectOption(option, $event)
+          "
+          [disabled]="option.disabled"
+          [title]="option.label"
+          class="tw-text-[length:inherit]"
+          [attr.aria-haspopup]="option.children?.length ? 'menu' : null"
+        >
+          @if (option.icon) {
+            <bit-icon
+              slot="start"
+              [name]="option.icon"
+              [class]="option.iconClass"
+              aria-hidden="true"
+            ></bit-icon>
+          }
+          {{ option.label }}
+          @if (option.children?.length) {
+            <bit-icon slot="end" name="bwi-angle-right" aria-hidden="true"></bit-icon>
+          }
+        </button>
+      }
+    </div>
+  }
+</bit-menu>

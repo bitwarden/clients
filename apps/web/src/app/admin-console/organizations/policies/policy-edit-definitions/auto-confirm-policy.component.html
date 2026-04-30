@@ -1,6 +1,21 @@
-<ng-container [ngTemplateOutlet]="steps[step]()"></ng-container>
+<ng-template #step0Title>
+  <div class="tw-flex tw-flex-col">
+    @let showBadge = autoConfirmPolicy?.firstTimeDialog ?? false;
+    @if (showBadge) {
+      <span bitBadge variant="info" class="tw-w-[99px] tw-my-2"> {{ "availableNow" | i18n }}</span>
+    }
+    <span>
+      {{ (showBadge ? "autoConfirm" : "editPolicy") | i18n }}
+      @if (!showBadge) {
+        <span class="tw-text-muted tw-font-normal tw-text-sm">
+          {{ policy()!.name | i18n }}
+        </span>
+      }
+    </span>
+  </div>
+</ng-template>
 
-<ng-template #step0>
+<ng-template #step0Content>
   <p class="tw-mb-6">
     {{ "autoConfirmPolicyEditDescription" | i18n }}
   </p>
@@ -46,7 +61,32 @@
   <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
 </ng-template>
 
-<ng-template #step1>
+<ng-template #step0Footer>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    @let autoConfirmEnabled = autoConfirmEnabled$ | async;
+    @let managePoliciesOnly = managePoliciesOnly$ | async;
+    @if (autoConfirmEnabled || managePoliciesOnly) {
+      {{ "save" | i18n }}
+    } @else {
+      {{ "continue" | i18n }}
+    }
+  </button>
+  <button bitButton buttonType="secondary" bitDialogClose type="button">
+    {{ "cancel" | i18n }}
+  </button>
+</ng-template>
+
+<ng-template #step1Title>
+  {{ "howToTurnOnAutoConfirm" | i18n }}
+</ng-template>
+
+<ng-template #step1Content>
   <div class="tw-flex tw-justify-center tw-mb-6">
     <bit-svg class="tw-w-[233px]" [content]="autoConfirmSvg"></bit-svg>
   </div>
@@ -60,4 +100,20 @@
       </strong>
     </li>
   </ol>
+</ng-template>
+
+<ng-template #step1Footer>
+  <button
+    bitButton
+    buttonType="primary"
+    [disabled]="saveDisabled$ | async"
+    bitFormButton
+    type="submit"
+  >
+    {{ "openExtension" | i18n }}
+    <i class="bwi bwi-external-link tw-ml-1" aria-hidden="true"></i>
+  </button>
+  <button bitButton buttonType="secondary" bitDialogClose type="button">
+    {{ "close" | i18n }}
+  </button>
 </ng-template>

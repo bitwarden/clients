@@ -17,7 +17,7 @@
               bitInput
               type="text"
               formControlName="url"
-              placeholder="https://<customer-id>.crowdstrike.com"
+              placeholder="{{ urlHelperLinkText }}"
             />
           </bit-form-field>
 
@@ -52,7 +52,7 @@
           <button
             bitIconButton="bwi-trash"
             type="button"
-            buttonType="danger"
+            buttonType="dangerGhost"
             label="{{ 'delete' | i18n }}"
             appA11yTitle="{{ 'delete' | i18n }}"
             [bitAction]="delete"

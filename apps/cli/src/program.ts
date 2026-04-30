@@ -5,7 +5,6 @@ import { program, Command, OptionValues } from "commander";
 import { firstValueFrom, of, switchMap } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { LockCommand } from "./auth/commands/lock.command";
 import { LoginCommand } from "./auth/commands/login.command";
@@ -27,10 +26,6 @@ const writeLn = CliUtils.writeLn;
 
 export class Program extends BaseProgram {
   async register() {
-    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
     program
       .option("--pretty", "Format output. JSON is tabbed with two spaces.")
       .option("--raw", "Return raw output instead of a descriptive message.")
@@ -99,9 +94,7 @@ export class Program extends BaseProgram {
         "    bw edit folder c7c7b60b-9c61-40f2-8ccd-36c49595ed72 eyJuYW1lIjoiTXkgRm9sZGVyMiJ9Cg==",
       );
       writeLn("    bw delete item 99ee88d2-6046-4ea7-92c2-acac464b1412");
-      if (isArchivedEnabled) {
-        writeLn("    bw archive item 99ee88d2-6046-4ea7-92c2-acac464b1412");
-      }
+      writeLn("    bw archive item 99ee88d2-6046-4ea7-92c2-acac464b1412");
       writeLn("    bw generate -lusn --length 18");
       writeLn("    bw config server https://bitwarden.example.com");
       writeLn("    bw send -f ./file.ext");
@@ -350,6 +343,26 @@ export class Program extends BaseProgram {
       .option("-c, --capitalize", "Title case passphrase.")
       .option("--includeNumber", "Passphrase includes number.")
       .option("--ambiguous", "Avoid ambiguous characters.")
+      .option("--username", "Generate a username.")
+      .option("--email <type>", "Generate an email (catchall | subaddress | forwarded).")
+      .option(
+        "--forwarded-service <service>",
+        "Forwarder service (addyio|duckduckgo|fastmail|mozilla|forwardemail|simplelogin).",
+      )
+      .option("--api-key <key>", "API key for the forwarder service.")
+      .option("--domain <domain>", "Domain for catchall or forwarder.")
+      .option("--email-address <email>", "Email address for plus-addressing.")
+      .option(
+        "--catchall-type <type>",
+        "Catchall type (random | website-name). website-name requires --website.",
+      )
+      .option(
+        "--subaddress-type <type>",
+        "Subaddress type (random | website-name). website-name requires --website.",
+      )
+      .option("--base-url <url>", "Base URL for self-hosted forwarders (Addy.io, SimpleLogin).")
+      .option("--prefix <prefix>", "Prefix for forwarder email address.")
+      .option("--website <domain>", "Website context for catchall/subaddress website-name type.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -368,12 +381,22 @@ export class Program extends BaseProgram {
         writeLn("    bw generate -p --separator _");
         writeLn("    bw generate -p --words 5 --separator space");
         writeLn("    bw generate -p --words 5 --separator empty");
+        writeLn("    bw generate --username");
+        writeLn("    bw generate --email catchall --domain example.com");
+        writeLn(
+          "    bw generate --email catchall --domain example.com --catchall-type website-name --website mysite.com",
+        );
+        writeLn("    bw generate --email subaddress --email-address user@example.com");
+        writeLn(
+          "    bw generate --email subaddress --email-address user@example.com --subaddress-type website-name --website mysite.com",
+        );
+        writeLn("    bw generate --email forwarded --forwarded-service fastmail --api-key mykey");
         writeLn("", true);
       })
       .action(async (options) => {
         const command = new GenerateCommand(
-          this.serviceContainer.passwordGenerationService,
-          this.serviceContainer.tokenService,
+          this.serviceContainer.credentialGeneratorService,
+          this.serviceContainer.generatorDependencyProvider,
           this.serviceContainer.accountService,
         );
         const response = await command.run(options);

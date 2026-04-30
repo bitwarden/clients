@@ -11,7 +11,10 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
-import { AccessReportSettingsData } from "../../../../access-intelligence/models";
+import {
+  AccessReportSettingsData,
+  AccessReportSummaryView,
+} from "../../../../access-intelligence/models";
 import { mockSummaryData } from "../../../../reports/risk-insights/models/mocks/mock-data";
 import {
   AccessReportPayload,
@@ -49,6 +52,7 @@ describe("DefaultAccessReportEncryptionService", () => {
     [orgId]: orgKey,
   };
   const orgKey$ = new BehaviorSubject(OrgRecords);
+  const mockSummaryView = AccessReportSummaryView.fromJSON(mockSummaryData);
 
   const mockV2ReportData: AccessReportPayload = {
     reports: [
@@ -79,7 +83,7 @@ describe("DefaultAccessReportEncryptionService", () => {
 
   const mockV2Input: DecryptedAccessReportData = {
     reportData: mockV2ReportData,
-    summaryData: mockSummaryData,
+    summaryData: mockSummaryView,
     applicationData: mockV2ApplicationData,
   };
 
@@ -119,7 +123,7 @@ describe("DefaultAccessReportEncryptionService", () => {
       wasLegacy: false,
     });
     mockSummaryVersioningService.process.mockReturnValue({
-      data: mockSummaryData,
+      data: mockSummaryView,
       wasLegacy: false,
     });
     mockApplicationVersioningService.process.mockReturnValue({
@@ -217,7 +221,7 @@ describe("DefaultAccessReportEncryptionService", () => {
       expect(result.reportData.reports).toHaveLength(1);
       expect(result.reportData.reports[0].applicationName).toBe("app.com");
       expect(result.reportData.memberRegistry).toHaveProperty("user-1");
-      expect(result.summaryData).toEqual(mockSummaryData);
+      expect(result.summaryData).toEqual(mockSummaryView);
       expect(result.hadLegacyBlobs).toBeUndefined();
     });
 
@@ -373,7 +377,7 @@ describe("DefaultAccessReportEncryptionService", () => {
       expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
       expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
       expect(mockSummaryVersioningService.process).toHaveBeenCalled();
-      expect(result).toEqual(mockSummaryData);
+      expect(result).toEqual(mockSummaryView);
     });
 
     it("should throw if org key is not found", async () => {

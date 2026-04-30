@@ -4,7 +4,7 @@ import { ReactiveFormsModule } from "@angular/forms";
 import { combineLatest, map, shareReplay } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ChipSelectComponent } from "@bitwarden/components";
+import { ChipFilterComponent } from "@bitwarden/components";
 
 import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
 
@@ -13,7 +13,7 @@ import { VaultPopupListFiltersService } from "../../../services/vault-popup-list
 @Component({
   selector: "app-vault-list-filters",
   templateUrl: "./vault-list-filters.component.html",
-  imports: [CommonModule, JslibModule, ChipSelectComponent, ReactiveFormsModule],
+  imports: [CommonModule, JslibModule, ChipFilterComponent, ReactiveFormsModule],
 })
 export class VaultListFiltersComponent {
   protected filterForm = this.vaultPopupListFiltersService.filterForm;

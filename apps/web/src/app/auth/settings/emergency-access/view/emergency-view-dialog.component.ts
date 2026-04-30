@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject } from "@angular/core";
+import { EMPTY, Observable } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
@@ -16,11 +17,7 @@ import {
   DialogModule,
   DialogService,
 } from "@bitwarden/components";
-import {
-  ChangeLoginPasswordService,
-  CipherViewComponent,
-  DefaultChangeLoginPasswordService,
-} from "@bitwarden/vault";
+import { CipherViewComponent } from "@bitwarden/vault";
 
 export interface EmergencyViewDialogParams {
   /** The cipher being viewed. */
@@ -30,6 +27,7 @@ export interface EmergencyViewDialogParams {
 
 /** Stubbed class, premium upgrade is not applicable for emergency viewing */
 class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
+  readonly upgradeConfirmed$: Observable<boolean> = EMPTY;
   async promptForPremium() {
     return Promise.resolve();
   }
@@ -44,7 +42,6 @@ class PremiumUpgradePromptNoop implements PremiumUpgradePromptService {
   providers: [
     { provide: ViewPasswordHistoryService, useClass: VaultViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: PremiumUpgradePromptNoop },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class EmergencyViewDialogComponent {
@@ -71,7 +68,7 @@ export class EmergencyViewDialogComponent {
   }
 
   cancel = () => {
-    this.dialogRef.close();
+    void this.dialogRef.close();
   };
 
   private updateTitle() {
@@ -92,6 +89,9 @@ export class EmergencyViewDialogComponent {
         break;
       case CipherType.SshKey:
         this.title = this.i18nService.t("viewItemHeaderSshKey");
+        break;
+      case CipherType.BankAccount:
+        this.title = this.i18nService.t("viewItemHeaderBankAccount");
         break;
     }
   }

@@ -11,12 +11,11 @@
       [activeSingleOrganizationPolicy]="activeSingleOrganizationPolicy"
     />
     <app-type-filter [activeFilter]="activeFilter()" [cipherTypes]="cipherTypes()" />
-    <app-status-filter [hideArchive]="!showArchiveVaultFilter" [activeFilter]="activeFilter()" />
+    <app-status-filter [activeFilter]="activeFilter()" />
     @if (showCollectionsFilter()) {
       <bit-nav-group
         icon="bwi-collection"
         [text]="'collections' | i18n"
-        variant="tree"
         [appA11yTitle]="'collections' | i18n"
         [disableToggleOnClick]="true"
       >
@@ -28,7 +27,6 @@
     <bit-nav-group
       icon="bwi-folder"
       [text]="'folders' | i18n"
-      variant="tree"
       [appA11yTitle]="'folders' | i18n"
       [disableToggleOnClick]="true"
     >

@@ -48,17 +48,20 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     subscription: SubscriptionInformation,
     activeUserId: UserId,
   ): Promise<OrganizationResponse> {
-    const request = new OrganizationCreateRequest();
-
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
 
-    this.setOrganizationKeys(request, organizationKeys);
+    const request = new OrganizationCreateRequest(key, keysRequest, collectionName);
 
     this.setOrganizationInformation(request, subscription.organization);
 
     this.setPlanInformation(request, subscription.plan);
 
     this.setPaymentInformation(request, subscription.payment);
+
+    if (subscription.coupons?.length) {
+      request.coupons = subscription.coupons;
+    }
 
     const response = await this.organizationApiService.create(request);
 
@@ -73,11 +76,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     subscription: SubscriptionInformation,
     activeUserId: UserId,
   ): Promise<OrganizationResponse> {
-    const request = new OrganizationNoPaymentMethodCreateRequest();
-
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
 
-    this.setOrganizationKeys(request, organizationKeys);
+    const request = new OrganizationNoPaymentMethodCreateRequest(key, keysRequest, collectionName);
 
     this.setOrganizationInformation(request, subscription.organization);
 
@@ -96,11 +98,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     subscription: SubscriptionInformation,
     activeUserId: UserId,
   ): Promise<OrganizationResponse> {
-    const request = new OrganizationCreateRequest();
-
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
 
-    this.setOrganizationKeys(request, organizationKeys);
+    const request = new OrganizationCreateRequest(key, keysRequest, collectionName);
 
     this.setOrganizationInformation(request, subscription.organization);
 
@@ -154,16 +155,19 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     request.initiationPath = information.initiationPath;
   }
 
-  private setOrganizationKeys(
-    request: OrganizationCreateRequest | OrganizationNoPaymentMethodCreateRequest,
-    keys: OrganizationKeys,
-  ): void {
-    request.key = keys.encryptedKey.encryptedString;
-    request.keys = new OrganizationKeysRequest(
-      keys.publicKey,
-      keys.encryptedPrivateKey.encryptedString,
-    );
-    request.collectionName = keys.encryptedCollectionName.encryptedString;
+  private makeOrganizationKeysRequest(keys: OrganizationKeys): {
+    key: string;
+    keysRequest: OrganizationKeysRequest;
+    collectionName: string;
+  } {
+    return {
+      key: keys.encryptedKey.encryptedString,
+      keysRequest: new OrganizationKeysRequest(
+        keys.publicKey,
+        keys.encryptedPrivateKey.encryptedString,
+      ),
+      collectionName: keys.encryptedCollectionName.encryptedString,
+    };
   }
 
   private setPaymentInformation(
@@ -219,9 +223,10 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     subscription: SubscriptionInformation,
     activeUserId: UserId,
   ): Promise<void> {
-    const request = new OrganizationCreateRequest();
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
-    this.setOrganizationKeys(request, organizationKeys);
+    const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
+
+    const request = new OrganizationCreateRequest(key, keysRequest, collectionName);
     this.setOrganizationInformation(request, subscription.organization);
     this.setPlanInformation(request, subscription.plan);
     this.setPaymentInformation(request, subscription.payment);

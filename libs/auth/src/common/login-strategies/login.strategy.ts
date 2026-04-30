@@ -262,8 +262,8 @@ export abstract class LoginStrategy {
     }
 
     await this.setMasterKey(response, userId);
-    await this.setUserKey(response, userId);
     await this.setAccountCryptographicState(response, userId);
+    await this.setUserKey(response, userId);
 
     // This needs to run after the keys are set because it checks for the existence of the encrypted private key
     await this.processForceSetPasswordReason(response.forcePasswordReset, userId);

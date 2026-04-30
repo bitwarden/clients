@@ -6,11 +6,11 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { of, BehaviorSubject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,6 +29,7 @@ import {
   SendSearchComponent,
   SendListFiltersComponent,
   SendListFiltersService,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
 
 import { CurrentAccountComponent } from "../../../auth/popup/account-switching/current-account.component";
@@ -47,7 +48,6 @@ describe("SendV2Component", () => {
   let sendListFiltersServiceFilters$: BehaviorSubject<{ sendType: SendType | null }>;
   let sendItemsServiceEmptyList$: BehaviorSubject<boolean>;
   let sendItemsServiceNoFilteredResults$: BehaviorSubject<boolean>;
-  let policyService: MockProxy<PolicyService>;
 
   beforeEach(async () => {
     sendListFiltersServiceFilters$ = new BehaviorSubject({ sendType: null });
@@ -62,9 +62,6 @@ describe("SendV2Component", () => {
       loading$: of(false),
       latestSearchText$: of(""),
     });
-
-    policyService = mock<PolicyService>();
-    policyService.policyAppliesToUser$.mockReturnValue(of(true)); // Return `true` by default
 
     sendListFiltersService = new SendListFiltersService(mock(), new FormBuilder());
 
@@ -114,13 +111,14 @@ describe("SendV2Component", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: SendApiService, useValue: mock<SendApiService>() },
         { provide: SendItemsService, useValue: mock<SendItemsService>() },
-        { provide: SearchService, useValue: mock<SearchService>() },
+        { provide: SearchService, useValue: { isSendSearching$: of(false) } },
         { provide: SendService, useValue: { sendViews$: new BehaviorSubject<SendView[]>([]) } },
         { provide: SendItemsService, useValue: sendItemsService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: SendListFiltersService, useValue: sendListFiltersService },
         { provide: PopupRouterCacheService, useValue: mock<PopupRouterCacheService>() },
-        { provide: PolicyService, useValue: policyService },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
       ],
     }).compileComponents();
 

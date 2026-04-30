@@ -1,3 +1,12 @@
+//! V1 Bitwarden SSH Agent implementation
+//!
+//! WARNING !!!
+//!
+//! This crate is deprecated as the v2 implementation is in
+//! progress. Only security patches and critical bug fixes will
+//! be accepted for this crate. After the v2 is released, the v1
+//! implementation will be removed.
+
 use std::{
     collections::HashMap,
     sync::{

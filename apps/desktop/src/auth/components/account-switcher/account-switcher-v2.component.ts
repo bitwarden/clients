@@ -106,8 +106,11 @@ export class AccountSwitcherV2Component implements OnInit {
     private biometricsService: DesktopBiometricsService,
     private configService: ConfigService,
   ) {
-    this.activeAccount$ = this.accountService.activeAccount$.pipe(
-      switchMap(async (active) => {
+    this.activeAccount$ = combineLatest([
+      this.accountService.activeAccount$,
+      this.avatarService.avatarColor$,
+    ]).pipe(
+      switchMap(async ([active, avatarColor]) => {
         if (active == null) {
           return null;
         }
@@ -121,7 +124,7 @@ export class AccountSwitcherV2Component implements OnInit {
           id: active.id,
           name: active.name,
           email: active.email,
-          avatarColor: await firstValueFrom(this.avatarService.avatarColor$),
+          avatarColor,
           server: (
             await firstValueFrom(this.environmentService.getEnvironment$(active.id))
           )?.getHostname(),

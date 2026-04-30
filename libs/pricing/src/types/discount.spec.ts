@@ -34,6 +34,30 @@ describe("getAmount", () => {
       const discount: Discount = { type: DiscountTypes.PercentOff, value: 100 };
       expect(getAmount(discount, 200)).toBe(200);
     });
+
+    it("should round result to 2 decimal places when percent produces fractional cents", () => {
+      const discount: Discount = { type: DiscountTypes.PercentOff, value: 20 };
+      // 20% of $47.88 = $9.576 → rounds to $9.58
+      expect(getAmount(discount, 47.88)).toBe(9.58);
+    });
+
+    it("should round result when applied to a running subtotal with fractional cents", () => {
+      const discount: Discount = { type: DiscountTypes.PercentOff, value: 5 };
+      // 5% of $28.304 = $1.4152 → rounds to $1.42
+      expect(getAmount(discount, 28.304)).toBe(1.42);
+    });
+
+    it("should round half-cent up", () => {
+      const discount: Discount = { type: DiscountTypes.PercentOff, value: 50 };
+      // 50% of $0.01 = $0.005 → rounds to $0.01
+      expect(getAmount(discount, 0.01)).toBe(0.01);
+    });
+
+    it("should round down when fractional cent is less than half", () => {
+      const discount: Discount = { type: DiscountTypes.PercentOff, value: 20 };
+      // 20% of $47.82 = $9.564 → rounds down to $9.56
+      expect(getAmount(discount, 47.82)).toBe(9.56);
+    });
   });
 
   describe("AmountOff", () => {

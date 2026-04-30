@@ -149,6 +149,9 @@ describe("BrowserPopupUtils", () => {
         incognito: false,
         width: PopupWidthOptions.default,
       });
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "win",
+      } as chrome.runtime.PlatformInfo);
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
     });
 
@@ -265,6 +268,54 @@ describe("BrowserPopupUtils", () => {
         left: 85,
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
+      });
+    });
+
+    it("omits position when on Linux with Wayland-like coordinates (left=0, top=0)", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserApi, "getWindow").mockReset().mockResolvedValueOnce({
+        id: 2,
+        left: 0,
+        top: 0,
+        focused: false,
+        alwaysOnTop: false,
+        incognito: false,
+        width: PopupWidthOptions.default,
+      });
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "linux",
+      } as chrome.runtime.PlatformInfo);
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
+      });
+    });
+
+    it("includes position when on Linux with non-zero window coordinates", async () => {
+      const url = "popup/index.html";
+      // Uses the beforeEach window (left: 100, top: 100) — non-zero, so not Wayland-like.
+      jest.spyOn(BrowserApi, "getPlatformInfo").mockResolvedValue({
+        os: "linux",
+      } as chrome.runtime.PlatformInfo);
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: PopupWidthOptions.default,
+        height: 630,
+        left: 85,
+        top: 190,
+        url: `chrome-extension://id/${url}?uilocation=popout`,
       });
     });
   });
