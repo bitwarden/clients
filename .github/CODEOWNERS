@@ -172,7 +172,7 @@ apps/desktop/desktop_native/napi/src/autotype.rs @bitwarden/team-desktop-native-
 apps/desktop/desktop_native/napi/src/sshagent.rs @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/napi/src/sshagent_v2.rs @bitwarden/team-desktop-native-dev
 
-## Desktop Native + Skunkworks co-owned files 
+## Desktop Native + Skunkworks co-owned files
 apps/desktop/desktop_native/autofill_provider @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/desktop_native/core/src/autofill @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/desktop_native/napi/src/autofill.rs @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
@@ -181,7 +181,7 @@ apps/desktop/desktop_native/win_webauthn @bitwarden/team-desktop-native-dev @bit
 apps/desktop/desktop_native/windows_plugin_authenticator @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/macos/autofill-extension @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/modal/credentials @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
-apps/desktop/src/autofill/services/desktop-autofill* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
+apps/desktop/src/autofill/services/desktop-autofill.service.ts @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 apps/desktop/src/autofill/services/desktop-fido2* @bitwarden/team-desktop-native-dev @bitwarden/team-skunkworks
 
 # DuckDuckGo integration
