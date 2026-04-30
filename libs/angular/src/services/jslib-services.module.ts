@@ -7,7 +7,9 @@ import { Subject } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  CollectionEncryptionService,
   CollectionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
   DefaultOrganizationUserService,
@@ -381,7 +383,9 @@ import {
 } from "@bitwarden/key-management";
 import {
   DefaultOrganizationInviteLinkApiService,
+  DefaultOrganizationInviteLinkService,
   OrganizationInviteLinkApiService,
+  OrganizationInviteLinkService,
 } from "@bitwarden/organization-invite-link";
 import { DefaultTaskSchedulerService, TaskSchedulerService } from "@bitwarden/scheduling";
 import {
@@ -746,9 +750,21 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: CollectionEncryptionService,
+    useClass: DefaultCollectionEncryptionService,
+    deps: [SdkService, LogService],
+  }),
+  safeProvider({
     provide: CollectionService,
     useClass: DefaultCollectionService,
-    deps: [KeyService, EncryptService, I18nServiceAbstraction, StateProvider],
+    deps: [
+      KeyService,
+      EncryptService,
+      I18nServiceAbstraction,
+      StateProvider,
+      ConfigService,
+      CollectionEncryptionService,
+    ],
   }),
   safeProvider({
     provide: ENV_ADDITIONAL_REGIONS,
@@ -1127,6 +1143,9 @@ const safeProviders: SafeProvider[] = [
       InternalOrganizationServiceAbstraction,
       OrganizationUserApiService,
       InternalPolicyService,
+      AuthServiceAbstraction,
+      AccountServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -1285,6 +1304,17 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationInviteLinkApiService,
     useClass: DefaultOrganizationInviteLinkApiService,
     deps: [ApiServiceAbstraction],
+  }),
+  safeProvider({
+    provide: OrganizationInviteLinkService,
+    useClass: DefaultOrganizationInviteLinkService,
+    deps: [
+      KeyService,
+      EncryptService,
+      KeyGenerationService,
+      OrganizationInviteLinkApiService,
+      StateProvider,
+    ],
   }),
   safeProvider({
     provide: PasswordResetEnrollmentServiceAbstraction,
