@@ -31,4 +31,14 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     );
     return new OrganizationInviteLinkResponseModel(r);
   }
+
+  async delete(organizationId: string): Promise<void> {
+    await this.apiService.send(
+      "DELETE",
+      `/organizations/${organizationId}/invite-link`,
+      null,
+      true,
+      false,
+    );
+  }
 }
