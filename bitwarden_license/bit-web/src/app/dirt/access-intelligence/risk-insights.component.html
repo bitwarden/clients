@@ -52,10 +52,11 @@
             <div
               class="tw-bg-primary-100 tw-rounded-lg tw-w-full tw-px-8 tw-py-4 tw-my-4 tw-flex tw-flex-wrap tw-items-center tw-gap-2"
             >
-              <i
-                class="bwi bwi-exclamation-triangle bwi-lg tw-text-[1.2rem] tw-text-muted"
+              <bit-icon
+                name="bwi-exclamation-triangle"
+                class="bwi-lg tw-text-[1.2rem] tw-text-muted"
                 aria-hidden="true"
-              ></i>
+              ></bit-icon>
               @if (dataLastUpdated) {
                 <span>{{
                   "dataLastUpdated" | i18n: (dataLastUpdated | date: "MMMM d, y 'at' h:mm a")
@@ -91,7 +92,7 @@
                 </bit-tab>
                 <bit-tab>
                   <ng-template bitTabLabel>
-                    <i class="bwi bwi-star"></i>
+                    <bit-icon name="bwi-star"></bit-icon>
                     {{
                       "criticalApplicationsWithCount"
                         | i18n

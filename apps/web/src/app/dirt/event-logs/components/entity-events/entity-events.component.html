@@ -27,7 +27,7 @@
             formControlName="end"
           />
         </bit-form-field>
-        <button type="submit" bitButton buttonType="primary" bitFormButton startIcon="bwi-refresh">
+        <button type="submit" bitButton buttonType="primary" startIcon="bwi-refresh" bitFormButton>
           {{ "refresh" | i18n }}
         </button>
       </div>
@@ -51,11 +51,12 @@
         <tr bitRow *ngFor="let r of rows$ | async">
           <td bitCell>{{ r.date | date: "medium" }}</td>
           <td bitCell>
-            <i
-              class="tw-text-muted bwi bwi-lg {{ r.appIcon }}"
+            <bit-icon
+              [name]="$any(r.appIcon)"
+              class="bwi-lg tw-text-muted"
               title="{{ r.appName }}, {{ r.ip }}"
-              aria-hidden="true"
-            ></i>
+              fixedWidth
+            ></bit-icon>
             <span class="tw-sr-only">{{ r.appName }}, {{ r.ip }}</span>
           </td>
           <td bitCell *ngIf="showUser">

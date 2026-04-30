@@ -7,6 +7,7 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   BerryComponent,
   CardComponent,
+  IconModule,
   ScrollLayoutDirective,
   SearchModule,
 } from "@bitwarden/components";
@@ -55,6 +56,7 @@ import { VerifyRecoverDeleteProviderComponent } from "./verify-recover-delete-pr
     JslibModule,
     ProvidersRoutingModule,
     OrganizationPlansComponent,
+    IconModule,
     SearchModule,
     ProvidersLayoutComponent,
     DangerZoneComponent,

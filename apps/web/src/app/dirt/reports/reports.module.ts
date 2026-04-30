@@ -2,7 +2,12 @@ import { OverlayModule } from "@angular/cdk/overlay";
 import { CommonModule } from "@angular/common";
 import { NgModule } from "@angular/core";
 
-import { BerryComponent, ChipActionComponent, ChipFilterComponent } from "@bitwarden/components";
+import {
+  BerryComponent,
+  ChipActionComponent,
+  ChipFilterComponent,
+  TooltipDirective,
+} from "@bitwarden/components";
 import {
   CipherFormConfigService,
   DefaultCipherFormConfigService,
@@ -40,6 +45,7 @@ import { ReportsSharedModule } from "./shared";
     ChipActionComponent,
     ChipFilterComponent,
     BerryComponent,
+    TooltipDirective,
   ],
   declarations: [
     BreachReportComponent,

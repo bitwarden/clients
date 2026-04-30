@@ -15,14 +15,14 @@ import {
   PHISHING_DETECTION_CONTINUE_COMMAND,
 } from "../services/phishing-detection.service";
 
-import { PhishingWarning } from "./phishing-warning.component";
+import { PhishingWarningComponent } from "./phishing-warning.component";
 
-describe("PhishingWarning", () => {
+describe("PhishingWarningComponent", () => {
   const mockUserId = "test-user-id" as UserId;
   const mockPhishingUrl = "https://phishing.example.com";
 
-  let fixture: ComponentFixture<PhishingWarning>;
-  let component: PhishingWarning;
+  let fixture: ComponentFixture<PhishingWarningComponent>;
+  let component: PhishingWarningComponent;
   let accountService: FakeAccountService;
   let messageSender: ReturnType<typeof mock<MessageSender>>;
 
@@ -33,7 +33,7 @@ describe("PhishingWarning", () => {
     jest.spyOn(BrowserApi, "getCurrentTab").mockResolvedValue({ id: 42 } as chrome.tabs.Tab);
 
     await TestBed.configureTestingModule({
-      imports: [PhishingWarning],
+      imports: [PhishingWarningComponent],
       providers: [
         {
           provide: ActivatedRoute,
@@ -47,7 +47,7 @@ describe("PhishingWarning", () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(PhishingWarning);
+    fixture = TestBed.createComponent(PhishingWarningComponent);
     component = fixture.componentInstance;
   });
 

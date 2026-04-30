@@ -9,13 +9,14 @@
   <p bitTypography="body1">{{ "phishingPageSummary" | i18n }}</p>
 
   <bit-callout class="tw-mb-0" type="danger" icon="bwi-globe" [title]="null">
-    <span class="tw-font-mono tw-break-all">{{ phishingHostname$ | async }}</span>
+    <span class="tw-font-mono tw-break-all">{{ phishingHostname() }}</span>
   </bit-callout>
 
   <bit-callout class="tw-mt-2" [icon]="null" type="subtle">
     <p bitTypography="body2">
-      {{ "phishingPageExplanation1" | i18n }}<b>Phishing.Database</b
-      >{{ "phishingPageExplanation2" | i18n }}
+      {{ "phishingPageExplanation1" | i18n }}
+      <b>Phishing.Database</b>
+      {{ "phishingPageExplanation2" | i18n }}
     </p>
 
     <a

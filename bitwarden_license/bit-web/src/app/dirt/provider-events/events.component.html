@@ -81,11 +81,11 @@
             <tr bitRow alignContent="top">
               <td bitCell class="tw-whitespace-nowrap">{{ e.date | date: "medium" }}</td>
               <td bitCell>
-                <i
-                  class="tw-text-muted bwi bwi-lg {{ e.appIcon }}"
-                  title="{{ e.appName }}, {{ e.ip }}"
+                <bit-icon
+                  class="bwi-lg tw-text-muted"
+                  [name]="asBitwardenIcon(e.appIcon)"
                   aria-hidden="true"
-                ></i>
+                ></bit-icon>
                 <span class="tw-sr-only">{{ e.appName }}, {{ e.ip }}</span>
               </td>
               <td bitCell>

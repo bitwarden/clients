@@ -4,11 +4,11 @@
   <p>{{ "unsecuredWebsitesReportDesc" | i18n }}</p>
   @if (!hasLoaded && loading) {
     <div>
-      <i
-        class="bwi bwi-spinner bwi-spin tw-text-muted"
-        title="{{ 'loading' | i18n }}"
-        aria-hidden="true"
-      ></i>
+      <bit-icon
+        name="bwi-spinner"
+        class="bwi-spin tw-text-muted"
+        [title]="'loading' | i18n"
+      ></bit-icon>
       <span class="tw-sr-only">{{ "loading" | i18n }}</span>
     </div>
   } @else {
@@ -71,21 +71,21 @@
                 <span title="{{ row.name }}">{{ row.name }}</span>
               }
               @if (!organization && row.organizationId) {
-                <i
-                  class="bwi bwi-collection-shared tw-ml-1"
+                <bit-icon
+                  name="bwi-collection-shared"
+                  class="tw-ml-1"
                   appStopProp
-                  title="{{ 'shared' | i18n }}"
-                  aria-hidden="true"
-                ></i>
+                  [title]="'shared' | i18n"
+                ></bit-icon>
                 <span class="tw-sr-only">{{ "shared" | i18n }}</span>
               }
               @if (row.hasAttachments) {
-                <i
-                  class="bwi bwi-paperclip tw-ml-1"
+                <bit-icon
+                  name="bwi-paperclip"
+                  class="tw-ml-1"
                   appStopProp
-                  title="{{ 'attachments' | i18n }}"
-                  aria-hidden="true"
-                ></i>
+                  [title]="'attachments' | i18n"
+                ></bit-icon>
                 <span class="tw-sr-only">{{ "attachments" | i18n }}</span>
               }
               <br />
