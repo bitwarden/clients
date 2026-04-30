@@ -4,7 +4,6 @@
   (click)="handleArchiveFilter($event)"
   [text]="archiveFilter.name | i18n"
   [attr.aria-pressed]="activeFilter()?.isArchived"
-  [appA11yTitle]="archiveFilter.name | i18n"
 >
   @if (!(canArchive$ | async)) {
     <ng-container slot="end">
