@@ -7,6 +7,8 @@ import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { reports, ReportType } from "../reports";
 import { ReportEntry, ReportVariant } from "../shared";
@@ -23,6 +25,7 @@ export class ReportsHomeComponent implements OnInit {
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -34,7 +37,11 @@ export class ReportsHomeComponent implements OnInit {
       ? ReportVariant.Enabled
       : ReportVariant.RequiresPremium;
 
-    this.reports.set([
+    const passkeyReportEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PasskeyLoginReport,
+    );
+
+    const reportEntries: ReportEntry[] = [
       {
         ...reports[ReportType.ExposedPasswords],
         variant: reportRequiresPremium,
@@ -59,6 +66,15 @@ export class ReportsHomeComponent implements OnInit {
         ...reports[ReportType.DataBreach],
         variant: ReportVariant.Enabled,
       },
-    ]);
+    ];
+
+    if (passkeyReportEnabled) {
+      reportEntries.push({
+        ...reports[ReportType.PasskeyLogin],
+        variant: reportRequiresPremium,
+      });
+    }
+
+    this.reports.set(reportEntries);
   }
 }
