@@ -6,7 +6,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 
 import { organizationPermissionsGuard } from "../../organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "../../organizations/guards/org-redirect.guard";
-import { PoliciesComponent } from "../../organizations/policies";
+import { PoliciesComponent, PoliciesDeactivateGuard } from "../../organizations/policies";
 
 import { AccountComponent } from "./account.component";
 import { TwoFactorSetupComponent } from "./two-factor-setup.component";
@@ -42,6 +42,7 @@ const routes: Routes = [
         path: "policies",
         component: PoliciesComponent,
         canActivate: [organizationPermissionsGuard((org) => org.canManagePolicies)],
+        canDeactivate: [PoliciesDeactivateGuard],
         data: {
           titleId: "policies",
         },
