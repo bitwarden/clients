@@ -25,10 +25,12 @@ import { trackedMerge } from "@bitwarden/common/platform/misc";
 import { AccountInfo, AccountService } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { NotificationType, PushNotificationLogOutReasonType } from "../../../enums";
 import {
   LogOutNotification,
   NotificationResponse,
+  PremiumStatusChangedNotification,
   SyncCipherNotification,
   SyncFolderNotification,
   SyncSendNotification,
@@ -73,6 +75,7 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
     private readonly configService: ConfigService,
     private readonly policyService: InternalPolicyService,
     private autoConfirmService: AutomaticUserConfirmationService,
+    private readonly billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.notifications$ = this.accountService.accounts$.pipe(
       map((accounts: Record<UserId, AccountInfo>): Set<UserId> => {

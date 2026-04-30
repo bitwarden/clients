@@ -1168,6 +1168,7 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       InternalPolicyService,
       AutomaticUserConfirmationService,
+      BillingAccountProfileStateService,
     ],
   }),
   safeProvider({

@@ -1343,6 +1343,7 @@ export default class MainBackground {
       this.configService,
       this.policyService,
       this.autoConfirmService,
+      this.billingAccountProfileStateService,
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
