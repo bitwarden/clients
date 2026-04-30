@@ -131,6 +131,11 @@ pub(crate) struct OperationResponse {
     inner: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
 }
 
+// SAFETY: OperationResponse wraps a pointer to a Windows-provided response buffer (not a COM
+// object). The COM STA thread is blocked waiting for the method to return while the buffer is
+// in-flight, so writing from another thread is safe when synchronized via Mutex.
+unsafe impl Send for OperationResponse {}
+
 impl OperationResponse {
     /// # Safety
     /// The caller must ensure that `ptr` points to a valid

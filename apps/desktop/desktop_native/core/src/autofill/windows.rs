@@ -93,7 +93,7 @@ fn handle_user_verification_request(
         .map_err(|err| anyhow!("Failed to parse CLSID from string {PLUGIN_CLSID}: {err}"))?;
     let plugin = WebAuthnPlugin::new(clsid);
     let _response = plugin
-        .perform_user_verification(uv_request, operation_request_hash)
+        .perform_user_verification(uv_request)
         .map_err(|err| anyhow!("User Verification request failed: {err}"))?;
     return Ok(UserVerificationResponse {});
 }

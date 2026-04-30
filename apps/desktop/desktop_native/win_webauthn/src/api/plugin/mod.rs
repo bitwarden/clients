@@ -5,18 +5,23 @@ mod com;
 pub(crate) mod crypto;
 mod types;
 
-use std::{error::Error, ptr::NonNull};
+use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
 
 pub use types::*;
 use windows::{
     core::{GUID, PCWSTR},
-    Win32::{Security::Cryptography::BCRYPT_KEY_BLOB, System::Com::CLSIDFromString},
+    Win32::{
+        Foundation::{LPARAM, WPARAM},
+        Security::Cryptography::BCRYPT_KEY_BLOB,
+        System::Com::CLSIDFromString,
+        UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA, PostThreadMessageA, WM_QUIT},
+    },
 };
 
 use crate::{
     api::{
         plugin::{
-            com::{register_server, shutdown_server},
+            com::{register_server, uninitialize_com},
             crypto::{NCryptKey, RequestHash, Signature},
         },
         sys::plugin::webauthn_plugin_free_public_key_response,
@@ -226,31 +231,100 @@ impl Drop for VerifyingKey {
 /// ```
 pub struct WebAuthnPlugin {
     clsid: Clsid,
+    com_thread_id: Option<u32>,
 }
 
 impl WebAuthnPlugin {
     pub fn new(clsid: Clsid) -> Self {
-        WebAuthnPlugin { clsid }
+        WebAuthnPlugin {
+            clsid,
+            com_thread_id: None,
+        }
     }
 
-    /// Registers a COM server with Windows.
+    /// Registers a COM server with Windows and starts the COM message loop on a dedicated thread.
     ///
-    /// The handler should be an instance of your type that implements PluginAuthenticator.
+    /// The handler should be an instance of your type that implements [PluginAuthenticator].
     /// The same instance will be shared across all COM calls.
     ///
-    /// This only needs to be called at the start of your application.
-    pub fn register_server<T>(&self, handler: T) -> Result<(), WinWebAuthnError>
+    /// Blocks until the COM server is initialized, then returns. The COM thread continues running
+    /// in the background until [shutdown_server] is called.
+    pub fn register_server<T>(&mut self, handler: T) -> Result<(), WinWebAuthnError>
     where
         T: PluginAuthenticator + Send + Sync + 'static,
     {
-        register_server(self.clsid, handler)
+        let clsid = self.clsid;
+        let (tx, rx) = std::sync::mpsc::channel::<Result<u32, windows::core::Error>>();
+
+        std::thread::spawn(move || {
+            match register_server(clsid, handler) {
+                Err(err) => {
+                    tx.send(Err(err)).ok();
+                }
+                Ok(com_thread_id) => {
+                    tx.send(Ok(com_thread_id)).ok();
+                    // Run the COM message loop until WM_QUIT is posted.
+                    loop {
+                        let mut msg = MaybeUninit::uninit();
+                        match unsafe { GetMessageA(msg.as_mut_ptr(), None, 0, 0).0 } {
+                            // WM_QUIT was sent, exit the loop
+                            0 => break,
+                            -1 => {
+                                tracing::error!(
+                                    "GetMessageA failed in plugin authenticator COM server event loop: {}",
+                                    windows::core::Error::from_thread()
+                                );
+                                break;
+                            }
+                            // A message was received, forward it to the appropriate
+                            _ => unsafe {
+                                let msg = msg.assume_init_ref();
+                                DispatchMessageA(msg);
+                            },
+                        }
+                    }
+                    uninitialize_com();
+                }
+            }
+        });
+
+        let result = rx
+            .recv()
+            .map(|result| {
+                result.map_err(|com_err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::WindowsInternal,
+                        "Failed to register COM server",
+                        com_err,
+                    )
+                })
+            })
+            .unwrap_or_else(|_| {
+                Err(WinWebAuthnError::new(
+                    ErrorKind::Other,
+                    "COM thread disconnected before initialization completed",
+                ))
+            });
+
+        let com_thread_id = result?;
+        self.com_thread_id = Some(com_thread_id);
+        Ok(())
     }
 
-    /// Uninitializes the COM library for the calling thread.
-    ///
-    /// Not thread-safe: This must be called from the same thread that called [register_server].
-    pub fn shutdown_server() -> Result<(), WinWebAuthnError> {
-        shutdown_server()
+    /// Stops the COM message loop and uninitializes COM on the COM thread.
+    pub fn shutdown_server(&mut self) -> Result<(), WinWebAuthnError> {
+        if let Some(thread_id) = self.com_thread_id.take() {
+            unsafe { PostThreadMessageA(thread_id, WM_QUIT, WPARAM(0), LPARAM(0)) }.map_err(
+                |err| {
+                    WinWebAuthnError::with_cause(
+                        ErrorKind::WindowsInternal,
+                        "Failed to post quit message to COM thread",
+                        err,
+                    )
+                },
+            )?;
+        }
+        Ok(())
     }
 
     /// Adds this implementation as a Windows WebAuthn plugin.
@@ -272,16 +346,21 @@ impl WebAuthnPlugin {
     pub fn perform_user_verification(
         &self,
         request: PluginUserVerificationRequest,
-        operation_request_hash: &[u8],
     ) -> Result<(), WinWebAuthnError> {
         tracing::debug!(?request.transaction_id, ?request.window_handle, "Handling user verification request");
 
         // Get pub key
         let pub_key = get_user_verification_public_key(self.clsid)?;
 
+        let request_hash = self
+            .state
+            .as_ref()
+            .ok_or_else(|| WinWebAuthnError::new(ErrorKind::Other, "Server not registered"))?
+            .current_request_hash()
+            .ok_or_else(|| WinWebAuthnError::new(ErrorKind::Other, "No in-flight request"))?;
         // Send UV request
         let request_raw: PluginUserVerificationRequestRaw = (&request).into();
-        perform_user_verification(&request_raw, &pub_key, operation_request_hash)
+        perform_user_verification(&request_raw, &pub_key, &request_hash.0)
     }
 
     /// Synchronize credentials to Windows Hello cache.

@@ -4,9 +4,10 @@
 
 use std::{
     alloc,
+    cell::RefCell,
     mem::{size_of, ManuallyDrop, MaybeUninit},
     ptr::{self, NonNull},
-    sync::{Arc, Mutex, OnceLock},
+    sync::{Arc, Mutex},
 };
 
 use windows::{
@@ -143,8 +144,25 @@ impl<T: AsRef<[u8]>> From<T> for ComBuffer {
     }
 }
 
-static HANDLER: OnceLock<(GUID, Arc<dyn PluginAuthenticator + Send + Sync>)> = OnceLock::new();
-static SHUTDOWN: OnceLock<bool> = OnceLock::new();
+impl PluginState {
+    pub(super) fn current_request_hash(&self) -> Option<OwnedRequestHash> {
+        self.in_flight_request
+            .lock()
+            .ok()?
+            .as_ref()
+            .map(|ctx| ctx.request_hash.clone())
+    }
+}
+
+struct ComThreadState {
+    clsid: GUID,
+    handler: Arc<dyn PluginAuthenticator + Send + Sync + 'static>,
+    in_flight_request: Arc<Mutex<Option<RequestContext>>>,
+}
+
+thread_local! {
+    static HANDLER: RefCell<Option<ComThreadState>> = const { RefCell::new(None) };
+}
 #[implement(IClassFactory)]
 pub struct Factory;
 
@@ -155,17 +173,25 @@ impl IClassFactory_Impl for Factory_Impl {
         iid: *const windows::core::GUID,
         object: *mut *mut core::ffi::c_void,
     ) -> windows::core::Result<()> {
-        let (clsid, handler) = match HANDLER.get() {
-            Some(state) => state,
+        let (clsid, handler, in_flight_request) = match HANDLER.with_borrow(|h| {
+            h.as_ref().map(|s| {
+                (
+                    s.clsid,
+                    Arc::clone(&s.handler),
+                    Arc::clone(&s.in_flight_request),
+                )
+            })
+        }) {
+            Some(fields) => fields,
             None => {
                 tracing::error!("Cannot create COM class object instance because the handler is not initialized. register_server() must be called before starting the COM server.");
                 return Err(E_FAIL.into());
             }
-        }.clone();
+        };
         let unknown: IInspectable = PluginAuthenticatorComObject {
             clsid,
             handler,
-            in_flight_request: Mutex::new(None),
+            in_flight_request,
         }
         .into();
         unsafe { unknown.query(iid, object).ok() }
@@ -197,8 +223,8 @@ pub unsafe trait IPluginAuthenticator: windows::core::IUnknown {
 #[implement(IPluginAuthenticator)]
 struct PluginAuthenticatorComObject {
     clsid: GUID,
-    handler: Arc<dyn PluginAuthenticator + Send + Sync>,
-    in_flight_request: Mutex<Option<RequestContext>>,
+    handler: Arc<dyn PluginAuthenticator + Send + Sync + 'static>,
+    in_flight_request: Arc<Mutex<Option<RequestContext>>>,
 }
 
 impl PluginAuthenticatorComObject {
@@ -400,7 +426,7 @@ impl PluginAuthenticatorComObject {
     }
 }
 
-struct RequestContext {
+pub(super) struct RequestContext {
     transaction_id: GUID,
     request_hash: OwnedRequestHash,
     response_buffer: OperationResponse,
@@ -491,14 +517,14 @@ impl IPluginAuthenticator_Impl for PluginAuthenticatorComObject_Impl {
 }
 
 /// Registers the plugin authenticator COM library with Windows.
-pub(crate) fn register_server<T>(clsid: Clsid, handler: T) -> Result<(), WinWebAuthnError>
+pub(crate) fn register_server<T>(clsid: Clsid, handler: T) -> Result<u32, windows::core::Error>
 where
     T: PluginAuthenticator + Send + Sync + 'static,
 {
-    if HANDLER.get().is_some() {
-        return Err(WinWebAuthnError::new(
-            ErrorKind::Other,
-            "server can only be registered one time per process",
+    if HANDLER.with_borrow(|h| h.is_some()) {
+        return Err(windows::core::Error::new(
+            E_FAIL,
+            "server can only be registered one time per thread",
         ));
     }
     unsafe {
@@ -508,10 +534,9 @@ where
             // COM successfully initialized, and should be uninitialized with CoUninitialize later.
             S_OK | S_FALSE => {}
             code => {
-                return Err(WinWebAuthnError::with_cause(
-                    ErrorKind::WindowsInternal,
+                return Err(windows::core::Error::new(
+                    code,
                     "Could not initialize the COM library",
-                    windows::core::Error::from_hresult(code),
                 ));
             }
         }
@@ -533,12 +558,14 @@ where
         };
     }
 
-    // Store the handler as a static so it can be initialized
-    HANDLER.set((clsid.0, Arc::new(handler))).map_err(|_| {
-        // We lost the race, so decrement ref count.
-        unsafe { CoUninitialize() };
-        WinWebAuthnError::new(ErrorKind::WindowsInternal, "Handler already initialized")
-    })?;
+    let com_thread_id = unsafe { windows::Win32::System::Threading::GetCurrentThreadId() };
+    HANDLER.with_borrow_mut(|h| {
+        *h = Some(ComThreadState {
+            clsid: clsid.0,
+            handler: Arc::new(handler),
+            in_flight_request: Arc::new(Mutex::new(None)),
+        });
+    });
 
     // Register the COM class object so that Windows RPC knows how to start it.
     static FACTORY: windows::core::StaticComObject<Factory> = Factory.into_static();
@@ -548,27 +575,12 @@ where
             FACTORY.as_interface_ref(),
             CLSCTX_LOCAL_SERVER,
             REGCLS_MULTIPLEUSE,
-        )
-    }
-    .map_err(|err| {
-        WinWebAuthnError::with_cause(
-            ErrorKind::WindowsInternal,
-            "Couldn't register the COM library with Windows",
-            err,
-        )
-    })?;
-    Ok(())
+        )?
+    };
+    Ok(com_thread_id)
 }
 
-pub(crate) fn shutdown_server() -> std::result::Result<(), WinWebAuthnError> {
-    if HANDLER.get().is_some() {
-        if let Ok(()) = SHUTDOWN.set(true) {
-            unsafe { CoUninitialize() };
-        } else {
-            tracing::debug!("server already shut down");
-        }
-    } else {
-        tracing::debug!("server was not registered. Ignoring.");
-    }
-    Ok(())
+/// Uninitializes the COM library. Must be called on the COM thread after the message loop exits.
+pub(crate) fn uninitialize_com() {
+    unsafe { CoUninitialize() };
 }
