@@ -7,6 +7,7 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
+import { userEvent, within } from "storybook/test";
 
 import { SYSTEM_THEME_OBSERVABLE } from "@bitwarden/angular/services/injection-tokens";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
@@ -249,5 +250,102 @@ export const TwentyFourDataPoints: Story = {
     },
     loading: false,
     error: null,
+  },
+};
+
+/**
+ * Helper used by the All-time stories below to flip the period selector to
+ * "All time" so the chart renders the All-time code path in Storybook and
+ * Chromatic, mirroring the unit-test coverage in trend-widget.component.spec.ts.
+ */
+async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
+  const canvas = within(canvasElement);
+  // The trigger button's accessible name comes from aria-label="Time period";
+  // the visible "Past month" text is inside a child span and is not the a11y name.
+  const periodTrigger = await canvas.findByRole("button", { name: /time period/i });
+  await userEvent.click(periodTrigger);
+  // Menu items are rendered into the CDK overlay container at document.body,
+  // which is outside canvasElement, so query the document instead.
+  const body = within(document.body);
+  const allTimeOption = await body.findByRole("menuitem", { name: "All time" });
+  await userEvent.click(allTimeOption);
+}
+
+/**
+ * All time selected with two data points one calendar day apart.
+ * Renders the narrowest multi-day window the chart supports.
+ */
+export const AllTimeNarrowSpan: Story = {
+  args: {
+    data: {
+      timeframe: TimePeriod.AllTime,
+      dataView: "applications",
+      dataPoints: (() => {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const today = new Date();
+        return [
+          { timestamp: yesterday.toISOString(), atRisk: 12, total: 50 },
+          { timestamp: today.toISOString(), atRisk: 14, total: 50 },
+        ];
+      })(),
+    },
+    loading: false,
+    error: null,
+  },
+  play: async ({ canvasElement }) => {
+    await selectAllTime(canvasElement);
+  },
+};
+
+/**
+ * All time selected with a single data point.
+ * Renders the chart's behavior when only one report exists for the org.
+ */
+export const AllTimeSingleDay: Story = {
+  args: {
+    data: {
+      timeframe: TimePeriod.AllTime,
+      dataView: "passwords",
+      dataPoints: [{ timestamp: new Date().toISOString(), atRisk: 45, total: 180 }],
+    },
+    loading: false,
+    error: null,
+  },
+  play: async ({ canvasElement }) => {
+    await selectAllTime(canvasElement);
+  },
+};
+
+/**
+ * All time selected with data points spread across roughly six months.
+ * Renders the wide-span case where the chart fits to the data range.
+ */
+export const AllTimeWideSpan: Story = {
+  args: {
+    data: {
+      timeframe: TimePeriod.AllTime,
+      dataView: "members",
+      dataPoints: (() => {
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        const oneMonthAgo = new Date();
+        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+        const today = new Date();
+        return [
+          { timestamp: sixMonthsAgo.toISOString(), atRisk: 80, total: 400 },
+          { timestamp: threeMonthsAgo.toISOString(), atRisk: 95, total: 410 },
+          { timestamp: oneMonthAgo.toISOString(), atRisk: 110, total: 420 },
+          { timestamp: today.toISOString(), atRisk: 130, total: 430 },
+        ];
+      })(),
+    },
+    loading: false,
+    error: null,
+  },
+  play: async ({ canvasElement }) => {
+    await selectAllTime(canvasElement);
   },
 };
