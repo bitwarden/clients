@@ -1,7 +1,7 @@
 import { AsyncPipe } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, of, switchMap } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,11 +21,14 @@ import { CipherType } from "@bitwarden/sdk-internal";
 export class NewItemNudgeComponent {
   readonly configType = input.required<CipherType | null>();
   activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
-  showNewItemSpotlight$ = combineLatest([
-    this.activeUserId$,
-    toObservable(this.configType).pipe(map((cipherType) => this.mapToNudgeType(cipherType))),
-  ]).pipe(
-    switchMap(([userId, nudgeType]) => this.nudgesService.showNudgeSpotlight$(nudgeType, userId)),
+  showNewItemSpotlight$ = combineLatest([this.activeUserId$, toObservable(this.configType)]).pipe(
+    switchMap(([userId, cipherType]) => {
+      if (cipherType == null) {
+        return of(false);
+      }
+      const nudgeType = this.mapToNudgeType(cipherType);
+      return this.nudgesService.showNudgeSpotlight$(nudgeType, userId);
+    }),
   );
   nudgeTitle: string = "";
   nudgeBody: string = "";
@@ -37,7 +40,7 @@ export class NewItemNudgeComponent {
     private nudgesService: NudgesService,
   ) {}
 
-  mapToNudgeType(cipherType: CipherType | null): NudgeType {
+  mapToNudgeType(cipherType: CipherType): NudgeType {
     switch (cipherType) {
       case CipherType.Login: {
         const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");

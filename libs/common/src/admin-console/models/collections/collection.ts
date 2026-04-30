@@ -1,9 +1,14 @@
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { asUuid, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
+import {
+  Collection as SdkCollection,
+  CollectionType as SdkCollectionType,
+} from "@bitwarden/sdk-internal";
 
 import { CollectionData } from "./collection.data";
 
@@ -13,6 +18,21 @@ export const CollectionTypes = {
 } as const;
 
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
+
+/**
+ * Exhaustive bidirectional maps between our numeric CollectionType and the SDK's string variant.
+ * Typed with `satisfies Record<...>` so TypeScript will fail to compile if either side gains a
+ * new member without a corresponding entry being added here.
+ */
+export const sdkTypeToCollectionType = {
+  SharedCollection: CollectionTypes.SharedCollection,
+  DefaultUserCollection: CollectionTypes.DefaultUserCollection,
+} satisfies Record<SdkCollectionType, CollectionType>;
+
+export const collectionTypeToSdkType = {
+  [CollectionTypes.SharedCollection]: "SharedCollection",
+  [CollectionTypes.DefaultUserCollection]: "DefaultUserCollection",
+} satisfies Record<CollectionType, SdkCollectionType>;
 
 export class Collection extends Domain {
   id: CollectionId;
@@ -74,6 +94,43 @@ export class Collection extends Domain {
 
   decrypt(orgKey: OrgKey, encryptService: EncryptService): Promise<CollectionView> {
     return CollectionView.fromCollection(this, encryptService, orgKey);
+  }
+
+  /**
+   * Creates a Collection domain model from the SDK Collection returned by SDK encrypt operations.
+   */
+  static fromSdkCollection(sdkCollection: SdkCollection): Collection {
+    const collection = new Collection({
+      id: sdkCollection.id
+        ? (uuidAsString(sdkCollection.id) as CollectionId)
+        : ("" as CollectionId),
+      organizationId: uuidAsString(sdkCollection.organizationId) as OrganizationId,
+      name: new EncString(sdkCollection.name as unknown as string),
+    });
+    collection.externalId = sdkCollection.externalId;
+    collection.hidePasswords = sdkCollection.hidePasswords;
+    collection.readOnly = sdkCollection.readOnly;
+    collection.manage = sdkCollection.manage;
+    collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
+    collection.type = sdkTypeToCollectionType[sdkCollection.type];
+    return collection;
+  }
+
+  /**
+   * Maps Collection to SDK format for use with the SDK crypto operations.
+   */
+  toSdkCollection(): SdkCollection {
+    return {
+      id: this.id ? asUuid(this.id) : undefined,
+      organizationId: asUuid(this.organizationId),
+      name: this.name.toSdk(),
+      externalId: this.externalId,
+      hidePasswords: this.hidePasswords,
+      readOnly: this.readOnly,
+      manage: this.manage,
+      defaultUserCollectionEmail: this.defaultUserCollectionEmail,
+      type: collectionTypeToSdkType[this.type],
+    };
   }
 
   // @TODO: This would be better off in Collection.Utils. Move this there when

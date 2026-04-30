@@ -7,9 +7,11 @@ import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
-  OrganizationUserApiService,
-  DefaultOrganizationUserApiService,
+  CollectionEncryptionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
+  DefaultOrganizationUserApiService,
+  OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -360,6 +362,7 @@ export class ServiceContainer {
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
   cipherEncryptionService: CipherEncryptionService;
+  collectionEncryptionService: CollectionEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   encryptedMigrator: EncryptedMigrator;
@@ -668,13 +671,6 @@ export class ServiceContainer {
 
     this.searchService = new SearchService(this.logService, this.i18nService);
 
-    this.collectionService = new DefaultCollectionService(
-      this.keyService,
-      this.encryptService,
-      this.i18nService,
-      this.stateProvider,
-    );
-
     this.providerService = new ProviderService(this.stateProvider);
 
     this.policyApiService = new PolicyApiService(
@@ -710,6 +706,20 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       customUserAgent,
+    );
+
+    this.collectionEncryptionService = new DefaultCollectionEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.collectionService = new DefaultCollectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      this.stateProvider,
+      this.configService,
+      this.collectionEncryptionService,
     );
 
     this.unlockService = new DefaultUnlockService(

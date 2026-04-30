@@ -17,7 +17,9 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
@@ -27,6 +29,7 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
 
+import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 import { CollectionService } from "../abstractions/collection.service";
 
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
@@ -39,6 +42,8 @@ export class DefaultCollectionService implements CollectionService {
     private encryptService: EncryptService,
     private i18nService: I18nService,
     protected stateProvider: StateProvider,
+    private configService: ConfigService,
+    private collectionEncryptionService: CollectionEncryptionService,
   ) {}
 
   private collectionViewCache = new Map<UserId, Observable<CollectionView[]>>();
@@ -103,15 +108,30 @@ export class DefaultCollectionService implements CollectionService {
   }
 
   private initializeDecryptedState(userId: UserId): Observable<CollectionView[]> {
-    return combineLatest([
-      this.encryptedCollections$(userId),
-      this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
-    ]).pipe(
-      switchMap(([collections, orgKeys]) =>
-        this.decryptMany$(collections, orgKeys).pipe(
-          delayWhen((collections) => this.setDecryptedCollections(collections, userId)),
-        ),
-      ),
+    return this.configService.getFeatureFlag$(FeatureFlag.PM35153CollectionSdkDecryption).pipe(
+      switchMap((sdkEnabled) => {
+        if (sdkEnabled) {
+          return this.encryptedCollections$(userId).pipe(
+            switchMap((collections) =>
+              from(this.collectionEncryptionService.decryptMany(collections ?? [], userId)).pipe(
+                map((views) => views.sort(Utils.getSortFunction(this.i18nService, "name"))),
+                delayWhen((decrypted) => this.setDecryptedCollections(decrypted, userId)),
+              ),
+            ),
+          );
+        }
+
+        return combineLatest([
+          this.encryptedCollections$(userId),
+          this.keyService.orgKeys$(userId).pipe(filter((orgKeys) => !!orgKeys)),
+        ]).pipe(
+          switchMap(([collections, orgKeys]) =>
+            this.decryptMany$(collections, orgKeys).pipe(
+              delayWhen((decrypted) => this.setDecryptedCollections(decrypted, userId)),
+            ),
+          ),
+        );
+      }),
     );
   }
 
@@ -128,16 +148,28 @@ export class DefaultCollectionService implements CollectionService {
       return collections;
     });
 
-    const decryptedCollections = await firstValueFrom(
-      this.keyService.orgKeys$(userId).pipe(
-        switchMap((orgKeys) => {
-          if (!orgKeys) {
-            throw new Error("No key for this collection's organization.");
-          }
-          return this.decryptMany$([Collection.fromCollectionData(toUpdate)], orgKeys);
-        }),
-      ),
+    const sdkEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM35153CollectionSdkDecryption,
     );
+
+    let decryptedCollections: CollectionView[];
+    if (sdkEnabled) {
+      decryptedCollections = await this.collectionEncryptionService.decryptMany(
+        [Collection.fromCollectionData(toUpdate)],
+        userId,
+      );
+    } else {
+      decryptedCollections = await firstValueFrom(
+        this.keyService.orgKeys$(userId).pipe(
+          switchMap((orgKeys) => {
+            if (!orgKeys) {
+              throw new Error("No key for this collection's organization.");
+            }
+            return this.decryptMany$([Collection.fromCollectionData(toUpdate)], orgKeys);
+          }),
+        ),
+      );
+    }
 
     await this.decryptedState(userId).update((collections) => {
       if (collections == null) {

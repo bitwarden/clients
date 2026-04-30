@@ -14,6 +14,7 @@ export enum FeatureFlag {
   AdminResetTwoFactor = "pm-15489-reset-two-factor-account-recovery",
   BulkAutoConfirmOnLogin = "pm-35803-browser-auto-confirm-log-in",
   GenerateInviteLink = "pm-32497-generate-invite-link",
+  PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
 
   /* Auth */
@@ -121,6 +122,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AdminResetTwoFactor]: FALSE,
   [FeatureFlag.BulkAutoConfirmOnLogin]: FALSE,
   [FeatureFlag.GenerateInviteLink]: FALSE,
+  [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
 
   /* Autofill */

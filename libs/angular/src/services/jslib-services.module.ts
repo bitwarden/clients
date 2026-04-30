@@ -7,7 +7,9 @@ import { Subject } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  CollectionEncryptionService,
   CollectionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
   DefaultOrganizationUserService,
@@ -748,9 +750,21 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: CollectionEncryptionService,
+    useClass: DefaultCollectionEncryptionService,
+    deps: [SdkService, LogService],
+  }),
+  safeProvider({
     provide: CollectionService,
     useClass: DefaultCollectionService,
-    deps: [KeyService, EncryptService, I18nServiceAbstraction, StateProvider],
+    deps: [
+      KeyService,
+      EncryptService,
+      I18nServiceAbstraction,
+      StateProvider,
+      ConfigService,
+      CollectionEncryptionService,
+    ],
   }),
   safeProvider({
     provide: ENV_ADDITIONAL_REGIONS,
