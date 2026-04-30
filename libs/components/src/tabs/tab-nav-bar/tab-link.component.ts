@@ -44,8 +44,8 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() disabled = false;
 
-  @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {
-    if (event.code === "Space") {
+  @HostListener("keydown", ["$event"]) onKeyDown(event: Event) {
+    if ((event as KeyboardEvent).code === "Space") {
       this.tabItem().click();
     }
   }
