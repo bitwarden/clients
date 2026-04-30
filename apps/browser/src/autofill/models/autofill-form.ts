@@ -35,11 +35,9 @@ export default class AutofillForm {
   htmlClass!: string;
 
   /**
-  /**
    * Heading text from the form's bounded ancestors, ordered by ancestor distance
    * (closest first).
    */
   htmlAncestorHeadings!: string[];
-   */
-  htmlAncestorHeadings!: string[];
+}
 }
