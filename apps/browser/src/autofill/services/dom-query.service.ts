@@ -136,11 +136,14 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   /**
    * Queries the DOM for elements based on the given selector string.
-   * Supports the special `>>>` combinator to indicate the need for
-   * shadow DOM traversal; each segment separated by `>>>` is queried
-   * within the shadow root of the previous result.
+   * Supports the special `>>>` combinator to traverse iframe and shadow DOM
+   * boundaries; each segment separated by `>>>` is queried within the context
+   * produced by the previous segment. Boundary type is determined exclusively
+   * by the resolved element type — iframe elements always use iframe traversal,
+   * all other elements always use shadow DOM traversal, with no fallback between
+   * the two. This enforces the contract expressed in the targeting rule.
    *
-   * @param selector selector string, supports shadow DOM piercing with `>>>`
+   * @param selector selector string, supports boundary-piercing with `>>>`
    * @returns The first matching element, or null if no match is found
    */
   queryDeepSelector(selector: string): Element | null {
@@ -162,23 +165,41 @@ export class DomQueryService implements DomQueryServiceInterface {
         return null;
       }
 
-      // If there are more segments, traverse into the next boundary
       if (i < segments.length - 1) {
-        if (element instanceof HTMLIFrameElement && element.contentDocument) {
-          context = element.contentDocument;
-        } else {
-          const shadow = this.getShadowRoot(element);
-          if (!shadow) {
-            return null;
-          }
-          context = shadow;
+        const next =
+          element instanceof HTMLIFrameElement
+            ? this.traverseIframeBoundary(element)
+            : this.traverseShadowRootBoundary(element);
+        if (!next) {
+          return null;
         }
+        context = next;
       } else {
         return element;
       }
     }
 
     return null;
+  }
+
+  /**
+   * Returns the document inside a same-origin iframe, or null if the iframe
+   * is cross-origin or its document is otherwise inaccessible.
+   */
+  private traverseIframeBoundary(element: HTMLIFrameElement): Document | null {
+    return element.contentDocument;
+  }
+
+  /**
+   * Returns the shadow root of an element, or null if no shadow root exists.
+   * Explicitly refuses to traverse iframe elements — callers must use
+   * traverseIframeBoundary for those.
+   */
+  private traverseShadowRootBoundary(element: Element): ShadowRoot | null {
+    if (element instanceof HTMLIFrameElement) {
+      return null;
+    }
+    return this.getShadowRoot(element);
   }
 
   /**

@@ -338,6 +338,15 @@ describe("DomQueryService", () => {
       expect(domQueryService.queryDeepSelector("#cross-origin-iframe >>> #some-input")).toBeNull();
     });
 
+    it("returns null for an inaccessible iframe without falling back to shadow DOM", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "inaccessible-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      expect(domQueryService.queryDeepSelector("#inaccessible-iframe >>> #some-input")).toBeNull();
+    });
+
     it("traverses multiple boundaries in sequence", () => {
       const iframe = document.createElement("iframe");
       iframe.id = "outer-iframe";
