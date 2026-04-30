@@ -20,7 +20,9 @@ import {
 } from "rxjs";
 
 import {
+  CollectionEncryptionService,
   CollectionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
   DefaultOrganizationUserService,
@@ -521,6 +523,7 @@ export default class MainBackground {
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
+  collectionEncryptionService: CollectionEncryptionService;
   private restrictedItemTypesService: RestrictedItemTypesService;
   private securityStateService: SecurityStateService;
 
@@ -848,13 +851,6 @@ export default class MainBackground {
     );
     this.searchService = new SearchService(this.logService, this.i18nService);
 
-    this.collectionService = new DefaultCollectionService(
-      this.keyService,
-      this.encryptService,
-      this.i18nService,
-      this.stateProvider,
-    );
-
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(
       this.policyService,
@@ -918,6 +914,20 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+    );
+
+    this.collectionEncryptionService = new DefaultCollectionEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.collectionService = new DefaultCollectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      this.stateProvider,
+      this.configService,
+      this.collectionEncryptionService,
     );
 
     this.keyConnectorService = new KeyConnectorService(
