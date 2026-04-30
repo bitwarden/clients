@@ -40,4 +40,3 @@ export default class AutofillForm {
    */
   htmlAncestorHeadings!: string[];
 }
-}
