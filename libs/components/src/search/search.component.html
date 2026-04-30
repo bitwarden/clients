@@ -13,13 +13,13 @@
     [placeholder]="placeholder() ?? ('search' | i18n)"
     class="tw-block tw-size-full tw-bg-transparent tw-text-fg-heading tw-placeholder-fg-body-subtle tw-border-none focus:tw-outline-none [&:disabled]:tw-bg-bg-inactive [&:disabled]:!tw-placeholder-fg-inactive [&:disabled]:!tw-text-fg-inactive tw-ps-2 tw-pe-1"
     name="searchText"
-    [ngModel]="searchText"
+    [ngModel]="searchText()"
     (ngModelChange)="onChange($event)"
     [disabled]="disabled()"
     [attr.autocomplete]="autocomplete()"
     (blur)="onTouch()"
   />
-  @if (searchText) {
+  @if (searchText()) {
     <button
       bitSuffix
       bitIconButton="bwi-clear"
