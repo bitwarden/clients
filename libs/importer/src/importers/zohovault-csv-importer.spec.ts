@@ -20,7 +20,7 @@ const CipherData = [
         password: "PcY_IQEXIjKGj8YW",
         uris: [
           Object.assign(new LoginUriView(), {
-            uri: "https://abc.xyz.de:5001/#/login",
+            uri: "https://abc.bitwarden.com:5001/#/login",
           }),
         ],
         totp: "otpauth://totp?secret=PI2XO5TW0DF0SHTYOVZXOOBVHFEWM6JU&algorithm=SHA1&period=30&digits=6",
@@ -39,7 +39,7 @@ const CipherData = [
         password: "LegacyPassword",
         uris: [
           Object.assign(new LoginUriView(), {
-            uri: "https://abc.xyz.de:5001/#/login",
+            uri: "https://abc.bitwarden.com:5001/#/login",
           }),
         ],
         totp: "otpauth://totp?secret=LEGACYSECRET&algorithm=SHA1&period=30&digits=6",
