@@ -39,4 +39,7 @@ export abstract class VaultCollectionService {
 
   /** Updates the add-access filter state. */
   abstract setAddAccessStatus(status: AddAccessStatusType): void;
+
+  /** Forces a re-fetch of collections from the API. */
+  abstract reload(): void;
 }

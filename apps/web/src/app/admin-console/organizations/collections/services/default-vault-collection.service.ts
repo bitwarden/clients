@@ -44,6 +44,8 @@ export class DefaultVaultCollectionService extends VaultCollectionService {
   );
   readonly addAccessStatus$ = this._addAccessStatus$.asObservable();
 
+  private readonly _reload$ = new BehaviorSubject<void>(undefined);
+
   readonly allCollectionsWithoutUnassigned$: Observable<CollectionAdminView[]>;
   readonly allCollections$: Observable<CollectionAdminView[]>;
   readonly editableCollections$: Observable<CollectionAdminView[]>;
@@ -76,7 +78,11 @@ export class DefaultVaultCollectionService extends VaultCollectionService {
     const filter$ = this.routedVaultFilterService.filter$;
     const currentSearchText$ = this.route.queryParams.pipe(map((qp) => qp["search"]));
 
-    this.allCollectionsWithoutUnassigned$ = combineLatest([organizationId$, userId$]).pipe(
+    this.allCollectionsWithoutUnassigned$ = combineLatest([
+      organizationId$,
+      userId$,
+      this._reload$,
+    ]).pipe(
       switchMap(([orgId, userId]) =>
         this.collectionAdminService.collectionAdminViews$(orgId, userId),
       ),
@@ -220,5 +226,9 @@ export class DefaultVaultCollectionService extends VaultCollectionService {
 
   setAddAccessStatus(status: AddAccessStatusType): void {
     this._addAccessStatus$.next(status);
+  }
+
+  reload(): void {
+    this._reload$.next();
   }
 }
