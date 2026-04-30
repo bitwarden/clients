@@ -4,7 +4,7 @@ export const RevocationReasonType = Object.freeze({
   TwoFactorPolicyNonCompliance: 2,
   OrganizationDataOwnershipPolicyNonCompliance: 3,
   SingleOrgPolicyNonCompliance: 4,
-});
+} as const);
 
 export const RevocationReasonMessageMap: Record<RevocationReasonType, string> = {
   "0": "revocationReasonUnknown",
