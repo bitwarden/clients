@@ -8,7 +8,7 @@ export class ExtensionLoginViaWebAuthnComponentService
   extends DefaultLoginViaWebAuthnComponentService
   implements LoginViaWebAuthnComponentService
 {
-  shouldShowPageIcon = false;
-  shouldShowTroubleLoggingInText = false;
-  useDifferentLoginMethodLinkText = { key: "useDifferentLoginMethod" };
+  showPageIcons = false;
+  showTroubleLoggingInText = false;
+  useDifferentLoginMethodLinkText = "useDifferentLoginMethod";
 }

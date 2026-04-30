@@ -94,13 +94,13 @@
 
     <!-- Link to Password Hint page - doesn't use bit-hint so that it doesn't get hidden on input validation errors -->
     <a bitLink routerLink="/hint" (click)="goToHint()" class="tw-inline-block tw-mb-4">
-      {{ hintLinkText }}
+      {{ hintLinkText | i18n }}
     </a>
 
     <div class="tw-grid tw-gap-3">
       <!-- Submit button to Login with Master Password -->
       <button type="submit" bitButton bitFormButton block buttonType="primary">
-        {{ submitButtonText }}
+        {{ submitButtonText | i18n }}
       </button>
 
       <!-- Button to Login with Device -->

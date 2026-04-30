@@ -14,9 +14,9 @@
   </ng-container>
 
   <p bitTypography="body1" class="tw-mb-0 tw-text-center">
-    @if (shouldShowTroubleLoggingInText) {
+    @if (showTroubleLoggingInText) {
       {{ "troubleLoggingIn" | i18n }}<br />
     }
-    <a bitLink routerLink="/login">{{ useDifferentLoginMethodLinkText }}</a>
+    <a bitLink routerLink="/login">{{ useDifferentLoginMethodLinkText | i18n }}</a>
   </p>
 </div>

@@ -1,12 +1,10 @@
-import { Translation } from "@bitwarden/components";
-
 export abstract class LoginViaWebAuthnComponentService {
-  /** When false, the page icon is hidden on the passkey login page. */
-  abstract shouldShowPageIcon: boolean;
+  /** Whether to show the page icons (the login with passkey page has two UI screens, each with its own icon). */
+  abstract showPageIcons: boolean;
 
-  /** When false, the "Trouble logging in?" label is hidden. */
-  abstract shouldShowTroubleLoggingInText: boolean;
+  /** Whether to show the "Trouble logging in?" text. */
+  abstract showTroubleLoggingInText: boolean;
 
-  /** The link text for switching away from passkey login. */
-  abstract useDifferentLoginMethodLinkText: string | Translation;
+  /** The link text for navigating away from passkey login. */
+  abstract useDifferentLoginMethodLinkText: string;
 }

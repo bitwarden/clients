@@ -12,11 +12,11 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legac
 export class DefaultLoginComponentService implements LoginComponentService {
   protected clientType: ClientType;
 
-  shouldShowPageIcons = true;
-  emailEntryPageTitle = { key: "logInToBitwarden" };
-  masterPasswordPageTitle = { key: "welcomeBack" };
-  hintLinkText = { key: "getMasterPasswordHint" };
-  masterPasswordSubmitButtonText = { key: "loginWithMasterPassword" };
+  showPageIcons = true;
+  emailEntryPageTitle = "logInToBitwarden";
+  masterPasswordPageTitle = "welcomeBack";
+  hintLinkText = "getMasterPasswordHint";
+  submitButtonText = "loginWithMasterPassword";
 
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,

@@ -10,6 +10,6 @@ export class ExtensionRegistrationStartComponentService
   extends DefaultRegistrationStartComponentService
   implements RegistrationStartComponentService
 {
-  shouldShowUserDataEntryPageIcon = false;
-  marketingEmailsLabelText = { key: "receiveMarketingEmailsExtension" };
+  showDataEntryPageIcon = false;
+  marketingEmailsLabelText = "receiveMarketingEmailsExtension";
 }

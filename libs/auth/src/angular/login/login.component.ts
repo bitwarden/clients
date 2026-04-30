@@ -59,11 +59,7 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 
-import {
-  LoginComponentService,
-  LoginComponentTranslation,
-  PasswordPolicies,
-} from "./login-component.service";
+import { LoginComponentService, PasswordPolicies } from "./login-component.service";
 
 const BroadcasterSubscriptionId = "LoginComponent";
 
@@ -160,17 +156,8 @@ export class LoginComponent implements OnInit, OnDestroy {
   ) {
     this.clientType = this.platformUtilsService.getClientType();
 
-    this.hintLinkText = this.resolveTranslation(this.loginComponentService.hintLinkText);
-    this.submitButtonText = this.resolveTranslation(
-      this.loginComponentService.masterPasswordSubmitButtonText,
-    );
-  }
-
-  private resolveTranslation(value: string | LoginComponentTranslation): string {
-    if (typeof value === "string") {
-      return value;
-    }
-    return this.i18nService.t(value.key, ...(value.placeholders ?? []));
+    this.hintLinkText = this.loginComponentService.hintLinkText;
+    this.submitButtonText = this.loginComponentService.submitButtonText;
   }
 
   async ngOnInit(): Promise<void> {
@@ -545,8 +532,8 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginComponentService.showBackButton(false);
 
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: this.loginComponentService.emailEntryPageTitle,
-        pageIcon: this.loginComponentService.shouldShowPageIcons ? this.Icons.VaultIcon : null,
+        pageTitle: { key: this.loginComponentService.emailEntryPageTitle },
+        pageIcon: this.loginComponentService.showPageIcons ? this.Icons.VaultIcon : null,
         pageSubtitle: null, // remove subtitle when going back to email entry
       });
 
@@ -559,9 +546,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.loginComponentService.showBackButton(true);
 
       this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
-        pageTitle: this.loginComponentService.masterPasswordPageTitle,
+        pageTitle: { key: this.loginComponentService.masterPasswordPageTitle },
         pageSubtitle: this.emailFormControl.value,
-        pageIcon: this.loginComponentService.shouldShowPageIcons ? this.Icons.WaveIcon : null,
+        pageIcon: this.loginComponentService.showPageIcons ? this.Icons.WaveIcon : null,
       });
 
       // Mark MP as untouched so that, when users enter email and hit enter, the MP field doesn't load with validation errors

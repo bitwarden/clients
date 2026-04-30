@@ -18,11 +18,11 @@ export class ExtensionLoginComponentService
   extends DefaultLoginComponentService
   implements LoginComponentService
 {
-  shouldShowPageIcons = false;
-  emailEntryPageTitle = { key: "logIn" };
-  masterPasswordPageTitle = { key: "logIn" };
-  hintLinkText = { key: "hint" };
-  masterPasswordSubmitButtonText = { key: "logIn" };
+  showPageIcons = false;
+  emailEntryPageTitle = "logIn";
+  masterPasswordPageTitle = "logIn";
+  hintLinkText = "hint";
+  submitButtonText = "logIn";
 
   constructor(
     cryptoFunctionService: CryptoFunctionService,
