@@ -5,7 +5,10 @@ import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
 import { AddItemGridComponent } from "../add-item-grid/add-item-grid.component";
@@ -22,7 +25,7 @@ describe("AddItemDialogComponent", () => {
 
   const close = jest.fn();
   const dialogRef = { close };
-  const restricted$ = new BehaviorSubject<[]>([]);
+  const restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
 
   beforeEach(async () => {
     close.mockClear();
