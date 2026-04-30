@@ -1,9 +1,11 @@
+import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  HostListener,
   Inject,
   Signal,
   ViewContainerRef,
@@ -22,6 +24,8 @@ import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/r
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import {
@@ -57,7 +61,8 @@ export type PolicyEditDialogResult = "saved";
 })
 export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
-  private readonly destroyRef = inject(DestroyRef);
+  protected readonly destroyRef = inject(DestroyRef);
+  private readonly discardGuardEnabled = signal(false);
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -69,6 +74,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   readonly formGroup = this.formBuilder.group({
     enabled: [this.enabled],
   });
+
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
     protected readonly accountService: AccountService,
@@ -79,6 +85,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     protected readonly dialogRef: DialogRef<PolicyEditDialogResult>,
     protected readonly toastService: ToastService,
     protected readonly keyService: KeyService,
+    protected readonly dialogService: DialogService,
+    protected readonly cdkDialogRef: CdkDialogRef,
+    protected readonly configService: ConfigService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
@@ -96,9 +105,83 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
   }
 
+  private isFormDirty(): boolean {
+    const component = this.policyComponent();
+    return (component?.enabled?.dirty ?? false) || (component?.data?.dirty ?? false);
+  }
+
+  private readonly discardDialogOptions = {
+    title: { key: "discardEditsTitle" },
+    content: { key: "discardEditsConfirmation" },
+    type: "danger" as const,
+    hideIcon: true,
+    acceptButtonText: { key: "discardEdits" },
+    cancelButtonText: { key: "backToEditing" },
+  };
+
   /**
-   * Instantiates the child policy component and inserts it into the view.
+   * Sets up the discard-edits guard based on whether the dialog is a modal or a drawer.
+   *
+   * For modals: disables the default ESC/backdrop close and subscribes to backdrop clicks manually
+   * so they go through the `cancel()` dirty check.
+   *
+   * For drawers: installs a `closePredicate` on the dialog ref so that any close path — including
+   * the X button, policy switching, and the `canDeactivate` navigation guard — shows the
+   * confirmation dialog before proceeding.
+   *
+   * Call this once the child policy component has been initialised.
    */
+  protected async setupDiscardGuard(): Promise<void> {
+    this.discardGuardEnabled.set(
+      await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers),
+    );
+    if (!this.discardGuardEnabled()) {
+      return;
+    }
+
+    if (!this.dialogRef.isDrawer) {
+      this.dialogRef.disableClose = true;
+      this.cdkDialogRef.backdropClick
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => void this.cancel());
+      this.cdkDialogRef.keydownEvents
+        .pipe(
+          filter((e: KeyboardEvent) => e.key === "Escape"),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe(() => void this.cancel());
+    } else {
+      this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
+        // A defined result means an intentional close (e.g. after a successful save) — always allow.
+        if (result !== undefined || !this.isFormDirty()) {
+          return true;
+        }
+        return this.dialogService.openSimpleDialog(this.discardDialogOptions);
+      };
+    }
+  }
+
+  protected readonly cancel = async () => {
+    if (!this.discardGuardEnabled() || !this.isFormDirty()) {
+      await this.dialogRef.close();
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+    if (confirmed) {
+      // Clear the predicate first so close() doesn't show a second dialog.
+      this.dialogRef.closePredicate = undefined;
+      await this.dialogRef.close();
+    }
+  };
+
+  @HostListener("window:beforeunload", ["$event"])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.discardGuardEnabled() && this.isFormDirty()) {
+      event.preventDefault();
+      event.returnValue = "";
+    }
+  }
+
   async ngAfterViewInit() {
     const policyResponse = await this.load();
     this.loading.set(false);
@@ -124,6 +207,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     this.cdr.detectChanges();
+    await this.setupDiscardGuard();
   }
 
   async load() {
