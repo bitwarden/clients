@@ -1,4 +1,3 @@
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -9,7 +8,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 export class ForegroundBrowserBiometricsService extends BiometricsService {
   shouldAutopromptNow = true;
 
-  constructor(private platformUtilsService: PlatformUtilsService) {
+  constructor() {
     super();
   }
 
