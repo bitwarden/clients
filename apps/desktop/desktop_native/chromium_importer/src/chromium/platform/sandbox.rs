@@ -1,4 +1,6 @@
 /// Sandbox specific (for Mac App Store Builds)
+use std::path::{Path, PathBuf};
+
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
@@ -40,7 +42,6 @@ struct HasStoredAccessResponse {
 
 #[derive(Debug, Deserialize)]
 struct StartAccessResponse {
-    #[allow(dead_code)]
     path: String,
 }
 
@@ -53,9 +54,14 @@ struct CommandInput {
 
 pub struct ScopedBrowserAccess {
     browser_name: String,
+    path: PathBuf,
 }
 
 impl ScopedBrowserAccess {
+    pub fn path(&self) -> &Path {
+        &self.path
+    }
+
     /// Request access to browser directory and create a security bookmark if access is approved
     pub async fn request_only(browser_name: &str) -> Result<()> {
         let config = crate::chromium::platform::SUPPORTED_BROWSERS
@@ -128,8 +134,9 @@ impl ScopedBrowserAccess {
             .map_err(|e| anyhow!("Failed to parse ObjC response: {}", e))?;
 
         match start_result {
-            CommandResult::Success { .. } => Ok(Self {
+            CommandResult::Success { value } => Ok(Self {
                 browser_name: browser_name.to_string(),
+                path: PathBuf::from(value.path),
             }),
             CommandResult::Error { error } => Err(anyhow!("{}", error)),
         }

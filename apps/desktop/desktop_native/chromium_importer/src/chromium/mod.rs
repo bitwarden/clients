@@ -83,10 +83,13 @@ pub async fn get_available_profiles(
     browser_name: &str,
     mas_build: bool,
 ) -> Result<Vec<ProfileInfo>> {
-    // MAS builds need to resume security-scoped access before reading browser files
+    // MAS builds resolve the data dir from the security-scoped bookmark — `dirs::home_dir()`
+    // returns the sandbox container path under the App Sandbox, not the user's real $HOME.
     #[cfg(target_os = "macos")]
     if mas_build {
-        platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
+        let access = platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
+        let local_state = load_local_state(access.path())?;
+        return Ok(get_profile_info(&local_state));
     }
 
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
@@ -109,12 +112,27 @@ pub async fn import_logins(
     profile_id: &str,
     mas_build: bool,
 ) -> Result<Vec<LoginImportResult>> {
-    // MAS builds will use the formerly created security bookmark
+    // MAS builds resolve the data dir from the security-scoped bookmark — `dirs::home_dir()`
+    // returns the sandbox container path under the App Sandbox, not the user's real $HOME.
+    // The `ScopedBrowserAccess` binding releases the scope on `Drop` after the reads complete.
     #[cfg(target_os = "macos")]
-    if mas_build {
-        platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
-    }
+    let _access = if mas_build {
+        Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
+    } else {
+        None
+    };
 
+    #[cfg(target_os = "macos")]
+    let (data_dir, local_state) = match _access.as_ref() {
+        Some(a) => {
+            let data_dir = a.path().to_path_buf();
+            let local_state = load_local_state(&data_dir)?;
+            (data_dir, local_state)
+        }
+        None => load_local_state_for_browser(browser_name)?,
+    };
+
+    #[cfg(not(target_os = "macos"))]
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
