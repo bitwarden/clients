@@ -29,6 +29,18 @@ jest.mock("@bitwarden/desktop-napi", () => {
   };
 });
 
+jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
+  SdkLoadService: {
+    Ready: Promise.resolve(),
+  },
+}));
+
+jest.mock("@bitwarden/sdk-internal", () => ({
+  CryptoClient: {
+    get_key_id_for_symmetric_key: jest.fn().mockReturnValue(null),
+  },
+}));
+
 jest.mock("./native-v2", () => ({
   WindowsBiometricsSystem: jest.fn(),
   biometrics_v2: {
