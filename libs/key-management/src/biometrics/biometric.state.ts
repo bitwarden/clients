@@ -70,19 +70,6 @@ export const FINGERPRINT_VALIDATED = new KeyDefinition<boolean>(
 );
 
 /**
- * Stores the key ID of the user key that was last enrolled in the biometric system.
- * Used to detect when the user key has changed and biometric keys need re-enrollment.
- */
-export const BIOMETRIC_ENROLLED_KEY_ID = new UserKeyDefinition<string | null>(
-  BIOMETRIC_SETTINGS_DISK,
-  "biometricEnrolledKeyId",
-  {
-    deserializer: (obj) => obj,
-    clearOn: [],
-  },
-);
-
-/**
  * Last process reload time
  */
 export const LAST_PROCESS_RELOAD = new KeyDefinition<Date>(

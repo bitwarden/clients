@@ -1,24 +1,15 @@
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-// eslint-disable-next-line
-import {
-  BiometricStateService,
-  BiometricsService,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfigService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 
 import { assertNonNullish } from "../../auth/utils";
-import { ClientType } from "../../enums";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
-import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
 import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
-import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
 
@@ -27,17 +18,12 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
   private isRunningMigration = false;
 
   constructor(
-    kdfConfigService: KdfConfigService,
-    changeKdfService: ChangeKdfService,
+    readonly kdfConfigService: KdfConfigService,
+    readonly changeKdfService: ChangeKdfService,
     private readonly logService: LogService,
-    configService: ConfigService,
-    masterPasswordService: MasterPasswordServiceAbstraction,
-    private readonly syncService: SyncService,
-    keyService: KeyService,
-    biometricsService: BiometricsService,
-    biometricStateService: BiometricStateService,
-    platformUtilsService: PlatformUtilsService,
-    sdkService: SdkService,
+    readonly configService: ConfigService,
+    readonly masterPasswordService: MasterPasswordServiceAbstraction,
+    readonly syncService: SyncService,
   ) {
     // Register migrations here
     this.migrations.push({
@@ -51,20 +37,6 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
         syncService,
       ),
     });
-
-    // Biometric persistent encryption is only relevant on desktop
-    if (platformUtilsService.getClientType() === ClientType.Desktop) {
-      this.migrations.push({
-        name: "Biometric V2 Encryption Migration",
-        migration: new BiometricPersistentMigration(
-          keyService,
-          biometricsService,
-          biometricStateService,
-          logService,
-          sdkService,
-        ),
-      });
-    }
   }
 
   async runMigrations(userId: UserId, masterPassword: string | null): Promise<void> {

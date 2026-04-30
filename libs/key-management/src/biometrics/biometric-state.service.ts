@@ -9,7 +9,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 import {
   BIOMETRIC_UNLOCK_ENABLED,
-  BIOMETRIC_ENROLLED_KEY_ID,
   ENCRYPTED_CLIENT_KEY_HALF,
   PROMPT_AUTOMATICALLY,
   PROMPT_CANCELLED,
@@ -97,20 +96,6 @@ export abstract class BiometricStateService {
 
   abstract getLastProcessReload(): Promise<Date | null>;
 
-  /**
-   * Gets the key ID of the user key that was last enrolled in the biometric system.
-   * @param userId the user to check
-   * @returns the key ID as a base64 string, or null if not set
-   */
-  abstract getBiometricEnrolledKeyId(userId: UserId): Promise<string | null>;
-
-  /**
-   * Sets the key ID of the user key that was last enrolled in the biometric system.
-   * @param userId the user to update
-   * @param keyId the key ID as a base64 string, or null to clear
-   */
-  abstract setBiometricEnrolledKeyId(userId: UserId, keyId: string | null): Promise<void>;
-
   abstract logout(userId: UserId): Promise<void>;
 }
 
@@ -188,18 +173,6 @@ export class DefaultBiometricStateService implements BiometricStateService {
         .getUser(userId, ENCRYPTED_CLIENT_KEY_HALF)
         .state$.pipe(map(encryptedClientKeyHalfToEncString)),
     );
-  }
-
-  async getBiometricEnrolledKeyId(userId: UserId): Promise<string | null> {
-    return await firstValueFrom(
-      this.stateProvider
-        .getUser(userId, BIOMETRIC_ENROLLED_KEY_ID)
-        .state$.pipe(map((val) => val ?? null)),
-    );
-  }
-
-  async setBiometricEnrolledKeyId(userId: UserId, keyId: string | null): Promise<void> {
-    await this.stateProvider.getUser(userId, BIOMETRIC_ENROLLED_KEY_ID).update(() => keyId);
   }
 
   async logout(userId: UserId): Promise<void> {
