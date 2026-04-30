@@ -8,3 +8,4 @@ export * from "./provider-user-status-type.enum";
 export * from "./provider-user-type.enum";
 export * from "./scim-provider-type.enum";
 export * from "./provider-status-type.enum";
+export * from "./revocation-reasons-enum";

@@ -241,7 +241,17 @@
                           </span>
                         }
                         @if (u.status === userStatusType.Revoked) {
-                          <span bitBadge class="tw-text-xs" variant="secondary">
+                          <span
+                            bitBadge
+                            class="tw-text-xs"
+                            variant="secondary"
+                            startIcon="bwi-info"
+                            title=""
+                            [bitTooltip]="
+                              getRevocationReasonTranslationKey(u.revocationReason) | i18n
+                            "
+                            tooltipPosition="below-center"
+                          >
                             {{ "revoked" | i18n }}
                           </span>
                         }
@@ -277,7 +287,18 @@
                           </span>
                         }
                         @if (u.status === userStatusType.Revoked) {
-                          <span bitBadge class="tw-text-xs" variant="secondary">
+                          <span
+                            bitBadge
+                            class="tw-text-xs"
+                            variant="secondary"
+                            startIcon="bwi-info"
+                            title=""
+                            [bitTooltip]="
+                              getRevocationReasonTranslationKey(u.revocationReason) | i18n
+                            "
+                            [addTooltipToDescribedby]="true"
+                            tooltipPosition="below-center"
+                          >
                             {{ "revoked" | i18n }}
                           </span>
                         }

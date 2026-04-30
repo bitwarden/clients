@@ -4,6 +4,7 @@ import { OrganizationUserUserDetailsResponse } from "@bitwarden/admin-console/co
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -12,6 +13,7 @@ export class OrganizationUserView {
   id: string;
   userId: string;
   type: OrganizationUserType;
+  revocationReason: RevocationReasonType;
   status: OrganizationUserStatusType;
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
