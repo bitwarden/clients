@@ -5055,6 +5055,15 @@
   "copyIban": {
     "message": "Copy IBAN"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "bankAccountTypeChecking": {
     "message": "Checking"
   },
