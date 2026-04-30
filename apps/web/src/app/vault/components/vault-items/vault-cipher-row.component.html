@@ -11,10 +11,10 @@
     />
   }
 </td>
-<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
+<td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit [&>*]:tw-flex tw-flex">
   <app-vault-icon [cipher]="cipher"></app-vault-icon>
 </td>
-<td bitCell [ngClass]="RowHeightClass" class="tw-truncate">
+<td bitCell [ngClass]="RowHeightClass" class="tw-truncate tw-pr-7 lg:tw-pr-0">
   <div class="tw-inline-flex tw-w-full">
     <!-- Opt out of router focus manager via [state] input, since the dialog will handle focus -->
     <button
@@ -39,7 +39,7 @@
     @if (hasAttachments) {
       <ng-container>
         <i
-          class="bwi bwi-paperclip tw-ml-2 tw-leading-normal"
+          class="bwi bwi-paperclip tw-ml-2 tw-leading-normal tw-hidden lg:tw-table-cell"
           appStopProp
           title="{{ 'attachments' | i18n }}"
           aria-hidden="true"
@@ -74,7 +74,7 @@
   </td>
 }
 @if (showCollections) {
-  <td bitCell [ngClass]="RowHeightClass">
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 xl:tw-table-cell">
     @if (cipher.collectionIds) {
       <app-collection-badge
         [collectionIds]="cipher.collectionIds"
@@ -84,11 +84,15 @@
   </td>
 }
 @if (showGroups) {
-  <td bitCell [ngClass]="RowHeightClass"></td>
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 xl:tw-table-cell tw-text-sm"></td>
 }
 @if (viewingOrgVault) {
-  <td bitCell [ngClass]="RowHeightClass">
-    <p class="tw-mb-0 tw-text-muted">
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 lg:tw-table-cell">
+    <p
+      class="tw-mb-0 tw-truncate tw-text-sm tw-text-muted"
+      [bitTooltip]="permissionTooltip"
+      [title]="permissionText"
+    >
       {{ permissionText }}
     </p>
   </td>

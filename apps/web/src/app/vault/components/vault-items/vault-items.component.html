@@ -39,10 +39,15 @@
           </th>
         }
         @if (showCollections) {
-          <th bitCell class="tw-w-2/5">{{ "collections" | i18n }}</th>
+          <th bitCell class="tw-w-2/5 tw-hidden xl:tw-table-cell">{{ "collections" | i18n }}</th>
         }
         @if (showGroups) {
-          <th bitCell bitSortable="groups" [fn]="sortByGroups" class="tw-w-2/5">
+          <th
+            bitCell
+            bitSortable="groups"
+            [fn]="sortByGroups"
+            class="tw-hidden tw-w-2/5 tw-pr-7 xl:tw-table-cell"
+          >
             {{ "groups" | i18n }}
           </th>
         }
@@ -52,12 +57,15 @@
             bitSortable="permissions"
             default="desc"
             [fn]="sortByPermissions"
-            class="tw-w-2/5"
+            class="tw-hidden tw-w-2/5 tw-pr-7 lg:tw-table-cell"
           >
             {{ "permission" | i18n }}
           </th>
         }
-        <th bitCell class="tw-w-12 tw-text-right">
+        <th
+          bitCell
+          [class]="((showCopyAndLaunchActions$ | async) ? 'tw-w-28' : 'tw-w-12') + ' tw-text-right'"
+        >
           @let menuDisabled = disableMenu$ | async;
           <button
             [disabled]="disabled || isEmpty || menuDisabled"
