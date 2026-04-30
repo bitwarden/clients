@@ -42,6 +42,7 @@ export class OrganizationResponse extends BaseResponse {
   useAccessIntelligence: boolean;
   usePhishingBlocker: boolean;
   useMyItems: boolean;
+  useInviteLinks: boolean;
 
   constructor(response: any) {
     super(response);
@@ -88,5 +89,6 @@ export class OrganizationResponse extends BaseResponse {
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
     this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
+    this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? false;
   }
 }
