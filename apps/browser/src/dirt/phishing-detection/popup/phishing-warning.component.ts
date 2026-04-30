@@ -3,7 +3,6 @@ import { Component, inject } from "@angular/core";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import { firstValueFrom, map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import {
   AsyncActionsModule,
@@ -17,6 +16,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { MessageSender } from "@bitwarden/messaging";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
   PHISHING_DETECTION_CANCEL_COMMAND,
@@ -32,7 +32,6 @@ import {
   imports: [
     CommonModule,
     SvgModule,
-    JslibModule,
     LinkModule,
     FormFieldModule,
     AsyncActionsModule,
@@ -42,6 +41,7 @@ import {
     IconTileComponent,
     CalloutComponent,
     TypographyModule,
+    I18nPipe,
   ],
 })
 // FIXME(https://bitwarden.atlassian.net/browse/PM-28231): Use Component suffix
@@ -57,17 +57,13 @@ export class PhishingWarning {
 
   async closeTab() {
     const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, {
-      tabId,
-    });
+    this.messageSender.send(PHISHING_DETECTION_CANCEL_COMMAND, { tabId });
   }
+
   async continueAnyway() {
     const url = await firstValueFrom(this.phishingUrl$);
     const tabId = await this.getTabId();
-    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, {
-      tabId,
-      url,
-    });
+    this.messageSender.send(PHISHING_DETECTION_CONTINUE_COMMAND, { tabId, url });
   }
 
   private async getTabId() {

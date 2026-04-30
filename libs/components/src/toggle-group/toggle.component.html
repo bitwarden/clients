@@ -10,7 +10,7 @@
   <span class="tw-line-clamp-2 tw-break-words" #labelContent>
     <ng-content></ng-content>
   </span>
-  <span class="tw-shrink-0" [hidden]="!hasBadge()">
-    <ng-content select="[bitBadge]"></ng-content>
+  <span class="tw-shrink-0 [&_bit-berry]:tw-flex" [hidden]="!hasBerry()">
+    <ng-content select="bit-berry"></ng-content>
   </span>
 </label>

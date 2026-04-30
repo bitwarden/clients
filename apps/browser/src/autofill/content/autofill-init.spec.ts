@@ -248,7 +248,7 @@ describe("AutofillInit", () => {
           await flushPromises();
 
           expect(autofillInit["collectAutofillContentService"].getPageDetails).toHaveBeenCalled();
-          expect(sendResponse).toBeCalledWith(pageDetails);
+          expect(sendResponse).toHaveBeenCalledWith(pageDetails);
           expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith({
             command: "collectPageDetailsResponse",
             tab: message.tab,
@@ -288,6 +288,37 @@ describe("AutofillInit", () => {
 
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
             fillScript,
+            true,
+          );
+        });
+
+        it("calls the InsertAutofillContentService to fill the form with the showAnimations flag set to `true`", async () => {
+          sendMockExtensionMessage({
+            command: "fillForm",
+            fillScript,
+            pageDetailsUrl: window.location.href,
+            showAnimations: true,
+          });
+          await flushPromises();
+
+          expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
+            fillScript,
+            true,
+          );
+        });
+
+        it("calls the InsertAutofillContentService to fill the form with the showAnimations flag set to `false`", async () => {
+          sendMockExtensionMessage({
+            command: "fillForm",
+            fillScript,
+            pageDetailsUrl: window.location.href,
+            showAnimations: false,
+          });
+          await flushPromises();
+
+          expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
+            fillScript,
+            false,
           );
         });
 
@@ -324,6 +355,7 @@ describe("AutofillInit", () => {
           );
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
             fillScript,
+            true,
           );
           expect(sendExtensionMessageSpy).toHaveBeenNthCalledWith(
             2,

@@ -11,7 +11,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -90,8 +89,6 @@ export class ItemMoreOptionsComponent {
 
   protected autofillAllowed$ = this.vaultPopupAutofillService.autofillAllowed$;
 
-  protected uriMatchStrategy$ = this.domainSettingsService.resolvedDefaultUriMatchStrategy$;
-
   /**
    * Observable that emits a boolean value indicating if the user is authorized to clone the cipher.
    * @protected
@@ -128,8 +125,6 @@ export class ItemMoreOptionsComponent {
       );
     }),
   );
-
-  protected showArchive$: Observable<boolean> = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
   protected canArchive$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     getUserId,
@@ -198,23 +193,9 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
-    const uris = cipher.login?.uris ?? [];
-    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-
-    const showExactMatchDialog =
-      uris.length === 0
-        ? uriMatchStrategy === UriMatchStrategy.Exact
-        : // all saved URIs are exact match
-          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
-
-    if (showExactMatchDialog) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
+    //for non login types that are still auto-fillable
+    if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
       return;
     }
 
@@ -231,10 +212,15 @@ export class ItemMoreOptionsComponent {
       return;
     }
 
+    if (await this._domainMatched(currentTab.url)) {
+      await this.vaultPopupAutofillService.doAutofill(cipher, true, true);
+      return;
+    }
+
     const ref = AutofillConfirmationDialogComponent.open(this.dialogService, {
       data: {
         currentUrl: currentTab?.url || "",
-        savedUrls: cipher.login?.uris?.filter((u) => u.uri).map((u) => u.uri!) ?? [],
+        savedUris: cipher.login?.uris?.filter((u) => u.uri) ?? [],
         viewOnly: !this.cipher.edit,
       },
     });
@@ -251,6 +237,17 @@ export class ItemMoreOptionsComponent {
         await this.vaultPopupAutofillService.doAutofillAndSave(cipher, false, true);
         return;
     }
+  }
+
+  private async _domainMatched(url: string): Promise<boolean> {
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(url),
+    );
+    const defaultMatch = await firstValueFrom(
+      this.domainSettingsService.resolvedDefaultUriMatchStrategy$,
+    );
+
+    return CipherViewLikeUtils.matchesUri(this.cipher, url, equivalentDomains, defaultMatch);
   }
 
   async onView() {

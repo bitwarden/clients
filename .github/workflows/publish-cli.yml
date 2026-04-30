@@ -103,7 +103,7 @@ jobs:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -151,7 +151,7 @@ jobs:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -167,7 +167,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
-          secrets: "cli-choco-api-key"
+          secrets: "choco-api-key"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
@@ -175,7 +175,7 @@ jobs:
       - name: Setup Chocolatey
         run: choco apikey --key $env:CHOCO_API_KEY --source https://push.chocolatey.org/
         env:
-          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.cli-choco-api-key }}
+          CHOCO_API_KEY: ${{ steps.retrieve-secrets.outputs.choco-api-key }}
 
       - name: Make dist dir
         run: New-Item -ItemType directory -Path ./dist
@@ -192,7 +192,7 @@ jobs:
   npm:
     name: Publish NPM
     environment: CLI - NPM
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: setup
     permissions:
       contents: read
@@ -203,7 +203,7 @@ jobs:
       _PKG_VERSION: ${{ needs.setup.outputs.release_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
 
@@ -223,6 +223,7 @@ jobs:
 
       - name: Install NPM
         run: |
+          npm install -g --prefix="$(npm prefix -g)" promise-retry
           npm install -g npm@latest # npm 11.5.1 or later is required to publish w/ OIDC
           npm --version
 

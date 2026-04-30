@@ -3,7 +3,7 @@
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { OtpMethod, Platform } from "../enums";
+import { LastpassLoginType, OtpMethod, Platform } from "../enums";
 import {
   Account,
   Chunk,
@@ -63,8 +63,40 @@ export class Client {
       );
 
       let privateKey: Uint8Array = null;
+      // The initialization vector is a random 16-byte value used to ensure
+      // the same plaintext (e.g. same password used for two different accounts)
+      // results in a different ciphertext when encrypted
+      let initVec: Uint8Array = null;
       if (session.encryptedPrivateKey != null && session.encryptedPrivateKey != "") {
-        privateKey = await this.parser.parseEncryptedPrivateKey(session.encryptedPrivateKey, key);
+        let encryptedPrivateKey = null;
+
+        if (clientInfo.loginType == LastpassLoginType.MasterPassword) {
+          encryptedPrivateKey = Utils.fromHexToArray(session.encryptedPrivateKey);
+          initVec = key.subarray(0, 16);
+        } else if (clientInfo.loginType == LastpassLoginType.Federated) {
+          // LastPass private key format is !<base64>|<base64>
+          // Private key use AES-CBC encryption, with the first base64 string
+          // being the initialization vector and the second base64 string
+          // containing the actual encrypted key
+          const parts = session.encryptedPrivateKey.split("|");
+          if (parts.length !== 2) {
+            throw new Error("Invalid LastPass private key format, no | separator");
+          }
+          if (!parts[0].startsWith("!")) {
+            throw new Error("Invalid LastPass private key format, no ! starting separator");
+          }
+          // Remove the starting ! character, which is not a part of the initialization
+          // vector, and then base64 decode
+          initVec = Utils.fromB64ToArray(parts[0].slice(1));
+          if (initVec.length !== 16) {
+            throw new Error(`Invalid LastPass private key init vector length (${initVec.length})`);
+          }
+          encryptedPrivateKey = Utils.fromB64ToArray(parts[1]);
+        } else {
+          throw new Error("Unsupported LastPass login");
+        }
+
+        privateKey = await this.parser.parseEncryptedPrivateKey(encryptedPrivateKey, key, initVec);
       }
 
       return this.parseVault(blob, key, privateKey, options);

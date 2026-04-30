@@ -1,0 +1,48 @@
+<form
+  [formGroup]="formGroup"
+  [bitSubmit]="submit"
+  bit-dialog
+  [loading]="loading()"
+  [title]="policySteps()[currentStep()]?.titleContent?.() ? undefined : ('editPolicy' | i18n)"
+  [subtitle]="policySteps()[currentStep()]?.titleContent?.() ? undefined : (policy.name | i18n)"
+>
+  <ng-container bitDialogTitle>
+    @let title = policySteps()[currentStep()]?.titleContent?.();
+    @if (title) {
+      <ng-container [ngTemplateOutlet]="title"></ng-container>
+    }
+  </ng-container>
+
+  <ng-container bitDialogContent>
+    @if (policy.showDescription) {
+      <p bitTypography="body1">{{ policy.description | i18n }}</p>
+    }
+
+    @let bodyTemplate = policySteps()[currentStep()]?.bodyContent?.();
+    @if (bodyTemplate) {
+      <ng-container [ngTemplateOutlet]="bodyTemplate"></ng-container>
+    }
+    <!-- Always rendered so viewChild resolves before ngAfterViewInit runs. -->
+    <ng-template #policyForm></ng-template>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    @let footerTemplate = policySteps()[currentStep()]?.footerContent?.();
+    @if (footerTemplate) {
+      <ng-container [ngTemplateOutlet]="footerTemplate"></ng-container>
+    } @else {
+      <button
+        bitButton
+        buttonType="primary"
+        [disabled]="loading() || saveDisabled()"
+        bitFormButton
+        type="submit"
+      >
+        {{ (currentStep() === policySteps().length - 1 ? "save" : "next") | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" bitDialogClose type="button">
+        {{ "cancel" | i18n }}
+      </button>
+    }
+  </ng-container>
+</form>

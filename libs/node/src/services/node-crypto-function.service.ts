@@ -78,7 +78,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
   hash(
     value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512" | "md5",
-  ): Promise<Uint8Array> {
+  ): Promise<Uint8Array<ArrayBuffer>> {
     const hash = crypto.createHash(algorithm);
     hash.update(value);
     return Promise.resolve(new Uint8Array(hash.digest()));

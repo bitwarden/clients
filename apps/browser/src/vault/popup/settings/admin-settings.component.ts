@@ -12,7 +12,6 @@ import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { firstValueFrom, map, Observable, of, switchMap, tap, withLatestFrom } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
-import { SpotlightComponent } from "@bitwarden/angular/vault/components/spotlight/spotlight.component";
 import {
   AutoConfirmWarningDialogComponent,
   AutomaticUserConfirmationService,
@@ -25,11 +24,11 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import {
-  BitIconButtonComponent,
   CardComponent,
   DialogService,
   FormFieldModule,
   SwitchComponent,
+  CalloutModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { UserId } from "@bitwarden/user-core";
@@ -46,9 +45,8 @@ import { UserId } from "@bitwarden/user-core";
     ReactiveFormsModule,
     SwitchComponent,
     CardComponent,
-    SpotlightComponent,
-    BitIconButtonComponent,
     I18nPipe,
+    CalloutModule,
   ],
 })
 export class AdminSettingsComponent implements OnInit {

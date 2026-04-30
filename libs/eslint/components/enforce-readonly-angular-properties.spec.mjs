@@ -5,7 +5,6 @@ import rule, { messages } from "./enforce-readonly-angular-properties.mjs";
 const ruleTester = new RuleTester({
   languageOptions: {
     parserOptions: {
-      project: [__dirname + "/../tsconfig.spec.json"],
       projectService: {
         allowDefaultProject: ["*.ts*"],
       },

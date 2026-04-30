@@ -318,6 +318,20 @@ export const ButtonInputGroup: Story = {
   args: {},
 };
 
+export const DangerButtonInputGroup: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-form-field>
+        <bit-label>Label</bit-label>
+        <input bitInput placeholder="Placeholder" />
+        <button type="button" bitSuffix bitIconButton="bwi-minus-circle" buttonType="dangerGhost" label="Remove"></button>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+};
+
 export const DisabledButtonInputGroup: Story = {
   render: (args) => ({
     props: args,

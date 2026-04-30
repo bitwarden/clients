@@ -29,6 +29,8 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
     {
       deserializer: (jsonValue) => jsonValue,
       clearOn: ["logout"],
+      // Prevents the state from caching and rxjs observable becoming hot observable.
+      cleanupDelayMs: 0,
     },
   );
 

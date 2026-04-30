@@ -55,7 +55,8 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultWrapperComponent } from "../vault/app/vault-v3/vault-wrapper.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
-import { SendComponent } from "./tools/send-v2/send.component";
+import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
+import { SendComponent } from "./tools/send/send.component";
 
 /**
  * Data properties acceptable for use in route objects in the desktop
@@ -453,6 +454,7 @@ const routes: Routes = [
         path: "send",
         component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
+        canDeactivate: [unsavedSendEditsGuard],
       },
     ],
   },

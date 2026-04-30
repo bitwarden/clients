@@ -41,6 +41,7 @@ export type SubscriptionInformation = {
   organization: OrganizationInformation;
   plan?: PlanInformation;
   payment?: PaymentInformation;
+  coupons?: string[];
 };
 
 export abstract class OrganizationBillingServiceAbstraction {

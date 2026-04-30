@@ -4,7 +4,6 @@ import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -56,12 +55,6 @@ describe("VaultItemsComponent", () => {
           provide: I18nService,
           useValue: {
             t: (key: string) => key,
-          },
-        },
-        {
-          provide: CipherArchiveService,
-          useValue: {
-            hasArchiveFlagEnabled$: of(true),
           },
         },
         {

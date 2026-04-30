@@ -467,11 +467,14 @@ export class BrowserApi {
   /**
    * Returns true if the vault popup is currently open.
    *
-   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
-   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
    */
   static async isPopupOpen(): Promise<boolean> {
-    if (typeof (chrome.runtime as any).getContexts === "function") {
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
       const contexts = await chrome.runtime.getContexts({});
       return contexts.some((context) => context.contextType === "POPUP");
     }
@@ -487,11 +490,19 @@ export class BrowserApi {
    * - Sidebar: always considered focused (always visible).
    * - Popout windows: only focused if the window is currently focused.
    *
-   * Uses `chrome.runtime.getContexts()` when available (MV3/Chrome),
-   * and falls back to `chrome.extension.getViews()` for MV2/Safari.
+   * Uses `chrome.runtime.getContexts()` on MV3 (Chrome/Edge),
+   * and falls back to `chrome.extension.getViews()` for MV2 (Firefox) and Safari.
+   *
+   * NOTE: The `getContexts` path is restricted to MV3. Firefox MV2's persistent
+   * background page is classified as a "POPUP" context by `runtime.getContexts()`,
+   * which would cause `isAnyViewFocused` to permanently return true and block vault
+   * timeout. The `getExtensionViews` path only returns actually-visible views.
    */
   static async isAnyViewFocused(): Promise<boolean> {
-    if (typeof (chrome.runtime as any).getContexts === "function") {
+    if (
+      typeof (chrome.runtime as any).getContexts === "function" &&
+      BrowserApi.isManifestVersion(3)
+    ) {
       const contexts = await chrome.runtime.getContexts({});
 
       if (contexts.some((c) => c.contextType === "POPUP" || c.contextType === "SIDE_PANEL")) {

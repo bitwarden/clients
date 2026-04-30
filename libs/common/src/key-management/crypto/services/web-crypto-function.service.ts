@@ -117,7 +117,7 @@ export class WebCryptoFunctionService implements CryptoFunctionService {
   async hash(
     value: string | Uint8Array,
     algorithm: "sha1" | "sha256" | "sha512" | "md5",
-  ): Promise<Uint8Array> {
+  ): Promise<Uint8Array<ArrayBuffer>> {
     if (algorithm === "md5") {
       const md = forge.md.md5.create();
       const valueBytes = this.toByteString(value);

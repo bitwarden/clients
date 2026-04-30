@@ -183,7 +183,9 @@ export class RegistrationFinishComponent implements OnInit, OnDestroy {
         this.providerUserId,
       );
     } catch (e) {
-      this.validationService.showError(e);
+      const error = e?.message === "Expired token." ? this.i18nService.t("inviteAcceptFailed") : e;
+
+      this.validationService.showError(error);
       this.submitting = false;
       return;
     }

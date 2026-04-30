@@ -5,7 +5,6 @@ import rule, { errorMessage } from "./no-page-script-url-leakage.mjs";
 const ruleTester = new RuleTester({
   languageOptions: {
     parserOptions: {
-      project: [__dirname + "/../tsconfig.spec.json"],
       projectService: {
         allowDefaultProject: ["*.ts*"],
       },

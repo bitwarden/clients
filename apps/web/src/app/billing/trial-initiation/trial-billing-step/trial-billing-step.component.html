@@ -6,7 +6,14 @@
     <div class="tw-container tw-mb-3">
       <!-- Cadence -->
       <div class="tw-mb-6">
-        <h2 class="tw-mb-3 tw-text-base tw-font-medium">{{ "billingPlanLabel" | i18n }}</h2>
+        <div class="tw-mb-3 tw-flex tw-items-center">
+          <h2 class="!tw-m-0 tw-text-base tw-font-medium">{{ "billingPlanLabel" | i18n }}</h2>
+          <div class="tw-flex tw-gap-1 tw-ml-2">
+            @for (discount of cartDiscounts(); track discount) {
+              <billing-discount-badge [discount]="discount"></billing-discount-badge>
+            }
+          </div>
+        </div>
         <bit-radio-group [formControl]="formGroup.controls.cadence">
           <div class="tw-mb-1 tw-items-center">
             <bit-radio-button id="annual-cadence-button" [value]="'annually'">

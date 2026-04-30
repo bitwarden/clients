@@ -32,13 +32,13 @@ import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants"
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { EndUserNotificationService } from "@bitwarden/common/vault/notifications";
 import { SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
-  BadgeModule,
   ButtonModule,
   CalloutModule,
   DialogModule,
@@ -49,8 +49,6 @@ import {
 } from "@bitwarden/components";
 import {
   AtRiskPasswordCalloutService,
-  ChangeLoginPasswordService,
-  DefaultChangeLoginPasswordService,
   PasswordRepromptService,
   VaultCarouselModule,
 } from "@bitwarden/vault";
@@ -76,15 +74,10 @@ import { AtRiskPasswordPageService } from "./at-risk-password-page.service";
     TypographyModule,
     CalloutModule,
     ButtonModule,
-    BadgeModule,
     DialogModule,
     VaultCarouselModule,
   ],
-  providers: [
-    AtRiskPasswordPageService,
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
-    AtRiskPasswordCalloutService,
-  ],
+  providers: [AtRiskPasswordPageService, AtRiskPasswordCalloutService],
   selector: "vault-at-risk-passwords",
   templateUrl: "./at-risk-passwords.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -108,8 +101,7 @@ export class AtRiskPasswordsComponent implements OnInit {
   private readonly atRiskPasswordCalloutService = inject(AtRiskPasswordCalloutService);
 
   /**
-   * The cipher that is currently being launched. Used to show a loading spinner on the badge button.
-   * The UI utilize a bitBadge which does not support async actions (like bitButton does).
+   * The cipher that is currently being launched.
    * @protected
    */
   protected readonly launchingCipher = signal<CipherView | null>(null);

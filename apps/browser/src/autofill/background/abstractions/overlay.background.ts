@@ -73,6 +73,14 @@ export type InlineMenuPosition = {
   list?: InlineMenuElementPosition | null;
 };
 
+export const PasswordGenerateRequestSource = Object.freeze({
+  Clipboard: "clipboard",
+  InlineMenu: "inline-menu",
+  InlineMenuInit: "inline-menu/init",
+} as const);
+export type PasswordGenerateRequestSource =
+  (typeof PasswordGenerateRequestSource)[keyof typeof PasswordGenerateRequestSource];
+
 export type NewLoginCipherData = {
   uri?: string;
   hostname: string;
@@ -192,7 +200,7 @@ export type InlineMenuCipherData = {
     totp?: string;
     totpField?: boolean;
     totpCodeTimeInterval?: number;
-    username: string;
+    username?: string;
     passkey: {
       rpName: string;
       userName: string;
@@ -231,7 +239,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   autofillOverlayElementClosed: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  triggerAutofillOverlayReposition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  triggerAutofillOverlayReposition: ({ sender }: BackgroundSenderParam) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateIsFieldCurrentlyFocused: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
@@ -252,7 +260,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   }: BackgroundOnMessageHandlerParams) => void;
   checkIsAutofillInlineMenuButtonVisible: () => void;
   checkIsAutofillInlineMenuListVisible: () => void;
-  getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
+  getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number | undefined;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   triggerSubFrameFocusInRebuild: ({ sender }: BackgroundSenderParam) => void;
   destroyAutofillInlineMenuListeners: ({
@@ -268,7 +276,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   deletedCipher: () => void;
   bgSaveCipher: () => void;
   updateOverlayCiphers: () => void;
-  fido2AbortRequest: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  fido2AbortRequest: ({ sender }: BackgroundSenderParam) => void;
 };
 
 export type PortMessageParam = {

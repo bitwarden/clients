@@ -251,16 +251,18 @@ export class DefaultConfigService implements ConfigService {
 
   private parseBoostrapConfig(response: ServerConfigResponse) {
     const bootstrap = response.communication?.bootstrap ?? null;
+    const vaultUrl = response.environment?.vault;
 
     // Emit communication config so subscribers (e.g. ServerCommunicationConfigService) can persist it
     const communicationConfig: ServerCommunicationConfig =
-      bootstrap?.type === "ssoCookieVendor"
+      bootstrap?.type === "ssoCookieVendor" && vaultUrl != null
         ? {
             bootstrap: {
               type: "ssoCookieVendor",
               idpLoginUrl: bootstrap.idpLoginUrl,
               cookieName: bootstrap.cookieName,
               cookieDomain: bootstrap.cookieDomain,
+              vaultUrl: vaultUrl,
               cookieValue: undefined,
             },
           }

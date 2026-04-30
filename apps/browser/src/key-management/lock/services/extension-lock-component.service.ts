@@ -1,4 +1,4 @@
-import { combineLatest, defer, firstValueFrom, map, Observable } from "rxjs";
+import { combineLatest, defer, switchMap, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
@@ -67,22 +67,16 @@ export class ExtensionLockComponentService implements LockComponentService {
 
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
-      // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
-      defer(async () => {
-        if (!(await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId)))) {
-          return BiometricsStatus.NotEnabledLocally;
-        } else {
-          // TODO remove after 2025.3
-          // remove after backward compatibility code for old biometrics ipc protocol is removed
-          const result: BiometricsStatus = (await Promise.race([
-            this.biometricsService.getBiometricsStatusForUser(userId),
-            new Promise((resolve) =>
-              setTimeout(() => resolve(BiometricsStatus.DesktopDisconnected), 1000),
-            ),
-          ])) as BiometricsStatus;
-          return result;
-        }
-      }),
+      // Check biometricUnlockEnabled$ first to avoid background native messaging & IPC calls when biometrics is disabled.
+      this.biometricStateService
+        .biometricUnlockEnabled$(userId)
+        .pipe(
+          switchMap(async (enabled) =>
+            enabled
+              ? await this.biometricsService.getBiometricsStatusForUser(userId)
+              : BiometricsStatus.NotEnabledLocally,
+          ),
+        ),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       defer(() => this.pinService.isPinDecryptionAvailable(userId)),
       defer(async () => {

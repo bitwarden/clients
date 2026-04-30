@@ -1,4 +1,5 @@
 export { DisableSendPolicy } from "./disable-send.component";
+export { SendControlsPolicy } from "./send-controls.component";
 export { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
 export { MasterPasswordPolicy } from "./master-password.component";
 export {

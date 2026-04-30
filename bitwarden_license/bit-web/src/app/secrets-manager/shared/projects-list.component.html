@@ -41,7 +41,7 @@
         <button
           type="button"
           bitIconButton="bwi-ellipsis-v"
-          buttonType="main"
+          buttonType="primaryGhost"
           [bitMenuTriggerFor]="tableMenu"
           [label]="'options' | i18n"
           *ngIf="showMenus"
@@ -91,7 +91,7 @@
               <button
                 type="button"
                 bitIconButton="bwi-clone"
-                buttonType="main"
+                buttonType="primaryGhost"
                 size="small"
                 [label]="'copyUuid' | i18n"
                 (click)="copyProjectUuidToClipboard(project.id)"
@@ -107,7 +107,7 @@
         <button
           type="button"
           bitIconButton="bwi-ellipsis-v"
-          buttonType="main"
+          buttonType="primaryGhost"
           [bitMenuTriggerFor]="projectMenu"
           [label]="'options' | i18n"
           *ngIf="showMenus"

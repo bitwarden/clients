@@ -21,7 +21,6 @@ describe("VaultFilter", () => {
         id: "AllItems",
         name: "allItems",
         type: "all",
-        icon: "",
       },
       null,
     );
@@ -300,7 +299,7 @@ function createOrganizationFilterNode(
 ): TreeNode<OrganizationFilter> {
   const org = new Organization() as OrganizationFilter;
   org.id = options.id;
-  org.icon = options.icon ?? "";
+  org.icon = options.icon;
   return new TreeNode<OrganizationFilter>(org, null);
 }
 
@@ -308,7 +307,7 @@ function createFolderFilterNode(options: Partial<FolderFilter>): TreeNode<Folder
   const folder = new FolderView() as FolderFilter;
   folder.id = options.id;
   folder.name = options.name;
-  folder.icon = options.icon ?? "";
+  folder.icon = options.icon;
   folder.revisionDate = options.revisionDate ?? new Date();
   return new TreeNode<FolderFilter>(folder, null);
 }
