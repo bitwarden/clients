@@ -166,7 +166,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       }
 
       if (i < segments.length - 1) {
-        const next =
+        const next: Document | ShadowRoot | null =
           element instanceof HTMLIFrameElement
             ? this.traverseIframeBoundary(element)
             : this.traverseShadowRootBoundary(element);
