@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule, DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -20,6 +20,7 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
   selector: "app-drivers-license-view",
   templateUrl: "drivers-license-view.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [DatePipe],
   imports: [
     CommonModule,
     JslibModule,
@@ -34,10 +35,31 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
 })
 export class DriversLicenseViewComponent {
   private readonly eventCollectionService = inject(EventCollectionService);
+  private readonly datePipe = inject(DatePipe);
 
   readonly driversLicense = input.required<DriversLicenseView>();
   readonly cipher = input.required<CipherView>();
   readonly revealLicenseNumber = signal(false);
+
+  formatDate(dateStr: string | undefined): string {
+    if (!dateStr) {
+      return "";
+    }
+
+    const [year, month, day] = dateStr.split("-");
+
+    if (year && month && day) {
+      const date = new Date(+year, +month - 1, +day);
+      return this.datePipe.transform(date, "longDate") ?? dateStr;
+    }
+
+    if (year && month) {
+      const date = new Date(+year, +month - 1, 1);
+      return this.datePipe.transform(date, "MMMM y") ?? dateStr;
+    }
+
+    return year ?? dateStr;
+  }
 
   async toggleLicenseNumberVisible(visible: boolean) {
     this.revealLicenseNumber.set(visible);
