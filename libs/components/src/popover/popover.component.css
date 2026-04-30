@@ -1,5 +1,5 @@
 .bit-popover-arrow {
-  @apply tw-absolute tw-z-10 tw-size-4 tw-rotate-45 tw-bg-background tw-shadow-lg tw-border-solid tw-border-border-base;
+  @apply tw-absolute tw-z-10 tw-size-3 tw-rotate-45 tw-bg-background tw-shadow-md tw-border-solid tw-border-border-base;
 }
 
 .bit-popover-right .bit-popover-arrow {
