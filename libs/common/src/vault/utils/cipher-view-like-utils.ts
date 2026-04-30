@@ -237,11 +237,19 @@ export class CipherViewLikeUtils {
     // `CipherListView` instances do not contain the values to be copied, but rather a list of copyable fields.
     // When the copy action is performed on a `CipherListView`, the full cipher will need to be decrypted.
     if (this.isCipherListView(cipher)) {
+      // For login ciphers, cross-check against the decrypted data available in LoginListView
+      // when possible. The SDK's copyableFields can report fields as copyable even when
+      // the decrypted value is empty.
+      if (this.getType(cipher) === CipherType.Login) {
+        const login = this.getLogin(cipher);
+        if (copyField === "username") {
+          return !!login?.username;
+        }
+      }
+
       let _copyField = copyField;
 
-      if (_copyField === "username" && this.getType(cipher) === CipherType.Login) {
-        _copyField = "usernameLogin";
-      } else if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
+      if (_copyField === "username" && this.getType(cipher) === CipherType.Identity) {
         _copyField = "usernameIdentity";
       }
 
