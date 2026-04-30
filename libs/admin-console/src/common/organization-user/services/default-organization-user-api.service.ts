@@ -19,6 +19,7 @@ import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
   OrganizationUserDetailsResponse,
+  OrganizationUserPendingAutoConfirmResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
   OrganizationUserUserMiniResponse,
@@ -411,6 +412,33 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       "DELETE",
       "/organizations/" + organizationId + "/users/delete-account",
       new OrganizationUserBulkRequest(ids),
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
+
+  async getPendingAutoConfirmUsers(
+    organizationId: string,
+  ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/users/pending-auto-confirm",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserPendingAutoConfirmResponse);
+  }
+
+  async postBulkOrganizationUserAutoConfirm(
+    organizationId: string,
+    request: OrganizationUserBulkConfirmRequest,
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/bulk-auto-confirm",
+      request,
       true,
       true,
     );
