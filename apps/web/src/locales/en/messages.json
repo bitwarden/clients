@@ -9539,6 +9539,9 @@
   "secretsManagerAccessDescription": {
     "message": "Activate user access to Secrets Manager."
   },
+  "grantSecretsManager": {
+    "message": "Grant access Secrets Manager"
+  },
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
   },
