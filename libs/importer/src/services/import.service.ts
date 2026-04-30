@@ -526,7 +526,12 @@ export class ImportService implements ImportServiceAbstraction {
       if (importTarget.type === CollectionTypes.DefaultUserCollection) {
         // Since ciphers can only have one folder (for now)
         // we bail if any are a part of multiple Collections
-        if (importResult.ciphers.some((c) => (c.collectionIds ?? []).length > 1)) {
+        if (
+          importResult.ciphers.some(
+            (_c, c_idx) =>
+              importResult.collectionRelationships.filter((cr) => cr[0] === c_idx).length > 1,
+          )
+        ) {
           throw new Error(this.i18nService.t("errorImportingMyItemsMultiCollection"));
         }
         importResult.folders = importResult.collections.map((c) => {
