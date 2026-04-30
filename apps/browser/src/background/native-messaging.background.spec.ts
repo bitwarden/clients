@@ -74,7 +74,6 @@ describe("NativeMessagingBackground", () => {
     accountService.activeAccount$ = of(mockAccount);
     platformUtilsService.isSafari.mockReturnValue(false);
 
-    (BrowserApi.permissionsGranted as jest.Mock).mockResolvedValue(true);
     (BrowserApi.connectNative as jest.Mock).mockReturnValue({
       onMessage: {
         addListener: jest.fn(),
