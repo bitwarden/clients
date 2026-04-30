@@ -9,6 +9,7 @@ import {
 } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";
 import {
   isSaveRiskInsightsReportResponse,
@@ -25,12 +26,10 @@ import {
 } from "../../models/report-models";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
-
 export class RiskInsightsReportService {
   constructor(
     private riskInsightsApiService: RiskInsightsApiService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: LegacyRiskInsightsEncryptionService,
   ) {}
 
   filterApplicationsByCritical(
