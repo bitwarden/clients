@@ -370,9 +370,9 @@ export class DesktopAutofillService implements OnDestroy {
     });
 
     ipc.autofill.listenLockStatusQuery(async (clientId, sequenceNumber, request, callback) => {
-      if (!(await this.configService.getFeatureFlag(NativeCredentialSyncFeatureFlag))) {
+      if (!this.isEnabled) {
         this.logService.debug(
-          `listenLockStatusQuery: ${NativeCredentialSyncFeatureFlag} feature flag is disabled`,
+          `listenLockStatusQuery: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
         return;
       }
@@ -385,9 +385,9 @@ export class DesktopAutofillService implements OnDestroy {
     });
 
     ipc.autofill.listenGetWindowHandle(async (clientId, sequenceNumber, request, callback) => {
-      if (!(await this.configService.getFeatureFlag(NativeCredentialSyncFeatureFlag))) {
+      if (!this.isEnabled) {
         this.logService.debug(
-          `listenGetWindowHandle: ${NativeCredentialSyncFeatureFlag} feature flag is disabled`,
+          `listenGetWindowHandle: Native credential sync feature flag (${this.featureFlag}) is disabled`,
         );
         return;
       }
