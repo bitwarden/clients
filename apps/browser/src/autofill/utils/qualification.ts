@@ -114,8 +114,7 @@ export function formContainsKeyword(
 }
 
 /**
- * Tokenize the form's string attrs and each heading separately into a unified set;
- * per-heading tokenization keeps substring scans from spanning two headings.
+ * Tokenizes form attrs only — heading text is handled by classifyHeadings.
  */
 function buildAutofillFormKeywords(form: AutofillForm) {
   if (autofillFormKeywordsCache.has(form)) {
@@ -129,17 +128,38 @@ function buildAutofillFormKeywords(form: AutofillForm) {
     }
     tokenizeValue(attributeValue).forEach((k) => keywordsSet.add(k));
   }
-  if (Array.isArray(form.htmlAncestorHeadings)) {
-    for (const heading of form.htmlAncestorHeadings) {
-      if (typeof heading !== "string" || !heading) {
-        continue;
-      }
-      tokenizeValue(heading).forEach((k) => keywordsSet.add(k));
-    }
-  }
   const result = { keywordsSet, stringValue: Array.from(keywordsSet).join(",") };
   autofillFormKeywordsCache.set(form, result);
   return result;
+}
+
+/**
+ * Walks headings closest-first; first match against the login or identity keyword
+ * lists wins, silent headings skipped. Returns a context signal, not a verdict.
+ */
+export function classifyHeadings(
+  headings: readonly string[] | undefined,
+  loginKeywords: readonly string[],
+  identityKeywords: readonly string[],
+): "login" | "identity" | "ambiguous" {
+  if (!headings?.length) {
+    return "ambiguous";
+  }
+  const loginTokens = loginKeywords.map((k) => k.replace(/-/g, "").toLowerCase());
+  const identityTokens = identityKeywords.map((k) => k.replace(/-/g, "").toLowerCase());
+  for (const heading of headings) {
+    if (!heading) {
+      continue;
+    }
+    const stringValue = Array.from(tokenizeValue(heading)).join(",");
+    if (loginTokens.some((k) => stringValue.indexOf(k) > -1)) {
+      return "login";
+    }
+    if (identityTokens.some((k) => stringValue.indexOf(k) > -1)) {
+      return "identity";
+    }
+  }
+  return "ambiguous";
 }
 
 /**
@@ -224,8 +244,8 @@ function anyFieldInFormMatches(
 }
 
 /**
- * True if the field looks like a non-login username.
- * Checks the form context, then the field and its siblings for non-login keywords.
+ * Checks form context plus field/siblings for non-login keywords. Headings are
+ * deferred to isAmbiguousFieldNonLogin pending a confidence-weighting system.
  */
 export function isNonLoginUsernameField(
   field: AutofillField,
@@ -239,18 +259,31 @@ export function isNonLoginUsernameField(
 }
 
 /**
- * Tie-break an ambiguously structured possible login input (e.g. lone username, no passwords).
- * Uses {@link AutoFillConstants.BroadNonLoginKeywords} which are too noisy for general cases.
+ * Tie-break for an ambiguously structured login input (lone username, no password).
+ * Headings go through classifyHeadings; a closer login signal short-circuits.
  */
 export function isAmbiguousFieldNonLogin(
   field: AutofillField,
   pageDetails: AutofillPageDetails,
 ): boolean {
   const keywords = AutoFillConstants.BroadNonLoginKeywords;
-
   const parentForm = field.form ? pageDetails.forms?.[field.form] : undefined;
-  if (parentForm && formContainsKeyword(parentForm, keywords)) {
-    return true;
+
+  if (parentForm) {
+    const headingClassification = classifyHeadings(
+      parentForm.htmlAncestorHeadings,
+      AutoFillConstants.LoginPositiveHeadingKeywords,
+      keywords,
+    );
+    if (headingClassification === "login") {
+      return false;
+    }
+    if (headingClassification === "identity") {
+      return true;
+    }
+    if (formContainsKeyword(parentForm, keywords)) {
+      return true;
+    }
   }
 
   return anyFieldInFormMatches(field, pageDetails, keywords);

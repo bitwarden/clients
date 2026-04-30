@@ -684,6 +684,26 @@ describe("CollectAutofillContentService", () => {
 
       expect(result).toEqual(["Section Heading"]);
     });
+
+    it("orders headings by depth of common ancestor with the form, closest first", () => {
+      document.body.innerHTML = `
+        <article>
+          <h1>Article Heading</h1>
+          <div>
+            <h2>Container Heading</h2>
+            <div>
+              <h3>Form Heading</h3>
+              <form id="f"><input type="email" /></form>
+            </div>
+          </div>
+        </article>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Form Heading", "Container Heading", "Article Heading"]);
+    });
   });
 
   describe("buildAutofillFieldsData", () => {

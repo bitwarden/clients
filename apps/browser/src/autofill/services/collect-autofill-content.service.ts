@@ -392,8 +392,8 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   }
 
   /**
-   * Each heading inside the form's nearest section/article/main/aside/form ancestor,
-   * in document order. Headings inside a sibling form are skipped.
+   * Headings inside the form's nearest section/article/main/aside/form ancestor,
+   * ordered by depth of common ancestor (closest first). Sibling-form headings skipped.
    */
   private getAncestorHeadings(formElement: HTMLFormElement): string[] {
     const scope = formElement.parentElement?.closest("section, article, main, aside, form");
@@ -401,13 +401,38 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       return [];
     }
 
+    const formAncestorDepths = new Map<Element, number>();
+    let cursor: Element | null = formElement;
+    let depth = 0;
+    while (cursor) {
+      formAncestorDepths.set(cursor, depth++);
+      if (cursor === scope) {
+        break;
+      }
+      cursor = cursor.parentElement;
+    }
+
     return Array.from(scope.querySelectorAll("h1, h2, h3, h4, h5, h6"))
       .filter((h) => {
         const f = h.closest("form");
         return f === null || f === formElement;
       })
-      .map((h) => this.getTextContentFromElement(h))
-      .filter((text): text is string => Boolean(text));
+      .map((heading) => {
+        const text = this.getTextContentFromElement(heading);
+        if (!text) {
+          return null;
+        }
+        // Every retained heading lives under `scope`, and `scope` is in `formAncestorDepths`,
+        // so the walk always terminates at a known ancestor.
+        let ancestor: Element = heading;
+        while (!formAncestorDepths.has(ancestor)) {
+          ancestor = ancestor.parentElement!;
+        }
+        return { text, distance: formAncestorDepths.get(ancestor)! };
+      })
+      .filter((entry): entry is { text: string; distance: number } => entry !== null)
+      .sort((a, b) => a.distance - b.distance)
+      .map((entry) => entry.text);
   }
 
   /**

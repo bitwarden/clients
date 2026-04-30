@@ -169,6 +169,16 @@ export class AutoFillConstants {
     "unsubscribe",
   ] as const;
 
+  /** Login-positive heading text used to short-circuit ambiguous-case disqualification. */
+  static readonly LoginPositiveHeadingKeywords = [
+    "sign in",
+    "signin",
+    "log in",
+    "login",
+    "log on",
+    "logon",
+  ] as const;
+
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
   static readonly PasswordFieldExcludeList: string[] = [

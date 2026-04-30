@@ -5,6 +5,7 @@ import {
 } from "../spec/autofill-mocks";
 
 import {
+  classifyHeadings,
   fieldContainsKeyword,
   formContainsKeyword,
   isNonLoginUsernameField,
@@ -165,20 +166,16 @@ describe("formContainsKeyword", () => {
     expect(formContainsKeyword(form, ["subscribe"])).toBe(true);
   });
 
-  it("matches a single entry of htmlAncestorHeadings", () => {
+  it("does not consider htmlAncestorHeadings (heading classification lives in classifyHeadings)", () => {
     const form = createAutofillFormMock({
+      htmlID: "",
+      htmlName: "",
+      htmlAction: "",
+      htmlClass: "",
       htmlAncestorHeadings: ["join our mailing list today"],
     });
 
-    expect(formContainsKeyword(form, ["mailing list"])).toBe(true);
-  });
-
-  it("cannot match across two distinct heading entries", () => {
-    const form = createAutofillFormMock({
-      htmlAncestorHeadings: ["Newsletter", "Sign-up"],
-    });
-
-    expect(formContainsKeyword(form, ["newsletter sign"])).toBe(false);
+    expect(formContainsKeyword(form, ["mailing list"])).toBe(false);
   });
 
   it("matchesToken mode: matches a keyword that is exactly a token", () => {
@@ -219,6 +216,60 @@ describe("formContainsKeyword", () => {
     });
 
     expect(formContainsKeyword(form, ["newsletter"])).toBe(false);
+  });
+});
+
+describe("classifyHeadings", () => {
+  const loginKeywords = ["sign in", "signin", "login"];
+  const identityKeywords = ["newsletter", "subscribe", "mailing list"];
+
+  it("returns 'ambiguous' when no headings are provided", () => {
+    expect(classifyHeadings(undefined, loginKeywords, identityKeywords)).toBe("ambiguous");
+    expect(classifyHeadings([], loginKeywords, identityKeywords)).toBe("ambiguous");
+  });
+
+  it("returns 'login' when the closest heading matches a login keyword", () => {
+    expect(classifyHeadings(["Sign in"], loginKeywords, identityKeywords)).toBe("login");
+  });
+
+  it("returns 'identity' when the closest heading matches an identity keyword", () => {
+    expect(classifyHeadings(["Subscribe to our newsletter"], loginKeywords, identityKeywords)).toBe(
+      "identity",
+    );
+  });
+
+  it("first-match-wins: a closer login signal short-circuits a later identity signal", () => {
+    expect(
+      classifyHeadings(["Sign in", "Subscribe to our newsletter"], loginKeywords, identityKeywords),
+    ).toBe("login");
+  });
+
+  it("first-match-wins: a closer identity signal short-circuits a later login signal", () => {
+    expect(classifyHeadings(["Newsletter", "Sign in"], loginKeywords, identityKeywords)).toBe(
+      "identity",
+    );
+  });
+
+  it("skips headings with no signal until a matching one is found", () => {
+    expect(
+      classifyHeadings(
+        ["Email address", "Subscribe to our newsletter"],
+        loginKeywords,
+        identityKeywords,
+      ),
+    ).toBe("identity");
+  });
+
+  it("returns 'ambiguous' when no heading matches either list", () => {
+    expect(
+      classifyHeadings(["Email", "Continue", "Welcome"], loginKeywords, identityKeywords),
+    ).toBe("ambiguous");
+  });
+
+  it("ignores non-string and empty entries", () => {
+    expect(
+      classifyHeadings([null as unknown as string, "", "Sign in"], loginKeywords, identityKeywords),
+    ).toBe("login");
   });
 });
 
