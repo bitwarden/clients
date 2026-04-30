@@ -279,6 +279,7 @@ export class VaultFilterComponent {
     const excludeTypes: CipherStatus[] = ["favorites"];
     if (!newTypesEnabled) {
       excludeTypes.push(CipherType.BankAccount);
+      excludeTypes.push(CipherType.DriversLicense);
     }
 
     const builderFilter = {} as VaultFilterList;

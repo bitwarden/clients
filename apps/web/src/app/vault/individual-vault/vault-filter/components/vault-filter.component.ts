@@ -287,6 +287,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const excludeTypes: CipherStatus[] = [];
     if (!newItemTypesEnabled) {
       excludeTypes.push(CipherType.BankAccount);
+      excludeTypes.push(CipherType.DriversLicense);
     }
 
     const builderFilter = {} as VaultFilterList;
