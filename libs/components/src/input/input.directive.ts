@@ -75,7 +75,7 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     ];
 
     if (this.parentFormField === null) {
-      classes.push(...inputBorderClasses(this.hasError()), ...this.standaloneInputClasses);
+      classes.push(...inputBorderClasses(this.hasError()), ...this.standaloneInputClasses());
     }
 
     return classes.filter((s) => s != "");
@@ -166,18 +166,16 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     return this.elementRef.nativeElement.readOnly;
   }
 
-  protected get standaloneInputClasses() {
-    return [
-      "tw-px-3",
-      "tw-py-2",
-      "tw-rounded-lg",
-      this.hasError() ? "hover:tw-border-border-danger" : "hover:tw-border-border-brand",
-      "disabled:tw-bg-bg-secondary",
-      "disabled:hover:tw-border-border-base",
-      "focus:tw-border-border-brand",
-      "focus:tw-ring-1",
-      "focus:tw-ring-border-brand",
-      "focus:tw-z-10",
-    ];
-  }
+  protected readonly standaloneInputClasses = computed(() => [
+    "tw-px-3",
+    "tw-py-2",
+    "tw-rounded-lg",
+    this.hasError() ? "hover:tw-border-border-danger" : "hover:tw-border-border-brand",
+    "disabled:tw-bg-bg-secondary",
+    "disabled:hover:tw-border-border-base",
+    "focus:tw-border-border-brand",
+    "focus:tw-ring-1",
+    "focus:tw-ring-border-brand",
+    "focus:tw-z-10",
+  ]);
 }
