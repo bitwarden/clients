@@ -3,12 +3,12 @@
     <ng-content select="[slot=header-actions]"></ng-content>
   </bit-landing-header>
 
-  <bit-landing-content [maxWidth]="maxWidth()" [leftAlign]="leftAlign()">
+  <bit-landing-content [maxWidth]="maxWidth()" [adjustedLayout]="adjustedLayout()">
     <bit-landing-hero
       [icon]="icon()"
       [title]="title()"
       [subtitle]="subtitle()"
-      [leftAlign]="leftAlign()"
+      [adjustedLayout]="adjustedLayout()"
     ></bit-landing-hero>
     @if (hideCardWrapper()) {
       <div class="tw-mb-6 sm:tw-mb-10">
@@ -26,7 +26,7 @@
 
   @if (!hideFooter()) {
     <bit-landing-footer>
-      <div [ngClass]="{ 'tw-grid tw-gap-6': leftAlign() }">
+      <div [ngClass]="{ 'tw-grid tw-gap-6': adjustedLayout() }">
         <ng-content select="[slot=footer-secondary]"></ng-content>
 
         @if (showReadonlyHostname()) {

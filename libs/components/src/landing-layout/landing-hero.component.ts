@@ -38,5 +38,5 @@ export class LandingHeroComponent {
   readonly icon = input<BitSvg | null>(null);
   readonly title = input<string | undefined>();
   readonly subtitle = input<string | undefined>();
-  readonly leftAlign = input<boolean>(false);
+  readonly adjustedLayout = input<boolean>(false);
 }

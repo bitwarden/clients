@@ -27,7 +27,11 @@ export interface ExtensionAnonLayoutWrapperData extends AnonLayoutWrapperData {
   showBackButton?: boolean;
   showLogo?: boolean;
   hideFooter?: boolean;
-  leftAlignHero?: boolean;
+  /**
+   * Makes slight design modifications on specific pages where we don't want a scrollbar
+   * to appear. Should be used along with  `pageIcon: null` (see `AnonLayoutWrapperData`)
+   */
+  adjustedLayout?: boolean;
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -61,7 +65,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
   protected hasLoggedInAccount: boolean = false;
   protected hideFooter: boolean;
   protected hideCardWrapper: boolean = false;
-  protected leftAlignHero = false;
+  protected adjustedLayout = false;
 
   protected theme: string;
   protected logo = BitwardenLogo;
@@ -140,8 +144,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.hideCardWrapper = Boolean(firstChildRouteData["hideCardWrapper"]);
     }
 
-    if (firstChildRouteData["leftAlignHero"] !== undefined) {
-      this.leftAlignHero = Boolean(firstChildRouteData["leftAlignHero"]);
+    if (firstChildRouteData["adjustedLayout"] !== undefined) {
+      this.adjustedLayout = Boolean(firstChildRouteData["adjustedLayout"]);
     }
   }
 
@@ -199,8 +203,8 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
       this.showLogo = data.showLogo;
     }
 
-    if (data.leftAlignHero !== undefined) {
-      this.leftAlignHero = data.leftAlignHero;
+    if (data.adjustedLayout !== undefined) {
+      this.adjustedLayout = data.adjustedLayout;
     }
   }
 
@@ -225,7 +229,7 @@ export class ExtensionAnonLayoutWrapperComponent implements OnInit, OnDestroy {
     this.maxWidth = null;
     this.hideFooter = null;
     this.hideCardWrapper = null;
-    this.leftAlignHero = false;
+    this.adjustedLayout = false;
   }
 
   ngOnDestroy() {

@@ -402,7 +402,7 @@ const routes: Routes = [
             key: "createAccount",
           },
           showBackButton: true,
-          leftAlignHero: true,
+          adjustedLayout: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           {
@@ -452,7 +452,7 @@ const routes: Routes = [
           },
           elevation: 1,
           showAcctSwitcher: true,
-          leftAlignHero: true,
+          adjustedLayout: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           { path: "", component: LoginComponent },
@@ -474,7 +474,7 @@ const routes: Routes = [
           },
           elevation: 1,
           showBackButton: true,
-          leftAlignHero: true,
+          adjustedLayout: true,
         } satisfies RouteDataProperties & ExtensionAnonLayoutWrapperData,
         children: [
           { path: "", component: LoginViaWebAuthnComponent },

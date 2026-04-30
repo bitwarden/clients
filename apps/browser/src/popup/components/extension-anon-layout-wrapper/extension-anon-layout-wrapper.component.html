@@ -19,7 +19,7 @@
     [title]="pageTitle"
     [subtitle]="pageSubtitle"
     [icon]="pageIcon"
-    [leftAlign]="leftAlignHero"
+    [adjustedLayout]="adjustedLayout"
     [showReadonlyHostname]="showReadonlyHostname"
     [hideLogo]="true"
     [maxWidth]="maxWidth"
@@ -27,7 +27,7 @@
     [hideCardWrapper]="hideCardWrapper"
   >
     <router-outlet></router-outlet>
-    @if (leftAlignHero) {
+    @if (adjustedLayout) {
       <router-outlet slot="footer-secondary" name="secondary"></router-outlet>
     } @else {
       <router-outlet slot="secondary" name="secondary"></router-outlet>
