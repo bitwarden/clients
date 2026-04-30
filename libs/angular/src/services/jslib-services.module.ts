@@ -138,7 +138,7 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/services/master
 import { DefaultOrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/default-organization-invite.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
-import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
+import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
@@ -315,6 +315,7 @@ import {
   InternalSendService,
   SendService as SendServiceAbstraction,
 } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
@@ -339,6 +340,7 @@ import {
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultChangeLoginPasswordService } from "@bitwarden/common/vault/services/default-change-login-password.service";
 import { DefaultCipherArchiveService } from "@bitwarden/common/vault/services/default-cipher-archive.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { DefaultCipherRiskService } from "@bitwarden/common/vault/services/default-cipher-risk.service";
@@ -558,6 +560,11 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       MasterPasswordServiceAbstraction,
       SyncService,
+      KeyService,
+      BiometricsService,
+      BiometricStateService,
+      PlatformUtilsServiceAbstraction,
+      SdkService,
     ],
   }),
   safeProvider({
@@ -1027,7 +1034,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoLoginServiceAbstraction,
     useClass: SsoLoginService,
-    deps: [StateProvider, LogService, PolicyServiceAbstraction],
+    deps: [StateProvider, LogService, PolicyServiceAbstraction, EnvironmentService],
   }),
   safeProvider({
     provide: StateServiceAbstraction,
@@ -1811,13 +1818,11 @@ const safeProviders: SafeProvider[] = [
     provide: LoginSuccessHandlerService,
     useClass: DefaultLoginSuccessHandlerService,
     deps: [
-      ConfigService,
       LoginEmailService,
       SsoLoginServiceAbstraction,
       SyncService,
       UserAsymmetricKeysRegenerationService,
       EncryptedMigrator,
-      LogService,
     ],
   }),
   safeProvider({
@@ -1975,6 +1980,11 @@ const safeProviders: SafeProvider[] = [
     provide: PremiumInterestStateService,
     useClass: NoopPremiumInterestStateService,
     deps: [],
+  }),
+  safeProvider({
+    provide: ChangeLoginPasswordService,
+    useClass: DefaultChangeLoginPasswordService,
+    deps: [ApiServiceAbstraction, EnvironmentService, DomainSettingsService],
   }),
 ];
 

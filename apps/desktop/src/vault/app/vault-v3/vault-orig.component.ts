@@ -81,7 +81,6 @@ import {
   AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  ChangeLoginPasswordService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -91,7 +90,6 @@ import {
   CollectionAssignmentResult,
   createFilterFunction,
   DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   CipherFormComponent,
@@ -136,10 +134,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     {
       provide: CipherFormConfigService,
       useClass: DefaultCipherFormConfigService,
-    },
-    {
-      provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
     },
     {
       provide: ViewPasswordHistoryService,
@@ -694,6 +688,47 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
                 .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
                 .catch(() => {});
             },
+          });
+        }
+        break;
+      case CipherType.BankAccount:
+        if (cipher.bankAccount.accountNumber != null || cipher.bankAccount.routingNumber != null) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.bankAccount.accountNumber) {
+          menu.push({
+            label: this.i18nService.t("copyAccountNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.accountNumber,
+                "accountNumber",
+                "Account Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.routingNumber) {
+          menu.push({
+            label: this.i18nService.t("copyRoutingNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.routingNumber,
+                "routingNumber",
+                "Routing Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.pin) {
+          menu.push({
+            label: this.i18nService.t("copyPin"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.pin, "pin", "PIN"),
+          });
+        }
+        if (cipher.bankAccount.iban) {
+          menu.push({
+            label: this.i18nService.t("copyIban"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
           });
         }
         break;
