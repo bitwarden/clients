@@ -42,7 +42,6 @@ import {
 } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 
-import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
 
@@ -340,12 +339,8 @@ describe("AccountSecurityComponent", () => {
   });
 
   describe("updateBiometric", () => {
-    let browserApiSpy: jest.SpyInstance;
-
     beforeEach(() => {
       policyService.policiesByType$.mockReturnValue(of([null]));
-      browserApiSpy = jest.spyOn(BrowserApi, "requestPermission");
-      browserApiSpy.mockResolvedValue(true);
     });
 
     describe("updating to false", () => {
@@ -410,12 +405,6 @@ describe("AccountSecurityComponent", () => {
   });
 
   describe("biometrics polling timer", () => {
-    let browserApiSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      browserApiSpy = jest.spyOn(BrowserApi, "permissionsGranted");
-    });
-
     afterEach(() => {
       component.ngOnDestroy();
     });
@@ -440,7 +429,6 @@ describe("AccountSecurityComponent", () => {
 
     it("should check status on Safari", fakeAsync(async () => {
       biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(false);
       platformUtilsService.isSafari.mockReturnValue(true);
       biometricsService.getBiometricsStatusForUser.mockResolvedValue(
         BiometricsStatus.DesktopDisconnected,
@@ -469,7 +457,6 @@ describe("AccountSecurityComponent", () => {
       "sets expected unavailability reason for %s status when biometric not available",
       fakeAsync(async (biometricStatus: BiometricsStatus, expected: string) => {
         biometricsService.canEnableBiometricUnlock.mockResolvedValue(false);
-        browserApiSpy.mockResolvedValue(true);
         platformUtilsService.isSafari.mockReturnValue(false);
         biometricsService.getBiometricsStatusForUser.mockResolvedValue(biometricStatus);
 
@@ -482,7 +469,6 @@ describe("AccountSecurityComponent", () => {
 
     it("should not set unavailability reason for error statuses when biometric is available", fakeAsync(async () => {
       biometricsService.canEnableBiometricUnlock.mockResolvedValue(true);
-      browserApiSpy.mockResolvedValue(true);
       platformUtilsService.isSafari.mockReturnValue(false);
       biometricsService.getBiometricsStatusForUser.mockResolvedValue(
         BiometricsStatus.DesktopDisconnected,
