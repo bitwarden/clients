@@ -745,7 +745,7 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
       await this.stateService.clean({ userId: userBeingLoggedOut });
-      await this.tokenService.clearAccessToken(userBeingLoggedOut);
+      await this.tokenService.clearTokens(userBeingLoggedOut);
       await this.accountService.clean(userBeingLoggedOut);
 
       // HACK: Wait for the user logging outs authentication status to transition to LoggedOut

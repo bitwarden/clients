@@ -1168,7 +1168,7 @@ export class ServiceContainer {
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
 
     await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearAccessToken(userId);
+    await this.tokenService.clearTokens(userId);
     await this.accountService.clean(userId as UserId);
     await this.accountService.switchAccount(null);
     process.env.BW_SESSION = undefined;
@@ -1187,6 +1187,9 @@ export class ServiceContainer {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
+
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.

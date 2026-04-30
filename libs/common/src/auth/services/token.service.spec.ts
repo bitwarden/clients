@@ -2770,6 +2770,88 @@ describe("TokenService", () => {
     });
   });
 
+  describe("cleanupTokenStorage", () => {
+    it("calls clearTokens for a user id with no access token", async () => {
+      // Arrange
+      const userId = "userId" as UserId;
+      tokenService.getAccessToken = jest.fn().mockResolvedValue(null);
+      tokenService.clearTokens = jest.fn().mockResolvedValue(undefined);
+
+      // Act
+      await tokenService.cleanupTokenStorage([userId]);
+
+      // Assert
+      expect(tokenService.clearTokens).toHaveBeenCalledWith(userId);
+    });
+
+    it("does not call clearTokens for a user id with an access token (locked user)", async () => {
+      // Arrange
+      const userId = "userId" as UserId;
+      tokenService.getAccessToken = jest.fn().mockResolvedValue("accessToken");
+      tokenService.clearTokens = jest.fn().mockResolvedValue(undefined);
+
+      // Act
+      await tokenService.cleanupTokenStorage([userId]);
+
+      // Assert
+      expect(tokenService.clearTokens).not.toHaveBeenCalled();
+    });
+
+    it("only clears tokens for user ids without an access token when given a mixed list", async () => {
+      // Arrange
+      const loggedOutUserId = "loggedOutUserId" as UserId;
+      const lockedUserId = "lockedUserId" as UserId;
+      tokenService.getAccessToken = jest.fn().mockImplementation((userId: UserId) => {
+        return Promise.resolve(userId === lockedUserId ? "accessToken" : null);
+      });
+      tokenService.clearTokens = jest.fn().mockResolvedValue(undefined);
+
+      // Act
+      await tokenService.cleanupTokenStorage([loggedOutUserId, lockedUserId]);
+
+      // Assert
+      expect(tokenService.clearTokens).toHaveBeenCalledTimes(1);
+      expect(tokenService.clearTokens).toHaveBeenCalledWith(loggedOutUserId);
+    });
+
+    it("calls clearTokens for a user id with an undefined access token", async () => {
+      // Arrange
+      const userId = "userId" as UserId;
+      tokenService.getAccessToken = jest.fn().mockResolvedValue(undefined);
+      tokenService.clearTokens = jest.fn().mockResolvedValue(undefined);
+
+      // Act
+      await tokenService.cleanupTokenStorage([userId]);
+
+      // Assert
+      expect(tokenService.clearTokens).toHaveBeenCalledWith(userId);
+    });
+
+    it("calls clearTokens for a user id with no tokens at all (safe no-op)", async () => {
+      // Arrange - simulate a userId that has no access token and no other tokens
+      const userId = "userId" as UserId;
+      tokenService.getAccessToken = jest.fn().mockResolvedValue(null);
+      tokenService.clearTokens = jest.fn().mockResolvedValue(undefined);
+
+      // Act
+      await tokenService.cleanupTokenStorage([userId]);
+
+      // Assert - clearTokens is still called; it is a no-op when nothing is stored
+      expect(tokenService.clearTokens).toHaveBeenCalledWith(userId);
+    });
+
+    it("does not call clearTokens when given an empty user id list", async () => {
+      // Arrange
+      tokenService.clearTokens = jest.fn().mockResolvedValue(undefined);
+
+      // Act
+      await tokenService.cleanupTokenStorage([]);
+
+      // Assert
+      expect(tokenService.clearTokens).not.toHaveBeenCalled();
+    });
+  });
+
   describe("Two Factor Token methods", () => {
     describe("setTwoFactorToken", () => {
       it("sets the email and two factor token when there hasn't been a previous record (initializing the record)", async () => {
