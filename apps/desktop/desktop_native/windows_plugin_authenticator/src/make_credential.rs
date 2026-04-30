@@ -39,10 +39,7 @@ pub fn make_credential(
     // let user_display_name = user.display_name();
 
     // Extract client data hash
-    let client_data_hash = request
-        .client_data_hash()
-        .map_err(|err| format!("Client data hash is required for registration: {err}"))?
-        .to_vec();
+    let client_data_hash = request.client_data_hash().to_vec();
 
     // Extract supported algorithms
     let supported_algorithms: Vec<i32> = request
@@ -78,7 +75,7 @@ pub fn make_credential(
         .center_position()
         .unwrap_or((640, 480));
 
-    let context = create_context_string(request.transaction_id, &request.request_hash);
+    let context = create_context_string(request.transaction_id);
 
     // Create Windows registration request
     let registration_request = PasskeyRegistrationRequest {

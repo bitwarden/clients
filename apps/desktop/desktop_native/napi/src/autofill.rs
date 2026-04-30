@@ -383,6 +383,34 @@ pub mod autofill {
         }
 
         #[napi]
+        pub fn complete_lock_status_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: LockStatusQueryResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_window_handle_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: WindowHandleQueryResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
         pub fn complete_error(
             &self,
             client_id: u32,

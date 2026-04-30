@@ -5,57 +5,24 @@ mod com;
 pub(crate) mod crypto;
 mod types;
 
-use std::{error::Error, marker::PhantomData, mem::MaybeUninit, ptr::NonNull};
+use std::{error::Error, ptr::NonNull};
 
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 pub use types::*;
 use windows::{
-    core::{GUID, HRESULT, PCWSTR},
-    Win32::{
-        Foundation::{E_INVALIDARG, HWND, NTE_USER_CANCELLED, S_OK},
-        Security::Cryptography::BCRYPT_KEY_BLOB,
-        System::Com::{CLSIDFromString, CoTaskMemFree},
-    },
+    core::{GUID, PCWSTR},
+    Win32::{Security::Cryptography::BCRYPT_KEY_BLOB, System::Com::CLSIDFromString},
 };
-use windows_core::HSTRING;
 
 use crate::{
     api::{
         plugin::{
-            com::{ComBuffer, ComBufferExt},
-            crypto::{NCryptKey, OwnedRequestHash, RequestHash, Signature},
+            com::{register_server, shutdown_server},
+            crypto::{NCryptKey, RequestHash, Signature},
         },
-        sys::{
-            plugin::{
-                webauthn_decode_get_assertion_request, webauthn_decode_make_credential_request,
-                webauthn_encode_make_credential_response,
-                webauthn_free_decoded_get_assertion_request,
-                webauthn_free_decoded_make_credential_request, webauthn_plugin_add_authenticator,
-                webauthn_plugin_authenticator_add_credentials,
-                webauthn_plugin_authenticator_remove_all_credentials,
-                webauthn_plugin_free_add_authenticator_response,
-                webauthn_plugin_free_public_key_response,
-                webauthn_plugin_free_user_verification_response,
-                webauthn_plugin_get_operation_signing_public_key,
-                webauthn_plugin_get_user_verification_public_key,
-                webauthn_plugin_perform_user_verification, WEBAUTHN_CTAPCBOR_AUTHENTICATOR_OPTIONS,
-                WEBAUTHN_CTAPCBOR_GET_ASSERTION_REQUEST, WEBAUTHN_CTAPCBOR_MAKE_CREDENTIAL_REQUEST,
-                WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_OPTIONS,
-                WEBAUTHN_PLUGIN_ADD_AUTHENTICATOR_RESPONSE,
-                WEBAUTHN_PLUGIN_CANCEL_OPERATION_REQUEST, WEBAUTHN_PLUGIN_CREDENTIAL_DETAILS,
-                WEBAUTHN_PLUGIN_OPERATION_REQUEST, WEBAUTHN_PLUGIN_OPERATION_RESPONSE,
-                WEBAUTHN_PLUGIN_REQUEST_TYPE, WEBAUTHN_PLUGIN_USER_VERIFICATION_REQUEST,
-            },
-            WEBAUTHN_CREDENTIAL_ATTESTATION, WEBAUTHN_EXTENSIONS,
-        },
-        webauthn::{
-            AuthenticatorInfo, CoseCredentialParameter, CoseCredentialParameters, CredentialEx,
-            CtapTransport, HmacSecretSalt, RpEntityInformation, UserEntityInformation, UserId,
-            WebAuthnExtensionMakeCredentialOutput,
-        },
+        sys::plugin::webauthn_plugin_free_public_key_response,
         WindowsString,
     },
-    CredentialId, ErrorKind, WinWebAuthnError,
+    ErrorKind, WinWebAuthnError,
 };
 
 pub type PluginLockStatus = super::sys::plugin::PLUGIN_LOCK_STATUS;
@@ -266,6 +233,26 @@ impl WebAuthnPlugin {
         WebAuthnPlugin { clsid }
     }
 
+    /// Registers a COM server with Windows.
+    ///
+    /// The handler should be an instance of your type that implements PluginAuthenticator.
+    /// The same instance will be shared across all COM calls.
+    ///
+    /// This only needs to be called at the start of your application.
+    pub fn register_server<T>(&self, handler: T) -> Result<(), WinWebAuthnError>
+    where
+        T: PluginAuthenticator + Send + Sync + 'static,
+    {
+        register_server(self.clsid, handler)
+    }
+
+    /// Uninitializes the COM library for the calling thread.
+    ///
+    /// Not thread-safe: This must be called from the same thread that called [register_server].
+    pub fn shutdown_server() -> Result<(), WinWebAuthnError> {
+        shutdown_server()
+    }
+
     /// Adds this implementation as a Windows WebAuthn plugin.
     ///
     /// This only needs to be called on installation of your application.
@@ -274,26 +261,6 @@ impl WebAuthnPlugin {
     ) -> Result<PluginAddAuthenticatorResponse, WinWebAuthnError> {
         let options_raw = options.try_into()?;
         add_authenticator(&options_raw)
-    }
-
-    /// Registers a COM server with Windows.
-    ///
-    /// The handler should be an instance of your type that implements PluginAuthenticator.
-    /// The same instance will be shared across all COM calls.
-    ///
-    /// This only needs to be called at the start of your application.
-    pub fn register_server<T>(&self, authenticator: T) -> Result<(), WinWebAuthnError>
-    where
-        T: PluginAuthenticator + Send + Sync + 'static,
-    {
-        unimplemented!();
-    }
-
-    /// Uninitializes the COM library for the calling thread.
-    ///
-    /// Not thread-safe: This must be called from the same thread that called [register_server].
-    pub fn shutdown_server() -> Result<(), WinWebAuthnError> {
-        unimplemented!()
     }
 
     /// Perform user verification related to an associated MakeCredential or GetAssertion request.

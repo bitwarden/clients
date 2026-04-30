@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use windows::{core::GUID, Win32::Foundation::HWND};
 
 use crate::{

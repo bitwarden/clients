@@ -32,13 +32,29 @@ use crate::{
 /// # Safety
 /// The caller must ensure that `request.pbRequestSignature` points to a valid non-null byte
 /// string of length `request.cbRequestSignature`.
-pub(super) unsafe fn signature(request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST) -> Signature<'_> {
+pub(in crate::api::plugin) unsafe fn get_request_signature(
+    request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+) -> Result<Signature<'_>, WinWebAuthnError> {
+    if request.pbRequestSignature.is_null() {
+        return Err(WinWebAuthnError::new(
+            ErrorKind::InvalidArguments,
+            "request signature buffer pointer is null",
+        ));
+    } else if !request.pbRequestSignature.is_aligned() {
+        return Err(WinWebAuthnError::new(
+            ErrorKind::InvalidArguments,
+            "request signature buffer pointer is not aligned",
+        ));
+    }
+
     // SAFETY: The caller must make sure that the encoded request is valid.
-    let signature = std::slice::from_raw_parts(
-        request.pbRequestSignature,
-        request.cbRequestSignature as usize,
-    );
-    Signature::new(signature)
+    let signature = unsafe {
+        std::slice::from_raw_parts(
+            request.pbRequestSignature,
+            request.cbRequestSignature as usize,
+        )
+    };
+    Ok(Signature::new(signature))
 }
 
 /// Calculate a SHA-256 hash over the request.
@@ -46,19 +62,32 @@ pub(super) unsafe fn signature(request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST) -> S
 /// # Safety
 /// The caller must ensure that: `request.pbEncodedRequest` points to a valid non-null byte
 /// string of length `request.cbEncodedRequest`.
-pub(super) unsafe fn request_hash(
+pub(in crate::api::plugin) unsafe fn get_request_hash(
     request: &WEBAUTHN_PLUGIN_OPERATION_REQUEST,
 ) -> Result<OwnedRequestHash, WinWebAuthnError> {
+    if request.pbEncodedRequest.is_null() {
+        return Err(WinWebAuthnError::new(
+            ErrorKind::InvalidArguments,
+            "request buffer pointer is null",
+        ));
+    } else if !request.pbEncodedRequest.is_aligned() {
+        return Err(WinWebAuthnError::new(
+            ErrorKind::InvalidArguments,
+            "request buffer pointer is not aligned",
+        ));
+    }
+
     // SAFETY: The caller must make sure that the encoded request is valid.
-    let request_data =
-        std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize);
+    let request_data = unsafe {
+        std::slice::from_raw_parts(request.pbEncodedRequest, request.cbEncodedRequest as usize)
+    };
     let request_hash = crypto::hash_sha256(request_data).map_err(|err| {
         WinWebAuthnError::with_cause(ErrorKind::WindowsInternal, "failed to hash request", err)
     })?;
     Ok(OwnedRequestHash(request_hash))
 }
 
-trait OperationRequest<'a> {
+pub(in crate::api::plugin) trait OperationRequest<'a> {
     fn transaction_id(&self) -> GUID;
 
     unsafe fn try_from_operation_request(
@@ -98,7 +127,7 @@ impl<'a> OperationRequest<'a> for PluginMakeCredentialRequest<'a> {
     }
 }
 
-struct OperationResponse {
+pub(crate) struct OperationResponse {
     inner: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
 }
 
@@ -107,7 +136,7 @@ impl OperationResponse {
     /// The caller must ensure that `ptr` points to a valid
     /// [`WEBAUTHN_PLUGIN_OPERATION_RESPONSE`], e.g. `pbEncodedResponse` must be
     /// a COM-allocated buffer of bytes of length `cbEncodedResponse`.
-    unsafe fn new(
+    pub(in crate::api::plugin) unsafe fn new(
         ptr: NonNull<WEBAUTHN_PLUGIN_OPERATION_RESPONSE>,
     ) -> Result<Self, WinWebAuthnError> {
         if !ptr.is_aligned() {
@@ -123,7 +152,7 @@ impl OperationResponse {
     ///
     /// Safety constraints: [response] must point to a valid
     /// WEBAUTHN_PLUGIN_OPERATION_RESPONSE struct.
-    fn write(&mut self, data: &[u8]) -> Result<(), WinWebAuthnError> {
+    pub(crate) fn write(&mut self, data: &[u8]) -> Result<(), WinWebAuthnError> {
         let len = match data.len().try_into() {
             Ok(len) => len,
             Err(err) => {
@@ -143,7 +172,7 @@ impl OperationResponse {
             });
         }
         // Leak the buffer to the COM implementation
-        ManuallyDrop::new(buf);
+        _ = ManuallyDrop::new(buf);
         Ok(())
     }
 }

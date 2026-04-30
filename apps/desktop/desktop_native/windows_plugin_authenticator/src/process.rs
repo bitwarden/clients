@@ -65,7 +65,7 @@ pub(super) fn add_authenticator() -> Result<(), String> {
         },
         supported_rp_ids: None,
     };
-    let response = WebAuthnPlugin::add_authenticator(options);
+    let response = WebAuthnPlugin::add_authenticator(&options);
     tracing::debug!("Added the authenticator: {response:?}");
     Ok(())
 }

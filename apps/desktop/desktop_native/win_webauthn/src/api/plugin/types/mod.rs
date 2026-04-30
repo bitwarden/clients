@@ -9,5 +9,5 @@ pub use authenticator::*;
 pub use cancel_operation::*;
 pub use get_assertion::*;
 pub use make_credential::*;
-pub use operation::*;
+pub(crate) use operation::*;
 pub use user_verification::*;

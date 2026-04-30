@@ -265,11 +265,6 @@ impl<'a> Signature<'a> {
 
 #[derive(Clone, Debug)]
 pub(crate) struct OwnedRequestHash(pub(super) Vec<u8>);
-impl OwnedRequestHash {
-    pub(crate) fn to_vec(&self) -> Vec<u8> {
-        self.0.to_vec()
-    }
-}
 
 impl<'a> From<&'a OwnedRequestHash> for RequestHash<'a> {
     fn from(value: &'a OwnedRequestHash) -> RequestHash<'a> {

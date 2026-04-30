@@ -7,7 +7,7 @@ use windows::{
 
 use crate::{
     api::{
-        plugin::{crypto::OwnedRequestHash, WebAuthnCtapCborAuthenticatorOptions},
+        plugin::WebAuthnCtapCborAuthenticatorOptions,
         sys::{
             plugin::{
                 webauthn_decode_make_credential_request, webauthn_encode_make_credential_response,
