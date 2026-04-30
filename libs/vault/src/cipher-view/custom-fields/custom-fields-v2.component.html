@@ -18,16 +18,18 @@
           aria-readonly="true"
           vaultAutosizeReadOnlyTextArea
         ></textarea>
-        <button
-          bitIconButton="bwi-clone"
-          bitSuffix
-          type="button"
-          [appCopyClick]="field.value"
-          showToast
-          [valueLabel]="field.name"
-          [label]="'copyCustomField' | i18n: field.name"
-          data-testid="copy-custom-field"
-        ></button>
+        @if (field.value) {
+          <button
+            bitIconButton="bwi-clone"
+            bitSuffix
+            type="button"
+            [appCopyClick]="field.value"
+            showToast
+            [valueLabel]="field.name"
+            [label]="'copyCustomField' | i18n: field.name"
+            data-testid="copy-custom-field"
+          ></button>
+        }
       </bit-form-field>
       <bit-form-field *ngIf="field.type === fieldType.Hidden" [disableReadOnlyBorder]="last">
         <bit-label [appTextDrag]="field.value">{{ field.name }}</bit-label>
@@ -46,7 +48,7 @@
           readonly
           bitInput
           type="password"
-          [value]="field.value"
+          [value]="field.value ?? ''"
           aria-readonly="true"
           class="tw-font-mono"
           vaultAutosizeReadOnlyTextArea
@@ -73,17 +75,18 @@
           *ngIf="canViewPassword"
           (toggledChange)="toggleHiddenField($event, i)"
         ></button>
-        <button
-          bitIconButton="bwi-clone"
-          bitSuffix
-          type="button"
-          [appCopyClick]="field.value"
-          showToast
-          [valueLabel]="field.name"
-          *ngIf="canViewPassword"
-          [label]="'copyCustomField' | i18n: field.name"
-          (click)="logCopyEvent()"
-        ></button>
+        @if (canViewPassword && field.value) {
+          <button
+            bitIconButton="bwi-clone"
+            bitSuffix
+            type="button"
+            [appCopyClick]="field.value"
+            showToast
+            [valueLabel]="field.name"
+            [label]="'copyCustomField' | i18n: field.name"
+            (click)="logCopyEvent()"
+          ></button>
+        }
       </bit-form-field>
       <div
         *ngIf="showHiddenValueCountFields.includes(i) && revealedHiddenFields.includes(i)"
