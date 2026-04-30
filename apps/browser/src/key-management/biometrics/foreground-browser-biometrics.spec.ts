@@ -9,7 +9,6 @@ import { ForegroundBrowserBiometricsService } from "./foreground-browser-biometr
 jest.mock("../../platform/browser/browser-api", () => ({
   BrowserApi: {
     sendMessageWithResponse: jest.fn(),
-    permissionsGranted: jest.fn(),
   },
 }));
 
@@ -22,12 +21,8 @@ describe("foreground browser biometrics service tests", function () {
 
   describe("canEnableBiometricUnlock", () => {
     const table: [boolean, boolean, boolean][] = [
-      // canEnableBiometricUnlock from background, native permission granted, isSafari, expected
-      // is safari; depends on the status that the background service reports
       [false, true, false],
       [true, true, true],
-
-      // native permissions granted; depends on the status that the background service reports
       [false, false, false],
       [true, false, true],
     ];
