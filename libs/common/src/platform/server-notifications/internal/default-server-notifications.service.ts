@@ -306,6 +306,19 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
           notification.payload.organizationId,
         );
         break;
+      case NotificationType.PremiumStatusChanged: {
+        const hasPremiumFromAnyOrganization = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(
+            notification.payload.userId,
+          ),
+        );
+        await this.billingAccountProfileStateService.setHasPremium(
+          notification.payload.premium,
+          hasPremiumFromAnyOrganization,
+          notification.payload.userId,
+        );
+        break;
+      }
       default:
         break;
     }
