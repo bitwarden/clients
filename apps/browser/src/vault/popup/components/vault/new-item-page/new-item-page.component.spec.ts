@@ -3,10 +3,8 @@ import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router } from "@angular/router";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
@@ -28,24 +26,15 @@ import { NewItemPageComponent } from "./new-item-page.component";
 
 describe("NewItemPageComponent", () => {
   let fixture: ComponentFixture<NewItemPageComponent>;
-  let accountServiceMock: jest.Mocked<AccountService>;
-  let billingAccountProfileStateServiceMock: jest.Mocked<BillingAccountProfileStateService>;
   let restrictedItemTypesServiceMock: { restricted$: BehaviorSubject<RestrictedCipherType[]> };
-
-  const mockActiveAccount = { id: "user-1" as any };
 
   let navigate: jest.SpyInstance;
   let queryParams$: BehaviorSubject<Record<string, string>>;
 
   beforeEach(async () => {
-    accountServiceMock = mock<AccountService>();
-    billingAccountProfileStateServiceMock = mock<BillingAccountProfileStateService>();
     restrictedItemTypesServiceMock = {
       restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
     };
-
-    accountServiceMock.activeAccount$ = of(mockActiveAccount) as any;
-    billingAccountProfileStateServiceMock.hasPremiumFromAnySource$.mockReturnValue(of(false));
 
     queryParams$ = new BehaviorSubject<Record<string, string>>({});
     const activatedRouteMock = {
@@ -58,11 +47,6 @@ describe("NewItemPageComponent", () => {
     await TestBed.configureTestingModule({
       imports: [NewItemPageComponent, RouterTestingModule],
       providers: [
-        { provide: AccountService, useValue: accountServiceMock },
-        {
-          provide: BillingAccountProfileStateService,
-          useValue: billingAccountProfileStateServiceMock,
-        },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ActivatedRoute, useValue: activatedRouteMock },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -79,6 +63,12 @@ describe("NewItemPageComponent", () => {
   });
 
   const newItemGrid = () => fixture.debugElement.query(By.directive(AddItemGridComponent));
+
+  it("passes correct creation flags to the grid", () => {
+    expect(newItemGrid().componentInstance.canCreateSshKey()).toBe(true);
+    expect(newItemGrid().componentInstance.canCreateFolder()).toBe(true);
+    expect(newItemGrid().componentInstance.canCreateCollection()).toBe(false);
+  });
 
   describe("onItemSelected", () => {
     describe("cipher", () => {

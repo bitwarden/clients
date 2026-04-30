@@ -1,17 +1,19 @@
+import { DialogRef as CdkDialogRef } from "@angular/cdk/dialog";
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { FormBuilder, ReactiveFormsModule, UntypedFormGroup, Validators } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { NEVER, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { BasePolicyEditComponent, BasePolicyEditDefinition } from "./base-policy-edit.component";
@@ -38,6 +40,8 @@ describe("PolicyEditDialogComponent", () => {
 
   beforeEach(async () => {
     policyApiService = mock<PolicyApiServiceAbstraction>();
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
@@ -49,6 +53,9 @@ describe("PolicyEditDialogComponent", () => {
         { provide: DialogRef, useValue: mock<DialogRef>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: CdkDialogRef, useValue: { backdropClick: NEVER, keydownEvents: NEVER } },
+        { provide: ConfigService, useValue: configService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

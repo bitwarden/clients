@@ -142,8 +142,8 @@ export class LoginView extends ItemView {
    */
   toSdkLoginView(): SdkLoginView {
     return {
-      username: this.username,
-      password: this.password,
+      username: this.username || undefined,
+      password: this.password || undefined,
       passwordRevisionDate: this.passwordRevisionDate?.toISOString(),
       totp: this.hasTotp ? this.totp : undefined,
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
