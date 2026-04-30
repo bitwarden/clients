@@ -8,7 +8,7 @@ use win_webauthn::{
 };
 use windows::{core::GUID, Win32::Foundation::HWND};
 
-const PLUGIN_CLSID: &str = "0f7dc5d9-69ce-4652-8572-6877fd695062";
+const PLUGIN_CLSID: &str = "{0f7dc5d9-69ce-4652-8572-6877fd695062}";
 
 #[allow(clippy::unused_async)]
 pub async fn run_command(value: String) -> Result<String> {

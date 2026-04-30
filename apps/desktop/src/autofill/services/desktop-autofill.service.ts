@@ -48,6 +48,9 @@ import {
 } from "../../platform/main/autofill/sync.command";
 
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+import { flagEnabled } from "../../platform/flags";
+
+const LocalCredentialSyncFeatureFlag = "nativeCredentialSync";
 
 @Injectable()
 export class DesktopAutofillService implements OnDestroy {
@@ -78,16 +81,27 @@ export class DesktopAutofillService implements OnDestroy {
 
   async init() {
     this.isEnabled =
-      this.featureFlag && (await this.configService.getFeatureFlag(this.featureFlag));
+      (this.featureFlag && (await this.configService.getFeatureFlag(this.featureFlag)) === true) || flagEnabled(LocalCredentialSyncFeatureFlag)
     if (!this.isEnabled) {
+      this.logService.info("Native autofill service is disabled.")
       return;
     }
+    this.logService.info("Native autofill service is enabled.")
 
     this.configService
       .getFeatureFlag$(this.featureFlag)
       .pipe(
         distinctUntilChanged(),
-        tap((enabled) => (this.isEnabled = enabled)),
+                map((enabled) => (enabled === true || flagEnabled(LocalCredentialSyncFeatureFlag))),
+        tap((enabled) => {
+          this.isEnabled = enabled;
+          if (this.isEnabled === true) {
+            this.logService.debug("Native credential sync enabled");
+          }
+          else {
+            this.logService.debug("Native credential sync disabled");
+          }
+        }),
         filter((enabled) => enabled === true), // Only proceed if feature is enabled
         switchMap(() => {
           return combineLatest([
