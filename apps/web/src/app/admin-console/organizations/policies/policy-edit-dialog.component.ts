@@ -92,6 +92,20 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     return this.data.policy;
   }
 
+  private isFormDirty(): boolean {
+    const component = this.policyComponent();
+    return (component?.enabled?.dirty ?? false) || (component?.data?.dirty ?? false);
+  }
+
+  private readonly discardDialogOptions = {
+    title: { key: "discardEditsTitle" },
+    content: { key: "discardEditsConfirmation" },
+    type: "danger" as const,
+    hideIcon: true,
+    acceptButtonText: { key: "discardEdits" },
+    cancelButtonText: { key: "backToEditing" },
+  };
+  
   /**
    * Sets up the discard-edits guard based on whether the dialog is a modal or a drawer.
    *
