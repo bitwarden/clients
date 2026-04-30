@@ -25,7 +25,7 @@ global.ResizeObserver = class ResizeObserver {
  * DOM dimensions (viewport height) to determine which rows to render — JSDOM provides
  * no real dimensions, so *cdkVirtualFor renders zero rows.
  *
- * Template/row rendering is covered visually by Storybook stories (applications-table-v2.component.stories.ts).
+ * Template/row rendering is covered visually by Storybook stories (dirt-applications-table-v2.component.stories.ts).
  * Component logic and header elements (which render without virtual scroll) are tested here.
  *
  */
@@ -84,6 +84,9 @@ describe("ApplicationsTableV2Component", () => {
               selectAll: "Select all",
               deselectAll: "Deselect all",
               select: "Select",
+              options: "Options",
+              unmarkAsCritical: "Unmark as critical",
+              all: "All",
             }),
         },
       ],
@@ -105,7 +108,7 @@ describe("ApplicationsTableV2Component", () => {
       expect(component).toBeTruthy();
     });
 
-    it("should accept required inputs", () => {
+    it("should accept required and optional inputs", () => {
       expect(component.dataSource()).toBe(mockDataSource);
       expect(component.selectedUrls()).toBe(mockSelectedUrls);
     });
@@ -282,6 +285,66 @@ describe("ApplicationsTableV2Component", () => {
       fixture.detectChanges();
 
       expect(component.allAppsSelected()).toBe(true);
+    });
+  });
+
+  // ==================== showStar / showCheckbox ====================
+
+  const mockUnmarkHandler = jest.fn();
+
+  describe("showStar", () => {
+    it("returns true when onUnmarkAsCritical is provided regardless of isMarkedAsCritical", () => {
+      fixture.componentRef.setInput("onUnmarkAsCritical", mockUnmarkHandler);
+
+      expect(component["showStar"](true)).toBe(true);
+      expect(component["showStar"](false)).toBe(true);
+    });
+
+    it("returns true when onUnmarkAsCritical is not provided, showCriticalBadge is false, and row is critical", () => {
+      fixture.componentRef.setInput("showCriticalBadge", false);
+
+      expect(component["showStar"](true)).toBe(true);
+    });
+
+    it("returns false when onUnmarkAsCritical is not provided, showCriticalBadge is false, and row is not critical", () => {
+      fixture.componentRef.setInput("showCriticalBadge", false);
+
+      expect(component["showStar"](false)).toBe(false);
+    });
+
+    it("returns false when onUnmarkAsCritical is not provided and showCriticalBadge is true", () => {
+      fixture.componentRef.setInput("showCriticalBadge", true);
+
+      expect(component["showStar"](true)).toBe(false);
+      expect(component["showStar"](false)).toBe(false);
+    });
+  });
+
+  describe("showCheckbox", () => {
+    it("returns false when onUnmarkAsCritical is provided regardless of isMarkedAsCritical", () => {
+      fixture.componentRef.setInput("onUnmarkAsCritical", mockUnmarkHandler);
+
+      expect(component["showCheckbox"](true)).toBe(false);
+      expect(component["showCheckbox"](false)).toBe(false);
+    });
+
+    it("returns true when onUnmarkAsCritical is not provided and showCriticalBadge is true", () => {
+      fixture.componentRef.setInput("showCriticalBadge", true);
+
+      expect(component["showCheckbox"](true)).toBe(true);
+      expect(component["showCheckbox"](false)).toBe(true);
+    });
+
+    it("returns true when onUnmarkAsCritical is not provided, showCriticalBadge is false, and row is not critical", () => {
+      fixture.componentRef.setInput("showCriticalBadge", false);
+
+      expect(component["showCheckbox"](false)).toBe(true);
+    });
+
+    it("returns false when onUnmarkAsCritical is not provided, showCriticalBadge is false, and row is critical", () => {
+      fixture.componentRef.setInput("showCriticalBadge", false);
+
+      expect(component["showCheckbox"](true)).toBe(false);
     });
   });
 });

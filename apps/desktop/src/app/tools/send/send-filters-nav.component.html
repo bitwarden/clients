@@ -21,5 +21,9 @@
     [text]="'sendTypeFile' | i18n"
     (click)="selectTypeAndNavigate(SendType.File); $event.stopPropagation()"
     [forceActiveStyles]="activeSendType() === SendType.File"
-  />
+  >
+    <ng-container slot="end">
+      <app-premium-badge />
+    </ng-container>
+  </bit-nav-item>
 </bit-nav-group>

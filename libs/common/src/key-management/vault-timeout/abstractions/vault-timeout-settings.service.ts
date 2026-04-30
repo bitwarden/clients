@@ -55,4 +55,33 @@ export abstract class VaultTimeoutSettingsService {
    * @returns boolean true if biometric lock is set
    */
   abstract isBiometricLockSet(userId?: UserId): Promise<boolean>;
+
+  /**
+   * Observable that emits the epoch timestamp (ms) until which vault timeout is suppressed,
+   * or null when not suppressed. Used by shared unlock to prevent timeout during active sessions.
+   */
+  abstract vaultTimeoutSuppressedUntil$(userId: UserId): Observable<number | null>;
+
+  /**
+   * Observable that emits true if vault timeout is currently suppressed for the given user
+   * (i.e. suppression timestamp exists and has not yet elapsed).
+   */
+  abstract isVaultTimeoutSuppressed$(userId: UserId): Observable<boolean>;
+
+  /**
+   * Returns true if vault timeout is currently suppressed for the given user
+   * (i.e. suppression timestamp exists and has not yet elapsed).
+   */
+  abstract isVaultTimeoutSuppressed(userId: UserId): Promise<boolean>;
+
+  /**
+   * Suppress vault timeout until the given epoch timestamp (ms).
+   * While suppressed, the vault timeout service will not lock or log out users.
+   */
+  abstract suppressVaultTimeout(until: number, userId: UserId): Promise<void>;
+
+  /**
+   * Clear vault timeout suppression for the user, allowing vault timeout to occur as normal.
+   */
+  abstract clearVaultTimeoutSuppression(userId: UserId): Promise<void>;
 }

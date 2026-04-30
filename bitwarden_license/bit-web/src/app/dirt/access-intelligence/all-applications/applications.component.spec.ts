@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { RiskInsightsEnrichedData } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-data-service.types";
+import { ReportState } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -260,6 +261,92 @@ describe("ApplicationsComponent", () => {
       // Verify only GitHub is in the export (not Slack)
       expect(capturedBlobData).toContain("GitHub");
       expect(capturedBlobData).not.toContain("Slack");
+    });
+  });
+
+  describe("markAppsAsCritical", () => {
+    beforeEach(() => {
+      (component as ComponentWithProtectedMembers).selectedUrls.set(new Set(["GitHub", "Slack"]));
+    });
+
+    it("should show success toast when response has no error", async () => {
+      mockDataService.saveCriticalApplications.mockReturnValue(
+        of({
+          status: ReportStatus.Complete,
+          error: null,
+          data: {
+            summaryData: { ...createNewSummaryData(), totalCriticalApplicationCount: 2 },
+          },
+        } as ReportState),
+      );
+
+      await component.markAppsAsCritical();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect((component as ComponentWithProtectedMembers).selectedUrls().size).toBe(0);
+    });
+
+    it("should show error toast when response has error field set", async () => {
+      mockDataService.saveCriticalApplications.mockReturnValue(
+        of({
+          status: ReportStatus.Complete,
+          error: "Failed to save critical applications",
+          data: null,
+        }),
+      );
+
+      await component.markAppsAsCritical();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      // Selection should be preserved on error
+      expect((component as ComponentWithProtectedMembers).selectedUrls().size).toBe(2);
+    });
+  });
+
+  describe("unmarkAppsAsCritical", () => {
+    beforeEach(() => {
+      (component as ComponentWithProtectedMembers).selectedUrls.set(new Set(["GitHub"]));
+    });
+
+    it("should show success toast when response has no error", async () => {
+      mockDataService.removeCriticalApplications.mockReturnValue(
+        of({
+          status: ReportStatus.Complete,
+          error: null,
+          data: {
+            summaryData: { ...createNewSummaryData(), totalCriticalApplicationCount: 0 },
+          },
+        } as ReportState),
+      );
+
+      await component.unmarkAppsAsCritical();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success" }),
+      );
+      expect((component as ComponentWithProtectedMembers).selectedUrls().size).toBe(0);
+    });
+
+    it("should show error toast when response has error field set", async () => {
+      mockDataService.removeCriticalApplications.mockReturnValue(
+        of({
+          status: ReportStatus.Complete,
+          error: "Failed to remove a critical application",
+          data: null,
+        }),
+      );
+
+      await component.unmarkAppsAsCritical();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error" }),
+      );
+      // Selection preserved on error
+      expect((component as ComponentWithProtectedMembers).selectedUrls().size).toBe(1);
     });
   });
 

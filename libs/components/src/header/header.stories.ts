@@ -91,7 +91,7 @@ export const KitchenSink: Story = {
               type="text"
             />
             <button type="button" bitIconButton="bwi-grid" label="Switch products"></button>
-            <bit-avatar text="Will"></bit-avatar>
+            <bit-avatar text="Will" size="lg"></bit-avatar>
             <button bitButton buttonType="primary">New</button>
             <button bitButton slot="secondary">Click Me 🎉</button>
             <bit-tab-nav-bar slot="tabs">

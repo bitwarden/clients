@@ -1,5 +1,5 @@
 @let open = sideNavService.open();
-@let containerClasses =
+@let interactiveElClass =
   "tw-size-full tw-px-0 tw-block tw-truncate tw-border-none !tw-text-fg-nav tw-text-start hover:tw-no-underline focus:tw-outline-none [&_i]:tw-leading-[1.5rem]";
 
 <div class="tw-cursor-pointer tw-ps-3 tw-pe-3">
@@ -13,20 +13,18 @@
           ? '--color-nav-bg-primary: var(--color-nav-bg-primary-strong); --color-nav-bg-secondary: var(--color-nav-bg-secondary-strong); --color-nav-bg-primary-hover: var(--color-nav-bg-primary-hover-strong); --color-nav-bg-secondary-hover: var(--color-nav-bg-secondary-hover-strong);'
           : ''
       "
+      data-testid="nav-item-container"
     >
       <div class="tw-relative tw-flex tw-items-center tw-h-full">
         @if (open) {
-          <div
-            class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)] [&>*:focus-visible::before]:!tw-ring-border-focus"
-          >
+          <div class="tw-absolute tw-left-[0px] tw-transform tw--translate-x-[calc(100%_+_4px)]">
             <ng-content select="[slot=start]"></ng-content>
           </div>
         }
         @if (route()) {
           <!-- The `data-fvw` attribute passes focus to `this.focusVisibleWithin` -->
-          <!-- The following `class` field should match the button class field below -->
           <a
-            [class]="containerClasses"
+            [class]="interactiveElClass"
             data-fvw
             [routerLink]="route()"
             [relativeTo]="relativeTo()"
@@ -39,16 +37,17 @@
             [state]="{
               focusAfterNav: focusAfterNavTarget(),
             }"
+            data-testid="nav-item-interactive"
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </a>
         } @else {
-          <!-- Class field should match anchor class field above -->
           <button
             type="button"
-            [class]="containerClasses"
+            [class]="interactiveElClass"
             data-fvw
             (click)="mainContentClicked.emit()"
+            data-testid="nav-item-interactive"
           >
             <ng-container *ngTemplateOutlet="anchorAndButtonContent"></ng-container>
           </button>
@@ -76,12 +75,13 @@
     [class.tw-justify-center]="!open"
   >
     @if (icon()) {
-      <i
-        class="!tw-m-0 tw-w-4 tw-shrink-0 bwi bwi-fw"
-        [class]="icon()"
+      <bit-icon
+        class="!tw-m-0 tw-w-4 tw-shrink-0"
+        [name]="icon()"
+        fixedWidth="true"
         [attr.aria-hidden]="open"
         [attr.aria-label]="text()"
-      ></i>
+      ></bit-icon>
     }
     @if (open) {
       <span class="tw-truncate">{{ text() }}</span>

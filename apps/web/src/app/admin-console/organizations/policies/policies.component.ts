@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef } from "@angular/core";
+import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
@@ -11,10 +11,16 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { DialogService, ItemModule, SectionHeaderComponent } from "@bitwarden/components";
+import {
+  DialogRef,
+  DialogService,
+  ItemModule,
+  SectionHeaderComponent,
+} from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -37,6 +43,8 @@ import { POLICY_EDIT_REGISTER } from "./policy-register-token";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PoliciesComponent {
+  private readonly drawerRef = signal<DialogRef<any> | undefined>(undefined);
+
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly organizationId$: Observable<OrganizationId> = this.route.params.pipe(
@@ -128,6 +136,7 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
+    this.destroyRef.onDestroy(() => this.drawerRef()?.close());
   }
 
   // Handle policies component launch from Event message
@@ -142,7 +151,7 @@ export class PoliciesComponent {
               if (orgPolicy.id === policyIdFromEvents) {
                 for (const policy of policies) {
                   if (policy.type === orgPolicy.type) {
-                    this.edit(policy, organization);
+                    void this.edit(policy, organization);
                     break;
                   }
                 }
@@ -156,14 +165,30 @@ export class PoliciesComponent {
       .subscribe();
   }
 
-  edit(policy: BasePolicyEditDefinition, organization: Organization) {
+  async edit(policy: BasePolicyEditDefinition, organization: Organization) {
+    const useDrawer = await this.configService.getFeatureFlag(FeatureFlag.PolicyDrawers);
     const dialogComponent: PolicyDialogComponent =
       policy.editDialogComponent ?? PolicyEditDialogComponent;
-    dialogComponent.open(this.dialogService, {
-      data: {
-        policy: policy,
-        organization: organization,
-      },
-    });
+
+    if (useDrawer && dialogComponent.openDrawer) {
+      // openDrawer is async and returns undefined if a currently-open drawer's
+      // closePredicate prevented it from closing — only update the ref when it opened.
+      const ref = await dialogComponent.openDrawer(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+      if (ref !== undefined) {
+        this.drawerRef.set(ref);
+      }
+    } else {
+      dialogComponent.open(this.dialogService, {
+        data: {
+          policy: policy,
+          organization: organization,
+        },
+      });
+    }
   }
 }

@@ -35,6 +35,33 @@
   "typeSshKey": {
     "message": "Kľúč SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Webová stránka alebo aplikácia"
+  },
+  "typeCardSubtitle": {
+    "message": "Kreditná alebo debetná karta"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Osobné informácie"
+  },
+  "typeNoteSubtitle": {
+    "message": "Dôležitý text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Prihlasovací token servera"
+  },
+  "folderSubtitle": {
+    "message": "Usporiadajte si položky"
+  },
+  "collectionSubtitle": {
+    "message": "Usporiadajte zdieľané položky"
+  },
+  "chooseItemToAdd": {
+    "message": "Vyberte položku, ktorú chcete pridať"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Vyberte typ položky, ktorú chcete pridať do svojho trezoru."
+  },
   "folders": {
     "message": "Priečinky"
   },
@@ -86,6 +113,66 @@
   },
   "viewItem": {
     "message": "Zobraziť položku"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zobraziť prihlásenie",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Zobraziť kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Zobraziť identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Zobraziť poznámku",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Zobraziť kľúč SSH",
+    "description": "Header for view SSH key item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Nové prihlásenie",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Nová karta",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Nová identita",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nová poznámka",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nový kľúč SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Upraviť prihlásenie",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Upraviť kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Upraviť identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Upraviť poznámku",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Upraviť kľúč SSH",
+    "description": "Header for edit SSH key item type"
   },
   "name": {
     "message": "Názov"
@@ -2126,6 +2213,15 @@
   "unsavedChangesTitle": {
     "message": "Neuložené zmeny"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Ak teraz odídete, zmeny sa neuložia. Aktualizáciu nainštalujte neskôr, aby ste mohli zostať na stránke a uložiť zmeny."
+  },
+  "installLater": {
+    "message": "Inštalovať neskôr"
+  },
+  "continueWithInstall": {
+    "message": "Pokračovať v inštalácii"
+  },
   "clone": {
     "message": "Klonovať"
   },
@@ -2234,6 +2330,9 @@
   },
   "copyTOTP": {
     "message": "Kopírovať kľúč overovateľa (TOTP)"
+  },
+  "copyNotes": {
+    "message": "Kopírovať poznámky"
   },
   "totpHelperTitle": {
     "message": "Spravte dvojstupňové overenie bezproblémovým"
@@ -3528,6 +3627,63 @@
   "deviceTrusted": {
     "message": "Dôveryhodné zariadenie"
   },
+  "device": {
+    "message": "Zariadenie"
+  },
+  "devices": {
+    "message": "Zariadenia"
+  },
+  "whatIsADevice": {
+    "message": "Čo je zariadenie?"
+  },
+  "aDeviceIs": {
+    "message": "Zariadenie je konkrétna inštalácia aplikácie Bitwarden, do ktorej ste sa prihlásili. Preinštalovanie, vymazanie údajov aplikácie alebo vymazanie súborov cookie môže spôsobiť, že sa zariadenie zobrazí viackrát."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Váš účet bol prihlásený do každého zariadenia uvedeného nižšie."
+  },
+  "loginStatus": {
+    "message": "Stav prihlásenia"
+  },
+  "recentlyActive": {
+    "message": "Posledná aktivita"
+  },
+  "recentlyActiveToday": {
+    "message": "Dnes"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Posledných 7 dní"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Posledných 14 dní"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Posledných 30 dní"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Pred viac ako 30 dňami"
+  },
+  "firstLogin": {
+    "message": "Prvé prihlásenie"
+  },
+  "trusted": {
+    "message": "Dôveryhodné"
+  },
+  "currentSession": {
+    "message": "Aktuálna relácia"
+  },
+  "requestPending": {
+    "message": "Žiadosť čaká na spracovanie"
+  },
+  "deviceIdMissing": {
+    "message": "Chýba ID zariadenia"
+  },
+  "deviceTypeMissing": {
+    "message": "Chýba typ zariadenia"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Chýba dátum vytvorenia zaradenia"
+  },
   "trustOrganization": {
     "message": "Dôverovať organizácii"
   },
@@ -4696,6 +4852,15 @@
   "organizationIsSuspendedDesc": {
     "message": "K položkám v pozastavenej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "V koši nie sú žiadne položky"
   },
@@ -4751,7 +4916,41 @@
   "emailPlaceholder": {
     "message": "pouzivate@bitwarden.com, pouzivatel@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "pouzivatel@bitwarden.com, pouzivatel@acme.com"
+  },
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
+  },
+  "discardEdits": {
+    "message": "Zahodiť úpravy"
+  },
+  "discardEditsMessage": {
+    "message": "Ak toto zobrazenie zavriete, neuložené zmeny budú zahodené"
+  },
+  "backToEditing": {
+    "message": "Späť na úpravy"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "V Sende sú neuložené úpravy. Naozaj chcete odísť?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Uloženie úprav Sendu zlyhalo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Bočná navigácia"
+  },
+  "skipLink": {
+    "message": "Preskočiť odkaz"
+  },
+  "callout": {
+    "message": "Oznámenie",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Progress bar",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

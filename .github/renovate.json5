@@ -1,7 +1,15 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: ["github>bitwarden/renovate-config"], // Extends our default configuration for pinned dependencies
-  enabledManagers: ["cargo", "github-actions", "npm"],
+  enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
+  customManagers: [
+    {
+      customType: "regex",
+      fileMatch: ["apps/desktop/desktop_native/cargo-tool-versions"],
+      matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
+      datasourceTemplate: "crate",
+    },
+  ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================
     {
@@ -61,6 +69,7 @@
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
         "eslint-plugin-import",
+        "eslint-plugin-jest",
         "eslint-plugin-rxjs-angular",
         "eslint-plugin-rxjs",
         "eslint-plugin-storybook",
@@ -101,10 +110,10 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["mockall"],
+      matchPackageNames: ["mockall", "serial_test"],
       description: "Autofill-Desktop owned dependencies",
-      commitMessagePrefix: "[deps] Autofill-Desktop:",
-      reviewers: ["team:team-autofill-desktop-dev"],
+      commitMessagePrefix: "[deps] Desktop Native:",
+      reviewers: ["team:team-desktop-native-dev"],
     },
     {
       matchPackageNames: ["braintree-web-drop-in"],
@@ -132,6 +141,7 @@
         "@types/firefox-webext-browser",
         "@types/glob",
         "@types/lowdb",
+        "@types/jest",
         "@types/node",
         "@types/node-ipc",
         "@yao-pkg/pkg",
@@ -165,6 +175,11 @@
         "html-webpack-plugin",
         "interprocess",
         "itertools",
+        "jest",
+        "jest-diff",
+        "jest-junit",
+        "jest-mock-extended",
+        "jest-preset-angular",
         "json5",
         "keytar",
         "libc",
@@ -201,8 +216,9 @@
         "tokio-util",
         "tracing",
         "tracing-subscriber",
-        "ts-node",
+        "ts-jest",
         "ts-loader",
+        "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typenum",
@@ -277,19 +293,6 @@
       description: "UI Foundation owned dependencies",
       commitMessagePrefix: "[deps] UI Foundation:",
       reviewers: ["team:team-ui-foundation"],
-    },
-    {
-      matchPackageNames: [
-        "@types/jest",
-        "jest-junit",
-        "jest-mock-extended",
-        "jest-preset-angular",
-        "jest-diff",
-        "ts-jest",
-      ],
-      description: "Secrets Manager owned dependencies",
-      commitMessagePrefix: "[deps] SM:",
-      reviewers: ["team:team-secrets-manager-dev"],
     },
     {
       matchPackageNames: [
@@ -383,6 +386,7 @@
         "eslint-config-prettier",
         "eslint-import-resolver-typescript",
         "eslint-plugin-import",
+        "eslint-plugin-jest",
         "eslint-plugin-rxjs-angular",
         "eslint-plugin-rxjs",
         "eslint-plugin-storybook",
@@ -456,6 +460,17 @@
       groupName: "jest",
       matchPackageNames: ["@types/jest", "jest", "ts-jest", "jest-preset-angular"],
     },
+    {
+      // Some electron packages are version coupled
+      groupName: "electron",
+      matchPackageNames: [
+        "@electron/fuses",
+        "@electron/rebuild",
+        "electron",
+        "electron-builder",
+        "electron-updater",
+      ],
+    },
 
     // ==================== Dashboard Rules ====================
     {
@@ -464,12 +479,13 @@
       // This rule comes AFTER grouping rules so that groups are respected while still
       // sending minor/patch updates to the dependency dashboard for approval.
       matchPackageNames: [
+        "@types/jest",
         "anyhow",
         "arboard",
         "ashpd",
         "babel-loader",
-        "base64-loader",
         "base64",
+        "base64-loader",
         "bindgen",
         "byteorder",
         "bytes",
@@ -491,6 +507,11 @@
         "html-webpack-injector",
         "html-webpack-plugin",
         "interprocess",
+        "jest",
+        "jest-diff",
+        "jest-junit",
+        "jest-mock-extended",
+        "jest-preset-angular",
         "json5",
         "keytar",
         "libc",
@@ -525,8 +546,9 @@
         "tokio-util",
         "tracing",
         "tracing-subscriber",
-        "ts-node",
+        "ts-jest",
         "ts-loader",
+        "ts-node",
         "tsconfig-paths-webpack-plugin",
         "type-fest",
         "typenum",

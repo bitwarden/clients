@@ -63,14 +63,14 @@ export class BrowserSendGeneratorDialogComponent {
    * Close the dialog without selecting a value.
    */
   protected close = () => {
-    this.dialogRef.close({ action: "canceled" });
+    void this.dialogRef.close({ action: "canceled" });
   };
 
   /**
    * Close the dialog and select the currently generated value.
    */
   protected selectValue = () => {
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: "selected",
       generatedValue: this.generatedValue,
     });

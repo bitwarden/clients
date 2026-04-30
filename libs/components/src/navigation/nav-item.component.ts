@@ -10,6 +10,7 @@ import {
 } from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
 
+import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
 
 import { NavBaseComponent } from "./nav-base.component";
@@ -25,7 +26,7 @@ export abstract class NavGroupAbstraction {
   selector: "bit-nav-item",
   templateUrl: "./nav-item.component.html",
   providers: [{ provide: NavBaseComponent, useExisting: NavItemComponent }],
-  imports: [NgTemplateOutlet, IconButtonModule, RouterModule],
+  imports: [NgTemplateOutlet, IconButtonModule, RouterModule, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "(focusin)": "onFocusIn($event.target)",
@@ -115,7 +116,7 @@ export class NavItemComponent extends NavBaseComponent {
   protected readonly focusVisibleWithin = signal(false);
   protected readonly fvwStyles = computed(() =>
     this.focusVisibleWithin()
-      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus"
+      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover"
       : "",
   );
 

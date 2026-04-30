@@ -1,4 +1,4 @@
-import { firstValueFrom, switchMap, map, of } from "rxjs";
+import { EMPTY, firstValueFrom, switchMap, map, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import {
@@ -30,6 +30,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -61,7 +62,6 @@ import { CollectionView } from "../content/components/common-types";
 import { NotificationType } from "../enums/notification-type.enum";
 import { Fido2Background } from "../fido2/background/abstractions/fido2.background";
 import { AutofillService } from "../services/abstractions/autofill.service";
-import { TemporaryNotificationChangeLoginService } from "../services/notification-change-login-password.service";
 
 import {
   AddChangePasswordNotificationQueueMessage,
@@ -122,6 +122,8 @@ export default class NotificationBackground {
       this.handleCloseNotificationBarMessage(message, sender),
     bgOpenAtRiskPasswords: ({ message, sender }) =>
       this.handleOpenAtRiskPasswordsMessage(message, sender),
+    bgOpenChangePasswordUrl: ({ message, sender }) =>
+      this.handleOpenChangePasswordUrlMessage(message, sender),
     bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
     bgGetDecryptedCiphers: () => this.getNotificationCipherData(),
     bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
@@ -165,6 +167,7 @@ export default class NotificationBackground {
     private themeStateService: ThemeStateService,
     private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
     private taskService: TaskService,
+    private changeLoginPasswordService: ChangeLoginPasswordService,
     protected messagingService: MessagingService,
     private fido2Background: Fido2Background,
   ) {}
@@ -459,6 +462,15 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Sends a queued notification message to the notification bar iframe in the given tab.
+   *
+   * This method merges type-specific data elements into the message body. System fields
+   * always take precedence over type-specific data when there is a conflict.
+   *
+   * @param tab - The tab hosting the notification bar iframe.
+   * @param notificationQueueMessage - The queued notification message to transmit.
+   */
   private async sendNotificationQueueMessage(
     tab: chrome.tabs.Tab,
     notificationQueueMessage: NotificationQueueMessageItem,
@@ -467,7 +479,8 @@ export default class NotificationBackground {
       type: notificationType,
       wasVaultLocked: isVaultLocked,
       launchTimestamp,
-      ...params
+      data,
+      ...rest
     } = notificationQueueMessage;
 
     const typeData: NotificationTypeData = {
@@ -487,7 +500,10 @@ export default class NotificationBackground {
     await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
       type: notificationType,
       typeData,
-      params,
+      // `data` carries the type-specific payload from the queue message, with an arbitrary shape.
+      // `rest` carries metadata resolved by the autofill subsystem. `rest` spreads last so these
+      // trusted system fields always win on key collision.
+      params: { ...data, ...rest },
     });
   }
 
@@ -533,8 +549,7 @@ export default class NotificationBackground {
 
     const { securityTask, cipher } = loginSecurityTaskInfo;
     const domain = Utils.getDomain(tab.url);
-    const passwordChangeUri =
-      await new TemporaryNotificationChangeLoginService().getChangePasswordUrl(cipher);
+    const passwordChangeUri = await this.changeLoginPasswordService.getChangePasswordUrl(cipher);
 
     const authStatus = await this.getAuthStatus();
 
@@ -553,7 +568,7 @@ export default class NotificationBackground {
       wasVaultLocked,
       type: NotificationType.AtRiskPassword,
       data: {
-        ...(passwordChangeUri != null && { passwordChangeUri }),
+        hasPasswordChangeUri: passwordChangeUri != null,
         organizationName: organization?.name ?? "",
       },
       tab: tab,
@@ -1055,23 +1070,40 @@ export default class NotificationBackground {
         return true;
       }
 
-      // Trigger an update cipher notification with all URI ciphers
-      // in these input scenarios
+      // Trigger an update or new cipher notification for password-only input scenarios
       if (
         ([inputScenarios.password, inputScenarios.newPassword] as InputScenario[]).includes(
           inputScenario,
-        ) &&
-        changePasswordNotificationIsEnabled
+        )
       ) {
-        await this.pushChangePasswordToQueue(
-          ciphersForURL.map((c) => c.id),
-          loginDomain,
-          // @TODO handle empty strings / incomplete data structure
-          data.newPassword || data.password,
-          tab,
-        );
+        if (ciphersForURL.length > 0 && changePasswordNotificationIsEnabled) {
+          await this.pushChangePasswordToQueue(
+            ciphersForURL.map((c) => c.id),
+            loginDomain,
+            // @TODO handle empty strings / incomplete data structure
+            data.newPassword || data.password,
+            tab,
+          );
 
-        return true;
+          return true;
+        }
+
+        // No existing ciphers for this URL — offer to save the generated password as a new login.
+        // The cipher may lack a username, but that is easier for the user to fix than losing
+        // a generated password they cannot easily retrieve.
+        if (ciphersForURL.length === 0 && newLoginNotificationIsEnabled) {
+          await this.pushAddLoginToQueue(
+            loginDomain,
+            {
+              username: data.username,
+              url: data.uri,
+              password: data.newPassword || data.password,
+            },
+            tab,
+          );
+
+          return true;
+        }
       }
 
       return false;
@@ -1280,7 +1312,7 @@ export default class NotificationBackground {
     }
     const tab = sender.tab;
     if ((await this.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await BrowserApi.tabSendMessageData(tab, "addToLockedVaultPendingNotifications", {
+      await this.openUnlockPopout(tab, {
         commandToRetry: {
           message: {
             command: message.command,
@@ -1290,8 +1322,7 @@ export default class NotificationBackground {
           sender: sender,
         },
         target: "notification.background",
-      } as LockedVaultPendingNotificationsData);
-      await this.openUnlockPopout(tab);
+      });
       return;
     }
 
@@ -1798,6 +1829,80 @@ export default class NotificationBackground {
   }
 
   /**
+   * Opens the trusted password-change URL for an at-risk credential on the sender tab.
+   *
+   * The URL is never read from the notification iframe message. Instead, the handler
+   * re-derives it from the cipher's URIs via the well-known change-password protocol,
+   * preventing an attacker-controlled iframe from injecting a malicious URL.
+   *
+   * @param _message - The extension message (unused)
+   * @param sender - The contextual sender of the message
+   */
+  private async handleOpenChangePasswordUrlMessage(
+    _message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    await this.withSenderTab(sender, async (tab) => {
+      if (!tab.url) {
+        return;
+      }
+
+      const passwordChangeUrl$ = this.accountService.activeAccount$.pipe(
+        getOptionalUserId,
+        switchMap((userId) => {
+          if (!userId) {
+            return EMPTY;
+          }
+          return Promise.all([
+            this.cipherService.getAllDecryptedForUrl(tab.url!, userId),
+            this.getSecurityTasks(userId),
+          ]);
+        }),
+        switchMap(([ciphers, tasks]) => {
+          if (!ciphers?.length || !tasks?.length) {
+            return EMPTY;
+          }
+
+          // FIXME: When multiple ciphers match the tab URL and each has a pending security
+          // task, this returns the first match — which may not be the cipher the user was
+          // originally notified about. Consider carrying cipher ID through a trusted
+          // side-channel (e.g., a background-scoped map keyed by tab ID) so the handler
+          // can correlate to the exact cipher.
+          const cipher = ciphers.find(
+            (c) =>
+              !c.deletedDate &&
+              tasks.some((t) => t.cipherId === c.id && t.status === SecurityTaskStatus.Pending),
+          );
+
+          if (!cipher) {
+            throw new Error("No at-risk cipher found for tab URL");
+          }
+
+          return this.changeLoginPasswordService.getChangePasswordUrl(cipher);
+        }),
+        map((url) => {
+          if (!url) {
+            throw new Error("No change-password URL found for cipher");
+          }
+          return url;
+        }),
+      );
+
+      try {
+        const passwordChangeUrl = await firstValueFrom(passwordChangeUrl$, {
+          defaultValue: null,
+        });
+        if (passwordChangeUrl) {
+          this.logService.info("Opening change-password URL for at-risk credential");
+          await BrowserApi.createNewTab(passwordChangeUrl);
+        }
+      } catch (e: unknown) {
+        this.logService.warning((e as Error).message);
+      }
+    });
+  }
+
+  /**
    * Sends a message back to the sender tab which triggers
    * an CSS adjustment of the notification bar.
    *
@@ -1913,8 +2018,9 @@ export default class NotificationBackground {
     }
 
     const extensionUrl = BrowserApi.getRuntimeURL("popup/index.html");
-    const unlockPopoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter(
-      (tab) => tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
+    const extensionTabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
+    const unlockPopoutTabs = extensionTabs.filter((tab) =>
+      tab.url?.includes(`singleActionPopout=${AuthPopoutType.unlockExtension}`),
     );
 
     if (unlockPopoutTabs.length === 0) {

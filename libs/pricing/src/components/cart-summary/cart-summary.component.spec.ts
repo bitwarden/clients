@@ -537,6 +537,29 @@ describe("CartSummaryComponent", () => {
       ).toContain("-$10.00");
     });
 
+    it("should compute total consistent with displayed rounded line items when chained discounts produce fractional cents", () => {
+      // Reproduces: 1x $47.88 seat with 20% off → $10 flat → 5% off, tax $2.15
+      // Raw math: 47.88 - 9.576 - 10 - 1.4152 + 2.15 = 29.0388 → $29.04 (wrong)
+      // Rounded: 47.88 - 9.58 - 10 - 1.42 + 2.15 = 29.03 (correct)
+      const cart: Cart = {
+        passwordManager: {
+          seats: { quantity: 1, translationKey: "members", cost: 47.88 },
+        },
+        cadence: "annually",
+        estimatedTax: 2.15,
+        discounts: [
+          { type: DiscountTypes.PercentOff, value: 20 },
+          { type: DiscountTypes.AmountOff, value: 10 },
+          { type: DiscountTypes.PercentOff, value: 5 },
+        ],
+      };
+      fixture.componentRef.setInput("cart", cart);
+      fixture.detectChanges();
+
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+      expect(bottomTotal.nativeElement.textContent).toContain("$29.03");
+    });
+
     it("should apply cascading subtotal when multiple percent-off discounts are stacked", () => {
       // Arrange
       const cartWithStackedPercents: Cart = {

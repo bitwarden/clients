@@ -8,6 +8,7 @@ import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
   LoginEmailServiceAbstraction,
+  LoginStrategySessionTimeoutService,
   FakeKeyConnectorUserDecryptionOption as KeyConnectorUserDecryptionOption,
   FakeTrustedDeviceUserDecryptionOption as TrustedDeviceUserDecryptionOption,
   FakeUserDecryptionOptions as UserDecryptionOptions,
@@ -83,6 +84,7 @@ describe("TwoFactorAuthComponent", () => {
   let mockAuthService: MockProxy<AuthService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockKeyConnnectorService: MockProxy<KeyConnectorService>;
+  let mockLoginStrategySessionTimeoutService: MockProxy<LoginStrategySessionTimeoutService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -121,6 +123,11 @@ describe("TwoFactorAuthComponent", () => {
     mockConfigService = mock<ConfigService>();
     mockKeyConnnectorService = mock<KeyConnectorService>();
     mockKeyConnnectorService.requiresDomainConfirmation$.mockReturnValue(of(null));
+
+    mockLoginStrategySessionTimeoutService = mock<LoginStrategySessionTimeoutService>();
+    mockLoginStrategySessionTimeoutService.loginSessionTimeout$ = new BehaviorSubject<void>(
+      undefined,
+    ).asObservable();
 
     mockEnvService = mock<EnvironmentService>();
     mockLoginSuccessHandlerService = mock<LoginSuccessHandlerService>();
@@ -224,6 +231,10 @@ describe("TwoFactorAuthComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: MasterPasswordServiceAbstraction, useValue: mockMasterPasswordService },
         { provide: KeyConnectorService, useValue: mockKeyConnnectorService },
+        {
+          provide: LoginStrategySessionTimeoutService,
+          useValue: mockLoginStrategySessionTimeoutService,
+        },
       ],
     });
 

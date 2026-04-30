@@ -5,6 +5,7 @@ import {
   Component,
   DestroyRef,
   Inject,
+  Signal,
   ViewContainerRef,
   inject,
   signal,
@@ -61,7 +62,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
   protected readonly enabled = false;
-  protected readonly saveDisabled = signal(false);
+  private readonly _saveDisabled = signal(false);
+  protected readonly saveDisabled: Signal<boolean> = this._saveDisabled;
   protected readonly policyComponent = signal<BasePolicyEditComponent | undefined>(undefined);
 
   readonly formGroup = this.formBuilder.group({
@@ -106,18 +108,19 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("Template not initialized.");
     }
 
-    const component = policyFormRef.createComponent(this.data.policy.component).instance;
-    component.policy = this.data.policy;
-    component.policyResponse = policyResponse;
+    const componentRef = policyFormRef.createComponent(this.data.policy.component);
+    componentRef.setInput("policy", this.data.policy);
+    componentRef.setInput("policyResponse", policyResponse);
+    const component = componentRef.instance;
     this.policyComponent.set(component);
 
     if (component.data) {
       component.data.statusChanges
         .pipe(
-          map((status) => status !== "VALID" || !policyResponse.canToggleState),
+          map((status) => status === "INVALID" || !policyResponse.canToggleState),
           takeUntilDestroyed(this.destroyRef),
         )
-        .subscribe((disabled) => this.saveDisabled.set(disabled));
+        .subscribe((disabled) => this._saveDisabled.set(disabled));
     }
 
     this.cdr.detectChanges();
@@ -145,8 +148,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await policyComponent.confirm()) == false) {
-      this.dialogRef.close();
+    if ((await policyComponent.confirm?.()) == false) {
+      await this.dialogRef.close();
       return;
     }
 
@@ -157,7 +160,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         variant: "success",
         message: this.i18nService.t("editedPolicyId", this.i18nService.t(this.data.policy.name)),
       });
-      this.dialogRef.close("saved");
+      await this.dialogRef.close("saved");
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
@@ -193,5 +196,12 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     config: DialogConfig<PolicyEditDialogData>,
   ) => {
     return dialogService.open<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
+  };
+
+  static readonly openDrawer = (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => {
+    return dialogService.openDrawer<PolicyEditDialogResult>(PolicyEditDialogComponent, config);
   };
 }

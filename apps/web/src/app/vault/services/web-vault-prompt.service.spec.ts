@@ -8,14 +8,13 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
-  AutoConfirmPolicyDialogComponent,
+  MultiStepPolicyEditDialogComponent,
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
@@ -30,7 +29,6 @@ describe("WebVaultPromptService", () => {
   const mockUserId = "user-123" as UserId;
   const mockOrganizationId = "org-456";
 
-  const getFeatureFlag$ = jest.fn().mockReturnValue(of(false));
   const open = jest.fn();
   const policies$ = jest.fn().mockReturnValue(of([]));
   const configurationAutoConfirm$ = jest
@@ -73,7 +71,6 @@ describe("WebVaultPromptService", () => {
           useValue: { configuration$: configurationAutoConfirm$, upsert: upsertAutoConfirm },
         },
         { provide: OrganizationService, useValue: { organizations$ } },
-        { provide: ConfigService, useValue: { getFeatureFlag$ } },
         { provide: DialogService, useValue: { open } },
         { provide: LogService, useValue: { error: logError } },
         {
@@ -118,7 +115,6 @@ describe("WebVaultPromptService", () => {
 
   describe("setupAutoConfirm", () => {
     it("shows dialog when all conditions are met", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValue(of(true));
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
       );
@@ -137,7 +133,7 @@ describe("WebVaultPromptService", () => {
       } as unknown as DialogRef<PolicyEditDialogResult>;
 
       const openSpy = jest
-        .spyOn(AutoConfirmPolicyDialogComponent, "open")
+        .spyOn(MultiStepPolicyEditDialogComponent, "open")
         .mockReturnValue(dialogRefMock);
 
       void service.conditionallyPromptUser();
@@ -148,36 +144,16 @@ describe("WebVaultPromptService", () => {
         data: {
           policy: expect.any(Object),
           organization: expect.objectContaining({ id: mockOrganizationId }),
-          firstTimeDialog: true,
         },
       });
+
+      const passedPolicy = openSpy.mock.calls[0][1].data.policy;
+      expect(passedPolicy.firstTimeDialog).toBe(true);
 
       dialogClosedSubject.next(null);
     }));
 
-    it("does not show dialog when feature flag is disabled", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValueOnce(of(false));
-      configurationAutoConfirm$.mockReturnValueOnce(
-        of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
-      );
-      policies$.mockReturnValueOnce(of([]));
-
-      const mockOrg = {
-        id: mockOrganizationId,
-      } as Organization;
-      organizations$.mockReturnValueOnce(of([mockOrg]));
-
-      const openSpy = jest.spyOn(AutoConfirmPolicyDialogComponent, "open");
-
-      void service.conditionallyPromptUser();
-
-      tick();
-
-      expect(openSpy).not.toHaveBeenCalled();
-    }));
-
     it("does not show dialog when policy is already enabled", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
       );
@@ -193,7 +169,7 @@ describe("WebVaultPromptService", () => {
       } as Organization;
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(AutoConfirmPolicyDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -203,7 +179,6 @@ describe("WebVaultPromptService", () => {
     }));
 
     it("does not show dialog when showSetupDialog is false", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: false, enabled: false, showBrowserNotification: false }),
       );
@@ -214,7 +189,7 @@ describe("WebVaultPromptService", () => {
       } as Organization;
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(AutoConfirmPolicyDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -224,14 +199,13 @@ describe("WebVaultPromptService", () => {
     }));
 
     it("does not show dialog when organization is undefined", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
       );
       policies$.mockReturnValueOnce(of([]));
       organizations$.mockReturnValueOnce(of([]));
 
-      const openSpy = jest.spyOn(AutoConfirmPolicyDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -241,7 +215,6 @@ describe("WebVaultPromptService", () => {
     }));
 
     it("does not show dialog when organization cannot enable auto-confirm policy", fakeAsync(() => {
-      getFeatureFlag$.mockReturnValueOnce(of(true));
       configurationAutoConfirm$.mockReturnValueOnce(
         of({ showSetupDialog: true, enabled: false, showBrowserNotification: false }),
       );
@@ -254,7 +227,7 @@ describe("WebVaultPromptService", () => {
 
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(AutoConfirmPolicyDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
 
       void service.conditionallyPromptUser();
 

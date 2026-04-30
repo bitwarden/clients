@@ -28,7 +28,7 @@ type Story = StoryObj;
 export const Default: Story = {
   render: (args) => ({
     props: args,
-    template: `
+    template: /*html*/ `
       <button 
         bit-chip-action
         [disabled]="disabled"
@@ -66,7 +66,7 @@ export const WithLongLabel: Story = {
 
 export const AllVariants: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-space-y-4">
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Primary</h3>
@@ -102,7 +102,7 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   render: () => ({
-    template: `
+    template: /*html*/ `
       <div class="tw-space-y-4">
         <div>
           <h3 class="tw-text-sm tw-font-semibold tw-mb-2">Small</h3>
@@ -126,4 +126,44 @@ export const AllSizes: Story = {
       </div>
     `,
   }),
+};
+
+export const InteractionStates: Story = {
+  render: () => ({
+    template: /* html */ `
+      <div class="tw-flex tw-flex-col tw-gap-6">
+        <div class="tw-flex tw-items-center tw-gap-6">
+          <span class="tw-text-sm tw-text-fg-body tw-w-24">Default</span>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="primary"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="subtle"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="accent-primary"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="accent-secondary"></button>
+        </div>
+
+        <div class="tw-flex tw-items-center tw-gap-6">
+          <span class="tw-text-sm tw-text-fg-body tw-w-24">Hover</span>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="primary" class="tw-test-hover"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="subtle" class="tw-test-hover"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="accent-primary" class="tw-test-hover"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="accent-secondary" class="tw-test-hover"></button>
+        </div>
+
+        <div class="tw-flex tw-items-center tw-gap-6">
+          <span class="tw-text-sm tw-text-fg-body tw-w-24">Focus</span>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="primary" class="tw-test-focus-visible"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="subtle" class="tw-test-focus-visible"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="accent-primary" class="tw-test-focus-visible"></button>
+          <button type="button" bit-chip-action label="Chip Label" startIcon="bwi-tag" variant="accent-secondary" class="tw-test-focus-visible"></button>
+        </div>
+      </div>
+    `,
+  }),
+  parameters: {
+    chromatic: {
+      modes: {
+        light: { theme: "light" },
+        dark: { theme: "dark" },
+      },
+    },
+  },
 };
