@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, effect, input, output, signal } from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -66,9 +66,12 @@ export class KeeperAuthStageViewComponent {
   protected readonly duoMethodControl = new FormControl<DuoMethod | null>(null);
   protected readonly dnaMethodControl = new FormControl<DnaMethod | null>(null);
 
+  protected readonly passwordSubmitting = signal(false);
+
   constructor() {
     effect(() => {
       const current = this.stage();
+      this.passwordSubmitting.set(false);
       if (current.kind === "selectApproval" && current.methods.length > 0) {
         this.approvalMethodControl.setValue(current.methods[0]);
       } else if (current.kind === "selectTwoFactor" && current.methods.length > 0) {
@@ -132,6 +135,7 @@ export class KeeperAuthStageViewComponent {
       return;
     }
     this.passwordControl.reset("");
+    this.passwordSubmitting.set(true);
     this.submitted.emit(password);
   }
 

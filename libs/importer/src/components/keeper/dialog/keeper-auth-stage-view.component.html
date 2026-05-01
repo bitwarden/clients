@@ -238,6 +238,7 @@
       [secondaryLabel]="'cancel' | i18n"
       (secondary)="cancel()"
       (close)="cancel()"
+      [loading]="passwordSubmitting()"
     >
       <div bitDialogContent>
         <p bitTypography="body2">{{ "keeperMasterPasswordPrompt" | i18n }}</p>

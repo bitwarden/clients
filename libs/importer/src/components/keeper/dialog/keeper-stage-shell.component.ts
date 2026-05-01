@@ -15,6 +15,7 @@ export class KeeperStageShellComponent {
 
   readonly primaryLabel = input<string>("");
   readonly secondaryLabel = input<string>("");
+  readonly loading = input<boolean>(false);
 
   readonly primary = output<void>();
   readonly secondary = output<void>();

@@ -11,7 +11,13 @@
   <ng-content select="[bitDialogContent]" ngProjectAs="[bitDialogContent]"></ng-content>
   <ng-container bitDialogFooter>
     @if (primaryLabel()) {
-      <button bitButton buttonType="primary" type="button" (click)="primary.emit()">
+      <button
+        bitButton
+        buttonType="primary"
+        type="button"
+        [loading]="loading()"
+        (click)="primary.emit()"
+      >
         {{ primaryLabel() }}
       </button>
     }
