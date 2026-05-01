@@ -142,14 +142,21 @@ export class CartSummaryComponent {
   });
 
   /**
-   * Calculates the subtotal before discount and tax
+   * Calculates the subtotal after item-level discounts, rounded to the nearest cent.
+   * Stripe applies customer-level coupons to the invoice subtotal after line-item discounts
+   * are taken. This value mirrors that post-item-discount base so discountLineItems
+   * naturally receives the correct input.
    */
   readonly subtotal = computed<number>(
     () =>
-      this.passwordManagerSeatsTotal() +
-      this.additionalStorageTotal() +
-      this.secretsManagerSeatsTotal() +
-      this.additionalServiceAccountsTotal(),
+      Math.round(
+        (this.passwordManagerSeatsTotal() +
+          this.additionalStorageTotal() +
+          this.secretsManagerSeatsTotal() +
+          this.additionalServiceAccountsTotal() -
+          this.passwordManagerSeatsDiscountAmount()) *
+          100,
+      ) / 100,
   );
 
   /**
@@ -186,11 +193,11 @@ export class CartSummaryComponent {
    */
   readonly total = computed<number>(
     () =>
-      this.subtotal() -
-      this.discountAmount() -
-      this.passwordManagerSeatsDiscountAmount() -
-      this.creditAmount() +
-      this.estimatedTax(),
+      // Stripe computes totals in integer cents. Round to the nearest cent so that
+      // numeric comparisons (e.g. credit >= total) align with Stripe's exact values.
+      Math.round(
+        (this.subtotal() - this.discountAmount() - this.creditAmount() + this.estimatedTax()) * 100,
+      ) / 100,
   );
 
   /**

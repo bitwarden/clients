@@ -758,15 +758,58 @@ describe("CartSummaryComponent", () => {
       // Item-level: 25% of PM seats (5 * $50 = $250) = $62.50
       expect(itemDiscountAmount.nativeElement.textContent).toContain("-$62.50");
 
-      // Cart-level: 10% of subtotal ($372) = $37.20
-      expect(cartDiscountAmount.nativeElement.textContent).toContain("-$37.20");
+      // Cart-level: 10% of post-item-discount subtotal ($309.50) = $30.95
+      expect(cartDiscountAmount.nativeElement.textContent).toContain("-$30.95");
 
-      // Total = 372 - 62.50 - 37.20 + 9.60 = 281.90
-      const expectedTotal = "$281.90";
+      // Total = 309.50 - 30.95 + 9.60 = 288.15
+      const expectedTotal = "$288.15";
       const topTotal = fixture.debugElement.query(By.css("h2"));
       const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
       expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should apply cart-level discount to subtotal after item-level discounts to match Stripe rounding", () => {
+      // 1 PM seat @ $10.00 with 1% item discount → item discount = $0.10
+      // 1 additional storage @ $9.80 (no item discount)
+      // Pre-item-discount subtotal = $19.80
+      //
+      // Buggy (current): 2% of $19.80 = $0.396 → rounds to $0.40
+      // Fixed:           2% of ($19.80 - $0.10) = 2% of $19.70 = $0.394 → rounds to $0.39
+      //
+      // $9.80 chosen so subtotal ($19.80) sits just above the 2%-rounding boundary of $19.75;
+      // after the $0.10 item discount the base is $19.70 → 2% = $0.394 → $0.39.
+      const cart: Cart = {
+        passwordManager: {
+          seats: {
+            quantity: 1,
+            translationKey: "members",
+            cost: 10,
+            discounts: [{ type: DiscountTypes.PercentOff, value: 1 }],
+          },
+          additionalStorage: {
+            quantity: 1,
+            translationKey: "additionalStorageGB",
+            cost: 9.8,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+        discounts: [{ type: DiscountTypes.PercentOff, value: 2 }],
+      };
+      fixture.componentRef.setInput("cart", cart);
+      fixture.detectChanges();
+
+      const discountAmount = fixture.debugElement.query(By.css("[data-testid='discount-amount']"));
+      expect(discountAmount.nativeElement.textContent).toContain("-$0.39");
+
+      const finalTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+      expect(finalTotal.nativeElement.textContent).toContain("$19.31");
+
+      // Stripe stores all amounts as integer cents. total() must be an exact cent value
+      // so that numeric comparisons (e.g. credit >= total in upgrade-payment.component.ts)
+      // match Stripe's integer arithmetic rather than a JS floating-point approximation.
+      expect(component.total()).toBe(19.31);
     });
 
     it("should render one row per item-level discount", () => {
