@@ -105,7 +105,7 @@
   <!-- Enter the 2FA code (TOTP/SMS/etc) or wait for a push-style 2FA approval. -->
   @case ("twoFactorCode") {
     <keeper-stage-shell
-      [title]="(currentStage.needsInput ? 'verificationCode' : 'keeperMFARequired') | i18n"
+      [title]="(currentStage.needsInput ? 'twoFactorMethod' : 'keeperMFARequired') | i18n"
       [email]="email()"
       [primaryLabel]="'continue' | i18n"
       (primary)="currentStage.needsInput ? submitCode() : submitPush()"
@@ -115,13 +115,22 @@
     >
       <div bitDialogContent>
         @if (currentStage.needsInput) {
-          <p bitTypography="body2">{{ "keeperVerificationCodePrompt" | i18n }}</p>
+          <p bitTypography="body1">{{ "twoFactorCodePrompt" | i18n }}</p>
           <form (ngSubmit)="submitCode()">
             <bit-form-field class="!tw-mb-0">
               <bit-label>{{ "verificationCode" | i18n }}</bit-label>
               <input bitInput type="text" [formControl]="codeControl" appInputVerbatim />
             </bit-form-field>
           </form>
+          <button
+            type="button"
+            bitLink
+            linkType="primary"
+            class="tw-mt-2 tw-text-xs"
+            (click)="resend()"
+          >
+            {{ "resendCode" | i18n }}
+          </button>
         } @else {
           <p bitTypography="body1">{{ "mfaPushDesc" | i18n }}</p>
         }

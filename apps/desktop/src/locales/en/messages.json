@@ -4038,8 +4038,8 @@
   "keeperMasterPasswordPrompt": {
     "message": "Please enter your Keeper master password"
   },
-  "keeperVerificationCodePrompt": {
-    "message": "Please enter your Keeper verification code"
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
   },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"

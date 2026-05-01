@@ -574,8 +574,10 @@ export class Client {
 
         // SMS codes
         case TwoFactorChannelType.TWO_FA_CT_SMS: {
-          await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_SMS);
-          const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Sms);
+          const sendSms = () =>
+            this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_SMS);
+          await sendSms();
+          const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Sms, sendSms);
           if (code === TryAnother) {
             continue twoFactor;
           }
@@ -719,9 +721,10 @@ export class Client {
             // First a push notification is sent to the user to trigger an SMS with a code,
             // then the user needs to enter that code in the UI.
             case DuoMethod.Sms: {
-              // Trigger the SMS to be sent to the user
-              await this.send2FAPush(currentLoginToken, this.duoMethodToPush.get(duoMethod)!);
-              const smsCode = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo);
+              const sendSms = () =>
+                this.send2FAPush(currentLoginToken, this.duoMethodToPush.get(duoMethod)!);
+              await sendSms();
+              const smsCode = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo, sendSms);
               if (smsCode === TryAnother) {
                 continue twoFactor;
               }
@@ -749,17 +752,24 @@ export class Client {
 
   private async getTwoFactorCodeFromUi(
     method: TwoFactorMethod,
+    onResend?: () => Promise<void>,
   ): Promise<string | typeof TryAnother> {
-    const result = this.throwIfCancel(
-      await this.ui.provideTwoFactorCode(method),
-      "Two-factor authentication",
-    );
+    for (;;) {
+      const result = this.throwIfCancel(
+        await this.ui.provideTwoFactorCode(method),
+        "Two-factor authentication",
+      );
 
-    if (result === Resend) {
-      throw new Error("Resend not supported for TOTP");
+      if (result !== Resend) {
+        return result;
+      }
+
+      // Methods without a resend mechanism (TOTP, RSA, backup codes, Keeper DNA code)
+      // silently re-prompt; SMS-style methods re-trigger the underlying push.
+      if (onResend) {
+        await onResend();
+      }
     }
-
-    return result;
   }
 
   private throwIfCancel<T>(anyOrCancel: T | typeof Cancel, what: string): T {
