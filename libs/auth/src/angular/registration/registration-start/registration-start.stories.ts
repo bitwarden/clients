@@ -41,6 +41,10 @@ import { DefaultRegistrationStartComponentService } from "./default-registration
 import { RegistrationStartComponentService } from "./registration-start-component.service";
 import { RegistrationStartComponent } from "./registration-start.component";
 
+class MockExtensionRegistrationStartComponentService extends DefaultRegistrationStartComponentService {
+  override marketingEmailsLabelText = "receiveMarketingEmailsExtension";
+}
+
 export default {
   title: "Auth/Registration/Registration Start",
   component: RegistrationStartComponent,
@@ -125,7 +129,10 @@ const decorators = (options: {
         },
         {
           provide: RegistrationStartComponentService,
-          useClass: DefaultRegistrationStartComponentService,
+          useClass:
+            options.clientType === ClientType.Browser
+              ? MockExtensionRegistrationStartComponentService
+              : DefaultRegistrationStartComponentService,
         },
       ],
     }),
