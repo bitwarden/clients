@@ -4,6 +4,7 @@ import { firstValueFrom, of, toArray } from "rxjs";
 import { take } from "rxjs/operators";
 
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
+import { SubscriptionDiscountEligibility } from "@bitwarden/common/billing/models/response/subscription-discount-eligibility.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -24,6 +25,11 @@ const makeDiscount = (overrides: Partial<SubscriptionDiscount> = {}): Subscripti
   ...overrides,
 });
 
+const makeApplicableDiscounts = (
+  cartLevelDiscounts: SubscriptionDiscount[] = [],
+  itemLevelDiscounts: SubscriptionDiscount[] = [],
+): SubscriptionDiscountEligibility => ({ cartLevelDiscounts, itemLevelDiscounts });
+
 describe("SubscriptionDiscountService", () => {
   const mockAccountBillingClient = mock<AccountBillingClient>();
   const mockConfigService = mock<ConfigService>();
@@ -43,30 +49,64 @@ describe("SubscriptionDiscountService", () => {
     sut = TestBed.inject(SubscriptionDiscountService);
   });
 
-  describe("getEligibleDiscounts$", () => {
-    it("delegates to AccountBillingClient and returns the result when the feature flag is enabled", async () => {
-      const discounts = [makeDiscount()];
+  describe("getCartLevelDiscountsForTier$", () => {
+    it("returns mapped Discount objects for cart-level discounts eligible for the given tier", async () => {
+      const discount = makeDiscount({ percentOff: 20 });
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(discounts);
+      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(
+        makeApplicableDiscounts([discount], []),
+      );
 
-      const result = await firstValueFrom(sut.getEligibleDiscounts$());
+      const result = await firstValueFrom(
+        sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium),
+      );
 
-      expect(mockAccountBillingClient.getApplicableDiscounts).toHaveBeenCalled();
-      expect(result).toBe(discounts);
+      expect(result).toEqual([{ type: DiscountTypes.PercentOff, value: 20 }]);
+    });
+
+    it("filters to only cart-level discounts eligible for the given tier", async () => {
+      const eligible = makeDiscount({
+        stripeCouponId: "eligible",
+        tierEligibility: { [DiscountTierType.Premium]: true, [DiscountTierType.Families]: false },
+      });
+      const ineligible = makeDiscount({
+        stripeCouponId: "ineligible",
+        tierEligibility: { [DiscountTierType.Premium]: false, [DiscountTierType.Families]: true },
+      });
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(
+        makeApplicableDiscounts([eligible, ineligible], []),
+      );
+
+      const result = await firstValueFrom(
+        sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium),
+      );
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual({ type: DiscountTypes.PercentOff, value: 20 });
+    });
+
+    it("returns empty array when feature flag is disabled", async () => {
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+      const result = await firstValueFrom(
+        sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium),
+      );
+
+      expect(mockAccountBillingClient.getApplicableDiscounts).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
     });
 
     it("does not call the API for the initial fetch when the cache is already warm", async () => {
-      const discounts = [makeDiscount()];
+      const discounts = makeApplicableDiscounts([makeDiscount()], []);
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(discounts);
 
-      // First subscription: cache miss → 1 API call
-      const sub1 = sut.getEligibleDiscounts$().subscribe();
+      const sub1 = sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium).subscribe();
       await new Promise((r) => setTimeout(r));
       sub1.unsubscribe();
 
-      // Second subscription: cache hit → 0 additional API calls
-      const sub2 = sut.getEligibleDiscounts$().subscribe();
+      const sub2 = sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium).subscribe();
       await new Promise((r) => setTimeout(r));
       sub2.unsubscribe();
 
@@ -74,63 +114,31 @@ describe("SubscriptionDiscountService", () => {
     });
 
     it("re-fetches from the API when refresh() is called and emits the updated discounts", async () => {
-      const first = [makeDiscount({ stripeCouponId: "first" })];
-      const second = [makeDiscount({ stripeCouponId: "second" })];
+      const first = makeApplicableDiscounts([makeDiscount({ stripeCouponId: "first" })], []);
+      const second = makeApplicableDiscounts([makeDiscount({ stripeCouponId: "second" })], []);
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockAccountBillingClient.getApplicableDiscounts
         .mockResolvedValueOnce(first)
         .mockResolvedValueOnce(second);
 
-      // take(2) completes after the initial emission + the refresh emission
-      const resultsPromise = firstValueFrom(sut.getEligibleDiscounts$().pipe(take(2), toArray()));
+      const resultsPromise = firstValueFrom(
+        sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium).pipe(take(2), toArray()),
+      );
 
-      await Promise.resolve(); // allow initial fetch to resolve
+      await Promise.resolve();
       sut.refresh();
-      await Promise.resolve(); // allow refresh fetch to resolve
+      await Promise.resolve();
 
       const results = await resultsPromise;
-
       expect(mockAccountBillingClient.getApplicableDiscounts).toHaveBeenCalledTimes(2);
-      expect(results[0]).toBe(first);
-      expect(results[1]).toBe(second);
-    });
-
-    it("caches the refreshed results so subsequent subscriptions skip the initial fetch", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue([makeDiscount()]);
-
-      // Keep a live subscription and call refresh
-      const sub = sut.getEligibleDiscounts$().subscribe();
-      await new Promise((r) => setTimeout(r)); // let initial fetch settle
-      sut.refresh();
-      await new Promise((r) => setTimeout(r)); // let refresh fetch settle
-      sub.unsubscribe();
-      const callsAfterRefresh = (mockAccountBillingClient.getApplicableDiscounts as jest.Mock).mock
-        .calls.length;
-
-      // New subscription: cache hit → no additional API calls
-      const sub2 = sut.getEligibleDiscounts$().subscribe();
-      await new Promise((r) => setTimeout(r));
-      sub2.unsubscribe();
-
-      expect(mockAccountBillingClient.getApplicableDiscounts).toHaveBeenCalledTimes(
-        callsAfterRefresh,
-      );
-    });
-
-    it("returns an empty array and does not call AccountBillingClient when the feature flag is disabled", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
-
-      const result = await firstValueFrom(sut.getEligibleDiscounts$());
-
-      expect(mockAccountBillingClient.getApplicableDiscounts).not.toHaveBeenCalled();
-      expect(result).toEqual([]);
+      expect(results[0]).toHaveLength(1);
+      expect(results[1]).toHaveLength(1);
     });
 
     it("checks the PM29108_EnablePersonalDiscounts feature flag", async () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
-      await firstValueFrom(sut.getEligibleDiscounts$());
+      await firstValueFrom(sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium));
 
       expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.PM29108_EnablePersonalDiscounts,
@@ -138,55 +146,108 @@ describe("SubscriptionDiscountService", () => {
     });
   });
 
-  describe("getEligibleDiscountsForTier$", () => {
-    it("returns discounts eligible for the Premium tier", async () => {
-      const discount = makeDiscount({
+  describe("getItemLevelDiscountsForTier$", () => {
+    it("returns mapped Discount objects for item-level discounts eligible for the given tier", async () => {
+      const discount = makeDiscount({ amountOff: 500, percentOff: undefined });
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(
+        makeApplicableDiscounts([], [discount]),
+      );
+
+      const result = await firstValueFrom(
+        sut.getItemLevelDiscountsForTier$(DiscountTierType.Premium),
+      );
+
+      expect(result).toEqual([{ type: DiscountTypes.AmountOff, value: 5 }]);
+    });
+
+    it("filters to only item-level discounts eligible for the given tier", async () => {
+      const eligible = makeDiscount({
+        stripeCouponId: "eligible",
+        tierEligibility: { [DiscountTierType.Premium]: true, [DiscountTierType.Families]: false },
+      });
+      const ineligible = makeDiscount({
+        stripeCouponId: "ineligible",
+        tierEligibility: { [DiscountTierType.Premium]: false, [DiscountTierType.Families]: true },
+      });
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(
+        makeApplicableDiscounts([], [eligible, ineligible]),
+      );
+
+      const result = await firstValueFrom(
+        sut.getItemLevelDiscountsForTier$(DiscountTierType.Premium),
+      );
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("returns empty array when feature flag is disabled", async () => {
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+
+      const result = await firstValueFrom(
+        sut.getItemLevelDiscountsForTier$(DiscountTierType.Premium),
+      );
+
+      expect(mockAccountBillingClient.getApplicableDiscounts).not.toHaveBeenCalled();
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getAllEligibleSubscriptionDiscountsForTier$", () => {
+    it("returns SubscriptionDiscount objects (with stripeCouponId) for the given tier across both levels", async () => {
+      const cartDiscount = makeDiscount({
+        stripeCouponId: "cart-coupon",
+        tierEligibility: { [DiscountTierType.Premium]: true, [DiscountTierType.Families]: false },
+      });
+      const itemDiscount = makeDiscount({
+        stripeCouponId: "item-coupon",
         tierEligibility: { [DiscountTierType.Premium]: true, [DiscountTierType.Families]: false },
       });
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue([discount]);
-
-      const result = await firstValueFrom(
-        sut.getEligibleDiscountsForTier$(DiscountTierType.Premium),
+      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(
+        makeApplicableDiscounts([cartDiscount], [itemDiscount]),
       );
 
-      expect(result).toEqual([discount]);
+      const result = await firstValueFrom(
+        sut.getAllEligibleSubscriptionDiscountsForTier$(DiscountTierType.Premium),
+      );
+
+      expect(result).toHaveLength(2);
+      expect(result.find((d) => d.stripeCouponId === "cart-coupon")).toBeDefined();
+      expect(result.find((d) => d.stripeCouponId === "item-coupon")).toBeDefined();
     });
 
-    it("returns discounts eligible for the Families tier", async () => {
-      const discount = makeDiscount({
+    it("filters to only discounts eligible for the given tier", async () => {
+      const premiumDiscount = makeDiscount({
+        stripeCouponId: "premium",
+        tierEligibility: { [DiscountTierType.Premium]: true, [DiscountTierType.Families]: false },
+      });
+      const familiesDiscount = makeDiscount({
+        stripeCouponId: "families",
         tierEligibility: { [DiscountTierType.Premium]: false, [DiscountTierType.Families]: true },
       });
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue([discount]);
-
-      const result = await firstValueFrom(
-        sut.getEligibleDiscountsForTier$(DiscountTierType.Families),
+      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(
+        makeApplicableDiscounts([premiumDiscount, familiesDiscount], []),
       );
 
-      expect(result).toEqual([discount]);
-    });
-
-    it("excludes discounts where tierEligibility for the tier is false", async () => {
-      const discount = makeDiscount({
-        tierEligibility: { [DiscountTierType.Premium]: false, [DiscountTierType.Families]: true },
-      });
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue([discount]);
-
       const result = await firstValueFrom(
-        sut.getEligibleDiscountsForTier$(DiscountTierType.Premium),
+        sut.getAllEligibleSubscriptionDiscountsForTier$(DiscountTierType.Premium),
       );
 
-      expect(result).toEqual([]);
+      expect(result).toHaveLength(1);
+      expect(result[0].stripeCouponId).toBe("premium");
     });
 
     it("returns an empty array when there are no discounts", async () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue([]);
+      mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(
+        makeApplicableDiscounts([], []),
+      );
 
       const result = await firstValueFrom(
-        sut.getEligibleDiscountsForTier$(DiscountTierType.Premium),
+        sut.getAllEligibleSubscriptionDiscountsForTier$(DiscountTierType.Premium),
       );
 
       expect(result).toEqual([]);
@@ -196,7 +257,7 @@ describe("SubscriptionDiscountService", () => {
       mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
       const result = await firstValueFrom(
-        sut.getEligibleDiscountsForTier$(DiscountTierType.Premium),
+        sut.getAllEligibleSubscriptionDiscountsForTier$(DiscountTierType.Premium),
       );
 
       expect(mockAccountBillingClient.getApplicableDiscounts).not.toHaveBeenCalled();
@@ -229,26 +290,6 @@ describe("SubscriptionDiscountService", () => {
     it("returns false for a non-ErrorResponse error", () => {
       const error = new Error("Something went wrong");
       expect(sut.isDiscountExpiredError(error)).toBe(false);
-    });
-  });
-
-  describe("mapToCartDiscount", () => {
-    it("maps percentOff to DiscountTypes.PercentOff with correct value", () => {
-      const discount = makeDiscount({ percentOff: 20, amountOff: undefined });
-      const result = sut.mapToCartDiscount(discount);
-      expect(result).toEqual({ type: DiscountTypes.PercentOff, value: 20 });
-    });
-
-    it("maps amountOff (cents) to DiscountTypes.AmountOff with dollar value", () => {
-      const discount = makeDiscount({ percentOff: undefined, amountOff: 500 });
-      const result = sut.mapToCartDiscount(discount);
-      expect(result).toEqual({ type: DiscountTypes.AmountOff, value: 5 });
-    });
-
-    it("returns null when both percentOff and amountOff are absent", () => {
-      const discount = makeDiscount({ percentOff: undefined, amountOff: undefined });
-      const result = sut.mapToCartDiscount(discount);
-      expect(result).toBeNull();
     });
   });
 });

@@ -563,8 +563,11 @@ describe("OrganizationPlansComponent", () => {
 
     mockDiscountSubject = new Subject<SubscriptionDiscount[]>();
     mockSubscriptionDiscountService = {
-      getEligibleDiscountsForTier$: jest.fn().mockReturnValue(mockDiscountSubject.asObservable()),
-      mapToCartDiscount: jest.fn().mockReturnValue(null),
+      getAllEligibleSubscriptionDiscountsForTier$: jest
+        .fn()
+        .mockReturnValue(mockDiscountSubject.asObservable()),
+      getCartLevelDiscountsForTier$: jest.fn().mockReturnValue(of([])),
+      getItemLevelDiscountsForTier$: jest.fn().mockReturnValue(of([])),
       refresh: jest.fn(),
       isDiscountExpiredError: jest.fn().mockReturnValue(false),
     } as any;
@@ -2547,30 +2550,44 @@ describe("OrganizationPlansComponent", () => {
     });
 
     describe("cart() — discount inclusion", () => {
-      it("includes mapped discount when Families tier is selected and discount is eligible", () => {
-        mockSubscriptionDiscountService.getEligibleDiscountsForTier$.mockReturnValue(
-          of([mockFamiliesDiscount]),
+      it("cart_WithCartLevelDiscount_SetsDiscountsOnCart", () => {
+        mockSubscriptionDiscountService.getCartLevelDiscountsForTier$.mockReturnValue(
+          of([mockUiDiscount]),
         );
-        mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
+        (component as any).cartLevelApplicableDiscounts = jest.fn(() => [mockUiDiscount]);
+        (component as any).itemLevelApplicableDiscounts = jest.fn(() => []);
 
         component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
-        // Force cartDiscounts to reflect
-        (component as any).eligibleDiscounts = jest.fn(() => [mockFamiliesDiscount]);
-        (component as any).cartDiscounts = jest.fn(() => [mockUiDiscount]);
 
         const cart = component["cart"]();
-        // When cartDiscounts() returns discounts and productTier is Families, cart.discounts is set
-        expect(cart).toBeTruthy();
+        expect(cart.discounts).toEqual([mockUiDiscount]);
       });
 
-      it("does not include discounts when Teams tier is selected", () => {
-        mockSubscriptionDiscountService.getEligibleDiscountsForTier$.mockReturnValue(of([]));
-        mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(null);
+      it("cart_WithItemLevelDiscount_SetsDiscountsOnPasswordManagerSeats", () => {
+        mockSubscriptionDiscountService.getItemLevelDiscountsForTier$.mockReturnValue(
+          of([mockUiDiscount]),
+        );
+        (component as any).cartLevelApplicableDiscounts = jest.fn(() => []);
+        (component as any).itemLevelApplicableDiscounts = jest.fn(() => [mockUiDiscount]);
 
-        component["formGroup"].controls.productTier.setValue(ProductTierType.Teams);
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
 
         const cart = component["cart"]();
-        expect(cart.discounts).toBeUndefined();
+        expect(cart.passwordManager.seats.discounts).toEqual([mockUiDiscount]);
+      });
+
+      it("cart_WithSponsorship_DoesNotSetCouponDiscounts", () => {
+        (component as any).cartLevelApplicableDiscounts = jest.fn(() => [mockUiDiscount]);
+        (component as any).itemLevelApplicableDiscounts = jest.fn(() => [mockUiDiscount]);
+
+        // acceptingSponsorship input is set to true
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+        component["formGroup"].controls.productTier.setValue(ProductTierType.Families);
+
+        const cart = component["cart"]();
+        // Sponsorship sets cart.discounts to the sponsorship amount, not the coupon discounts
+        // When familiesSponsorshipDiscount > 0, it sets the sponsorship discount; otherwise both are undefined
+        expect(cart.passwordManager?.seats?.discounts).toBeUndefined();
       });
     });
 
@@ -2600,7 +2617,7 @@ describe("OrganizationPlansComponent", () => {
     });
 
     describe("refreshSalesTax — discount trigger", () => {
-      it("calls refreshSalesTax when eligibleDiscounts emits", fakeAsync(() => {
+      it("calls refreshSalesTax when eligibleSubscriptionDiscounts emits", fakeAsync(() => {
         component["billingFormGroup"].controls.billingAddress.patchValue({
           country: "US",
           postalCode: "12345",

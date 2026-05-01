@@ -73,20 +73,22 @@ export class CartSummaryComponent {
     const {
       passwordManager: { seats },
     } = this.cart();
-    return this.getItemDiscountAmount(seats);
+    return this.getCartItemDiscountAmount(seats);
   });
 
   /**
-   * Gets the discount label for the Password Manager seats item
+   * Computes each item-level discount for PM seats as a labeled line item with its individual amount.
    */
-  readonly passwordManagerSeatsDiscountLabel = computed<string>(() => {
+  readonly passwordManagerSeatsDiscountLineItems = computed<
+    Array<{ label: string; amount: number }>
+  >(() => {
     const {
       passwordManager: { seats },
     } = this.cart();
-    if (!seats.discount) {
-      return "";
+    if (!seats.discounts?.length) {
+      return [];
     }
-    return getLabel(this.i18nService, seats.discount);
+    return this.calculateDiscountLineItems(seats.discounts, this.passwordManagerSeatsTotal());
   });
 
   /**
@@ -151,23 +153,6 @@ export class CartSummaryComponent {
   );
 
   /**
-   * Maps a list of discounts to labeled line items, applying each discount to the running
-   * subtotal after the previous discount was subtracted. For example, two 10% discounts on
-   * a $100 subtotal yield $10 off (subtotal → $90), then $9 off (subtotal → $81).
-   */
-  private calculateDiscountLineItems(
-    discounts: Discount[],
-    subtotal: number,
-  ): Array<{ label: string; amount: number }> {
-    let runningSubtotal = subtotal;
-    return discounts.map((discount) => {
-      const amount = getAmount(discount, runningSubtotal);
-      runningSubtotal -= amount;
-      return { label: getLabel(this.i18nService, discount), amount };
-    });
-  }
-
-  /**
    * Computes each discount as a labeled line item with its individual amount
    */
   readonly discountLineItems = computed<Array<{ label: string; amount: number }>>(() => {
@@ -230,10 +215,40 @@ export class CartSummaryComponent {
     this.isExpanded.update((value: boolean) => !value);
   }
 
-  private getItemDiscountAmount(item: CartItem): number {
-    if (!item.discount) {
+  /**
+   * Applies each discount to a running subtotal (each discount reduces the base for the next),
+   * returning { discount, amount } pairs. For example, two 10% discounts on a $100 subtotal
+   * yield $10 off (subtotal → $90), then $9 off (subtotal → $81).
+   */
+  private getDiscountAmounts(
+    discounts: Discount[],
+    subtotal: number,
+  ): Array<{ discount: Discount; amount: number }> {
+    let runningSubtotal = subtotal;
+    return discounts.map((discount) => {
+      const amount = getAmount(discount, runningSubtotal);
+      runningSubtotal -= amount;
+      return { discount, amount };
+    });
+  }
+
+  private calculateDiscountLineItems(
+    discounts: Discount[],
+    subtotal: number,
+  ): Array<{ label: string; amount: number }> {
+    return this.getDiscountAmounts(discounts, subtotal).map(({ discount, amount }) => ({
+      label: getLabel(this.i18nService, discount),
+      amount,
+    }));
+  }
+
+  private getCartItemDiscountAmount(item: CartItem): number {
+    if (!item.discounts?.length) {
       return 0;
     }
-    return getAmount(item.discount, item.quantity * item.cost);
+    return this.getDiscountAmounts(item.discounts, item.quantity * item.cost).reduce(
+      (sum, { amount }) => sum + amount,
+      0,
+    );
   }
 }

@@ -4,9 +4,9 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { BitwardenSubscriptionResponse } from "@bitwarden/common/billing/models/response/bitwarden-subscription.response";
 import {
-  SubscriptionDiscount,
-  SubscriptionDiscountResponse,
-} from "@bitwarden/common/billing/models/response/subscription-discount.response";
+  SubscriptionDiscountEligibility,
+  SubscriptionDiscountEligibilityResponse,
+} from "@bitwarden/common/billing/models/response/subscription-discount-eligibility.response";
 import { SubscriptionCadence } from "@bitwarden/common/billing/types/subscription-pricing-tier";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { Maybe } from "@bitwarden/pricing";
@@ -87,13 +87,10 @@ export class AccountBillingClient {
     await this.apiService.send("PUT", path, { additionalStorageGb }, true, false);
   };
 
-  getApplicableDiscounts = async (): Promise<SubscriptionDiscount[]> => {
+  getApplicableDiscounts = async (): Promise<SubscriptionDiscountEligibility> => {
     const path = `${this.endpoint}/discounts`;
     const json = await this.apiService.send("GET", path, null, true, true);
-    if (!Array.isArray(json)) {
-      return [];
-    }
-    return json.map((item: any) => new SubscriptionDiscountResponse(item));
+    return new SubscriptionDiscountEligibilityResponse(json);
   };
 
   upgradePremiumToOrganization = async (

@@ -39,7 +39,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { Cart, CartSummaryComponent, Discount } from "@bitwarden/pricing";
+import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -135,25 +135,43 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
     this.isFamiliesPlan() ? DiscountTierType.Families : DiscountTierType.Premium,
   );
 
-  private readonly eligibleDiscounts$ = toObservable(this.discountTierType).pipe(
+  private readonly eligibleSubscriptionDiscounts$: Observable<SubscriptionDiscount[]> =
+    toObservable(this.discountTierType).pipe(
+      switchMap((tier) =>
+        this.subscriptionDiscountService
+          .getAllEligibleSubscriptionDiscountsForTier$(tier)
+          .pipe(catchError(() => of([]))),
+      ),
+      shareReplay({ bufferSize: 1, refCount: false }),
+    );
+
+  protected readonly eligibleSubscriptionDiscounts: Signal<SubscriptionDiscount[]> = toSignal(
+    this.eligibleSubscriptionDiscounts$,
+    { initialValue: [] },
+  );
+
+  private readonly cartLevelDiscounts$ = toObservable(this.discountTierType).pipe(
     switchMap((tier) =>
       this.subscriptionDiscountService
-        .getEligibleDiscountsForTier$(tier)
+        .getCartLevelDiscountsForTier$(tier)
         .pipe(catchError(() => of([]))),
     ),
-    shareReplay({ bufferSize: 1, refCount: false }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
+  protected readonly cartLevelDiscounts = toSignal(this.cartLevelDiscounts$, { initialValue: [] });
 
-  protected readonly eligibleDiscounts = toSignal(this.eligibleDiscounts$, { initialValue: [] });
-
-  protected readonly cartDiscounts = computed<Discount[]>(() =>
-    this.eligibleDiscounts()
-      .map((discount) => this.subscriptionDiscountService.mapToCartDiscount(discount))
-      .filter((discount) => !!discount),
+  private readonly itemLevelDiscounts$ = toObservable(this.discountTierType).pipe(
+    switchMap((tier) =>
+      this.subscriptionDiscountService
+        .getItemLevelDiscountsForTier$(tier)
+        .pipe(catchError(() => of([]))),
+    ),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
+  protected readonly itemLevelDiscounts = toSignal(this.itemLevelDiscounts$, { initialValue: [] });
 
   private readonly eligibleCouponIds = computed<string[]>(() =>
-    this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
+    this.eligibleSubscriptionDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
   );
 
   // Use defer to lazily create the observable when subscribed to
@@ -162,7 +180,7 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
       this.formGroup.controls.billingAddress.valueChanges.pipe(
         startWith(this.formGroup.controls.billingAddress.value),
       ),
-      this.eligibleDiscounts$,
+      this.eligibleSubscriptionDiscounts$,
     ).pipe(
       debounceTime(1000),
       switchMap(() => this.refreshSalesTax$()),
@@ -192,11 +210,12 @@ export class UpgradePaymentComponent implements OnInit, AfterViewInit {
           translationKey: this.isFamiliesPlan() ? "familiesMembership" : "premiumMembership",
           cost: this.selectedPlan()!.details.passwordManager.annualPrice ?? 0,
           quantity: 1,
+          discounts: this.itemLevelDiscounts().length > 0 ? this.itemLevelDiscounts() : undefined,
         },
       },
       cadence: "annually",
       estimatedTax: this.estimatedTax() ?? 0,
-      discounts: this.cartDiscounts().length > 0 ? this.cartDiscounts() : undefined,
+      discounts: this.cartLevelDiscounts().length > 0 ? this.cartLevelDiscounts() : undefined,
     };
   });
 

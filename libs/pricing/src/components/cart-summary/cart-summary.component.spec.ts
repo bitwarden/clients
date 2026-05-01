@@ -600,27 +600,27 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
       };
       fixture.componentRef.setInput("cart", cartWithItemDiscount);
       fixture.detectChanges();
 
-      const label = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-label"]'),
+      const discountRow = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount-item"]'),
       );
-      const amount = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-amount"]'),
-      );
+      const cells = discountRow.queryAll(By.css(".tw-text-success-600"));
 
       // Act / Assert
-      expect(label.nativeElement.textContent.trim()).toBe("25% discount");
+      expect(cells[0].nativeElement.textContent.trim()).toBe("25% discount");
       // 5 * $50 = $250, 25% of $250 = $62.50
-      expect(amount.nativeElement.textContent).toContain("-$62.50");
+      expect(cells[1].nativeElement.textContent).toContain("-$62.50");
     });
 
     it("should display item-level percent-off discount with decimal value", () => {
@@ -631,28 +631,28 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 0.25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 0.25,
+              },
+            ],
           },
         },
       };
       fixture.componentRef.setInput("cart", cartWithItemDiscount);
       fixture.detectChanges();
 
-      const label = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-label"]'),
+      const discountRow = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount-item"]'),
       );
-      const amount = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-amount"]'),
-      );
+      const cells = discountRow.queryAll(By.css(".tw-text-success-600"));
 
       // Act / Assert
       // value 0.25 (< 1) is treated as 25% decimal multiplier
-      expect(label.nativeElement.textContent.trim()).toBe("25% discount");
+      expect(cells[0].nativeElement.textContent.trim()).toBe("25% discount");
       // 5 * $50 = $250, 25% of $250 = $62.50
-      expect(amount.nativeElement.textContent).toContain("-$62.50");
+      expect(cells[1].nativeElement.textContent).toContain("-$62.50");
     });
 
     it("should display item-level amount-off discount inline under PM seats", () => {
@@ -663,26 +663,26 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.AmountOff,
-              value: 15,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.AmountOff,
+                value: 15,
+              },
+            ],
           },
         },
       };
       fixture.componentRef.setInput("cart", cartWithItemDiscount);
       fixture.detectChanges();
 
-      const label = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-label"]'),
+      const discountRow = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount-item"]'),
       );
-      const amount = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-amount"]'),
-      );
+      const cells = discountRow.queryAll(By.css(".tw-text-success-600"));
 
       // Act / Assert
-      expect(label.nativeElement.textContent.trim()).toBe("$15.00 discount");
-      expect(amount.nativeElement.textContent).toContain("-$15.00");
+      expect(cells[0].nativeElement.textContent.trim()).toBe("$15.00 discount");
+      expect(cells[1].nativeElement.textContent).toContain("-$15.00");
     });
 
     it("should apply item-level discount to total calculation", () => {
@@ -693,10 +693,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
       };
@@ -723,10 +725,12 @@ describe("CartSummaryComponent", () => {
           ...mockCart.passwordManager,
           seats: {
             ...mockCart.passwordManager.seats,
-            discount: {
-              type: DiscountTypes.PercentOff,
-              value: 25,
-            },
+            discounts: [
+              {
+                type: DiscountTypes.PercentOff,
+                value: 25,
+              },
+            ],
           },
         },
         discounts: [
@@ -739,15 +743,16 @@ describe("CartSummaryComponent", () => {
       fixture.componentRef.setInput("cart", cartWithBothDiscounts);
       fixture.detectChanges();
 
-      const itemDiscountAmount = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-amount"]'),
+      const itemDiscountRow = fixture.debugElement.query(
+        By.css('[data-testid="password-manager-seats-discount-item"]'),
       );
+      const itemDiscountAmount = itemDiscountRow.queryAll(By.css(".tw-text-success-600"))[1];
       const cartDiscountAmount = fixture.debugElement.query(
         By.css('[data-testid="discount-amount"]'),
       );
 
       // Act / Assert — both sections render
-      expect(itemDiscountAmount).toBeTruthy();
+      expect(itemDiscountRow).toBeTruthy();
       expect(cartDiscountAmount).toBeTruthy();
 
       // Item-level: 25% of PM seats (5 * $50 = $250) = $62.50
@@ -764,10 +769,73 @@ describe("CartSummaryComponent", () => {
       expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
     });
 
-    it("should not display item-level discount section when no item discount is present", () => {
+    it("should render one row per item-level discount", () => {
+      // Arrange
+      const cartWithMultipleItemDiscounts: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              { type: DiscountTypes.PercentOff, value: 10 },
+              { type: DiscountTypes.AmountOff, value: 5 },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithMultipleItemDiscounts);
+      fixture.detectChanges();
+
+      const discountRows = fixture.debugElement.queryAll(
+        By.css('[data-testid="password-manager-seats-discount-item"]'),
+      );
+
+      // Act / Assert
+      expect(discountRows.length).toBe(2);
+      // First: 10% of $250 = $25
+      expect(
+        discountRows[0].queryAll(By.css(".tw-text-success-600"))[1].nativeElement.textContent,
+      ).toContain("-$25.00");
+      // Second: $5 flat off remaining $225
+      expect(
+        discountRows[1].queryAll(By.css(".tw-text-success-600"))[1].nativeElement.textContent,
+      ).toContain("-$5.00");
+    });
+
+    it("should subtract all item-level discount amounts from total", () => {
+      // Arrange
+      const cartWithMultipleItemDiscounts: Cart = {
+        ...mockCart,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [
+              { type: DiscountTypes.PercentOff, value: 10 },
+              { type: DiscountTypes.AmountOff, value: 5 },
+            ],
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithMultipleItemDiscounts);
+      fixture.detectChanges();
+
+      // Subtotal = 372, item discounts = 25 + 5 = 30, tax = 9.6
+      // Total = 372 - 30 + 9.6 = 351.60
+      const expectedTotal = "$351.60";
+      const topTotal = fixture.debugElement.query(By.css("h2"));
+      const bottomTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      // Act / Assert
+      expect(topTotal.nativeElement.textContent).toContain(expectedTotal);
+      expect(bottomTotal.nativeElement.textContent).toContain(expectedTotal);
+    });
+
+    it("should not display item-level discount rows when no item discounts are present", () => {
       // Arrange / Act
       const discountRow = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount"]'),
+        By.css('[data-testid="password-manager-seats-discount-item"]'),
       );
 
       // Assert

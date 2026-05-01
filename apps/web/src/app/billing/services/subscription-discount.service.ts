@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { from, map, merge, Observable, of, shareReplay, Subject, switchMap } from "rxjs";
 
 import { DiscountTierType } from "@bitwarden/common/billing/enums";
+import { SubscriptionDiscountEligibility } from "@bitwarden/common/billing/models/response/subscription-discount-eligibility.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -21,37 +22,43 @@ export class SubscriptionDiscountService {
     private configService: ConfigService,
   ) {}
 
-  private cachedDiscounts$: Observable<SubscriptionDiscount[]> | undefined;
+  private cachedDiscounts$: Observable<SubscriptionDiscountEligibility> | undefined;
 
   refresh(): void {
     this.refreshTrigger.next();
   }
 
-  getEligibleDiscounts$(): Observable<SubscriptionDiscount[]> {
-    const featureFlag$ = this.configService
-      .getFeatureFlag$(FeatureFlag.PM29108_EnablePersonalDiscounts)
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-
-    return featureFlag$.pipe(
-      switchMap((featureFlagEnabled) => {
-        if (!featureFlagEnabled) {
-          return of([]);
-        }
-
-        return merge(
-          this.fetchDiscounts$(),
-          this.refreshTrigger.pipe(switchMap(() => this.fetchDiscounts$(true))),
-        ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-      }),
+  getCartLevelDiscountsForTier$(tier: DiscountTierType): Observable<Discount[]> {
+    return this.getSubscriptionDiscountEligibility$().pipe(
+      map(({ cartLevelDiscounts }) =>
+        cartLevelDiscounts
+          .filter((d) => d.tierEligibility[tier])
+          .map((d) => this.mapToCartDiscount(d))
+          .filter((d): d is Discount => d !== null),
+      ),
     );
   }
 
-  getEligibleDiscountsForTier$ = (tier: DiscountTierType): Observable<SubscriptionDiscount[]> =>
-    this.getEligibleDiscounts$().pipe(
-      map((discounts) => {
-        return discounts.filter((d) => d.tierEligibility[tier]);
-      }),
+  getItemLevelDiscountsForTier$(tier: DiscountTierType): Observable<Discount[]> {
+    return this.getSubscriptionDiscountEligibility$().pipe(
+      map(({ itemLevelDiscounts }) =>
+        itemLevelDiscounts
+          .filter((d) => d.tierEligibility[tier])
+          .map((d) => this.mapToCartDiscount(d))
+          .filter((d): d is Discount => d !== null),
+      ),
     );
+  }
+
+  getAllEligibleSubscriptionDiscountsForTier$(
+    tier: DiscountTierType,
+  ): Observable<SubscriptionDiscount[]> {
+    return this.getSubscriptionDiscountEligibility$().pipe(
+      map(({ cartLevelDiscounts, itemLevelDiscounts }) =>
+        [...cartLevelDiscounts, ...itemLevelDiscounts].filter((d) => d.tierEligibility[tier]),
+      ),
+    );
+  }
 
   isDiscountExpiredError(error: unknown): boolean {
     return (
@@ -61,7 +68,7 @@ export class SubscriptionDiscountService {
     );
   }
 
-  mapToCartDiscount(discount: SubscriptionDiscount): Discount | null {
+  private mapToCartDiscount(discount: SubscriptionDiscount): Discount | null {
     if (discount.percentOff != null) {
       return { type: DiscountTypes.PercentOff, value: discount.percentOff };
     }
@@ -71,7 +78,25 @@ export class SubscriptionDiscountService {
     return null;
   }
 
-  private fetchDiscounts$(skipCache: boolean = false): Observable<SubscriptionDiscount[]> {
+  private getSubscriptionDiscountEligibility$(): Observable<SubscriptionDiscountEligibility> {
+    const featureFlag$ = this.configService
+      .getFeatureFlag$(FeatureFlag.PM29108_EnablePersonalDiscounts)
+      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+
+    return featureFlag$.pipe(
+      switchMap((featureFlagEnabled): Observable<SubscriptionDiscountEligibility> => {
+        if (!featureFlagEnabled) {
+          return of({ cartLevelDiscounts: [], itemLevelDiscounts: [] });
+        }
+        return merge(
+          this.fetchDiscounts$(),
+          this.refreshTrigger.pipe(switchMap(() => this.fetchDiscounts$(true))),
+        ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+      }),
+    );
+  }
+
+  private fetchDiscounts$(skipCache: boolean = false): Observable<SubscriptionDiscountEligibility> {
     if (skipCache || !this.cachedDiscounts$) {
       this.cachedDiscounts$ = from(this.accountBillingClient.getApplicableDiscounts());
     }

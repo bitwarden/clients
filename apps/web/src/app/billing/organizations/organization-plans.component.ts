@@ -6,12 +6,22 @@ import {
   OnInit,
   output,
   signal,
+  Signal,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
-import { catchError, firstValueFrom, merge, of, Subject, takeUntil } from "rxjs";
+import {
+  catchError,
+  firstValueFrom,
+  merge,
+  Observable,
+  of,
+  shareReplay,
+  Subject,
+  takeUntil,
+} from "rxjs";
 import { debounceTime, filter, map, switchMap } from "rxjs/operators";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -51,7 +61,7 @@ import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
-import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
+import { Cart, CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
@@ -246,23 +256,45 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.selectablePlans().some((plan) => plan.type === PlanType.TeamsStarter),
   );
 
-  private readonly eligibleDiscounts$ = this.subscriptionDiscountService
-    .getEligibleDiscountsForTier$(DiscountTierType.Families)
-    .pipe(catchError(() => of([])));
+  private readonly eligibleSubscriptionDiscounts$: Observable<SubscriptionDiscount[]> =
+    this.subscriptionDiscountService
+      .getAllEligibleSubscriptionDiscountsForTier$(DiscountTierType.Families)
+      .pipe(catchError(() => of([])));
 
-  readonly eligibleDiscounts = toSignal(this.eligibleDiscounts$, { initialValue: [] });
+  readonly eligibleSubscriptionDiscounts: Signal<SubscriptionDiscount[]> = toSignal(
+    this.eligibleSubscriptionDiscounts$,
+    { initialValue: [] },
+  );
 
-  readonly cartDiscounts = computed<Discount[] | undefined>(() =>
+  private readonly cartLevelDiscounts = toSignal(
+    this.subscriptionDiscountService.getCartLevelDiscountsForTier$(DiscountTierType.Families).pipe(
+      catchError(() => of([])),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    ),
+    { initialValue: [] },
+  );
+  protected readonly cartLevelApplicableDiscounts = computed(() =>
     !this.acceptingSponsorship() && this.formValues().productTier === ProductTierType.Families
-      ? this.eligibleDiscounts()
-          .map((discount) => this.subscriptionDiscountService.mapToCartDiscount(discount))
-          .filter((discount) => !!discount)
-      : undefined,
+      ? this.cartLevelDiscounts()
+      : [],
+  );
+
+  private readonly itemLevelDiscounts = toSignal(
+    this.subscriptionDiscountService.getItemLevelDiscountsForTier$(DiscountTierType.Families).pipe(
+      catchError(() => of([])),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    ),
+    { initialValue: [] },
+  );
+  protected readonly itemLevelApplicableDiscounts = computed(() =>
+    !this.acceptingSponsorship() && this.formValues().productTier === ProductTierType.Families
+      ? this.itemLevelDiscounts()
+      : [],
   );
 
   private readonly eligibleCouponIds = computed<string[]>(() =>
     !this.acceptingSponsorship() && this.formValues().productTier === ProductTierType.Families
-      ? this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId)
+      ? this.eligibleSubscriptionDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId)
       : [],
   );
 
@@ -414,7 +446,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           },
         ];
       } else {
-        cart.discounts = this.cartDiscounts();
+        cart.discounts = this.cartLevelApplicableDiscounts();
+        cart.passwordManager.seats.discounts = this.itemLevelApplicableDiscounts();
       }
 
       // Add additional storage if applicable
@@ -577,7 +610,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.formGroup.valueChanges,
       this.billingFormGroup.valueChanges,
       this.secretsManagerForm.valueChanges,
-      this.eligibleDiscounts$,
+      this.eligibleSubscriptionDiscounts$,
     )
       .pipe(
         debounceTime(1000),

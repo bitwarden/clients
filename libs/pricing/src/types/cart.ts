@@ -7,7 +7,7 @@ export type CartItem = {
   translationParams?: Array<string | number>;
   quantity: number;
   cost: number;
-  discount?: Discount;
+  discounts?: Discount[];
   hideBreakdown?: boolean;
 };
 

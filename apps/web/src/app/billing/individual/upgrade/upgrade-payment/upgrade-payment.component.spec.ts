@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testin
 import { FormControl, FormGroup } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, NEVER, of } from "rxjs";
+import { BehaviorSubject, NEVER, of, Subject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -20,7 +20,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
-import { Cart, DiscountTypes } from "@bitwarden/pricing";
+import { Cart, Discount, DiscountTypes } from "@bitwarden/pricing";
 
 import {
   AccountBillingClient,
@@ -52,6 +52,8 @@ describe("UpgradePaymentComponent", () => {
   let component: UpgradePaymentComponent;
   let fixture: ComponentFixture<UpgradePaymentComponent>;
   let discountSubject$: BehaviorSubject<SubscriptionDiscount[]>;
+  let cartLevelDiscountSubject$: Subject<Discount[]>;
+  let itemLevelDiscountSubject$: Subject<Discount[]>;
 
   const mockSubscriptionPricingService = mock<SubscriptionPricingServiceAbstraction>();
   const mockToastService = mock<ToastService>();
@@ -101,6 +103,8 @@ describe("UpgradePaymentComponent", () => {
     mockReset(mockAccountService);
 
     discountSubject$ = new BehaviorSubject<SubscriptionDiscount[]>([]);
+    cartLevelDiscountSubject$ = new Subject<Discount[]>();
+    itemLevelDiscountSubject$ = new Subject<Discount[]>();
     mockSubscriptionPricingService.getPersonalSubscriptionPricingTiers$.mockReturnValue(
       of([mockPremiumTier]),
     );
@@ -108,8 +112,14 @@ describe("UpgradePaymentComponent", () => {
     mockUpgradePaymentService.userIsOwnerOfFreeOrg$ = of(false);
     mockUpgradePaymentService.adminConsoleRouteForOwnedOrganization$ = of("/org/route");
     mockUpgradePaymentService.accountCredit$ = NEVER;
-    mockSubscriptionDiscountService.getEligibleDiscountsForTier$.mockReturnValue(
+    mockSubscriptionDiscountService.getAllEligibleSubscriptionDiscountsForTier$.mockReturnValue(
       discountSubject$.asObservable(),
+    );
+    mockSubscriptionDiscountService.getCartLevelDiscountsForTier$.mockReturnValue(
+      cartLevelDiscountSubject$.asObservable(),
+    );
+    mockSubscriptionDiscountService.getItemLevelDiscountsForTier$.mockReturnValue(
+      itemLevelDiscountSubject$.asObservable(),
     );
     mockSubscriptionDiscountService.isDiscountExpiredError.mockReturnValue(false);
 
@@ -313,31 +323,32 @@ describe("UpgradePaymentComponent", () => {
   });
 
   describe("cart() computed — discount inclusion", () => {
-    it("includes the mapped discount when getEligibleDiscountsForTier$ returns a matching discount", fakeAsync(() => {
-      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
+    it("cart_WithCartLevelDiscounts_SetsDiscountsOnCart", fakeAsync(() => {
+      fixture.detectChanges();
 
-      discountSubject$.next([mockDiscount]);
+      cartLevelDiscountSubject$.next([mockUiDiscount]);
       fixture.detectChanges();
 
       const cart: Cart = component["cart"]();
       expect(cart.discounts).toEqual([mockUiDiscount]);
     }));
 
-    it("does not include discounts when getEligibleDiscountsForTier$ returns an empty array", fakeAsync(() => {
+    it("cart_WithItemLevelDiscounts_SetsDiscountsOnPasswordManagerSeats", fakeAsync(() => {
+      fixture.detectChanges();
+
+      itemLevelDiscountSubject$.next([mockUiDiscount]);
       fixture.detectChanges();
 
       const cart: Cart = component["cart"]();
-      expect(cart.discounts).toBeUndefined();
+      expect(cart.passwordManager.seats.discounts).toEqual([mockUiDiscount]);
     }));
 
-    it("does not include discounts when mapToCartDiscount returns null", fakeAsync(() => {
-      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(null);
-
-      discountSubject$.next([mockDiscount]);
+    it("cart_WithNoDiscounts_LeavesDiscountsUndefined", fakeAsync(() => {
       fixture.detectChanges();
 
       const cart: Cart = component["cart"]();
       expect(cart.discounts).toBeUndefined();
+      expect(cart.passwordManager.seats.discounts).toBeUndefined();
     }));
   });
 });

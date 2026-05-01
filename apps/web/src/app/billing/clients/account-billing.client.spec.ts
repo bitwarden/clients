@@ -71,7 +71,7 @@ describe("AccountBillingClient", () => {
   });
 
   describe("getApplicableDiscounts", () => {
-    it("calls the correct endpoint and maps the response array", async () => {
+    it("calls the correct endpoint and maps cart-level and item-level discounts", async () => {
       const rawDiscount = {
         StripeCouponId: "coupon-abc",
         PercentOff: 20,
@@ -84,7 +84,10 @@ describe("AccountBillingClient", () => {
         EndDate: "2026-12-31T00:00:00Z",
         TierEligibility: { "0": true, "1": false },
       };
-      mockApiService.send.mockResolvedValue([rawDiscount]);
+      mockApiService.send.mockResolvedValue({
+        CartLevelDiscounts: [rawDiscount],
+        ItemLevelDiscounts: [],
+      });
 
       const result = await sut.getApplicableDiscounts();
 
@@ -95,17 +98,22 @@ describe("AccountBillingClient", () => {
         true,
         true,
       );
-      expect(result).toHaveLength(1);
-      expect(result[0].stripeCouponId).toBe("coupon-abc");
-      expect(result[0].percentOff).toBe(20);
+      expect(result.cartLevelDiscounts).toHaveLength(1);
+      expect(result.cartLevelDiscounts[0].stripeCouponId).toBe("coupon-abc");
+      expect(result.cartLevelDiscounts[0].percentOff).toBe(20);
+      expect(result.itemLevelDiscounts).toHaveLength(0);
     });
 
-    it("returns an empty array when the API returns an empty list", async () => {
-      mockApiService.send.mockResolvedValue([]);
+    it("returns empty arrays for both levels when the API returns empty lists", async () => {
+      mockApiService.send.mockResolvedValue({
+        CartLevelDiscounts: [],
+        ItemLevelDiscounts: [],
+      });
 
       const result = await sut.getApplicableDiscounts();
 
-      expect(result).toEqual([]);
+      expect(result.cartLevelDiscounts).toEqual([]);
+      expect(result.itemLevelDiscounts).toEqual([]);
     });
   });
 });

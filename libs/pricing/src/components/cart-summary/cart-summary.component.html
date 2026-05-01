@@ -82,22 +82,15 @@
           </div>
         </div>
 
-        <!-- Password Manager Seats Discount -->
-        @if (passwordManagerSeatsDiscountAmount() > 0) {
-          <div class="tw-flex tw-justify-between" data-testid="password-manager-seats-discount">
-            <div
-              bitTypography="body1"
-              class="tw-text-success-600"
-              data-testid="password-manager-seats-discount-label"
-            >
-              {{ passwordManagerSeatsDiscountLabel() }}
-            </div>
-            <div
-              bitTypography="body1"
-              class="tw-text-success-600"
-              data-testid="password-manager-seats-discount-amount"
-            >
-              -{{ passwordManagerSeatsDiscountAmount() | currency: "USD" : "symbol" }}
+        <!-- Password Manager Seats Discounts -->
+        @for (discountItem of passwordManagerSeatsDiscountLineItems(); track discountItem.label) {
+          <div
+            class="tw-flex tw-justify-between"
+            data-testid="password-manager-seats-discount-item"
+          >
+            <div bitTypography="body1" class="tw-text-success-600">{{ discountItem.label }}</div>
+            <div bitTypography="body1" class="tw-text-success-600">
+              -{{ discountItem.amount | currency: "USD" : "symbol" }}
             </div>
           </div>
         }

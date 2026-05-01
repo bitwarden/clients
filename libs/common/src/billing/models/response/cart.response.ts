@@ -11,7 +11,7 @@ export class CartItemResponse extends BaseResponse implements CartItem {
   translationKey: string;
   quantity: number;
   cost: number;
-  discount?: Discount;
+  discounts?: Discount[];
 
   constructor(response: any) {
     super(response);
@@ -19,9 +19,9 @@ export class CartItemResponse extends BaseResponse implements CartItem {
     this.translationKey = this.getResponseProperty("TranslationKey");
     this.quantity = this.getResponseProperty("Quantity");
     this.cost = this.getResponseProperty("Cost");
-    const discount = this.getResponseProperty("Discount");
-    if (discount) {
-      this.discount = discount;
+    const discounts = this.getResponseProperty("Discounts");
+    if (discounts?.length) {
+      this.discounts = discounts.map((d: any) => new DiscountResponse(d));
     }
   }
 }

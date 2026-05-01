@@ -20,7 +20,7 @@ import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
-import { Discount, DiscountBadgeComponent } from "@bitwarden/pricing";
+import { DiscountBadgeComponent } from "@bitwarden/pricing";
 import {
   BillingAddressControls,
   EnterBillingAddressComponent,
@@ -87,12 +87,12 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     this.trial().tier === "families" ? DiscountTierType.Families : null,
   );
 
-  protected readonly eligibleDiscounts = toSignal(
+  protected readonly eligibleSubscriptionDiscounts: Signal<SubscriptionDiscount[]> = toSignal(
     toObservable(this.discountTierType).pipe(
       switchMap((tier) =>
         tier
           ? this.subscriptionDiscountService
-              .getEligibleDiscountsForTier$(tier)
+              .getAllEligibleSubscriptionDiscountsForTier$(tier)
               .pipe(catchError(() => of([])))
           : of([]),
       ),
@@ -100,17 +100,30 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
     { initialValue: [] },
   );
 
-  protected readonly cartDiscounts = computed<Discount[]>(() =>
-    this.eligibleDiscounts()
-      .map((d) => this.subscriptionDiscountService.mapToCartDiscount(d))
-      .filter((d): d is Discount => d !== null),
+  protected readonly cartDiscounts = toSignal(
+    toObservable(this.discountTierType).pipe(
+      switchMap((tier) =>
+        tier
+          ? combineLatest([
+              this.subscriptionDiscountService
+                .getCartLevelDiscountsForTier$(tier)
+                .pipe(catchError(() => of([]))),
+              this.subscriptionDiscountService
+                .getItemLevelDiscountsForTier$(tier)
+                .pipe(catchError(() => of([]))),
+            ]).pipe(map(([cartLevel, itemLevel]) => [...cartLevel, ...itemLevel]))
+          : of([]),
+      ),
+    ),
+    { initialValue: [] },
   );
 
   private readonly eligibleCouponIds = computed<string[]>(() =>
-    this.eligibleDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
+    this.eligibleSubscriptionDiscounts().map((d: SubscriptionDiscount) => d.stripeCouponId),
   );
 
-  private readonly eligibleDiscounts$ = toObservable(this.eligibleDiscounts);
+  private readonly eligibleSubscriptionDiscounts$: Observable<SubscriptionDiscount[]> =
+    toObservable(this.eligibleSubscriptionDiscounts);
 
   constructor(
     private i18nService: I18nService,
@@ -141,7 +154,7 @@ export class TrialBillingStepComponent implements OnInit, OnDestroy {
             !!billingAddress.country && !!billingAddress.postalCode,
         ),
       ),
-      this.eligibleDiscounts$,
+      this.eligibleSubscriptionDiscounts$,
     ]).pipe(
       debounceTime(500),
       switchMap(([cadence, billingAddress]) =>

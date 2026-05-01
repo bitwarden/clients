@@ -5,14 +5,14 @@ import { ComponentFixture, fakeAsync, TestBed } from "@angular/core/testing";
 import { FormBuilder, FormControl } from "@angular/forms";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, mockReset } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ToastService } from "@bitwarden/components";
-import { DiscountTypes } from "@bitwarden/pricing";
+import { Discount, DiscountTypes } from "@bitwarden/pricing";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -77,6 +77,8 @@ describe("TrialBillingStepComponent", () => {
   let component: TrialBillingStepComponent;
   let fixture: ComponentFixture<TrialBillingStepComponent>;
   let discountSubject$: BehaviorSubject<SubscriptionDiscount[]>;
+  let cartLevelDiscountSubject$: Subject<Discount[]>;
+  let itemLevelDiscountSubject$: Subject<Discount[]>;
 
   const mockTrialBillingStepService = mock<TrialBillingStepService>();
   const mockSubscriptionDiscountService = mock<SubscriptionDiscountService>();
@@ -117,10 +119,17 @@ describe("TrialBillingStepComponent", () => {
     mockReset(mockToastService);
 
     discountSubject$ = new BehaviorSubject<SubscriptionDiscount[]>([]);
-    mockSubscriptionDiscountService.getEligibleDiscountsForTier$.mockReturnValue(
+    cartLevelDiscountSubject$ = new Subject<Discount[]>();
+    itemLevelDiscountSubject$ = new Subject<Discount[]>();
+    mockSubscriptionDiscountService.getAllEligibleSubscriptionDiscountsForTier$.mockReturnValue(
       discountSubject$.asObservable(),
     );
-    mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(null);
+    mockSubscriptionDiscountService.getCartLevelDiscountsForTier$.mockReturnValue(
+      cartLevelDiscountSubject$.asObservable(),
+    );
+    mockSubscriptionDiscountService.getItemLevelDiscountsForTier$.mockReturnValue(
+      itemLevelDiscountSubject$.asObservable(),
+    );
     mockSubscriptionDiscountService.isDiscountExpiredError.mockReturnValue(false);
     mockTrialBillingStepService.getPrices$.mockReturnValue(of({ annually: 40 }));
     mockTrialBillingStepService.getCosts.mockResolvedValue({ tax: 0, total: 40 });
@@ -175,7 +184,7 @@ describe("TrialBillingStepComponent", () => {
     }));
   });
 
-  describe("eligibleDiscounts", () => {
+  describe("eligibleSubscriptionDiscounts", () => {
     it("contains matching discounts when tier is families and discounts are available", fakeAsync(() => {
       fixture.componentRef.setInput("trial", mockFamiliesTrial);
       fixture.detectChanges();
@@ -183,14 +192,14 @@ describe("TrialBillingStepComponent", () => {
       discountSubject$.next([mockFamiliesDiscount]);
       fixture.detectChanges();
 
-      expect(component["eligibleDiscounts"]()).toEqual([mockFamiliesDiscount]);
+      expect(component["eligibleSubscriptionDiscounts"]()).toEqual([mockFamiliesDiscount]);
     }));
 
     it("is empty when tier is teams", fakeAsync(() => {
       fixture.componentRef.setInput("trial", mockTeamsTrial);
       fixture.detectChanges();
 
-      expect(component["eligibleDiscounts"]()).toEqual([]);
+      expect(component["eligibleSubscriptionDiscounts"]()).toEqual([]);
     }));
 
     it("is empty when service returns empty array", fakeAsync(() => {
@@ -198,28 +207,49 @@ describe("TrialBillingStepComponent", () => {
       discountSubject$.next([]);
       fixture.detectChanges();
 
-      expect(component["eligibleDiscounts"]()).toEqual([]);
+      expect(component["eligibleSubscriptionDiscounts"]()).toEqual([]);
     }));
   });
 
   describe("cartDiscounts", () => {
-    it("maps percentOff discount to PercentOff Discount correctly", fakeAsync(() => {
-      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(mockUiDiscount);
-
+    it("contains cart-level discounts emitted by service", fakeAsync(() => {
       fixture.componentRef.setInput("trial", mockFamiliesTrial);
       fixture.detectChanges();
 
-      discountSubject$.next([mockFamiliesDiscount]);
+      cartLevelDiscountSubject$.next([mockUiDiscount]);
+      itemLevelDiscountSubject$.next([]);
       fixture.detectChanges();
 
       expect(component["cartDiscounts"]()).toEqual([mockUiDiscount]);
     }));
 
-    it("is empty when mapToCartDiscount returns null", fakeAsync(() => {
-      mockSubscriptionDiscountService.mapToCartDiscount.mockReturnValue(null);
+    it("contains item-level discounts emitted by service", fakeAsync(() => {
+      fixture.componentRef.setInput("trial", mockFamiliesTrial);
+      fixture.detectChanges();
+
+      cartLevelDiscountSubject$.next([]);
+      itemLevelDiscountSubject$.next([mockUiDiscount]);
+      fixture.detectChanges();
+
+      expect(component["cartDiscounts"]()).toEqual([mockUiDiscount]);
+    }));
+
+    it("combines cart-level and item-level discounts", fakeAsync(() => {
+      const cartDiscount = { type: DiscountTypes.PercentOff, value: 20 };
+      const itemDiscount = { type: DiscountTypes.AmountOff, value: 10 };
 
       fixture.componentRef.setInput("trial", mockFamiliesTrial);
-      discountSubject$.next([mockFamiliesDiscount]);
+      fixture.detectChanges();
+
+      cartLevelDiscountSubject$.next([cartDiscount]);
+      itemLevelDiscountSubject$.next([itemDiscount]);
+      fixture.detectChanges();
+
+      expect(component["cartDiscounts"]()).toEqual([cartDiscount, itemDiscount]);
+    }));
+
+    it("is empty when tier is teams", fakeAsync(() => {
+      fixture.componentRef.setInput("trial", mockTeamsTrial);
       fixture.detectChanges();
 
       expect(component["cartDiscounts"]()).toEqual([]);
@@ -232,7 +262,7 @@ describe("TrialBillingStepComponent", () => {
       fixture.detectChanges();
 
       // Mock the signal directly after detectChanges (avoids @ViewChild reset issues)
-      (component as any).eligibleDiscounts = jest.fn(() => discounts);
+      (component as any).eligibleSubscriptionDiscounts = jest.fn(() => discounts);
 
       // Mock enterPaymentMethodComponent after final detectChanges
       Object.defineProperty(component, "enterPaymentMethodComponent", {
@@ -285,7 +315,7 @@ describe("TrialBillingStepComponent", () => {
       expect(mockSubscriptionDiscountService.refresh).not.toHaveBeenCalled();
     });
 
-    it("passes coupons to startTrial when eligibleDiscounts is non-empty", async () => {
+    it("passes coupons to startTrial when eligibleSubscriptionDiscounts is non-empty", async () => {
       setupSubmit([mockFamiliesDiscount]);
 
       mockTrialBillingStepService.startTrial.mockResolvedValue({ id: "org-123" } as any);
@@ -302,7 +332,7 @@ describe("TrialBillingStepComponent", () => {
       );
     });
 
-    it("passes empty coupons array to startTrial when eligibleDiscounts is empty", async () => {
+    it("passes empty coupons array to startTrial when eligibleSubscriptionDiscounts is empty", async () => {
       setupSubmit([]);
 
       mockTrialBillingStepService.startTrial.mockResolvedValue({ id: "org-123" } as any);
