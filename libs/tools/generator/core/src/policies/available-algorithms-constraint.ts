@@ -1,7 +1,6 @@
 import { SemanticLogger } from "@bitwarden/common/tools/log";
 import { UserStateSubjectDependencyProvider } from "@bitwarden/common/tools/state/user-state-subject-dependency-provider";
-import { Constraints, StateConstraints, WithConstraints } from "@bitwarden/common/tools/types";
-import { unconstrained } from "@bitwarden/common/tools/util";
+import { Constraints, StateConstraints } from "@bitwarden/common/tools/types";
 
 import { CredentialAlgorithm, CredentialType } from "../metadata";
 import { CredentialPreference } from "../types";
@@ -25,7 +24,7 @@ export class AvailableAlgorithmsConstraint implements StateConstraints<Credentia
   }
   private readonly log: SemanticLogger;
 
-  adjust(preferences: CredentialPreference): WithConstraints<CredentialPreference> {
+  adjust(preferences: CredentialPreference): CredentialPreference {
     const result: any = {};
 
     const types = Object.keys(preferences) as CredentialType[];
@@ -33,7 +32,7 @@ export class AvailableAlgorithmsConstraint implements StateConstraints<Credentia
       result[t] = this.adjustPreference(t, preferences[t]);
     }
 
-    return { state: result, constraints: this.constraints, applied: unconstrained() };
+    return result;
   }
 
   private adjustPreference(type: CredentialType, preference: { algorithm: CredentialAlgorithm }) {
@@ -71,7 +70,7 @@ export class AvailableAlgorithmsConstraint implements StateConstraints<Credentia
     return adjustedPreference;
   }
 
-  fix(preferences: CredentialPreference): WithConstraints<CredentialPreference> {
-    return { state: preferences, constraints: this.constraints, applied: unconstrained() };
+  fix(preferences: CredentialPreference): CredentialPreference {
+    return preferences;
   }
 }
