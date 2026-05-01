@@ -860,7 +860,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const ref = AddItemDialogComponent.open(this.dialogService, {
       canCreateFolder: false,
       canCreateCollection: organization?.canCreateNewCollections ?? false,
-      canCreateSshKey: true,
+      canCreateSshKey: false,
     });
     const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
     if (!result) {
