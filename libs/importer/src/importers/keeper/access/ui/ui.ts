@@ -7,6 +7,13 @@ import { Cancel } from "./cancel";
 import { Resend } from "./resend";
 import { TryAnother } from "./try-another";
 
+export interface ProvideTwoFactorCodeOptions {
+  /** True for the device-approval-via-2FA flow where Keeper hides the configured method. */
+  hidden?: boolean;
+  /** True if the underlying method (e.g. SMS) supports re-sending a code. */
+  canResend?: boolean;
+}
+
 export interface Ui {
   // Device approval flow
   selectApprovalMethod(method: DeviceApprovalChannel[]): Promise<DeviceApprovalChannel | Cancel>;
@@ -20,7 +27,7 @@ export interface Ui {
   selectTwoFactorMethod(channels: TwoFactorMethod[]): Promise<TwoFactorMethod | Cancel>;
   provideTwoFactorCode(
     method: TwoFactorMethod,
-    info?: string,
+    options?: ProvideTwoFactorCodeOptions,
   ): Promise<string | Cancel | Resend | TryAnother>;
 
   // DUO specific actions

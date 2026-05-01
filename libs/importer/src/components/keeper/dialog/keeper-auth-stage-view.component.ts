@@ -21,6 +21,8 @@ import {
 } from "../../../importers/keeper/access";
 import { KeeperAuthStage } from "../keeper-direct-import-ui.service";
 
+type TwoFactorCodeStage = Extract<KeeperAuthStage, { kind: "twoFactorCode" }>;
+
 import { KeeperStageShellComponent } from "./keeper-stage-shell.component";
 
 @Component({
@@ -199,6 +201,27 @@ export class KeeperAuthStageViewComponent {
         return "passcode";
       default:
         return "unknownMethod";
+    }
+  }
+
+  protected getTwoFactorCodeTitle(stage: TwoFactorCodeStage): string {
+    if (!stage.needsInput) {
+      return "keeperMFARequired";
+    }
+    return stage.hidden ? "twoFactorMethod" : "verificationCode";
+  }
+
+  protected getTwoFactorCodePrompt(stage: TwoFactorCodeStage): string {
+    if (stage.hidden) {
+      return "twoFactorCodePrompt";
+    }
+    switch (stage.method) {
+      case TwoFactorMethod.Totp:
+        return "totpCodePrompt";
+      case TwoFactorMethod.Sms:
+        return "smsCodePrompt";
+      default:
+        return "twoFactorCodePrompt";
     }
   }
 

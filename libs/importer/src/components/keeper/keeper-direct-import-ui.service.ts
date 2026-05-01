@@ -7,6 +7,7 @@ import {
   DeviceApprovalChannel,
   DnaMethod,
   DuoMethod,
+  ProvideTwoFactorCodeOptions,
   Resend,
   TryAnother,
   TwoFactorMethod,
@@ -24,7 +25,13 @@ export type KeeperAuthStage =
       variant: "email" | "push";
     }
   | { kind: "selectTwoFactor"; methods: TwoFactorMethod[] }
-  | { kind: "twoFactorCode"; method: TwoFactorMethod; needsInput: boolean }
+  | {
+      kind: "twoFactorCode";
+      method: TwoFactorMethod;
+      needsInput: boolean;
+      hidden: boolean;
+      canResend: boolean;
+    }
   | { kind: "selectDuo"; methods: DuoMethod[]; phoneNumber: string }
   | { kind: "duoPush"; method: DuoMethod }
   | { kind: "selectDna"; methods: DnaMethod[] }
@@ -158,7 +165,7 @@ export class KeeperDirectImportUIService implements Ui {
 
   async provideTwoFactorCode(
     method: TwoFactorMethod,
-    _info?: string,
+    options?: ProvideTwoFactorCodeOptions,
   ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
     const needsInput =
       method === TwoFactorMethod.Totp ||
@@ -168,7 +175,13 @@ export class KeeperDirectImportUIService implements Ui {
       method === TwoFactorMethod.Rsa ||
       method === TwoFactorMethod.KeeperDna;
 
-    this.setStage({ kind: "twoFactorCode", method, needsInput });
+    this.setStage({
+      kind: "twoFactorCode",
+      method,
+      needsInput,
+      hidden: options?.hidden ?? false,
+      canResend: options?.canResend ?? false,
+    });
     return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
   }
 

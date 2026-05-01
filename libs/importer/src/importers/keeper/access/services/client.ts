@@ -353,7 +353,7 @@ export class Client {
         // Resend button.
         const triggerPush = () => this.send2FAPush(currentLoginToken);
         await triggerPush();
-        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, triggerPush);
+        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, triggerPush, true);
         if (code === TryAnother) {
           continue;
         }
@@ -759,10 +759,11 @@ export class Client {
   private async getTwoFactorCodeFromUi(
     method: TwoFactorMethod,
     onResend?: () => Promise<void>,
+    hidden = false,
   ): Promise<string | typeof TryAnother> {
     for (;;) {
       const result = this.throwIfCancel(
-        await this.ui.provideTwoFactorCode(method),
+        await this.ui.provideTwoFactorCode(method, { hidden, canResend: !!onResend }),
         "Two-factor authentication",
       );
 
