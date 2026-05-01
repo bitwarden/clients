@@ -81,6 +81,13 @@ export class SendOptionsComponent implements OnInit {
     () => this.editing() || this.sendFormService.originalSendView()?.maxAccessCount != null,
   );
 
+  get shouldShowCount(): boolean {
+    return (
+      this.sendFormService.sendFormConfig.mode === "edit" &&
+      this.sendOptionsForm.value.maxAccessCount !== null
+    );
+  }
+
   readonly showAccessCount = computed(
     () => this.sendFormService.originalSendView()?.maxAccessCount != null,
   );
@@ -91,16 +98,14 @@ export class SendOptionsComponent implements OnInit {
     return (maxAccessCount - accessCount).toString();
   });
 
+  private readonly _hideEmailDisabledByPolicy = toSignal(this.sendPolicyService.disableHideEmail$);
   readonly hideEmailVisible = computed(
-    () => this.editing() || this.sendFormService.originalSendView()?.hideEmail,
+    () =>
+      !this._hideEmailDisabledByPolicy() &&
+      (this.editing() || this.sendFormService.originalSendView()?.hideEmail),
   );
 
-  private readonly _hideEmailDisabledByPolicy = toSignal(this.sendPolicyService.disableHideEmail$);
-  readonly hideEmailDisabled = computed(
-    () =>
-      !this.editing() ||
-      (this._hideEmailDisabledByPolicy() && !this.sendFormService.originalSendView()?.hideEmail),
-  );
+  readonly hideEmailDisabled = computed(() => !this.editing());
 
   readonly privateNoteVisible = computed(
     () => this.editing() || this.sendFormService.originalSendView()?.notes?.length > 0,

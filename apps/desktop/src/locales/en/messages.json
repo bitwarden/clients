@@ -5061,6 +5061,9 @@
   "integerInputError": {
     "message": "Input must be a whole number"
   },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
   "sideNavigation": {
     "message": "Side navigation"
   },

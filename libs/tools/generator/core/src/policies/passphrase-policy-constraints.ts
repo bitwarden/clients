@@ -1,10 +1,6 @@
-import {
-  Constraints,
-  PolicyConstraints,
-  StateConstraints,
-  WithConstraints,
-} from "@bitwarden/common/tools/types";
-import { unconstrained } from "@bitwarden/common/tools/util";
+// FIXME: Update this file to be type safe and remove this and next line
+// @ts-strict-ignore
+import { Constraints, PolicyConstraints, StateConstraints } from "@bitwarden/common/tools/types";
 
 import { DefaultPassphraseGenerationOptions } from "../data";
 import { PassphraseGenerationOptions, PassphraseGeneratorPolicy } from "../types";
@@ -31,48 +27,21 @@ export class PassphrasePolicyConstraints implements StateConstraints<PassphraseG
 
   constraints: Readonly<PolicyConstraints<PassphraseGenerationOptions>>;
 
-  adjust(state: PassphraseGenerationOptions): WithConstraints<PassphraseGenerationOptions> {
-    const defaults = DefaultPassphraseGenerationOptions;
+  adjust(state: PassphraseGenerationOptions): PassphraseGenerationOptions {
     const result: PassphraseGenerationOptions = {
-      wordSeparator: fitLength(
-        state.wordSeparator ?? defaults.wordSeparator!,
-        this.constraints.wordSeparator!,
-        { fillString: defaults.wordSeparator },
-      ),
-      capitalize: enforceConstant(
-        state.capitalize ?? defaults.capitalize!,
-        this.constraints.capitalize!,
-      ),
-      includeNumber: enforceConstant(
-        state.includeNumber ?? defaults.includeNumber!,
-        this.constraints.includeNumber!,
-      ),
-      numWords: fitToBounds(state.numWords ?? defaults.numWords!, this.constraints.numWords!),
+      wordSeparator: fitLength(state.wordSeparator, this.constraints.wordSeparator, {
+        fillString: DefaultPassphraseGenerationOptions.wordSeparator,
+      }),
+      capitalize: enforceConstant(state.capitalize, this.constraints.capitalize),
+      includeNumber: enforceConstant(state.includeNumber, this.constraints.includeNumber),
+      numWords: fitToBounds(state.numWords, this.constraints.numWords),
     };
 
-    // compute applied constraints (only fields that changed)
-    const applied: Constraints<PassphraseGenerationOptions> = {};
-    const keys: (keyof PassphraseGenerationOptions)[] = [
-      "wordSeparator",
-      "capitalize",
-      "includeNumber",
-      "numWords",
-    ];
-    for (const key of keys) {
-      if (state[key] !== result[key] && this.constraints[key] != null) {
-        (applied as any)[key] = this.constraints[key];
-      }
-    }
-
-    return {
-      state: result,
-      constraints: this.constraints,
-      applied: Object.keys(applied).length > 0 ? applied : unconstrained(),
-    };
+    return result;
   }
 
-  fix(state: PassphraseGenerationOptions): WithConstraints<PassphraseGenerationOptions> {
-    return { state, constraints: this.constraints, applied: unconstrained() };
+  fix(state: PassphraseGenerationOptions): PassphraseGenerationOptions {
+    return state;
   }
 }
 
@@ -83,7 +52,7 @@ function policyInEffect(
   const policies = [
     policy.capitalize,
     policy.includeNumber,
-    policy.minNumberWords > (defaults.numWords?.min ?? 0),
+    policy.minNumberWords > defaults.numWords.min,
   ];
 
   return policies.includes(true);

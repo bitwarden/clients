@@ -343,26 +343,6 @@ export class Program extends BaseProgram {
       .option("-c, --capitalize", "Title case passphrase.")
       .option("--includeNumber", "Passphrase includes number.")
       .option("--ambiguous", "Avoid ambiguous characters.")
-      .option("--username", "Generate a username.")
-      .option("--email <type>", "Generate an email (catchall | subaddress | forwarded).")
-      .option(
-        "--forwarded-service <service>",
-        "Forwarder service (addyio|duckduckgo|fastmail|mozilla|forwardemail|simplelogin).",
-      )
-      .option("--api-key <key>", "API key for the forwarder service.")
-      .option("--domain <domain>", "Domain for catchall or forwarder.")
-      .option("--email-address <email>", "Email address for plus-addressing.")
-      .option(
-        "--catchall-type <type>",
-        "Catchall type (random | website-name). website-name requires --website.",
-      )
-      .option(
-        "--subaddress-type <type>",
-        "Subaddress type (random | website-name). website-name requires --website.",
-      )
-      .option("--base-url <url>", "Base URL for self-hosted forwarders (Addy.io, SimpleLogin).")
-      .option("--prefix <prefix>", "Prefix for forwarder email address.")
-      .option("--website <domain>", "Website context for catchall/subaddress website-name type.")
       .on("--help", () => {
         writeLn("\n  Notes:");
         writeLn("");
@@ -381,22 +361,12 @@ export class Program extends BaseProgram {
         writeLn("    bw generate -p --separator _");
         writeLn("    bw generate -p --words 5 --separator space");
         writeLn("    bw generate -p --words 5 --separator empty");
-        writeLn("    bw generate --username");
-        writeLn("    bw generate --email catchall --domain example.com");
-        writeLn(
-          "    bw generate --email catchall --domain example.com --catchall-type website-name --website mysite.com",
-        );
-        writeLn("    bw generate --email subaddress --email-address user@example.com");
-        writeLn(
-          "    bw generate --email subaddress --email-address user@example.com --subaddress-type website-name --website mysite.com",
-        );
-        writeLn("    bw generate --email forwarded --forwarded-service fastmail --api-key mykey");
         writeLn("", true);
       })
       .action(async (options) => {
         const command = new GenerateCommand(
-          this.serviceContainer.credentialGeneratorService,
-          this.serviceContainer.generatorDependencyProvider,
+          this.serviceContainer.passwordGenerationService,
+          this.serviceContainer.tokenService,
           this.serviceContainer.accountService,
         );
         const response = await command.run(options);
