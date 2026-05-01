@@ -105,7 +105,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     acceptButtonText: { key: "discardEdits" },
     cancelButtonText: { key: "backToEditing" },
   };
-  
+
   /**
    * Sets up the discard-edits guard based on whether the dialog is a modal or a drawer.
    *
