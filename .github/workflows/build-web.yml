@@ -461,7 +461,6 @@ jobs:
     needs: build-containers
     permissions:
       id-token: write
-      actions: write
     steps:
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -470,18 +469,36 @@ jobs:
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
 
-      - name: Trigger web vault deploy using GitHub Run ID
+      - name: Retrieve secrets
+        id: retrieve-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "gh-clients"
+          secrets: "DEPLOY-APP-ID,DEPLOY-APP-TOKEN"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
+        with:
+          app-id: ${{ steps.retrieve-secrets.outputs.DEPLOY-APP-ID }}
+          private-key: ${{ steps.retrieve-secrets.outputs.DEPLOY-APP-TOKEN }}
+          owner: bitwarden
+          repositories: deploy
+
+      - name: Create USDEV deployment in deploy repo
         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
-            await github.rest.actions.createWorkflowDispatch({
+            await github.rest.repos.createDeployment({
               owner: 'bitwarden',
-              repo: 'clients',
-              workflow_id: 'deploy-web.yml',
+              repo: 'deploy',
               ref: 'main',
-              inputs: {
-                'environment': 'USDEV',
-                'build-web-run-id': '${{ github.run_id }}'
-              }
+              environment: 'trigger-webvault-dev',
+              auto_merge: false,
+              required_contexts: [],
+              description: 'Triggered by build-web on main'
             })
