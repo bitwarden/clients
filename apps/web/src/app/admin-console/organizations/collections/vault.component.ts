@@ -185,7 +185,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   protected editableCollections$!: Observable<CollectionAdminView[]>;
-  protected allCollectionsWithoutUnassigned$!: Observable<CollectionAdminView[]>;
   protected allCollections$!: Observable<CollectionAdminView[]>;
   protected collections$!: Observable<CollectionAdminView[]>;
   protected selectedCollection$!: Observable<TreeNode<CollectionAdminView> | undefined>;
@@ -221,10 +220,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       map((organization) => organization.isProviderUser && !organization.isMember),
     );
 
-    this.allCollectionsWithoutUnassigned$ = this.refresh$.pipe(
-      startWith(undefined),
-      switchMap(() => this.collectionService.allCollectionsWithoutUnassigned$),
-    );
     this.allCollections$ = this.collectionService.allCollections$;
     this.editableCollections$ = this.collectionService.editableCollections$;
     this.collections$ = this.collectionService.collections$;
@@ -690,6 +685,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   private refresh() {
     this.isRefreshing$.next(true);
     this.refresh$.next();
+    this.collectionService.reload();
     this.vaultItemsComponent()?.clearSelection();
   }
 
