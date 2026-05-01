@@ -371,14 +371,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.collectionActions.init(
-      this.organization$,
-      this.userId$,
-      this.selectedCollection$,
-      this.editableCollections$,
-      () => this.refresh(),
-    );
-
     const firstSetup$ = combineLatest([this.organization$, this.route.queryParams]).pipe(
       first(),
       switchMap(async ([organization]) => {
@@ -410,6 +402,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     });
 
     this.cipherActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
+    this.collectionActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
 
     this.cipherActions.navigate$
       .pipe(takeUntil(this.destroy$))
