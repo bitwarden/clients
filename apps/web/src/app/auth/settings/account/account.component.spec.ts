@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service.abstraction";
+import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";

@@ -1,3 +1,4 @@
+import { Injectable } from "@angular/core";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -9,9 +10,8 @@ import { DialogService } from "@bitwarden/components";
 
 import { DeleteAccountDialogComponent } from "../delete-account-dialog/delete-account-dialog.component";
 
-import { AccountDeletionService as AccountDeletionServiceAbstraction } from "./account-deletion.service.abstraction";
-
-export class AccountDeletionService implements AccountDeletionServiceAbstraction {
+@Injectable()
+export class AccountDeletionService {
   constructor(
     private accountService: AccountService,
     private organizationService: OrganizationService,

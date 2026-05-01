@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
 
-import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service.abstraction";
+import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
