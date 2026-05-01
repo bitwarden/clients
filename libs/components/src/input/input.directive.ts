@@ -1,22 +1,15 @@
 import {
   AfterViewInit,
-  DestroyRef,
   Directive,
   ElementRef,
-  NgZone,
-  Signal,
-  booleanAttribute,
   computed,
+  effect,
   inject,
   input,
-  model,
-  signal,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NgControl, StatusChangeEvent, TouchedChangeEvent, Validators } from "@angular/forms";
-import { filter } from "rxjs";
+import { NgControl } from "@angular/forms";
 
-import { BitFormFieldControl, InputTypes } from "../form-field/form-field-control";
+import { BitFormFieldControl } from "../form-field/form-field-control";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 
 // Increments for each instance of this component
@@ -33,27 +26,39 @@ export function inputBorderClasses(error: boolean) {
 
 @Directive({
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
-  providers: [{ provide: BitFormFieldControl, useExisting: BitInputDirective }],
+  hostDirectives: [
+    {
+      directive: BitFormFieldControl,
+      inputs: ["required", "showErrorsWhenDisabled", "type", "spellcheck"],
+    },
+  ],
   host: {
     "[class]": "classList()",
     "[id]": "id()",
-    "[attr.type]": "type()",
-    "[attr.spellcheck]": "spellcheck()",
+    "[attr.type]": "formFieldControl.type()",
+    "[attr.spellcheck]": "formFieldControl.spellcheck()",
     "(input)": "onInput()",
-    "[attr.aria-describedby]": "ariaDescribedBy()",
     "[attr.aria-invalid]": "ariaInvalid",
-    "[required]": "required()",
+    "[required]": "formFieldControl.required()",
   },
 })
-export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
-  private ngControl = inject(NgControl, { optional: true, self: true });
-  private ngZone = inject(NgZone);
-  private elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
-  private parentFormField = inject(BitFormFieldComponent, { optional: true });
+export class BitInputDirective implements AfterViewInit {
+  private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  private readonly elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private readonly parentFormField = inject(BitFormFieldComponent, { optional: true });
+  readonly formFieldControl = inject(BitFormFieldControl);
+
+  readonly id = input(`bit-input-${nextId++}`);
+
+  constructor() {
+    effect(() => this.formFieldControl.labelForId.set(this.id()));
+    effect(() => this.formFieldControl.readOnly.set(this.elementRef.nativeElement.readOnly));
+  }
 
   protected classList() {
     const isReadonlyTextarea =
-      this.elementRef.nativeElement.tagName.toLowerCase() === "textarea" && this.readOnly;
+      this.elementRef.nativeElement.tagName.toLowerCase() === "textarea" &&
+      this.elementRef.nativeElement.readOnly;
 
     const classes = [
       "tw-block",
@@ -75,62 +80,21 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     ];
 
     if (this.parentFormField === null) {
-      classes.push(...inputBorderClasses(this.hasError()), ...this.standaloneInputClasses());
+      classes.push(
+        ...inputBorderClasses(this.formFieldControl.hasError()),
+        ...this.standaloneInputClasses(),
+      );
     }
 
     return classes.filter((s) => s != "");
   }
 
-  readonly id = input(`bit-input-${nextId++}`);
-
-  readonly ariaDescribedBy = signal<string | undefined>(undefined);
-
   protected get ariaInvalid() {
-    return this.hasError() ? true : undefined;
-  }
-
-  readonly type = model<InputTypes>();
-
-  readonly spellcheck = model<boolean>();
-
-  readonly requiredInput = input(false, { transform: booleanAttribute, alias: "required" });
-  readonly required: Signal<boolean> = computed(() => {
-    this.controlEvent();
-    return (
-      this.requiredInput() || (this.ngControl?.control?.hasValidator(Validators.required) ?? false)
-    );
-  });
-
-  protected readonly showErrorsWhenDisabled = input<boolean>(false);
-
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly controlEvent = signal<unknown>(null);
-
-  readonly hasError: Signal<boolean> = computed(() => {
-    this.controlEvent();
-    if (this.showErrorsWhenDisabled()) {
-      return !!(
-        (this.ngControl?.status === "INVALID" || this.ngControl?.status === "DISABLED") &&
-        this.ngControl?.touched &&
-        this.ngControl?.errors != null
-      );
-    } else {
-      return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
-    }
-  });
-
-  get labelForId(): string {
-    return this.id();
+    return this.formFieldControl.hasError() ? true : undefined;
   }
 
   ngAfterViewInit() {
     this.adjustTextareaHeight();
-    this.ngControl?.control?.events
-      .pipe(
-        filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((e) => this.controlEvent.set(e));
   }
 
   protected onInput() {
@@ -148,29 +112,13 @@ export class BitInputDirective implements BitFormFieldControl, AfterViewInit {
     textarea.style.height = `${textarea.scrollHeight}px`;
   }
 
-  get error(): [string, any] {
-    const errors = this.ngControl?.errors ?? {};
-    const key = Object.keys(errors)[0];
-    return [key, errors[key]];
-  }
-
-  focus() {
-    this.ngZone.runOutsideAngular(() => {
-      const end = this.elementRef.nativeElement.value.length;
-      this.elementRef.nativeElement.setSelectionRange(end, end);
-      this.elementRef.nativeElement.focus();
-    });
-  }
-
-  get readOnly(): boolean {
-    return this.elementRef.nativeElement.readOnly;
-  }
-
   protected readonly standaloneInputClasses = computed(() => [
     "tw-px-3",
     "tw-py-2",
     "tw-rounded-lg",
-    this.hasError() ? "hover:tw-border-border-danger" : "hover:tw-border-border-brand",
+    this.formFieldControl.hasError()
+      ? "hover:tw-border-border-danger"
+      : "hover:tw-border-border-brand",
     "disabled:tw-bg-bg-secondary",
     "disabled:hover:tw-border-border-base",
     "focus:tw-border-border-brand",

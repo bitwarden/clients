@@ -80,7 +80,7 @@ export class BitFormFieldComponent implements AfterContentChecked {
   }
 
   protected get readOnly(): boolean {
-    return !!this.input().readOnly;
+    return !!this.input().readOnly();
   }
 
   ngAfterContentChecked(): void {

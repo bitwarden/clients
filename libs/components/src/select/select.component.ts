@@ -3,13 +3,11 @@ import {
   AfterViewInit,
   Component,
   ContentChildren,
-  DestroyRef,
   HostBinding,
   Input,
   QueryList,
   Output,
   EventEmitter,
-  booleanAttribute,
   computed,
   effect,
   inject,
@@ -19,18 +17,8 @@ import {
   signal,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import {
-  ControlValueAccessor,
-  NgControl,
-  StatusChangeEvent,
-  TouchedChangeEvent,
-  Validators,
-  ReactiveFormsModule,
-  FormsModule,
-} from "@angular/forms";
+import { ControlValueAccessor, NgControl, ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
-import { filter } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
@@ -46,19 +34,22 @@ let nextId = 0;
 @Component({
   selector: "bit-select",
   templateUrl: "select.component.html",
-  providers: [{ provide: BitFormFieldControl, useExisting: SelectComponent }],
+  hostDirectives: [
+    {
+      directive: BitFormFieldControl,
+      inputs: ["required"],
+    },
+  ],
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
   host: {
     "[id]": "id()",
-    "[attr.aria-describedby]": "ariaDescribedBy()",
-    "[attr.required]": "required() || null",
+    "[attr.required]": "formFieldControl.required() || null",
   },
 })
-export class SelectComponent<T>
-  implements AfterViewInit, BitFormFieldControl, ControlValueAccessor
-{
+export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
   private readonly i18nService = inject(I18nService);
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
+  readonly formFieldControl = inject(BitFormFieldControl);
 
   readonly select = viewChild.required(NgSelectComponent);
 
@@ -75,34 +66,28 @@ export class SelectComponent<T>
     this.findSelectedOption(this.items(), this.selectedValue()),
   );
   protected searchInputId = `bit-select-search-input-${nextId++}`;
+  readonly id = input(`bit-select-${nextId}`);
 
   private notifyOnChange?: (value?: T | null) => void;
   private notifyOnTouched?: () => void;
-  private readonly controlEvent = signal<unknown>(null);
-  private readonly destroyRef = inject(DestroyRef);
-  readonly hasError: Signal<boolean> = computed(() => {
-    this.controlEvent();
-    return !!(this.ngControl?.status === "INVALID" && this.ngControl?.touched);
-  });
 
   constructor() {
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
+    this.formFieldControl.labelForId.set(this.searchInputId);
     effect(() => {
       this.select()
         ?.searchInput()
-        .nativeElement.setAttribute("aria-describedby", this.ariaDescribedBy() ?? "");
+        .nativeElement.setAttribute(
+          "aria-describedby",
+          this.formFieldControl.ariaDescribedBy() ?? "",
+        );
     });
   }
 
   ngAfterViewInit() {
-    this.ngControl?.control?.events
-      .pipe(
-        filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe((e) => this.controlEvent.set(e));
+    // intentionally empty — shared reactive logic is in BitFormFieldControl host directive
   }
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -180,33 +165,6 @@ export class SelectComponent<T>
     }
 
     this.notifyOnTouched();
-  }
-
-  /**Implemented as part of BitFormFieldControl */
-  readonly ariaDescribedBy = signal<string | undefined>(undefined);
-
-  /**Implemented as part of BitFormFieldControl */
-  get labelForId() {
-    return this.searchInputId;
-  }
-
-  /**Implemented as part of BitFormFieldControl */
-  readonly id = input(`bit-multi-select-${nextId++}`);
-
-  /**Implemented as part of BitFormFieldControl */
-  readonly requiredInput = input(false, { transform: booleanAttribute, alias: "required" });
-  readonly required: Signal<boolean> = computed(() => {
-    this.controlEvent();
-    return (
-      this.requiredInput() || (this.ngControl?.control?.hasValidator(Validators.required) ?? false)
-    );
-  });
-
-  /**Implemented as part of BitFormFieldControl */
-  get error(): [string, any] {
-    const errors = this.ngControl?.errors ?? {};
-    const key = Object.keys(errors)[0];
-    return [key, errors[key]];
   }
 
   private findSelectedOption(

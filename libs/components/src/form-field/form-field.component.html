@@ -1,7 +1,7 @@
 <div [class]="labelAndFieldContainerClasses">
   <label
     class="tw-flex tw-items-center tw-gap-0.5 tw-text-sm/5 tw-font-medium tw-max-w-full"
-    [attr.for]="input().labelForId"
+    [attr.for]="input().labelForId()"
   >
     <ng-content select="bit-label"></ng-content>
     @if (input().required()) {
