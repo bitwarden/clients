@@ -223,30 +223,52 @@ impl PluginAuthenticatorComObject {
         request: PluginMakeCredentialRequest<'_>,
     ) -> windows::core::Result<()> {
         let transaction_id = request.transaction_id;
-        let response = self.handler.make_credential(request).map_err(|err| {
-            tracing::error!("MakeCredential failed: {err}");
-            E_FAIL
-        })?;
-        if let Err(err) = self.complete_request(transaction_id, &response) {
-            tracing::error!("Failed to write MakeCredential response to Windows: {err}");
-            return Err(E_FAIL.into());
+        let response = self.handler.make_credential(request);
+
+        // log response errors before any early returns.
+        if let Err(err) = &response {
+            tracing::error!(%err, "MakeCredential failed");
         }
-        tracing::debug!("MakeCredential completed successfully");
-        Ok(())
+
+        // clean up the request regardless of response.
+        self.complete_request(transaction_id, response.as_deref().ok())
+            .map_err(|err| {
+                tracing::error!(%err, "Failed to complete request");
+                windows::core::Error::from_hresult(E_FAIL)
+            })?;
+
+        match response {
+            Ok(_) => {
+                tracing::debug!("MakeCredential completed successfully");
+                Ok(())
+            }
+            Err(_) => Err(E_FAIL.into()),
+        }
     }
 
     fn get_assertion(&self, request: PluginGetAssertionRequest<'_>) -> windows::core::Result<()> {
         let transaction_id = request.transaction_id;
-        let response = self.handler.get_assertion(request).map_err(|err| {
-            tracing::error!("GetAssertion failed: {err}");
-            E_FAIL
-        })?;
-        if let Err(err) = self.complete_request(transaction_id, &response) {
-            tracing::error!("Failed to write GetAssertion response to Windows: {err}");
-            return Err(E_FAIL.into());
+        let response = self.handler.get_assertion(request);
+
+        // log response errors before any early returns.
+        if let Err(err) = &response {
+            tracing::error!(%err, "GetAssertion failed");
         }
-        tracing::debug!("GetAssertion completed successfully");
-        Ok(())
+
+        // clean up the request regardless of response.
+        self.complete_request(transaction_id, response.as_deref().ok())
+            .map_err(|err| {
+                tracing::error!(%err, "Failed to complete request");
+                windows::core::Error::from_hresult(E_FAIL)
+            })?;
+
+        match response {
+            Ok(_) => {
+                tracing::debug!("GetAssertion completed successfully");
+                Ok(())
+            }
+            Err(_) => Err(E_FAIL.into()),
+        }
     }
 
     fn cancel_operation(&self, request: PluginCancelOperationRequest) -> windows::core::Result<()> {
@@ -393,7 +415,7 @@ impl PluginAuthenticatorComObject {
     fn complete_request(
         &self,
         request_transaction_id: GUID,
-        data: &[u8],
+        data: Option<&[u8]>,
     ) -> Result<(), WinWebAuthnError> {
         let mut ctx = self
             .in_flight_request
@@ -412,7 +434,10 @@ impl PluginAuthenticatorComObject {
                 &format!("Request transaction ID {:?} does not match the transaction ID for the response {:?}.", request_transaction_id, ctx.transaction_id),
             ));
         }
-        ctx.response_buffer.write(data)?;
+
+        if let Some(data) = data {
+            ctx.response_buffer.write(data)?
+        };
         Ok(())
     }
 }
