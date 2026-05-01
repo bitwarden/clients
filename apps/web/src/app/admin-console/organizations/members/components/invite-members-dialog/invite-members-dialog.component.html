@@ -42,17 +42,30 @@
 
 <ng-template #byEmailForm let-organization="organization">
   <p bitTypography="body1">{{ "inviteUserDesc" | i18n }}</p>
-  @if ({ seats: remainingSeats$ | async }; as remaining) {
+  @if (
+    {
+      remainingSeats: remainingSeats$ | async,
+      batchLimit: emailBatchLimit$ | async,
+      isDynamicSeatPlan: isDynamicSeatPlan$ | async,
+    };
+    as inviteInfo
+  ) {
     <bit-form-field>
       <bit-label>{{ "email" | i18n }}</bit-label>
       <input id="emails" type="text" appAutoFocus bitInput formControlName="emails" />
-      @if (remaining.seats > 1) {
-        <bit-hint>{{ "inviteMultipleEmailDesc" | i18n: remaining.seats }}</bit-hint>
+      @if (inviteInfo.isDynamicSeatPlan) {
+        <bit-hint>{{ "inviteMultipleEmailsNoSeatLimit" | i18n: inviteInfo.batchLimit }}</bit-hint>
       }
-      @if (remaining.seats === 1) {
+      @if (!inviteInfo.isDynamicSeatPlan && inviteInfo.remainingSeats > 1) {
+        <bit-hint>{{
+          "inviteMultipleEmailsWithSeatLimit"
+            | i18n: inviteInfo.batchLimit : inviteInfo.remainingSeats
+        }}</bit-hint>
+      }
+      @if (!inviteInfo.isDynamicSeatPlan && inviteInfo.remainingSeats === 1) {
         <bit-hint>{{ "inviteSingleEmailDesc" | i18n }}</bit-hint>
       }
-      @if (remaining.seats === 0) {
+      @if (!inviteInfo.isDynamicSeatPlan && inviteInfo.remainingSeats <= 0) {
         <bit-hint>{{ "inviteZeroEmailDesc" | i18n }}</bit-hint>
       }
     </bit-form-field>
