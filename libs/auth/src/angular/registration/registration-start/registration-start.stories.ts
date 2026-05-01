@@ -37,6 +37,8 @@ import {
 import { PreloadedEnglishI18nModule } from "../../../../../../apps/web/src/app/core/tests";
 import { LoginEmailService } from "../../../common";
 
+import { DefaultRegistrationStartComponentService } from "./default-registration-start-component.service";
+import { RegistrationStartComponentService } from "./registration-start-component.service";
 import { RegistrationStartComponent } from "./registration-start.component";
 
 export default {
@@ -120,6 +122,10 @@ const decorators = (options: {
           useValue: {
             registerSendVerificationEmail: () => Promise.resolve(null),
           } as Partial<AccountApiService>,
+        },
+        {
+          provide: RegistrationStartComponentService,
+          useClass: DefaultRegistrationStartComponentService,
         },
       ],
     }),
