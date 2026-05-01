@@ -88,15 +88,15 @@ export class LoginViaWebAuthnComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private messagingService: MessagingService,
     private loginViaWebAuthnComponentService: LoginViaWebAuthnComponentService,
-  ) {}
-
-  ngOnInit(): void {
+  ) {
     this.showPageIcons = this.loginViaWebAuthnComponentService.showPageIcons;
     this.showTroubleLoggingInText = this.loginViaWebAuthnComponentService.showTroubleLoggingInText;
     this.useDifferentLoginMethodLinkText =
       this.loginViaWebAuthnComponentService.useDifferentLoginMethodLinkText;
     this.leftAlignDescription = this.loginViaWebAuthnComponentService.leftAlignDescription;
+  }
 
+  ngOnInit(): void {
     // Check if we should auto-close the popout after successful authentication
     this.shouldAutoClosePopout =
       this.route.snapshot.queryParamMap.get("autoClosePopout") === "true";
