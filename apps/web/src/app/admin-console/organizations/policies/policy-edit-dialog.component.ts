@@ -20,14 +20,12 @@ import { map, firstValueFrom, switchMap, filter } from "rxjs";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrgKey } from "@bitwarden/common/types/key";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -92,17 +90,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
-  }
-
-  /**
-   * Type guard to check if the policy component has the buildVNextRequest method.
-   */
-  private hasVNextRequest(
-    component: BasePolicyEditComponent,
-  ): component is BasePolicyEditComponent & {
-    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextSavePolicyRequest>;
-  } {
-    return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
   }
 
   private isFormDirty(): boolean {
@@ -232,13 +219,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await policyComponent.confirm?.()) == false) {
-      await this.dialogRef.close();
-      return;
-    }
-
     try {
-      await this.handleVNextSubmission(policyComponent);
+      await this.submitPolicy(policyComponent);
 
       this.toastService.showToast({
         variant: "success",
@@ -253,7 +235,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
-  private async handleVNextSubmission(policyComponent: BasePolicyEditComponent): Promise<void> {
+  private async submitPolicy(policyComponent: BasePolicyEditComponent): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
@@ -267,9 +249,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("No encryption key for this organization.");
     }
 
-    const request = await policyComponent.buildVNextRequest(orgKey);
+    const request = await policyComponent.buildRequest(orgKey);
 
-    await this.policyApiService.putPolicyVNext(
+    await this.policyApiService.putPolicy(
       this.data.organization.id,
       this.data.policy.type,
       request,

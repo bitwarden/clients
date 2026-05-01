@@ -2,7 +2,7 @@ import { ListResponse } from "../../../models/response/list.response";
 import { PolicyType } from "../../enums";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Policy } from "../../models/domain/policy";
-import { PolicyRequest } from "../../models/request/policy.request";
+import { SavePolicyRequest } from "../../models/request/save-policy.request";
 import { PolicyStatusResponse } from "../../models/response/policy-status.response";
 import { PolicyResponse } from "../../models/response/policy.response";
 
@@ -23,7 +23,6 @@ export abstract class PolicyApiServiceAbstraction {
   abstract putPolicy: (
     organizationId: string,
     type: PolicyType,
-    request: PolicyRequest,
+    request: SavePolicyRequest,
   ) => Promise<any>;
-  abstract putPolicyVNext: (organizationId: string, type: PolicyType, request: any) => Promise<any>;
 }

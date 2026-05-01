@@ -13,7 +13,7 @@ import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "../../models/domain/master-password-policy-options";
 import { Policy } from "../../models/domain/policy";
-import { PolicyRequest } from "../../models/request/policy.request";
+import { SavePolicyRequest } from "../../models/request/save-policy.request";
 import { PolicyStatusResponse } from "../../models/response/policy-status.response";
 import { PolicyResponse } from "../../models/response/policy.response";
 
@@ -116,26 +116,18 @@ export class PolicyApiService implements PolicyApiServiceAbstraction {
     }
   }
 
-  async putPolicy(organizationId: string, type: PolicyType, request: PolicyRequest): Promise<any> {
+  async putPolicy(
+    organizationId: string,
+    type: PolicyType,
+    request: SavePolicyRequest,
+  ): Promise<any> {
     const response = await this.apiService.send(
       "PUT",
-      "/organizations/" + organizationId + "/policies/" + type,
+      `/organizations/${organizationId}/policies/${type}`,
       request,
       true,
       true,
     );
-    await this.handleResponse(response);
-  }
-
-  async putPolicyVNext(organizationId: string, type: PolicyType, request: any): Promise<any> {
-    const response = await this.apiService.send(
-      "PUT",
-      `/organizations/${organizationId}/policies/${type}/vnext`,
-      request,
-      true,
-      true,
-    );
-
     await this.handleResponse(response);
   }
 
