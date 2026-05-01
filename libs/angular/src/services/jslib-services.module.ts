@@ -29,12 +29,14 @@ import {
   DefaultLoginDecryptionOptionsService,
   DefaultNewDeviceVerificationComponentService,
   DefaultRegistrationFinishService,
+  DefaultRegistrationStartComponentService,
   DefaultTwoFactorAuthComponentService,
   DefaultTwoFactorAuthWebAuthnComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   NewDeviceVerificationComponentService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
+  RegistrationStartComponentService,
   TwoFactorAuthComponentService,
   TwoFactorAuthWebAuthnComponentService,
 } from "@bitwarden/auth/angular";
@@ -1770,6 +1772,11 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       SsoLoginServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: RegistrationStartComponentService,
+    useClass: DefaultRegistrationStartComponentService,
+    deps: [],
   }),
   safeProvider({
     provide: RegisterSdkService,

@@ -34,11 +34,9 @@ import {
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
-  DefaultRegistrationStartComponentService,
   LoginComponentService,
   LoginDecryptionOptionsService,
   RegistrationFinishService as RegistrationFinishServiceAbstraction,
-  RegistrationStartComponentService,
   SsoComponentService,
   TwoFactorAuthDuoComponentService,
 } from "@bitwarden/auth/angular";
@@ -344,11 +342,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: LoginViaWebAuthnComponentService,
     useClass: DefaultLoginViaWebAuthnComponentService,
-    deps: [],
-  }),
-  safeProvider({
-    provide: RegistrationStartComponentService,
-    useClass: DefaultRegistrationStartComponentService,
     deps: [],
   }),
   safeProvider({
