@@ -24,7 +24,7 @@ import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
-import { SendFormComponent, SendFormConfig, SendFormModule } from "../send-form";
+import { SendFormComponent, SendFormConfig, SendFormModule, SendFormService } from "../send-form";
 
 export interface SendItemDialogParams {
   /**
@@ -140,6 +140,7 @@ export class SendAddEditDialogComponent {
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private dialogService: DialogService,
+    private sendFormService: SendFormService,
   ) {
     this.config = params.formConfig;
     this.editing.set(this.config.mode === "add");
@@ -254,7 +255,11 @@ export class SendAddEditDialogComponent {
     this.editing.set(true);
   }
 
-  protected cancelEditSend() {
+  protected async cancelEditSend() {
+    const proceed = await this.sendFormService.promptForUnsavedEdits();
+    if (!proceed) {
+      return;
+    }
     if (this.config.mode === "add") {
       void this.dialogRef.close();
     } else {

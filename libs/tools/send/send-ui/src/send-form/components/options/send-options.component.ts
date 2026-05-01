@@ -131,13 +131,12 @@ export class SendOptionsComponent implements OnInit {
     this.sendOptionsForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
       const value = this.sendOptionsForm.getRawValue();
       this.sendFormService.patchSend((send) => {
-        Object.assign(send, {
-          maxAccessCount: value.maxAccessCount,
+        return Object.assign(send, {
+          maxAccessCount: value.maxAccessCount === "" ? null : value.maxAccessCount,
           accessCount: value.accessCount,
           hideEmail: value.hideEmail,
           notes: value.notes,
         });
-        return send;
       });
     });
   }

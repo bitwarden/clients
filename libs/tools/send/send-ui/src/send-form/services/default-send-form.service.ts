@@ -151,8 +151,6 @@ export class DefaultSendFormService implements SendFormService {
       );
       const unsavedEditsDialogResult = await lastValueFrom(dialogRef.closed);
       if (unsavedEditsDialogResult?.result === UnsavedEditsDialogResult.Discard) {
-        this._originalSendView.set(null);
-        this.updatedSendView = null;
         return true;
       } else {
         return false;
