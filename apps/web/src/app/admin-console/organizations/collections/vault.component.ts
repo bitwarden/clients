@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   inject,
@@ -6,6 +7,7 @@ import {
   OnDestroy,
   OnInit,
   Signal,
+  signal,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
@@ -99,11 +101,10 @@ import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-org-vault",
   templateUrl: "vault.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     VaultHeaderComponent,
     CollectionAccessRestrictedComponent,
@@ -125,35 +126,34 @@ const SearchTextDebounceInterval = 200;
   ],
 })
 export class VaultComponent implements OnInit, OnDestroy {
-  private route = inject(ActivatedRoute);
-  private organizationService = inject(OrganizationService);
-  protected vaultFilterService = inject(VaultFilterService);
-  private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
-  private routedVaultFilterService = inject(RoutedVaultFilterService);
-  private router = inject(Router);
-  private changeDetectorRef = inject(ChangeDetectorRef);
-  private syncService = inject(SyncService);
-  private i18nService = inject(I18nService);
-  private broadcasterService = inject(BroadcasterService);
-  private ngZone = inject(NgZone);
-  private platformUtilsService = inject(PlatformUtilsService);
-  private cipherService = inject(CipherService);
-  private searchService = inject(SearchService);
-  private groupService = inject(GroupApiService);
-  private logService = inject(LogService);
-  private accountService = inject(AccountService);
-  protected billingApiService = inject(BillingApiServiceAbstraction);
-  private organizationWarningsService = inject(OrganizationWarningsService);
-  private restrictedItemTypesService = inject(RestrictedItemTypesService);
-  private dialogService = inject(DialogService);
-  private toastService = inject(ToastService);
-  private collectionActions = inject(VaultCollectionActionsService);
-  protected collectionService = inject(VaultCollectionService);
-  private cipherActions = inject(VaultCipherActionsService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly organizationService = inject(OrganizationService);
+  protected readonly vaultFilterService = inject(VaultFilterService);
+  private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
+  private readonly router = inject(Router);
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly syncService = inject(SyncService);
+  private readonly i18nService = inject(I18nService);
+  private readonly broadcasterService = inject(BroadcasterService);
+  private readonly ngZone = inject(NgZone);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly cipherService = inject(CipherService);
+  private readonly searchService = inject(SearchService);
+  private readonly groupService = inject(GroupApiService);
+  private readonly logService = inject(LogService);
+  private readonly accountService = inject(AccountService);
+  protected readonly billingApiService = inject(BillingApiServiceAbstraction);
+  private readonly organizationWarningsService = inject(OrganizationWarningsService);
+  private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
+  private readonly dialogService = inject(DialogService);
+  private readonly toastService = inject(ToastService);
+  private readonly collectionActions = inject(VaultCollectionActionsService);
+  protected readonly collectionService = inject(VaultCollectionService);
+  private readonly cipherActions = inject(VaultCipherActionsService);
 
-  protected Unassigned = Unassigned;
+  protected readonly Unassigned = Unassigned;
 
-  trashCleanupWarning: string = this.i18nService.t(
+  readonly trashCleanupWarning: string = this.i18nService.t(
     this.platformUtilsService.isSelfHost()
       ? "trashCleanupWarningSelfHosted"
       : "trashCleanupWarning",
@@ -162,33 +162,34 @@ export class VaultComponent implements OnInit, OnDestroy {
   readonly activeFilter!: Signal<VaultFilter>;
   protected readonly showAddAccessToggle!: Signal<boolean>;
 
-  protected noItemIcon = NoResults;
-  protected loading$: Observable<boolean>;
-  protected processingEvent$ = new BehaviorSubject<boolean>(false);
-  protected organization$: Observable<Organization>;
-  protected allGroups$: Observable<GroupView[]>;
-  protected ciphers$: Observable<CipherView[]>;
-  protected allCiphers$: Observable<CipherView[]>;
+  protected readonly noItemIcon = NoResults;
+  protected readonly loading$: Observable<boolean>;
+  protected readonly processingEvent$ = new BehaviorSubject<boolean>(false);
+  protected readonly organization$: Observable<Organization>;
+  protected readonly allGroups$: Observable<GroupView[]>;
+  protected readonly ciphers$: Observable<CipherView[]>;
+  protected readonly allCiphers$: Observable<CipherView[]>;
 
-  protected isEmpty$: Observable<boolean> = of(false);
-  protected prevCipherId: string | null = null;
-  protected userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+  protected readonly isEmpty$: Observable<boolean>;
+  private readonly prevCipherId = signal<string | null>(null);
+  protected readonly userId$: Observable<UserId> =
+    this.accountService.activeAccount$.pipe(getUserId);
 
-  protected hideVaultFilter$: Observable<boolean>;
-  protected currentSearchText$: Observable<string>;
-  protected filter$: Observable<RoutedVaultFilterModel> = this.routedVaultFilterService.filter$;
-  private organizationId$: Observable<OrganizationId>;
+  protected readonly hideVaultFilter$: Observable<boolean>;
+  protected readonly currentSearchText$: Observable<string>;
+  protected readonly filter$: Observable<RoutedVaultFilterModel> =
+    this.routedVaultFilterService.filter$;
+  private readonly organizationId$: Observable<OrganizationId>;
 
-  private searchText$ = new Subject<string>();
+  private readonly searchText$ = new Subject<string>();
   private readonly refresh$ = new Subject<void>();
   protected readonly isRefreshing$ = new BehaviorSubject<boolean>(true);
-  private destroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
 
-  protected editableCollections$!: Observable<CollectionAdminView[]>;
-  protected allCollections$!: Observable<CollectionAdminView[]>;
-  protected collections$!: Observable<CollectionAdminView[]>;
-  protected selectedCollection$!: Observable<TreeNode<CollectionAdminView> | undefined>;
-  protected showCollectionAccessRestricted$!: Observable<boolean>;
+  protected readonly allCollections$!: Observable<CollectionAdminView[]>;
+  protected readonly collections$!: Observable<CollectionAdminView[]>;
+  protected readonly selectedCollection$!: Observable<TreeNode<CollectionAdminView> | undefined>;
+  protected readonly showCollectionAccessRestricted$!: Observable<boolean>;
 
   protected readonly vaultItemsComponent = viewChild<VaultItemsComponent<CipherView>>("vaultItems");
 
@@ -221,7 +222,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.allCollections$ = this.collectionService.allCollections$;
-    this.editableCollections$ = this.collectionService.editableCollections$;
     this.collections$ = this.collectionService.collections$;
     this.selectedCollection$ = this.collectionService.selectedCollection$;
     this.showCollectionAccessRestricted$ = this.collectionService.showCollectionAccessRestricted$;
@@ -360,6 +360,10 @@ export class VaultComponent implements OnInit, OnDestroy {
       ),
     );
 
+    this.isEmpty$ = combineLatest([this.ciphers$, this.collections$]).pipe(
+      map(([ciphers, collections]) => collections.length === 0 && ciphers?.length === 0),
+    );
+
     this.activeFilter = toSignal(this.cipherActions.activeFilter$, {
       initialValue: new VaultFilter(),
     });
@@ -431,15 +435,15 @@ export class VaultComponent implements OnInit, OnDestroy {
           const cipherId = getCipherIdFromParams(qParams);
 
           if (!cipherId) {
-            this.prevCipherId = null;
+            this.prevCipherId.set(null);
             return;
           }
 
-          if (cipherId === this.prevCipherId) {
+          if (cipherId === this.prevCipherId()) {
             return;
           }
 
-          this.prevCipherId = cipherId;
+          this.prevCipherId.set(cipherId);
 
           const cipher = allCiphersMap[cipherId];
           if (cipher) {
@@ -528,10 +532,6 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         this.isRefreshing$.next(false);
       });
-
-    this.isEmpty$ = combineLatest([this.ciphers$, this.collections$]).pipe(
-      map(([ciphers, collections]) => collections.length === 0 && ciphers?.length === 0),
-    );
   }
 
   async navigateToPaymentMethod() {
