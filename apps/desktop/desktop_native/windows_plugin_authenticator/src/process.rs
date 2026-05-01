@@ -97,42 +97,68 @@ struct BitwardenPluginAuthenticator {
 
 impl BitwardenPluginAuthenticator {
     fn get_client(&self) -> Result<Arc<AutofillProviderClient>, String> {
-        // 20 * 200ms = 4 seconds.
-        for i in 1..=20 {
-            tracing::debug!("Connecting to client via IPC, attempt {i}");
+        {
             let mut client = self.client.lock().unwrap();
-            match client.as_ref().map(|c| (c, c.get_connection_status())) {
-                Some((_, ConnectionStatus::Disconnected)) | None => {
-                    tracing::debug!("Connecting to desktop app");
-                    // Attempt to launch, and retry for IPC availability in a loop.
-                    if !AutofillProviderClient::is_available() {
-                        if i == 1 {
-                            let uri = Uri::CreateUri(&HSTRING::from("bitwarden://webauthn"))
-                                .expect("valid URI");
-                            _ = Launcher::LaunchUriAsync(&uri);
-                        }
-                        let wait_time = Duration::from_millis(200);
-                        tracing::debug!(
-                            "Launching main client, trying again to connect to IPC in {wait_time:?}"
-                        );
-                        thread::sleep(wait_time);
-                        continue;
-                    }
-                    let c = AutofillProviderClient::connect();
-                    // This isn't actually connected yet, but it should be soon since we tested that
-                    // the named pipe is available. The plugin IPC client will
-                    // attempt to wait for the main application's named pipe to
-                    // become available in another thread.
-                    tracing::debug!(
-                        "Initiated IPC connection attempt. The connection should resolve later."
-                    );
-                    _ = client.insert(Arc::new(c));
+            match client.as_ref().map(|c| c.get_connection_status()) {
+                Some(ConnectionStatus::Connected | ConnectionStatus::Connecting) => {
+                    return Ok(client.as_ref().unwrap().clone());
                 }
-                _ => {}
-            };
-            return Ok(client.as_ref().unwrap().clone());
+                Some(ConnectionStatus::Disconnected) => {
+                    tracing::debug!("IPC connection dropped, reconnecting");
+                    *client = None;
+                }
+                None => {}
+            }
         }
-        Err("Exhausted retries to connect to IPC".to_string())
+        self.do_connect()
+    }
+
+    fn do_connect(&self) -> Result<Arc<AutofillProviderClient>, String> {
+        // 20 * 200ms = 4 seconds
+        for i in 1..=20 {
+            if !AutofillProviderClient::is_available() {
+                if i == 1 {
+                    tracing::debug!("Launching desktop app");
+                    let uri =
+                        Uri::CreateUri(&HSTRING::from("bitwarden://webauthn")).expect("valid URI");
+                    _ = Launcher::LaunchUriAsync(&uri);
+                }
+                let wait_time = Duration::from_millis(200);
+                tracing::debug!(
+                    "Waiting for IPC availability, attempt {i}, retrying in {wait_time:?}"
+                );
+                thread::sleep(wait_time);
+                continue;
+            }
+            let mut client = self.client.lock().unwrap();
+            if let Some(c) = client.as_ref() {
+                return Ok(c.clone()); // another thread connected while we slept
+            }
+            tracing::debug!("Connecting to desktop app via IPC");
+            let c = Arc::new(AutofillProviderClient::connect());
+            tracing::debug!(
+                "Initiated IPC connection attempt. The connection should resolve later."
+            );
+            *client = Some(c.clone());
+            return Ok(c);
+        }
+        Err("Timed out waiting for IPC to become available".to_string())
+    }
+
+    fn wait_for_connected_client(
+        &self,
+        client: &Arc<AutofillProviderClient>,
+    ) -> Result<(), String> {
+        // 50 * 200ms = 10 seconds
+        for _ in 0..50 {
+            if let ConnectionStatus::Connected = client.get_connection_status() {
+                return Ok(());
+            }
+            thread::sleep(Duration::from_millis(200));
+        }
+        // Reset so the next get_client() starts a fresh connection attempt.
+        *self.client.lock().unwrap() = None;
+        Err("Timed out waiting for IPC connection to be established".to_string())
     }
 }
 
@@ -144,6 +170,7 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         tracing::debug!("Received MakeCredential: {request:?}");
         let client = self.get_client()?;
 
+        self.wait_for_connected_client(&client)?;
         let plugin_window = get_window_details(&client)?;
         unsafe {
             let dw_current_thread = GetCurrentThreadId();
@@ -176,6 +203,7 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
         tracing::debug!("Received GetAssertion: {request:?}");
         let client = self.get_client()?;
 
+        self.wait_for_connected_client(&client)?;
         let is_unlocked = get_lock_status(&client).map_or(false, |response| response.is_unlocked);
         // Don't mess with the window unless we're going to need it: if the
         // vault is locked or if we need to show credential selection dialog.
@@ -236,6 +264,10 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
             return Ok(PluginLockStatus::PluginLocked);
         }
         let client = self.get_client()?;
+        if let ConnectionStatus::Disconnected = client.get_connection_status() {
+            return Ok(PluginLockStatus::PluginLocked);
+        }
+
         get_lock_status(&client)
             .map(|response| {
                 if response.is_unlocked {
@@ -244,7 +276,10 @@ impl PluginAuthenticator for BitwardenPluginAuthenticator {
                     PluginLockStatus::PluginLocked
                 }
             })
-            .map_err(|err| err.into())
+            .or_else(|err| {
+                tracing::error!(%err, "Failed to retrieve lock status, returning locked");
+                Ok(PluginLockStatus::PluginLocked)
+            })
     }
 }
 
