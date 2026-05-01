@@ -346,21 +346,16 @@ impl WebAuthnPlugin {
     pub fn perform_user_verification(
         &self,
         request: PluginUserVerificationRequest,
+        request_hash: &[u8],
     ) -> Result<(), WinWebAuthnError> {
         tracing::debug!(?request.transaction_id, ?request.window_handle, "Handling user verification request");
 
         // Get pub key
         let pub_key = get_user_verification_public_key(self.clsid)?;
 
-        let request_hash = self
-            .state
-            .as_ref()
-            .ok_or_else(|| WinWebAuthnError::new(ErrorKind::Other, "Server not registered"))?
-            .current_request_hash()
-            .ok_or_else(|| WinWebAuthnError::new(ErrorKind::Other, "No in-flight request"))?;
         // Send UV request
         let request_raw: PluginUserVerificationRequestRaw = (&request).into();
-        perform_user_verification(&request_raw, &pub_key, &request_hash.0)
+        perform_user_verification(&request_raw, &pub_key, request_hash)
     }
 
     /// Synchronize credentials to Windows Hello cache.

@@ -4,6 +4,7 @@ use std::{
 };
 
 use windows::core::GUID;
+use windows_core::Owned;
 
 use crate::{
     api::{
@@ -92,6 +93,7 @@ pub(in crate::api::plugin) trait OperationRequest<'a> {
 
     unsafe fn try_from_operation_request(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<Self, WinWebAuthnError>
     where
         Self: Sized;
@@ -104,11 +106,12 @@ impl<'a> OperationRequest<'a> for PluginGetAssertionRequest<'a> {
 
     unsafe fn try_from_operation_request(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<Self, WinWebAuthnError>
     where
         Self: Sized,
     {
-        Self::try_from_ptr(request)
+        Self::try_from_ptr(request, request_hash)
     }
 }
 
@@ -119,11 +122,12 @@ impl<'a> OperationRequest<'a> for PluginMakeCredentialRequest<'a> {
 
     unsafe fn try_from_operation_request(
         request: &'a WEBAUTHN_PLUGIN_OPERATION_REQUEST,
+        request_hash: OwnedRequestHash,
     ) -> Result<Self, WinWebAuthnError>
     where
         Self: Sized,
     {
-        Self::try_from_ptr(request)
+        Self::try_from_ptr(request, request_hash)
     }
 }
 

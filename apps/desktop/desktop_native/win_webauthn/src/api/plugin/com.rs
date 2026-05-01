@@ -144,16 +144,6 @@ impl<T: AsRef<[u8]>> From<T> for ComBuffer {
     }
 }
 
-impl PluginState {
-    pub(super) fn current_request_hash(&self) -> Option<OwnedRequestHash> {
-        self.in_flight_request
-            .lock()
-            .ok()?
-            .as_ref()
-            .map(|ctx| ctx.request_hash.clone())
-    }
-}
-
 struct ComThreadState {
     clsid: GUID,
     handler: Arc<dyn PluginAuthenticator + Send + Sync + 'static>,
@@ -373,7 +363,8 @@ impl PluginAuthenticatorComObject {
         op_pub_key.verify_signature((&request_hash).into(), signature)?;
         // SAFETY: We verified the request came from the operating system, so
         // trust that it is well-formed.
-        let request: T = unsafe { OperationRequest::try_from_operation_request(request)? };
+        let request: T =
+            unsafe { OperationRequest::try_from_operation_request(request, request_hash.clone())? };
 
         // Store the response buffer to complete later.
         // Windows sends WebAuthn requests serially, so we just replace the
