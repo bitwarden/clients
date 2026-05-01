@@ -252,8 +252,14 @@ export class CliUtils {
     return password;
   }
 
-  static convertBooleanOption(optionValue: any) {
-    return optionValue || optionValue === "" ? true : false;
+  static convertBooleanOption(optionValue: any): boolean {
+    if (typeof optionValue === "boolean") {
+      return optionValue;
+    }
+    if (typeof optionValue === "string") {
+      return optionValue === "" || optionValue.toLowerCase() === "true";
+    }
+    return false;
   }
 
   static convertNumberOption(optionValue: any, defaultValue: number) {
