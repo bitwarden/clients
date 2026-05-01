@@ -7,7 +7,6 @@ mod types;
 
 use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
 
-use tracing::info_span;
 pub use types::*;
 use windows::{
     core::{GUID, PCWSTR},

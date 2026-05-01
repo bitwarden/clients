@@ -1,5 +1,4 @@
 use base64::engine::{general_purpose::STANDARD, Engine as _};
-use serde::{de::Visitor, Deserializer};
 use windows::{
     core::GUID,
     Win32::{Foundation::*, UI::WindowsAndMessaging::GetWindowRect},
@@ -48,25 +47,4 @@ impl HwndExt for HWND {
 pub fn create_context_string(transaction_id: GUID, request_hash: &[u8]) -> String {
     let context = &[&transaction_id.to_u128().to_le_bytes(), request_hash].concat();
     STANDARD.encode(context)
-}
-
-pub fn deserialize_b64<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Vec<u8>, D::Error> {
-    deserializer.deserialize_str(Base64Visitor {})
-}
-
-struct Base64Visitor;
-impl<'de> Visitor<'de> for Base64Visitor {
-    type Value = Vec<u8>;
-
-    fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.write_str("A valid base64 string")
-    }
-
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-    where
-        E: serde::de::Error,
-    {
-        use base64::{engine::general_purpose::STANDARD, Engine as _};
-        STANDARD.decode(v).map_err(|err| E::custom(err))
-    }
 }

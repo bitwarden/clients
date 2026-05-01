@@ -4,7 +4,6 @@ use std::{
 };
 
 use windows::core::GUID;
-use windows_core::Owned;
 
 use crate::{
     api::{
