@@ -7,21 +7,24 @@ jest.mock("../../shared/components/collection-dialog", () => ({
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionAdminView,
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import {
   CollectionDialogAction,
@@ -34,6 +37,7 @@ import {
 } from "../bulk-collections-dialog";
 
 import { VaultCollectionActionsService } from "./vault-collection-actions.service";
+import { VaultCollectionService } from "./vault-collection.service";
 
 const USER_ID = "user-1" as UserId;
 const ORG_ID = "org-1" as OrganizationId;
@@ -80,22 +84,15 @@ describe("VaultCollectionActionsService", () => {
   let logService: MockProxy<LogService>;
   let i18nService: MockProxy<I18nService>;
   let router: MockProxy<Router>;
+  let organizationService: MockProxy<OrganizationService>;
+  let accountService: MockProxy<AccountService>;
+  let routedVaultFilterService: MockProxy<RoutedVaultFilterService>;
+  let vaultCollectionService: MockProxy<VaultCollectionService>;
 
-  let organization: Organization;
-  let refresh: jest.Mock;
+  let selectedCollection$: BehaviorSubject<TreeNode<CollectionAdminView> | undefined>;
+  let refreshEmitted: boolean;
 
-  function initService(
-    selectedCollection: TreeNode<CollectionAdminView> | undefined = undefined,
-    org = organization,
-  ) {
-    service.init(
-      of(org),
-      of(USER_ID),
-      of(selectedCollection),
-      of([] as CollectionAdminView[]),
-      refresh,
-    );
-  }
+  const organization = buildOrg();
 
   beforeEach(() => {
     apiService = mock<ApiService>();
@@ -106,14 +103,22 @@ describe("VaultCollectionActionsService", () => {
     logService = mock<LogService>();
     i18nService = mock<I18nService>();
     router = mock<Router>();
+    organizationService = mock<OrganizationService>();
+    accountService = mock<AccountService>();
+    routedVaultFilterService = mock<RoutedVaultFilterService>();
+    vaultCollectionService = mock<VaultCollectionService>();
 
     i18nService.t.mockReturnValue("translated");
     apiService.deleteCollection.mockResolvedValue(undefined);
     collectionService.delete.mockResolvedValue(undefined);
     cipherService.clear.mockResolvedValue(undefined);
 
-    organization = buildOrg();
-    refresh = jest.fn();
+    selectedCollection$ = new BehaviorSubject<TreeNode<CollectionAdminView> | undefined>(undefined);
+
+    accountService.activeAccount$ = of({ id: USER_ID } as any);
+    routedVaultFilterService.filter$ = of({ organizationId: ORG_ID } as any);
+    organizationService.organizations$.mockReturnValue(of([organization]));
+    vaultCollectionService.selectedCollection$ = selectedCollection$;
 
     TestBed.configureTestingModule({
       providers: [
@@ -126,18 +131,25 @@ describe("VaultCollectionActionsService", () => {
         { provide: LogService, useValue: logService },
         { provide: I18nService, useValue: i18nService },
         { provide: Router, useValue: router },
+        { provide: OrganizationService, useValue: organizationService },
+        { provide: AccountService, useValue: accountService },
+        { provide: RoutedVaultFilterService, useValue: routedVaultFilterService },
+        { provide: VaultCollectionService, useValue: vaultCollectionService },
       ],
     });
 
     service = TestBed.inject(VaultCollectionActionsService);
-    initService();
+
+    refreshEmitted = false;
+    service.refresh$.subscribe(() => {
+      refreshEmitted = true;
+    });
   });
 
   describe("addCollection", () => {
     it("opens the collection dialog with organization and parent collection params", async () => {
       const parent = buildCollection({ id: "parent-col" as CollectionId });
-      const parentNode = buildTreeNode(parent);
-      initService(parentNode);
+      selectedCollection$.next(buildTreeNode(parent));
 
       jest.mocked(openCollectionDialog).mockReturnValue(makeDialogRef(undefined));
 
@@ -155,32 +167,32 @@ describe("VaultCollectionActionsService", () => {
       );
     });
 
-    it("calls refresh when dialog action is Saved", async () => {
+    it("emits on refresh$ when dialog action is Saved", async () => {
       jest
         .mocked(openCollectionDialog)
         .mockReturnValue(makeDialogRef({ action: CollectionDialogAction.Saved }));
 
       await service.addCollection();
 
-      expect(refresh).toHaveBeenCalled();
+      expect(refreshEmitted).toBe(true);
     });
 
-    it("calls refresh when dialog action is Deleted", async () => {
+    it("emits on refresh$ when dialog action is Deleted", async () => {
       jest
         .mocked(openCollectionDialog)
         .mockReturnValue(makeDialogRef({ action: CollectionDialogAction.Deleted }));
 
       await service.addCollection();
 
-      expect(refresh).toHaveBeenCalled();
+      expect(refreshEmitted).toBe(true);
     });
 
-    it("does not call refresh when dialog is cancelled", async () => {
+    it("does not emit on refresh$ when dialog is cancelled", async () => {
       jest.mocked(openCollectionDialog).mockReturnValue(makeDialogRef(undefined));
 
       await service.addCollection();
 
-      expect(refresh).not.toHaveBeenCalled();
+      expect(refreshEmitted).toBe(false);
     });
   });
 
@@ -205,32 +217,31 @@ describe("VaultCollectionActionsService", () => {
       );
     });
 
-    it("calls refresh when dialog action is Saved", async () => {
+    it("emits on refresh$ when dialog action is Saved", async () => {
       jest
         .mocked(openCollectionDialog)
         .mockReturnValue(makeDialogRef({ action: CollectionDialogAction.Saved }));
 
       await service.editCollection(buildCollection(), CollectionDialogTabType.Info, false);
 
-      expect(refresh).toHaveBeenCalled();
+      expect(refreshEmitted).toBe(true);
     });
 
-    it("calls refresh when dialog action is Deleted", async () => {
+    it("emits on refresh$ when dialog action is Deleted", async () => {
       jest
         .mocked(openCollectionDialog)
         .mockReturnValue(makeDialogRef({ action: CollectionDialogAction.Deleted }));
 
       await service.editCollection(buildCollection(), CollectionDialogTabType.Info, false);
 
-      expect(refresh).toHaveBeenCalled();
+      expect(refreshEmitted).toBe(true);
     });
 
     it("navigates away when the deleted collection was the currently selected one", async () => {
       const collection = buildCollection({ id: "target-col" as CollectionId });
       const parentCol = buildCollection({ id: "parent-col" as CollectionId });
       const parentNode = buildTreeNode(parentCol);
-      const selectedNode = buildTreeNode(collection, parentNode);
-      initService(selectedNode);
+      selectedCollection$.next(buildTreeNode(collection, parentNode));
 
       jest
         .mocked(openCollectionDialog)
@@ -249,8 +260,7 @@ describe("VaultCollectionActionsService", () => {
     it("does not navigate when a different collection was deleted", async () => {
       const collection = buildCollection({ id: "target-col" as CollectionId });
       const otherCollection = buildCollection({ id: "other-col" as CollectionId });
-      const selectedNode = buildTreeNode(otherCollection);
-      initService(selectedNode);
+      selectedCollection$.next(buildTreeNode(otherCollection));
 
       jest
         .mocked(openCollectionDialog)
@@ -263,8 +273,7 @@ describe("VaultCollectionActionsService", () => {
 
     it("does not navigate when the dialog action is Saved (not Deleted)", async () => {
       const collection = buildCollection({ id: "target-col" as CollectionId });
-      const selectedNode = buildTreeNode(collection);
-      initService(selectedNode);
+      selectedCollection$.next(buildTreeNode(collection));
 
       jest
         .mocked(openCollectionDialog)
@@ -275,12 +284,12 @@ describe("VaultCollectionActionsService", () => {
       expect(router.navigate).not.toHaveBeenCalled();
     });
 
-    it("does not call refresh when dialog is cancelled", async () => {
+    it("does not emit on refresh$ when dialog is cancelled", async () => {
       jest.mocked(openCollectionDialog).mockReturnValue(makeDialogRef(undefined));
 
       await service.editCollection(buildCollection(), CollectionDialogTabType.Info, false);
 
-      expect(refresh).not.toHaveBeenCalled();
+      expect(refreshEmitted).toBe(false);
     });
   });
 
@@ -343,21 +352,20 @@ describe("VaultCollectionActionsService", () => {
       );
     });
 
-    it("calls refresh after successful deletion", async () => {
+    it("emits on refresh$ after successful deletion", async () => {
       const collection = buildCollection();
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       await service.deleteCollection(collection);
 
-      expect(refresh).toHaveBeenCalled();
+      expect(refreshEmitted).toBe(true);
     });
 
     it("navigates away when the deleted collection is the currently viewed one", async () => {
       const collection = buildCollection({ id: "target-col" as CollectionId });
       const parentCol = buildCollection({ id: "parent-col" as CollectionId });
       const parentNode = buildTreeNode(parentCol);
-      const selectedNode = buildTreeNode(collection, parentNode);
-      initService(selectedNode);
+      selectedCollection$.next(buildTreeNode(collection, parentNode));
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       await service.deleteCollection(collection);
@@ -373,7 +381,7 @@ describe("VaultCollectionActionsService", () => {
     it("does not navigate when a different collection is currently viewed", async () => {
       const collection = buildCollection({ id: "target-col" as CollectionId });
       const otherCol = buildCollection({ id: "other-col" as CollectionId });
-      initService(buildTreeNode(otherCol));
+      selectedCollection$.next(buildTreeNode(otherCol));
       dialogService.openSimpleDialog.mockResolvedValue(true);
 
       await service.deleteCollection(collection);
@@ -381,7 +389,7 @@ describe("VaultCollectionActionsService", () => {
       expect(router.navigate).not.toHaveBeenCalled();
     });
 
-    it("logs an error and does not refresh when deletion throws", async () => {
+    it("logs an error and does not emit on refresh$ when deletion throws", async () => {
       const collection = buildCollection();
       dialogService.openSimpleDialog.mockResolvedValue(true);
       apiService.deleteCollection.mockRejectedValue(new Error("server error"));
@@ -389,7 +397,7 @@ describe("VaultCollectionActionsService", () => {
       await service.deleteCollection(collection);
 
       expect(logService.error).toHaveBeenCalled();
-      expect(refresh).not.toHaveBeenCalled();
+      expect(refreshEmitted).toBe(false);
     });
   });
 
@@ -431,7 +439,7 @@ describe("VaultCollectionActionsService", () => {
       );
     });
 
-    it("calls refresh when dialog result is Saved", async () => {
+    it("emits on refresh$ when dialog result is Saved", async () => {
       const col = { canEdit: jest.fn().mockReturnValue(true) } as unknown as CollectionView;
       jest
         .spyOn(BulkCollectionsDialogComponent, "open")
@@ -439,10 +447,10 @@ describe("VaultCollectionActionsService", () => {
 
       await service.bulkEditCollectionAccess([col], organization);
 
-      expect(refresh).toHaveBeenCalled();
+      expect(refreshEmitted).toBe(true);
     });
 
-    it("does not call refresh when dialog is cancelled", async () => {
+    it("does not emit on refresh$ when dialog is cancelled", async () => {
       const col = { canEdit: jest.fn().mockReturnValue(true) } as unknown as CollectionView;
       jest
         .spyOn(BulkCollectionsDialogComponent, "open")
@@ -450,7 +458,7 @@ describe("VaultCollectionActionsService", () => {
 
       await service.bulkEditCollectionAccess([col], organization);
 
-      expect(refresh).not.toHaveBeenCalled();
+      expect(refreshEmitted).toBe(false);
     });
   });
 });

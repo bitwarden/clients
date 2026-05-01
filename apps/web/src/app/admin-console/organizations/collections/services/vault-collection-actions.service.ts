@@ -1,20 +1,26 @@
-import { Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, lastValueFrom, Observable } from "rxjs";
+import { combineLatest, firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
+import { distinctUntilChanged, filter, map, shareReplay, switchMap } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   CollectionAdminView,
   CollectionView,
+  Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CollectionId, UserId } from "@bitwarden/common/types/guid";
+import { getById } from "@bitwarden/common/platform/misc";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, ToastService } from "@bitwarden/components";
+import { RoutedVaultFilterService } from "@bitwarden/vault";
 
 import { CollectionPermission } from "../../shared/components/access-selector";
 import {
@@ -27,41 +33,50 @@ import {
   BulkCollectionsDialogResult,
 } from "../bulk-collections-dialog";
 
+import { VaultCollectionService } from "./vault-collection.service";
+
 @Injectable()
 export class VaultCollectionActionsService {
-  private organization$!: Observable<Organization>;
-  private userId$!: Observable<UserId>;
-  private selectedCollection$!: Observable<TreeNode<CollectionAdminView> | undefined>;
-  private editableCollections$!: Observable<CollectionAdminView[]>;
-  private refreshCallback!: () => void;
+  private readonly apiService = inject(ApiService);
+  private readonly collectionService = inject(CollectionService);
+  private readonly cipherService = inject(CipherService);
+  private readonly dialogService = inject(DialogService);
+  private readonly toastService = inject(ToastService);
+  private readonly logService = inject(LogService);
+  private readonly i18nService = inject(I18nService);
+  private readonly router = inject(Router);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
+  private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
+  private readonly vaultCollectionService = inject(VaultCollectionService);
 
-  constructor(
-    private apiService: ApiService,
-    private collectionService: CollectionService,
-    private cipherService: CipherService,
-    private dialogService: DialogService,
-    private toastService: ToastService,
-    private logService: LogService,
-    private i18nService: I18nService,
-    private router: Router,
-  ) {}
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  init(
-    organization$: Observable<Organization>,
-    userId$: Observable<UserId>,
-    selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>,
-    editableCollections$: Observable<CollectionAdminView[]>,
-    refresh: () => void,
-  ): void {
-    this.organization$ = organization$;
-    this.userId$ = userId$;
-    this.selectedCollection$ = selectedCollection$;
-    this.editableCollections$ = editableCollections$;
-    this.refreshCallback = refresh;
-  }
+  private readonly organizationId$ = this.routedVaultFilterService.filter$.pipe(
+    map((f) => f.organizationId),
+    filter((id) => id !== undefined),
+    filter((value): value is OrganizationId => value !== Unassigned),
+    distinctUntilChanged(),
+  );
+
+  private readonly organization$: Observable<Organization> = combineLatest([
+    this.organizationId$,
+    this.userId$,
+  ]).pipe(
+    switchMap(([orgId, userId]) =>
+      this.organizationService.organizations$(userId).pipe(getById(orgId)),
+    ),
+    filter((org) => org != null),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly selectedCollection$ = this.vaultCollectionService.selectedCollection$;
+
+  private readonly _refresh$ = new Subject<void>();
+  readonly refresh$ = this._refresh$.asObservable();
 
   private refresh(): void {
-    this.refreshCallback();
+    this._refresh$.next();
   }
 
   async addCollection(): Promise<void> {
