@@ -14,7 +14,7 @@ mod types;
 mod util;
 
 #[cfg(target_os = "windows")]
-use std::path::PathBuf;
+use std::{mem::MaybeUninit, path::PathBuf};
 
 #[cfg(target_os = "windows")]
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
@@ -101,8 +101,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::debug!("Launched with arguments: {args:?}");
     let command = args.get(1).map(|s| s.as_str());
     match command {
+        Some("serve") => {
+            tracing::info!("Starting plugin authenticator...");
+            let mut plugin = process::run_server()?;
+            tracing::info!("Listening for passkey requests...");
+            loop {
+                let mut msg = MaybeUninit::uninit();
+                match unsafe { GetMessageA(msg.as_mut_ptr(), None, 0, 0).0 } {
+                    // WM_QUIT was sent, exit the loop
+                    0 => break,
+                    -1 => {
+                        let err = windows::core::Error::from_thread();
+                        tracing::error!(%err, "Failed to read message from message loop, stopping server.");
+                        return Err(err)?;
+                    }
+                    _ => unsafe {
+                        let msg = msg.assume_init_ref();
+                        DispatchMessageA(msg);
+                    },
+                }
+            }
+            tracing::info!("Stopping server");
+            plugin.shutdown_server()?;
+        }
         Some("add") => process::add_authenticator()?,
-        Some("serve") => process::run_server()?,
         Some(invalid) => {
             tracing::error!(
                 "Invalid command argument passed: {invalid}. Specify one of [add, serve]"
@@ -116,22 +138,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             return Err("No command argument passed. Specify one of [add, serve]")?;
         }
     };
-    tracing::debug!("Starting loop");
 
-    loop {
-        let mut msg_ptr = std::mem::MaybeUninit::uninit();
-        unsafe {
-            GetMessageA(msg_ptr.as_mut_ptr(), None, 0, 0)
-                .ok()
-                .inspect_err(|err| {
-                    tracing::error!("Received error while waiting for message: {err}")
-                })?;
-            tracing::debug!("Received message, dispatching");
-            let msg = msg_ptr.assume_init_ref();
-            let result = TranslateMessage(msg);
-            tracing::debug!("Message translated? {result:?}");
-            let result = DispatchMessageA(msg);
-            tracing::debug!("Received result from message handler: {result:?}");
-        }
-    }
+    Ok(())
 }

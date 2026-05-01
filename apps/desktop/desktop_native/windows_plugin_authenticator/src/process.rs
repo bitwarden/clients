@@ -70,11 +70,11 @@ pub(super) fn add_authenticator() -> Result<(), String> {
     Ok(())
 }
 
-pub(super) fn run_server() -> Result<(), String> {
+pub(super) fn run_server() -> Result<WebAuthnPlugin, String> {
     tracing::debug!("Setting up COM server");
 
     let clsid = CLSID.try_into().expect("valid GUID string");
-    let plugin = WebAuthnPlugin::new(clsid);
+    let mut plugin = WebAuthnPlugin::new(clsid);
 
     let r = plugin
         .register_server(BitwardenPluginAuthenticator {
@@ -83,7 +83,7 @@ pub(super) fn run_server() -> Result<(), String> {
         })
         .map_err(|err| err.to_string())?;
     tracing::debug!("Registered the com library: {:?}", r);
-    Ok(())
+    Ok(plugin)
 }
 
 struct BitwardenPluginAuthenticator {
