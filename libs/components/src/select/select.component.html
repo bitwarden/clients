@@ -9,6 +9,7 @@
   [clearable]="false"
   (close)="onClose()"
   appendTo="body"
+  outsideClickEvent="mousedown"
   [keyDownFn]="onKeyDown"
   [attr.aria-label]="selectedOption()?.label ?? placeholder()"
 >
