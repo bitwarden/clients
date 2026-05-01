@@ -4,10 +4,9 @@
 
 use std::{
     alloc,
-    cell::RefCell,
     mem::{size_of, ManuallyDrop, MaybeUninit},
     ptr::{self, NonNull},
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, OnceLock},
 };
 
 use windows::{
@@ -153,9 +152,8 @@ struct ComThreadState {
     in_flight_request: Arc<Mutex<Option<RequestContext>>>,
 }
 
-thread_local! {
-    static HANDLER: RefCell<Option<ComThreadState>> = const { RefCell::new(None) };
-}
+static HANDLER: OnceLock<ComThreadState> = OnceLock::new();
+
 #[implement(IClassFactory)]
 pub struct Factory;
 
@@ -167,14 +165,12 @@ impl IClassFactory_Impl for Factory_Impl {
         object: *mut *mut core::ffi::c_void,
     ) -> windows::core::Result<()> {
         let thread_id = unsafe { GetCurrentThreadId() };
-        let (clsid, handler, in_flight_request) = match HANDLER.with_borrow(|h| {
-            h.as_ref().map(|s| {
-                (
-                    s.clsid,
-                    Arc::clone(&s.handler),
-                    Arc::clone(&s.in_flight_request),
-                )
-            })
+        let (clsid, handler, in_flight_request) = match HANDLER.get().map(|s| {
+            (
+                s.clsid,
+                Arc::clone(&s.handler),
+                Arc::clone(&s.in_flight_request),
+            )
         }) {
             Some(fields) => fields,
             None => {
@@ -520,10 +516,10 @@ where
     let span = tracing::info_span!("plugin_com_thread_register", thread_id = com_thread_id);
     let _span_guard = span.enter();
     tracing::debug!(thread_id = com_thread_id, "Initializing COM server");
-    if HANDLER.with_borrow(|h| h.is_some()) {
+    if HANDLER.get().is_some() {
         return Err(windows::core::Error::new(
             E_FAIL,
-            "server can only be registered one time per thread",
+            "server can only be registered one time per process",
         ));
     }
     unsafe {
@@ -558,14 +554,16 @@ where
         };
     }
 
-    HANDLER.with_borrow_mut(|h| {
-        *h = Some(ComThreadState {
+    HANDLER
+        .set(ComThreadState {
             clsid: clsid.0,
             handler: Arc::new(handler),
             in_flight_request: Arc::new(Mutex::new(None)),
-        });
-        tracing::debug!("ComThreadState initialized successfully");
-    });
+        })
+        .map_err(|_| {
+            windows::core::Error::new(E_FAIL, "server can only be registered one time per process")
+        })?;
+    tracing::debug!("ComThreadState initialized successfully");
 
     // Register the COM class object so that Windows RPC knows how to start it.
     static FACTORY: windows::core::StaticComObject<Factory> = Factory.into_static();
