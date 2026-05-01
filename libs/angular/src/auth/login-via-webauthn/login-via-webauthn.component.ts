@@ -55,6 +55,7 @@ export class LoginViaWebAuthnComponent implements OnInit {
   protected showPageIcons = true;
   protected showTroubleLoggingInText = true;
   protected useDifferentLoginMethodLinkText = "";
+  protected leftAlignDescription = false;
   private shouldAutoClosePopout = false;
 
   protected readonly Icons = {
@@ -94,6 +95,7 @@ export class LoginViaWebAuthnComponent implements OnInit {
     this.showTroubleLoggingInText = this.loginViaWebAuthnComponentService.showTroubleLoggingInText;
     this.useDifferentLoginMethodLinkText =
       this.loginViaWebAuthnComponentService.useDifferentLoginMethodLinkText;
+    this.leftAlignDescription = this.loginViaWebAuthnComponentService.leftAlignDescription;
 
     // Check if we should auto-close the popout after successful authentication
     this.shouldAutoClosePopout =

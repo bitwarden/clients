@@ -7,4 +7,7 @@ export abstract class LoginViaWebAuthnComponentService {
 
   /** The link text for navigating away from passkey login. */
   abstract useDifferentLoginMethodLinkText: string;
+
+  /** Whether to left-align the descriptive text. */
+  abstract leftAlignDescription: boolean;
 }

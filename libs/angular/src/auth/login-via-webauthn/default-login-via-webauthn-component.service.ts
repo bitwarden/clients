@@ -4,4 +4,5 @@ export class DefaultLoginViaWebAuthnComponentService implements LoginViaWebAuthn
   showPageIcons = true;
   showTroubleLoggingInText = true;
   useDifferentLoginMethodLinkText = "useADifferentLogInMethod";
+  leftAlignDescription = false;
 }
