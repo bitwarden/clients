@@ -5,8 +5,22 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import {
+  Collection as SdkCollection,
+  CollectionView as SdkCollectionView,
+} from "@bitwarden/sdk-internal";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
+
+// CollectionsClient.encrypt is implemented in the WASM binary but not yet reflected in the
+// published @bitwarden/sdk-internal type definitions. This augmentation closes the gap until
+// the npm package is bumped to a version that includes the signature.
+// TODO: Remove once @bitwarden/sdk-internal is bumped to a version that types encrypt().
+declare module "@bitwarden/sdk-internal" {
+  interface CollectionsClient {
+    encrypt(collection_view: SdkCollectionView): SdkCollection;
+  }
+}
 
 export class DefaultCollectionEncryptionService implements CollectionEncryptionService {
   constructor(
@@ -66,9 +80,10 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           }
 
           using ref = sdk.take();
-          const sdkCollection = (ref.value.vault().collections() as any).encrypt(
-            collectionView.toSdkCollectionView(),
-          );
+          const sdkCollection = ref.value
+            .vault()
+            .collections()
+            .encrypt(collectionView.toSdkCollectionView());
 
           return Collection.fromSdkCollection(sdkCollection);
         }),
