@@ -14,7 +14,10 @@ use windows::{
     core::{implement, interface, ComObjectInterface, IUnknown, GUID, HRESULT},
     Win32::{
         Foundation::{E_FAIL, E_INVALIDARG, S_FALSE, S_OK},
-        System::Com::{CoTaskMemAlloc, CoTaskMemFree, *},
+        System::{
+            Com::{CoTaskMemAlloc, CoTaskMemFree, *},
+            Threading::GetCurrentThreadId,
+        },
     },
 };
 use windows_core::{IInspectable, Interface};
@@ -163,6 +166,7 @@ impl IClassFactory_Impl for Factory_Impl {
         iid: *const windows::core::GUID,
         object: *mut *mut core::ffi::c_void,
     ) -> windows::core::Result<()> {
+        let thread_id = unsafe { GetCurrentThreadId() };
         let (clsid, handler, in_flight_request) = match HANDLER.with_borrow(|h| {
             h.as_ref().map(|s| {
                 (
@@ -174,7 +178,7 @@ impl IClassFactory_Impl for Factory_Impl {
         }) {
             Some(fields) => fields,
             None => {
-                tracing::error!("Cannot create COM class object instance because the handler is not initialized. register_server() must be called before starting the COM server.");
+                tracing::error!(%thread_id, "Cannot create COM class object instance because the handler is not initialized. register_server() must be called before starting the COM server.");
                 return Err(E_FAIL.into());
             }
         };
@@ -512,6 +516,10 @@ pub(crate) fn register_server<T>(clsid: Clsid, handler: T) -> Result<u32, window
 where
     T: PluginAuthenticator + Send + Sync + 'static,
 {
+    let com_thread_id = unsafe { GetCurrentThreadId() };
+    let span = tracing::info_span!("plugin_com_thread_register", thread_id = com_thread_id);
+    let _span_guard = span.enter();
+    tracing::debug!(thread_id = com_thread_id, "Initializing COM server");
     if HANDLER.with_borrow(|h| h.is_some()) {
         return Err(windows::core::Error::new(
             E_FAIL,
@@ -531,6 +539,7 @@ where
                 ));
             }
         }
+        tracing::debug!("CoInitializeEx successful");
 
         // If this call fails, some library in this process may have already set
         // it. We will ignore any failures.
@@ -549,13 +558,13 @@ where
         };
     }
 
-    let com_thread_id = unsafe { windows::Win32::System::Threading::GetCurrentThreadId() };
     HANDLER.with_borrow_mut(|h| {
         *h = Some(ComThreadState {
             clsid: clsid.0,
             handler: Arc::new(handler),
             in_flight_request: Arc::new(Mutex::new(None)),
         });
+        tracing::debug!("ComThreadState initialized successfully");
     });
 
     // Register the COM class object so that Windows RPC knows how to start it.
@@ -568,6 +577,7 @@ where
             REGCLS_MULTIPLEUSE,
         )?
     };
+    tracing::debug!("COM class object factory registered successfully");
     Ok(com_thread_id)
 }
 

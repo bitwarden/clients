@@ -24,7 +24,10 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 #[cfg(target_os = "windows")]
 pub use types::UserVerificationRequirement;
 #[cfg(target_os = "windows")]
-use windows::Win32::UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA, TranslateMessage};
+use windows::Win32::{
+    System::Threading::GetCurrentThreadId,
+    UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA},
+};
 
 #[cfg(not(target_os = "windows"))]
 fn main() {
@@ -102,9 +105,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let command = args.get(1).map(|s| s.as_str());
     match command {
         Some("serve") => {
-            tracing::info!("Starting plugin authenticator...");
+            let thread_id = unsafe { GetCurrentThreadId() };
+            tracing::info!(%thread_id, "Starting plugin authenticator...");
             let mut plugin = process::run_server()?;
-            tracing::info!("Listening for passkey requests...");
+            tracing::info!(%thread_id, "Listening for passkey requests...");
             loop {
                 let mut msg = MaybeUninit::uninit();
                 match unsafe { GetMessageA(msg.as_mut_ptr(), None, 0, 0).0 } {

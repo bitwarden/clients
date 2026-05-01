@@ -7,6 +7,7 @@ mod types;
 
 use std::{error::Error, mem::MaybeUninit, ptr::NonNull};
 
+use tracing::info_span;
 pub use types::*;
 use windows::{
     core::{GUID, PCWSTR},
@@ -262,6 +263,9 @@ impl WebAuthnPlugin {
                     tx.send(Err(err)).ok();
                 }
                 Ok(com_thread_id) => {
+                    let span = tracing::info_span!("plugin_com_thread", thread_id = com_thread_id);
+                    let _span_guard = span.enter();
+                    tracing::debug!("Initialized COM server.");
                     tx.send(Ok(com_thread_id)).ok();
                     // Run the COM message loop until WM_QUIT is posted.
                     loop {
