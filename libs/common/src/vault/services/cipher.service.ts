@@ -49,12 +49,12 @@ import {
   EncryptionContext,
 } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
-import { SearchService } from "../abstractions/search.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Attachment } from "../models/domain/attachment";
+import { BankAccount } from "../models/domain/bank-account";
 import { Card } from "../models/domain/card";
 import { Cipher } from "../models/domain/cipher";
 import { Fido2Credential } from "../models/domain/fido2-credential";
@@ -124,7 +124,6 @@ export class CipherService implements CipherServiceAbstraction {
     private domainSettingsService: DomainSettingsService,
     private apiService: ApiService,
     private i18nService: I18nService,
-    private searchService: SearchService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private encryptService: EncryptService,
     private cipherFileUploadService: CipherFileUploadService,
@@ -182,10 +181,7 @@ export class CipherService implements CipherServiceAbstraction {
             return await this.decryptCiphersWithSdk(ciphers, userId, false);
           }),
           tap(([decrypted, failures]) => {
-            void Promise.all([
-              this.setFailedDecryptedCiphers(failures, userId),
-              this.searchService.indexCiphers(userId, decrypted),
-            ]);
+            void Promise.all([this.setFailedDecryptedCiphers(failures, userId)]);
 
             this.logService.measure(
               decryptStartTime,
@@ -243,13 +239,6 @@ export class CipherService implements CipherServiceAbstraction {
     // We still want to set null though, that is the indicator that the cache isn't valid and we should do decryption.
     if (value == null || value.length !== 0) {
       await this.setDecryptedCiphers(value, userId);
-    }
-    if (this.searchService != null) {
-      if (value == null) {
-        await this.searchService.clearIndex(userId);
-      } else {
-        void this.searchService.indexCiphers(userId, value);
-      }
     }
   }
 
@@ -508,7 +497,6 @@ export class CipherService implements CipherServiceAbstraction {
 
     const decCiphers = await this.getDecryptedCiphers(userId);
     if (decCiphers != null && decCiphers.length !== 0) {
-      await this.reindexCiphers(userId);
       return decCiphers;
     }
 
@@ -531,10 +519,12 @@ export class CipherService implements CipherServiceAbstraction {
     try {
       const result = await this.cipherSdkService.getAllDecrypted(userId);
 
-      await this.setDecryptedCipherCache(result.successes, userId);
+      const sortedSuccesses = result.successes.sort(this.getLocaleSortingFunction());
+
+      await this.setDecryptedCipherCache(sortedSuccesses, userId);
       await this.setFailedDecryptedCiphers(result.failures, userId);
 
-      return result.successes;
+      return sortedSuccesses;
     } catch {
       // Return empty array on error to maintain existing behavior
       return [];
@@ -634,15 +624,6 @@ export class CipherService implements CipherServiceAbstraction {
     } else {
       const encKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
       return await cipher.decrypt(encKey);
-    }
-  }
-
-  private async reindexCiphers(userId: UserId) {
-    const reindexRequired =
-      this.searchService != null &&
-      ((await firstValueFrom(this.searchService.indexedEntityId$(userId))) ?? userId) !== userId;
-    if (reindexRequired) {
-      await this.searchService.indexCiphers(userId, await this.getDecryptedCiphers(userId), userId);
     }
   }
 
@@ -2353,6 +2334,26 @@ export class CipherService implements CipherServiceAbstraction {
           model.sshKey,
           cipher.sshKey,
           { privateKey: null, publicKey: null, keyFingerprint: null },
+          key,
+        );
+        return;
+      case CipherType.BankAccount:
+        cipher.bankAccount = new BankAccount();
+        await this.encryptObjProperty(
+          model.bankAccount,
+          cipher.bankAccount,
+          {
+            bankName: null,
+            nameOnAccount: null,
+            accountType: null,
+            accountNumber: null,
+            routingNumber: null,
+            branchNumber: null,
+            pin: null,
+            swiftCode: null,
+            iban: null,
+            bankContactPhone: null,
+          },
           key,
         );
         return;

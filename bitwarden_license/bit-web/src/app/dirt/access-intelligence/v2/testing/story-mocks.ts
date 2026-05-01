@@ -19,6 +19,7 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
   return new I18nMockService({
     // --- Shared ---
     loading: "Loading",
+    progressBar: "Progress bar",
 
     // --- Shared table / search ---
     search: "Search",
@@ -105,6 +106,10 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     unexpectedError: "An unexpected error occurred",
     mustBeOrganizationOwnerAdmin:
       "You must be an organization owner or admin to perform this action",
+
+    // --- Applications table row menu ---
+    options: "Options",
+    unmarkAsCritical: "Unmark as critical",
 
     // --- New applications dialog ---
     prioritizeCriticalApplications: "Prioritize Critical Applications",

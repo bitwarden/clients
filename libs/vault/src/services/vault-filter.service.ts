@@ -15,7 +15,10 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { sortDefaultCollections } from "@bitwarden/angular/vault/vault-filter/services/vault-filter.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  OrganizationService,
+  singleOrganizationPolicyApplies$,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
@@ -65,7 +68,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   organizationTree$: Observable<TreeNode<OrganizationFilter>> = combineLatest([
     this.memberOrganizations$,
     this.activeUserId$.pipe(
-      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+      switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
     ),
     this.activeUserId$.pipe(
       switchMap((userId) =>
@@ -358,6 +361,12 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         name: this.i18nService.t("typeSshKey"),
         type: CipherType.SshKey,
         icon: "bwi-key",
+      },
+      {
+        id: "bankAccount",
+        name: this.i18nService.t("bankAccount"),
+        type: CipherType.BankAccount,
+        icon: "bwi-bank",
       },
     ];
 
