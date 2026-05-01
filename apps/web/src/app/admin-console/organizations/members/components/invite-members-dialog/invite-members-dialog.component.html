@@ -125,28 +125,27 @@
     </div>
   }
   @if (organization.useSecretsManager) {
-    <h3 class="tw-mt-4">
-      {{ "secretsManager" | i18n }}
-      <a
-        bitLink
-        target="_blank"
-        rel="noreferrer"
-        appA11yTitle="{{ 'learnMore' | i18n }}"
-        href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
-        startIcon="bwi-question-circle"
-      ></a>
-    </h3>
-    <p class="tw-text-muted">{{ "secretsManagerAccessDescription" | i18n }}</p>
     <bit-form-control>
-      <input
-        type="checkbox"
-        [disabled]="isOnSecretsManagerStandalone"
-        bitCheckbox
-        formControlName="accessSecretsManager"
-      />
-      <bit-label>
-        {{ "userAccessSecretsManagerGA" | i18n }}
-      </bit-label>
+      <div class="tw-flex tw-flex-row tw-gap-2 tw-items-center">
+        <input
+          type="checkbox"
+          [disabled]="isOnSecretsManagerStandalone"
+          bitCheckbox
+          formControlName="accessSecretsManager"
+        />
+        <bit-label>
+          {{ "grantSecretsManager" | i18n }}
+        </bit-label>
+        <a
+          bitLink
+          target="_blank"
+          rel="noreferrer"
+          appA11yTitle="{{ 'learnMore' | i18n }}"
+          href="https://bitwarden.com/help/manage-your-organization/#access-to-secrets-manager"
+        >
+          <bit-icon name="bwi-question-circle" slot="end"> </bit-icon>
+        </a>
+      </div>
     </bit-form-control>
   }
   <button
