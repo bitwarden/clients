@@ -4030,7 +4030,13 @@
     "message": "Invite new users to your organization by entering their email address below."
   },
   "inviteMultipleEmailDesc": {
-    "message": "Enter up to $COUNT$ emails by separating with a comma."
+    "message": "Enter up to $COUNT$ emails by separating with a comma.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
