@@ -677,6 +677,11 @@ export class LockComponent implements OnInit, OnDestroy {
         await this.router.navigateByUrl(previousUrl);
         return;
       }
+      if (this.activatedRoute.snapshot.queryParamMap.get("autoClosePopout") === "true") {
+        this.messagingService.send("openPopup");
+        window.close();
+        return;
+      }
     }
 
     // determine success route based on client type
