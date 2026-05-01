@@ -462,43 +462,11 @@ jobs:
     permissions:
       id-token: write
     steps:
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
+      - name: Trigger deployment
+        uses: bitwarden/gh-actions/trigger-actions@main
         with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "gh-clients"
-          secrets: "DEPLOY-TRIGGER-APP-ID,DEPLOY-TRIGGER-APP-TOKEN"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@29824e69f54612133e76f7eaac726eef6c875baf # v2.2.1
-        with:
-          app-id: ${{ steps.retrieve-secrets.outputs.DEPLOY-TRIGGER-APP-ID }}
-          private-key: ${{ steps.retrieve-secrets.outputs.DEPLOY-TRIGGER-APP-TOKEN }}
-          owner: bitwarden
-          repositories: deploy
-
-      - name: Create USDEV deployment in deploy repo
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            await github.rest.repos.createDeployment({
-              owner: 'bitwarden',
-              repo: 'deploy',
-              ref: 'main',
-              environment: 'trigger-webvault-dev',
-              auto_merge: false,
-              required_contexts: [],
-              description: 'Triggered by build-web on main'
-            })
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          task: deploy-webvault-dev
+          description: "Triggered by build-web on main"
