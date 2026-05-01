@@ -2719,7 +2719,7 @@
   "receiveMarketingEmailsV2": {
     "message": "Get advice, announcements, and research opportunities from Bitwarden in your inbox."
   },
-  "receiveMarketingEmailsExtension": {
+  "receiveMarketingEmailsShort": {
     "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
