@@ -347,7 +347,13 @@ export class Client {
 
       // TwoFactor: prompt for a code and validate with TWO_FA_CODE_NONE (server auto-detects type)
       if (method === DeviceApprovalChannel.TwoFactor) {
-        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp);
+        // Keeper hides which 2FA method the user has configured. Sending a push
+        // with TWO_FA_PUSH_NONE lets the server dispatch the right one (SMS gets
+        // delivered, TOTP/security key etc. are no-ops). Same call also wires the
+        // Resend button.
+        const triggerPush = () => this.send2FAPush(currentLoginToken);
+        await triggerPush();
+        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, triggerPush);
         if (code === TryAnother) {
           continue;
         }
