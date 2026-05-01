@@ -45,8 +45,8 @@ impl HwndExt for HWND {
     }
 }
 
-pub fn create_context_string(transaction_id: GUID) -> String {
-    let context = &transaction_id.to_u128().to_le_bytes();
+pub fn create_context_string(transaction_id: GUID, request_hash: &[u8]) -> String {
+    let context = &[&transaction_id.to_u128().to_le_bytes(), request_hash].concat();
     STANDARD.encode(context)
 }
 
