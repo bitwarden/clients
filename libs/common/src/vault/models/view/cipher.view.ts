@@ -515,6 +515,8 @@ export class CipherView implements View, InitializerMetadata {
       secureNote: undefined,
       sshKey: undefined,
       bankAccount: undefined,
+      driversLicense: undefined,
+      passport: undefined,
     };
 
     switch (this.type) {

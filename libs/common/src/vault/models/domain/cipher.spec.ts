@@ -1064,6 +1064,8 @@ describe("Cipher DTO", () => {
         },
         identity: undefined,
         bankAccount: undefined,
+        passport: undefined,
+        driversLicense: undefined,
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
