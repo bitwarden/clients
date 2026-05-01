@@ -220,6 +220,8 @@ export class KeeperAuthStageViewComponent {
         return "totpCodePrompt";
       case TwoFactorMethod.Sms:
         return "smsCodePrompt";
+      case TwoFactorMethod.KeeperDna:
+        return "keeperDnaCodePrompt";
       default:
         return "twoFactorCodePrompt";
     }

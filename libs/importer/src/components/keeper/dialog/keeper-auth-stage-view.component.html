@@ -218,7 +218,12 @@
       (close)="cancel()"
     >
       <div bitDialogContent>
-        <p bitTypography="body1">{{ "keeperDnaPushWaiting" | i18n }}</p>
+        <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-2">
+          <bit-spinner></bit-spinner>
+          <p bitTypography="body1" class="tw-text-center !tw-mb-0">
+            {{ "keeperDnaPushWaiting" | i18n }}
+          </p>
+        </div>
       </div>
     </keeper-stage-shell>
   }

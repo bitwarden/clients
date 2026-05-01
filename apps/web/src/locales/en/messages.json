@@ -13421,6 +13421,9 @@
   "smsCodePrompt": {
     "message": "Please enter the code sent via text message"
   },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
   },

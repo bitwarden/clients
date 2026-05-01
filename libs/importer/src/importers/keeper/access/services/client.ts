@@ -6,7 +6,7 @@ import {
   type MessageShape,
 } from "@bufbuild/protobuf";
 
-import { DeviceApprovalChannel, DnaMethod, DuoMethod, TwoFactorMethod } from "../enums";
+import { DeviceApprovalChannel, DuoMethod, TwoFactorMethod } from "../enums";
 import {
   ApiRequestSchema,
   type ApiRequestPayload,
@@ -345,7 +345,9 @@ export class Client {
         "Device approval",
       );
 
-      // TwoFactor: prompt for a code and validate with TWO_FA_CODE_NONE (server auto-detects type)
+      // TwoFactor: prompt for a code and validate with TWO_FA_CODE_NONE (server auto-detects type).
+      // Also listen on the socket: if the user approves on a Keeper DNA device (e.g. Apple Watch),
+      // the server pushes the resulting login token via websocket and we never see a typed code.
       if (method === DeviceApprovalChannel.TwoFactor) {
         // Keeper hides which 2FA method the user has configured. Sending a push
         // with TWO_FA_PUSH_NONE lets the server dispatch the right one (SMS gets
@@ -353,16 +355,50 @@ export class Client {
         // Resend button.
         const triggerPush = () => this.send2FAPush(currentLoginToken);
         await triggerPush();
-        const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, triggerPush, true);
-        if (code === TryAnother) {
+
+        if (socketMessagePromise === undefined) {
+          socketMessagePromise = socket.waitForMessage();
+        }
+
+        const result = await Promise.race([
+          this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, triggerPush, true),
+          socketMessagePromise,
+        ]);
+
+        if (result === TryAnother) {
           continue;
         }
-        const updatedToken = await this.validate2FA(
-          currentLoginToken,
-          code,
-          new Uint8Array(),
-          TwoFactorValueType.TWO_FA_CODE_NONE,
-        );
+
+        let updatedToken: Uint8Array;
+        if (typeof result === "object" && "messageType" in result) {
+          // Socket fired first: device approval came through via push.
+          socketMessagePromise = undefined;
+          const { messageType: mt, message: msg } = result as PushMessage;
+          const passcode = msg.passcode as string | undefined;
+          const event = msg.event as string | undefined;
+          const encryptedLoginToken = msg.encryptedLoginToken as string | undefined;
+
+          if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
+            // Server already validated the code from the watch; reuse the new token.
+            updatedToken = base64UrlDecode(encryptedLoginToken);
+          } else if (mt === MessageType.DNA && passcode) {
+            updatedToken = await this.validate2FA(
+              currentLoginToken,
+              passcode,
+              new Uint8Array(),
+              TwoFactorValueType.TWO_FA_CODE_NONE,
+            );
+          } else {
+            throw new Error("Device approval failed or timed out");
+          }
+        } else {
+          updatedToken = await this.validate2FA(
+            currentLoginToken,
+            result,
+            new Uint8Array(),
+            TwoFactorValueType.TWO_FA_CODE_NONE,
+          );
+        }
         return await this.resumeLogin(updatedToken, deviceToken, messageSessionUid);
       }
 
@@ -527,8 +563,10 @@ export class Client {
   private supported2faMethods: Set<TwoFactorMethod> = new Set([
     TwoFactorMethod.Totp,
     TwoFactorMethod.Sms,
-    TwoFactorMethod.Duo,
     TwoFactorMethod.KeeperDna,
+
+    // TODO: Duo is actually working but it's disabled for the initial release to allow for more testing.
+    //TwoFactorMethod.Duo,
   ]);
 
   private async handle2FA(
@@ -596,65 +634,36 @@ export class Client {
           break;
         }
 
-        // Keeper DNA: push or manual code entry from the Keeper app (e.g. Apple Watch)
+        // Keeper DNA: server sends a push to the Keeper app (e.g. Apple Watch),
+        // device responds with a TOTP code via websocket. No code-entry fallback —
+        // the user just approves on their device.
         case TwoFactorChannelType.TWO_FA_CT_DNA: {
-          const dnaMethod = this.throwIfCancel(
-            await this.ui.selectDnaMethod([DnaMethod.Push, DnaMethod.Code]),
-            "Two-factor authentication",
-          );
+          await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_DNA);
 
-          switch (dnaMethod) {
-            // Push: server sends notification, device responds with a TOTP code via websocket
-            case DnaMethod.Push: {
-              await this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_DNA);
+          const dnaResult = await Promise.race([socket.waitForMessage(), this.ui.waitForDnaPush()]);
 
-              const dnaResult = await Promise.race([
-                socket.waitForMessage(),
-                this.ui.waitForDnaPush(),
-              ]);
+          this.ui.closeDnaPushDialog();
 
-              this.ui.closeDnaPushDialog();
+          if (dnaResult === TryAnother) {
+            continue twoFactor;
+          }
 
-              if (dnaResult === TryAnother) {
-                continue twoFactor;
-              }
+          if (dnaResult && typeof dnaResult === "object" && "messageType" in dnaResult) {
+            const { messageType: mt, message: msg } = dnaResult as PushMessage;
+            const passcode = msg.passcode as string | undefined;
 
-              if (dnaResult && typeof dnaResult === "object" && "messageType" in dnaResult) {
-                const { messageType: mt, message: msg } = dnaResult as PushMessage;
-                const passcode = msg.passcode as string | undefined;
-
-                if (mt === MessageType.DNA && passcode) {
-                  currentLoginToken = await this.validate2FA(
-                    currentLoginToken,
-                    passcode,
-                    channel.channelUid,
-                    TwoFactorValueType.TWO_FA_CODE_DNA,
-                  );
-                } else {
-                  throw new Error("Keeper DNA authentication failed or timed out");
-                }
-              } else {
-                throw new Error("Keeper DNA authentication cancelled");
-              }
-              break;
-            }
-
-            // Code: user reads the code from their device and enters it manually
-            case DnaMethod.Code: {
-              const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.KeeperDna);
-              if (code === TryAnother) {
-                continue twoFactor;
-              }
+            if (mt === MessageType.DNA && passcode) {
               currentLoginToken = await this.validate2FA(
                 currentLoginToken,
-                code,
+                passcode,
                 channel.channelUid,
                 TwoFactorValueType.TWO_FA_CODE_DNA,
               );
-              break;
+            } else {
+              throw new Error("Keeper DNA authentication failed or timed out");
             }
-            default:
-              throw new Error("Unsupported Keeper DNA method selected");
+          } else {
+            throw new Error("Keeper DNA authentication cancelled");
           }
 
           break;
