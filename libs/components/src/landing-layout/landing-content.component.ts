@@ -1,3 +1,4 @@
+import { NgClass } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 export const LandingContentMaxWidth = ["md", "lg", "xl", "2xl", "3xl", "4xl"] as const;
@@ -35,6 +36,7 @@ export type LandingContentMaxWidthType = (typeof LandingContentMaxWidth)[number]
   selector: "bit-landing-content",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-content.component.html",
+  imports: [NgClass],
   host: {
     class: "tw-grow tw-flex tw-flex-col",
   },
