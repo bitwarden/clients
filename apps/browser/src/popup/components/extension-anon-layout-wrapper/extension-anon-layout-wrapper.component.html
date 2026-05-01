@@ -28,6 +28,7 @@
   >
     <router-outlet></router-outlet>
     @if (adjustedLayout) {
+      <!-- If adjustedLayout is true, secondary content gets placed in the footer -->
       <router-outlet slot="footer-secondary" name="secondary"></router-outlet>
     } @else {
       <router-outlet slot="secondary" name="secondary"></router-outlet>

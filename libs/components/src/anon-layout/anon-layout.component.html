@@ -27,6 +27,7 @@
   @if (!hideFooter()) {
     <bit-landing-footer>
       <div [ngClass]="{ 'tw-grid tw-gap-6': adjustedLayout() }">
+        <!-- If adjustedLayout is true, secondary content gets placed here in the footer -->
         <ng-content select="[slot=footer-secondary]"></ng-content>
 
         @if (showReadonlyHostname()) {
