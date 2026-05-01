@@ -76,7 +76,7 @@
           variant="danger"
           (click)="revokeAccessTokensEvent.emit([token])"
         >
-          <bit-icon name="bwi-minus-circle" slot="start" />
+          <bit-icon fixedWidth name="bwi-minus-circle" slot="start" />
           {{ "revokeAccessToken" | i18n }}
         </button>
       </bit-menu>
@@ -86,7 +86,7 @@
 
 <bit-menu #tableMenu>
   <button type="button" bitMenuItem variant="danger" (click)="revokeSelected()">
-    <bit-icon name="bwi-minus-circle" slot="start" />
+    <bit-icon fixedWidth name="bwi-minus-circle" slot="start" />
     {{ "revokeAccessTokens" | i18n }}
   </button>
 </bit-menu>

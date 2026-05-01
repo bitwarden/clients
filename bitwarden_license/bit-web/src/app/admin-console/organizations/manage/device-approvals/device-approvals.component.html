@@ -44,7 +44,7 @@
             (click)="denyAllRequests()"
             [disabled]="actionInProgress"
           >
-            <bit-icon name="bwi-close" slot="start" />
+            <bit-icon fixedWidth name="bwi-close" slot="start" />
             {{ "denyAllRequests" | i18n }}
           </button>
         </bit-menu>
@@ -89,7 +89,7 @@
             (click)="denyRequest(r.id)"
             [disabled]="actionInProgress"
           >
-            <bit-icon name="bwi-close" slot="start" />
+            <bit-icon fixedWidth name="bwi-close" slot="start" />
             {{ "denyRequest" | i18n }}
           </button>
         </bit-menu>

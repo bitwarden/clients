@@ -196,7 +196,7 @@
                       variant="danger"
                       (click)="isProcessing ? null : bulkDelete(organization)"
                     >
-                      <bit-icon name="bwi-trash" slot="start" />
+                      <bit-icon fixedWidth name="bwi-trash" slot="start" />
                       {{ "delete" | i18n }}
                     </button>
                   }
@@ -506,7 +506,7 @@
                         variant="danger"
                         (click)="isProcessing ? null : deleteUser(u, organization)"
                       >
-                        <bit-icon name="bwi-trash" slot="start" />
+                        <bit-icon fixedWidth name="bwi-trash" slot="start" />
                         {{ "delete" | i18n }}
                       </button>
                     }
