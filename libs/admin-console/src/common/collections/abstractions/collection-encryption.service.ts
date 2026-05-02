@@ -25,14 +25,4 @@ export abstract class CollectionEncryptionService {
    * @returns A promise that resolves to an array of decrypted collection views
    */
   abstract decryptMany(collections: Collection[], userId: UserId): Promise<CollectionView[]>;
-
-  /**
-   * Encrypts a collection view using the SDK for the given userId.
-   *
-   * @param collectionView The decrypted collection view to encrypt
-   * @param userId The user ID whose keys will be used for encryption
-   *
-   * @returns A promise that resolves to the encrypted collection
-   */
-  abstract encrypt(collectionView: CollectionView, userId: UserId): Promise<Collection>;
 }

@@ -56,27 +56,4 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       ),
     );
   }
-
-  async encrypt(collectionView: CollectionView, userId: UserId): Promise<Collection> {
-    return firstValueFrom(
-      this.sdkService.userClient$(userId).pipe(
-        concatMap(async (sdk) => {
-          if (!sdk) {
-            throw new Error("SDK not available");
-          }
-
-          using ref = sdk.take();
-          const sdkCollection = (ref.value.vault().collections() as any).encrypt(
-            collectionView.toSdkCollectionView(),
-          );
-
-          return Collection.fromSdkCollection(sdkCollection);
-        }),
-        catchError((error: unknown) => {
-          this.logService.error(`Failed to encrypt collection: ${error}`);
-          throw error;
-        }),
-      ),
-    );
-  }
 }

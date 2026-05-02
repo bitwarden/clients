@@ -206,36 +206,4 @@ describe("DefaultCollectionEncryptionService", () => {
       );
     });
   });
-
-  describe("encrypt", () => {
-    it("encrypts a collection view and maps the result to a Collection", async () => {
-      const view = new CollectionView({
-        id: collectionId,
-        organizationId: orgId,
-        name: "My Collection",
-      });
-      jest.spyOn(view, "toSdkCollectionView").mockReturnValue({} as SdkCollectionView);
-      mockEncrypt.mockReturnValue(stubSdkCollection);
-
-      const result = await service.encrypt(view, userId);
-
-      expect(mockEncrypt).toHaveBeenCalled();
-      expect(result).toBeInstanceOf(Collection);
-    });
-
-    it("logs the error and rejects when the SDK throws during encrypt", async () => {
-      const view = new CollectionView({
-        id: collectionId,
-        organizationId: orgId,
-        name: "My Collection",
-      });
-      jest.spyOn(view, "toSdkCollectionView").mockReturnValue({} as SdkCollectionView);
-      mockEncrypt.mockImplementation(() => {
-        throw new Error("encrypt failure");
-      });
-
-      await expect(service.encrypt(view, userId)).rejects.toThrow();
-      expect(logService.error).toHaveBeenCalledWith(expect.stringContaining("Failed to encrypt"));
-    });
-  });
 });
