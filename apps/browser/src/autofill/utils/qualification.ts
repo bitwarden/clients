@@ -58,6 +58,7 @@ function buildAutofillFieldKeywords(field: AutofillField) {
     field["label-right"],
     field["label-tag"],
     field["label-top"],
+    field["aria-describedby"],
   ];
   const keywordsSet = new Set<string>();
   for (const attributeValue of attributeValues) {
