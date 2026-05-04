@@ -27,7 +27,7 @@
       bitLink
       [disabled]="disabled"
       type="button"
-      class="tw-flex tw-text-start tw-leading-snug tw-max-w-56"
+      class="tw-flex tw-text-start tw-leading-snug tw-max-w-56 tw-overflow-hidden"
       linkType="secondary"
       title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
       [routerLink]="[]"
@@ -65,15 +65,23 @@
   <td bitCell [ngClass]="RowHeightClass"></td>
 }
 @if (showGroups) {
-  <td bitCell [ngClass]="RowHeightClass">
+  <td
+    bitCell
+    [ngClass]="RowHeightClass"
+    class="tw-hidden tw-overflow-hidden tw-pr-7 xl:tw-table-cell tw-text-sm"
+  >
     @if (collectionGroups) {
       <app-group-badge [selectedGroups]="collectionGroups" [allGroups]="groups"></app-group-badge>
     }
   </td>
 }
 @if (showPermissionsColumn) {
-  <td bitCell [ngClass]="RowHeightClass">
-    <p class="tw-mb-0 tw-text-muted" [title]="permissionTooltip">
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden tw-pr-7 lg:tw-table-cell tw-text-sm">
+    <p
+      class="tw-mb-0 tw-truncate tw-text-muted"
+      [bitTooltip]="permissionTooltip"
+      [title]="permissionText"
+    >
       {{ permissionText }}
     </p>
   </td>

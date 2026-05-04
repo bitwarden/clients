@@ -26,6 +26,8 @@ import {
   OrganizationUserStatusType,
   OrganizationUserType,
   PolicyType,
+  RevocationReasonMessageMap,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -556,4 +558,7 @@ export class MembersComponent {
       this.validationService.showError(result.error.message);
     }
   };
+
+  getRevocationReasonTranslationKey = (reason?: RevocationReasonType) =>
+    RevocationReasonMessageMap[reason || RevocationReasonType.Unknown];
 }
