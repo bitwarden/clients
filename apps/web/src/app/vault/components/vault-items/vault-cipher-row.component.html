@@ -236,12 +236,10 @@
           }
 
           @if (isDriversLicenseCipher) {
-            <ng-container>
-              <button type="button" bitMenuItem appCopyField="licenseNumber" [cipher]="cipher">
-                <bit-icon name="bwi-clone" fixedWidth />
-                {{ "copyLicenseNumber" | i18n }}
-              </button>
-            </ng-container>
+            <button type="button" bitMenuItem appCopyField="licenseNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyLicenseNumber" | i18n }}
+            </button>
           }
 
           @if (showMenuDivider) {
