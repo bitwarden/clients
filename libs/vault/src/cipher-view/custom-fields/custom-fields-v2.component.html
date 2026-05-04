@@ -16,6 +16,7 @@
           bitInput
           [value]="field.value ?? ''"
           aria-readonly="true"
+          [attr.aria-label]="emptyFieldAriaLabel(field)"
           vaultAutosizeReadOnlyTextArea
         ></textarea>
         @if (field.value) {
@@ -39,6 +40,7 @@
           type="password"
           [value]="field.value ?? ''"
           aria-readonly="true"
+          [attr.aria-label]="emptyFieldAriaLabel(field)"
           class="tw-font-mono"
           *ngIf="!revealedHiddenFields.includes(i)"
         />
@@ -67,14 +69,15 @@
           appStopClick
           (click)="toggleCharacterCount(i)"
         ></button>
-        <button
-          bitSuffix
-          type="button"
-          bitIconButton
-          bitPasswordInputToggle
-          *ngIf="canViewPassword"
-          (toggledChange)="toggleHiddenField($event, i)"
-        ></button>
+        @if (canViewPassword && field.value) {
+          <button
+            bitSuffix
+            type="button"
+            bitIconButton
+            bitPasswordInputToggle
+            (toggledChange)="toggleHiddenField($event, i)"
+          ></button>
+        }
         @if (canViewPassword && field.value) {
           <button
             bitIconButton="bwi-clone"
