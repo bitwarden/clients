@@ -548,9 +548,7 @@ describe("NotificationsService", () => {
 
     describe("NotificationType.PremiumStatusChanged", () => {
       beforeEach(() => {
-        billingAccountProfileStateService.hasPremiumFromAnyOrganization$.mockReturnValue(
-          of(false),
-        );
+        billingAccountProfileStateService.hasPremiumFromAnyOrganization$.mockReturnValue(of(false));
         billingAccountProfileStateService.setHasPremium.mockResolvedValue();
       });
 
