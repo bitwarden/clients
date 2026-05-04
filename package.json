@@ -76,7 +76,7 @@
     "@types/firefox-webext-browser": "143.0.0",
     "@types/inquirer": "8.2.10",
     "@types/jest": "30.0.0",
-    "@types/jsdom": "21.1.7",
+    "@types/jsdom": "28.0.1",
     "@types/koa": "3.0.1",
     "@types/koa__multer": "2.0.7",
     "@types/koa-bodyparser": "4.3.7",
