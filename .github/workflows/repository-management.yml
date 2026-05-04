@@ -114,8 +114,8 @@ jobs:
 
       - name: Configure Git
         run: |
-          git config --local user.email "106330231+bitwarden-devops-bot@users.noreply.github.com"
-          git config --local user.name "bitwarden-devops-bot"
+          git config --local user.email "178206702+bw-ghapp[bot]@users.noreply.github.com"
+          git config --local user.name "bw-ghapp[bot]"
 
       ########################
       # VERSION BUMP SECTION #

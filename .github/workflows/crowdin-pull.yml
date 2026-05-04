@@ -76,8 +76,8 @@ jobs:
           upload_sources: false
           upload_translations: false
           download_translations: true
-          github_user_name: "bitwarden-devops-bot"
-          github_user_email: "106330231+bitwarden-devops-bot@users.noreply.github.com"
+          github_user_name: "bw-ghapp[bot]"
+          github_user_email: "178206702+bw-ghapp[bot]@users.noreply.github.com"
           commit_message: "Autosync the updated translations"
           localization_branch_name: crowdin-auto-sync-${{ matrix.app_name }}
           create_pull_request: true
