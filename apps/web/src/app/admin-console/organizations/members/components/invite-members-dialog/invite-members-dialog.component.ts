@@ -56,6 +56,7 @@ import { commaSeparatedEmails } from "../member-dialog/validators/comma-separate
 import {
   getEmailBatchLimit,
   inputEmailLimitValidator,
+  isDynamicSeatPlan,
 } from "../member-dialog/validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
@@ -170,6 +171,14 @@ export class InviteMembersDialogComponent {
 
   protected readonly remainingSeats$: Observable<number> = this.organization$.pipe(
     map((organization) => organization.seats - this.params.occupiedSeatCount),
+  );
+
+  protected readonly emailBatchLimit$: Observable<number> = this.organization$.pipe(
+    map((organization) => getEmailBatchLimit(organization, this.params.occupiedSeatCount)),
+  );
+
+  protected readonly isDynamicSeatPlan$: Observable<boolean> = this.organization$.pipe(
+    map((organization) => isDynamicSeatPlan(organization.productTierType)),
   );
 
   private readonly groups$: Observable<GroupDetailsView[]> = this.organization$.pipe(
