@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ez a webhely nem egyezik a mentett bejelentkezési adatokkal. Mielőtt kitöltenénk a bejelentkezés hitelesítő adatokat, győződjünk meg arról, hogy megbízható webhelyről van-e szó."
   },
+  "loginHasNoSiteSaved": {
+    "message": "A bejelentkezés nem mentett webhelyet."
+  },
+  "siteDoesntMatch": {
+    "message": "A webhely nem egyezik."
+  },
+  "loginNoSiteDesc": {
+    "message": "Ennek a bejelentkezésnek még nincs mentett webhelye. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Ez a webhely nem egyezik azzal, amelyet ehhez a bejelentkezéshez mentettünk. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Ez a webhely nem egyezik azzal, amelyet ehhez a bejelentkezéshez mentettünk. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Automatikus kitöltés és ezen webhely mentése"
+  },
+  "autofillOnly": {
+    "message": "Csak automatikus kitöltés"
+  },
   "showInlineMenuLabel": {
     "message": "Automatikus kitöltési javaslatok megjelenítése űrlapmezőknél"
   },
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "A letöltés sikertelen volt."
+  },
+  "sideNavigation": {
+    "message": "Oldal navigáció"
+  },
+  "skipLink": {
+    "message": "Hivatkozás kihagyása"
+  },
+  "callout": {
+    "message": "Felhívás",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Folyamatjelző sáv",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

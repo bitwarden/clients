@@ -1,11 +1,12 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom, of, throwError } from "rxjs";
 
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { makeEncString } from "@bitwarden/common/spec";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { DecryptedReportData, EncryptedDataWithKey, MemberDetails } from "../../models";
 import {
   GetRiskInsightsReportResponse,
@@ -26,7 +27,6 @@ import { MemberCipherDetailsApiService } from "../api/member-cipher-details-api.
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 describe("RiskInsightsReportService", () => {
@@ -37,7 +37,7 @@ describe("RiskInsightsReportService", () => {
   const memberCipherDetailsService = mock<MemberCipherDetailsApiService>();
   const mockPasswordHealthService = mock<PasswordHealthService>();
   const mockRiskInsightsApiService = mock<RiskInsightsApiService>();
-  const mockRiskInsightsEncryptionService = mock<RiskInsightsEncryptionService>({
+  const mockRiskInsightsEncryptionService = mock<LegacyRiskInsightsEncryptionService>({
     encryptRiskInsightsReport: jest.fn().mockResolvedValue("encryptedReportData"),
     decryptRiskInsightsReport: jest.fn().mockResolvedValue("decryptedReportData"),
   });
@@ -146,6 +146,70 @@ describe("RiskInsightsReportService", () => {
             if (error instanceof ErrorResponse && error.statusCode) {
               expect(error.message).toBe("Invalid response from API");
             }
+            done();
+          },
+        });
+    });
+
+    it("should propagate encryption errors", (done) => {
+      mockRiskInsightsEncryptionService.encryptRiskInsightsReport.mockRejectedValue(
+        new Error("Encryption failed"),
+      );
+
+      service
+        .saveRiskInsightsReport$(
+          mockReportData,
+          mockSummaryData,
+          mockApplicationData,
+          new RiskInsightsMetrics(),
+          {
+            organizationId: mockOrganizationId,
+            userId: mockUserId,
+          },
+        )
+        .subscribe({
+          next: () => {
+            done.fail("Expected error to propagate");
+          },
+          error: (error: unknown) => {
+            expect((error as Error).message).toBe("Encryption failed");
+            done();
+          },
+        });
+    });
+
+    it("should propagate API save errors", (done) => {
+      const mockEncryptedOutput: EncryptedDataWithKey = {
+        organizationId: mockOrganizationId,
+        encryptedReportData: mockReportEnc,
+        encryptedSummaryData: mockSummaryEnc,
+        encryptedApplicationData: mockApplicationsEnc,
+        contentEncryptionKey: mockEncryptedKey,
+      };
+      mockRiskInsightsEncryptionService.encryptRiskInsightsReport.mockResolvedValue(
+        mockEncryptedOutput,
+      );
+      mockRiskInsightsApiService.saveRiskInsightsReport$.mockReturnValue(
+        throwError(() => new Error("API save failed")),
+      );
+
+      service
+        .saveRiskInsightsReport$(
+          mockReportData,
+          mockSummaryData,
+          mockApplicationData,
+          new RiskInsightsMetrics(),
+          {
+            organizationId: mockOrganizationId,
+            userId: mockUserId,
+          },
+        )
+        .subscribe({
+          next: () => {
+            done.fail("Expected error to propagate");
+          },
+          error: (error: unknown) => {
+            expect((error as Error).message).toBe("API save failed");
             done();
           },
         });
