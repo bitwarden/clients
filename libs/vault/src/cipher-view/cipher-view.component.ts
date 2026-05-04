@@ -1,7 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, input, resource } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, of, switchMap, map, catchError, from, Observable, startWith } from "rxjs";
+import {
+  combineLatest,
+  firstValueFrom,
+  of,
+  switchMap,
+  map,
+  catchError,
+  from,
+  Observable,
+  startWith,
+} from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -16,6 +26,11 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
+import {
+  StateProvider,
+  UserKeyDefinition,
+  VAULT_AT_RISK_VIEW_DISK_LOCAL,
+} from "@bitwarden/common/platform/state";
 import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import {
@@ -46,6 +61,18 @@ import { ItemHistoryV2Component } from "./item-history/item-history-v2.component
 import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
+
+/** Maps cipher ID → passwordRevisionDate ISO string at time of dismissal (null = no revision date). */
+export type DismissedAtRiskCipherRecord = Record<string, string | null>;
+
+export const DISMISSED_AT_RISK_CIPHERS_KEY = new UserKeyDefinition<DismissedAtRiskCipherRecord>(
+  VAULT_AT_RISK_VIEW_DISK_LOCAL,
+  "dismissedAtRiskCiphers",
+  {
+    deserializer: (obj) => obj ?? {},
+    clearOn: ["logout"],
+  },
+);
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -99,6 +126,12 @@ export class CipherViewComponent {
    */
   readonly isAdminConsole = input<boolean>(false);
 
+  /**
+   * When true, the at-risk password callout displays an "X" dismiss button.
+   * Should only be set on browser extension and web app.
+   */
+  readonly allowDismissAtRiskCallout = input<boolean>(false);
+
   readonly activeUserId$ = getUserId(this.accountService.activeAccount$);
 
   constructor(
@@ -114,6 +147,7 @@ export class CipherViewComponent {
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
     private vaultSettingsService: VaultSettingsService,
+    private stateProvider: StateProvider,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -284,6 +318,41 @@ export class CipherViewComponent {
         (this.passwordIsAtRisk() && this.showAtRiskPasswordNotifications()))
     );
   });
+
+  protected readonly atRiskBannerDismissed = toSignal(
+    combineLatest([this.activeUserId$, this.cipher$]).pipe(
+      switchMap(([userId, cipher]) =>
+        this.stateProvider.getUser(userId, DISMISSED_AT_RISK_CIPHERS_KEY).state$.pipe(
+          map((dismissed) => {
+            if (!dismissed || !(cipher.id in dismissed)) {
+              return false;
+            }
+            const storedRevDate = dismissed[cipher.id];
+            const currentRevDate = cipher.login?.passwordRevisionDate?.toISOString() ?? null;
+            return storedRevDate === currentRevDate;
+          }),
+        ),
+      ),
+    ),
+    { initialValue: false },
+  );
+
+  readonly showAtRiskCallout = computed(() => {
+    return this.showChangePasswordLink() && !this.atRiskBannerDismissed();
+  });
+
+  protected readonly dismissAtRiskCallout = async () => {
+    const cipher = this.cipher();
+    const userId = await firstValueFrom(this.activeUserId$);
+    if (!cipher || !userId) {
+      return;
+    }
+    const revDate = cipher.login?.passwordRevisionDate?.toISOString() ?? null;
+    await this.stateProvider.getUser(userId, DISMISSED_AT_RISK_CIPHERS_KEY).update((state) => ({
+      ...(state ?? {}),
+      [cipher.id]: revDate,
+    }));
+  };
 
   readonly showAtRiskPasswordNotifications = toSignal(
     this.vaultSettingsService.showAtRiskPasswordNotifications$,

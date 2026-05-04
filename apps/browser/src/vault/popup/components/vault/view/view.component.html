@@ -11,7 +11,7 @@
   </popup-header>
 
   @if (cipher) {
-    <app-cipher-view [cipher]="cipher">
+    <app-cipher-view [cipher]="cipher" [allowDismissAtRiskCallout]="true">
       @if (showAutofillButton()) {
         <button
           type="button"

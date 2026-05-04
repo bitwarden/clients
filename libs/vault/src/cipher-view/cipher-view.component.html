@@ -11,7 +11,33 @@
     {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
   </bit-callout>
 
-  <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
+  <bit-callout
+    *ngIf="showChangePasswordLink() && !allowDismissAtRiskCallout()"
+    type="warning"
+    [title]="''"
+  >
+    @if (changePasswordLink()) {
+      <a
+        bitLink
+        [href]="changePasswordLink()"
+        appStopClick
+        (click)="launchChangePassword()"
+        linkType="secondary"
+        endIcon="bwi-external-link"
+      >
+        {{ "changeAtRiskPassword" | i18n }}
+      </a>
+    } @else {
+      {{ "changeAtRiskPassword" | i18n }}
+    }
+  </bit-callout>
+
+  <bit-callout
+    *ngIf="showAtRiskCallout() && allowDismissAtRiskCallout()"
+    type="warning"
+    [title]="''"
+    (dismiss)="dismissAtRiskCallout()"
+  >
     @if (changePasswordLink()) {
       <a
         bitLink
