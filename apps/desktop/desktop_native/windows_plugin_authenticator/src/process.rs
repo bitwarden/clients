@@ -32,47 +32,51 @@ use windows::{
         },
     },
 };
-use windows_plugin_authenticator::{AAGUID, AUTHENTICATOR_NAME, CLSID, LOGO_SVG, RPID};
+// use windows_plugin_authenticator::{AAGUID, AUTHENTICATOR_NAME, CLSID, LOGO_SVG, RPID};
 
 pub(super) fn add_authenticator() -> Result<(), String> {
-    tracing::debug!("register() called...");
-    let clsid = CLSID.try_into().expect("valid GUID string");
-    let aaguid = AAGUID
-        .try_into()
-        .map_err(|err| format!("Invalid AAGUID `{AAGUID}`: {err}"))?;
-    let options = PluginAddAuthenticatorOptions {
-        authenticator_name: AUTHENTICATOR_NAME.to_string(),
-        clsid,
-        rp_id: Some(RPID.to_string()),
-        light_theme_logo_svg: Some(LOGO_SVG.to_string()),
-        dark_theme_logo_svg: Some(LOGO_SVG.to_string()),
-        authenticator_info: AuthenticatorInfo {
-            versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
-            aaguid: aaguid,
-            options: Some(HashSet::from([
-                "rk".to_string(),
-                "up".to_string(),
-                "uv".to_string(),
-            ])),
-            transports: Some(HashSet::from([
-                "internal".to_string(),
-                "hybrid".to_string(),
-            ])),
-            algorithms: Some(vec![PublicKeyCredentialParameters {
-                alg: -7,
-                typ: "public-key".to_string(),
-            }]),
-        },
-        supported_rp_ids: None,
-    };
-    let response = WebAuthnPlugin::add_authenticator(&options);
-    tracing::debug!("Added the authenticator: {response:?}");
-    Ok(())
+    unimplemented!()
+    /*
+        tracing::debug!("register() called...");
+        let clsid = CLSID.try_into().expect("valid GUID string");
+        let aaguid = AAGUID
+            .try_into()
+            .map_err(|err| format!("Invalid AAGUID `{AAGUID}`: {err}"))?;
+        let options = PluginAddAuthenticatorOptions {
+            authenticator_name: AUTHENTICATOR_NAME.to_string(),
+            clsid,
+            rp_id: Some(RPID.to_string()),
+            light_theme_logo_svg: Some(LOGO_SVG.to_string()),
+            dark_theme_logo_svg: Some(LOGO_SVG.to_string()),
+            authenticator_info: AuthenticatorInfo {
+                versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
+                aaguid: aaguid,
+                options: Some(HashSet::from([
+                    "rk".to_string(),
+                    "up".to_string(),
+                    "uv".to_string(),
+                ])),
+                transports: Some(HashSet::from([
+                    "internal".to_string(),
+                    "hybrid".to_string(),
+                ])),
+                algorithms: Some(vec![PublicKeyCredentialParameters {
+                    alg: -7,
+                    typ: "public-key".to_string(),
+                }]),
+            },
+            supported_rp_ids: None,
+        };
+        let response = WebAuthnPlugin::add_authenticator(&options);
+        tracing::debug!("Added the authenticator: {response:?}");
+        Ok(())
+    */
 }
 
 pub(super) fn run_server() -> Result<WebAuthnPlugin, String> {
     tracing::debug!("Setting up COM server");
 
+    // TODO: write config to local file, or bake into binary
     let clsid = CLSID.try_into().expect("valid GUID string");
     let authenticator_handler = BitwardenPluginAuthenticator {
         client: Mutex::new(None),

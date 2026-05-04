@@ -241,7 +241,7 @@ export declare namespace logging {
 }
 
 export declare namespace passkey_authenticator {
-  export function register(): void
+  export function register(authenticatorName: string, clsid: string, logoSvg: string): void
 }
 
 export declare namespace passwords {

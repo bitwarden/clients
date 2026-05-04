@@ -81,7 +81,10 @@ export class DesktopAutofillService implements OnDestroy {
 
   async init() {
     this.isEnabled =
-      (this.featureFlag && (await this.configService.getFeatureFlag(this.featureFlag)) === true) || flagEnabled(LocalCredentialSyncFeatureFlag)
+      (this.featureFlag &&
+          ((await this.configService.getFeatureFlag(this.featureFlag)) === true)
+            || BIT_RELEASE_CHANNEL === "beta"
+            || flagEnabled(LocalCredentialSyncFeatureFlag))
     if (!this.isEnabled) {
       this.logService.info("Native autofill service is disabled.")
       return;
@@ -92,7 +95,7 @@ export class DesktopAutofillService implements OnDestroy {
       .getFeatureFlag$(this.featureFlag)
       .pipe(
         distinctUntilChanged(),
-                map((enabled) => (enabled === true || flagEnabled(LocalCredentialSyncFeatureFlag))),
+        map((enabled) => (enabled === true || BIT_RELEASE_CHANNEL === "beta" || flagEnabled(LocalCredentialSyncFeatureFlag))),
         tap((enabled) => {
           this.isEnabled = enabled;
           if (this.isEnabled === true) {

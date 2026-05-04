@@ -23,7 +23,7 @@
     "!node_modules/@bitwarden/desktop-napi/build.rs",
     "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "37.7.0",
+  "electronVersion": "39.8.5",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
@@ -66,7 +66,7 @@
   },
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
-    "backgroundColor": "#175DDC",
+    "backgroundColor": "#FDC700",
     "customManifestPath": "./custom-appx-manifest.xml",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",

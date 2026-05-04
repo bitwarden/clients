@@ -7,6 +7,8 @@ import { WindowMain } from "../../../main/window.main";
 
 import { CommandDefinition } from "./command";
 
+const WINDOWS_PLUGIN_CLSID = BIT_RELEASE_CHANNEL === "beta" ? "{355a5108-bcd1-4563-9b57-8d8e1adaf053}" : "{0f7dc5d9-69ce-4652-8572-6877fd695062}";
+
 type BufferedMessage = {
   channel: string;
   data: any;
