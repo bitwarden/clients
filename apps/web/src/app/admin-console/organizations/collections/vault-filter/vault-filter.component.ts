@@ -222,8 +222,9 @@ export class VaultFilterComponent {
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
       this.ciphers$(),
+      this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
     ]).pipe(
-      map(([restrictedTypes, ciphers]) => {
+      map(([restrictedTypes, ciphers, newItemTypes]) => {
         const restrictedForUser = restrictedTypes
           .filter((r) => {
             if (r.allowViewOrgIds.length === 0) {
@@ -245,7 +246,13 @@ export class VaultFilterComponent {
           .map((r) => r.cipherType);
 
         const toExclude = [...excludeTypes, ...restrictedForUser];
-        return this.allTypeFilters.filter((f) => !toExclude.includes(f.type));
+        return this.allTypeFilters
+          .filter((f) => !toExclude.includes(f.type))
+          .map((f): CipherTypeFilter => {
+            if (newItemTypes && f.type === CipherType.Login) {return { ...f, icon: "bwi-lock" };}
+            if (newItemTypes && f.type === CipherType.Identity) {return { ...f, icon: "bwi-user" };}
+            return f;
+          });
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
       distinctUntilChanged(),

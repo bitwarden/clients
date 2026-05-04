@@ -30,6 +30,8 @@ import { cloneCollection } from "@bitwarden/common/admin-console/utils/collectio
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -131,6 +133,7 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
     protected stateProvider: StateProvider,
     protected collectionService: CollectionService,
     protected accountService: AccountService,
+    protected configService: ConfigService,
   ) {}
 
   async getCollectionNodeFromTree(id: string) {
@@ -325,51 +328,58 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
   }
 
   protected buildCipherTypeTree(): Observable<TreeNode<CipherTypeFilter>> {
-    const allTypeFilters: CipherTypeFilter[] = [
-      {
-        id: "favorites",
-        name: this.i18nService.t("favorites"),
-        type: "favorites",
-        icon: "bwi-star",
-      },
-      {
-        id: "login",
-        name: this.i18nService.t("typeLogin"),
-        type: CipherType.Login,
-        icon: "bwi-globe",
-      },
-      {
-        id: "card",
-        name: this.i18nService.t("typeCard"),
-        type: CipherType.Card,
-        icon: "bwi-credit-card",
-      },
-      {
-        id: "identity",
-        name: this.i18nService.t("typeIdentity"),
-        type: CipherType.Identity,
-        icon: "bwi-id-card",
-      },
-      {
-        id: "note",
-        name: this.i18nService.t("typeSecureNote"),
-        type: CipherType.SecureNote,
-        icon: "bwi-sticky-note",
-      },
-      {
-        id: "sshKey",
-        name: this.i18nService.t("typeSshKey"),
-        type: CipherType.SshKey,
-        icon: "bwi-key",
-      },
-      {
-        id: "bankAccount",
-        name: this.i18nService.t("bankAccount"),
-        type: CipherType.BankAccount,
-        icon: "bwi-bank",
-      },
-    ];
+    return this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes).pipe(
+      switchMap((newItemTypes) => {
+        const allTypeFilters: CipherTypeFilter[] = [
+          {
+            id: "favorites",
+            name: this.i18nService.t("favorites"),
+            type: "favorites",
+            icon: "bwi-star",
+          },
+          {
+            id: "login",
+            name: this.i18nService.t("typeLogin"),
+            type: CipherType.Login,
+            icon: newItemTypes ? "bwi-lock" : "bwi-globe",
+          },
+          {
+            id: "card",
+            name: this.i18nService.t("typeCard"),
+            type: CipherType.Card,
+            icon: "bwi-credit-card",
+          },
+          {
+            id: "identity",
+            name: this.i18nService.t("typeIdentity"),
+            type: CipherType.Identity,
+            icon: newItemTypes ? "bwi-user" : "bwi-id-card",
+          },
+          {
+            id: "note",
+            name: this.i18nService.t("typeSecureNote"),
+            type: CipherType.SecureNote,
+            icon: "bwi-sticky-note",
+          },
+          {
+            id: "sshKey",
+            name: this.i18nService.t("typeSshKey"),
+            type: CipherType.SshKey,
+            icon: "bwi-key",
+          },
+          {
+            id: "bankAccount",
+            name: this.i18nService.t("bankAccount"),
+            type: CipherType.BankAccount,
+            icon: "bwi-bank",
+          },
+        ];
 
-    return this.buildTypeTree({ id: "AllItems", name: "allItems", type: "all" }, allTypeFilters);
+        return this.buildTypeTree(
+          { id: "AllItems", name: "allItems", type: "all" },
+          allTypeFilters,
+        );
+      }),
+    );
   }
 }
