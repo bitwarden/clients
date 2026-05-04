@@ -13698,8 +13698,8 @@
   "singleOrgPrerequisite":{
     "message": "The single organization policy must be turned on before activating this policy."
   },
-  "allowBanner":{
-    "message": "Allow banner"
+  "enableBanner":{
+    "message": "Enable banner"
   },
   "createBannerMessage":{
     "message": "Create banner message"
