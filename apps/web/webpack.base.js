@@ -77,22 +77,6 @@ module.exports.buildConfig = function buildConfig(params) {
       type: "asset/resource",
     },
     {
-      test: /\.scss$/,
-      use: [
-        {
-          loader: MiniCssExtractPlugin.loader,
-        },
-        "css-loader",
-        "resolve-url-loader",
-        {
-          loader: "sass-loader",
-          options: {
-            sourceMap: true,
-          },
-        },
-      ],
-    },
-    {
       test: /\.css$/,
       use: [
         {
@@ -413,10 +397,7 @@ module.exports.buildConfig = function buildConfig(params) {
         __dirname,
         "src/connectors/platform/proxy-cookie-redirect.ts",
       ),
-      styles: [
-        path.resolve(__dirname, "src/scss/styles.scss"),
-        path.resolve(__dirname, "src/scss/tailwind.css"),
-      ],
+      styles: [path.resolve(__dirname, "src/css/tailwind.css")],
       theme_head: path.resolve(__dirname, "src/theme.ts"),
     },
     cache:
