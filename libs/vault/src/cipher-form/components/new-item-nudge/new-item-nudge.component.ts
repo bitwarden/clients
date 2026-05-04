@@ -70,12 +70,9 @@ export class NewItemNudgeComponent {
         return NudgeType.NewNoteItemStatus;
 
       case CipherType.SshKey: {
-        const sshPartOne = this.i18nService.t("newSshNudgeBodyOne");
-        const sshPartTwo = this.i18nService.t("newSshNudgeBodyTwo");
-
         this.dismissalNudgeType = NudgeType.NewSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
-        this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-medium" target="_blank">${sshPartTwo}</a>`;
+        this.nudgeBody = this.i18nService.t("newSshNudgeBodyOne");
         return NudgeType.NewSshItemStatus;
       }
       case CipherType.BankAccount:
