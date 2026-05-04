@@ -326,7 +326,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // forget: the iframe content scripts apply their fields asynchronously and
     // re-send collectPageDetailsResponse with their own frameId.
     for (const [iframeSrc, iframeTargetedFields] of iframeTargets) {
-      void sendExtensionMessage("routeTargetedFieldsToFrame", { iframeSrc, iframeTargetedFields });
+      void this.sendExtensionMessage("routeTargetedFieldsToFrame", {
+        iframeSrc,
+        iframeTargetedFields,
+      });
     }
 
     // If this frame resolved no local targeted fields but already has fields cached
@@ -399,7 +402,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const pageDetails = this.getFormattedPageDetails({}, fields);
     this.setupOverlayListeners(pageDetails);
 
-    void sendExtensionMessage("collectPageDetailsResponse", {
+    void this.sendExtensionMessage("collectPageDetailsResponse", {
       details: pageDetails,
       sender: "autofillInit",
     });
