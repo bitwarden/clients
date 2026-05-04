@@ -85,6 +85,8 @@ export default {
               no: "No",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
               more: "More",
             });
           },

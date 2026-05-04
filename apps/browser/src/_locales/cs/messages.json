@@ -1800,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Tato stránka neodpovídá Vašim uloženým přihlašovacím údajům. Před vyplněním přihlašovacích údajů se ujistěte, že se jedná o důvěryhodný web."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Přihlášení nemá uloženo žádné weby"
+  },
+  "siteDoesntMatch": {
+    "message": "Web se neshoduje"
+  },
+  "loginNoSiteDesc": {
+    "message": "Toto přihlášení zatím nemá uloženo žádné weby. Před automatickým vyplněním ověřte, zda jste na důvěryhodné stránce."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Tento web se neshoduje s tím, který jste pro toto přihlášení uložili. Před automatickým vyplněním ověřte, zda jste na důvěryhodné stránce."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Tento web se neshoduje s těmi, které jste pro toto přihlášení uložili. Před automatickým vyplněním ověřte, zda jste na důvěryhodné stránce."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Automaticky vyplnit a uložit tento web"
+  },
+  "autofillOnly": {
+    "message": "Jen automaticky vyplnit"
+  },
   "showInlineMenuLabel": {
     "message": "Zobrazit návrhy automatického vyplňování v polích formuláře"
   },
@@ -6286,5 +6307,19 @@
   },
   "downloadFailed": {
     "message": "Stažení se nezdařilo."
+  },
+  "sideNavigation": {
+    "message": "Boční navigace"
+  },
+  "skipLink": {
+    "message": "Přeskočit odkaz"
+  },
+  "callout": {
+    "message": "Popisek",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Ukazatel průběhu",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -7,15 +7,19 @@ import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
-  OrganizationUserApiService,
-  DefaultOrganizationUserApiService,
+  CollectionEncryptionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
+  DefaultOrganizationUserApiService,
+  OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
   AuthRequestService,
+  DefaultLoginStrategyCacheService,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
+  DefaultLoginStrategySessionTimeoutService,
   UserDecryptionOptionsService,
   SsoUrlService,
   AuthRequestApiServiceAbstraction,
@@ -120,7 +124,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { LogLevelType } from "@bitwarden/common/platform/enums";
-import { MessageSender } from "@bitwarden/common/platform/messaging";
+import { MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 import {
   TaskSchedulerService,
   DefaultTaskSchedulerService,
@@ -348,6 +352,7 @@ export class ServiceContainer {
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
   cipherEncryptionService: CipherEncryptionService;
+  collectionEncryptionService: CollectionEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   encryptedMigrator: EncryptedMigrator;
@@ -654,14 +659,7 @@ export class ServiceContainer {
 
     this.sendPasswordService = new DefaultSendPasswordService(this.cryptoFunctionService);
 
-    this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
-
-    this.collectionService = new DefaultCollectionService(
-      this.keyService,
-      this.encryptService,
-      this.i18nService,
-      this.stateProvider,
-    );
+    this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.providerService = new ProviderService(this.stateProvider);
 
@@ -698,6 +696,20 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       customUserAgent,
+    );
+
+    this.collectionEncryptionService = new DefaultCollectionEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.collectionService = new DefaultCollectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      this.stateProvider,
+      this.configService,
+      this.collectionEncryptionService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -799,6 +811,17 @@ export class ServiceContainer {
     );
     this.passwordPreloginService = new DefaultPasswordPreloginService(passwordPreloginApiService);
 
+    const loginStrategyCacheService = new DefaultLoginStrategyCacheService(
+      this.globalStateProvider,
+    );
+
+    const loginStrategySessionTimeoutService = new DefaultLoginStrategySessionTimeoutService(
+      this.taskSchedulerService,
+      loginStrategyCacheService,
+      this.logService,
+      this.messagingService,
+      MessageListener.EMPTY,
+    );
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -824,11 +847,12 @@ export class ServiceContainer {
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
-      this.taskSchedulerService,
       this.configService,
       this.accountCryptographicStateService,
       this.passwordPreloginService,
       this.unlockService,
+      loginStrategyCacheService,
+      loginStrategySessionTimeoutService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -861,7 +885,6 @@ export class ServiceContainer {
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
-      this.searchService,
       this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
@@ -1076,6 +1099,7 @@ export class ServiceContainer {
       this.sdkService,
       this.keyService,
       this.masterPasswordService,
+      this.kdfConfigService,
     );
     this.encryptedMigrator = new DefaultEncryptedMigrator(
       this.kdfConfigService,
@@ -1102,7 +1126,7 @@ export class ServiceContainer {
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
 
     await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearAccessToken(userId);
+    await this.tokenService.clearTokens(userId);
     await this.accountService.clean(userId as UserId);
     await this.accountService.switchAccount(null);
     process.env.BW_SESSION = undefined;
@@ -1121,6 +1145,9 @@ export class ServiceContainer {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
+
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.

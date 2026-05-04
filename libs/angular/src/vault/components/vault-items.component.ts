@@ -16,12 +16,16 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { CIPHER_MENU_ITEMS } from "@bitwarden/common/vault/types/cipher-menu-items";
+import {
+  CIPHER_MENU_ITEMS,
+  DIALOG_CIPHER_MENU_ITEMS,
+} from "@bitwarden/common/vault/types/cipher-menu-items";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -52,16 +56,19 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
   organization: Organization;
   CipherType = CipherType;
 
-  protected itemTypes$ = this.restrictedItemTypesService.restricted$.pipe(
-    map((restrictedItemTypes) =>
-      // Filter out restricted item types
-      CIPHER_MENU_ITEMS.filter(
-        (itemType) =>
-          !restrictedItemTypes.some(
-            (restrictedType) => restrictedType.cipherType === itemType.type,
-          ),
-      ),
-    ),
+  protected itemTypes$ = combineLatest([
+    this.restrictedItemTypesService.restricted$,
+    this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+  ]).pipe(
+    map(([restrictedItemTypes, newItemTypesEnabled]) => {
+      const availableMenuItems = newItemTypesEnabled ? DIALOG_CIPHER_MENU_ITEMS : CIPHER_MENU_ITEMS;
+      // Filter out restricted and feature-flagged item types
+      return availableMenuItems.filter((itemType) => {
+        return !restrictedItemTypes.some(
+          (restrictedType) => restrictedType.cipherType === itemType.type,
+        );
+      });
+    }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
@@ -163,22 +170,31 @@ export class VaultItemsComponent<C extends CipherViewLike> implements OnDestroy 
             this.restrictedItemTypesService.restricted$,
           ]),
         ),
-        switchMap(([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
-          let allCiphers = (indexedCiphers ?? []) as C[];
-          const _failedCiphers = failedCiphers ?? [];
+        switchMap(
+          async ([indexedCiphers, failedCiphers, searchText, filter, userId, restricted]) => {
+            let allCiphers = (indexedCiphers ?? []) as C[];
+            const _failedCiphers = failedCiphers ?? [];
 
-          allCiphers = [..._failedCiphers, ...allCiphers] as C[];
+            allCiphers = [..._failedCiphers, ...allCiphers] as C[];
 
-          const restrictedTypeFilter = (cipher: CipherViewLike) =>
-            !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
+            const restrictedTypeFilter = (cipher: CipherViewLike) =>
+              !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted);
 
-          return this.searchService.searchCiphers(
-            userId,
-            searchText,
-            [filter, restrictedTypeFilter],
-            allCiphers,
-          );
-        }),
+            let filteredCiphers = await this.searchService.searchCiphers(
+              userId,
+              null,
+              searchText,
+              allCiphers,
+            );
+            filteredCiphers = filteredCiphers.filter(restrictedTypeFilter);
+            // Filter is initially null
+            if (filter != null) {
+              filteredCiphers = filteredCiphers.filter(filter);
+            }
+
+            return filteredCiphers;
+          },
+        ),
         takeUntilDestroyed(),
       )
       .subscribe((ciphers) => {
