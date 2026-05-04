@@ -312,15 +312,16 @@ export class DefaultServerNotificationsService implements ServerNotificationsSer
         );
         break;
       case NotificationType.PremiumStatusChanged: {
+        const premiumPayload = notification.payload as PremiumStatusChangedNotification;
         const hasPremiumFromAnyOrganization = await firstValueFrom(
           this.billingAccountProfileStateService.hasPremiumFromAnyOrganization$(
-            notification.payload.userId,
+            premiumPayload.userId as UserId,
           ),
         );
         await this.billingAccountProfileStateService.setHasPremium(
-          notification.payload.premium,
+          premiumPayload.premium,
           hasPremiumFromAnyOrganization,
-          notification.payload.userId,
+          premiumPayload.userId as UserId,
         );
         break;
       }
