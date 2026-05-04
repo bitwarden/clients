@@ -93,9 +93,6 @@ export type WithConstraints<State> = {
 
   /** the constraints enforced upon the type. */
   readonly constraints: Constraints<State>;
-
-  /** constraints that were actually applied (i.e. changed a value). */
-  readonly applied: Constraints<State>;
 };
 
 /** Creates constraints that are applied automatically to application
@@ -129,9 +126,9 @@ export type StateConstraints<State> = {
    *   such as when a policy requires a value fall within a specific
    *   range.
    *  @param state the state pending emission from the subject.
-   *  @return the adjusted state along with applied constraints
+   *  @return the value emitted by the subject
    */
-  adjust: (state: State) => WithConstraints<State>;
+  adjust: (state: State) => State;
 
   /** Enforces constraints that holds when the subject completes.
    *  @remarks This is useful for enforcing "default" constraints,
@@ -141,7 +138,7 @@ export type StateConstraints<State> = {
    *   completion.
    *  @return the value stored to state upon completion.
    */
-  fix: (state: State) => WithConstraints<State>;
+  fix: (state: State) => State;
 };
 
 export type SubjectConstraints<T> = StateConstraints<T> | DynamicStateConstraints<T>;

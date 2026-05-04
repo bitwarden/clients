@@ -7,9 +7,11 @@ import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
-  OrganizationUserApiService,
-  DefaultOrganizationUserApiService,
+  CollectionEncryptionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
+  DefaultOrganizationUserApiService,
+  OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
@@ -148,7 +150,6 @@ import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { buildExtensionRegistry } from "@bitwarden/common/tools/extension/factory";
-import { RestClient } from "@bitwarden/common/tools/integration/rpc";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -176,13 +177,6 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchService } from "@bitwarden/common/vault/services/search.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
-import {
-  BuiltIn,
-  createRandomizer,
-  CredentialGeneratorService,
-  DefaultCredentialGeneratorService,
-  providers,
-} from "@bitwarden/generator-core";
 import {
   legacyPasswordGenerationServiceFactory,
   PasswordGenerationServiceAbstraction,
@@ -290,8 +284,6 @@ export class ServiceContainer {
   eventUploadService: EventUploadServiceAbstraction;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
-  credentialGeneratorService: CredentialGeneratorService;
-  generatorDependencyProvider: providers.GeneratorDependencyProvider;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   totpService: TotpService;
   containerService: ContainerService;
@@ -360,6 +352,7 @@ export class ServiceContainer {
   ssoUrlService: SsoUrlService;
   masterPasswordApiService: MasterPasswordApiServiceAbstraction;
   cipherEncryptionService: CipherEncryptionService;
+  collectionEncryptionService: CollectionEncryptionService;
   restrictedItemTypesService: RestrictedItemTypesService;
   cliRestrictedItemTypesService: CliRestrictedItemTypesService;
   encryptedMigrator: EncryptedMigrator;
@@ -668,13 +661,6 @@ export class ServiceContainer {
 
     this.searchService = new SearchService(this.logService, this.i18nService);
 
-    this.collectionService = new DefaultCollectionService(
-      this.keyService,
-      this.encryptService,
-      this.i18nService,
-      this.stateProvider,
-    );
-
     this.providerService = new ProviderService(this.stateProvider);
 
     this.policyApiService = new PolicyApiService(
@@ -710,6 +696,20 @@ export class ServiceContainer {
       this.stateProvider,
       this.configService,
       customUserAgent,
+    );
+
+    this.collectionEncryptionService = new DefaultCollectionEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.collectionService = new DefaultCollectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      this.stateProvider,
+      this.configService,
+      this.collectionEncryptionService,
     );
 
     this.unlockService = new DefaultUnlockService(
@@ -997,48 +997,16 @@ export class ServiceContainer {
 
     this.importApiService = new ImportApiService(this.apiService);
 
-    const systemProvider = createSystemServiceProvider(
-      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
-      this.stateProvider,
-      this.policyService,
-      buildExtensionRegistry(),
-      this.logService,
-      this.platformUtilsService,
-      this.configService,
-    );
-
-    this.importMetadataService = new DefaultImportMetadataService(systemProvider);
-
-    const encryptorProvider = new KeyServiceLegacyEncryptorProvider(
-      this.encryptService,
-      this.keyService,
-    );
-    const userStateDeps = {
-      encryptor: encryptorProvider,
-      state: this.stateProvider,
-      log: systemProvider.log,
-      now: Date.now,
-    };
-
-    this.generatorDependencyProvider = {
-      randomizer: createRandomizer(),
-      client: new RestClient(this.apiService, this.i18nService),
-      i18nService: this.i18nService,
-      now: Date.now,
-    };
-
-    this.credentialGeneratorService = new DefaultCredentialGeneratorService(
-      {
-        userState: userStateDeps,
-        generator: this.generatorDependencyProvider,
-        profile: new providers.GeneratorProfileProvider(userStateDeps, this.policyService),
-        metadata: new providers.GeneratorMetadataProvider(
-          userStateDeps,
-          systemProvider,
-          Object.values(BuiltIn),
-        ),
-      },
-      systemProvider,
+    this.importMetadataService = new DefaultImportMetadataService(
+      createSystemServiceProvider(
+        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        this.stateProvider,
+        this.policyService,
+        buildExtensionRegistry(),
+        this.logService,
+        this.platformUtilsService,
+        this.configService,
+      ),
     );
 
     this.importService = new ImportService(
@@ -1140,11 +1108,6 @@ export class ServiceContainer {
       this.configService,
       this.masterPasswordService,
       this.syncService,
-      this.keyService,
-      new CliBiometricsService(),
-      this.biometricStateService,
-      this.platformUtilsService,
-      this.sdkService,
     );
   }
 
@@ -1163,7 +1126,7 @@ export class ServiceContainer {
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
 
     await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearAccessToken(userId);
+    await this.tokenService.clearTokens(userId);
     await this.accountService.clean(userId as UserId);
     await this.accountService.switchAccount(null);
     process.env.BW_SESSION = undefined;
@@ -1182,6 +1145,9 @@ export class ServiceContainer {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
+
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+    await this.tokenService.cleanupTokenStorage(Object.keys(accounts) as UserId[]);
 
     // If a user has a BW_SESSION key stored in their env (not process.env.BW_SESSION),
     // this should set the user key to unlock the vault on init.
