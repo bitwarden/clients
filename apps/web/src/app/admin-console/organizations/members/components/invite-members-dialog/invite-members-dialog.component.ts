@@ -1,4 +1,4 @@
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -29,6 +29,7 @@ import {
   FormFieldModule,
   IconModule,
   LinkModule,
+  RadioButtonModule,
   SelectModule,
   TabsModule,
   ToastService,
@@ -55,6 +56,7 @@ import { commaSeparatedEmails } from "../member-dialog/validators/comma-separate
 import {
   getEmailBatchLimit,
   inputEmailLimitValidator,
+  isDynamicSeatPlan,
 } from "../member-dialog/validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
@@ -86,6 +88,8 @@ export interface InviteMembersDialogParams {
     FormFieldModule,
     I18nPipe,
     LinkModule,
+    NgTemplateOutlet,
+    RadioButtonModule,
     ReactiveFormsModule,
     SelectModule,
     TabsModule,
@@ -167,6 +171,14 @@ export class InviteMembersDialogComponent {
 
   protected readonly remainingSeats$: Observable<number> = this.organization$.pipe(
     map((organization) => organization.seats - this.params.occupiedSeatCount),
+  );
+
+  protected readonly emailBatchLimit$: Observable<number> = this.organization$.pipe(
+    map((organization) => getEmailBatchLimit(organization, this.params.occupiedSeatCount)),
+  );
+
+  protected readonly isDynamicSeatPlan$: Observable<boolean> = this.organization$.pipe(
+    map((organization) => isDynamicSeatPlan(organization.productTierType)),
   );
 
   private readonly groups$: Observable<GroupDetailsView[]> = this.organization$.pipe(
