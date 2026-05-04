@@ -58,6 +58,10 @@ function buildAutofillFieldKeywords(field: AutofillField) {
     field["label-right"],
     field["label-tag"],
     field["label-top"],
+    // Parent container attributes let ambiguous TOTP fields inside a
+    // TOTP-signaling container get upgraded to a strong TOTP match.
+    field.containerHtmlID,
+    field.containerHtmlClass,
   ];
   const keywordsSet = new Set<string>();
   for (const attributeValue of attributeValues) {
