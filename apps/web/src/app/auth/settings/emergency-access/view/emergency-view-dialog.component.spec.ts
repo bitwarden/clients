@@ -15,6 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId, EmergencyAccessId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
@@ -78,6 +79,10 @@ describe("EmergencyViewDialogComponent", () => {
           useValue: mock<BillingAccountProfileStateService>(),
         },
         { provide: ConfigService, useValue: mock<ConfigService>() },
+        {
+          provide: StateProvider,
+          useValue: { getUser: jest.fn().mockReturnValue({ state$: of(null), update: jest.fn() }) },
+        },
         {
           provide: VaultSettingsService,
           useValue: mock<VaultSettingsService>({

@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -11,6 +11,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -110,6 +111,10 @@ describe("CipherViewComponent", () => {
           useValue: mockBillingAccountProfileStateService,
         },
         { provide: VaultSettingsService, useValue: mockVaultSettingsService },
+        {
+          provide: StateProvider,
+          useValue: { getUser: jest.fn().mockReturnValue({ state$: of(null), update: jest.fn() }) },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
