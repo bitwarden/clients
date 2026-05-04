@@ -1069,8 +1069,6 @@ describe("Cipher DTO", () => {
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
-        passport: undefined,
-        driversLicense: undefined,
         data: undefined,
         favorite: false,
         reprompt: SdkCipherRepromptType.None,
