@@ -228,6 +228,17 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   private async logOut(redirect = true) {
+    // Navigate first, before clearing any state, so that canDeactivate guards
+    // (e.g. unsaved-changes checks in policy drawers) run while the app is still
+    // fully functional. If the user chooses to stay (e.g. "Back to editing"),
+    // abort the logout entirely — no state has been touched.
+    if (redirect) {
+      const navigated = await this.router.navigate(["/"]);
+      if (!navigated) {
+        return;
+      }
+    }
+
     // Ensure the loading state is applied before proceeding to avoid a flash
     // of the login screen before the process reload fires.
     this.ngZone.run(() => {
@@ -269,10 +280,6 @@ export class AppComponent implements OnDestroy, OnInit {
       await this.accountService.switchAccount(null);
 
       await logoutPromise;
-
-      if (redirect) {
-        await this.router.navigate(["/"]);
-      }
 
       await this.processReloadService.startProcessReload();
 
