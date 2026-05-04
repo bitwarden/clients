@@ -18,7 +18,12 @@ export class DriversLicenseView extends ItemView implements SdkDriversLicenseVie
   licenseClass: string | undefined;
 
   get subTitle(): string {
-    return [this.firstName, this.lastName].filter(Boolean).join(" ") || "";
+    const name = [this.firstName, this.lastName].filter(Boolean).join(" ");
+    const issuingState = this.issuingState;
+    if (name && issuingState) {
+      return `${name}, ${issuingState}`;
+    }
+    return name || "";
   }
 
   static fromJSON(obj: Partial<Jsonify<DriversLicenseView>> | undefined): DriversLicenseView {
