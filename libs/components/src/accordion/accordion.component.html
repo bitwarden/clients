@@ -1,6 +1,7 @@
 <button
   type="button"
   data-accordion-trigger
+  [id]="triggerId"
   [class]="triggerClassList()"
   [disabled]="disabled() || null"
   [attr.aria-expanded]="open()"
@@ -27,7 +28,7 @@
     data-accordion-content
     [id]="contentId"
     role="region"
-    [attr.aria-label]="heading()"
+    [attr.aria-labelledby]="triggerId"
     [class]="contentClassList()"
   >
     <ng-content></ng-content>

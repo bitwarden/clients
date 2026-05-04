@@ -35,7 +35,9 @@ export class AccordionComponent {
   readonly size = input<AccordionSize>("default");
   readonly variant = input<AccordionVariant>("default");
 
-  readonly contentId = `bit-accordion-content-${nextId++}`;
+  protected readonly _baseId = `bit-accordion-${nextId++}`;
+  readonly triggerId = `${this._baseId}-trigger`;
+  readonly contentId = `${this._baseId}-content`;
 
   protected toggle() {
     if (!this.disabled()) {

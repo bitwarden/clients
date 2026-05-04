@@ -94,12 +94,14 @@ describe("AccordionComponent", () => {
       ).toBe("region");
     });
 
-    it("content panel aria-label matches heading when open", () => {
+    it("content panel aria-labelledby points to trigger button id when open", () => {
       fixture.componentRef.setInput("open", true);
       fixture.detectChanges();
       expect(
-        fixture.nativeElement.querySelector(`#${component.contentId}`).getAttribute("aria-label"),
-      ).toBe("Test Heading");
+        fixture.nativeElement
+          .querySelector(`#${component.contentId}`)
+          .getAttribute("aria-labelledby"),
+      ).toBe(component.triggerId);
     });
 
     it("chevron icon has aria-hidden=true", () => {
