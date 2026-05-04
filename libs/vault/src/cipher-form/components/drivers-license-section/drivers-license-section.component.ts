@@ -245,6 +245,7 @@ export class DriversLicenseSectionComponent implements OnInit {
 
   /**
    * Splits the stored "year-month-day" string back into discrete form fields; mirrors combineDate's format exactly.
+   * Strips leading zeros from month and day to match the form's expected format.
    */
   private parseDateParts(dateStr: string | undefined): {
     month: string;
@@ -255,6 +256,10 @@ export class DriversLicenseSectionComponent implements OnInit {
       return { month: "", day: "", year: "" };
     }
     const [year = "", month = "", day = ""] = dateStr.split("-");
-    return { month, day, year };
+    return {
+      month: month ? String(parseInt(month, 10)) : "",
+      day: day ? String(parseInt(day, 10)) : "",
+      year,
+    };
   }
 }

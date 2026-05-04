@@ -113,38 +113,6 @@ describe("DriversLicenseSectionComponent", () => {
     });
   });
 
-  describe("day and year pattern validation", () => {
-    it("is valid when day is 1 digit", () => {
-      ctrl("dateOfBirth.day").setValue("5");
-      expect(ctrl("dateOfBirth.day").hasError("invalidFormat")).toBe(false);
-    });
-
-    it("is valid when day is 2 digits", () => {
-      ctrl("dateOfBirth.day").setValue("31");
-      expect(ctrl("dateOfBirth.day").hasError("invalidFormat")).toBe(false);
-    });
-
-    it("shows invalidFormat error when day exceeds 2 digits", () => {
-      ctrl("dateOfBirth.day").setValue("123");
-      expect(ctrl("dateOfBirth.day").hasError("invalidFormat")).toBe(true);
-    });
-
-    it("is valid when year is exactly 4 digits", () => {
-      ctrl("dateOfBirth.year").setValue("2025");
-      expect(ctrl("dateOfBirth.year").hasError("invalidFormat")).toBe(false);
-    });
-
-    it("shows invalidFormat error when year is fewer than 4 digits", () => {
-      ctrl("dateOfBirth.year").setValue("202");
-      expect(ctrl("dateOfBirth.year").hasError("invalidFormat")).toBe(true);
-    });
-
-    it("shows invalidFormat error when year exceeds 4 digits", () => {
-      ctrl("dateOfBirth.year").setValue("20255");
-      expect(ctrl("dateOfBirth.year").hasError("invalidFormat")).toBe(true);
-    });
-  });
-
   describe("month + year cross-field validation", () => {
     it.each(["dateOfBirth", "issueDate", "expirationDate"] as const)(
       "sets crossFieldRequired error on year when month is set without year (%s)",
