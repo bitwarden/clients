@@ -45,7 +45,7 @@
           bitIconButton="bwi-close"
           buttonType="primaryGhost"
           size="default"
-          bitDialogClose
+          (click)="dialogRef?.close()"
           [label]="'close' | i18n"
         ></button>
       }
