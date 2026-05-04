@@ -138,31 +138,26 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
 
     // AutoConfirm requires SingleOrg; enable it as a prerequisite if not already on.
     if (enabledSingleOrgDuringAction) {
-      await this.policyApiService.putPolicyVNext(
-        this.organizationId() ?? "",
-        PolicyType.SingleOrg,
-        {
-          policy: { enabled: true, data: null },
-          metadata: null,
-        },
-      );
+      await this.policyApiService.putPolicy(this.organizationId() ?? "", PolicyType.SingleOrg, {
+        policy: { enabled: true, data: null },
+        metadata: null,
+      });
     }
 
     try {
       const request = await this.buildRequest();
-      await this.policyApiService.putPolicyVNext(
+      await this.policyApiService.putPolicy(
         this.organizationId() ?? "",
         PolicyType.AutoConfirm,
-        { policy: request, metadata: null },
+        request,
       );
     } catch (error) {
       // Roll back the SingleOrg enablement if AutoConfirm save fails.
       if (enabledSingleOrgDuringAction) {
-        await this.policyApiService.putPolicyVNext(
-          this.organizationId() ?? "",
-          PolicyType.SingleOrg,
-          { policy: { enabled: false, data: null }, metadata: null },
-        );
+        await this.policyApiService.putPolicy(this.organizationId() ?? "", PolicyType.SingleOrg, {
+          policy: { enabled: false, data: null },
+          metadata: null,
+        });
       }
       throw error;
     }
