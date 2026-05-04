@@ -293,12 +293,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
               if (!iframeTargets.has(iframeSrc)) {
                 iframeTargets.set(iframeSrc, []);
               }
-              iframeTargets
-                .get(iframeSrc)!
-                .push({
-                  selector: innerSelector,
-                  fieldType: fieldType as AutofillTargetingRuleType,
-                });
+              iframeTargets.get(iframeSrc)!.push({
+                selector: innerSelector,
+                fieldType: fieldType as AutofillTargetingRuleType,
+              });
             }
             break;
           }
