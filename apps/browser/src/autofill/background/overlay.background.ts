@@ -3278,7 +3278,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         subFrames.clear();
         delete this.subFrameOffsetsForTab[tabId];
       }
-      this.updateOverlayCiphers().catch((error) => this.logService.error(error));
       return;
     }
 
