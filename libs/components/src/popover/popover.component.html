@@ -11,10 +11,11 @@
       <div class="tw-relative tw-z-20 tw-max-w-80 tw-break-words tw-bg-bg-primary tw-text-fg-body">
         <ng-content select="bit-popover-header"></ng-content>
         <div class="tw-p-6">
-          <div class="tw-absolute tw-top-2 tw-right-2">
+          <div class="tw-absolute tw-top-3 tw-right-3">
             <button
               type="button"
               bitIconButton="bwi-close"
+              [buttonType]="closeButtonType()"
               [label]="'close' | i18n"
               (click)="closed.emit()"
               size="small"
@@ -22,9 +23,9 @@
           </div>
           <div class="tw-flex tw-flex-col tw-gap-6">
             <div class="tw-flex tw-flex-col tw-gap-3">
-              <div bitTypography="h4" class="tw-text-fg-heading !tw-mb-0">
+              <h2 bitTypography="h4" class="tw-text-fg-heading !tw-mb-0">
                 {{ title() }}
-              </div>
+              </h2>
               <div bitTypography="body2" class="tw-text-fg-body">
                 <ng-content></ng-content>
               </div>

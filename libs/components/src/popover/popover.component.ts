@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
+  computed,
+  contentChild,
   input,
   output,
   viewChild,
@@ -12,6 +14,8 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button/icon-button.module";
 import { TypographyModule } from "../typography";
+
+import { PopoverHeaderComponent } from "./popover-header.component";
 
 /**
  * Popover component for displaying contextual content in an overlay.
@@ -33,4 +37,10 @@ export class PopoverComponent {
 
   /** Emitted when the close button is clicked */
   readonly closed = output();
+
+  protected readonly header = contentChild(PopoverHeaderComponent);
+
+  protected readonly closeButtonType = computed(() =>
+    this.header() ? "secondary" : "primaryGhost",
+  );
 }
