@@ -1,0 +1,26 @@
+@if (showBanner()) {
+  <bit-banner bannerType="info" [icon]="null" [showClose]="showClose()" (onClose)="close()">
+    <span class="tw-flex tw-items-start tw-gap-2 lg:tw-justify-center lg:tw-relative">
+      <bit-icon
+        name="bwi-info-circle"
+        [class]="notificationData()?.header ? 'tw-shrink-0 tw-text-2xl' : 'tw-shrink-0 tw-mt-1'"
+      ></bit-icon>
+      <span class="tw-grow lg:tw-grow-0">
+        @if (notificationData()?.header) {
+          <span class="tw-block tw-font-semibold">{{ notificationData()?.header }}</span>
+        }
+        {{ notificationData()?.description }}
+      </span>
+      @if (notificationData()?.buttonText) {
+        <button
+          type="button"
+          bitButton
+          (click)="close()"
+          class="tw-self-center lg:tw-absolute lg:tw-right-0 lg:tw-top-1/2 lg:-tw-translate-y-1/2"
+        >
+          {{ notificationData()?.buttonText }}
+        </button>
+      }
+    </span>
+  </bit-banner>
+}

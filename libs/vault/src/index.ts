@@ -38,6 +38,11 @@ export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
 export * from "./components/vault-items-transfer";
 export { VaultItem } from "./components/vault-item";
+export { VaultOrganizationUserNotificationsComponent } from "./components/vault-organization-user-notifications/vault-organization-user-notifications.component";
+export {
+  VaultOrganizationUserNotificationsService,
+  OrganizationUserNotificationBannerData,
+} from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
