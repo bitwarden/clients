@@ -460,9 +460,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       edit: this.edit,
       permissions: this.permissions
         ? {
-          delete: this.permissions.delete,
-          restore: this.permissions.restore,
-        }
+            delete: this.permissions.delete,
+            restore: this.permissions.restore,
+          }
         : undefined,
       viewPassword: this.viewPassword,
       localData: toSdkLocalData(this.localData),
