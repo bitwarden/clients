@@ -2,7 +2,7 @@ import { TAB_LIST_CONTAINER_GAP } from "./tab-list-container.directive";
 
 /** Shared CSS classes for tab label content spans. */
 export const TAB_LABEL_CONTENT_CLASSES =
-  "tw-flex tw-items-center tw-gap-1.5 tw-rounded group-focus-visible/tab-list-item:tw-ring-2 group-focus-visible/tab-list-item:tw-ring-border-focus";
+  "tw-flex tw-items-center tw-gap-1.5 tw-h-6 tw-rounded group-focus-visible/tab-list-item:tw-ring-2 group-focus-visible/tab-list-item:tw-ring-border-focus";
 
 /**
  * Measures the widths of tab elements.

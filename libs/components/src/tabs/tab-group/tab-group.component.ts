@@ -231,7 +231,8 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
       // Manually update the _selectedIndex and keyManager active item
       this._selectedIndex.set(indexToSelect);
-      this.keyManager()?.setActiveItem(indexToSelect);
+      const displayedPos = this.sortedTabs().displayed.indexOf(indexToSelect);
+      this.keyManager()?.setActiveItem(displayedPos >= 0 ? displayedPos : 0);
     }
   }
 
@@ -247,7 +248,9 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
     // Sync the key manager's active item with the already-selected tab.
     // ngAfterContentChecked (which calls setActiveItem) runs before ngAfterViewInit,
     // so the key manager is always initialized with activeItemIndex = -1 without this.
-    km.updateActiveItem(this._selectedIndex() ?? 0);
+    const selectedIdx = this._selectedIndex() ?? 0;
+    const displayedPos = untracked(() => this.sortedTabs().displayed.indexOf(selectedIdx));
+    km.updateActiveItem(displayedPos >= 0 ? displayedPos : 0);
 
     this.keyManager.set(km);
   }

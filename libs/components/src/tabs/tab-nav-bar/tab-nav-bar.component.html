@@ -12,7 +12,7 @@
       type="button"
       [hidden]="sortedTabs().overflow.length === 0"
       [attr.aria-hidden]="sortedTabs().overflow.length === 0 ? 'true' : null"
-      [attr.tabindex]="sortedTabs().overflow.length === 0 ? null : 0"
+      [attr.tabindex]="sortedTabs().overflow.length === 0 ? null : -1"
       [bitMenuTriggerFor]="overflowTabsMenu"
     >
       <span [class]="tabLabelContentClasses">

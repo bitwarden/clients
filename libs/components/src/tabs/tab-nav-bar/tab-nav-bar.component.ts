@@ -1,7 +1,7 @@
 import { FocusKeyManager } from "@angular/cdk/a11y";
 import { NgTemplateOutlet } from "@angular/common";
 import {
-  AfterContentInit,
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -55,7 +55,7 @@ import { TabLinkComponent } from "./tab-link.component";
     I18nPipe,
   ],
 })
-export class TabNavBarComponent implements AfterContentInit {
+export class TabNavBarComponent implements AfterViewInit {
   protected readonly tabLabelContentClasses = TAB_LABEL_CONTENT_CLASSES;
 
   private readonly injector = inject(Injector);
@@ -64,6 +64,9 @@ export class TabNavBarComponent implements AfterContentInit {
 
   private readonly tabHeader = viewChild.required(TabHeaderComponent, { read: ElementRef });
   private readonly moreButton = viewChild.required<ElementRef>("moreButton");
+  private readonly moreButtonItem = viewChild.required("moreButton", {
+    read: TabListItemDirective,
+  });
 
   readonly tabLabels = contentChildren(forwardRef(() => TabLinkComponent));
   readonly label = input("");
@@ -96,7 +99,14 @@ export class TabNavBarComponent implements AfterContentInit {
    * Focus key manager for keeping tab controls accessible.
    * https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/tablist_role#keyboard_interactions
    */
-  readonly keyManager = signal<FocusKeyManager<TabLinkComponent> | undefined>(undefined);
+  private readonly allTabItems = computed<(TabLinkComponent | TabListItemDirective)[]>(() => [
+    ...this.tabLabels(),
+    this.moreButtonItem(),
+  ]);
+
+  readonly keyManager = signal<
+    FocusKeyManager<TabLinkComponent | TabListItemDirective> | undefined
+  >(undefined);
 
   constructor() {
     this.resizeObserver = new ResizeObserver((entries) =>
@@ -130,12 +140,12 @@ export class TabNavBarComponent implements AfterContentInit {
     });
   }
 
-  ngAfterContentInit(): void {
-    const km = new FocusKeyManager(this.tabLabels, this.injector)
+  ngAfterViewInit(): void {
+    const km = new FocusKeyManager(this.allTabItems, this.injector)
       .withHorizontalOrientation("ltr")
       .withWrap()
       .withHomeAndEnd()
-      .skipPredicate((item) => item.disabled);
+      .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden);
 
     this.keyManager.set(km);
   }

@@ -59,7 +59,6 @@ export class TabListItemDirective implements FocusableOption {
     "tw-shrink-0",
     "tw-h-full",
     "tw-whitespace-nowrap",
-    "tw--mb-px",
     "tw-pb-3",
     "tw-text-sm",
     "tw-font-medium",
@@ -74,7 +73,8 @@ export class TabListItemDirective implements FocusableOption {
     "after:tw-h-[2px]",
     "after:tw-bg-bg-brand",
     "after:tw-absolute",
-    "after:tw-bottom-0",
+    "after:-tw-bottom-px",
+    "after:tw-inset-x-0",
     "after:tw-transition-opacity",
     "after:tw-opacity-0",
   ];
