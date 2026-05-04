@@ -57,22 +57,29 @@ export class TabListItemDirective implements FocusableOption {
     "tw-block",
     "tw-relative",
     "tw-shrink-0",
+    "tw-h-full",
     "tw-whitespace-nowrap",
     "tw--mb-px",
     "tw-pb-3",
     "tw-text-sm",
     "tw-font-medium",
     "tw-transition",
-    "tw-border-b-2",
-    "tw-border-transparent",
-    "tw-border-solid",
     "tw-bg-transparent",
     "tw-outline-none",
     "tw-group/tab-list-item",
     "tw-transition",
+
+    "after:tw-content-['']",
+    "after:tw-w-full",
+    "after:tw-h-[2px]",
+    "after:tw-bg-bg-brand",
+    "after:tw-absolute",
+    "after:tw-bottom-0",
+    "after:tw-transition-opacity",
+    "after:tw-opacity-0",
   ];
 
   readonly disabledClassList: string[] = ["tw-cursor-not-allowed"];
 
-  readonly activeClassList: string[] = ["tw-font-semibold", "!tw-border-bg-brand"];
+  readonly activeClassList: string[] = ["tw-font-semibold", "after:tw-opacity-100"];
 }

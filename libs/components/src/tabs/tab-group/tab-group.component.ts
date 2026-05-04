@@ -18,6 +18,7 @@ import {
   ElementRef,
   Injector,
   signal,
+  untracked,
   computed,
   ChangeDetectionStrategy,
 } from "@angular/core";
@@ -117,14 +118,8 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
 
   private readonly _selectedIndex = signal<number | null>(null);
 
-  /**
-   * Guards the effect's "no active tab" emission path against first render.
-   * `ngAfterContentChecked` defers `isActive` updates to a microtask, so the
-   * effect fires with all tabs inactive before they've been initialized — emitting
-   * a spurious `selectedTabChange`. A plain boolean avoids re-triggering the effect
-   * when the flag flips (a signal would).
-   */
-  private _initialized = false;
+  /** Guards against premature `selectedTabChange` emissions before tabs are initialized. */
+  private readonly _initialized = signal(false);
 
   /** Event emitted when the tab selection has changed. */
   readonly selectedTabChange = output<BitTabChangeEvent>();
@@ -184,7 +179,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
         // was removed, so a new active tab must be set manually
         if (!selectedTab && tabs[indexToSelect]) {
           tabs[indexToSelect].isActive.set(true);
-          if (this._initialized) {
+          if (untracked(() => this._initialized())) {
             this.selectedTabChange.emit({
               index: indexToSelect,
               tab: tabs[indexToSelect],
@@ -231,7 +226,7 @@ export class TabGroupComponent implements AfterContentChecked, AfterViewInit {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       Promise.resolve().then(() => {
         this.tabs().forEach((tab, index) => tab.isActive.set(index === indexToSelect));
-        this._initialized = true;
+        this._initialized.set(true);
       });
 
       // Manually update the _selectedIndex and keyManager active item
