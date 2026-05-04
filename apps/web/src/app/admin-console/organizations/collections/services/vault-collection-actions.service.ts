@@ -1,4 +1,5 @@
-import { inject, Injectable } from "@angular/core";
+import { DestroyRef, inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { combineLatest, firstValueFrom, lastValueFrom, Observable, Subject } from "rxjs";
 import { distinctUntilChanged, filter, map, shareReplay, switchMap } from "rxjs/operators";
@@ -16,6 +17,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { getById } from "@bitwarden/common/platform/misc";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -72,8 +74,20 @@ export class VaultCollectionActionsService {
 
   private readonly selectedCollection$ = this.vaultCollectionService.selectedCollection$;
 
+  private readonly messageListener = inject(MessageListener);
+  private readonly destroyRef = inject(DestroyRef);
+
   private readonly _refresh$ = new Subject<void>();
   readonly refresh$ = this._refresh$.asObservable();
+
+  constructor() {
+    this.messageListener.allMessages$
+      .pipe(
+        filter((msg) => msg.command === "syncCompleted" && !!(msg as any).successfully),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this._refresh$.next());
+  }
 
   private refresh(): void {
     this._refresh$.next();

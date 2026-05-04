@@ -1,9 +1,7 @@
 import {
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
   inject,
-  NgZone,
   OnDestroy,
   OnInit,
   Signal,
@@ -48,7 +46,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -98,7 +95,6 @@ import { AddAccessStatusType, VaultCollectionService } from "./services/vault-co
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 
-const BroadcasterSubscriptionId = "OrgVaultComponent";
 const SearchTextDebounceInterval = 200;
 
 @Component({
@@ -131,11 +127,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly vaultFilterService = inject(VaultFilterService);
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
   private readonly router = inject(Router);
-  private readonly changeDetectorRef = inject(ChangeDetectorRef);
   private readonly syncService = inject(SyncService);
   private readonly i18nService = inject(I18nService);
-  private readonly broadcasterService = inject(BroadcasterService);
-  private readonly ngZone = inject(NgZone);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly cipherService = inject(CipherService);
   private readonly searchService = inject(SearchService);
@@ -385,21 +378,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.ngZone.run(async () => {
-        switch (message.command) {
-          case "syncCompleted":
-            if (message.successfully) {
-              this.refresh();
-              this.changeDetectorRef.detectChanges();
-            }
-            break;
-        }
-      });
-    });
-
     this.cipherActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
     this.collectionActions.refresh$.pipe(takeUntil(this.destroy$)).subscribe(() => this.refresh());
 
@@ -549,7 +527,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
     this.destroy$.next();
     this.destroy$.complete();
   }
