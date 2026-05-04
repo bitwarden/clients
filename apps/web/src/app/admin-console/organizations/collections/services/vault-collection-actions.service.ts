@@ -84,7 +84,7 @@ export class VaultCollectionActionsService {
   constructor() {
     this.messageListener.allMessages$
       .pipe(
-        filter((msg) => msg.command === "syncCompleted" && !!(msg as any).successfully),
+        filter((msg) => msg.command === "syncCompleted" && !!msg.successfully),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => this._refresh$.next());
