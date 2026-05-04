@@ -4,7 +4,7 @@
   <!-- Choose how to approve this device (email link, push, 2FA). -->
   @case ("selectApproval") {
     <keeper-stage-shell
-      [title]="'selectApprovalMethod' | i18n"
+      [title]="'deviceApprovalNeeded' | i18n"
       [email]="email()"
       [primaryLabel]="'continue' | i18n"
       (primary)="confirmApproval()"
@@ -30,7 +30,7 @@
   @case ("approvalCode") {
     @if (currentStage.variant === "email") {
       <keeper-stage-shell
-        [title]="'emailVerification' | i18n"
+        [title]="'deviceApprovalNeeded' | i18n"
         [email]="email()"
         [primaryLabel]="'continue' | i18n"
         (primary)="submitCode()"
@@ -59,7 +59,7 @@
       </keeper-stage-shell>
     } @else {
       <keeper-stage-shell
-        [title]="'keeperPush' | i18n"
+        [title]="'deviceApprovalNeeded' | i18n"
         [email]="email()"
         [primaryLabel]="'tryAnotherMethod' | i18n"
         (primary)="tryAnother()"
@@ -111,8 +111,8 @@
       [email]="email()"
       [primaryLabel]="'continue' | i18n"
       (primary)="currentStage.needsInput ? submitCode() : submitPush()"
-      [secondaryLabel]="'cancel' | i18n"
-      (secondary)="cancel()"
+      [secondaryLabel]="(currentStage.hidden ? 'tryAnotherMethod' : 'cancel') | i18n"
+      (secondary)="currentStage.hidden ? tryAnother() : cancel()"
       (close)="cancel()"
     >
       <div bitDialogContent>

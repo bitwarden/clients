@@ -4701,6 +4701,9 @@
   "selectApprovalMethod": {
     "message": "Approval methods"
   },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
   "selectApprovalMethodDesc": {
     "message": "Approve this device by selecting a method below"
   },

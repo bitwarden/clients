@@ -209,10 +209,13 @@ export class KeeperAuthStageViewComponent {
   }
 
   protected getTwoFactorCodeTitle(stage: TwoFactorCodeStage): string {
+    if (stage.hidden) {
+      return "deviceApprovalNeeded";
+    }
     if (!stage.needsInput) {
       return "keeperMFARequired";
     }
-    return stage.hidden ? "twoFactorMethod" : "verificationCode";
+    return "verificationCode";
   }
 
   protected getTwoFactorCodePrompt(stage: TwoFactorCodeStage): string {
