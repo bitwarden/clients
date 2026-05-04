@@ -296,8 +296,8 @@ export const LargeDataset: Story = {
     }),
   ],
   render: () => ({
-    template: `
-      <div class="tw-max-w-[400px] tw-max-h-[600px] tw-border tw-border-secondary-300 tw-p-5 tw-overflow-y-auto">
+    template: /*html*/ `
+      <div class="tw-max-w-[400px] tw-max-h-[600px] tw-border tw-border-secondary-300 tw-p-5 tw-overflow-y-auto" tabindex="0">
         <dirt-access-intelligence-drawer-v2></dirt-access-intelligence-drawer-v2>
       </div>
     `,
