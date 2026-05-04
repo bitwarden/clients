@@ -1,3 +1,10 @@
+/**
+ * The `bw.theme.scss` file is used to generate `bw.theme.css`. Do not modify the CSS file
+ * directly. Instead, make changes to the SCSS file and regenerate the CSS.
+ *
+ * npx sass ./libs/components/src/multi-select/scss/bw.theme.scss ./libs/components/src/multi-select/scss/bw.theme.css --no-source-map 2>&1
+ */
+
 // Default theme copied from https://github.com/ng-select/ng-select/blob/master/src/ng-select/themes/default.theme.scss
 @mixin rtl {
   @at-root [dir="rtl"] #{&} {

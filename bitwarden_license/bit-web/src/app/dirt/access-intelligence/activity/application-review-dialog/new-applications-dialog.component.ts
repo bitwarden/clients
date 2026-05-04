@@ -28,6 +28,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  IconModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -81,6 +82,7 @@ export type NewApplicationsDialogResultType =
   imports: [
     ButtonModule,
     DialogModule,
+    IconModule,
     TypographyModule,
     I18nPipe,
     AssignTasksViewComponent,
@@ -362,7 +364,7 @@ export class NewApplicationsDialogComponent {
    * Closes the dialog when the "Cancel" button is selected
    */
   handleCancel() {
-    this.dialogRef.close(NewApplicationsDialogResultType.Close);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Close);
   }
 
   /**
@@ -371,7 +373,7 @@ export class NewApplicationsDialogComponent {
    */
   protected readonly handleAssigningCompleted = () => {
     // Tasks were successfully assigned - close dialog
-    this.dialogRef.close(NewApplicationsDialogResultType.Complete);
+    void this.dialogRef.close(NewApplicationsDialogResultType.Complete);
   };
 
   /**
