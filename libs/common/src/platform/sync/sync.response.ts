@@ -16,6 +16,7 @@ export class SyncResponse extends BaseResponse {
   ciphers: CipherResponse[] = [];
   domains?: DomainsResponse;
   policies?: PolicyResponse[] = [];
+  policiesNew?: PolicyResponse[];
   sends: SendResponse[] = [];
   userDecryption?: UserDecryptionResponse;
 
@@ -50,6 +51,11 @@ export class SyncResponse extends BaseResponse {
     const policies = this.getResponseProperty("Policies");
     if (policies != null) {
       this.policies = policies.map((p: any) => new PolicyResponse(p));
+    }
+
+    const policiesNew = this.getResponseProperty("PoliciesNew");
+    if (policiesNew != null) {
+      this.policiesNew = policiesNew.map((p: any) => new PolicyResponse(p));
     }
 
     const sends = this.getResponseProperty("Sends");

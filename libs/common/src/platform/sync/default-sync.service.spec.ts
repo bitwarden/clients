@@ -18,6 +18,7 @@ import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-ma
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
@@ -61,6 +62,7 @@ describe("DefaultSyncService", () => {
   let collectionService: MockProxy<CollectionService>;
   let messageSender: MockProxy<MessageSender>;
   let policyService: MockProxy<InternalPolicyService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
@@ -92,6 +94,7 @@ describe("DefaultSyncService", () => {
     collectionService = mock();
     messageSender = mock();
     policyService = mock();
+    newPolicyService = mock();
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
@@ -122,6 +125,7 @@ describe("DefaultSyncService", () => {
       collectionService,
       messageSender,
       policyService,
+      newPolicyService,
       sendService,
       logService,
       keyConnectorService,
@@ -534,6 +538,129 @@ describe("DefaultSyncService", () => {
           expectUpdateCallCount(mockUserState, 0);
         });
       });
+    });
+
+    describe("policy sync", () => {
+      it("syncs policies from response.policies into policyService", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(policyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("does not call newPolicyService.replace when both policiesNew and policies are absent", async () => {
+        apiService.getSync.mockResolvedValue(emptySyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).not.toHaveBeenCalled();
+      });
+
+      it("calls newPolicyService.replace when policiesNew is present in the response", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          PoliciesNew: [{ Id: "policy-new-1", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ "policy-new-1": expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("routes policies and policiesNew to their respective services independently", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          Policies: [{ Id: "old-policy", OrganizationId: "org1", Type: 0, Enabled: true }],
+          PoliciesNew: [{ Id: "new-policy", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(policyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ "old-policy": expect.any(Object) }),
+          user1,
+        );
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ "new-policy": expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("falls back to policies when policiesNew is absent", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("falls back to policies when policiesNew is an empty array", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: { Id: user1 },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+          PoliciesNew: [],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+    });
+  });
+
+  describe("SyncResponse", () => {
+    it("maps PoliciesNew from the server response", () => {
+      const response = new SyncResponse({
+        Profile: { Id: user1 },
+        PoliciesNew: [{ Id: "policy1", OrganizationId: "org1", Type: 1, Enabled: true }],
+      });
+
+      expect(response.policiesNew).toHaveLength(1);
+      expect(response.policiesNew![0].id).toBe("policy1");
+      expect(response.policiesNew![0].organizationId).toBe("org1");
+    });
+
+    it("leaves policiesNew undefined when the property is absent from the server response", () => {
+      const response = new SyncResponse({ Profile: { Id: user1 } });
+
+      expect(response.policiesNew).toBeUndefined();
+    });
+
+    it("parses policies and policiesNew independently", () => {
+      const response = new SyncResponse({
+        Profile: { Id: user1 },
+        Policies: [{ Id: "old", OrganizationId: "org1", Type: 0, Enabled: true }],
+        PoliciesNew: [{ Id: "new", OrganizationId: "org1", Type: 0, Enabled: false }],
+      });
+
+      expect(response.policies).toHaveLength(1);
+      expect(response.policies![0].id).toBe("old");
+      expect(response.policiesNew).toHaveLength(1);
+      expect(response.policiesNew![0].id).toBe("new");
     });
   });
 });
