@@ -43,6 +43,7 @@ import {
   ButtonModule,
   DialogRef,
   DialogService,
+  IconModule,
   TabsModule,
   ToastService,
 } from "@bitwarden/components";
@@ -72,6 +73,7 @@ type ProgressStep = ReportProgress | null;
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
+    IconModule,
     CriticalApplicationsComponent,
     EmptyStateCardComponent,
     JslibModule,

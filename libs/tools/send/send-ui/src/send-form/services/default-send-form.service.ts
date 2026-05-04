@@ -16,6 +16,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
+import { SendPolicyService } from "../../services/send-policy.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
 import {
@@ -34,6 +35,7 @@ export class DefaultSendFormService implements SendFormService {
   private sendApiService = inject(SendApiService);
   private sendService = inject(SendService);
   private i18nService = inject(I18nService);
+  private sendPolicyService = inject(SendPolicyService);
 
   private _sendForm = this.formBuilder.group<SendForm>({});
   readonly sendForm = signal(this._sendForm).asReadonly();
@@ -92,6 +94,21 @@ export class DefaultSendFormService implements SendFormService {
       this._sendForm.markAllAsTouched();
       this._submitting.set(false);
       return;
+    }
+
+    if (this.updatedSendView?.hideEmail === true) {
+      const disableHideEmail = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+      if (disableHideEmail) {
+        this.toastService.showToast({
+          message: this.i18nService.t(
+            "hideEmailPolicyInEffect",
+            this.i18nService.t("hideYourEmail"),
+          ),
+          variant: "error",
+        });
+        this._submitting.set(false);
+        return;
+      }
     }
 
     try {
