@@ -716,7 +716,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     const destinations: Record<string, () => { returnUrl: string; returnLabel: string }> = {
       "access-intelligence": () => ({
         returnUrl: this.router.serializeUrl(
-          this.router.createUrlTree(["/organizations", this.organizationId, "access-intelligence"]),
+          this.router.createUrlTree(
+            ["/organizations", this.organizationId, "access-intelligence"],
+            { queryParams: { source: "import", status: "success" } },
+          ),
         ),
         returnLabel: this.i18nService.t("goToAccessIntelligence"),
       }),

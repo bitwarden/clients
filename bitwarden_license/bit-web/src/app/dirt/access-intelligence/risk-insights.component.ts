@@ -111,6 +111,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   // Minimum time to display each progress step (in milliseconds)
   private readonly STEP_DISPLAY_DELAY_MS = 250;
 
+  private readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
+
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
   constructor(
@@ -123,9 +125,14 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private logService: LogService,
     private configService: ConfigService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
-      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
-    });
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ tabIndex, source, status }) => {
+        this.tabIndex = !isNaN(Number(tabIndex))
+          ? Number(tabIndex)
+          : RiskInsightsTabType.AllActivity;
+        this.invokedFrom.set({ source, status });
+      });
   }
 
   async ngOnInit() {
@@ -224,6 +231,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .subscribe((step) => {
         this.currentProgressStep.set(step);
       });
+
+    if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
+      this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+    }
   }
 
   ngOnDestroy(): void {
@@ -327,4 +338,22 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       this.logService.error("Failed to download at-risk applications", error);
     }
   };
+
+  private handleReturnParams(source: string | undefined, status: string | undefined): void {
+    if (source === "import" && status === "success") {
+      this.generateReport();
+    }
+
+    this.clearQueryParams(this.router, this.route, ["source", "status"]);
+  }
+
+  private clearQueryParams(router: Router, route: ActivatedRoute, params: string[]) {
+    // we don't want these params to persist in the URL after handling them, so we remove them
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: null, status: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
 }
