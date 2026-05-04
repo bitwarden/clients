@@ -1,4 +1,5 @@
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
 
 export abstract class OrganizationInviteLinkApiService {
@@ -6,6 +7,12 @@ export abstract class OrganizationInviteLinkApiService {
   abstract create(
     organizationId: string,
     request: OrganizationInviteLinkCreateRequest,
+  ): Promise<OrganizationInviteLinkResponseModel>;
+
+  /** Update the allowed domains for the given organization's invite link */
+  abstract update(
+    organizationId: string,
+    request: OrganizationInviteLinkUpdateRequest,
   ): Promise<OrganizationInviteLinkResponseModel>;
 
   /** Retrieve the current invite link for the given organization */

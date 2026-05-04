@@ -2,6 +2,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
 
 export class DefaultOrganizationInviteLinkApiService implements OrganizationInviteLinkApiService {
@@ -13,6 +14,20 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
   ): Promise<OrganizationInviteLinkResponseModel> {
     const r = await this.apiService.send(
       "POST",
+      `/organizations/${organizationId}/invite-link`,
+      request,
+      true,
+      true,
+    );
+    return new OrganizationInviteLinkResponseModel(r);
+  }
+
+  async update(
+    organizationId: string,
+    request: OrganizationInviteLinkUpdateRequest,
+  ): Promise<OrganizationInviteLinkResponseModel> {
+    const r = await this.apiService.send(
+      "PUT",
       `/organizations/${organizationId}/invite-link`,
       request,
       true,

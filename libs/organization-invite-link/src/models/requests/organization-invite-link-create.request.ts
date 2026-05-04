@@ -5,20 +5,20 @@ export class OrganizationInviteLinkCreateRequest {
   encryptedInviteKey: string;
   encryptedOrgKey: string | null;
 
-  constructor(c: {
-    allowedDomains: string[];
-    encryptedInviteKey: EncString;
-    encryptedOrgKey?: EncString | null;
-  }) {
-    if (!c.allowedDomains || c.allowedDomains.length === 0) {
+  constructor(
+    allowedDomains: string[],
+    encryptedInviteKey: EncString,
+    encryptedOrgKey?: EncString | null,
+  ) {
+    if (!allowedDomains || allowedDomains.length === 0) {
       throw new Error("At least one allowed domain is required.");
     }
-    if (!c.encryptedInviteKey?.encryptedString) {
+    if (!encryptedInviteKey?.encryptedString) {
       throw new Error("EncryptedInviteKey is required.");
     }
 
-    this.allowedDomains = c.allowedDomains;
-    this.encryptedInviteKey = c.encryptedInviteKey.encryptedString;
-    this.encryptedOrgKey = c.encryptedOrgKey?.encryptedString ?? null;
+    this.allowedDomains = allowedDomains;
+    this.encryptedInviteKey = encryptedInviteKey.encryptedString;
+    this.encryptedOrgKey = encryptedOrgKey?.encryptedString ?? null;
   }
 }

@@ -89,6 +89,6 @@ export class OrganizationResponse extends BaseResponse {
     this.useAccessIntelligence = this.getResponseProperty("UseRiskInsights");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
     this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
-    this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? false;
+    this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? true;
   }
 }
