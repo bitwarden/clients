@@ -4,7 +4,7 @@ import { combineLatest, firstValueFrom, lastValueFrom, Observable, Subject } fro
 import { distinctUntilChanged, filter, map, shareReplay, switchMap } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { CollectionView, Unassigned } from "@bitwarden/common/admin-console/models/collections";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -33,7 +33,6 @@ import {
   CollectionAssignmentResult,
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
-  RoutedVaultFilterModel,
   RoutedVaultFilterService,
   VaultFilter,
   VaultItemDialogComponent,
@@ -47,6 +46,7 @@ import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../../../../vault/individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
+import { ACRoutedVaultFilterModel, toACFilter } from "../models/ac-routed-vault-filter.model";
 
 import { VaultCollectionService } from "./vault-collection.service";
 
@@ -72,10 +72,11 @@ export class VaultCipherActionsService {
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  private readonly organizationId$ = this.routedVaultFilterService.filter$.pipe(
+  private readonly filter$: Observable<ACRoutedVaultFilterModel> =
+    this.routedVaultFilterService.filter$.pipe(map(toACFilter), filter(Boolean));
+
+  private readonly organizationId$ = this.filter$.pipe(
     map((f) => f.organizationId),
-    filter((id) => id !== undefined),
-    filter((value): value is OrganizationId => value !== Unassigned),
     distinctUntilChanged(),
   );
 
@@ -89,9 +90,6 @@ export class VaultCipherActionsService {
     filter((org) => org != null),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
-
-  private readonly filter$: Observable<RoutedVaultFilterModel> =
-    this.routedVaultFilterService.filter$;
 
   readonly activeFilter$: Observable<VaultFilter> =
     this.routedVaultFilterBridgeService.activeFilter$;

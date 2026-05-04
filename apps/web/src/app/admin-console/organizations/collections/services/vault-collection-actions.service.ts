@@ -10,7 +10,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import {
   CollectionAdminView,
   CollectionView,
-  Unassigned,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -19,7 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { getById } from "@bitwarden/common/platform/misc";
-import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { RoutedVaultFilterService } from "@bitwarden/vault";
@@ -34,6 +33,7 @@ import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
 } from "../bulk-collections-dialog";
+import { ACRoutedVaultFilterModel, toACFilter } from "../models/ac-routed-vault-filter.model";
 
 import { VaultCollectionService } from "./vault-collection.service";
 
@@ -54,10 +54,11 @@ export class VaultCollectionActionsService {
 
   private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
-  private readonly organizationId$ = this.routedVaultFilterService.filter$.pipe(
+  private readonly filter$: Observable<ACRoutedVaultFilterModel> =
+    this.routedVaultFilterService.filter$.pipe(map(toACFilter), filter(Boolean));
+
+  private readonly organizationId$ = this.filter$.pipe(
     map((f) => f.organizationId),
-    filter((id) => id !== undefined),
-    filter((value): value is OrganizationId => value !== Unassigned),
     distinctUntilChanged(),
   );
 

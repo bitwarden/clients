@@ -20,6 +20,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -135,6 +136,7 @@ describe("VaultCollectionActionsService", () => {
         { provide: AccountService, useValue: accountService },
         { provide: RoutedVaultFilterService, useValue: routedVaultFilterService },
         { provide: VaultCollectionService, useValue: vaultCollectionService },
+        { provide: MessageListener, useValue: MessageListener.EMPTY },
       ],
     });
 

@@ -27,11 +27,12 @@ import {
   SearchModule,
   SimpleDialogOptions,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import { NewCipherMenuComponent, All } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
 import { CollectionDialogTabType } from "../../shared/components/collection-dialog";
+import { ACRoutedVaultFilterModel } from "../models/ac-routed-vault-filter.model";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -64,7 +65,7 @@ export class VaultHeaderComponent {
   /** Current active filter */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() filter: RoutedVaultFilterModel;
+  @Input() filter: ACRoutedVaultFilterModel;
 
   /** The organization currently being viewed */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

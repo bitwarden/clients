@@ -70,7 +70,6 @@ import {
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
   createFilterFunction,
-  RoutedVaultFilterModel,
   VaultFilter,
 } from "@bitwarden/vault";
 import {
@@ -88,6 +87,7 @@ import { GroupApiService, GroupView } from "../core";
 import { CollectionDialogTabType } from "../shared/components/collection-dialog";
 
 import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
+import { ACRoutedVaultFilterModel, toACFilter } from "./models/ac-routed-vault-filter.model";
 import { DefaultVaultCollectionService } from "./services/default-vault-collection.service";
 import { VaultCipherActionsService } from "./services/vault-cipher-actions.service";
 import { VaultCollectionActionsService } from "./services/vault-collection-actions.service";
@@ -170,8 +170,8 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected readonly hideVaultFilter$: Observable<boolean>;
   protected readonly currentSearchText$: Observable<string>;
-  protected readonly filter$: Observable<RoutedVaultFilterModel> =
-    this.routedVaultFilterService.filter$;
+  protected readonly filter$: Observable<ACRoutedVaultFilterModel> =
+    this.routedVaultFilterService.filter$.pipe(map(toACFilter), filter(Boolean));
   private readonly organizationId$: Observable<OrganizationId>;
 
   private readonly searchText$ = new Subject<string>();
@@ -187,18 +187,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly vaultItemsComponent = viewChild<VaultItemsComponent<CipherView>>("vaultItems");
 
   constructor() {
-    this.organizationId$ =
-      // FIXME: The RoutedVaultFilterModel uses `organizationId: Unassigned` to represent the individual vault,
-      // but that is never used in Admin Console. This function narrows the type so it doesn't pollute our code here,
-      // but really we should change to using our own vault filter model that only represents valid states in AC.
-      this.filter$.pipe(
-        map((filter) => filter.organizationId),
-        filter((filter) => filter !== undefined),
-        filter(
-          (value: OrganizationId | Unassigned): value is OrganizationId => value !== Unassigned,
-        ),
-        distinctUntilChanged(),
-      );
+    this.organizationId$ = this.filter$.pipe(
+      map((f) => f.organizationId),
+      distinctUntilChanged(),
+    );
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
@@ -278,7 +270,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       concatMap(
         async ([ciphers, f, searchText, showCollectionAccessRestricted, userId, organizationId]: [
           CipherView[],
-          RoutedVaultFilterModel,
+          ACRoutedVaultFilterModel,
           string,
           boolean,
           UserId,
