@@ -136,3 +136,6 @@ export default class AutofillField {
    */
   fieldRect?: FieldRect;
 }
+
+/** `readonly` / `disabled` from collected field data; a full {@link AutofillField} is assignable. */
+export type AutofillFieldReadonlyDisabledState = Pick<AutofillField, "readonly" | "disabled">;
