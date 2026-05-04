@@ -22,15 +22,9 @@
       <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
         {{ "save" | i18n }}
       </button>
-      @if (config?.mode !== "add") {
-        <button bitButton type="button" buttonType="secondary" (click)="cancelEditSend()">
-          {{ "cancel" | i18n }}
-        </button>
-      } @else {
-        <button bitButton type="button" buttonType="secondary" [popupBackAction]>
-          {{ "cancel" | i18n }}
-        </button>
-      }
+      <button bitButton type="button" buttonType="secondary" (click)="onCancelClick()">
+        {{ "cancel" | i18n }}
+      </button>
     } @else {
       <button bitButton type="button" buttonType="secondary" (click)="editSend()">
         {{ "edit" | i18n }}

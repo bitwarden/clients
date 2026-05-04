@@ -32,7 +32,6 @@ import {
 } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -89,7 +88,6 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupFooterComponent,
     SendFormModule,
     AsyncActionsModule,
-    PopupBackBrowserDirective,
   ],
 })
 export class SendAddEditComponent {
@@ -249,16 +247,20 @@ export class SendAddEditComponent {
     this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
   }
 
-  protected cancelEditSend() {
-    this.editing.set(false);
-    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+  protected async onCancelClick() {
+    if (this.config.mode === "add") {
+      await this.router.navigate(["tabs/send"]);
+    } else {
+      this.editing.set(false);
+      this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+    }
   }
 
   protected async onBackClick() {
-    if (this.editing()) {
-      this.cancelEditSend();
+    if (this.config.mode === "add" || !this.editing()) {
+      await this.router.navigate(["tabs/send"]);
     } else {
-      this.location.back();
+      await this.onCancelClick();
     }
   }
 }
