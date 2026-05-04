@@ -174,23 +174,6 @@ export class AccessReportView implements View {
   }
 
   /**
-   * Get at-risk password count for a member scoped to a single application.
-   *
-   * @param memberId - Organization user ID
-   * @param applicationName - Application name to scope the count to
-   * @returns Count of at-risk passwords for this member in the given application,
-   *   or 0 if the application is not in the report or the member has no at-risk
-   *   ciphers there
-   */
-  getAtRiskPasswordCountForMemberInApplication(memberId: string, applicationName: string): number {
-    const app = this.getApplicationByName(applicationName);
-    if (!app || !app.isMemberAtRisk(memberId)) {
-      return 0;
-    }
-    return app.getAtRiskCipherIds().length;
-  }
-
-  /**
    * Get at-risk password count for a member scoped to critical applications only.
    *
    * @param memberId - Organization user ID

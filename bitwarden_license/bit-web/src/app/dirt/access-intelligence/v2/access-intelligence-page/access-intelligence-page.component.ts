@@ -385,7 +385,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       userName: member.userName ?? "",
       userGuid: member.id,
       atRiskPasswordCount: app
-        ? report.getAtRiskPasswordCountForMemberInApplication(member.id, app.applicationName)
+        ? app.getAtRiskPasswordCountForMember(member.id)
         : report.getAtRiskPasswordCountForMember(member.id),
     }));
   }
