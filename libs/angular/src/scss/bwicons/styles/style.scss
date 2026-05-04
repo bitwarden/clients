@@ -1,3 +1,10 @@
+/**
+ * The `style.scss` file is used to generate `style.css`. Do not modify the CSS file directly.
+ * Instead, make changes to the SCSS file and regenerate the CSS.
+ *
+ * npx sass ./libs/angular/src/scss/bwicons/styles/style.scss ./libs/angular/src/scss/bwicons/styles/style.css --no-source-map 2>&1
+ */
+
 $icomoon-font-family: "bwi-font" !default;
 $icomoon-font-path: "~@bitwarden/angular/src/scss/bwicons/fonts/" !default;
 
