@@ -372,8 +372,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         return this.allTypeFilters
           .filter((f) => !toExclude.includes(f.type))
           .map((f): CipherTypeFilter => {
-            if (newItemTypes && f.type === CipherType.Login) {return { ...f, icon: "bwi-lock" };}
-            if (newItemTypes && f.type === CipherType.Identity) {return { ...f, icon: "bwi-user" };}
+            if (newItemTypes && f.type === CipherType.Login) {
+              return { ...f, icon: "bwi-lock" };
+            }
+            if (newItemTypes && f.type === CipherType.Identity) {
+              return { ...f, icon: "bwi-user" };
+            }
             return f;
           });
       }),

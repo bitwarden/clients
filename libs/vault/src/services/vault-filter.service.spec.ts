@@ -102,6 +102,7 @@ describe("vault filter service", () => {
       stateProvider,
       collectionService,
       accountService,
+      configService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
     organizations.next([]);
