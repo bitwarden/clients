@@ -39,13 +39,6 @@ jobs:
           secrets: "BW-GHAPP-ID,BW-GHAPP-KEY"
 
       - name: Retrieve secrets
-        id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-gpg-private-key, github-gpg-private-key-passphrase"
-
-      - name: Retrieve secrets
         id: retrieve-secrets-crowdin
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
@@ -90,5 +83,3 @@ jobs:
           create_pull_request: true
           pull_request_title: "Autosync Crowdin Translations for ${{ matrix.app_name }}"
           pull_request_body: "Autosync the updated translations"
-          gpg_private_key: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key }}
-          gpg_passphrase: ${{ steps.retrieve-secrets.outputs.github-gpg-private-key-passphrase }}
