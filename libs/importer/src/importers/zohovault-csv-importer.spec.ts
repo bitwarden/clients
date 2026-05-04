@@ -3,7 +3,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
-import { data as samplezohovaultcsvdata } from "./spec-data/zohovault/sample-zohovault-data.csv";
+import {
+  data as samplezohovaultcsvdata,
+  legacyData as samplezohovaultlegacycsvdata,
+} from "./spec-data/zohovault/sample-zohovault-data.csv";
 import { ZohoVaultCsvImporter } from "./zohovault-csv-importer";
 
 const CipherData = [
@@ -17,10 +20,29 @@ const CipherData = [
         password: "PcY_IQEXIjKGj8YW",
         uris: [
           Object.assign(new LoginUriView(), {
-            uri: "https://abc.xyz.de:5001/#/login",
+            uri: "https://abc.bitwarden.com:5001/#/login",
           }),
         ],
         totp: "otpauth://totp?secret=PI2XO5TW0DF0SHTYOVZXOOBVHFEWM6JU&algorithm=SHA1&period=30&digits=6",
+      }),
+      type: 1,
+      favorite: false,
+    }),
+  },
+  {
+    title: "should parse legacy Zoho Vault CSV format with login_totp column",
+    csv: samplezohovaultlegacycsvdata,
+    expected: Object.assign(new CipherView(), {
+      name: "XYZ Test Legacy",
+      login: Object.assign(new LoginView(), {
+        username: "legacy@domain.de",
+        password: "LegacyPassword",
+        uris: [
+          Object.assign(new LoginUriView(), {
+            uri: "https://abc.bitwarden.com:5001/#/login",
+          }),
+        ],
+        totp: "otpauth://totp?secret=LEGACYSECRET&algorithm=SHA1&period=30&digits=6",
       }),
       type: 1,
       favorite: false,

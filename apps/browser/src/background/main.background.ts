@@ -20,7 +20,9 @@ import {
 } from "rxjs";
 
 import {
+  CollectionEncryptionService,
   CollectionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
   DefaultOrganizationUserService,
@@ -521,6 +523,7 @@ export default class MainBackground {
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
+  collectionEncryptionService: CollectionEncryptionService;
   private restrictedItemTypesService: RestrictedItemTypesService;
   private securityStateService: SecurityStateService;
 
@@ -848,13 +851,6 @@ export default class MainBackground {
     );
     this.searchService = new SearchService(this.logService, this.i18nService);
 
-    this.collectionService = new DefaultCollectionService(
-      this.keyService,
-      this.encryptService,
-      this.i18nService,
-      this.stateProvider,
-    );
-
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(
       this.policyService,
@@ -918,6 +914,20 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+    );
+
+    this.collectionEncryptionService = new DefaultCollectionEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.collectionService = new DefaultCollectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      this.stateProvider,
+      this.configService,
+      this.collectionEncryptionService,
     );
 
     this.keyConnectorService = new KeyConnectorService(
@@ -1671,9 +1681,11 @@ export default class MainBackground {
     // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
     const accounts = await firstValueFrom(this.accountService.accounts$);
+    const userIds = Object.keys(accounts) as UserId[];
+    await this.tokenService.cleanupTokenStorage(userIds);
 
     const setUserKeyInMemoryPromises = [];
-    for (const userId of Object.keys(accounts) as UserId[]) {
+    for (const userId of userIds) {
       // For each acct, we must await the process of setting the user key in memory
       // if the auto user key is set to avoid race conditions of any code trying to access
       // the user key from mem.
@@ -1887,7 +1899,7 @@ export default class MainBackground {
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
-    await this.tokenService.clearAccessToken(userBeingLoggedOut);
+    await this.tokenService.clearTokens(userBeingLoggedOut);
     await this.accountService.clean(userBeingLoggedOut);
 
     await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
