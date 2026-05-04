@@ -156,7 +156,15 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         if (result !== undefined || !this.isFormDirty()) {
           return true;
         }
-        return this.dialogService.openSimpleDialog(this.discardDialogOptions);
+        const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+        if (confirmed) {
+          // Disarm the beforeunload handler immediately. Angular won't destroy this component
+          // until its next change-detection cycle, but a lock/logout can trigger
+          // window.location.reload() before that cycle runs. Clearing the flag here ensures
+          // the handler doesn't block the reload after the user has already confirmed discard.
+          this.discardGuardEnabled.set(false);
+        }
+        return confirmed;
       };
     }
   }

@@ -2,12 +2,13 @@ import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { map, Observable } from "rxjs";
 
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
 } from "@bitwarden/common/key-management/vault-timeout";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { DynamicAvatarComponent } from "../../components/dynamic-avatar.component";
@@ -24,7 +25,7 @@ export class AccountMenuComponent {
   private readonly vaultTimeoutSettingsService = inject(VaultTimeoutSettingsService);
   private readonly accountService = inject(AccountService);
   private readonly logoutService = inject(LogoutService);
-  private readonly lockService = inject(LockService);
+  private readonly messagingService = inject(MessagingService);
 
   protected readonly account = toSignal(this.accountService.activeAccount$);
 
@@ -34,11 +35,11 @@ export class AccountMenuComponent {
   protected readonly selfHosted = this.platformUtilsService.isSelfHost();
   protected readonly hostname = globalThis.location.hostname;
 
-  protected async lock() {
-    const userId = this.account()?.id;
-    if (userId) {
-      await this.lockService.lock(userId);
-    }
+  protected lock() {
+    // Route through the "lockVault" message handler in AppComponent so that
+    // canDeactivate guards (e.g. unsaved policy edits) are consulted before
+    // any vault state is cleared — mirroring how logout works via LogoutService.
+    this.messagingService.send("lockVault");
   }
 
   protected async logout() {
