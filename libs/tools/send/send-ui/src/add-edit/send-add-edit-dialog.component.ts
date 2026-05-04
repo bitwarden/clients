@@ -98,13 +98,13 @@ export class SendAddEditDialogComponent {
     const translation = {
       [SendType.Text]: {
         view: "viewTextSendHeader",
-        edit: "editItemHeaderTextSend",
-        add: "newItemHeaderTextSend",
+        edit: "editItemHeaderTextSendV2",
+        add: "newItemHeaderTextSendV2",
       },
       [SendType.File]: {
         view: "viewFileSendHeader",
-        edit: "editItemHeaderFileSend",
-        add: "newItemHeaderFileSend",
+        edit: "editItemHeaderFileSendV2",
+        add: "newItemHeaderFileSendV2",
       },
     };
     return translation[this.config.sendType][sendAction];

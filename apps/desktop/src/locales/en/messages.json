@@ -269,19 +269,19 @@
    "sendTypeTextToShare": {
      "message": "Text to share"
    },
-  "newItemHeaderTextSend": {
+  "newItemHeaderTextSendV2": {
     "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
+  "newItemHeaderFileSendV2": {
     "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
+  "editItemHeaderTextSendV2": {
     "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
+  "editItemHeaderFileSendV2": {
     "message": "Edit file",
     "description": "Header for edit file send"
   },
