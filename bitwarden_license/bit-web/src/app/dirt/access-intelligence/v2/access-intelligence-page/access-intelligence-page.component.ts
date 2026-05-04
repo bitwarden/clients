@@ -147,6 +147,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
+  private readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
+    initialValue: [],
+  });
+  protected readonly hasCiphers = computed(() => this.ciphers().length > 0);
+
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
@@ -234,6 +239,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         });
     }
   }
+
+  protected readonly goToImportPage = (): void => {
+    void this.router.navigate(
+      ["/organizations", this.organizationId(), "settings", "tools", "import"],
+      { queryParams: { returnTo: "access-intelligence" } },
+    );
+  };
 
   protected async onTabChange(newIndex: number): Promise<void> {
     this.tabIndex.set(newIndex);
