@@ -27,6 +27,11 @@ export class NewItemNudgeComponent {
         return of(false);
       }
       const nudgeType = this.mapToNudgeType(cipherType);
+
+      if (!nudgeType) {
+        return of(false);
+      }
+
       return this.nudgesService.showNudgeSpotlight$(nudgeType, userId);
     }),
   );
@@ -38,7 +43,7 @@ export class NewItemNudgeComponent {
     private i18nService: I18nService,
     private accountService: AccountService,
     private nudgesService: NudgesService,
-  ) { }
+  ) {}
 
   mapToNudgeType(cipherType: CipherType): NudgeType {
     switch (cipherType) {
