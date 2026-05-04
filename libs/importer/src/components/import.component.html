@@ -155,21 +155,16 @@
           click "Show me my data" to save the CSV file.
         </ng-container>
         <ng-container *ngIf="format === 'keeperdirect'">
-          <p bitTypography="body1">
-            {{ "importDirectlyFromKeeper" | i18n }}
-          </p>
-          <p bitTypography="body1">
-            For detailed instructions visit our
-            <a
-              bitLink
-              linkType="primary"
-              target="_blank"
-              rel="noreferrer"
-              endIcon="bwi-external-link"
-              href="https://bitwarden.com/help/import-from-keeper/#export-from-keeper"
-              >help site</a
-            >
-          </p>
+          For detailed instructions visit our
+          <a
+            bitLink
+            linkType="primary"
+            target="_blank"
+            rel="noreferrer"
+            endIcon="bwi-external-link"
+            href="https://bitwarden.com/help/import-from-keeper/#export-from-keeper"
+            >help site</a
+          >
         </ng-container>
         <ng-container *ngIf="format === 'keepercsv'">
           Log into the Keeper web vault (keepersecurity.com/vault). Click on your "account email"

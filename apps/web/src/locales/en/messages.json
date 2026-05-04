@@ -13394,11 +13394,8 @@
       }
     }
   },
-  "importDirectlyFromKeeper": {
-    "message": "Sign in to your Keeper account to import your vault directly"
-  },
   "keeperEmail": {
-    "message": "Email for Keeper"
+    "message": "Keeper email"
   },
   "keeperEmailHint": {
     "message": "Enter the email you use to log in to Keeper"

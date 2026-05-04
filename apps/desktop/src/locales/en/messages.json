@@ -4020,11 +4020,8 @@
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
-  "importDirectlyFromKeeper": {
-    "message": "Sign in to your Keeper account to import your vault directly"
-  },
   "keeperEmail": {
-    "message": "Email for Keeper"
+    "message": "Keeper email"
   },
   "keeperEmailHint": {
     "message": "Enter the email you use to log in to Keeper"
