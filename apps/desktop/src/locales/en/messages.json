@@ -4988,9 +4988,6 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
-  "multipleInputDomainsInvalid": {
-    "message": "One or more domains are invalid"
-  },
   "domainNotAllowed": {
     "message": "Due to an Enterprise policy you can only expose Sends to emails with domains $DOMAINS$",
     "placeholders": {
@@ -4998,24 +4995,6 @@
         "content": "$1"
       }
     }
-  },
-  "sendControlsEnableDescription": {
-    "message": "Create and manage Sends",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendControlsDisableDescription": {
-    "message": "Send is removed for all users",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendType": {
-    "message": "Send type",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "any": {
-    "message": "Any"
-  },
-  "allowedDomainsAutopopulateAlert": {
-    "message": "This was filled in using claimed domains. You can edit them at any time."
   },
   "bankAccount": {
     "message": "Bank account"
@@ -5113,14 +5092,11 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendControlsPolicySwitchLabel": {
-    "message": "Enable Send controls"
+  "block": {
+    "message": "Block"
   },
-  "sendAccessOptions": {
-    "message": "Access options"
-  },
-  "sendAccessOptionAnyoneWithAPassword": {
-    "message": "Anyone with a password"
+  "sendControlRecipientAccessMethod": {
+    "message": "Recipient access method"
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
@@ -5138,5 +5114,19 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "separateDomainsWithComma": {
+    "message": "Separate domains with a comma"
+  },
+  "sendDisabledBannerTitle": {
+    "message": "This Send has been disabled",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledBannerMessage": {
+    "message": "Due to an enterprise policy, this Send has been disabled and can no longer be edited. It will be deleted from the server within 30 days.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   }
 }

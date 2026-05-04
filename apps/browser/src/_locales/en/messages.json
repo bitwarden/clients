@@ -6440,9 +6440,6 @@
   "downloadFailed": {
     "message": "Failed to download."
   },
-  "multipleInputDomainsInvalid": {
-    "message": "One or more domains are invalid"
-  },
   "sideNavigation": {
     "message": "Side navigation"
   },
@@ -6463,5 +6460,13 @@
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "domainNotAllowed": {
+    "message": "Due to an Enterprise policy you can only expose Sends to emails with domains $DOMAINS$",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
   }
 }
