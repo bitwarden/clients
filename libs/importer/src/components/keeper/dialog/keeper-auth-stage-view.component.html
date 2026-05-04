@@ -111,8 +111,8 @@
       [email]="email()"
       [primaryLabel]="'continue' | i18n"
       (primary)="currentStage.needsInput ? submitCode() : submitPush()"
-      [secondaryLabel]="'tryAnotherMethod' | i18n"
-      (secondary)="tryAnother()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
       (close)="cancel()"
     >
       <div bitDialogContent>
@@ -211,8 +211,6 @@
     <keeper-stage-shell
       [title]="'keeperDnaVerification' | i18n"
       [email]="email()"
-      [primaryLabel]="'tryAnotherMethod' | i18n"
-      (primary)="tryAnother()"
       [secondaryLabel]="'cancel' | i18n"
       (secondary)="cancel()"
       (close)="cancel()"

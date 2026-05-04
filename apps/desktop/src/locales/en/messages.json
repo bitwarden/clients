@@ -4072,10 +4072,10 @@
     "message": "Email verification"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below:"
+    "message": "Please check your email and enter the verification code below"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Login to the Keeper vault on any previous approved device to approve this request."
+    "message": "Login to the Keeper vault on any previous approved device to approve this request"
   },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"
@@ -4117,7 +4117,7 @@
     "message": "Keeper DNA verification"
   },
   "keeperDnaPushWaiting": {
-    "message": "Approve the Keeper DNA notification on your device."
+    "message": "Approve the Keeper DNA notification on your device"
   },
   "selectKeeperDnaMethod": {
     "message": "Select Keeper DNA method"
