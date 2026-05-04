@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, Injector, NgZone, OnDestroy, OnInit, Type } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
@@ -77,6 +77,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
     private readonly routerFocusManager: RouterFocusManagerService,
+    private readonly injector: Injector,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -228,14 +229,23 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   private async logOut(redirect = true) {
-    // Navigate first, before clearing any state, so that canDeactivate guards
-    // (e.g. unsaved-changes checks in policy drawers) run while the app is still
-    // fully functional. If the user chooses to stay (e.g. "Back to editing"),
-    // abort the logout entirely — no state has been touched.
+    // Check canDeactivate guards on the deepest active route before clearing any state.
+    // This allows guards (e.g. the policies unsaved-changes check) to prompt the user
+    // while the app is still fully functional. If any guard returns false (e.g. the user
+    // clicks "Back to editing"), abort the logout with nothing touched.
     if (redirect) {
-      const navigated = await this.router.navigate(["/"]);
-      if (!navigated) {
-        return;
+      let snapshot = this.router.routerState.snapshot.root;
+      while (snapshot.firstChild) {
+        snapshot = snapshot.firstChild;
+      }
+      for (const token of snapshot.routeConfig?.canDeactivate ?? []) {
+        const guard = this.injector.get<{ checkCurrentComponent?(): Promise<boolean> }>(
+          token as Type<{ checkCurrentComponent?(): Promise<boolean> }>,
+          null,
+        );
+        if (guard?.checkCurrentComponent != null && !(await guard.checkCurrentComponent())) {
+          return;
+        }
       }
     }
 
@@ -280,6 +290,10 @@ export class AppComponent implements OnDestroy, OnInit {
       await this.accountService.switchAccount(null);
 
       await logoutPromise;
+
+      if (redirect) {
+        await this.router.navigate(["/"]);
+      }
 
       await this.processReloadService.startProcessReload();
 
