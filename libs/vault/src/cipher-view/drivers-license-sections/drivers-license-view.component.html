@@ -83,7 +83,12 @@
     @if (driversLicense().dateOfBirth) {
       <bit-form-field>
         <bit-label>{{ "dateOfBirth" | i18n }}</bit-label>
-        <input readonly bitInput [value]="formatDate(driversLicense().dateOfBirth)" aria-readonly="true" />
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(driversLicense().dateOfBirth)"
+          aria-readonly="true"
+        />
       </bit-form-field>
     }
 
@@ -104,14 +109,24 @@
     @if (driversLicense().issueDate) {
       <bit-form-field>
         <bit-label>{{ "issueDate" | i18n }}</bit-label>
-        <input readonly bitInput [value]="formatDate(driversLicense().issueDate)" aria-readonly="true" />
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(driversLicense().issueDate)"
+          aria-readonly="true"
+        />
       </bit-form-field>
     }
 
     @if (driversLicense().expirationDate) {
       <bit-form-field>
         <bit-label>{{ "expirationDate" | i18n }}</bit-label>
-        <input readonly bitInput [value]="formatDate(driversLicense().expirationDate)" aria-readonly="true" />
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(driversLicense().expirationDate)"
+          aria-readonly="true"
+        />
       </bit-form-field>
     }
 
