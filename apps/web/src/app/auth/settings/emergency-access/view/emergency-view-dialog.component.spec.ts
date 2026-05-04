@@ -190,7 +190,7 @@ describe("EmergencyViewDialogComponent", () => {
 
       component["updateTitle"]();
 
-      expect(component["title"]).toBe("viewItemHeaderDriversLicense");
+      expect(component["title"]).toBe("viewItemHeaderLicense");
     });
   });
 });
