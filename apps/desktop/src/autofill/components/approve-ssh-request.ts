@@ -56,7 +56,7 @@ export class ApproveSshRequestComponent {
     namespace: string,
   ) {
     let actioni18nKey = "sshActionLogin";
-    if (namespace === "git") {
+    if (namespace === "git" || namespace === "Git") {
       actioni18nKey = "sshActionGitSign";
     } else if (namespace != null && namespace != "") {
       actioni18nKey = "sshActionSign";
