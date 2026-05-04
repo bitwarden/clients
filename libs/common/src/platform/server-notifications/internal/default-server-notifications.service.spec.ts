@@ -557,7 +557,7 @@ describe("NotificationsService", () => {
       it("should call setHasPremium with premium=true when notification payload is true", async () => {
         const notification = new NotificationResponse({
           type: NotificationType.PremiumStatusChanged,
-          payload: { Premium: true },
+          payload: { UserId: mockUser1, Premium: true },
           contextId: "different-app-id",
         });
 
@@ -573,7 +573,7 @@ describe("NotificationsService", () => {
       it("should call setHasPremium with premium=false when notification payload is false", async () => {
         const notification = new NotificationResponse({
           type: NotificationType.PremiumStatusChanged,
-          payload: { Premium: false },
+          payload: { UserId: mockUser1, Premium: false },
           contextId: "different-app-id",
         });
 
@@ -591,7 +591,7 @@ describe("NotificationsService", () => {
 
         const notification = new NotificationResponse({
           type: NotificationType.PremiumStatusChanged,
-          payload: { Premium: true },
+          payload: { UserId: mockUser1, Premium: true },
           contextId: "different-app-id",
         });
 
@@ -607,7 +607,7 @@ describe("NotificationsService", () => {
       it("should not trigger a full sync", async () => {
         const notification = new NotificationResponse({
           type: NotificationType.PremiumStatusChanged,
-          payload: { Premium: true },
+          payload: { UserId: mockUser1, Premium: true },
           contextId: "different-app-id",
         });
 
