@@ -5,6 +5,7 @@ import { Component, inject, OnInit, output, computed, signal } from "@angular/co
 import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { singleOrganizationPolicyApplies$ } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -103,7 +104,7 @@ export class VaultFilterComponent implements OnInit {
       ),
     );
     this.activeSingleOrganizationPolicy = await firstValueFrom(
-      this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, this.activeUserId),
+      singleOrganizationPolicyApplies$(this.activeUserId, this.policyService),
     );
   }
 

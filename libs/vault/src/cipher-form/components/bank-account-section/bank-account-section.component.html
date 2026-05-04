@@ -1,0 +1,83 @@
+<section [formGroup]="bankAccountForm" class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">
+      {{ "bankAccount" | i18n }}
+    </h2>
+  </bit-section-header>
+  <bit-card>
+    <bit-form-field>
+      <bit-label>{{ "bankName" | i18n }}</bit-label>
+      <input bitInput formControlName="bankName" data-testid="bank-name" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "nameOnAccount" | i18n }}</bit-label>
+      <input bitInput formControlName="nameOnAccount" data-testid="name-on-account" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "bankAccountType" | i18n }}</bit-label>
+      <bit-select formControlName="accountType" data-testid="account-type">
+        @for (option of accountTypeOptions; track option.value) {
+          <bit-option [value]="option.value" [label]="option.label"></bit-option>
+        }
+      </bit-select>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "accountNumber" | i18n }}</bit-label>
+      <input
+        bitInput
+        formControlName="accountNumber"
+        type="password"
+        data-testid="account-number"
+      />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        data-testid="toggle-account-number-visibility"
+        bitPasswordInputToggle
+      ></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "bankRoutingNumber" | i18n }}</bit-label>
+      <input bitInput formControlName="routingNumber" data-testid="routing-number" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "branchNumber" | i18n }}</bit-label>
+      <input bitInput formControlName="branchNumber" data-testid="branch-number" />
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "pin" | i18n }}</bit-label>
+      <input bitInput formControlName="pin" type="password" data-testid="pin" />
+      <button
+        type="button"
+        bitIconButton
+        bitSuffix
+        data-testid="toggle-pin-visibility"
+        bitPasswordInputToggle
+      ></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "swiftCode" | i18n }}</bit-label>
+      <input bitInput formControlName="swiftCode" type="password" data-testid="swift-code" />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "iban" | i18n }}</bit-label>
+      <input bitInput formControlName="iban" type="password" data-testid="iban" />
+      <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
+    </bit-form-field>
+
+    <bit-form-field>
+      <bit-label>{{ "bankContactPhone" | i18n }}</bit-label>
+      <input bitInput formControlName="bankContactPhone" data-testid="bank-contact-phone" />
+    </bit-form-field>
+  </bit-card>
+</section>
