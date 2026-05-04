@@ -6365,6 +6365,15 @@
   "reusedPasswordsDesc": {
     "message": "Used across multiple logins"
   },
+  "exposedPasswordsDetailDesc": {
+    "message": "These passwords were exposed in data breaches. Change them immediately to protect your accounts."
+  },
+  "weakPasswordsDetailDesc": {
+    "message": "These passwords can be easily guessed because they lack complexity. Change them to strengthen your account security."
+  },
+  "reusedPasswordsDetailDesc": {
+    "message": "Create unique passwords for every site or app to avoid someone accessing multiple accounts with one credential."
+  },
   "changeMe": {
     "message": "Change me"
   },

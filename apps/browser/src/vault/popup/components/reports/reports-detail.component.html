@@ -10,7 +10,16 @@
     </ng-container>
   </popup-header>
 
+  <p bitTypography="body1" class="tw-px-4 tw-pt-4 tw-pb-2 tw-text-muted tw-mb-0">
+    {{ (descriptionKey$ | async)! | i18n }}
+  </p>
+
   <ng-container *ngIf="ciphers$ | async as ciphers">
+    <div class="tw-flex tw-items-center tw-justify-between tw-px-4 tw-py-2">
+      <span bitTypography="body1" class="tw-font-semibold">{{ "allItems" | i18n }}</span>
+      <span bitTypography="body1" class="tw-text-muted">{{ ciphers.length }}</span>
+    </div>
+
     <ng-container *ngIf="ciphers.length === 0">
       <div class="tw-px-4 tw-py-6 tw-text-center">
         <p bitTypography="body1" class="tw-text-muted">{{ "noCiphersInCategory" | i18n }}</p>
@@ -47,15 +56,27 @@
           </button>
           <button
             type="button"
-            bitButton
-            buttonType="secondary"
+            bitIconButton="bwi-ellipsis-v"
             size="small"
             appStopProp
             class="tw-ml-1"
-            (click)="dismiss(cipher.id)"
-          >
-            {{ "dismissAlert" | i18n }}
-          </button>
+            [label]="'moreOptionsLabelNoPlaceholder' | i18n"
+            [bitMenuTriggerFor]="alertOptions"
+          ></button>
+          <bit-menu #alertOptions>
+            <button type="button" bitMenuItem (click)="dismiss(cipher.id)">
+              <i slot="start" class="bwi bwi-close" aria-hidden="true"></i>
+              {{ "dismissAlert" | i18n }}
+            </button>
+            <button type="button" bitMenuItem (click)="archive(cipher)">
+              <i slot="start" class="bwi bwi-archive" aria-hidden="true"></i>
+              {{ "archiveVerb" | i18n }}
+            </button>
+            <button type="button" bitMenuItem (click)="delete(cipher)">
+              <i slot="start" class="bwi bwi-trash tw-text-danger" aria-hidden="true"></i>
+              <span class="tw-text-danger">{{ "delete" | i18n }}</span>
+            </button>
+          </bit-menu>
         </bit-item-action>
       </bit-item>
     </bit-item-group>

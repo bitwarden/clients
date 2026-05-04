@@ -45,7 +45,7 @@ export class ReportsOverviewComponent {
   protected readonly isPremium$ = this.accountService.activeAccount$.pipe(
     getUserId,
     filterOutNullish(),
-    switchMap((userId) => this.billingService.hasPremiumPersonally$(userId)),
+    switchMap((userId) => this.billingService.hasPremiumFromAnySource$(userId)),
   );
 
   rescan(): void {

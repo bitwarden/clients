@@ -147,7 +147,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
 
   /* Vault */
-  [FeatureFlag.EnableBrowserReportsTab]: FALSE,
+  [FeatureFlag.EnableBrowserReportsTab]: true,
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
   [FeatureFlag.CipherKeyEncryption]: FALSE,
   [FeatureFlag.PM19941MigrateCipherDomainToSdk]: FALSE,

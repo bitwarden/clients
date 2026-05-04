@@ -1,6 +1,7 @@
 import { map, Observable, switchMap } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
+import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
 import { StateProvider } from "../../../platform/state";
 import { AlertDismissalId, CipherId, UserId } from "../../../types/guid";
@@ -65,7 +66,18 @@ export class DefaultAlertDismissalService implements AlertDismissalService {
   }
 
   private async fetchFromApi(userId: UserId): Promise<void> {
-    const r = await this.apiService.send("GET", "/alerts/dismissals", null, true, true);
+    // TEMP: treat 404 as empty list for testing against servers without this endpoint — revert when done
+    let r: any;
+    try {
+      r = await this.apiService.send("GET", "/alerts/dismissals", null, true, true);
+    } catch (e) {
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
+        await this.dismissalState(userId).update(() => []);
+        return;
+      }
+      throw e;
+    }
+    // END TEMP
     const response = new ListResponse(r, AlertDismissalResponse);
     const data = response.data.map((d) => new AlertDismissalData(d));
     await this.dismissalState(userId).update(() => data);

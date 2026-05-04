@@ -9,10 +9,20 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { AlertDismissalId, CipherId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { AlertDismissalService } from "@bitwarden/common/vault/alert-dismissals";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { ButtonModule, DialogService, ItemModule, TypographyModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogService,
+  IconButtonModule,
+  ItemModule,
+  MenuModule,
+  ToastService,
+  TypographyModule,
+} from "@bitwarden/components";
 import {
   ChangeLoginPasswordService,
   DefaultChangeLoginPasswordService,
@@ -39,7 +49,9 @@ export type ReportType = "exposed" | "weak" | "reused";
     PopOutComponent,
     CurrentAccountComponent,
     ButtonModule,
+    IconButtonModule,
     ItemModule,
+    MenuModule,
     TypographyModule,
   ],
   providers: [{ provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService }],
@@ -55,6 +67,9 @@ export class ReportsDetailComponent {
   private readonly platformUtils = inject(PlatformUtilsService);
   private readonly dialogService = inject(DialogService);
   private readonly i18nService = inject(I18nService);
+  private readonly cipherArchiveService = inject(CipherArchiveService);
+  private readonly cipherService = inject(CipherService);
+  private readonly toastService = inject(ToastService);
 
   protected readonly dismissedOpen = signal(false);
 
@@ -98,6 +113,18 @@ export class ReportsDetailComponent {
     }),
   );
 
+  protected readonly descriptionKey$ = this.type$.pipe(
+    map((type): string => {
+      if (type === "exposed") {
+        return "exposedPasswordsDetailDesc";
+      }
+      if (type === "weak") {
+        return "weakPasswordsDetailDesc";
+      }
+      return "reusedPasswordsDetailDesc";
+    }),
+  );
+
   async viewCipher(cipher: CipherView): Promise<void> {
     const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
     if (!repromptPassed) {
@@ -129,6 +156,49 @@ export class ReportsDetailComponent {
     }
     const userId = await firstValueFrom(this.userId$);
     await this.dismissalService.dismiss(cipherId as CipherId, userId);
+  }
+
+  async archive(cipher: CipherView): Promise<void> {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "archiveItem" },
+      content: { key: "archiveItemDialogContent" },
+      acceptButtonText: { key: "archiveVerb" },
+      type: "info",
+    });
+    if (!confirmed) {
+      return;
+    }
+    const userId = await firstValueFrom(this.userId$);
+    await this.cipherArchiveService.archiveWithServer(cipher.id as CipherId, userId);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("itemArchiveToast"),
+    });
+  }
+
+  async delete(cipher: CipherView): Promise<void> {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "deleteItem" },
+      content: { key: "deleteItemConfirmation" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    const userId = await firstValueFrom(this.userId$);
+    await this.cipherService.softDeleteWithServer(cipher.id as CipherId, userId);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("deletedItem"),
+    });
   }
 
   async undismiss(dismissalId: string): Promise<void> {

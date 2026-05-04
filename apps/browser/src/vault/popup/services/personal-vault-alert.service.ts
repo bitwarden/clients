@@ -13,6 +13,7 @@ import {
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import {
   CipherRiskService,
   PersonalVaultRiskSummary,
@@ -47,16 +48,21 @@ export class PersonalVaultAlertService {
 
   readonly summary$: Observable<PersonalVaultAlertSummary> = this.userId$.pipe(
     switchMap((userId) =>
-      combineLatest([this.scanResult$, this.alertDismissalService.dismissals$(userId)]),
+      combineLatest([
+        this.scanResult$,
+        this.alertDismissalService.dismissals$(userId),
+        this.cipherArchiveService.archivedCiphers$(userId),
+      ]),
     ),
-    map(([summary, dismissals]) => {
+    map(([summary, dismissals, archivedCiphers]) => {
       const dismissedIds = new Set(dismissals.map((d) => d.cipherId as string));
-      const filterDismissed = (ciphers: CipherView[]) =>
-        ciphers.filter((c) => !dismissedIds.has(c.id));
+      const archivedIds = new Set(archivedCiphers.map((c) => c.id as string));
+      const filterOut = (ciphers: CipherView[]) =>
+        ciphers.filter((c) => !dismissedIds.has(c.id) && !archivedIds.has(c.id));
 
-      const exposed = filterDismissed(summary.exposed);
-      const weak = filterDismissed(summary.weak);
-      const reused = filterDismissed(summary.reused);
+      const exposed = filterOut(summary.exposed);
+      const weak = filterOut(summary.weak);
+      const reused = filterOut(summary.reused);
 
       return {
         exposed,
@@ -77,6 +83,7 @@ export class PersonalVaultAlertService {
     private accountService: AccountService,
     private cipherRiskService: CipherRiskService,
     private alertDismissalService: AlertDismissalService,
+    private cipherArchiveService: CipherArchiveService,
   ) {}
 
   rescan(): void {
