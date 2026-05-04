@@ -101,7 +101,9 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges {
    * Whether the send being edited is disabled by policy.
    * Used in the template to show a warning banner.
    */
-  protected readonly sendDisabled = computed(() => this.originalSendView?.disabled ?? false);
+  protected readonly sendDisabled = computed(
+    () => this.sendFormService.originalSendView?.disabled ?? false,
+  );
 
   constructor(
     protected sendFormService: SendFormService,

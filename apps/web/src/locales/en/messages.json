@@ -6525,7 +6525,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendDisabledBannerMessage": {
-    "message": "Due to an enterprise policy, this Send has been disabled and can no longer be edited. It will be deleted from the server within 30 days.",
+    "message": "Due to an Enterprise policy, this Send has been disabled and can no longer be edited. It will be deleted from the server within 30 days.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendControls": {
