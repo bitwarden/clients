@@ -126,7 +126,8 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           }
           case "locked":
-            await this.processReloadService.startProcessReload();
+            // DefaultLockService.lock() calls startProcessReload() directly after sending
+            // this message, so no additional reload is needed here.
             break;
           case "lockedUrl":
             break;
