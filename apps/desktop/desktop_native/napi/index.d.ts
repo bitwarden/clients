@@ -305,9 +305,9 @@ export declare namespace sshagent_v2 {
   }
   /** A sign request's SIG namespace */
   export const enum SIGNamespace {
-    Git = 'Git',
-    File = 'File',
-    Unsupported = 'Unsupported'
+    Git = 'git',
+    File = 'file',
+    Unsupported = 'unsupported'
   }
   /** SSH sign request fields. */
   export interface SignRequest {
