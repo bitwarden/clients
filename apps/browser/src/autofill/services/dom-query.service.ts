@@ -183,6 +183,51 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
+   * Walks a selector and returns the first iframe boundary encountered along
+   * with the remaining selector to apply inside that iframe.  Shadow DOM
+   * boundaries before the iframe are traversed normally. Returns null if no
+   * iframe boundary exists in the selector (pure shadow DOM or direct element).
+   *
+   * @param selector - Selector string using `>>>` as the boundary combinator
+   */
+  findIframeCrossing(
+    selector: string,
+  ): { iframeElement: HTMLIFrameElement; innerSelector: string } | null {
+    const segments = selector.split(DEEP_QUERY_SELECTOR_COMBINATOR);
+    if (segments.length < 2) {
+      return null;
+    }
+
+    let context: Document | ShadowRoot | Element = globalThis.document;
+    for (let i = 0; i < segments.length - 1; i++) {
+      const segment = (segments[i] || "").trim();
+      if (!segment) {
+        return null;
+      }
+
+      const element: Element | null = context.querySelector(segment);
+      if (!element) {
+        return null;
+      }
+
+      if (element instanceof HTMLIFrameElement) {
+        return {
+          iframeElement: element,
+          innerSelector: segments.slice(i + 1).join(DEEP_QUERY_SELECTOR_COMBINATOR),
+        };
+      }
+
+      const shadow = this.getShadowRoot(element);
+      if (!shadow) {
+        return null;
+      }
+      context = shadow;
+    }
+
+    return null;
+  }
+
+  /**
    * Returns the document inside a same-origin iframe, or null if the iframe
    * is cross-origin or its document is otherwise inaccessible.
    */

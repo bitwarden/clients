@@ -22,6 +22,7 @@ export type AutofillExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   addNewCipherType?: CipherType;
   ignoreFieldFocus?: boolean;
+  iframeTargetedFields?: { selector: string; fieldType: string }[];
   data?: {
     direction?: "previous" | "next" | "current";
     forceCloseInlineMenu?: boolean;
@@ -35,6 +36,7 @@ export type AutofillExtensionMessageHandlers = {
   collectPageDetails: ({ message }: AutofillExtensionMessageParam) => void;
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
+  applyTargetedFields: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
 export interface AutofillInit {
