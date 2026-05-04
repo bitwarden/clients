@@ -206,8 +206,8 @@ export class ViewComponent {
 
           this.showFooter$ = of(
             cipher &&
-            (!cipher.isDeleted ||
-              (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
+              (!cipher.isDeleted ||
+                (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
 
           await this.eventCollectionService.collect(
@@ -230,7 +230,7 @@ export class ViewComponent {
       [CipherType.SecureNote]: "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
       [CipherType.BankAccount]: "viewItemHeaderBankAccount",
-      [CipherType.DriversLicense]: "viewItemHeaderDriversLicense",
+      [CipherType.DriversLicense]: "viewItemHeaderLicense",
       [CipherType.Passport]: "viewItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
