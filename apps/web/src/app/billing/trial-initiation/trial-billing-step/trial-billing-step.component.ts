@@ -1,4 +1,13 @@
-import { Component, computed, input, OnDestroy, OnInit, output, ViewChild } from "@angular/core";
+import {
+  Component,
+  computed,
+  input,
+  OnDestroy,
+  OnInit,
+  output,
+  Signal,
+  ViewChild,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormGroup } from "@angular/forms";
 import {

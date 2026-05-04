@@ -453,10 +453,12 @@ export const WithItemDiscount: Story = {
           quantity: 1,
           translationKey: "premiumMembership",
           cost: 10.0,
-          discount: {
-            type: DiscountTypes.PercentOff,
-            value: 25,
-          },
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
         },
       },
       cadence: "annually",
@@ -474,7 +476,9 @@ export const WithCartAndItemDiscount: Story = {
           "Represents the **membership card (post-purchase)** view. " +
           "The item-level discount renders inline under its line item. " +
           "The cart-level discount badge is intentionally hidden (`showDiscountBadges` defaults to `false`) " +
-          "because post-purchase the user's concern is billing amount and date, not promotional persuasion.",
+          "because post-purchase the user's concern is billing amount and date, not promotional persuasion. " +
+          "Cart-level discount is applied to the post-item-discount subtotal ($207.50), matching Stripe's invoice math. " +
+          "Expected: item discount -$62.50, cart discount -$20.75, total $195.30.",
       },
     },
   },
@@ -485,10 +489,12 @@ export const WithCartAndItemDiscount: Story = {
           quantity: 5,
           translationKey: "members",
           cost: 50.0,
-          discount: {
-            type: DiscountTypes.PercentOff,
-            value: 25,
-          },
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 25,
+            },
+          ],
         },
         additionalStorage: {
           quantity: 2,
@@ -536,6 +542,94 @@ export const WithMultipleDiscounts: Story = {
         },
       ],
       estimatedTax: 8.64,
+    } satisfies Cart,
+    showDiscountBadges: true,
+  },
+};
+
+export const WithMultipleItemLevelDiscounts: Story = {
+  name: "With Multiple Item-Level Discounts (Stacked)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Two item-level discounts stacked on PM seats: 20% off first ($50.00), " +
+          "then 10% off the remaining $200.00 ($20.00). Total item discount: $70.00. " +
+          "Expected: item discount rows -$50.00 and -$20.00, total $192.60.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 5,
+          translationKey: "members",
+          cost: 50.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 20,
+            },
+            {
+              type: DiscountTypes.PercentOff,
+              value: 10,
+            },
+          ],
+        },
+        additionalStorage: {
+          quantity: 2,
+          translationKey: "additionalStorageGB",
+          cost: 10.0,
+        },
+      },
+      cadence: "monthly",
+      estimatedTax: 12.6,
+    } satisfies Cart,
+  },
+};
+
+export const WithCartAndItemDiscountRoundingBoundary: Story = {
+  name: "Cart + Item Discount — Rounding Boundary (Stripe Match)",
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "Reproduces the one-cent rounding bug fixed in PM-35121. " +
+          "1 PM seat @ $10.00 with 1% item discount ($0.10) + 1 storage @ $9.80 (no item discount). " +
+          "Buggy (pre-fix): 2% of pre-item-discount $19.80 = $0.396 → $0.40. " +
+          "Fixed: 2% of post-item-discount $19.70 = $0.394 → $0.39, total $19.31 — matches Stripe exactly.",
+      },
+    },
+  },
+  args: {
+    cart: {
+      passwordManager: {
+        seats: {
+          quantity: 1,
+          translationKey: "premiumMembership",
+          cost: 10.0,
+          discounts: [
+            {
+              type: DiscountTypes.PercentOff,
+              value: 1,
+            },
+          ],
+        },
+        additionalStorage: {
+          quantity: 1,
+          translationKey: "additionalStorageGB",
+          cost: 9.8,
+        },
+      },
+      cadence: "annually",
+      discounts: [
+        {
+          type: DiscountTypes.PercentOff,
+          value: 2,
+        },
+      ],
+      estimatedTax: 0,
     } satisfies Cart,
     showDiscountBadges: true,
   },

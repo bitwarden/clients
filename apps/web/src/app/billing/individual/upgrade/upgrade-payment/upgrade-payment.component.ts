@@ -6,6 +6,7 @@ import {
   input,
   OnInit,
   output,
+  Signal,
   signal,
   viewChild,
 } from "@angular/core";
