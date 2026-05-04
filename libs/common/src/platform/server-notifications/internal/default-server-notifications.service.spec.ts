@@ -5,6 +5,7 @@ import { BehaviorSubject, bufferCount, firstValueFrom, ObservedValueOf, of, Subj
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "@bitwarden/auth/common";
 import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
@@ -47,6 +48,7 @@ describe("NotificationsService", () => {
   let authRequestAnsweringService: MockProxy<AuthRequestAnsweringService>;
   let configService: MockProxy<ConfigService>;
   let policyService: MockProxy<InternalPolicyService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let autoConfirmService: MockProxy<AutomaticUserConfirmationService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
 
@@ -79,6 +81,7 @@ describe("NotificationsService", () => {
     authRequestAnsweringService = mock<AuthRequestAnsweringService>();
     configService = mock<ConfigService>();
     policyService = mock<InternalPolicyService>();
+    newPolicyService = mock<InternalNewPolicyService>();
     autoConfirmService = mock<AutomaticUserConfirmationService>();
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
@@ -134,6 +137,7 @@ describe("NotificationsService", () => {
       authRequestAnsweringService,
       configService,
       policyService,
+      newPolicyService,
       autoConfirmService,
       billingAccountProfileStateService,
     );
