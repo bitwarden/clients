@@ -94,78 +94,82 @@
 }
 
 .bwi-accessibility:before {
-  content: "\f16f";
+  content: "\f170";
 }
 
 .bwi-add:before {
-  content: "\f16d";
-}
-
-.bwi-add-circle:before {
   content: "\f16e";
 }
 
+.bwi-add-circle:before {
+  content: "\f16f";
+}
+
 .bwi-angle-down:before {
-  content: "\f16c";
+  content: "\f16d";
 }
 
 .bwi-angle-left:before {
-  content: "\f16b";
+  content: "\f16c";
 }
 
 .bwi-angle-right:before {
-  content: "\f16a";
+  content: "\f16b";
 }
 
 .bwi-angle-up:before {
-  content: "\f168";
-}
-
-.bwi-angle-up-down:before {
   content: "\f169";
 }
 
+.bwi-angle-up-down:before {
+  content: "\f16a";
+}
+
 .bwi-archive:before {
-  content: "\f167";
+  content: "\f168";
 }
 
 .bwi-arrow-down:before {
-  content: "\f166";
+  content: "\f167";
 }
 
 .bwi-arrow-filled-down:before {
-  content: "\f165";
+  content: "\f166";
 }
 
 .bwi-arrow-filled-left:before {
-  content: "\f164";
+  content: "\f165";
 }
 
 .bwi-arrow-filled-right:before {
-  content: "\f163";
+  content: "\f164";
 }
 
 .bwi-arrow-filled-up:before {
-  content: "\f162";
+  content: "\f163";
 }
 
 .bwi-arrow-left:before {
-  content: "\f161";
+  content: "\f162";
 }
 
 .bwi-arrow-right:before {
-  content: "\f160";
+  content: "\f161";
 }
 
 .bwi-arrow-up:before {
-  content: "\f15f";
+  content: "\f160";
 }
 
 .bwi-attach:before {
-  content: "\f15e";
+  content: "\f15f";
 }
 
 .bwi-autofill:before {
+  content: "\f15e";
+}
+
+.bwi-bank:before {
   content: "\f15d";
 }
 
@@ -219,6 +223,10 @@
 
 .bwi-collection:before {
   content: "\f14f";
+}
+
+.bwi-collection-shared:before {
+  content: "\f150";
 }
 
 .bwi-copy:before {
@@ -561,12 +569,8 @@
   content: "\f118";
 }
 
-.bwi-collection-shared:before {
-  content: "\f14f";
-}
-
 .bwi-down-solid:before {
-  content: "\f165";
+  content: "\f166";
 }
 
 .bwi-drag-and-drop:before {
@@ -630,7 +634,7 @@
 }
 
 .bwi-paperclip:before {
-  content: "\f15e";
+  content: "\f15f";
 }
 
 .bwi-pencil:before {
@@ -642,11 +646,11 @@
 }
 
 .bwi-plus:before {
-  content: "\f16d";
+  content: "\f16e";
 }
 
 .bwi-plus-circle:before {
-  content: "\f16e";
+  content: "\f16f";
 }
 
 .bwi-popout:before {
@@ -690,15 +694,15 @@
 }
 
 .bwi-universal-access:before {
-  content: "\f16f";
+  content: "\f170";
 }
 
 .bwi-up-down-btn:before {
-  content: "\f169";
+  content: "\f16a";
 }
 
 .bwi-up-solid:before {
-  content: "\f162";
+  content: "\f163";
 }
 
 .bwi-user-monitor:before {
