@@ -14,13 +14,13 @@
   <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0 tw-gap-1 tw-items-start">
     <span [class]="headingClassList()">{{ heading() }}</span>
     @if (size() === "default" && subtitle()) {
-      <span [class]="subtitleClassList">{{ subtitle() }}</span>
+      <span [class]="subtitleClassList()">{{ subtitle() }}</span>
     }
   </div>
   <ng-content select="[end]"></ng-content>
   <bit-icon
     [name]="open() ? 'bwi-angle-up' : 'bwi-angle-down'"
-    class="tw-text-fg-heading tw-text-xl tw-shrink-0"
+    [class]="chevronClasses()"
   ></bit-icon>
 </button>
 @if (open()) {

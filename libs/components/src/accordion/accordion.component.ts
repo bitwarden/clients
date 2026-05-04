@@ -79,10 +79,11 @@ export class AccordionComponent {
       "enabled:hover:tw-bg-bg-hover",
       "focus-visible:tw-outline-none",
       "focus-visible:tw-ring-2",
-      "focus-visible:tw-ring-offset-1",
+      "focus-visible:tw-ring-inset",
       "focus-visible:tw-ring-border-focus",
+      "focus-visible:tw-border-border-focus",
       "disabled:tw-cursor-not-allowed",
-      "disabled:tw-opacity-60",
+      "disabled:tw-text-fg-inactive",
       ...this.triggerSizeClasses(),
     ].join(" "),
   );
@@ -102,10 +103,21 @@ export class AccordionComponent {
       "tw-text-fg-heading",
       "tw-leading-6",
       this.size() === "sm" ? "tw-text-base" : "tw-text-lg",
+      this.disabled() ? "tw-text-fg-inactive" : "tw-text-fg-heading",
     ].join(" "),
   );
 
-  protected readonly subtitleClassList = "tw-text-sm/5 tw-text-fg-body";
+  protected readonly subtitleClassList = computed(() =>
+    ["tw-text-sm/5", this.disabled() ? "tw-text-fg-inactive" : "tw-text-fg-body"].join(" "),
+  );
+
+  protected readonly chevronClasses = computed(() =>
+    [
+      "tw-text-xl",
+      "tw-shrink-0",
+      this.disabled() ? "tw-text-fg-inactive" : "tw-text-fg-heading",
+    ].join(" "),
+  );
 
   protected readonly contentClassList = computed(() =>
     [
