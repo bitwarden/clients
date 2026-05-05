@@ -29,16 +29,6 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Branch check
-        if: ${{ github.event.inputs.release_type != 'Dry Run' }}
-        run: |
-          if [[ "$GITHUB_REF" != "refs/heads/rc" ]] && [[ "$GITHUB_REF" != "refs/heads/hotfix-rc-web" ]]; then
-            echo "==================================="
-            echo "[!] Can only release from the 'rc' or 'hotfix-rc-web' branches"
-            echo "==================================="
-            exit 1
-          fi
-
       - name: Check Release Version
         id: version
         uses: bitwarden/gh-actions/release-version-check@main
