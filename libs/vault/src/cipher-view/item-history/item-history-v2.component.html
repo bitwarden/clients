@@ -17,22 +17,19 @@
       <span class="tw-font-medium">{{ "dateCreated" | i18n }}:</span>
       {{ cipher.creationDate | date: "medium" }}
     </p>
-    <p
-      *ngIf="cipher.passwordRevisionDisplayDate"
-      class="tw-text-xs tw-text-muted tw-select-all"
-      [ngClass]="{ 'tw-mb-3': cipher.hasPasswordHistory }"
-    >
-      <span class="tw-font-medium">{{ "datePasswordUpdated" | i18n }}:</span>
-      {{ cipher.passwordRevisionDisplayDate | date: "medium" }}
-    </p>
-    <button
-      *ngIf="cipher.hasPasswordHistory"
-      (click)="viewPasswordHistory()"
-      bitTypography="body2"
-      bitLink
-      type="button"
-    >
-      {{ "passwordHistory" | i18n }}
-    </button>
+    @if (cipher.passwordRevisionDisplayDate) {
+      <p
+        class="tw-text-xs tw-text-muted tw-select-all"
+        [ngClass]="{ 'tw-mb-3': cipher.hasPasswordHistory }"
+      >
+        <span class="tw-font-medium">{{ "datePasswordUpdated" | i18n }}:</span>
+        {{ cipher.passwordRevisionDisplayDate | date: "medium" }}
+      </p>
+    }
+    @if (cipher.hasPasswordHistory) {
+      <button (click)="viewPasswordHistory()" bitTypography="body2" bitLink type="button">
+        {{ "passwordHistory" | i18n }}
+      </button>
+    }
   </bit-card>
 </bit-section>

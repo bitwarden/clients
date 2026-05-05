@@ -3,26 +3,28 @@
     {{ (variant === "add" ? "addField" : "editField") | i18n }}
   </span>
   <div bitDialogContent>
-    <bit-form-field *ngIf="variant === 'add'">
-      <bit-label>{{ "fieldType" | i18n }}</bit-label>
-      <bit-select id="fieldType" formControlName="type">
-        <bit-option
-          *ngFor="let type of fieldTypeOptions"
-          [value]="type.value"
-          [label]="type.name"
-        ></bit-option>
-      </bit-select>
-      <bit-hint>
-        {{ getTypeHint() }}
-      </bit-hint>
-    </bit-form-field>
+    @if (variant === "add") {
+      <bit-form-field>
+        <bit-label>{{ "fieldType" | i18n }}</bit-label>
+        <bit-select id="fieldType" formControlName="type">
+          @for (type of fieldTypeOptions; track type.value) {
+            <bit-option [value]="type.value" [label]="type.name"></bit-option>
+          }
+        </bit-select>
+        <bit-hint>
+          {{ getTypeHint() }}
+        </bit-hint>
+      </bit-form-field>
+    }
 
     <bit-form-field disableMargin>
       <bit-label>{{ "fieldLabel" | i18n }}</bit-label>
       <input bitInput id="fieldLabel" formControlName="label" type="text" />
-      <bit-hint *ngIf="customFieldForm.value.type === FieldType.Linked">
-        {{ "linkedLabelHelpText" | i18n }}
-      </bit-hint>
+      @if (customFieldForm.value.type === FieldType.Linked) {
+        <bit-hint>
+          {{ "linkedLabelHelpText" | i18n }}
+        </bit-hint>
+      }
     </bit-form-field>
   </div>
   <ng-container bitDialogFooter>
@@ -33,14 +35,15 @@
       {{ "cancel" | i18n }}
     </button>
 
-    <button
-      *ngIf="variant === 'edit'"
-      type="button"
-      buttonType="dangerGhost"
-      class="tw-ml-auto"
-      bitIconButton="bwi-trash"
-      [label]="'deleteCustomField' | i18n: customFieldForm.value.label"
-      (click)="removeField()"
-    ></button>
+    @if (variant === "edit") {
+      <button
+        type="button"
+        buttonType="dangerGhost"
+        class="tw-ml-auto"
+        bitIconButton="bwi-trash"
+        [label]="'deleteCustomField' | i18n: customFieldForm.value.label"
+        (click)="removeField()"
+      ></button>
+    }
   </ng-container>
 </form>

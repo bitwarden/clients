@@ -1,128 +1,125 @@
-<section
-  class="tw-mb-5 bit-compact:tw-mb-4"
-  *ngIf="hasCustomFields"
-  [ngClass]="{ 'tw-mb-0': disableSectionMargin }"
->
-  <bit-section-header>
-    <h2 bitTypography="h6">{{ "customFields" | i18n }}</h2>
-  </bit-section-header>
-  <form [formGroup]="customFieldsForm">
-    <bit-card
-      formArrayName="fields"
-      cdkDropList
-      (cdkDropListDropped)="drop($event)"
-      data-testid="custom-fields"
-    >
-      <div
-        *ngFor="let field of fields.controls; let i = index"
-        [formGroupName]="i"
-        class="tw-flex tw-p-3 -tw-mx-3 tw-gap-4 tw-bg-background tw-rounded-lg first:-tw-mt-3 last-of-type:tw-mb-0"
-        [ngClass]="{
-          'tw-items-center': field.value.type === FieldType.Boolean,
-        }"
-        [attr.data-testid]="field.value.name + '-entry'"
-        cdkDrag
-        [cdkDragDisabled]="!canEdit(field.value.type)"
-        #customFieldRow
+@if (hasCustomFields) {
+  <section class="tw-mb-5 bit-compact:tw-mb-4" [ngClass]="{ 'tw-mb-0': disableSectionMargin }">
+    <bit-section-header>
+      <h2 bitTypography="h6">{{ "customFields" | i18n }}</h2>
+    </bit-section-header>
+    <form [formGroup]="customFieldsForm">
+      <bit-card
+        formArrayName="fields"
+        cdkDropList
+        (cdkDropListDropped)="drop($event)"
+        data-testid="custom-fields"
       >
-        <!-- Text Field -->
-        <bit-form-field *ngIf="field.value.type === FieldType.Text" class="tw-flex-1" disableMargin>
-          <bit-label>{{ field.value.name }}</bit-label>
-          <input bitInput formControlName="value" data-testid="custom-text-field" />
-        </bit-form-field>
+        @for (field of fields.controls; track $index; let i = $index) {
+          <div
+            [formGroupName]="i"
+            class="tw-flex tw-p-3 -tw-mx-3 tw-gap-4 tw-bg-background tw-rounded-lg first:-tw-mt-3 last-of-type:tw-mb-0"
+            [ngClass]="{
+              'tw-items-center': field.value.type === FieldType.Boolean,
+            }"
+            [attr.data-testid]="field.value.name + '-entry'"
+            cdkDrag
+            [cdkDragDisabled]="!canEdit(field.value.type)"
+            #customFieldRow
+          >
+            <!-- Text Field -->
+            @if (field.value.type === FieldType.Text) {
+              <bit-form-field class="tw-flex-1" disableMargin>
+                <bit-label>{{ field.value.name }}</bit-label>
+                <input bitInput formControlName="value" data-testid="custom-text-field" />
+              </bit-form-field>
+            }
 
-        <!-- Hidden Field -->
-        <bit-form-field
-          *ngIf="field.value.type === FieldType.Hidden"
-          class="tw-flex-1"
-          disableMargin
-        >
-          <bit-label>{{ field.value.name }}</bit-label>
-          <input
-            bitInput
-            formControlName="value"
-            type="password"
-            data-testid="custom-hidden-field"
-            class="tw-font-mono"
-          />
+            <!-- Hidden Field -->
+            @if (field.value.type === FieldType.Hidden) {
+              <bit-form-field class="tw-flex-1" disableMargin>
+                <bit-label>{{ field.value.name }}</bit-label>
+                <input
+                  bitInput
+                  formControlName="value"
+                  type="password"
+                  data-testid="custom-hidden-field"
+                  class="tw-font-mono"
+                />
+                @if (canViewPasswords(i)) {
+                  <button
+                    type="button"
+                    bitIconButton
+                    bitSuffix
+                    bitPasswordInputToggle
+                    data-testid="visibility-for-custom-hidden-field"
+                    (toggledChange)="logHiddenEvent($event)"
+                  ></button>
+                }
+              </bit-form-field>
+            }
+
+            <!-- Boolean Field -->
+            @if (field.value.type === FieldType.Boolean) {
+              <bit-form-control class="tw-flex-1" disableMargin>
+                <input
+                  bitCheckbox
+                  formControlName="value"
+                  type="checkbox"
+                  data-testid="custom-boolean-field"
+                />
+                <bit-label>{{ field.value.name }}</bit-label>
+              </bit-form-control>
+            }
+
+            <!-- Linked Field -->
+            @if (field.value.type === FieldType.Linked) {
+              <bit-form-field class="tw-flex-1" disableMargin>
+                <bit-label>{{ field.value.name }}</bit-label>
+                <bit-select formControlName="linkedId" data-testid="custom-linked-field">
+                  @for (option of linkedFieldOptions; track $index) {
+                    <bit-option [value]="option.value" [label]="option.name"></bit-option>
+                  }
+                </bit-select>
+              </bit-form-field>
+            }
+
+            @if (canEdit(field.value.type)) {
+              <button
+                type="button"
+                (click)="openAddEditCustomFieldDialog({ index: i, label: field.value.name })"
+                [label]="'editFieldLabel' | i18n: field.value.name"
+                bitIconButton="bwi-pencil-square"
+                class="tw-self-center tw-mt-2"
+                data-testid="edit-custom-field-button"
+                [disabled]="parentFormDisabled"
+              ></button>
+            }
+
+            @if (canEdit(field.value.type) && fields.controls.length > 1) {
+              <button
+                role="application"
+                type="button"
+                bitIconButton="bwi-drag-and-drop"
+                class="tw-self-center tw-mt-2"
+                cdkDragHandle
+                [label]="'reorderToggleButton' | i18n: field.value.name"
+                (keydown)="handleKeyDown($event, field.value.name, i)"
+                data-testid="reorder-toggle-button"
+                [disabled]="parentFormDisabled"
+              ></button>
+            }
+          </div>
+        }
+
+        @if (!isPartialEdit && !parentFormDisabled) {
           <button
             type="button"
-            bitIconButton
-            bitSuffix
-            bitPasswordInputToggle
-            data-testid="visibility-for-custom-hidden-field"
-            *ngIf="canViewPasswords(i)"
-            (toggledChange)="logHiddenEvent($event)"
-          ></button>
-        </bit-form-field>
-
-        <!-- Boolean Field -->
-        <bit-form-control
-          *ngIf="field.value.type === FieldType.Boolean"
-          class="tw-flex-1"
-          disableMargin
-        >
-          <input
-            bitCheckbox
-            formControlName="value"
-            type="checkbox"
-            data-testid="custom-boolean-field"
-          />
-          <bit-label>{{ field.value.name }}</bit-label>
-        </bit-form-control>
-
-        <!-- Linked Field -->
-        <bit-form-field
-          *ngIf="field.value.type === FieldType.Linked"
-          class="tw-flex-1"
-          disableMargin
-        >
-          <bit-label>{{ field.value.name }}</bit-label>
-          <bit-select formControlName="linkedId" data-testid="custom-linked-field">
-            <bit-option
-              *ngFor="let option of linkedFieldOptions"
-              [value]="option.value"
-              [label]="option.name"
-            ></bit-option>
-          </bit-select>
-        </bit-form-field>
-
-        <button
-          type="button"
-          (click)="openAddEditCustomFieldDialog({ index: i, label: field.value.name })"
-          [label]="'editFieldLabel' | i18n: field.value.name"
-          bitIconButton="bwi-pencil-square"
-          class="tw-self-center tw-mt-2"
-          data-testid="edit-custom-field-button"
-          [disabled]="parentFormDisabled"
-          *ngIf="canEdit(field.value.type)"
-        ></button>
-
-        <button
-          role="application"
-          type="button"
-          bitIconButton="bwi-drag-and-drop"
-          class="tw-self-center tw-mt-2"
-          cdkDragHandle
-          [label]="'reorderToggleButton' | i18n: field.value.name"
-          (keydown)="handleKeyDown($event, field.value.name, i)"
-          data-testid="reorder-toggle-button"
-          [disabled]="parentFormDisabled"
-          *ngIf="canEdit(field.value.type) && fields.controls.length > 1"
-        ></button>
-      </div>
-
-      <button
-        type="button"
-        bitLink
-        linkType="primary"
-        (click)="openAddEditCustomFieldDialog()"
-        data-testid="add-field-button"
-        *ngIf="!isPartialEdit && !parentFormDisabled"
-      >
-        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
-        {{ "addField" | i18n }}
-      </button>
-    </bit-card>
-  </form>
-</section>
+            bitLink
+            linkType="primary"
+            (click)="openAddEditCustomFieldDialog()"
+            data-testid="add-field-button"
+          >
+            <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
+            {{ "addField" | i18n }}
+          </button>
+        }
+      </bit-card>
+    </form>
+  </section>
+}

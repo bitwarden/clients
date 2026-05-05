@@ -22,12 +22,13 @@
       (keydown)="keyManager.onKeydown($event)"
       #carouselButtonWrapper
     >
-      <vault-carousel-button
-        *ngFor="let slide of slides; let i = index"
-        [slide]="slide"
-        [isActive]="i === selectedIndex"
-        (onClick)="selectSlide(i)"
-      ></vault-carousel-button>
+      @for (slide of slides; track $index; let i = $index) {
+        <vault-carousel-button
+          [slide]="slide"
+          [isActive]="i === selectedIndex"
+          (onClick)="selectSlide(i)"
+        ></vault-carousel-button>
+      }
     </div>
     <button
       type="button"
@@ -39,7 +40,9 @@
       label="{{ 'next' | i18n }}"
     ></button>
   </div>
-  <div class="tw-absolute tw-invisible" #tempSlideContainer *ngIf="minHeight === null">
-    <ng-template cdkPortalOutlet></ng-template>
-  </div>
+  @if (minHeight === null) {
+    <div class="tw-absolute tw-invisible" #tempSlideContainer>
+      <ng-template cdkPortalOutlet></ng-template>
+    </div>
+  }
 </section>

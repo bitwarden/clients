@@ -1,37 +1,41 @@
-<ng-container *ngIf="!!cipher()">
-  <bit-callout *ngIf="cardIsExpired()" type="info" [title]="'cardExpiredTitle' | i18n">
-    {{ "cardExpiredMessage" | i18n }}
-  </bit-callout>
+@if (!!cipher()) {
+  @if (cardIsExpired()) {
+    <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
+      {{ "cardExpiredMessage" | i18n }}
+    </bit-callout>
+  }
 
-  <bit-callout
-    *ngIf="!hasLoginUri() && hadPendingChangePasswordTask()"
-    type="warning"
-    [title]="'missingWebsite' | i18n"
-  >
-    {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
-  </bit-callout>
+  @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
+    <bit-callout type="warning" [title]="'missingWebsite' | i18n">
+      {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
+    </bit-callout>
+  }
 
-  <bit-callout *ngIf="showChangePasswordLink()" type="warning" [title]="''">
-    @if (changePasswordLink()) {
-      <a
-        bitLink
-        [href]="changePasswordLink()"
-        appStopClick
-        (click)="launchChangePassword()"
-        linkType="secondary"
-        endIcon="bwi-external-link"
-      >
+  @if (showChangePasswordLink()) {
+    <bit-callout type="warning" [title]="''">
+      @if (changePasswordLink()) {
+        <a
+          bitLink
+          [href]="changePasswordLink()"
+          appStopClick
+          (click)="launchChangePassword()"
+          linkType="secondary"
+          endIcon="bwi-external-link"
+        >
+          {{ "changeAtRiskPassword" | i18n }}
+        </a>
+      } @else {
         {{ "changeAtRiskPassword" | i18n }}
-      </a>
-    } @else {
-      {{ "changeAtRiskPassword" | i18n }}
-    }
-  </bit-callout>
+      }
+    </bit-callout>
+  }
 
   <!-- HELPER TEXT -->
-  <p class="tw-text-muted" bitTypography="helper" *ngIf="cipher()?.isDeleted && !cipher()?.edit">
-    {{ "noEditPermissions" | i18n }}
-  </p>
+  @if (cipher()?.isDeleted && !cipher()?.edit) {
+    <p class="tw-text-muted" bitTypography="helper">
+      {{ "noEditPermissions" | i18n }}
+    </p>
+  }
 
   <!-- ITEM DETAILS -->
   <app-item-details-v2
@@ -45,32 +49,36 @@
   </app-item-details-v2>
 
   <!-- LOGIN CREDENTIALS -->
-  <app-login-credentials-view
-    *ngIf="hasLogin()"
-    [cipher]="cipher()"
-    [activeUserId]="activeUserId$ | async"
-    [showChangePasswordLink]="showChangePasswordLink()"
-    [changePasswordLink]="changePasswordLink()"
-    (handleChangePassword)="launchChangePassword()"
-  ></app-login-credentials-view>
+  @if (hasLogin()) {
+    <app-login-credentials-view
+      [cipher]="cipher()"
+      [activeUserId]="activeUserId$ | async"
+      [showChangePasswordLink]="showChangePasswordLink()"
+      [changePasswordLink]="changePasswordLink()"
+      (handleChangePassword)="launchChangePassword()"
+    ></app-login-credentials-view>
+  }
 
   <!-- AUTOFILL OPTIONS -->
-  <app-autofill-options-view
-    *ngIf="hasAutofill()"
-    [loginUris]="cipher()!.login.uris"
-    [cipherId]="cipher()!.id"
-  >
-  </app-autofill-options-view>
+  @if (hasAutofill()) {
+    <app-autofill-options-view [loginUris]="cipher()!.login.uris" [cipherId]="cipher()!.id">
+    </app-autofill-options-view>
+  }
 
   <!-- CARD DETAILS -->
-  <app-card-details-view *ngIf="hasCard()" [cipher]="cipher()"></app-card-details-view>
+  @if (hasCard()) {
+    <app-card-details-view [cipher]="cipher()"></app-card-details-view>
+  }
 
   <!-- IDENTITY SECTIONS -->
-  <app-view-identity-sections *ngIf="cipher()?.identity" [cipher]="cipher()">
-  </app-view-identity-sections>
+  @if (cipher()?.identity) {
+    <app-view-identity-sections [cipher]="cipher()"> </app-view-identity-sections>
+  }
 
   <!-- SshKEY SECTIONS -->
-  <app-sshkey-view *ngIf="hasSshKey()" [sshKey]="cipher()!.sshKey"></app-sshkey-view>
+  @if (hasSshKey()) {
+    <app-sshkey-view [sshKey]="cipher()!.sshKey"></app-sshkey-view>
+  }
 
   <!-- BANK ACCOUNT SECTIONS -->
   @if (hasBankAccount()) {
@@ -81,25 +89,25 @@
   }
 
   <!-- ADDITIONAL OPTIONS -->
-  <ng-container *ngIf="cipher()?.notes">
+  @if (cipher()?.notes) {
     <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>
-  </ng-container>
+  }
 
   <!-- CUSTOM FIELDS -->
-  <ng-container *ngIf="cipher()?.hasFields">
+  @if (cipher()?.hasFields) {
     <app-custom-fields-v2 [cipher]="cipher()"> </app-custom-fields-v2>
-  </ng-container>
+  }
 
   <!-- ATTACHMENTS SECTION -->
-  <ng-container *ngIf="cipher()?.hasAttachments">
+  @if (cipher()?.hasAttachments) {
     <app-attachments-v2-view
       [emergencyAccessId]="emergencyAccessId()"
       [cipher]="cipher()"
       [admin]="isAdminConsole()"
     >
     </app-attachments-v2-view>
-  </ng-container>
+  }
 
   <!-- ITEM HISTORY SECTION -->
   <app-item-history-v2 [cipher]="cipher()"> </app-item-history-v2>
-</ng-container>
+}

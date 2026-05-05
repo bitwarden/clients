@@ -7,35 +7,39 @@
 
   <bit-card cdkDropList (cdkDropListDropped)="onUriItemDrop($event)">
     <ng-container formArrayName="uris">
-      <vault-autofill-uri-option
-        *ngFor="let uri of uriControls; let i = index"
-        cdkDrag
-        [cdkDragDisabled]="uriControls.length <= 1 || autofillOptionsForm.disabled"
-        [formControlName]="i"
-        (remove)="removeUri(i)"
-        (onKeydown)="onUriItemKeydown($event, i)"
-        [canReorder]="uriControls.length > 1 && autofillOptionsForm.enabled"
-        [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
-        [defaultMatchDetection]="defaultMatchDetection$ | async"
-        [index]="i"
-      ></vault-autofill-uri-option>
+      @for (uri of uriControls; track $index; let i = $index) {
+        <vault-autofill-uri-option
+          cdkDrag
+          [cdkDragDisabled]="uriControls.length <= 1 || autofillOptionsForm.disabled"
+          [formControlName]="i"
+          (remove)="removeUri(i)"
+          (onKeydown)="onUriItemKeydown($event, i)"
+          [canReorder]="uriControls.length > 1 && autofillOptionsForm.enabled"
+          [canRemove]="uriControls.length > 1 && autofillOptionsForm.enabled"
+          [defaultMatchDetection]="defaultMatchDetection$ | async"
+          [index]="i"
+        ></vault-autofill-uri-option>
+      }
     </ng-container>
 
-    <button
-      type="button"
-      bitLink
-      linkType="primary"
-      [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
-      (click)="addUri({ uri: null, matchDetection: null }, true)"
-      *ngIf="autofillOptionsForm.enabled"
-    >
-      <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
-      {{ "addWebsite" | i18n }}
-    </button>
+    @if (autofillOptionsForm.enabled) {
+      <button
+        type="button"
+        bitLink
+        linkType="primary"
+        [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
+        (click)="addUri({ uri: null, matchDetection: null }, true)"
+      >
+        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
+        {{ "addWebsite" | i18n }}
+      </button>
+    }
 
-    <bit-form-field *ngIf="autofillOnPageLoadEnabled$ | async" disableMargin>
-      <bit-label>{{ "autoFillOnPageLoad" | i18n }}</bit-label>
-      <bit-select formControlName="autofillOnPageLoad" [items]="autofillOptions"></bit-select>
-    </bit-form-field>
+    @if (autofillOnPageLoadEnabled$ | async) {
+      <bit-form-field disableMargin>
+        <bit-label>{{ "autoFillOnPageLoad" | i18n }}</bit-label>
+        <bit-select formControlName="autofillOnPageLoad" [items]="autofillOptions"></bit-select>
+      </bit-form-field>
+    }
   </bit-card>
 </section>

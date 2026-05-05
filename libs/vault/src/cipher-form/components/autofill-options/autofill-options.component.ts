@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CdkDragDrop, DragDropModule, moveItemInArray } from "@angular/cdk/drag-drop";
-import { AsyncPipe, NgForOf, NgIf } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { Component, OnInit, QueryList, ViewChildren } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -48,13 +48,11 @@ interface UriField {
     JslibModule,
     CardComponent,
     ReactiveFormsModule,
-    NgForOf,
     FormFieldModule,
     SelectModule,
     IconButtonModule,
     UriOptionComponent,
     LinkModule,
-    NgIf,
     AsyncPipe,
   ],
 })
