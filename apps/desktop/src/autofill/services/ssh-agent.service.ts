@@ -204,7 +204,7 @@ export class SshAgentService implements OnDestroy {
           }
         }),
         catchError((error: unknown, source) => {
-          this.logService.error("Unexpected error in SSH sign request pipeline", error);
+          this.logService.error("Unexpected error during SSH agent sign request", error);
           return source;
         }),
         takeUntil(this.destroy$),
@@ -354,7 +354,7 @@ export class SshAgentService implements OnDestroy {
             );
           }),
           catchError((error: unknown, source) => {
-            this.logService.error("Unexpected error in SSH agent key-push pipeline", error);
+            this.logService.error("Unexpected error in SSH agent replace keys", error);
             return source;
           }),
           takeUntil(this.destroy$),
