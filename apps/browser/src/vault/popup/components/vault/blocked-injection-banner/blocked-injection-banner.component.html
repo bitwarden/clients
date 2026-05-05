@@ -1,5 +1,5 @@
 @if (showCurrentTabIsBlockedBanner$ | async) {
-  <bit-banner bannerType="info" (onClose)="handleCurrentTabIsBlockedBannerDismiss()">
+  <bit-banner variant="primary" (dismiss)="handleCurrentTabIsBlockedBannerDismiss()">
     {{ "autofillBlockedNoticeV2" | i18n }}
     <a bitLink linkType="secondary" [routerLink]="blockedURISettingsRoute">
       {{ "autofillBlockedNoticeGuidance" | i18n }}
