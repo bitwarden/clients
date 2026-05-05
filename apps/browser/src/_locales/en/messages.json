@@ -1976,11 +1976,38 @@
   "brand": {
     "message": "Brand"
   },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
   "expirationMonth": {
     "message": "Expiration month"
   },
   "expirationYear": {
     "message": "Expiration year"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "enterMonth": {
+    "message": "Enter a month"
+  },
+  "enterYear": {
+    "message": "Enter a year"
   },
   "monthly": {
     "message": "month"
@@ -2075,6 +2102,51 @@
   "passportNumber": {
     "message": "Passport number"
   },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National Identification number"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority / office"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
   "licenseNumber": {
     "message": "License number"
   },
@@ -2164,6 +2236,12 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Banking details"
+  },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
   },
   "newItemHeaderLogin": {
     "message": "New Login",
@@ -5003,6 +5081,12 @@
   "copyAddress": {
     "message": "Copy address"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "myItems": {
     "message": "My Items"
   },
@@ -6386,6 +6470,9 @@
   },
   "searchBankAccount": {
     "message": "Search bank account"
+  },
+  "searchPassport": {
+    "message": "Search passports"
   },
   "copyAccountNumber": {
     "message": "Copy account number"

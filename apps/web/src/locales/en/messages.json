@@ -673,6 +673,39 @@
   "passportNumber": {
     "message": "Passport number"
   },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "sex": {
+    "message": "Sex"
+  },
+  "copySex": {
+    "message": "Copy sex"
+  },
+  "birthPlace": {
+    "message": "Birth place"
+  },
+  "nationality": {
+    "message": "Nationality"
+  },
+  "copyNationality": {
+    "message": "Copy nationality"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "passportType": {
+    "message": "Passport type"
+  },
+  "nationalIdentificationNumber": {
+    "message": "National Identification number"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority / office"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
   "licenseNumber": {
     "message": "License number"
   },
@@ -745,11 +778,32 @@
   "cardExpiredMessage": {
     "message": "If you've renewed it, update the card's information"
   },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
   "expirationMonth": {
     "message": "Expiration month"
   },
   "expirationYear": {
     "message": "Expiration year"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueYear": {
+    "message": "Issue year"
   },
   "authenticatorKeyTotp": {
     "message": "Authenticator key (TOTP)"
@@ -1014,6 +1068,12 @@
   },
   "typeBankAccountSubtitle": {
     "message": "Banking details"
+  },
+  "typePassport": {
+    "message": "Passport"
+  },
+  "typePassportSubtitle": {
+    "message": "Travel document"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -1302,6 +1362,9 @@
   "copyAddress": {
     "message": "Copy address"
   },
+  "copyBirthPlace": {
+    "message": "Copy birth place"
+  },
   "copyPhone": {
     "message": "Copy phone"
   },
@@ -1317,6 +1380,15 @@
   "copyPassportNumber": {
     "message": "Copy passport number"
   },
+  "copyPassportType": {
+    "message": "Copy passport type"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
@@ -1328,6 +1400,12 @@
   },
   "copyFingerprint": {
     "message": "Copy fingerprint"
+  },
+  "copyIssuingAuthority": {
+    "message": "Copy issuing authority / office"
+  },
+  "copyIssuingCountry": {
+    "message": "Copy issuing country"
   },
   "copyName": {
     "message": "Copy name"
@@ -4393,6 +4471,15 @@
   },
   "copiedBankAccountPinItemId": {
     "message": "Copied PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedPassportNumberItemId": {
+    "message": "Copied passport number for item $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8019,6 +8106,12 @@
   },
   "required": {
     "message": "required"
+  },
+  "enterMonth": {
+    "message": "Enter a month"
+  },
+  "enterYear": {
+    "message": "Enter a year"
   },
   "charactersCurrentAndMaximum": {
     "message": "$CURRENT$/$MAX$ character maximum",
@@ -13570,6 +13663,9 @@
   },
   "searchBankAccount": {
     "message": "Search bank account"
+  },
+  "searchPassport": {
+    "message": "Search passports"
   },
   "copyAccountNumber": {
     "message": "Copy account number"
