@@ -13,6 +13,7 @@ import { CustomFieldsComponent } from "./components/custom-fields/custom-fields.
 import { IdentitySectionComponent } from "./components/identity/identity.component";
 import { ItemDetailsSectionComponent } from "./components/item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./components/login-details-section/login-details-section.component";
+import { PassportSectionComponent } from "./components/passport-section/passport-section.component";
 import { SshKeySectionComponent } from "./components/sshkey-section/sshkey-section.component";
 
 /**
@@ -27,6 +28,7 @@ export type CipherForm = {
   identityDetails?: IdentitySectionComponent["identityForm"];
   sshKeyDetails?: SshKeySectionComponent["sshKeyForm"];
   bankAccountDetails?: BankAccountSectionComponent["bankAccountForm"];
+  passportDetails?: PassportSectionComponent["passportForm"];
   customFields?: CustomFieldsComponent["customFieldsForm"];
 };
 

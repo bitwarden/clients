@@ -216,6 +216,7 @@ describe("VaultPopupListFiltersService", () => {
           CipherType.Login,
           CipherType.Card,
           CipherType.BankAccount,
+          CipherType.Passport,
           CipherType.Identity,
           CipherType.SecureNote,
           CipherType.SshKey,

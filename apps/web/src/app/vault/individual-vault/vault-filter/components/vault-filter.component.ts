@@ -100,6 +100,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       icon: "bwi-credit-card",
     },
     {
+      id: "passport",
+      name: this.i18nService.t("typePassport"),
+      type: CipherType.Passport,
+      icon: "bwi-globe",
+    },
+    {
       id: "identity",
       name: this.i18nService.t("typeIdentity"),
       type: CipherType.Identity,
@@ -153,6 +159,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.cipherType === CipherType.BankAccount) {
       return "searchBankAccount";
     }
+    if (this.activeFilter.cipherType === CipherType.Passport) {
+      return "searchPassport";
+    }
     if (this.activeFilter.selectedFolderNode?.node) {
       return "searchFolder";
     }
@@ -185,7 +194,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected cipherArchiveService: CipherArchiveService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     protected configService: ConfigService,
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
     this.filters = await this.buildAllFilters();
@@ -278,6 +287,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const excludeTypes: CipherStatus[] = [];
     if (!newItemTypesEnabled) {
       excludeTypes.push(CipherType.BankAccount);
+      excludeTypes.push(CipherType.Passport);
     }
 
     const builderFilter = {} as VaultFilterList;

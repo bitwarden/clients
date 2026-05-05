@@ -367,6 +367,16 @@ export class CipherView implements View, InitializerMetadata {
           ? BankAccountView.fromSdkBankAccountView(obj.bankAccount)
           : new BankAccountView();
         break;
+      case CipherType.Passport:
+        cipherView.passport = obj.passport
+          ? PassportView.fromSdkPassportView(obj.passport)
+          : new PassportView();
+        break;
+      case CipherType.DriversLicense:
+        cipherView.driversLicense = obj.driversLicense
+          ? DriversLicenseView.fromSdkDriversLicenseView(obj.driversLicense)
+          : new DriversLicenseView();
+        break;
       default:
         break;
     }

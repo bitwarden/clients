@@ -235,6 +235,13 @@
             </button>
           }
 
+          @if (isPassportCipher) {
+            <button type="button" bitMenuItem appCopyField="passportNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" />
+              {{ "copyPassportNumber" | i18n }}
+            </button>
+          }
+
           @if (showMenuDivider) {
             <bit-menu-divider></bit-menu-divider>
           }

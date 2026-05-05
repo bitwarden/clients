@@ -93,6 +93,7 @@ describe("ViewComponent", () => {
     permissions: {},
     card: {},
     bankAccount: {},
+    passport: {},
   } as unknown as CipherView;
 
   const mockPasswordRepromptService = {
@@ -307,6 +308,13 @@ describe("ViewComponent", () => {
       flush(); // Resolve all promises
 
       expect(component.headerText).toEqual("viewItemHeaderNote");
+
+      // Set header text for a passport
+      mockCipher.type = CipherType.Passport;
+      params$.next({ cipherId: mockCipher.id });
+      flush(); // Resolve all promises
+
+      expect(component.headerText).toEqual("viewItemHeaderPassport");
     }));
 
     it("sends viewed event", fakeAsync(() => {

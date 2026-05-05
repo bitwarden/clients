@@ -90,6 +90,12 @@ export class VaultFilterComponent {
       icon: "bwi-credit-card",
     },
     {
+      id: "passport",
+      name: this.i18nService.t("typePassport"),
+      type: CipherType.Passport,
+      icon: "bwi-globe",
+    },
+    {
       id: "identity",
       name: this.i18nService.t("typeIdentity"),
       type: CipherType.Identity,
@@ -145,8 +151,8 @@ export class VaultFilterComponent {
 
           const defaultCollectionNode = !this.activeFilter().selectedCipherTypeNode
             ? ((await firstValueFrom(
-                filters.collectionFilter!.data$,
-              )) as TreeNode<CollectionFilter>)
+              filters.collectionFilter!.data$,
+            )) as TreeNode<CollectionFilter>)
             : null;
 
           return { filters, defaultCollectionNode };
@@ -270,6 +276,7 @@ export class VaultFilterComponent {
     const excludeTypes: CipherStatus[] = ["favorites"];
     if (!newTypesEnabled) {
       excludeTypes.push(CipherType.BankAccount);
+      excludeTypes.push(CipherType.Passport);
     }
 
     const builderFilter = {} as VaultFilterList;

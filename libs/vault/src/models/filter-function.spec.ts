@@ -84,6 +84,24 @@ describe("createFilter", () => {
 
       expect(result).toBe(false);
     });
+
+    it("should return true when filter matches passport cipher type", () => {
+      const cipher = createCipher({ type: CipherType.Passport });
+      const filterFunction = createFilterFunction({ type: "passport" });
+
+      const result = filterFunction(cipher);
+
+      expect(result).toBe(true);
+    });
+
+    it("should return false when passport cipher does not match filter type", () => {
+      const cipher = createCipher({ type: CipherType.Passport });
+      const filterFunction = createFilterFunction({ type: "identity" });
+
+      const result = filterFunction(cipher);
+
+      expect(result).toBe(false);
+    });
   });
 
   describe("given a cipher with folder id", () => {

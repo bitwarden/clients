@@ -57,6 +57,13 @@ const bankAccountItem: CipherMenuItem = {
   subtitleKey: "typeBankAccountSubtitle",
 };
 
+const passportItem: CipherMenuItem = {
+  type: CipherType.Passport,
+  icon: "bwi-globe",
+  labelKey: "typePassport",
+  subtitleKey: "typePassportSubtitle",
+};
+
 /**
  * Updated menu items for new item dialog. This list should only be used
  * when `FeatureFlag.PM32009NewItemTypes` is enabled, otherwise use `CIPHER_MENU_ITEMS`.
@@ -64,6 +71,7 @@ const bankAccountItem: CipherMenuItem = {
 export const DIALOG_CIPHER_MENU_ITEMS = [
   ...CIPHER_MENU_ITEMS.slice(0, 2),
   bankAccountItem,
+  passportItem,
   ...CIPHER_MENU_ITEMS.slice(2),
 ].map((item) => {
   if (item.type === CipherType.Login) {

@@ -47,6 +47,7 @@ import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
 import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
+import { PassportSectionComponent } from "./passport-section/passport-section.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -75,6 +76,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     IdentitySectionComponent,
     SshKeySectionComponent,
     BankAccountSectionComponent,
+    PassportSectionComponent,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
     NewItemNudgeComponent,
@@ -345,7 +347,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     private cipherFormCacheService: CipherFormCacheService,
     private cipherArchiveService: CipherArchiveService,
     private accountService: AccountService,
-  ) {}
+  ) { }
 
   /**
    * Counts the number of invalid fields in a form group.

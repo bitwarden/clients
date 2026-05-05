@@ -345,6 +345,12 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
         icon: "bwi-credit-card",
       },
       {
+        id: "passport",
+        name: this.i18nService.t("typePassport"),
+        type: CipherType.Passport,
+        icon: "bwi-globe",
+      },
+      {
         id: "identity",
         name: this.i18nService.t("typeIdentity"),
         type: CipherType.Identity,
