@@ -112,7 +112,7 @@ describe("FileReportPersistenceService", () => {
       const view = createRiskInsights({ organizationId });
       jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
       mockApiService.createReport$.mockReturnValue(of(makeCreateResponse()));
-      mockFileUploadService.upload.mockResolvedValue(undefined);
+      mockFileUploadService.uploadRaw.mockResolvedValue(undefined);
 
       const result = await firstValueFrom(service.saveReport$(view, organizationId));
 
@@ -137,11 +137,11 @@ describe("FileReportPersistenceService", () => {
       mockApiService.createReport$.mockReturnValue(
         of(makeCreateResponse("https://azure.blob/upload", FileUploadType.Azure)),
       );
-      mockFileUploadService.upload.mockResolvedValue(undefined);
+      mockFileUploadService.uploadRaw.mockResolvedValue(undefined);
 
       await firstValueFrom(service.saveReport$(view, organizationId));
 
-      expect(mockFileUploadService.upload).toHaveBeenCalledWith(
+      expect(mockFileUploadService.uploadRaw).toHaveBeenCalledWith(
         { url: "https://azure.blob/upload", fileUploadType: FileUploadType.Azure },
         expect.anything(),
         expect.anything(),
@@ -187,7 +187,7 @@ describe("FileReportPersistenceService", () => {
       const view = createRiskInsights({ organizationId });
       jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
       mockApiService.createReport$.mockReturnValue(of(makeCreateResponse()));
-      mockFileUploadService.upload.mockRejectedValue(new Error("Upload failed"));
+      mockFileUploadService.uploadRaw.mockRejectedValue(new Error("Upload failed"));
 
       await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
         "Upload failed",
@@ -201,7 +201,7 @@ describe("FileReportPersistenceService", () => {
         const view = createRiskInsights({ organizationId });
         jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
         mockApiService.createReport$.mockReturnValue(of(makeCreateResponse()));
-        mockFileUploadService.upload.mockImplementation(async (_data, _name, _file, methods) => {
+        mockFileUploadService.uploadRaw.mockImplementation(async (_data, _name, _file, methods) => {
           capturedMethods = methods;
         });
 
@@ -250,7 +250,7 @@ describe("FileReportPersistenceService", () => {
   });
 
   describe("saveApplicationMetadata$", () => {
-    it("should call updateApplicationData$ and updateSummaryData$ with encrypted data", async () => {
+    it("should call updateReportSettings$ with encrypted application data, summary, and metrics", async () => {
       const summary = createRiskInsightsSummary({
         totalApplicationCount: 5,
         totalAtRiskApplicationCount: 2,
@@ -268,21 +268,18 @@ describe("FileReportPersistenceService", () => {
       jest.spyOn(view, "toMetrics").mockReturnValue(mockMetrics);
       jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
 
-      mockApiService.updateApplicationData$.mockReturnValue(of({} as AccessReportApi));
-      mockApiService.updateSummaryData$.mockReturnValue(of({} as AccessReportApi));
+      mockApiService.updateReportSettings$.mockReturnValue(of({} as AccessReportApi));
 
       await firstValueFrom(service.saveApplicationMetadata$(view));
 
-      expect(mockApiService.updateApplicationData$).toHaveBeenCalledWith(
+      expect(mockApiService.updateReportSettings$).toHaveBeenCalledWith(
         organizationId,
         reportId,
-        expect.any(String),
-      );
-      expect(mockApiService.updateSummaryData$).toHaveBeenCalledWith(
-        organizationId,
-        reportId,
-        expect.any(String),
-        expect.any(Object),
+        expect.objectContaining({
+          applicationData: expect.any(String),
+          summaryData: expect.any(String),
+          metrics: expect.any(Object),
+        }),
       );
     });
 
@@ -311,7 +308,7 @@ describe("FileReportPersistenceService", () => {
       jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
       jest.spyOn(view, "toMetrics").mockReturnValue(createAccessReportMetrics({}));
 
-      mockApiService.updateApplicationData$.mockReturnValue(
+      mockApiService.updateReportSettings$.mockReturnValue(
         throwError(() => new Error("Update failed")),
       );
 

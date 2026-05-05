@@ -1,7 +1,6 @@
 import {
   catchError,
   firstValueFrom,
-  forkJoin,
   from,
   map,
   Observable,
@@ -20,7 +19,6 @@ import {
   FileUploadService,
 } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { FileUploadType } from "@bitwarden/common/platform/enums";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { OrganizationReportId, OrganizationId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
 
@@ -34,6 +32,7 @@ import {
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
+  AccessReportSettingsUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 import { AccessReportEncryptionService } from "../../abstractions/access-report-encryption.service";
 import { ReportPersistenceService } from "../../abstractions/report-persistence.service";
@@ -109,13 +108,13 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             const upload$ = from(reportFile.bytes()).pipe(
               switchMap((buffer) =>
                 from(
-                  this.fileUploadService.upload(
+                  this.fileUploadService.uploadRaw(
                     {
                       url: createReportResponse.reportFileUploadUrl,
                       fileUploadType: createReportResponse.fileUploadType,
                     },
-                    reportFile.name as unknown as EncString,
-                    { buffer } as unknown as EncArrayBuffer,
+                    reportFile.name,
+                    buffer,
                     this.generateFileUploadCallbacks(organizationId, createReportResponse),
                   ),
                 ),
@@ -147,26 +146,23 @@ export class FileReportPersistenceService extends ReportPersistenceService {
         ).pipe(
           switchMap((domain) => {
             const data = domain.toData();
-
-            const updateApplicationsCall = this.accessIntelligenceApiService.updateApplicationData$(
-              view.organizationId,
-              view.id,
-              data.applications,
+            const metrics = new AccessReportMetricsApi(
+              view.toMetrics().toAccessReportMetricsData(),
             );
 
-            const metrics = view.toMetrics().toAccessReportMetricsData();
+            const request: AccessReportSettingsUpdateRequest = {
+              applicationData: data.applications,
+              summaryData: data.summary,
+              metrics: metrics,
+            };
 
-            const updateSummaryCall = this.accessIntelligenceApiService.updateSummaryData$(
+            return this.accessIntelligenceApiService.updateReportSettings$(
               view.organizationId,
               view.id,
-              data.summary,
-              metrics as AccessReportMetricsApi,
-            );
-
-            return forkJoin([updateApplicationsCall, updateSummaryCall]).pipe(
-              map(() => undefined as void),
+              request,
             );
           }),
+          map((_) => undefined as void),
         );
       }),
     );
