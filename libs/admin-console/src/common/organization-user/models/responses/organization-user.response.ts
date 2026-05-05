@@ -1,6 +1,7 @@
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
+  RevocationReasonType,
 } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import { SelectionReadOnlyResponse } from "@bitwarden/common/admin-console/models/response/selection-read-only.response";
@@ -11,6 +12,7 @@ export class OrganizationUserResponse extends BaseResponse {
   id: string;
   userId: string;
   type: OrganizationUserType;
+  revocationReason: RevocationReasonType;
   status: OrganizationUserStatusType;
   externalId: string;
   accessSecretsManager: boolean;
@@ -25,6 +27,7 @@ export class OrganizationUserResponse extends BaseResponse {
     this.id = this.getResponseProperty("Id");
     this.userId = this.getResponseProperty("UserId");
     this.type = this.getResponseProperty("Type");
+    this.revocationReason = this.getResponseProperty("RevocationReason");
     this.status = this.getResponseProperty("Status");
     this.permissions = new PermissionsApi(this.getResponseProperty("Permissions"));
     this.externalId = this.getResponseProperty("ExternalId");

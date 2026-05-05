@@ -598,6 +598,7 @@ describe("Cipher Service", () => {
           configService.getFeatureFlag
             .calledWith(FeatureFlag.CipherKeyEncryption)
             .mockResolvedValue(true);
+          cipherEncryptionService.decrypt.mockResolvedValue(new CipherView());
         });
 
         it("is called when cipher viewPassword is true", async () => {
@@ -748,10 +749,7 @@ describe("Cipher Service", () => {
   });
 
   describe("decrypt", () => {
-    it("should call decrypt method of CipherEncryptionService when feature flag is true", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
-        .mockResolvedValue(true);
+    it("should call decrypt method of CipherEncryptionService", async () => {
       cipherEncryptionService.decrypt.mockResolvedValue(new CipherView(encryptionContext.cipher));
 
       const result = await cipherService.decrypt(encryptionContext.cipher, userId);
@@ -762,34 +760,15 @@ describe("Cipher Service", () => {
         userId,
       );
     });
-
-    it("should call legacy decrypt when feature flag is false", async () => {
-      const mockUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
-        .mockResolvedValue(false);
-      cipherService.getKeyForCipherKeyDecryption = jest.fn().mockResolvedValue(mockUserKey);
-      jest
-        .spyOn(encryptionContext.cipher, "decrypt")
-        .mockResolvedValue(new CipherView(encryptionContext.cipher));
-
-      const result = await cipherService.decrypt(encryptionContext.cipher, userId);
-
-      expect(result).toEqual(new CipherView(encryptionContext.cipher));
-      expect(encryptionContext.cipher.decrypt).toHaveBeenCalledWith(mockUserKey);
-    });
   });
 
   describe("getDecryptedAttachmentBuffer", () => {
     const mockEncryptedContent = new Uint8Array([1, 2, 3]);
     const mockDecryptedContent = new Uint8Array([4, 5, 6]);
 
-    it("should use SDK when feature flag is enabled", async () => {
+    it("should use SDK to decrypt", async () => {
       const cipher = new Cipher(cipherData);
       const attachment = new AttachmentView(cipher.attachments![0]);
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
-        .mockResolvedValue(true);
 
       jest.spyOn(cipherService, "ciphers$").mockReturnValue(of({ [cipher.id]: cipherData }));
       cipherEncryptionService.decryptAttachmentContent.mockResolvedValue(mockDecryptedContent);
@@ -811,32 +790,6 @@ describe("Cipher Service", () => {
         mockEncryptedContent,
         userId,
       );
-    });
-
-    it("should use legacy decryption when feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
-        .mockResolvedValue(false);
-      const cipher = new Cipher(cipherData);
-      const attachment = new AttachmentView(cipher.attachments![0]);
-      attachment.key = makeSymmetricCryptoKey(64);
-
-      const mockResponse = {
-        arrayBuffer: jest.fn().mockResolvedValue(mockEncryptedContent.buffer),
-      } as unknown as Response;
-      const mockEncBuf = {} as EncArrayBuffer;
-      EncArrayBuffer.fromResponse = jest.fn().mockResolvedValue(mockEncBuf);
-      encryptService.decryptFileData.mockResolvedValue(mockDecryptedContent);
-
-      const result = await cipherService.getDecryptedAttachmentBuffer(
-        cipher.id as CipherId,
-        attachment,
-        mockResponse,
-        userId,
-      );
-
-      expect(result).toEqual(mockDecryptedContent);
-      expect(encryptService.decryptFileData).toHaveBeenCalledWith(mockEncBuf, attachment.key);
     });
   });
 
@@ -1067,11 +1020,7 @@ describe("Cipher Service", () => {
       ]);
     });
 
-    it("should use the SDK for decryption when SDK feature flag is enabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
-        .mockResolvedValue(true);
-
+    it("should use the SDK for decryption", async () => {
       // Set up expected results
       const expectedSuccessCipherViews = [
         { id: mockCiphers[0].id, name: "Success 1", decryptionFailure: false } as CipherView,
@@ -1098,24 +1047,6 @@ describe("Cipher Service", () => {
 
       expect(successes).toEqual(expectedSuccessCipherViews);
       expect(failures).toEqual(expectedFailedCipherViews);
-    });
-
-    it("should use legacy decryption when SDK feature flag is disabled", async () => {
-      configService.getFeatureFlag
-        .calledWith(FeatureFlag.PM19941MigrateCipherDomainToSdk)
-        .mockResolvedValue(false);
-
-      // Execute
-      const [successes, failures] = await (cipherService as any).decryptCiphers(
-        mockCiphers,
-        userId,
-      );
-
-      // Verify the SDK was not used for decryption
-      expect(cipherEncryptionService.decryptManyWithFailures).toHaveBeenCalledTimes(0);
-
-      expect(successes).toHaveLength(2);
-      expect(failures).toHaveLength(0);
     });
   });
 

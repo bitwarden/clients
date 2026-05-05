@@ -16,9 +16,9 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
 import {
-  vNextOrganizationDataOwnershipPolicy,
-  vNextOrganizationDataOwnershipPolicyComponent,
-} from "./vnext-organization-data-ownership.component";
+  OrganizationDataOwnershipPolicy,
+  OrganizationDataOwnershipPolicyComponent,
+} from "./organization-data-ownership.component";
 
 const ORG_ID = "org1" as OrganizationId;
 
@@ -31,20 +31,20 @@ function makePolicyResponse(enabled: boolean, data: object | null = null) {
   });
 }
 
-describe("vNextOrganizationDataOwnershipPolicy", () => {
-  const policy = new vNextOrganizationDataOwnershipPolicy();
+describe("OrganizationDataOwnershipPolicy", () => {
+  const policy = new OrganizationDataOwnershipPolicy();
 
   it("should have correct attributes", () => {
     expect(policy.name).toEqual("centralizeDataOwnership");
     expect(policy.description).toEqual("centralizeDataOwnershipDesc");
     expect(policy.type).toEqual(PolicyType.OrganizationDataOwnership);
-    expect(policy.component).toEqual(vNextOrganizationDataOwnershipPolicyComponent);
+    expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
   });
 });
 
-describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
-  let component: vNextOrganizationDataOwnershipPolicyComponent;
-  let fixture: ComponentFixture<vNextOrganizationDataOwnershipPolicyComponent>;
+describe("OrganizationDataOwnershipPolicyComponent", () => {
+  let component: OrganizationDataOwnershipPolicyComponent;
+  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyComponent>;
   let mockOrganizationService: MockProxy<OrganizationService>;
   let mockAccountService: MockProxy<AccountService>;
 
@@ -74,7 +74,7 @@ describe("vNextOrganizationDataOwnershipPolicyComponent", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(vNextOrganizationDataOwnershipPolicyComponent);
+    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyComponent);
     component = fixture.componentInstance;
   });
 

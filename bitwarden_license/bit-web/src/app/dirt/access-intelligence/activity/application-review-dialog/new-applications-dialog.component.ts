@@ -28,6 +28,7 @@ import {
   DialogModule,
   DialogRef,
   DialogService,
+  IconModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -81,6 +82,7 @@ export type NewApplicationsDialogResultType =
   imports: [
     ButtonModule,
     DialogModule,
+    IconModule,
     TypographyModule,
     I18nPipe,
     AssignTasksViewComponent,

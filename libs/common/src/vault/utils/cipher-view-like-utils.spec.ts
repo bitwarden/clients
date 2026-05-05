@@ -634,6 +634,24 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "address")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "publicKey")).toBe(false);
       });
+
+      it("returns false for login username when copyableFields includes it but the value is empty", () => {
+        const cipherListView = {
+          type: { login: { username: "" } },
+          copyableFields: ["LoginUsername"],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(false);
+      });
+
+      it("returns false for login username when copyableFields includes it but the value is undefined", () => {
+        const cipherListView = {
+          type: { login: { username: undefined } },
+          copyableFields: ["LoginUsername"],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(false);
+      });
     });
   });
 
