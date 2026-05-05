@@ -10,6 +10,14 @@ export abstract class FileUploadService {
     fileUploadMethods: FileUploadApiMethods,
     options?: UploadOptions,
   ): Promise<void>;
+
+  abstract uploadRaw(
+    uploadData: { url: string; fileUploadType: FileUploadType },
+    fileName: string,
+    data: Uint8Array,
+    fileUploadMethods: FileUploadApiMethods,
+    options?: UploadOptions,
+  ): Promise<void>;
 }
 
 export type FileUploadApiMethods = {

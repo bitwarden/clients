@@ -7,19 +7,23 @@ export class BitwardenFileUploadService {
     encryptedFileData: EncArrayBuffer,
     apiCall: (fd: FormData) => Promise<any>,
   ) {
+    await this.uploadRaw(encryptedFileName, encryptedFileData.buffer, apiCall);
+  }
+
+  async uploadRaw(fileName: string, data: Uint8Array, apiCall: (fd: FormData) => Promise<any>) {
     const fd = new FormData();
 
     if (Utils.isBrowser) {
-      const blob = new Blob([encryptedFileData.buffer as BlobPart], {
+      const blob = new Blob([data as BlobPart], {
         type: "application/octet-stream",
       });
-      fd.append("data", blob, encryptedFileName);
+      fd.append("data", blob, fileName);
     } else if (Utils.isNode) {
       fd.append(
         "data",
-        Buffer.from(encryptedFileData.buffer) as any,
+        Buffer.from(data) as any,
         {
-          filename: encryptedFileName,
+          filename: fileName,
           contentType: "application/octet-stream",
         } as any,
       );

@@ -61,4 +61,35 @@ export class FileUploadService implements FileUploadServiceAbstraction {
       throw e;
     }
   }
+
+  async uploadRaw(
+    uploadData: { url: string; fileUploadType: FileUploadType },
+    fileName: string,
+    data: Uint8Array,
+    fileUploadMethods: FileUploadApiMethods,
+    options?: UploadOptions,
+  ) {
+    try {
+      switch (uploadData.fileUploadType) {
+        case FileUploadType.Direct:
+          await this.bitwardenFileUploadService.uploadRaw(fileName, data, (fd) =>
+            fileUploadMethods.postDirect(fd),
+          );
+          break;
+        case FileUploadType.Azure:
+          await this.azureFileUploadService.uploadRaw(
+            uploadData.url,
+            data,
+            fileUploadMethods.renewFileUploadUrl,
+            options,
+          );
+          break;
+        default:
+          throw new Error("Unknown file upload type");
+      }
+    } catch (e) {
+      await fileUploadMethods.rollback();
+      throw e;
+    }
+  }
 }
