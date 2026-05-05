@@ -94,7 +94,7 @@ describe("AccessIntelligencePageComponent", () => {
       reportProgress$: new BehaviorSubject<ReportProgress | null>(null),
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
-      ciphers$: new BehaviorSubject([]),
+      ciphers$: new BehaviorSubject<CipherView[]>([]),
     };
 
     mockDrawerStateService = {
