@@ -74,23 +74,23 @@
               ></button>
             }
             @if (canViewPassword) {
-              <button
-                bitSuffix
-                type="button"
-                bitIconButton
-                bitPasswordInputToggle
-                (toggledChange)="toggleHiddenField($event, i)"
-              ></button>
-              <button
-                bitIconButton="bwi-clone"
-                bitSuffix
-                type="button"
-                [appCopyClick]="field.value"
-                showToast
-                [valueLabel]="field.name"
-                [label]="'copyCustomField' | i18n: field.name"
-                (click)="logCopyEvent()"
-              ></button>
+              <ng-container bitSuffix>
+                <button
+                  type="button"
+                  bitIconButton
+                  bitPasswordInputToggle
+                  (toggledChange)="toggleHiddenField($event, i)"
+                ></button>
+                <button
+                  bitIconButton="bwi-clone"
+                  type="button"
+                  [appCopyClick]="field.value"
+                  showToast
+                  [valueLabel]="field.name"
+                  [label]="'copyCustomField' | i18n: field.name"
+                  (click)="logCopyEvent()"
+                ></button>
+              </ng-container>
             }
           </bit-form-field>
         }
