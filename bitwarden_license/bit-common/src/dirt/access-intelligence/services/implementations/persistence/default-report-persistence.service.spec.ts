@@ -69,7 +69,7 @@ describe("DefaultReportPersistenceService", () => {
         creationDate: new Date(),
       });
 
-      // Mock RiskInsights.fromView$() to return domain model with encrypted data
+      // Mock AccessReport.fromView$() to return domain model with encrypted data
       const mockDomain = new AccessReport();
       mockDomain.organizationId = organizationId;
       mockDomain.reports = makeEncString("encrypted-reports");
@@ -186,7 +186,7 @@ describe("DefaultReportPersistenceService", () => {
       });
       jest.spyOn(view, "toMetrics").mockReturnValue(mockMetrics);
 
-      // Mock RiskInsights.fromView$() to return domain model
+      // Mock AccessReport.fromView$() to return domain model
       const mockDomain = new AccessReport();
       mockDomain.reports = makeEncString("encrypted-reports");
       mockDomain.summary = makeEncString("encrypted-summary");
