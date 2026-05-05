@@ -148,13 +148,13 @@ export class MainSshAgentService {
       },
     );
 
-    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.LOCK, async (event: any) => {
+    ipcMain.handle("sshagent.lock", async (event: any) => {
       if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
         sshagent.lock(this.agentState);
       }
     });
 
-    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.CLEAR_KEYS, async (event: any) => {
+    ipcMain.handle("sshagent.clearkeys", async (event: any) => {
       if (this.agentState != null) {
         sshagent.clearKeys(this.agentState);
       }

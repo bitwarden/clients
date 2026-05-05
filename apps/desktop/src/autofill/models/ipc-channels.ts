@@ -11,10 +11,8 @@ export const AUTOTYPE_IPC_CHANNELS = {
 export const SSH_AGENT_IPC_CHANNELS = {
   INIT: "sshagent.init",
   IS_LOADED: "sshagent.isloaded",
-  REPLACE: "sshagent.replace",
-  SIGN_REQUEST_RESPONSE: "sshagent.signrequestresponse",
-  LOCK: "sshagent.lock",
-  CLEAR_KEYS: "sshagent.clearkeys",
   STOP: "sshagent.stop",
+  REPLACE: "sshagent.replace",
   SIGN_REQUEST: "sshagent.signrequest",
+  SIGN_REQUEST_RESPONSE: "sshagent.signrequestresponse",
 } as const;
