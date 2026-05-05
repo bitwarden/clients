@@ -170,7 +170,6 @@ mod tests {
         storage::keystore::MockKeyStore,
     };
 
-    // FAILURE=5, REQUEST_IDENTITIES=11, IDENTITIES_ANSWER=12
     const FAILURE: u8 = 5;
     const REQUEST_IDENTITIES: u8 = 11;
     const IDENTITIES_ANSWER: u8 = 12;
