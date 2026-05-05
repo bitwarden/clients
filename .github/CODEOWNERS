@@ -4,6 +4,9 @@
 #
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
+# CODEOWNERS owners
+.github/CODEOWNERS @bitwarden/tech-leads
+
 ## Global styles are owned by UIF
 *.scss @bitwarden/team-ui-foundation
 *.css @bitwarden/team-ui-foundation

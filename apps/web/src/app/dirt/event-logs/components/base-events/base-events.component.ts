@@ -14,7 +14,7 @@ import { FileDownloadService } from "@bitwarden/common/platform/abstractions/fil
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { ToastService } from "@bitwarden/components";
+import { BitwardenIcon, ToastService } from "@bitwarden/components";
 
 import { EventExportService } from "../../../../tools/event-export";
 import { EventOptions, EventService } from "../../services/event.service";
@@ -164,6 +164,10 @@ export abstract class BaseEventsComponent implements OnDestroy {
     this.loading.set(false);
     promise = null;
   };
+
+  asBitwardenIcon(iconName: string): BitwardenIcon {
+    return iconName as BitwardenIcon;
+  }
 
   protected abstract requestEvents(
     startDate: string,

@@ -5,7 +5,6 @@ import {
   DynamicStateConstraints,
   StateConstraints,
   SubjectConstraints,
-  WithConstraints,
 } from "../types";
 
 // The constraints type shares the properties of the state,
@@ -29,12 +28,12 @@ export class IdentityConstraint<State extends object>
     return this;
   }
 
-  adjust(state: State): WithConstraints<State> {
-    return { state, constraints: this.constraints, applied: this.constraints };
+  adjust(state: State) {
+    return state;
   }
 
-  fix(state: State): WithConstraints<State> {
-    return { state, constraints: this.constraints, applied: this.constraints };
+  fix(state: State) {
+    return state;
   }
 }
 
