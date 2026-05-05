@@ -59,7 +59,7 @@ describe("AtRiskPasswordCalloutComponent", () => {
 
   describe("currentPendingTasks$", () => {
     it("should not display warning banner when no pending tasks", () => {
-      const banner = fixture.debugElement.query(By.css("bit-banner[bannerType='warning']"));
+      const banner = fixture.debugElement.query(By.css("bit-banner[variant='warning']"));
       expect(banner).toBeNull();
     });
 
@@ -78,14 +78,14 @@ describe("AtRiskPasswordCalloutComponent", () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      const banner = fixture.debugElement.query(By.css("bit-banner[bannerType='warning']"));
+      const banner = fixture.debugElement.query(By.css("bit-banner[variant='warning']"));
       expect(banner).toBeTruthy();
     });
   });
 
   describe("showCompletedTasksBanner$", () => {
     it("should not display info banner when showCompletedTasksBanner is false", () => {
-      const banner = fixture.debugElement.query(By.css("bit-banner[bannerType='info']"));
+      const banner = fixture.debugElement.query(By.css("bit-banner[variant='primary']"));
       expect(banner).toBeNull();
     });
 
@@ -96,7 +96,7 @@ describe("AtRiskPasswordCalloutComponent", () => {
       component = fixture.componentInstance;
       fixture.detectChanges();
 
-      const banner = fixture.debugElement.query(By.css("bit-banner[bannerType='info']"));
+      const banner = fixture.debugElement.query(By.css("bit-banner[variant='primary']"));
       expect(banner).toBeTruthy();
     });
   });

@@ -1,24 +1,63 @@
 <div
-  class="tw-flex tw-items-center tw-gap-4 tw-p-2 tw-ps-4 tw-text-main tw-border-transparent tw-bg-clip-padding tw-border-solid tw-border-b tw-border-0"
+  class="tw-flex tw-gap-3 tw-border-solid tw-border-b tw-border-0 tw-p-4"
   [class]="bannerClass()"
   [attr.role]="useAlertRole() ? 'status' : null"
   [attr.aria-live]="useAlertRole() ? 'polite' : null"
 >
-  @if (displayIcon(); as icon) {
-    <i class="bwi tw-align-middle tw-text-base" [class]="icon" aria-hidden="true"></i>
-  }
-  <!-- Overriding focus-visible color for link buttons for a11y against colored background -->
-  <span class="tw-grow tw-text-base [&>button[bitlink]:focus-visible:before]:!tw-ring-text-main">
-    <ng-content></ng-content>
-  </span>
-  <!-- Overriding hover and focus-visible colors for a11y against colored background -->
-  @if (showClose()) {
+  <div class="tw-flex tw-flex-1 tw-gap-3" [class]="alignClass()">
+    @if (displayIcon(); as icon) {
+      <!-- Two icon tiles are needed here because `size` is a TypeScript input — it can't change in
+           response to a CSS container query. We use two elements with opposing visibility classes
+           to swap between sm and lg at the @3xl breakpoint. -->
+      <bit-icon-tile
+        [icon]="icon"
+        [variant]="variant()"
+        size="sm"
+        [class]="showActions() ? '@3xl:tw-hidden' : ''"
+        aria-hidden="true"
+      />
+      @if (showActions()) {
+        <bit-icon-tile
+          [icon]="icon"
+          [variant]="variant()"
+          size="lg"
+          class="tw-hidden @3xl:tw-block"
+          aria-hidden="true"
+        />
+      }
+    }
+    <div
+      class="tw-flex tw-flex-col @3xl:tw-flex-row tw-gap-1 @3xl:tw-gap-3 tw-min-w-0"
+      [class]="showActions() ? '@3xl:tw-flex-1' : ''"
+    >
+      <div
+        class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0"
+        [class]="showActions() ? '@3xl:tw-flex-1' : ''"
+      >
+        @if (title()) {
+          <div class="!tw-text-sm @3xl:!tw-text-lg tw-text-main tw-font-medium @3xl:!tw-leading-6">
+            {{ title() }}
+          </div>
+        }
+        <span bitTypography="body2" class="tw-max-w-[800px]">
+          <ng-content></ng-content>
+        </span>
+      </div>
+      @if (showActions()) {
+        <div class="tw-flex tw-gap-3 tw-items-center tw-shrink-0 tw-mt-3 @3xl:tw-mt-0">
+          <ng-content select="[slot='actions']"></ng-content>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (isDismissible()) {
     <button
       type="button"
       bitIconButton="bwi-close"
       buttonType="primaryGhost"
       size="small"
-      (click)="onClose.emit()"
+      (click)="onDismiss()"
       [label]="'close' | i18n"
     ></button>
   }

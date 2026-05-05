@@ -13,39 +13,47 @@ import { BannerModule } from "@bitwarden/components";
 <Primary />
 <Controls />
 
-## Types
+## Banner With Title
+
+<Canvas of={stories.TitleBannerBase} />
+
+## Content Slots
+
+Banners support two content projection slots.
+
+### Default slot
+
+Plain text or inline elements. Use `bitLink` with `[linkType]` matching the banner `variant` for
+inline links.
+
+### Actions slot (`slot="actions"`)
+
+Only visible when a `[title]` is provided. At wide widths the actions are right-aligned; at narrow
+widths they appear below the body text. Wrap action elements in `ng-container slot="actions"`.
+
+Use `[buttonType]` matching the banner `variant` for action buttons (e.g. `buttonType="primary"` on
+a `primary` banner). The banner variant values map directly to button types of the same name.
+
+## Variants
+
+Use the following guidelines to help choose the correct variant.
+
+<Canvas of={stories.AllVariantsNoTitle} />
+
+<Canvas of={stories.AllVariantsWithTitle} />
+
+## Icons
 
 Icons should remain consistent across these types. Do not change the icon without consulting
 designers.
 
-Use the following guidelines to help choose the correct type of banner.
+The default icon for each variant can be overridden by passing any `bwi` icon class to the `[icon]`
+input. Pass `[icon]="null"` to suppress the icon entirely.
 
-### Premium
-
-<Canvas of={stories.Premium} />
-
-Used primarily to encourage user to upgrade to premium.
-
-### Info
-
-<Canvas of={stories.Info} />
-
-Used to communicate release notes, server maintenance or other informative event.
-
-### Warning
-
-<Canvas of={stories.Warning} />
-
-Used to alert the user of outdated info or versions.
-
-### Danger
-
-<Canvas of={stories.Danger} />
-
-Rarely used, but may be used to alert users over critical messages or very outdated versions.
+<Canvas of={stories.AllVariantsCustomIcon} />
 
 ## Accessibility
 
-Banners sets the `role="status"` and `aria-live="polite"` attributes to ensure screen readers
-announce the content prior to the test of the page. This behavior can be disabled by setting
+Banners set the `role="status"` and `aria-live="polite"` attributes to ensure screen readers
+announce the content prior to the rest of the page. This behavior can be disabled by setting
 `[useAlertRole]="false"`.
