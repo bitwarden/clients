@@ -1,5 +1,4 @@
-import { Constraints, StateConstraints, WithConstraints } from "@bitwarden/common/tools/types";
-import { unconstrained } from "@bitwarden/common/tools/util";
+import { Constraints, StateConstraints } from "@bitwarden/common/tools/types";
 
 import { SubaddressGenerationOptions } from "../types";
 
@@ -16,24 +15,20 @@ export class SubaddressConstraints implements StateConstraints<SubaddressGenerat
 
   constraints: Readonly<Constraints<SubaddressGenerationOptions>> = {};
 
-  adjust(state: SubaddressGenerationOptions): WithConstraints<SubaddressGenerationOptions> {
+  adjust(state: SubaddressGenerationOptions) {
     const currentDomain = (state.subaddressEmail ?? "").trim();
 
     if (currentDomain !== "") {
-      return { state, constraints: this.constraints, applied: unconstrained() };
+      return state;
     }
 
-    const result = { ...state };
-    result.subaddressEmail = this.email;
+    const options = { ...state };
+    options.subaddressEmail = this.email;
 
-    return {
-      state: result,
-      constraints: this.constraints,
-      applied: { subaddressEmail: {} },
-    };
+    return options;
   }
 
-  fix(state: SubaddressGenerationOptions): WithConstraints<SubaddressGenerationOptions> {
-    return { state, constraints: this.constraints, applied: unconstrained() };
+  fix(state: SubaddressGenerationOptions) {
+    return state;
   }
 }
