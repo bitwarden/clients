@@ -3,13 +3,18 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
+  inject,
   input,
   model,
+  untracked,
 } from "@angular/core";
 
 import { IconComponent } from "../icon";
 import { IconTileComponent } from "../icon-tile";
 import { BitwardenIcon } from "../shared/icon";
+
+import { AccordionGroupComponent } from "./accordion-group.component";
 
 export type AccordionSize = "sm" | "default";
 
@@ -27,6 +32,17 @@ let nextId = 0;
   },
 })
 export class AccordionComponent {
+  private readonly group = inject(AccordionGroupComponent, { optional: true });
+
+  constructor() {
+    effect(() => {
+      const activeId = this.group?._activeAccordionId();
+      if (activeId != null && activeId !== this._baseId) {
+        untracked(() => this.open.set(false));
+      }
+    });
+  }
+
   readonly heading = input.required<string>();
   readonly subtitle = input<string>();
   readonly open = model<boolean>(false);
@@ -35,6 +51,8 @@ export class AccordionComponent {
   readonly size = input<AccordionSize>("default");
   readonly variant = input<AccordionVariant>("default");
 
+  protected readonly resolvedVariant = computed(() => this.group?.variant() ?? this.variant());
+
   protected readonly _baseId = `bit-accordion-${nextId++}`;
   readonly triggerId = `${this._baseId}-trigger`;
   readonly contentId = `${this._baseId}-content`;
@@ -42,6 +60,9 @@ export class AccordionComponent {
   protected toggle() {
     if (!this.disabled()) {
       this.open.update((o) => !o);
+      if (this.open()) {
+        this.group?.notifyOpened(this._baseId);
+      }
     }
   }
 
@@ -52,14 +73,18 @@ export class AccordionComponent {
       "tw-border-solid",
       "tw-border-border-base",
       "tw-rounded-xl",
-      // Collapse inner radii and borders when stacked as siblings
-      "[&:not(:first-of-type)]:tw-rounded-t-none",
-      "[&:not(:last-of-type)]:tw-rounded-b-none",
-      "[&:not(:last-of-type)]:tw-border-b-0",
-      // Mirror those overrides onto the child button and content panel
-      "[&:not(:first-of-type)>[data-accordion-trigger]]:tw-rounded-t-none",
-      "[&:not(:last-of-type)>[data-accordion-trigger]]:tw-rounded-b-none",
-      "[&:not(:last-of-type)>[data-accordion-content]]:tw-rounded-b-none",
+      ...(this.group
+        ? [
+            // Collapse inner radii and borders when stacked inside a group
+            "[&:not(:first-of-type)]:tw-rounded-t-none",
+            "[&:not(:last-of-type)]:tw-rounded-b-none",
+            "[&:not(:last-of-type)]:tw-border-b-0",
+            // Mirror those overrides onto the child button and content panel
+            "[&:not(:first-of-type)>[data-accordion-trigger]]:tw-rounded-t-none",
+            "[&:not(:last-of-type)>[data-accordion-trigger]]:tw-rounded-b-none",
+            "[&:not(:last-of-type)>[data-accordion-content]]:tw-rounded-b-none",
+          ]
+        : []),
     ].join(" "),
   );
 
@@ -75,7 +100,7 @@ export class AccordionComponent {
       "tw-transition-colors",
       "tw-rounded-t-xl",
       this.open() ? "" : "tw-rounded-b-xl",
-      this.variant() === "default" ? "tw-bg-bg-secondary" : "tw-bg-bg-primary",
+      this.resolvedVariant() === "default" ? "tw-bg-bg-secondary" : "tw-bg-bg-primary",
       "enabled:hover:tw-bg-bg-hover",
       "focus-visible:tw-outline-none",
       "focus-visible:tw-ring-2",
@@ -100,7 +125,6 @@ export class AccordionComponent {
   protected readonly headingClassList = computed(() =>
     [
       "tw-font-medium",
-      "tw-text-fg-heading",
       "tw-leading-6",
       this.size() === "sm" ? "tw-text-base" : "tw-text-lg",
       this.disabled() ? "tw-text-fg-inactive" : "tw-text-fg-heading",
@@ -123,7 +147,9 @@ export class AccordionComponent {
     [
       "tw-p-4",
       "tw-rounded-b-xl",
-      this.variant() === "subtle" ? "tw-border-t tw-border-solid tw-border-border-base" : "",
+      this.resolvedVariant() === "subtle"
+        ? "tw-border-t tw-border-solid tw-border-border-base"
+        : "",
     ].join(" "),
   );
 }

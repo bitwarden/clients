@@ -3,6 +3,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { BadgeComponent } from "../badge";
 import { IconTileComponent } from "../icon-tile";
 
+import { AccordionGroupComponent } from "./accordion-group.component";
 import { AccordionComponent } from "./accordion.component";
 
 export default {
@@ -10,7 +11,7 @@ export default {
   component: AccordionComponent,
   decorators: [
     moduleMetadata({
-      imports: [AccordionComponent, IconTileComponent, BadgeComponent],
+      imports: [AccordionComponent, AccordionGroupComponent, IconTileComponent, BadgeComponent],
     }),
   ],
   args: {
@@ -173,33 +174,58 @@ export const SubtleExpanded: Story = {
 };
 
 export const Grouped: Story = {
-  render: () => ({
+  render: (args) => ({
+    props: args,
     template: /*html*/ `
-      <bit-accordion heading="First item" subtitle="Top of the group">
-        <p class="tw-m-0">First accordion content.</p>
-      </bit-accordion>
-      <bit-accordion heading="Second item" subtitle="Middle of the group">
-        <p class="tw-m-0">Second accordion content.</p>
-      </bit-accordion>
-      <bit-accordion heading="Third item" subtitle="Bottom of the group">
-        <p class="tw-m-0">Third accordion content.</p>
-      </bit-accordion>
+      <bit-accordion-group [variant]="variant">
+        <bit-accordion heading="First item" subtitle="Top of the group">
+          <p class="tw-m-0">First accordion content.</p>
+        </bit-accordion>
+        <bit-accordion heading="Second item" subtitle="Middle of the group">
+          <p class="tw-m-0">Second accordion content.</p>
+        </bit-accordion>
+        <bit-accordion heading="Third item" subtitle="Bottom of the group">
+          <p class="tw-m-0">Third accordion content.</p>
+        </bit-accordion>
+      </bit-accordion-group>
     `,
   }),
 };
 
 export const SmallGrouped: Story = {
-  render: () => ({
+  render: (args) => ({
+    props: args,
     template: /*html*/ `
-      <bit-accordion heading="First item" size="sm">
-        <p class="tw-m-0">First accordion content.</p>
-      </bit-accordion>
-      <bit-accordion heading="Second item" size="sm">
-        <p class="tw-m-0">Second accordion content.</p>
-      </bit-accordion>
-      <bit-accordion heading="Third item" size="sm">
-        <p class="tw-m-0">Third accordion content.</p>
-      </bit-accordion>
+      <bit-accordion-group [variant]="variant">
+        <bit-accordion heading="First item" size="sm">
+          <p class="tw-m-0">First accordion content.</p>
+        </bit-accordion>
+        <bit-accordion heading="Second item" size="sm">
+          <p class="tw-m-0">Second accordion content.</p>
+        </bit-accordion>
+        <bit-accordion heading="Third item" size="sm">
+          <p class="tw-m-0">Third accordion content.</p>
+        </bit-accordion>
+      </bit-accordion-group>
+    `,
+  }),
+};
+
+export const SingleSelect: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <bit-accordion-group singleSelect [variant]="variant">
+        <bit-accordion heading="First item" subtitle="Only one section open at a time">
+          <p class="tw-m-0">First accordion content.</p>
+        </bit-accordion>
+        <bit-accordion heading="Second item" subtitle="Opening this closes the others">
+          <p class="tw-m-0">Second accordion content.</p>
+        </bit-accordion>
+        <bit-accordion heading="Third item" subtitle="Bottom of the group">
+          <p class="tw-m-0">Third accordion content.</p>
+        </bit-accordion>
+      </bit-accordion-group>
     `,
   }),
 };
