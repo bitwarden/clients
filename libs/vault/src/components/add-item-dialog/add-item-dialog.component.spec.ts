@@ -5,7 +5,10 @@ import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import {
+  RestrictedCipherType,
+  RestrictedItemTypesService,
+} from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DIALOG_DATA, DialogRef } from "@bitwarden/components";
 
 import { AddItemGridComponent } from "../add-item-grid/add-item-grid.component";
@@ -22,7 +25,7 @@ describe("AddItemDialogComponent", () => {
 
   const close = jest.fn();
   const dialogRef = { close };
-  const restricted$ = new BehaviorSubject<[]>([]);
+  const restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
 
   beforeEach(async () => {
     close.mockClear();
@@ -92,5 +95,42 @@ describe("AddItemDialogComponent", () => {
     getGrid().itemSelected.emit({ result: AddItemDialogResult.Collection });
 
     expect(close).toHaveBeenCalledWith({ result: AddItemDialogResult.Collection });
+  });
+
+  describe("dialogSize", () => {
+    it('is "large" when the grid has 6 or more items', () => {
+      createComponent({
+        canCreateFolder: false,
+        canCreateCollection: false,
+        canCreateSshKey: true,
+      });
+
+      expect(fixture.componentInstance["dialogSize"]()).toBe("large");
+    });
+
+    it('is "default" when the grid has fewer than 6 items', () => {
+      createComponent({
+        canCreateFolder: false,
+        canCreateCollection: false,
+        canCreateSshKey: false,
+      });
+
+      expect(fixture.componentInstance["dialogSize"]()).toBe("default");
+    });
+
+    it('switches to "default" when a cipher type becomes restricted', () => {
+      createComponent({
+        canCreateFolder: false,
+        canCreateCollection: false,
+        canCreateSshKey: true,
+      });
+
+      expect(fixture.componentInstance["dialogSize"]()).toBe("large");
+
+      restricted$.next([{ cipherType: CipherType.Card, allowViewOrgIds: [] } as any]);
+      fixture.detectChanges();
+
+      expect(fixture.componentInstance["dialogSize"]()).toBe("default");
+    });
   });
 });
