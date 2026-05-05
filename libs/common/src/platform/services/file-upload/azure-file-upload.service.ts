@@ -24,27 +24,18 @@ export class AzureFileUploadService {
     renewalCallback: () => Promise<string>,
     options?: UploadOptions,
   ) {
-    await this.uploadRaw(url, data.buffer, renewalCallback, options);
-  }
-
-  async uploadRaw(
-    url: string,
-    data: Uint8Array,
-    renewalCallback: () => Promise<string>,
-    options?: UploadOptions,
-  ) {
     const progressEnabled = await this.configService.getFeatureFlag(
       FeatureFlag.PM34410AttachmentUploadProgress,
     );
 
     if (progressEnabled) {
-      if (data.byteLength <= MAX_SINGLE_BLOB_UPLOAD_SIZE) {
+      if (data.buffer.byteLength <= MAX_SINGLE_BLOB_UPLOAD_SIZE) {
         return await this.azureUploadBlob(url, data, options);
       } else {
         return await this.azureUploadBlocks(url, data, renewalCallback, options);
       }
     } else {
-      if (data.byteLength <= MAX_SINGLE_BLOB_UPLOAD_SIZE) {
+      if (data.buffer.byteLength <= MAX_SINGLE_BLOB_UPLOAD_SIZE) {
         return await this.azureUploadBlob(url, data);
       } else {
         return await this.legacyAzureUploadBlocks(url, data, renewalCallback);
@@ -52,17 +43,17 @@ export class AzureFileUploadService {
     }
   }
 
-  private async azureUploadBlob(url: string, data: Uint8Array, options?: UploadOptions) {
+  private async azureUploadBlob(url: string, data: EncArrayBuffer, options?: UploadOptions) {
     const urlObject = Utils.getUrl(url);
     const headers = new Headers({
       "x-ms-date": new Date().toUTCString(),
       "x-ms-version": urlObject.searchParams.get("sv"),
-      "Content-Length": data.byteLength.toString(),
+      "Content-Length": data.buffer.byteLength.toString(),
       "x-ms-blob-type": "BlockBlob",
     });
 
     const request = new Request(url, {
-      body: data as BodyInit,
+      body: data.buffer as BodyInit,
       cache: "no-store",
       method: "PUT",
       headers: headers,
@@ -80,7 +71,7 @@ export class AzureFileUploadService {
 
   private async azureUploadBlocks(
     url: string,
-    data: Uint8Array,
+    data: EncArrayBuffer,
     renewalCallback: () => Promise<string>,
     options?: UploadOptions,
   ) {
@@ -92,11 +83,11 @@ export class AzureFileUploadService {
     const blockHeaders = new Headers({
       "x-ms-date": new Date().toUTCString(),
       "x-ms-version": blockUrl.searchParams.get("sv"),
-      "Content-Length": data.byteLength.toString(),
+      "Content-Length": data.buffer.byteLength.toString(),
     });
 
     const blockRequest = new Request(blockUrl.toString(), {
-      body: data as BodyInit,
+      body: data.buffer as BodyInit,
       cache: "no-store",
       method: "PUT",
       headers: blockHeaders,
@@ -141,13 +132,13 @@ export class AzureFileUploadService {
 
   private async legacyAzureUploadBlocks(
     url: string,
-    data: Uint8Array,
+    data: EncArrayBuffer,
     renewalCallback: () => Promise<string>,
   ) {
     const baseUrl = Utils.getUrl(url);
     const blockSize = this.getMaxBlockSize(baseUrl.searchParams.get("sv"));
     let blockIndex = 0;
-    const numBlocks = Math.ceil(data.byteLength / blockSize);
+    const numBlocks = Math.ceil(data.buffer.byteLength / blockSize);
     const blocksStaged: string[] = [];
 
     if (numBlocks > MAX_BLOCKS_PER_BLOB) {
@@ -165,7 +156,7 @@ export class AzureFileUploadService {
         blockUrl.searchParams.append("comp", "block");
         blockUrl.searchParams.append("blockid", blockId);
         const start = blockIndex * blockSize;
-        const blockData = data.slice(start, start + blockSize);
+        const blockData = data.buffer.slice(start, start + blockSize);
         const blockHeaders = new Headers({
           "x-ms-date": new Date().toUTCString(),
           "x-ms-version": blockUrl.searchParams.get("sv"),
