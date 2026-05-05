@@ -958,6 +958,15 @@ export class TokenService implements TokenServiceAbstraction {
     ]);
   }
 
+  async cleanupTokenStorage(userIds: UserId[]): Promise<void> {
+    for (const userId of userIds) {
+      const accessToken = await this.getAccessToken(userId);
+      if (accessToken == null) {
+        await this.clearTokens(userId);
+      }
+    }
+  }
+
   // jwthelper methods
   // ref https://github.com/auth0/angular-jwt/blob/master/src/angularJwt/services/jwt.js
 
@@ -1148,6 +1157,17 @@ export class TokenService implements TokenServiceAbstraction {
     return await firstValueFrom(this.singleUserStateProvider.get(userId, storageLocation).state$);
   }
 
+  /**
+   * Determines where tokens should be stored based on vault timeout settings.
+   *
+   * | Vault Timeout Action | Vault Timeout   | Token Storage        |
+   * |----------------------|-----------------|----------------------|
+   * | Lock                 | Any             | Disk / Secure Storage|
+   * | Log Out              | Never           | Disk / Secure Storage|
+   * | Log Out              | Any other value | Memory only          |
+   *
+   * Memory-only tokens are cleared when the app closes.
+   */
   private async determineStorageLocation(
     vaultTimeoutAction: VaultTimeoutAction,
     vaultTimeout: VaultTimeout,

@@ -1,15 +1,6 @@
-#web-authn-frame {
-  height: 40px;
-
-  iframe {
-    border: none;
-    height: 100%;
-    width: 100%;
-  }
-}
-
-// Braintree
-
+/**
+ * Styling to override Braintree's default styles.
+ */
 #bt-dropin-container {
   min-height: 50px;
   &:is(.theme_light *) {
@@ -40,7 +31,7 @@
   border: none;
 }
 
-// hide duplicate paypal iframe
+/* hide duplicate paypal iframe */
 .braintree-sheet__content--button
   .braintree-sheet__button--paypal
   iframe.zoid-prerender-frame.zoid-invisible {
