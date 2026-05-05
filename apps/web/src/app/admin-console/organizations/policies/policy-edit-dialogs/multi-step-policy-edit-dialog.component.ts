@@ -157,8 +157,14 @@ export class MultiStepPolicyEditDialogComponent
         return;
       }
 
-      // Not the last step - advance to next step
+      // Not the last step - advance to next step. Reset dirty state so that
+      // the discard-edits guard treats the saved values as the new baseline.
       this.currentStep.update((value) => value + 1);
+      const component = this.policyComponent();
+      if (component) {
+        component.enabled.markAsPristine();
+        component.data?.markAsPristine();
+      }
     } catch (error: any) {
       this.toastService.showToast({
         variant: "error",
