@@ -43,4 +43,8 @@ export class PopoverComponent {
   protected readonly closeButtonType = computed(() =>
     this.header() ? "secondary" : "primaryGhost",
   );
+
+  protected readonly titleClasses = computed(() =>
+    [this.header() ? "" : "tw-pe-6", "tw-text-fg-heading", "!tw-mb-0"].join(" "),
+  );
 }
