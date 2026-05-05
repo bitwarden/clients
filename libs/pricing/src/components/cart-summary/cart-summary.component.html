@@ -35,7 +35,7 @@
     ></button>
 
     @if (showDiscountBadges()) {
-      @for (discount of cart.discounts; track discount) {
+      @for (discount of discountBadges(); track $index) {
         <billing-discount-badge class="tw-mr-1" [discount]="discount"></billing-discount-badge>
       }
     }

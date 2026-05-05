@@ -160,6 +160,14 @@ export class CartSummaryComponent {
   );
 
   /**
+   * Collects all discounts (item-level and cart-level) for badge display.
+   */
+  readonly discountBadges = computed<Discount[]>(() => {
+    const cart = this.cart();
+    return [...(cart.passwordManager.seats.discounts ?? []), ...(cart.discounts ?? [])];
+  });
+
+  /**
    * Computes each discount as a labeled line item with its individual amount
    */
   readonly discountLineItems = computed<Array<{ label: string; amount: number }>>(() => {

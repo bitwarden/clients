@@ -910,29 +910,27 @@ describe("CartSummaryComponent", () => {
       expect(badges.length).toBe(0);
     });
 
-    it("should render discount badges when showDiscountBadges is true", () => {
+    it("should render badges for both item-level and cart-level discounts", () => {
       // Arrange
-      const cartWithDiscounts: Cart = {
+      const cartWithBothDiscounts: Cart = {
         ...mockCart,
-        discounts: [
-          {
-            type: DiscountTypes.PercentOff,
-            value: 20,
+        passwordManager: {
+          ...mockCart.passwordManager,
+          seats: {
+            ...mockCart.passwordManager.seats,
+            discounts: [{ type: DiscountTypes.PercentOff, value: 25 }],
           },
-          {
-            type: DiscountTypes.AmountOff,
-            value: 10,
-          },
-        ],
+        },
+        discounts: [{ type: DiscountTypes.AmountOff, value: 10 }],
       };
-      fixture.componentRef.setInput("cart", cartWithDiscounts);
+      fixture.componentRef.setInput("cart", cartWithBothDiscounts);
       fixture.componentRef.setInput("showDiscountBadges", true);
       fixture.detectChanges();
 
       // Act
       const badges = fixture.debugElement.queryAll(By.css("billing-discount-badge"));
 
-      // Assert
+      // Assert — one item-level + one cart-level
       expect(badges.length).toBe(2);
     });
   });
