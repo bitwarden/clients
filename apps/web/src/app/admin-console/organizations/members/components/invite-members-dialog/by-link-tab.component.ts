@@ -2,16 +2,15 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  effect,
   inject,
   input,
-  output,
-  Signal,
+  OnInit,
   signal,
+  WritableSignal,
 } from "@angular/core";
-import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { combineLatest, firstValueFrom, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -47,11 +46,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
     LinkComponent,
   ],
 })
-export class ByLinkTabComponent {
+export class ByLinkTabComponent implements OnInit {
   readonly organizationId = input.required<OrganizationId, string>({
     transform: (value: string) => value as OrganizationId,
   });
-  readonly isDirtyChange = output<boolean>();
 
   private readonly accountService = inject(AccountService);
   private readonly inviteLinkService = inject(OrganizationInviteLinkService);
@@ -59,36 +57,28 @@ export class ByLinkTabComponent {
   private readonly i18nService = inject(I18nService);
   private readonly fb = inject(FormBuilder);
 
-  protected readonly isDirty = signal(false);
-  protected readonly inviteLink: Signal<OrganizationInviteLink | undefined> = toSignal(
-    combineLatest([
-      this.accountService.activeAccount$.pipe(getUserId),
-      toObservable(this.organizationId),
-    ]).pipe(
-      switchMap(([userId, organizationId]) =>
-        this.inviteLinkService.inviteLink$(userId, organizationId),
-      ),
-    ),
-  );
+  protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([
+    this.accountService.activeAccount$.pipe(getUserId),
+    toObservable(this.organizationId),
+  ]).pipe(switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)));
+
+  protected readonly showCallout: WritableSignal<boolean> = signal(false);
 
   protected readonly form = this.fb.group({
     domains: ["", Validators.required],
   });
 
   constructor() {
-    this.form.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      const dirty = this.form.dirty;
-      this.isDirty.set(dirty);
-      this.isDirtyChange.emit(dirty);
-    });
-
-    effect(() => {
-      const inviteLink = this.inviteLink();
+    this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
         this.form.controls.domains.setValue(inviteLink.allowedDomains.join(", "));
         this.form.markAsPristine();
       }
     });
+  }
+
+  async ngOnInit() {
+    this.showCallout.set(await firstValueFrom(this.inviteLink$.pipe(map((link) => link == null))));
   }
 
   readonly save = async () => {
@@ -108,15 +98,16 @@ export class ByLinkTabComponent {
       .map((domain) => domain.trim())
       .filter((domain) => domain.length > 0);
 
-    if (this.inviteLink()) {
+    const inviteLink = await firstValueFrom(this.inviteLink$);
+    if (inviteLink) {
       await this.inviteLinkService.updateInviteLink(userId, this.organizationId(), domains);
     } else {
       await this.inviteLinkService.createInviteLink(userId, this.organizationId(), domains);
     }
 
     this.form.markAsPristine();
-    this.isDirty.set(false);
-    this.isDirtyChange.emit(false);
+
+    this.showCallout.set(false);
 
     this.toastService.showToast({
       variant: "success",

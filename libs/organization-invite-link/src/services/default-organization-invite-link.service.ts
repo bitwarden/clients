@@ -1,4 +1,4 @@
-import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { catchError, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -12,7 +12,10 @@ import { OrganizationInviteLinkApiService } from "../abstractions/organization-i
 import { OrganizationInviteLinkService } from "../abstractions/organization-invite-link.service";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
-import { OrganizationInviteLink } from "../models/responses/organization-invite-link.response";
+import {
+  OrganizationInviteLink,
+  OrganizationInviteLinkResponseModel,
+} from "../models/responses/organization-invite-link.response";
 import { ORGANIZATION_INVITE_LINK_KEY } from "../state/organization-invite-link-state";
 
 export class DefaultOrganizationInviteLinkService implements OrganizationInviteLinkService {
@@ -30,12 +33,12 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   ): Observable<OrganizationInviteLink | undefined> {
     return this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).state$.pipe(
       switchMap((state) => {
-        // If local state is empty, try to GET and upsert result.
         if (state == null) {
           return this.getInviteLink(userId, orgId);
         }
-        return of(state ?? undefined);
+        return of(state);
       }),
+      catchError(() => of(undefined)),
     );
   }
 
@@ -88,7 +91,6 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
 
   async delete(userId: UserId, orgId: OrganizationId): Promise<void> {
     await this.apiService.delete(orgId);
-    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => undefined);
   }
 
   private buildInviteUrl(code: string, keyB64: string): string {
@@ -99,9 +101,17 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     userId: UserId,
     orgId: OrganizationId,
   ): Promise<OrganizationInviteLink | undefined> {
-    const response = await this.apiService.get(orgId);
-    const inviteLink = new OrganizationInviteLink(response);
+    let response: OrganizationInviteLinkResponseModel;
+    try {
+      response = await this.apiService.get(orgId);
+    } catch (e: any) {
+      if (e.status === 404) {
+        return undefined;
+      }
+      throw e;
+    }
 
+    const inviteLink = new OrganizationInviteLink(response);
     await this.upsert(userId, inviteLink);
     return inviteLink;
   }

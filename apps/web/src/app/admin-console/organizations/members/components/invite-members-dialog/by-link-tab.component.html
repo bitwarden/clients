@@ -21,7 +21,7 @@
     <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
   </bit-form-field>
 
-  @if (isDirty()) {
+  @if (form.dirty) {
     <button
       type="button"
       bitButton
@@ -35,7 +35,7 @@
   }
 </div>
 
-@if (!inviteLink()) {
+@if (showCallout()) {
   <bit-callout type="info">
     <strong>
       {{ "enterAllowedDomainsToGenerateInviteLink" | i18n }}

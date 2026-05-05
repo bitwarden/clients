@@ -14,10 +14,7 @@
             ></ng-container>
           </bit-tab>
           <bit-tab [label]="'byLink' | i18n">
-            <app-by-link-tab
-              [organizationId]="params.organizationId"
-              (isDirtyChange)="byLinkIsDirty.set($event)"
-            />
+            <app-by-link-tab [organizationId]="params.organizationId" />
           </bit-tab>
         </bit-tab-group>
       } @else {
@@ -32,10 +29,7 @@
         bitButton
         bitFormButton
         buttonType="primary"
-        [disabled]="
-          (selectedTabIndex() === 0 && formGroup.controls.emails.invalid) ||
-          (selectedTabIndex() === 1 && byLinkIsDirty())
-        "
+        [disabled]="selectedTabIndex() === 0 && formGroup.controls.emails.invalid"
       >
         {{ selectedTabIndex() === 0 ? ("invite" | i18n) : ("copyLink" | i18n) }}
       </button>
