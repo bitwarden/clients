@@ -63,8 +63,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
   protected readonly destroyRef = inject(DestroyRef);
   private readonly discardGuardEnabled = signal(false);
-  private readonly initialEnabledValue = signal<boolean | null>(null);
-  private readonly initialDataValue = signal<unknown>(null);
 
   protected readonly policyType = PolicyType;
   protected readonly loading = signal(true);
@@ -102,15 +100,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     if (!component) {
       return false;
     }
-    if (component.enabled.value !== this.initialEnabledValue()) {
-      return true;
-    }
-    if (component.data != null) {
-      return (
-        JSON.stringify(component.data.getRawValue()) !== JSON.stringify(this.initialDataValue())
-      );
-    }
-    return false;
+    return component.enabled.dirty || (component.data?.dirty ?? false);
   }
 
   private readonly discardDialogOptions = {
@@ -240,9 +230,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
 
     this.cdr.detectChanges();
-    // Snapshot after ngOnInit has populated the form from policyResponse.
-    this.initialEnabledValue.set(component.enabled.value);
-    this.initialDataValue.set(component.data?.getRawValue() ?? null);
     await this.setupDiscardGuard();
   }
 
