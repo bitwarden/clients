@@ -1,5 +1,6 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { BadgeComponent } from "../badge";
 import { IconTileComponent } from "../icon-tile";
 
@@ -41,12 +42,7 @@ export const Default: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion
-        [title]="title"
-        [subtitle]="subtitle"
-        [(open)]="open"
-        [disabled]="disabled"
-        [size]="size"
-        [variant]="variant"
+        ${formatArgsForCodeSnippet<AccordionComponent>(args)}
       >
         <span>
           Save time by importing data from another password manager. No data to import?
