@@ -81,13 +81,21 @@ export class ImportDesktopComponent {
 
       throw new Error(message);
     }
-    return ipc.tools.chromiumImporter.getAvailableProfiles(browser);
+    try {
+      return await ipc.tools.chromiumImporter.getAvailableProfiles(browser);
+    } catch {
+      throw new Error(this.i18nService.t("errorOccurred"));
+    }
   }
 
-  private _onImportFromBrowser(
+  private async _onImportFromBrowser(
     browser: string,
     profile: string,
   ): Promise<chromium_importer.LoginImportResult[]> {
-    return ipc.tools.chromiumImporter.importLogins(browser, profile);
+    try {
+      return await ipc.tools.chromiumImporter.importLogins(browser, profile);
+    } catch {
+      throw new Error(this.i18nService.t("errorOccurred"));
+    }
   }
 }

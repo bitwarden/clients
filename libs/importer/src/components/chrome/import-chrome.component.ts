@@ -181,29 +181,12 @@ export class ImportChromeComponent implements OnInit, OnDestroy {
   }
 
   private translateValidationError(error: any): string {
+    // Platform wiring (e.g., the desktop callback) is responsible for translating
+    // platform-specific errors before they reach this component. Unknown messages
+    // — including raw native error strings — fall back to a generic key rather
+    // than being surfaced verbatim in the UI.
     const message = typeof error === "string" ? error : error?.message;
-    if (!message) {
-      return this.i18nService.t("errorOccurred");
-    }
-
-    // Check for specific browser not installed error
-    const browserNotInstalledMatch = message.match(/chromiumImporterBrowserNotInstalled:([^:]+)/);
-    if (browserNotInstalledMatch) {
-      return this.i18nService.t("chromiumImporterBrowserNotInstalled", browserNotInstalledMatch[1]);
-    }
-
-    // Generic IPC error
-    if (message.includes("Error invoking remote method")) {
-      return this.i18nService.t("errorOccurred");
-    }
-
-    // Check if it's a known i18n key
-    if (message === "browserAccessDenied") {
-      return this.i18nService.t("browserAccessDenied");
-    }
-
-    // Return raw message as fallback
-    return message;
+    return message ?? this.i18nService.t("errorOccurred");
   }
 
   private getBrowserName(format: ImportType): string {

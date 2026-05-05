@@ -11,7 +11,7 @@ void requestAccessCommand(void* context, NSDictionary *params) {
     return _return(context, _error(@"Missing required parameters: browserName and relativePath"));
   }
 
-  BrowserAccessManager *manager = [[BrowserAccessManager alloc] init];
+  BrowserAccessManager *manager = [BrowserAccessManager sharedManager];
   NSString *bookmarkData = [manager requestAccessToBrowserDir:browserName relativePath:relativePath];
 
   if (bookmarkData == nil) {

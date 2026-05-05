@@ -4,17 +4,6 @@ use std::path::{Path, PathBuf};
 use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 
-// Bundle IDs of supported Chromium browsers - used to determine if browser is installed
-const BROWSER_BUNDLE_IDS: &[(&str, &str)] = &[
-    ("Chrome", "com.google.Chrome"),
-    ("Chromium", "org.chromium.Chromium"),
-    ("Microsoft Edge", "com.microsoft.edgemac"),
-    ("Brave", "com.brave.Browser"),
-    ("Arc", "company.thebrowser.Browser"),
-    ("Opera", "com.operasoftware.Opera"),
-    ("Vivaldi", "com.vivaldi.Vivaldi"),
-];
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct CheckBrowserInstalledResponse {
@@ -26,12 +15,6 @@ struct CheckBrowserInstalledResponse {
 enum CommandResult<T> {
     Success { value: T },
     Error { error: String },
-}
-
-#[derive(Debug, Deserialize)]
-struct RequestAccessResponse {
-    #[allow(dead_code)]
-    bookmark: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -102,7 +85,7 @@ impl ScopedBrowserAccess {
             .await
             .map_err(|e| anyhow!("Failed to call ObjC command: {}", e))?;
 
-        let result: CommandResult<RequestAccessResponse> = serde_json::from_str(&output)
+        let result: CommandResult<serde_json::Value> = serde_json::from_str(&output)
             .map_err(|e| anyhow!("Failed to parse ObjC response: {}", e))?;
 
         match result {
@@ -141,37 +124,62 @@ impl ScopedBrowserAccess {
             CommandResult::Error { error } => Err(anyhow!("{}", error)),
         }
     }
+
+    /// Release the security-scoped resource explicitly. Prefer this over relying on `Drop`
+    /// at every call site so cleanup is awaited and any failure is observable to the caller.
+    pub async fn close(self) -> Result<()> {
+        send_stop_access(&self.browser_name).await
+    }
 }
 
 impl Drop for ScopedBrowserAccess {
     fn drop(&mut self) {
+        // Defensive backstop only — call sites should prefer `close().await`.
+        // Skip if no Tokio runtime is available on the dropping thread (e.g.,
+        // a future synchronous test path) so Drop cannot panic.
+        let Ok(handle) = tokio::runtime::Handle::try_current() else {
+            return;
+        };
         let browser_name = self.browser_name.clone();
-
-        tokio::task::spawn(async move {
-            let input = CommandInput {
-                namespace: "chromium_importer".to_string(),
-                command: "stop_access".to_string(),
-                params: serde_json::json!({
-                    "browserName": browser_name,
-                }),
-            };
-
-            if let Ok(input_json) = serde_json::to_string(&input) {
-                let _ = desktop_objc::run_command(input_json).await;
-            }
+        handle.spawn(async move {
+            let _ = send_stop_access(&browser_name).await;
         });
     }
 }
 
-async fn is_browser_installed(browser_name: &str) -> Result<bool> {
-    let bundle_id = BROWSER_BUNDLE_IDS
-        .iter()
-        .find(|(name, _)| *name == browser_name)
-        .map(|(_, id)| *id);
-
-    let Some(bundle_id) = bundle_id else {
-        return Ok(true);
+async fn send_stop_access(browser_name: &str) -> Result<()> {
+    let input = CommandInput {
+        namespace: "chromium_importer".to_string(),
+        command: "stop_access".to_string(),
+        params: serde_json::json!({
+            "browserName": browser_name,
+        }),
     };
+
+    let output = desktop_objc::run_command(serde_json::to_string(&input)?)
+        .await
+        .map_err(|e| anyhow!("Failed to call ObjC command: {}", e))?;
+
+    let result: CommandResult<serde_json::Value> = serde_json::from_str(&output)
+        .map_err(|e| anyhow!("Failed to parse ObjC response: {}", e))?;
+
+    match result {
+        CommandResult::Success { .. } => Ok(()),
+        CommandResult::Error { error } => Err(anyhow!("{}", error)),
+    }
+}
+
+async fn is_browser_installed(browser_name: &str) -> Result<bool> {
+    let bundle_id = crate::chromium::platform::SUPPORTED_BROWSERS
+        .iter()
+        .find(|b| b.name == browser_name)
+        .and_then(|b| b.bundle_id)
+        .ok_or_else(|| {
+            anyhow!(
+                "No bundle identifier configured for browser: {}",
+                browser_name
+            )
+        })?;
 
     let input = CommandInput {
         namespace: "chromium_importer".to_string(),

@@ -10,7 +10,7 @@ void startAccessCommand(void* context, NSDictionary *params) {
     return _return(context, _error(@"Missing required parameter: browserName"));
   }
 
-  BrowserAccessManager *manager = [[BrowserAccessManager alloc] init];
+  BrowserAccessManager *manager = [BrowserAccessManager sharedManager];
   NSString *resolvedPath = [manager startAccessingBrowser:browserName];
 
   if (resolvedPath == nil) {

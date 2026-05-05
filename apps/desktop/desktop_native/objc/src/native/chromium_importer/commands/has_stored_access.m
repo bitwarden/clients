@@ -10,7 +10,7 @@ void hasStoredAccessCommand(void* context, NSDictionary *params) {
     return _return(context, _error(@"Missing required parameter: browserName"));
   }
 
-  BrowserAccessManager *manager = [[BrowserAccessManager alloc] init];
+  BrowserAccessManager *manager = [BrowserAccessManager sharedManager];
   BOOL hasAccess = [manager hasStoredAccess:browserName];
 
   _return(context, _success(@{@"hasAccess": @(hasAccess)}));

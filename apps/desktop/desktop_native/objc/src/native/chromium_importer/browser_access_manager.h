@@ -4,7 +4,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface BrowserAccessManager : NSObject
 
-- (instancetype)init;
+/// Process-wide shared instance. Required so the NSURL produced by
+/// `startAccessingBrowser:` can be retained across the separate ObjC command
+/// invocations that pair `start` with `stop` — Apple's contract requires
+/// `stopAccessingSecurityScopedResource` to be called on the same NSURL object
+/// that was passed to `startAccessingSecurityScopedResource`.
++ (instancetype)sharedManager;
 
 /// Request access to a specific browser's directory
 /// Returns security bookmark data (used to persist permissions) as base64 string, or nil if user declined

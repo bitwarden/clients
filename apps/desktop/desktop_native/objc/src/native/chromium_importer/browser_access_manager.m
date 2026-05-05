@@ -5,12 +5,23 @@
 
 @implementation BrowserAccessManager {
     NSString *_bookmarkKey;
+    NSMutableDictionary<NSString *, NSURL *> *_activeURLs;
+}
+
++ (instancetype)sharedManager {
+    static BrowserAccessManager *instance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[BrowserAccessManager alloc] init];
+    });
+    return instance;
 }
 
 - (instancetype)init {
     self = [super init];
     if (self) {
         _bookmarkKey = @"com.bitwarden.chromiumImporter.bookmarks";
+        _activeURLs = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -147,23 +158,19 @@
         return nil;
     }
 
+    @synchronized (_activeURLs) {
+        _activeURLs[browserName] = url;
+    }
+
     return url.path;
 }
 
 - (void)stopAccessingBrowser:(NSString *)browserName {
-    NSData *bookmarkData = [self loadBookmarkForBrowser:browserName];
-    if (!bookmarkData) {
-        return;
+    NSURL *url = nil;
+    @synchronized (_activeURLs) {
+        url = _activeURLs[browserName];
+        [_activeURLs removeObjectForKey:browserName];
     }
-
-    BOOL isStale = NO;
-    NSError *error = nil;
-    NSURL *url = [NSURL URLByResolvingBookmarkData:bookmarkData
-                                options:NSURLBookmarkResolutionWithSecurityScope
-                                relativeToURL:nil
-                                bookmarkDataIsStale:&isStale
-                                error:&error];
-
     if (!url) {
         return;
     }

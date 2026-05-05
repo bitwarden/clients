@@ -88,8 +88,9 @@ pub async fn get_available_profiles(
     #[cfg(target_os = "macos")]
     if mas_build {
         let access = platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
-        let local_state = load_local_state(access.path())?;
-        return Ok(get_profile_info(&local_state));
+        let read_result = load_local_state(access.path()).map(|s| get_profile_info(&s));
+        access.close().await?;
+        return read_result;
     }
 
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
@@ -114,16 +115,17 @@ pub async fn import_logins(
 ) -> Result<Vec<LoginImportResult>> {
     // MAS builds resolve the data dir from the security-scoped bookmark — `dirs::home_dir()`
     // returns the sandbox container path under the App Sandbox, not the user's real $HOME.
-    // The `ScopedBrowserAccess` binding releases the scope on `Drop` after the reads complete.
+    // `ScopedBrowserAccess::close()` is awaited on the success path so the security scope
+    // is released before the function returns; `Drop` is a defensive backstop on the error path.
     #[cfg(target_os = "macos")]
-    let _access = if mas_build {
+    let access = if mas_build {
         Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
     } else {
         None
     };
 
     #[cfg(target_os = "macos")]
-    let (data_dir, local_state) = match _access.as_ref() {
+    let (data_dir, local_state) = match access.as_ref() {
         Some(a) => {
             let data_dir = a.path().to_path_buf();
             let local_state = load_local_state(&data_dir)?;
@@ -157,6 +159,11 @@ pub async fn import_logins(
 
     let results = decrypt_logins(all_logins, &mut crypto_service).await;
 
+    #[cfg(target_os = "macos")]
+    if let Some(a) = access {
+        a.close().await?;
+    }
+
     Ok(results)
 }
 
@@ -168,6 +175,10 @@ pub async fn import_logins(
 pub(crate) struct BrowserConfig {
     pub name: &'static str,
     pub data_dir: &'static [&'static str],
+    /// macOS application bundle identifier; used by sandbox builds to detect installation
+    /// without filesystem access. `None` on platforms where bundle IDs do not apply.
+    #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+    pub bundle_id: Option<&'static str>,
 }
 
 pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
