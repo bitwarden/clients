@@ -34,7 +34,6 @@ import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
-import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -285,84 +284,15 @@ export class CipherService implements CipherServiceAbstraction {
   async encrypt(
     model: CipherView,
     userId: UserId,
-    keyForCipherEncryption?: SymmetricCryptoKey,
-    keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher: Cipher = null,
   ): Promise<EncryptionContext> {
     await this.adjustCipherHistory(model, userId, originalCipher);
 
-    const sdkEncryptionEnabled =
-      (await this.configService.getFeatureFlag(FeatureFlag.PM22136_SdkCipherEncryption)) &&
-      keyForCipherEncryption == null && // PM-23085 - SDK encryption does not currently support custom keys (e.g. key rotation)
-      keyForCipherKeyDecryption == null; // PM-23348 - Or has explicit methods for re-encrypting ciphers with different keys (e.g. move to org)
-
-    if (sdkEncryptionEnabled) {
-      return await this.cipherEncryptionService.encrypt(model, userId);
-    }
-
-    const cipher = new Cipher();
-    cipher.id = model.id;
-    cipher.folderId = model.folderId;
-    cipher.favorite = model.favorite;
-    cipher.organizationId = model.organizationId;
-    cipher.type = model.type;
-    cipher.collectionIds = model.collectionIds;
-    cipher.creationDate = model.creationDate;
-    cipher.revisionDate = model.revisionDate;
-    cipher.archivedDate = model.archivedDate;
-    cipher.reprompt = model.reprompt;
-    cipher.edit = model.edit;
-    cipher.viewPassword = model.viewPassword;
-
-    if (
-      // prevent unprivileged users from migrating to cipher key encryption
-      (model.viewPassword && (await this.getCipherKeyEncryptionEnabled())) ||
-      originalCipher?.key
-    ) {
-      cipher.key = originalCipher?.key ?? null;
-      const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
-      // The keyForEncryption is only used for encrypting the cipher key, not the cipher itself, since cipher key encryption is enabled.
-      // If the caller has provided a key for cipher key encryption, use it. Otherwise, use the user or org key.
-      keyForCipherEncryption ||= userOrOrgKey;
-      // If the caller has provided a key for cipher key decryption, use it. Otherwise, use the user or org key.
-      keyForCipherKeyDecryption ||= userOrOrgKey;
-      return {
-        cipher: await this.encryptCipherWithCipherKey(
-          model,
-          cipher,
-          keyForCipherEncryption,
-          keyForCipherKeyDecryption,
-        ),
-        encryptedFor: userId,
-      };
-    } else {
-      keyForCipherEncryption ||= await this.getKeyForCipherKeyDecryption(cipher, userId);
-      // We want to ensure that the cipher key is null if cipher key encryption is disabled
-      // so that decryption uses the proper key.
-      cipher.key = null;
-      return {
-        cipher: await this.encryptCipher(model, cipher, keyForCipherEncryption),
-        encryptedFor: userId,
-      };
-    }
+    return await this.cipherEncryptionService.encrypt(model, userId);
   }
 
   async encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]> {
-    const sdkEncryptionEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22136_SdkCipherEncryption,
-    );
-
-    if (sdkEncryptionEnabled) {
-      return await this.cipherEncryptionService.encryptMany(models, userId);
-    }
-
-    // Fallback to sequential encryption if SDK disabled
-    const results: EncryptionContext[] = [];
-    for (const model of models) {
-      const result = await this.encrypt(model, userId);
-      results.push(result);
-    }
-    return results;
+    return await this.cipherEncryptionService.encryptMany(models, userId);
   }
 
   async encryptAttachments(
@@ -1037,10 +967,6 @@ export class CipherService implements CipherServiceAbstraction {
       );
     }
 
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22136_SdkCipherEncryption,
-    );
-
     // Get original cipher for adjustCipherHistory
     let originalCipher: Cipher | undefined;
     if (originalCipherView) {
@@ -1051,44 +977,18 @@ export class CipherService implements CipherServiceAbstraction {
     // If originalCipher is undefined, adjustCipherHistory will fetch from cache
     await this.adjustCipherHistory(cipher, userId, originalCipher);
 
-    let encCipher: EncryptionContext;
-    if (sdkCipherEncryptionEnabled) {
-      // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
-      // cipher encryption key being used during the move to organization operation.
-      if (cipher.organizationId != null) {
-        throw new Error("Cipher is already associated with an organization.");
-      }
-
-      encCipher = await this.cipherEncryptionService.moveToOrganization(
-        cipher,
-        organizationId as OrganizationId,
-        userId,
-      );
-      encCipher.cipher.collectionIds = collectionIds;
-    } else {
-      // This old attachment logic is safe to remove after it is replaced in PM-22750; which will require fixing
-      // the attachment before sharing.
-      const attachmentPromises: Promise<any>[] = [];
-      if (cipher.attachments != null) {
-        cipher.attachments.forEach((attachment) => {
-          if (attachment.key == null) {
-            attachmentPromises.push(
-              this.shareAttachmentWithServer(
-                attachment,
-                cipher.id,
-                organizationId,
-                cipher.revisionDate,
-              ),
-            );
-          }
-        });
-      }
-      await Promise.all(attachmentPromises);
-
-      cipher.organizationId = organizationId;
-      cipher.collectionIds = collectionIds;
-      encCipher = await this.encryptSharedCipher(cipher, userId);
+    // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
+    // cipher encryption key being used during the move to organization operation.
+    if (cipher.organizationId != null) {
+      throw new Error("Cipher is already associated with an organization.");
     }
+
+    const encCipher = await this.cipherEncryptionService.moveToOrganization(
+      cipher,
+      organizationId as OrganizationId,
+      userId,
+    );
+    encCipher.cipher.collectionIds = collectionIds;
 
     const request = new CipherShareRequest(encCipher);
     const response = await this.apiService.putShareCipher(cipher.id, request);
@@ -1108,36 +1008,23 @@ export class CipherService implements CipherServiceAbstraction {
       return this.shareManyWithServerUsingSdk(ciphers, organizationId, collectionIds, userId);
     }
 
-    const sdkCipherEncryptionEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22136_SdkCipherEncryption,
-    );
     const promises: Promise<any>[] = [];
     const encCiphers: Cipher[] = [];
     for (const cipher of ciphers) {
-      if (sdkCipherEncryptionEnabled) {
-        // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
-        // cipher encryption key being used during the move to organization operation.
-        if (cipher.organizationId != null) {
-          throw new Error("Cipher is already associated with an organization.");
-        }
-
-        promises.push(
-          this.cipherEncryptionService
-            .moveToOrganization(cipher, organizationId as OrganizationId, userId)
-            .then((encCipher) => {
-              encCipher.cipher.collectionIds = collectionIds;
-              encCiphers.push(encCipher.cipher);
-            }),
-        );
-      } else {
-        cipher.organizationId = organizationId;
-        cipher.collectionIds = collectionIds;
-        promises.push(
-          this.encryptSharedCipher(cipher, userId).then((c) => {
-            encCiphers.push(c.cipher);
-          }),
-        );
+      // The SDK does not expect the cipher to already have an organizationId. It will result in the wrong
+      // cipher encryption key being used during the move to organization operation.
+      if (cipher.organizationId != null) {
+        throw new Error("Cipher is already associated with an organization.");
       }
+
+      promises.push(
+        this.cipherEncryptionService
+          .moveToOrganization(cipher, organizationId as OrganizationId, userId)
+          .then((encCipher) => {
+            encCipher.cipher.collectionIds = collectionIds;
+            encCiphers.push(encCipher.cipher);
+          }),
+      );
     }
     await Promise.all(promises);
     const request = new CipherBulkShareRequest(encCiphers, collectionIds, userId);
@@ -1820,15 +1707,13 @@ export class CipherService implements CipherServiceAbstraction {
       return encryptedCiphers;
     }
 
-    const useSdkEncryption = await this.configService.getFeatureFlag(
-      FeatureFlag.PM22136_SdkCipherEncryption,
-    );
-
     encryptedCiphers = await Promise.all(
       userCiphers.map(async (cipher) => {
-        const encryptedCipher = useSdkEncryption
-          ? await this.cipherEncryptionService.encryptCipherForRotation(cipher, userId, newUserKey)
-          : await this.encrypt(cipher, userId, newUserKey, originalUserKey);
+        const encryptedCipher = await this.cipherEncryptionService.encryptCipherForRotation(
+          cipher,
+          userId,
+          newUserKey,
+        );
         return new CipherWithIdRequest(encryptedCipher);
       }),
     );
@@ -1912,13 +1797,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   // Helpers
 
-  // In the case of a cipher that is being shared with an organization, we want to decrypt the
-  // cipher key with the user's key and then re-encrypt it with the organization's key.
-  private async encryptSharedCipher(model: CipherView, userId: UserId): Promise<EncryptionContext> {
-    const keyForCipherKeyDecryption = await this.keyService.getUserKey(userId);
-    return await this.encrypt(model, userId, null, keyForCipherKeyDecryption);
-  }
-
   private async updateModelfromExistingCipher(
     model: CipherView,
     originalCipher: Cipher,
@@ -1973,69 +1851,6 @@ export class CipherService implements CipherServiceAbstraction {
     } else if (model.passwordHistory != null && model.passwordHistory.length > 5) {
       // only save last 5 history
       model.passwordHistory = model.passwordHistory.slice(0, 5);
-    }
-  }
-
-  private async shareAttachmentWithServer(
-    attachmentView: AttachmentView,
-    cipherId: string,
-    organizationId: string,
-    lastKnownRevisionDate: Date,
-  ): Promise<any> {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$);
-
-    const attachmentResponse = await this.apiService.nativeFetch(
-      new Request(attachmentView.url, { cache: "no-store" }),
-    );
-    if (attachmentResponse.status !== 200) {
-      throw Error("Failed to download attachment: " + attachmentResponse.status.toString());
-    }
-
-    const encBuf = await EncArrayBuffer.fromResponse(attachmentResponse);
-    const userKey = await this.keyService.getUserKey(activeUserId.id);
-    const decBuf = await this.encryptService.decryptFileData(encBuf, userKey);
-
-    let encKey: UserKey | OrgKey;
-    encKey = await this.keyService.getOrgKey(organizationId);
-    encKey ||= (await this.keyService.getUserKey()) as UserKey;
-
-    const dataEncKey = await this.keyService.makeDataEncKey(encKey);
-
-    const encFileName = await this.encryptService.encryptString(attachmentView.fileName, encKey);
-    const encData = await this.encryptService.encryptFileData(
-      new Uint8Array(decBuf),
-      dataEncKey[0],
-    );
-
-    const fd = new FormData();
-    try {
-      const blob = new Blob([encData.buffer as BlobPart], { type: "application/octet-stream" });
-      fd.append("key", dataEncKey[1].encryptedString);
-      fd.append("data", blob, encFileName.encryptedString);
-      fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
-    } catch (e) {
-      if (Utils.isNode && !Utils.isBrowser) {
-        fd.append("key", dataEncKey[1].encryptedString);
-        fd.append("lastKnownRevisionDate", lastKnownRevisionDate.toISOString());
-        fd.append(
-          "data",
-          Buffer.from(encData.buffer) as any,
-          { filepath: encFileName.encryptedString, contentType: "application/octet-stream" } as any,
-        );
-      } else {
-        throw e;
-      }
-    }
-
-    try {
-      await this.apiService.postShareCipherAttachment(
-        cipherId,
-        attachmentView.id,
-        fd,
-        organizationId,
-      );
-    } catch (e) {
-      throw new Error((e as ErrorResponse).getSingleMessage());
     }
   }
 
