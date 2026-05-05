@@ -97,17 +97,16 @@ describe("SubscriptionDiscountService", () => {
       expect(result).toEqual([]);
     });
 
-    it("does not call the API for the initial fetch when the cache is already warm", async () => {
+    it("shares a single API call across simultaneous subscribers", async () => {
       const discounts = makeApplicableDiscounts([makeDiscount()], []);
       mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
       mockAccountBillingClient.getApplicableDiscounts.mockResolvedValue(discounts);
 
       const sub1 = sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium).subscribe();
+      const sub2 = sut.getItemLevelDiscountsForTier$(DiscountTierType.Premium).subscribe();
       await new Promise((r) => setTimeout(r));
-      sub1.unsubscribe();
 
-      const sub2 = sut.getCartLevelDiscountsForTier$(DiscountTierType.Premium).subscribe();
-      await new Promise((r) => setTimeout(r));
+      sub1.unsubscribe();
       sub2.unsubscribe();
 
       expect(mockAccountBillingClient.getApplicableDiscounts).toHaveBeenCalledTimes(1);

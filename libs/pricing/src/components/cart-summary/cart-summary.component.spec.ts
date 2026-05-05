@@ -416,7 +416,7 @@ describe("CartSummaryComponent", () => {
     it("should not display discount section when no discounts are present", () => {
       // Arrange / Act
       const discountSection = fixture.debugElement.query(
-        By.css('[data-testid="discount-section"]'),
+        By.css('[data-testid="discount-section-0"]'),
       );
 
       // Assert
@@ -438,10 +438,10 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountSection = fixture.debugElement.query(
-        By.css('[data-testid="discount-section"]'),
+        By.css('[data-testid="discount-section-0"]'),
       );
       const discountLabel = discountSection.query(By.css("div.tw-text-success-600"));
-      const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
+      const discountAmount = discountSection.query(By.css('[data-testid="discount-amount-0"]'));
 
       // Act / Assert
       expect(discountSection).toBeTruthy();
@@ -465,10 +465,10 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountSection = fixture.debugElement.query(
-        By.css('[data-testid="discount-section"]'),
+        By.css('[data-testid="discount-section-0"]'),
       );
       const discountLabel = discountSection.query(By.css("div.tw-text-success-600"));
-      const discountAmount = discountSection.query(By.css('[data-testid="discount-amount"]'));
+      const discountAmount = discountSection.query(By.css('[data-testid="discount-amount-0"]'));
 
       // Act / Assert
       expect(discountSection).toBeTruthy();
@@ -520,19 +520,19 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountSections = fixture.debugElement.queryAll(
-        By.css('[data-testid="discount-section"]'),
+        By.css('[data-testid^="discount-section-"]'),
       );
 
       // Act / Assert
       expect(discountSections.length).toBe(2);
       // First discount: 20% of 372 = 74.4
       expect(
-        discountSections[0].query(By.css('[data-testid="discount-amount"]')).nativeElement
+        discountSections[0].query(By.css('[data-testid="discount-amount-0"]')).nativeElement
           .textContent,
       ).toContain("-$74.40");
       // Second discount: $10.00 off (flat amount, unaffected by cascading)
       expect(
-        discountSections[1].query(By.css('[data-testid="discount-amount"]')).nativeElement
+        discountSections[1].query(By.css('[data-testid="discount-amount-1"]')).nativeElement
           .textContent,
       ).toContain("-$10.00");
     });
@@ -573,19 +573,19 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountSections = fixture.debugElement.queryAll(
-        By.css('[data-testid="discount-section"]'),
+        By.css('[data-testid^="discount-section-"]'),
       );
 
       // Act / Assert
       expect(discountSections.length).toBe(2);
       // Subtotal = 372; first 10% → 37.2 off, running subtotal = 334.8
       expect(
-        discountSections[0].query(By.css('[data-testid="discount-amount"]')).nativeElement
+        discountSections[0].query(By.css('[data-testid="discount-amount-0"]')).nativeElement
           .textContent,
       ).toContain("-$37.20");
       // Second 10% applied to 334.8 → 33.48 off (not 37.2)
       expect(
-        discountSections[1].query(By.css('[data-testid="discount-amount"]')).nativeElement
+        discountSections[1].query(By.css('[data-testid="discount-amount-1"]')).nativeElement
           .textContent,
       ).toContain("-$33.48");
     });
@@ -613,7 +613,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountRow = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-item"]'),
+        By.css('[data-testid="password-manager-seats-discount-item-0"]'),
       );
       const cells = discountRow.queryAll(By.css(".tw-text-success-600"));
 
@@ -644,7 +644,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountRow = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-item"]'),
+        By.css('[data-testid="password-manager-seats-discount-item-0"]'),
       );
       const cells = discountRow.queryAll(By.css(".tw-text-success-600"));
 
@@ -676,7 +676,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountRow = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-item"]'),
+        By.css('[data-testid="password-manager-seats-discount-item-0"]'),
       );
       const cells = discountRow.queryAll(By.css(".tw-text-success-600"));
 
@@ -744,11 +744,11 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const itemDiscountRow = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-item"]'),
+        By.css('[data-testid="password-manager-seats-discount-item-0"]'),
       );
       const itemDiscountAmount = itemDiscountRow.queryAll(By.css(".tw-text-success-600"))[1];
       const cartDiscountAmount = fixture.debugElement.query(
-        By.css('[data-testid="discount-amount"]'),
+        By.css('[data-testid="discount-amount-0"]'),
       );
 
       // Act / Assert — both sections render
@@ -800,7 +800,9 @@ describe("CartSummaryComponent", () => {
       fixture.componentRef.setInput("cart", cart);
       fixture.detectChanges();
 
-      const discountAmount = fixture.debugElement.query(By.css("[data-testid='discount-amount']"));
+      const discountAmount = fixture.debugElement.query(
+        By.css("[data-testid='discount-amount-0']"),
+      );
       expect(discountAmount.nativeElement.textContent).toContain("-$0.39");
 
       const finalTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
@@ -831,7 +833,7 @@ describe("CartSummaryComponent", () => {
       fixture.detectChanges();
 
       const discountRows = fixture.debugElement.queryAll(
-        By.css('[data-testid="password-manager-seats-discount-item"]'),
+        By.css('[data-testid^="password-manager-seats-discount-item-"]'),
       );
 
       // Act / Assert
@@ -878,7 +880,7 @@ describe("CartSummaryComponent", () => {
     it("should not display item-level discount rows when no item discounts are present", () => {
       // Arrange / Act
       const discountRow = fixture.debugElement.query(
-        By.css('[data-testid="password-manager-seats-discount-item"]'),
+        By.css('[data-testid="password-manager-seats-discount-item-0"]'),
       );
 
       // Assert
@@ -1011,7 +1013,7 @@ describe("CartSummaryComponent", () => {
       // Total = 372 - 37.2 - 30 + 9.6 = 314.4
       const expectedTotal = "$314.40";
       const discountSection = fixture.debugElement.query(
-        By.css('[data-testid="discount-section"]'),
+        By.css('[data-testid="discount-section-0"]'),
       );
       const creditSection = fixture.debugElement.query(By.css('[data-testid="credit-section"]'));
       const topTotal = fixture.debugElement.query(By.css("h2"));

@@ -83,10 +83,10 @@
         </div>
 
         <!-- Password Manager Seats Discounts -->
-        @for (discountItem of passwordManagerSeatsDiscountLineItems(); track discountItem.label) {
+        @for (discountItem of passwordManagerSeatsDiscountLineItems(); track $index) {
           <div
             class="tw-flex tw-justify-between"
-            data-testid="password-manager-seats-discount-item"
+            [attr.data-testid]="'password-manager-seats-discount-item-' + $index"
           >
             <div bitTypography="body1" class="tw-text-success-600">{{ discountItem.label }}</div>
             <div bitTypography="body1" class="tw-text-success-600">
@@ -200,14 +200,18 @@
       }
 
       <!-- Discounts -->
-      @for (discountItem of discountLineItems(); track discountItem.label) {
+      @for (discountItem of discountLineItems(); track $index) {
         @if (discountItem.amount > 0) {
           <div
             class="tw-flex tw-justify-between tw-border-b tw-border-secondary-100 tw-py-2"
-            data-testid="discount-section"
+            [attr.data-testid]="'discount-section-' + $index"
           >
             <div bitTypography="body1" class="tw-text-success-600">{{ discountItem.label }}</div>
-            <div bitTypography="body1" class="tw-text-success-600" data-testid="discount-amount">
+            <div
+              bitTypography="body1"
+              class="tw-text-success-600"
+              [attr.data-testid]="'discount-amount-' + $index"
+            >
               -{{ discountItem.amount | currency: "USD" : "symbol" }}
             </div>
           </div>

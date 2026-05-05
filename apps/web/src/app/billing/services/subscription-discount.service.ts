@@ -22,7 +22,7 @@ export class SubscriptionDiscountService {
     private configService: ConfigService,
   ) {}
 
-  private cachedDiscounts$: Observable<SubscriptionDiscountEligibility> | undefined;
+  private subscriptionDiscountEligibility$: Observable<SubscriptionDiscountEligibility> | undefined;
 
   refresh(): void {
     this.refreshTrigger.next();
@@ -79,27 +79,24 @@ export class SubscriptionDiscountService {
   }
 
   private getSubscriptionDiscountEligibility$(): Observable<SubscriptionDiscountEligibility> {
-    const featureFlag$ = this.configService
+    this.subscriptionDiscountEligibility$ ??= this.configService
       .getFeatureFlag$(FeatureFlag.PM29108_EnablePersonalDiscounts)
-      .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-
-    return featureFlag$.pipe(
-      switchMap((featureFlagEnabled): Observable<SubscriptionDiscountEligibility> => {
-        if (!featureFlagEnabled) {
-          return of({ cartLevelDiscounts: [], itemLevelDiscounts: [] });
-        }
-        return merge(
-          this.fetchDiscounts$(),
-          this.refreshTrigger.pipe(switchMap(() => this.fetchDiscounts$(true))),
-        ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-      }),
-    );
+      .pipe(
+        switchMap((featureFlagEnabled): Observable<SubscriptionDiscountEligibility> => {
+          if (!featureFlagEnabled) {
+            return of({ cartLevelDiscounts: [], itemLevelDiscounts: [] });
+          }
+          return merge(
+            this.fetchDiscounts$(),
+            this.refreshTrigger.pipe(switchMap(() => this.fetchDiscounts$())),
+          );
+        }),
+        shareReplay({ bufferSize: 1, refCount: true }),
+      );
+    return this.subscriptionDiscountEligibility$;
   }
 
-  private fetchDiscounts$(skipCache: boolean = false): Observable<SubscriptionDiscountEligibility> {
-    if (skipCache || !this.cachedDiscounts$) {
-      this.cachedDiscounts$ = from(this.accountBillingClient.getApplicableDiscounts());
-    }
-    return this.cachedDiscounts$;
+  private fetchDiscounts$(): Observable<SubscriptionDiscountEligibility> {
+    return from(this.accountBillingClient.getApplicableDiscounts());
   }
 }
