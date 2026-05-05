@@ -115,7 +115,7 @@ async function navigateAndWaitFor<T>(path: KitchenSinkRoute, ready: () => T): Pr
   return waitFor(ready);
 }
 
-/** Opens the side nav if it's closed, waiting for it to appear first. */
+/** Opens the side nav if it's closed, waiting for it to appear and fully open. */
 async function openSideNav(canvas: HTMLElement) {
   const toggleButton = await waitFor(
     () => getByRole(canvas, "button", { name: "Toggle side navigation" }),
@@ -123,6 +123,9 @@ async function openSideNav(canvas: HTMLElement) {
   );
   if (toggleButton.getAttribute("aria-expanded") === "false") {
     await userEvent.click(toggleButton);
+    await waitFor(() => {
+      if (toggleButton.getAttribute("aria-expanded") !== "true") {throw new Error();}
+    });
   }
 }
 
@@ -190,6 +193,7 @@ export const SimpleDialogOpen: Story = {
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(submitButton);
+    await waitFor(() => getByRole(canvas.ownerDocument.body, "dialog"));
   },
 };
 
@@ -212,6 +216,7 @@ export const VirtualScrollBlockingDialog: Story = {
     });
 
     await userEvent.click(dialogButton);
+    await waitFor(() => getByRole(canvas.ownerDocument.body, "dialog"));
   },
 };
 
