@@ -1,19 +1,22 @@
 <ng-container>
   <bit-table-scroll [dataSource]="dataSource()" [rowSize]="53">
     <ng-container header>
-      <th bitCell>
-        <input
-          data-testid="selectAll"
-          bitCheckbox
-          type="checkbox"
-          [checked]="allAppsSelected()"
-          [bitTooltip]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
-          (change)="selectAllChanged($event.target)"
-          [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
-          [disabled]="dataSource().filteredData?.length === 0"
-        />
+      <th bitCell colspan="2">
+        @if (!onUnmarkAsCritical()) {
+          <input
+            class="tw-mr-2"
+            data-testid="selectAll"
+            bitCheckbox
+            type="checkbox"
+            [checked]="allAppsSelected()"
+            [bitTooltip]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+            (change)="selectAllChanged($event.target)"
+            [attr.aria-label]="allAppsSelected() ? ('deselectAll' | i18n) : ('selectAll' | i18n)"
+            [disabled]="dataSource().filteredData?.length === 0"
+          />
+          <span>{{ "all" | i18n }}</span>
+        }
       </th>
-      <th bitCell></th>
       <th bitSortable="applicationName" bitCell tabindex="0">{{ "application" | i18n }}</th>
       <th bitSortable="atRiskPasswordCount" bitCell default="desc" tabindex="0">
         {{ "atRiskPasswords" | i18n }}
@@ -21,6 +24,9 @@
       <th bitSortable="passwordCount" bitCell tabindex="0">{{ "totalPasswords" | i18n }}</th>
       <th bitSortable="atRiskMemberCount" bitCell tabindex="0">{{ "atRiskMembers" | i18n }}</th>
       <th bitSortable="memberCount" bitCell tabindex="0">{{ "totalMembers" | i18n }}</th>
+      @if (onUnmarkAsCritical()) {
+        <th bitCell></th>
+      }
     </ng-container>
     <ng-template bitRowDef let-row>
       <td
@@ -29,12 +35,17 @@
         [attr.aria-label]="'select' | i18n"
         appStopProp
       >
-        <input
-          bitCheckbox
-          type="checkbox"
-          [checked]="selectedUrls().has(row.applicationName)"
-          (change)="emitCheckboxChange(row.applicationName, $event)"
-        />
+        @if (showStar(row.isMarkedAsCritical)) {
+          <bit-icon name="bwi-star-f" class="tw-text-xl"></bit-icon>
+        } @else if (showCheckbox(row.isMarkedAsCritical)) {
+          <input
+            bitCheckbox
+            type="checkbox"
+            [checked]="selectedUrls().has(row.applicationName)"
+            (change)="emitCheckboxChange(row.applicationName, $event)"
+            [attr.aria-label]="'selectApplication' | i18n"
+          />
+        }
       </td>
       <td
         bitCell
@@ -62,7 +73,9 @@
         role="button"
         tabindex="0"
         [attr.aria-label]="
-          row.applicationName + ' ' + (row.isMarkedAsCritical ? ('criticalBadge' | i18n) : '')
+          row.applicationName +
+          ' ' +
+          (row.isMarkedAsCritical && showCriticalBadge() ? ('criticalBadge' | i18n) : '')
         "
       >
         <div class="tw-flex tw-items-center tw-gap-2">
@@ -70,7 +83,7 @@
             {{ row.applicationName }}
           </div>
 
-          @if (row.isMarkedAsCritical) {
+          @if (showCriticalBadge() && row.isMarkedAsCritical) {
             <span bitBadge [attr.aria-label]="'criticalBadge' | i18n">{{
               "criticalBadge" | i18n
             }}</span>
@@ -136,6 +149,27 @@
       >
         {{ row.memberCount }}
       </td>
+      @if (onUnmarkAsCritical()) {
+        <td
+          bitCell
+          [ngClass]="{ 'tw-bg-primary-100': row.applicationName === openApplication() }"
+          appStopProp
+        >
+          <button
+            [bitMenuTriggerFor]="rowMenu"
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            label="{{ 'options' | i18n }}"
+            tabindex="0"
+          ></button>
+          <bit-menu #rowMenu>
+            <button type="button" bitMenuItem (click)="onUnmarkAsCritical()(row.applicationName)">
+              {{ "unmarkAsCritical" | i18n }}
+            </button>
+          </bit-menu>
+        </td>
+      }
     </ng-template>
   </bit-table-scroll>
 </ng-container>
