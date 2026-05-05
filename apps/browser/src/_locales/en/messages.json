@@ -4692,6 +4692,21 @@
   "keeperDnaCodePrompt": {
     "message": "Please enter the code from your Keeper DNA app"
   },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "A request has been sent to your Keeper administrator to approve this device. This dialog will close automatically when approved."
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
   },

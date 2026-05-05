@@ -40,6 +40,10 @@ export interface Ui {
   waitForDnaPush(): Promise<typeof Cancel | typeof TryAnother | void>;
   closeDnaPushDialog(): void;
 
+  // Cloud SSO flow
+  ssoLogin(url: string): Promise<string | Cancel>;
+  closeSsoDialog(): void;
+
   // Password prompt (deferred until server requests it)
   promptForPassword(): Promise<string | Cancel>;
 

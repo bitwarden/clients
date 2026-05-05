@@ -61,6 +61,10 @@ export class KeeperAuthStageViewComponent {
     nonNullable: true,
     validators: [Validators.required],
   });
+  protected readonly ssoTokenControl = new FormControl("", {
+    nonNullable: true,
+    validators: [Validators.required],
+  });
   protected readonly approvalMethodControl = new FormControl<DeviceApprovalChannel | null>(null);
   protected readonly twoFactorMethodControl = new FormControl<TwoFactorMethod | null>(null);
   protected readonly duoMethodControl = new FormControl<DuoMethod | null>(null);
@@ -139,6 +143,15 @@ export class KeeperAuthStageViewComponent {
     this.submitted.emit(password);
   }
 
+  protected submitSsoToken(): void {
+    const token = this.ssoTokenControl.value.trim();
+    if (!token) {
+      return;
+    }
+    this.ssoTokenControl.reset("");
+    this.submitted.emit(token);
+  }
+
   protected tryAnother(): void {
     this.triedAnother.emit();
   }
@@ -163,6 +176,8 @@ export class KeeperAuthStageViewComponent {
         return "keeperPush";
       case DeviceApprovalChannel.TwoFactor:
         return "twoFactorMethod";
+      case DeviceApprovalChannel.AdminApproval:
+        return "adminApproval";
       default:
         return "email";
     }

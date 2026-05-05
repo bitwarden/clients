@@ -15,6 +15,9 @@ import {
 } from "../../importers/keeper/access";
 
 import { KeeperAuthDialogComponent } from "./dialog/keeper-auth-dialog.component";
+import { KEEPER_SSO_TAB_MONITOR } from "./services/keeper-sso-tab-monitor";
+
+const SSO_CALLBACK_URL_PATTERN = /keepersecurity\.[^/]+\/api\/rest\/sso\/saml\/\d+\/saml\/sso/i;
 
 export type KeeperAuthStage =
   | { kind: "idle" }
@@ -22,7 +25,7 @@ export type KeeperAuthStage =
   | {
       kind: "approvalCode";
       method: DeviceApprovalChannel;
-      variant: "email" | "push";
+      variant: "email" | "push" | "admin";
     }
   | { kind: "selectTwoFactor"; methods: TwoFactorMethod[] }
   | {
@@ -36,6 +39,7 @@ export type KeeperAuthStage =
   | { kind: "duoPush"; method: DuoMethod }
   | { kind: "selectDna"; methods: DnaMethod[] }
   | { kind: "dnaPush" }
+  | { kind: "ssoToken" }
   | { kind: "password" }
   | { kind: "error"; message: string };
 
@@ -46,6 +50,7 @@ type PendingResolver = (value: unknown) => void;
 })
 export class KeeperDirectImportUIService implements Ui {
   private readonly dialogService = inject(DialogService);
+  private readonly ssoTabMonitor = inject(KEEPER_SSO_TAB_MONITOR);
 
   private readonly _stage = signal<KeeperAuthStage>({ kind: "idle" });
 
@@ -132,7 +137,12 @@ export class KeeperDirectImportUIService implements Ui {
     method: DeviceApprovalChannel,
     _info?: string,
   ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
-    const variant = method === DeviceApprovalChannel.Email ? "email" : "push";
+    const variant: "email" | "push" | "admin" =
+      method === DeviceApprovalChannel.Email
+        ? "email"
+        : method === DeviceApprovalChannel.AdminApproval
+          ? "admin"
+          : "push";
 
     this.setStage({ kind: "approvalCode", method, variant });
     return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
@@ -243,6 +253,33 @@ export class KeeperDirectImportUIService implements Ui {
   }
 
   closeDnaPushDialog(): void {
+    // No-op — see closeApprovalDialog.
+  }
+
+  //
+  // Cloud SSO flow
+  //
+
+  async ssoLogin(url: string): Promise<string | typeof Cancel> {
+    this.setStage({ kind: "ssoToken" });
+
+    // Race the auto-capture monitor against manual paste. If the monitor
+    // (browser extension only) finds the token first, submit() resolves the
+    // same promise waitForUser is awaiting. Errors from the monitor are
+    // swallowed so the user can still paste manually.
+    void this.ssoTabMonitor
+      .launchAndWaitForToken(url, SSO_CALLBACK_URL_PATTERN)
+      .then((token) => this.submit(token))
+      .catch((): void => undefined);
+
+    try {
+      return await this.waitForUser<string | typeof Cancel>();
+    } finally {
+      this.ssoTabMonitor.cancel();
+    }
+  }
+
+  closeSsoDialog(): void {
     // No-op — see closeApprovalDialog.
   }
 

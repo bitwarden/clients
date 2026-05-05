@@ -57,6 +57,25 @@
           </button>
         </div>
       </keeper-stage-shell>
+    } @else if (currentStage.variant === "admin") {
+      <keeper-stage-shell
+        [title]="'deviceApprovalNeeded' | i18n"
+        [email]="email()"
+        [primaryLabel]="'tryAnotherMethod' | i18n"
+        (primary)="tryAnother()"
+        [secondaryLabel]="'cancel' | i18n"
+        (secondary)="cancel()"
+        (close)="cancel()"
+      >
+        <div bitDialogContent>
+          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-2">
+            <bit-spinner></bit-spinner>
+            <p bitTypography="body1" class="tw-text-center !tw-mb-0">
+              {{ "adminDeviceApprovalPushDesc" | i18n }}
+            </p>
+          </div>
+        </div>
+      </keeper-stage-shell>
     } @else {
       <keeper-stage-shell
         [title]="'deviceApprovalNeeded' | i18n"
@@ -222,6 +241,30 @@
             {{ "keeperDnaPushWaiting" | i18n }}
           </p>
         </div>
+      </div>
+    </keeper-stage-shell>
+  }
+
+  <!-- Cloud SSO token paste. The client opens the IdP URL elsewhere; the user
+       pastes the token shown after sign-in. -->
+  @case ("ssoToken") {
+    <keeper-stage-shell
+      [title]="'ssoAuthRequired' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="submitSsoToken()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <p bitTypography="body2">{{ "keeperSsoDesc" | i18n }}</p>
+        <form (ngSubmit)="submitSsoToken()">
+          <bit-form-field class="!tw-mb-0">
+            <bit-label>{{ "ssoToken" | i18n }}</bit-label>
+            <input bitInput type="text" [formControl]="ssoTokenControl" appInputVerbatim />
+          </bit-form-field>
+        </form>
       </div>
     </keeper-stage-shell>
   }
