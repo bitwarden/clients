@@ -203,6 +203,10 @@ export class SshAgentService implements OnDestroy {
             return ipc.autofill.sshAgent.signRequestResponse(requestId, true);
           }
         }),
+        catchError((error: unknown, source) => {
+          this.logService.error("Unexpected error in SSH sign request pipeline", error);
+          return source;
+        }),
         takeUntil(this.destroy$),
       )
       .subscribe();
@@ -348,6 +352,10 @@ export class SshAgentService implements OnDestroy {
                 );
               }),
             );
+          }),
+          catchError((error: unknown, source) => {
+            this.logService.error("Unexpected error in SSH agent key-push pipeline", error);
+            return source;
           }),
           takeUntil(this.destroy$),
         )
