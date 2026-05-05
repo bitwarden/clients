@@ -113,7 +113,6 @@ export class InviteMembersDialogComponent {
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
   protected readonly selectedTabIndex = signal(0);
   protected readonly moreSettingsOpen = signal(false);
-  protected readonly byLinkIsDirty = signal(false);
 
   protected readonly formGroup = this.formBuilder.group({
     emails: [""],
