@@ -11,9 +11,7 @@ import {
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -36,12 +34,7 @@ import {
   Translation,
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import {
-  DEFAULT_KDF_CONFIG,
-  KdfConfig,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
+import { DEFAULT_KDF_CONFIG, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
 
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
@@ -210,12 +203,10 @@ export class InputPasswordComponent implements OnInit {
   constructor(
     private auditService: AuditService,
     private cipherService: CipherService,
-    private configService: ConfigService,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private kdfConfigService: KdfConfigService,
-    private keyService: KeyService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
@@ -351,11 +342,6 @@ export class InputPasswordComponent implements OnInit {
         throw new Error("Salt not found.");
       }
 
-      // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
-      const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-      );
-
       // 3. Verify new password
       const newPasswordVerified = await this.verifyNewPassword(
         newPassword,
@@ -366,79 +352,26 @@ export class InputPasswordComponent implements OnInit {
         return;
       }
 
-      if (newApisWithInputPasswordFlagEnabled) {
-        // 4. Build a PasswordInputResult object
-        const passwordInputResult: PasswordInputResult = {
-          newPassword,
-          kdfConfig: this.kdfConfig,
-          salt,
-          newPasswordHint,
-          newApisWithInputPasswordFlagEnabled, // To be removed in PM-28143
-        };
-
-        if (
-          this.flow === InputPasswordFlow.ChangePassword ||
-          this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
-        ) {
-          passwordInputResult.currentPassword = currentPassword;
-        }
-
-        if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
-          passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey?.value;
-        }
-
-        // 5. Emit and return PasswordInputResult object
-        this.onPasswordFormSubmit.emit(passwordInputResult);
-        return passwordInputResult;
-      }
-
-      /*******************************************************************
-       * The following code (within this `try`) to be removed in PM-28143
-       *******************************************************************/
-
-      // 4. Create cryptographic keys and build a PasswordInputResult object
-      const newMasterKey = await this.keyService.makeMasterKey(
-        newPassword,
-        this.email,
-        this.kdfConfig,
-      );
-
-      const newServerMasterKeyHash = await this.keyService.hashMasterKey(newPassword, newMasterKey);
-
+      // 4. Build a PasswordInputResult object
       const passwordInputResult: PasswordInputResult = {
         newPassword,
-        salt,
-        newMasterKey,
-        newServerMasterKeyHash,
-        newPasswordHint,
         kdfConfig: this.kdfConfig,
+        salt,
+        newPasswordHint,
       };
 
       if (
         this.flow === InputPasswordFlow.ChangePassword ||
         this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation
       ) {
-        const currentMasterKey = await this.keyService.makeMasterKey(
-          currentPassword,
-          this.email,
-          this.kdfConfig,
-        );
-
-        const currentServerMasterKeyHash = await this.keyService.hashMasterKey(
-          currentPassword,
-          currentMasterKey,
-        );
-
         passwordInputResult.currentPassword = currentPassword;
-        passwordInputResult.currentMasterKey = currentMasterKey;
-        passwordInputResult.currentServerMasterKeyHash = currentServerMasterKeyHash;
       }
 
       if (this.flow === InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation) {
         passwordInputResult.rotateUserKey = this.formGroup.controls.rotateUserKey?.value;
       }
 
-      // 5. Emit cryptographic keys and other password related properties
+      // 5. Emit and return PasswordInputResult object
       this.onPasswordFormSubmit.emit(passwordInputResult);
       return passwordInputResult;
     } catch (e) {
