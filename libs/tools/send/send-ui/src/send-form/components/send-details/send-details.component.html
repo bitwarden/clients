@@ -60,10 +60,12 @@
       }
       <!-- To be projected correctly into the bit-hint slot <bit-hint> must be the only element in its block -->
       @let hintKey =
-        sendFormService.originalSendView()?.authType === AuthType.Password
+        sendDetailsForm.controls.authType.value === AuthType.Password
           ? "sendPasswordHelperText"
-          : "emailVerificationDesc";
-      @if (editing()) {
+          : sendDetailsForm.controls.authType.value === AuthType.Email
+            ? "emailVerificationDesc"
+            : "";
+      @if (editing() && hintKey !== "") {
         <bit-hint class="tw-mt-2">{{ hintKey | i18n }}</bit-hint>
       }
     </bit-form-field>

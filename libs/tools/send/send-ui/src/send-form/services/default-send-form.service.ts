@@ -199,8 +199,8 @@ export class DefaultSendFormService implements SendFormService {
       message: this.i18nService.t("removedPassword"),
     });
 
-    const originalSendViewCopy = this._originalSendView();
-    originalSendViewCopy.password = null;
-    this._originalSendView.set(originalSendViewCopy);
+    const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));
+    const updatedSendView = await this.decryptSend(updatedSend);
+    this._originalSendView.set(updatedSendView);
   }
 }
