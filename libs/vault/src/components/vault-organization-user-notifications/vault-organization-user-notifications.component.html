@@ -1,11 +1,16 @@
 @if (showBanner()) {
   <bit-banner bannerType="info" [icon]="null" [showClose]="showClose()" (onClose)="close()">
-    <span class="tw-flex tw-items-start tw-gap-2 lg:tw-justify-center lg:tw-relative">
+    <span
+      [class]="
+        'tw-flex tw-items-start tw-gap-2 lg:tw-relative' +
+        (notificationData()?.header ? '' : ' lg:tw-justify-center')
+      "
+    >
       <bit-icon
         name="bwi-info-circle"
         [class]="notificationData()?.header ? 'tw-shrink-0 tw-text-2xl' : 'tw-shrink-0 tw-mt-1'"
       ></bit-icon>
-      <span class="tw-grow lg:tw-grow-0">
+      <span class="tw-grow tw-max-w-[800px] lg:tw-grow-0">
         @if (notificationData()?.header) {
           <span class="tw-block tw-font-semibold">{{ notificationData()?.header }}</span>
         }
