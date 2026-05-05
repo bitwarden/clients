@@ -36,14 +36,14 @@ export class AccordionComponent {
 
   constructor() {
     effect(() => {
-      const activeId = this.group?._activeAccordionId();
+      const activeId = this.group?.activeAccordionId();
       if (activeId != null && activeId !== this._baseId) {
         untracked(() => this.open.set(false));
       }
     });
   }
 
-  readonly heading = input.required<string>();
+  readonly title = input.required<string>();
   readonly subtitle = input<string>();
   readonly open = model<boolean>(false);
   readonly startIcon = input<BitwardenIcon>();
@@ -109,16 +109,9 @@ export class AccordionComponent {
       "focus-visible:tw-border-border-focus",
       "disabled:tw-cursor-not-allowed",
       "disabled:tw-text-fg-inactive",
-      ...this.triggerSizeClasses(),
+      this.size() === "sm" ? "tw-p-3" : "tw-p-4",
     ].join(" "),
   );
-
-  private readonly triggerSizeClasses = computed((): string[] => {
-    if (this.size() === "sm") {
-      return ["tw-p-3"];
-    }
-    return ["tw-p-4"];
-  });
 
   protected readonly iconTileSize = computed(() => (this.size() === "sm" ? "base" : "lg"));
 

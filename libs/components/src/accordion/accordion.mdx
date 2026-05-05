@@ -56,11 +56,11 @@ An icon tile can be placed before the heading using the `startIcon` input.
 ### End slot
 
 Additional elements such as badges can be placed at the trailing end of the header row using the
-`[end]` content projection attribute.
+`slot="end"` content projection attribute.
 
 ```html
-<bit-accordion heading="Advanced settings">
-  <bit-badge variant="primary" end>1 of 3 complete</bit-badge>
+<bit-accordion title="Advanced settings">
+  <bit-badge variant="primary" slot="end">1 of 3 complete</bit-badge>
   <!-- panel content -->
 </bit-accordion>
 ```
@@ -92,8 +92,8 @@ at a time. When a row is opened, any other open row in the group closes automati
 
 ```html
 <bit-accordion-group singleSelect>
-  <bit-accordion heading="First item">...</bit-accordion>
-  <bit-accordion heading="Second item">...</bit-accordion>
+  <bit-accordion title="First item">...</bit-accordion>
+  <bit-accordion title="Second item">...</bit-accordion>
 </bit-accordion-group>
 ```
 

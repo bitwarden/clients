@@ -15,7 +15,7 @@ export default {
     }),
   ],
   args: {
-    heading: "Advanced settings",
+    title: "Advanced settings",
     subtitle: "Additional configurations for custom settings",
     open: false,
     disabled: false,
@@ -41,41 +41,25 @@ export const Default: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion
-        [heading]="heading"
+        [title]="title"
         [subtitle]="subtitle"
         [(open)]="open"
         [disabled]="disabled"
         [size]="size"
         [variant]="variant"
       >
-        <p class="tw-m-0">
+        <span>
           Save time by importing data from another password manager. No data to import?
           You can manually add items to your vault.
-        </p>
+        </span>
       </bit-accordion>
     `,
   }),
 };
 
 export const Subtle: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-      <bit-accordion
-        [heading]="heading"
-        [subtitle]="subtitle"
-        [(open)]="open"
-        [disabled]="disabled"
-        [size]="size"
-        variant="subtle"
-      >
-        <p class="tw-m-0">
-          Save time by importing data from another password manager. No data to import?
-          You can manually add items to your vault.
-        </p>
-      </bit-accordion>
-    `,
-  }),
+  ...Default,
+  args: { variant: "subtle" },
 };
 
 export const WithStartIcon: Story = {
@@ -83,12 +67,12 @@ export const WithStartIcon: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion
-        heading="Advanced settings"
+        title="Advanced settings"
         subtitle="Additional configurations for custom settings"
         startIcon="bwi-settings"
         [(open)]="open"
       >
-        <p class="tw-m-0">Content area with an icon tile in the header.</p>
+        <span>Content area with an icon tile in the header.</span>
       </bit-accordion>
     `,
   }),
@@ -100,12 +84,12 @@ export const WithEndSlot: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion
-        heading="Advanced settings"
+        title="Advanced settings"
         subtitle="Additional configurations for custom settings"
         [(open)]="open"
       >
-        <bit-badge variant="primary" end>1 of 3 complete</bit-badge>
-        <p class="tw-m-0">Content area with a badge in the end slot.</p>
+        <bit-badge variant="primary" slot="end">1 of 3 complete</bit-badge>
+        <span>Content area with a badge in the end slot.</span>
       </bit-accordion>
     `,
   }),
@@ -117,13 +101,13 @@ export const SmallSize: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion
-        heading="Advanced settings"
+        title="Advanced settings"
         subtitle="This subtitle is hidden in small size"
         size="sm"
         [(open)]="open"
         startIcon="bwi-settings"
       >
-        <p class="tw-m-0">Small accordion content.</p>
+        <span>Small accordion content.</span>
       </bit-accordion>
     `,
   }),
@@ -134,11 +118,11 @@ export const Inactive: Story = {
   render: () => ({
     template: /*html*/ `
       <bit-accordion
-        heading="Inactive accordion"
+        title="Inactive accordion"
         subtitle="This accordion cannot be opened"
         [disabled]="true"
       >
-        <p class="tw-m-0">You cannot see this.</p>
+        <span>You cannot see this.</span>
       </bit-accordion>
     `,
   }),
@@ -148,11 +132,11 @@ export const DefaultExpanded: Story = {
   render: () => ({
     template: /*html*/ `
       <bit-accordion
-        heading="Open by default"
+        title="Open by default"
         subtitle="This accordion starts expanded"
         [open]="true"
       >
-        <p class="tw-m-0">This content is visible on load.</p>
+        <span>This content is visible on load.</span>
       </bit-accordion>
     `,
   }),
@@ -162,12 +146,12 @@ export const SubtleExpanded: Story = {
   render: () => ({
     template: /*html*/ `
       <bit-accordion
-        heading="Open by default"
+        title="Open by default"
         subtitle="This accordion starts expanded"
         [open]="true"
         variant="subtle"
       >
-        <p class="tw-m-0">This content is visible on load.</p>
+        <span>This content is visible on load.</span>
       </bit-accordion>
     `,
   }),
@@ -178,14 +162,14 @@ export const Grouped: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion-group [variant]="variant">
-        <bit-accordion heading="First item" subtitle="Top of the group">
-          <p class="tw-m-0">First accordion content.</p>
+        <bit-accordion title="First item" subtitle="Top of the group">
+          <span>First accordion content.</span>
         </bit-accordion>
-        <bit-accordion heading="Second item" subtitle="Middle of the group">
-          <p class="tw-m-0">Second accordion content.</p>
+        <bit-accordion title="Second item" subtitle="Middle of the group">
+          <span>Second accordion content.</span>
         </bit-accordion>
-        <bit-accordion heading="Third item" subtitle="Bottom of the group">
-          <p class="tw-m-0">Third accordion content.</p>
+        <bit-accordion title="Third item" subtitle="Bottom of the group">
+          <span>Third accordion content.</span>
         </bit-accordion>
       </bit-accordion-group>
     `,
@@ -197,14 +181,14 @@ export const SmallGrouped: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion-group [variant]="variant">
-        <bit-accordion heading="First item" size="sm">
-          <p class="tw-m-0">First accordion content.</p>
+        <bit-accordion title="First item" size="sm">
+          <span>First accordion content.</span>
         </bit-accordion>
-        <bit-accordion heading="Second item" size="sm">
-          <p class="tw-m-0">Second accordion content.</p>
+        <bit-accordion title="Second item" size="sm">
+          <span>Second accordion content.</span>
         </bit-accordion>
-        <bit-accordion heading="Third item" size="sm">
-          <p class="tw-m-0">Third accordion content.</p>
+        <bit-accordion title="Third item" size="sm">
+          <span>Third accordion content.</span>
         </bit-accordion>
       </bit-accordion-group>
     `,
@@ -216,14 +200,14 @@ export const SingleSelect: Story = {
     props: args,
     template: /*html*/ `
       <bit-accordion-group singleSelect [variant]="variant">
-        <bit-accordion heading="First item" subtitle="Only one section open at a time">
-          <p class="tw-m-0">First accordion content.</p>
+        <bit-accordion title="First item" subtitle="Only one section open at a time">
+          <span>First accordion content.</span>
         </bit-accordion>
-        <bit-accordion heading="Second item" subtitle="Opening this closes the others">
-          <p class="tw-m-0">Second accordion content.</p>
+        <bit-accordion title="Second item" subtitle="Opening this closes the others">
+          <span>Second accordion content.</span>
         </bit-accordion>
-        <bit-accordion heading="Third item" subtitle="Bottom of the group">
-          <p class="tw-m-0">Third accordion content.</p>
+        <bit-accordion title="Third item" subtitle="Bottom of the group">
+          <span>Third accordion content.</span>
         </bit-accordion>
       </bit-accordion-group>
     `,

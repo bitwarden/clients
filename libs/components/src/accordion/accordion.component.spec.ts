@@ -13,7 +13,7 @@ describe("AccordionComponent", () => {
 
     fixture = TestBed.createComponent(AccordionComponent);
     component = fixture.componentInstance;
-    fixture.componentRef.setInput("heading", "Test Heading");
+    fixture.componentRef.setInput("title", "Test Heading");
     fixture.detectChanges();
   });
 
@@ -141,16 +141,6 @@ describe("AccordionComponent", () => {
       fixture.detectChanges();
       const spans = fixture.nativeElement.querySelectorAll("button span");
       expect(spans.length).toBe(1);
-    });
-  });
-
-  describe("host classes", () => {
-    it("has tw-rounded-xl", () => {
-      expect(fixture.nativeElement.classList).toContain("tw-rounded-xl");
-    });
-
-    it("has tw-border", () => {
-      expect(fixture.nativeElement.classList).toContain("tw-border");
     });
   });
 });

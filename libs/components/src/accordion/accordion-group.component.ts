@@ -11,11 +11,11 @@ export class AccordionGroupComponent {
   readonly singleSelect = input(false, { transform: booleanAttribute });
   readonly variant = input<AccordionVariant>("default");
 
-  readonly _activeAccordionId = signal<string | null>(null);
+  readonly activeAccordionId = signal<string | null>(null);
 
   notifyOpened(id: string) {
     if (this.singleSelect()) {
-      this._activeAccordionId.set(id);
+      this.activeAccordionId.set(id);
     }
   }
 }
