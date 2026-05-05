@@ -5,6 +5,7 @@
       (formLoading)="this.loading = $event"
       (formDisabled)="this.disabled = $event"
       (onSuccessfulExport)="this.onSuccessfulExport($event)"
+      (skippedAttachmentCountChange)="this.skippedAttachmentCount.set($event)"
     ></tools-export>
   </ng-container>
   <ng-container bitDialogFooter>

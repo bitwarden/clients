@@ -1039,6 +1039,7 @@ export class ServiceContainer {
       this.kdfConfigService,
       this.apiService,
       this.restrictedItemTypesService,
+      this.logService,
     );
 
     this.vaultExportApiService = new DefaultVaultExportApiService(this.apiService);

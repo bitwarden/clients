@@ -1,2 +1,2 @@
 export { ExportComponent } from "./components/export.component";
-export { ExportScopeCalloutComponent } from "./components/export-scope-callout.component";
+export { ExportScopeDescriptionComponent } from "./components/export-scope-description.component";

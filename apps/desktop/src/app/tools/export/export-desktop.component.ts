@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 
 import { DialogRef, AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -21,6 +21,7 @@ import { ExportComponent } from "@bitwarden/vault-export-ui";
 export class ExportDesktopComponent {
   protected disabled = false;
   protected loading = false;
+  protected readonly skippedAttachmentCount = signal(0);
 
   constructor(public dialogRef: DialogRef) {}
 
@@ -28,6 +29,10 @@ export class ExportDesktopComponent {
    * Callback that is called after a successful export.
    */
   protected async onSuccessfulExport(organizationId: string): Promise<void> {
+    // Skip closing dialog when attachments were skipped so the user can see the warning callout
+    if (this.skippedAttachmentCount() > 0) {
+      return;
+    }
     await this.dialogRef.close();
   }
 }
