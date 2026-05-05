@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, Injector, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
@@ -77,7 +77,6 @@ export class AppComponent implements OnDestroy, OnInit {
     private readonly documentLangSetter: DocumentLangSetter,
     private readonly tokenService: TokenService,
     private readonly routerFocusManager: RouterFocusManagerService,
-    private readonly injector: Injector,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -126,8 +125,7 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           }
           case "locked":
-            // DefaultLockService.lock() calls startProcessReload() directly after sending
-            // this message, so no additional reload is needed here.
+            await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":
             break;
@@ -230,6 +228,17 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   private async logOut(redirect = true) {
+    // Navigate first, before clearing any state, so that canDeactivate guards
+    // (e.g. unsaved-changes checks in policy drawers) run while the app is still
+    // fully functional. If the user chooses to stay (e.g. "Back to editing"),
+    // abort the logout entirely — no state has been touched.
+    if (redirect) {
+      const navigated = await this.router.navigate(["/"]);
+      if (!navigated) {
+        return;
+      }
+    }
+
     // Ensure the loading state is applied before proceeding to avoid a flash
     // of the login screen before the process reload fires.
     this.ngZone.run(() => {
@@ -271,10 +280,6 @@ export class AppComponent implements OnDestroy, OnInit {
       await this.accountService.switchAccount(null);
 
       await logoutPromise;
-
-      if (redirect) {
-        await this.router.navigate(["/"]);
-      }
 
       await this.processReloadService.startProcessReload();
 
