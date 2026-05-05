@@ -19,11 +19,13 @@ const sshAgent = {
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
   },
+  // V1, delete with PM-30758
   lock: async () => {
-    return await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LOCK);
+    return await ipcRenderer.invoke("sshagent.lock");
   },
+  // V1, delete with PM-30758
   clearKeys: async () => {
-    return await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.CLEAR_KEYS);
+    return await ipcRenderer.invoke("sshagent.clearkeys");
   },
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
