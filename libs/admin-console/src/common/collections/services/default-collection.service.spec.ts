@@ -6,8 +6,10 @@ import {
   CollectionTypes,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -23,6 +25,8 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
+import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
+
 import { DECRYPTED_COLLECTION_DATA_KEY, ENCRYPTED_COLLECTION_DATA_KEY } from "./collection.state";
 import { DefaultCollectionService } from "./default-collection.service";
 
@@ -31,6 +35,8 @@ describe("DefaultCollectionService", () => {
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let stateProvider: FakeStateProvider;
+  let configService: MockProxy<ConfigService>;
+  let collectionEncryptionService: MockProxy<CollectionEncryptionService>;
 
   let userId: UserId;
 
@@ -45,9 +51,19 @@ describe("DefaultCollectionService", () => {
     encryptService = mock();
     i18nService = mock();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
+    configService = mock();
+    collectionEncryptionService = mock();
 
     cryptoKeys = new ReplaySubject(1);
     keyService.orgKeys$.mockReturnValue(cryptoKeys);
+
+    // Default: feature flag disabled so tests exercise the legacy path
+    configService.getFeatureFlag$
+      .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
+      .mockReturnValue(of(false));
+    configService.getFeatureFlag
+      .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
+      .mockResolvedValue(false);
 
     // Set up mock decryption
     encryptService.decryptString
@@ -66,6 +82,8 @@ describe("DefaultCollectionService", () => {
       encryptService,
       i18nService,
       stateProvider,
+      configService,
+      collectionEncryptionService,
     );
   });
 
@@ -239,6 +257,119 @@ describe("DefaultCollectionService", () => {
         collectionService.encryptedCollections$(userId),
       );
       expect(decryptedCollections).toBe(null);
+    });
+  });
+
+  describe("decryptedCollections$ (SDK path)", () => {
+    beforeEach(() => {
+      configService.getFeatureFlag$
+        .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
+        .mockReturnValue(of(true));
+    });
+
+    it("uses collectionEncryptionService.decryptMany when flag is enabled", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ id: collection1.id })]),
+        userId,
+      );
+      expect(encryptService.decryptString).not.toHaveBeenCalled();
+      expect(result).toContainPartialObjects([{ id: collection1.id }]);
+    });
+
+    it("handles empty collections via SDK path", async () => {
+      await setEncryptedState([]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([]);
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(result).toEqual([]);
+    });
+
+    it("sorts results returned from collectionEncryptionService", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const collection2 = collectionDataFactory(org1);
+
+      const view1 = collectionViewDataFactory(org1);
+      view1.id = collection1.id as CollectionId;
+      view1.name = "Zebra";
+      const view2 = collectionViewDataFactory(org1);
+      view2.id = collection2.id as CollectionId;
+      view2.name = "Alpha";
+
+      await setEncryptedState([collection1, collection2]);
+      // Return in reverse alphabetical order to verify sorting
+      collectionEncryptionService.decryptMany.mockResolvedValue([view1, view2]);
+
+      const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+      expect(result[0].name).toBe("Alpha");
+      expect(result[1].name).toBe("Zebra");
+    });
+  });
+
+  describe("upsert (SDK path)", () => {
+    beforeEach(() => {
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.PM35153CollectionSdkDecryption)
+        .mockResolvedValue(true);
+    });
+
+    it("uses collectionEncryptionService.decryptMany when flag is enabled", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+      const decryptedView = collectionViewDataFactory(org1);
+      decryptedView.id = collection1.id as CollectionId;
+
+      await setEncryptedState([collection1]);
+      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+
+      await collectionService.upsert(collection1, userId);
+
+      expect(collectionEncryptionService.decryptMany).toHaveBeenCalledWith(
+        expect.arrayContaining([expect.objectContaining({ id: collection1.id })]),
+        userId,
+      );
+      expect(encryptService.decryptString).not.toHaveBeenCalled();
+    });
+
+    it("upserts to existing collections via SDK path", async () => {
+      const org1 = Utils.newGuid() as OrganizationId;
+      const collection1 = collectionDataFactory(org1);
+
+      await setEncryptedState([collection1]);
+
+      const updatedCollection1 = Object.assign(new CollectionData({} as any), collection1, {
+        name: makeEncString("UPDATED_ENC_NAME_" + collection1.id).encryptedString,
+      });
+
+      const updatedView = collectionViewDataFactory(org1);
+      updatedView.id = collection1.id as CollectionId;
+      updatedView.name = "UPDATED_DEC_NAME_" + collection1.id;
+      collectionEncryptionService.decryptMany.mockResolvedValue([updatedView]);
+
+      await collectionService.upsert(updatedCollection1, userId);
+
+      const encryptedResult = await firstValueFrom(collectionService.encryptedCollections$(userId));
+      expect(encryptedResult!.length).toBe(1);
+      expect(encryptedResult).toContainPartialObjects([
+        { id: collection1.id, name: makeEncString("UPDATED_ENC_NAME_" + collection1.id) },
+      ]);
+
+      const decryptedResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
+      expect(decryptedResult).toContainPartialObjects([
+        { id: collection1.id, name: "UPDATED_DEC_NAME_" + collection1.id },
+      ]);
     });
   });
 
