@@ -14,9 +14,9 @@ export default {
 
 type Story = StoryObj<KitchenSinkAppComponent>;
 
-async function navigateAndWaitFor<T>(path: string, ready: () => T): Promise<T> {
+async function navigateTo(path: string) {
   window.location.hash = path;
-  return waitFor(ready);
+  await new Promise((resolve) => setTimeout(resolve, 50));
 }
 
 /**
@@ -26,11 +26,8 @@ async function navigateAndWaitFor<T>(path: string, ready: () => T): Promise<T> {
 export const DialogHeaderFocus: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await fireEvent.click(
-      await navigateAndWaitFor("/bitwarden", () =>
-        getByRole(canvas, "button", { name: "Open Dialog from Menu" }),
-      ),
-    );
+    await navigateTo("/bitwarden");
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Dialog from Menu" }));
     await fireEvent.click(
       getByRole(canvas.ownerDocument.body, "menuitem", { name: "Open Dialog" }),
     );
@@ -49,11 +46,8 @@ export const DialogHeaderFocus: Story = {
 export const DialogAutofocusFieldFocus: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await fireEvent.click(
-      await navigateAndWaitFor("/bitwarden", () =>
-        getByRole(canvas, "button", { name: "Open Dialog from Menu" }),
-      ),
-    );
+    await navigateTo("/bitwarden");
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Dialog from Menu" }));
     await fireEvent.click(
       getByRole(canvas.ownerDocument.body, "menuitem", { name: "Open Dialog with Autofocus" }),
     );
@@ -69,11 +63,8 @@ export const DialogAutofocusFieldFocus: Story = {
 export const SimpleDialogButtonFocus: Story = {
   play: async (context) => {
     const canvas = context.canvasElement;
-    await fireEvent.click(
-      await navigateAndWaitFor("/bitwarden", () =>
-        getByRole(canvas, "button", { name: "Open Dialog from Menu" }),
-      ),
-    );
+    await navigateTo("/bitwarden");
+    await fireEvent.click(getByRole(canvas, "button", { name: "Open Dialog from Menu" }));
     await fireEvent.click(
       getByRole(canvas.ownerDocument.body, "menuitem", { name: "Open Simple Dialog" }),
     );
