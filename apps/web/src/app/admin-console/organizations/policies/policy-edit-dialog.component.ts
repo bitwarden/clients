@@ -22,6 +22,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -88,6 +90,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     protected readonly dialogService: DialogService,
     protected readonly cdkDialogRef: CdkDialogRef,
     protected readonly configService: ConfigService,
+    private readonly authService: AuthService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
@@ -166,6 +169,21 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         }
         return confirmed;
       };
+
+      // When the vault is locked or the user is logged out, disarm both guards immediately
+      // so the browser's beforeunload dialog cannot block the lock/logout reload, and so
+      // the closePredicate won't show the discard dialog during the subsequent router teardown.
+      this.accountService.activeAccount$
+        .pipe(
+          getUserId,
+          switchMap((userId) => this.authService.authStatusFor$(userId)),
+          filter((status) => status !== AuthenticationStatus.Unlocked),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe(() => {
+          this.discardGuardEnabled.set(false);
+          this.dialogRef.closePredicate = undefined;
+        });
     }
   }
 

@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, DestroyRef, Injector, NgZone, OnDestroy, OnInit, Type } from "@angular/core";
+import { Component, DestroyRef, Injector, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
@@ -121,12 +121,6 @@ export class AppComponent implements OnDestroy, OnInit {
             await this.logOut(message.redirect);
             break;
           case "lockVault": {
-            // Check canDeactivate guards before wiping any vault state. This mirrors the
-            // logout flow: if the user has unsaved changes, show the Bitwarden "Discard
-            // Edits?" dialog and abort the lock when they choose "Back to editing".
-            if (!(await this.checkRouteDeactivateGuards())) {
-              break;
-            }
             const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
             await this.lockService.lock(userId);
             break;
@@ -235,37 +229,7 @@ export class AppComponent implements OnDestroy, OnInit {
     this.destroy$.complete();
   }
 
-  /**
-   * Walks the router state to the deepest active route and calls `checkCurrentComponent()`
-   * on any `CanDeactivate` guards that expose it. Returns `false` if any guard vetoes
-   * the action (e.g. the user clicked "Back to editing" in the discard dialog), so the
-   * caller can abort before touching any auth/vault state.
-   */
-  private async checkRouteDeactivateGuards(): Promise<boolean> {
-    let snapshot = this.router.routerState.snapshot.root;
-    while (snapshot.firstChild) {
-      snapshot = snapshot.firstChild;
-    }
-    for (const token of snapshot.routeConfig?.canDeactivate ?? []) {
-      const guard = this.injector.get<{ checkCurrentComponent?(): Promise<boolean> }>(
-        token as Type<{ checkCurrentComponent?(): Promise<boolean> }>,
-        null,
-      );
-      if (guard?.checkCurrentComponent != null && !(await guard.checkCurrentComponent())) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   private async logOut(redirect = true) {
-    // Check canDeactivate guards before clearing any state so that guards (e.g. the
-    // policies unsaved-changes check) can prompt the user while the app is still fully
-    // functional. If any guard returns false the user chose "Back to editing" — abort.
-    if (redirect && !(await this.checkRouteDeactivateGuards())) {
-      return;
-    }
-
     // Ensure the loading state is applied before proceeding to avoid a flash
     // of the login screen before the process reload fires.
     this.ngZone.run(() => {

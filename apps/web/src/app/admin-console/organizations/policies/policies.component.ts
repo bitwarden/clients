@@ -27,7 +27,6 @@ import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
-import { PoliciesDeactivateGuard } from "./policies-deactivate.guard";
 import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
 import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
@@ -135,10 +134,7 @@ export class PoliciesComponent {
     private readonly policyService: PolicyService,
     protected readonly configService: ConfigService,
     private readonly destroyRef: DestroyRef,
-    private readonly deactivateGuard: PoliciesDeactivateGuard,
   ) {
-    this.deactivateGuard.register(() => this.canDeactivate());
-    this.destroyRef.onDestroy(() => this.deactivateGuard.deregister());
     this.handleLaunchEvent();
     this.destroyRef.onDestroy(() => void this.drawerRef()?.close());
   }
