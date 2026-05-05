@@ -3,12 +3,9 @@ import Domain from "@bitwarden/common/platform/models/domain/domain-base";
 import { AccessReportMetricsData } from "../data/access-report-metrics.data";
 
 /**
- * Domain model for Access Intelligence aggregate metrics.
- *
- * Holds the plaintext counts that summarize the report and provides the
- * bridge between {@link AccessReportMetricsData} (persisted) and the view
- * layer. Counts live on the top-level report; sub-models are not separately
- * encrypted.
+ * Domain model representing aggregate metrics for an Access Intelligence
+ * report. Mapped from {@link AccessReportMetricsData} for use in the view
+ * layer.
  */
 export class AccessReportMetrics extends Domain {
   totalApplicationCount: number = 0;
