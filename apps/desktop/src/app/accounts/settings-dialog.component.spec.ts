@@ -114,6 +114,7 @@ describe("SettingsDialogComponent", () => {
       platform: {
         isDev: false,
         isWindowsStore: false,
+        isSnapStore: false,
         powermonitor: {
           isLockMonitorAvailable: async () => false,
         },
@@ -191,7 +192,6 @@ describe("SettingsDialogComponent", () => {
     desktopSettingsService.trayEnabled$ = of(false);
     desktopSettingsService.minimizeToTray$ = of(false);
     desktopSettingsService.closeToTray$ = of(false);
-    desktopSettingsService.startToTray$ = of(false);
     desktopSettingsService.openAtLogin$ = of(false);
     desktopSettingsService.alwaysShowDock$ = of(false);
     desktopSettingsService.browserIntegrationEnabled$ = of(false);

@@ -144,8 +144,6 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly enableMinToTrayDescText: string;
   protected readonly enableCloseToTrayText: string;
   protected readonly enableCloseToTrayDescText: string;
-  protected readonly startToTrayText: string;
-  protected readonly startToTrayDescText: string;
 
   protected readonly supportsBiometric = signal(false);
   protected readonly showEnableAutotype = signal(false);
@@ -186,7 +184,6 @@ export class SettingsDialogComponent implements OnInit {
     enableTray: false,
     enableMinToTray: false,
     enableCloseToTray: false,
-    startToTray: false,
     openAtLogin: false,
     alwaysShowDock: false,
     enableBrowserIntegration: false,
@@ -230,11 +227,7 @@ export class SettingsDialogComponent implements OnInit {
     this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
     this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
 
-    const startToTrayKey = this.isMac ? "startToMenuBar" : "startToTray";
-    this.startToTrayText = this.i18nService.t(startToTrayKey);
-    this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
-
-    this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
+    this.showOpenAtLoginOption = this.showAutostartSetting();
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
@@ -307,7 +300,6 @@ export class SettingsDialogComponent implements OnInit {
       enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
       enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
       enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
-      startToTray: await firstValueFrom(this.desktopSettingsService.startToTray$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
       enableBrowserIntegration: await firstValueFrom(
@@ -601,7 +593,7 @@ export class SettingsDialogComponent implements OnInit {
     if (
       this.requireEnableTray &&
       !this.form.value.enableTray &&
-      (this.form.value.startToTray || this.form.value.enableCloseToTray)
+      this.form.value.enableCloseToTray
     ) {
       const confirm = await this.dialogService.openSimpleDialog({
         title: { key: "confirmTrayTitle" },
@@ -610,8 +602,6 @@ export class SettingsDialogComponent implements OnInit {
       });
 
       if (confirm) {
-        this.form.controls.startToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
         this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
         await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
       } else {
@@ -624,15 +614,6 @@ export class SettingsDialogComponent implements OnInit {
     await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
     // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
     this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
-  }
-
-  protected async saveStartToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
   }
 
   protected async saveLocale() {
@@ -656,6 +637,13 @@ export class SettingsDialogComponent implements OnInit {
 
   protected async saveAlwaysShowDock() {
     await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
+  }
+
+  private showAutostartSetting(): boolean {
+    // Windows store does not support autostart
+    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login
+    // Snap store has auto-start enabled through electron-builder ALWAYS
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev && !ipc.platform.isSnapStore;
   }
 
   protected async saveOpenAtLogin() {

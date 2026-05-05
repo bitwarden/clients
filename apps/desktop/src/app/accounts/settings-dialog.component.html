@@ -131,17 +131,6 @@
           <bit-hint>{{ enableCloseToTrayDescText }}</bit-hint>
         </bit-form-control>
 
-        <bit-form-control>
-          <input
-            type="checkbox"
-            bitCheckbox
-            formControlName="startToTray"
-            (change)="saveStartToTray()"
-          />
-          <bit-label>{{ startToTrayText }}</bit-label>
-          <bit-hint>{{ startToTrayDescText }}</bit-hint>
-        </bit-form-control>
-
         @if (showOpenAtLoginOption) {
           <bit-form-control>
             <input
