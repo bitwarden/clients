@@ -63,7 +63,6 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
-  BadgeModule,
   ButtonModule,
   DialogService,
   ItemModule,
@@ -118,7 +117,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
   selector: "app-vault-v3",
   templateUrl: "vault-orig.component.html",
   imports: [
-    BadgeModule,
     CommonModule,
     CipherFormModule,
     CipherViewComponent,

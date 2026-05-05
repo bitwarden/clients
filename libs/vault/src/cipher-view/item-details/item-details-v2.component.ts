@@ -20,8 +20,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
-  BadgeModule,
   CardComponent,
+  ChipActionComponent,
   FormFieldModule,
   LinkComponent,
   TypographyModule,
@@ -38,11 +38,11 @@ import { OrgIconDirective } from "../../components/org-icon.directive";
     CommonModule,
     JslibModule,
     CardComponent,
+    ChipActionComponent,
     TypographyModule,
     OrgIconDirective,
     FormFieldModule,
     LinkComponent,
-    BadgeModule,
   ],
 })
 export class ItemDetailsV2Component {
