@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { map, firstValueFrom, switchMap, filter } from "rxjs";
+import { map, firstValueFrom, switchMap, filter, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -173,11 +173,18 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       // When the vault is locked or the user is logged out, disarm both guards immediately
       // so the browser's beforeunload dialog cannot block the lock/logout reload, and so
       // the closePredicate won't show the discard dialog during the subsequent router teardown.
+      // If the active account becomes null (switchAccount(null) during logout), treat that
+      // as a non-Unlocked state and disarm as well.
       this.accountService.activeAccount$
         .pipe(
-          getUserId,
-          switchMap((userId) => this.authService.authStatusFor$(userId)),
-          filter((status) => status !== AuthenticationStatus.Unlocked),
+          switchMap((account) => {
+            if (account?.id == null) {
+              return of(null); // no active account — disarm immediately
+            }
+            return this.authService
+              .authStatusFor$(account.id)
+              .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
+          }),
           takeUntilDestroyed(this.destroyRef),
         )
         .subscribe(() => {
