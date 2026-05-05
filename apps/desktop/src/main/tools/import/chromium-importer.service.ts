@@ -11,9 +11,16 @@ export class ChromiumImporterService {
     });
 
     // Used on Mac OS App Store builds to request permissions to browser entries outside the sandbox
-    ipcMain.handle("chromium_importer.requestBrowserAccess", async (event, browser: string) => {
-      return await chromium_importer.requestBrowserAccess(browser, isMacAppStore());
-    });
+    ipcMain.handle(
+      "chromium_importer.requestBrowserAccess",
+      async (_event, browser: string, pickerStrings: chromium_importer.PickerStrings) => {
+        return await chromium_importer.requestBrowserAccess(
+          browser,
+          pickerStrings,
+          isMacAppStore(),
+        );
+      },
+    );
 
     ipcMain.handle("chromium_importer.getAvailableProfiles", async (event, browser: string) => {
       return await chromium_importer.getAvailableProfiles(browser, isMacAppStore());

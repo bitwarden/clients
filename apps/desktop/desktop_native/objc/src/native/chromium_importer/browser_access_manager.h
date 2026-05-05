@@ -13,7 +13,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Request access to a specific browser's directory
 /// Returns security bookmark data (used to persist permissions) as base64 string, or nil if user declined
-- (nullable NSString *)requestAccessToBrowserDir:(NSString *)browserName relativePath:(NSString *)relativePath;
+/// All picker strings are pre-translated by the renderer (which has the i18n service); ObjC only
+/// concatenates them with the resolved filesystem path it owns.
+- (nullable NSString *)requestAccessToBrowserDir:(NSString *)browserName
+                                    relativePath:(NSString *)relativePath
+                                   pickerMessage:(NSString *)pickerMessage
+                     pickerExpectedLocationLabel:(NSString *)pickerExpectedLocationLabel
+                                    pickerPrompt:(NSString *)pickerPrompt;
 
 /// Check if we have stored bookmark for browser (doesn't verify it's still valid)
 - (BOOL)hasStoredAccess:(NSString *)browserName;

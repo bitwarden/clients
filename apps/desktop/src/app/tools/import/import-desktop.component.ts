@@ -57,9 +57,18 @@ export class ImportDesktopComponent {
   private async _onLoadProfilesFromBrowser(
     browser: string,
   ): Promise<chromium_importer.ProfileInfo[]> {
+    // Strings shown by the native NSOpenPanel are resolved here, where the i18n
+    // service lives, and threaded through to ObjC via IPC. The native side only
+    // injects the resolved filesystem path it computes on its own.
+    const pickerStrings: chromium_importer.PickerStrings = {
+      message: this.i18nService.t("chromiumImporterPickerMessage", browser),
+      expectedLocationLabel: this.i18nService.t("chromiumImporterPickerExpectedLocation"),
+      prompt: this.i18nService.t("chromiumImporterPickerPrompt"),
+    };
+
     try {
       // Request browser access (required for sandboxed builds, no-op otherwise)
-      await ipc.tools.chromiumImporter.requestBrowserAccess(browser);
+      await ipc.tools.chromiumImporter.requestBrowserAccess(browser, pickerStrings);
     } catch (error) {
       const rawMessage = error instanceof Error ? error.message : "";
 

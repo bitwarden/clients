@@ -26,7 +26,11 @@
     return self;
 }
 
-- (NSString *)requestAccessToBrowserDir:(NSString *)browserName relativePath:(NSString *)relativePath {
+- (NSString *)requestAccessToBrowserDir:(NSString *)browserName
+                           relativePath:(NSString *)relativePath
+                          pickerMessage:(NSString *)pickerMessage
+            pickerExpectedLocationLabel:(NSString *)pickerExpectedLocationLabel
+                           pickerPrompt:(NSString *)pickerPrompt {
 
     if (!relativePath) {
         return nil;
@@ -50,10 +54,9 @@
 
     void (^showPanel)(void) = ^{
         NSOpenPanel *openPanel = [NSOpenPanel openPanel];
-        openPanel.message = [NSString stringWithFormat:
-            @"Please select your %@ data folder\n\nExpected location:\n%@",
-            browserName, browserPath.path];
-        openPanel.prompt = @"Grant Access";
+        openPanel.message = [NSString stringWithFormat:@"%@\n\n%@\n%@",
+            pickerMessage, pickerExpectedLocationLabel, browserPath.path];
+        openPanel.prompt = pickerPrompt;
         openPanel.allowsMultipleSelection = NO;
         openPanel.canChooseDirectories = YES;
         openPanel.canChooseFiles = NO;

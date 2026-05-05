@@ -44,6 +44,25 @@ pub mod chromium_importer {
         pub instructions: String,
     }
 
+    /// Pre-translated picker dialog strings supplied by the renderer.
+    #[napi(object)]
+    pub struct PickerStrings {
+        pub message: String,
+        pub expected_location_label: String,
+        pub prompt: String,
+    }
+
+    #[cfg(target_os = "macos")]
+    impl From<PickerStrings> for chromium_importer::chromium::PickerStrings {
+        fn from(p: PickerStrings) -> Self {
+            Self {
+                message: p.message,
+                expected_location_label: p.expected_location_label,
+                prompt: p.prompt,
+            }
+        }
+    }
+
     impl From<_LoginImportResult> for LoginImportResult {
         fn from(l: _LoginImportResult) -> Self {
             match l {
@@ -123,11 +142,19 @@ pub mod chromium_importer {
 
     #[napi]
     #[allow(clippy::unused_async)]
-    pub async fn request_browser_access(_browser: String, _mas_build: bool) -> napi::Result<()> {
+    pub async fn request_browser_access(
+        _browser: String,
+        _picker_strings: PickerStrings,
+        _mas_build: bool,
+    ) -> napi::Result<()> {
         #[cfg(target_os = "macos")]
-        return chromium_importer::chromium::request_browser_access(&_browser, _mas_build)
-            .await
-            .map_err(|e| napi::Error::from_reason(e.to_string()));
+        return chromium_importer::chromium::request_browser_access(
+            &_browser,
+            _picker_strings.into(),
+            _mas_build,
+        )
+        .await
+        .map_err(|e| napi::Error::from_reason(e.to_string()));
 
         #[cfg(not(target_os = "macos"))]
         Ok(())

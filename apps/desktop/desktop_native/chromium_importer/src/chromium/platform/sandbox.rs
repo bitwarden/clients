@@ -46,7 +46,10 @@ impl ScopedBrowserAccess {
     }
 
     /// Request access to browser directory and create a security bookmark if access is approved
-    pub async fn request_only(browser_name: &str) -> Result<()> {
+    pub async fn request_only(
+        browser_name: &str,
+        picker: &crate::chromium::PickerStrings,
+    ) -> Result<()> {
         let config = crate::chromium::platform::SUPPORTED_BROWSERS
             .iter()
             .find(|b| b.name == browser_name)
@@ -78,6 +81,9 @@ impl ScopedBrowserAccess {
             params: serde_json::json!({
                 "browserName": browser_name,
                 "relativePath": relative_path,
+                "pickerMessage": picker.message,
+                "pickerExpectedLocationLabel": picker.expected_location_label,
+                "pickerPrompt": picker.prompt,
             }),
         };
 

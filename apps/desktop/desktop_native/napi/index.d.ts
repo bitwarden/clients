@@ -154,11 +154,17 @@ export declare namespace chromium_importer {
     loaders: Array<string>
     instructions: string
   }
+  /** Pre-translated picker dialog strings supplied by the renderer. */
+  export interface PickerStrings {
+    message: string
+    expectedLocationLabel: string
+    prompt: string
+  }
   export interface ProfileInfo {
     id: string
     name: string
   }
-  export function requestBrowserAccess(browser: string, masBuild: boolean): Promise<void>
+  export function requestBrowserAccess(browser: string, pickerStrings: PickerStrings, masBuild: boolean): Promise<void>
 }
 
 export declare namespace clipboards {

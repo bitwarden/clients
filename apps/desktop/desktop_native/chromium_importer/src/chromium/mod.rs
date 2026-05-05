@@ -97,12 +97,26 @@ pub async fn get_available_profiles(
     Ok(get_profile_info(&local_state))
 }
 
+/// Pre-translated picker dialog strings supplied by the renderer (which has the
+/// i18n service). The native side concatenates these with the resolved browser
+/// data path it computes via `getpwuid`.
+#[cfg(target_os = "macos")]
+pub struct PickerStrings {
+    pub message: String,
+    pub expected_location_label: String,
+    pub prompt: String,
+}
+
 /// Request access to browser directory (MAS builds only)
 /// This shows the permission dialog and creates a security-scoped bookmark
 #[cfg(target_os = "macos")]
-pub async fn request_browser_access(browser_name: &str, mas_build: bool) -> Result<()> {
+pub async fn request_browser_access(
+    browser_name: &str,
+    picker_strings: PickerStrings,
+    mas_build: bool,
+) -> Result<()> {
     if mas_build {
-        platform::sandbox::ScopedBrowserAccess::request_only(browser_name).await?;
+        platform::sandbox::ScopedBrowserAccess::request_only(browser_name, &picker_strings).await?;
     }
     Ok(())
 }

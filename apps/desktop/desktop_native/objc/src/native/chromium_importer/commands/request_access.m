@@ -6,13 +6,21 @@
 void requestAccessCommand(void* context, NSDictionary *params) {
   NSString *browserName = params[@"browserName"];
   NSString *relativePath = params[@"relativePath"];
+  NSString *pickerMessage = params[@"pickerMessage"];
+  NSString *pickerExpectedLocationLabel = params[@"pickerExpectedLocationLabel"];
+  NSString *pickerPrompt = params[@"pickerPrompt"];
 
-  if (!browserName || !relativePath) {
-    return _return(context, _error(@"Missing required parameters: browserName and relativePath"));
+  if (!browserName || !relativePath || !pickerMessage || !pickerExpectedLocationLabel || !pickerPrompt) {
+    return _return(context, _error(@"Missing required parameters"));
   }
 
   BrowserAccessManager *manager = [BrowserAccessManager sharedManager];
-  NSString *bookmarkData = [manager requestAccessToBrowserDir:browserName relativePath:relativePath];
+  NSString *bookmarkData =
+      [manager requestAccessToBrowserDir:browserName
+                            relativePath:relativePath
+                           pickerMessage:pickerMessage
+             pickerExpectedLocationLabel:pickerExpectedLocationLabel
+                            pickerPrompt:pickerPrompt];
 
   if (bookmarkData == nil) {
     return _return(context, _error(@"browserAccessDenied"));
