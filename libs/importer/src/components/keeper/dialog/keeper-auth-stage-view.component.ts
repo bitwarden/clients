@@ -1,7 +1,17 @@
-import { ChangeDetectionStrategy, Component, effect, input, output, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from "@angular/core";
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   CalloutModule,
   DialogModule,
@@ -52,6 +62,12 @@ export class KeeperAuthStageViewComponent {
   readonly triedAnother = output<void>();
   readonly resent = output<void>();
   readonly errorDismissed = output<void>();
+
+  // Browser extension uses BrowserKeeperSsoTabMonitor to auto-capture the
+  // token from the SSO callback page; no manual paste needed. Other clients
+  // open the IdP in the system browser and the user pastes the token back.
+  protected readonly autoCaptureSsoToken =
+    inject(PlatformUtilsService).getClientType() === ClientType.Browser;
 
   protected readonly codeControl = new FormControl("", {
     nonNullable: true,
