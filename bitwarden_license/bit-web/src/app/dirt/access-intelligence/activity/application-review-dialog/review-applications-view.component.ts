@@ -41,8 +41,8 @@ export class ReviewApplicationsViewComponent {
   });
 
   // Return the selected applications from the view
-  onToggleSelection = output<string>();
-  onToggleAll = output<void>();
+  readonly onToggleSelection = output<string>();
+  readonly onToggleAll = output<void>();
 
   toggleSelection(applicationName: string): void {
     this.onToggleSelection.emit(applicationName);

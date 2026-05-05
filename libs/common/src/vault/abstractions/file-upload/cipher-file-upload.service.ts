@@ -1,3 +1,5 @@
+import { UploadOptions } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
+
 import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -11,5 +13,6 @@ export abstract class CipherFileUploadService {
     encData: EncArrayBuffer,
     admin: boolean,
     dataEncKey: [SymmetricCryptoKey, EncString],
+    options?: UploadOptions,
   ): Promise<CipherResponse>;
 }

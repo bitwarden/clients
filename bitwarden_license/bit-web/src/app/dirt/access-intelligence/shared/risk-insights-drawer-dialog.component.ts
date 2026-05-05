@@ -3,23 +3,29 @@ import { Component, ChangeDetectionStrategy, Inject } from "@angular/core";
 import { DrawerDetails, DrawerType } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DIALOG_DATA } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DIALOG_DATA,
+  DialogModule,
+  IconModule,
+  LinkModule,
+} from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 @Component({
-  imports: [SharedModule],
+  imports: [DialogModule, I18nPipe, ButtonModule, IconModule, LinkModule],
   templateUrl: "./risk-insights-drawer-dialog.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RiskInsightsDrawerDialogComponent {
   constructor(
-    @Inject(DIALOG_DATA) public drawerDetails: DrawerDetails,
-    private fileDownloadService: FileDownloadService,
-    private i18nService: I18nService,
-    private logService: LogService,
+    @Inject(DIALOG_DATA) readonly drawerDetails: DrawerDetails,
+    private readonly fileDownloadService: FileDownloadService,
+    private readonly i18nService: I18nService,
+    private readonly logService: LogService,
   ) {}
 
   // Get a list of drawer types

@@ -73,6 +73,10 @@ export class ConnectHecDialogComponent implements OnInit {
     return !!this.hecConfig;
   }
 
+  get urlHelperLinkText(): string {
+    return this.connectInfo.settings.urlHelperLinkText ?? "";
+  }
+
   submit = async (): Promise<void> => {
     if (this.formGroup.invalid) {
       this.formGroup.markAllAsTouched();
@@ -80,7 +84,7 @@ export class ConnectHecDialogComponent implements OnInit {
     }
     const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
-    this.dialogRef.close(result);
+    await this.dialogRef.close(result);
 
     return;
   };
@@ -96,7 +100,7 @@ export class ConnectHecDialogComponent implements OnInit {
 
     if (confirmed) {
       const result = this.getHecConnectDialogResult(IntegrationDialogResultStatus.Delete);
-      this.dialogRef.close(result);
+      await this.dialogRef.close(result);
     }
   };
 
@@ -118,7 +122,7 @@ export class ConnectHecDialogComponent implements OnInit {
 
 export function openHecConnectDialog(
   dialogService: DialogService,
-  config: DialogConfig<HecConnectDialogParams, DialogRef<HecConnectDialogResult>>,
+  config: DialogConfig<HecConnectDialogParams, HecConnectDialogResult>,
 ) {
   return dialogService.open<HecConnectDialogResult>(ConnectHecDialogComponent, config);
 }

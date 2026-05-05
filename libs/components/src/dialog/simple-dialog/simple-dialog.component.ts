@@ -1,5 +1,20 @@
-import { booleanAttribute, Component, ContentChild, Directive, input } from "@angular/core";
+import {
+  AfterViewInit,
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  contentChild,
+  contentChildren,
+  Directive,
+  ElementRef,
+  inject,
+  input,
+  viewChild,
+} from "@angular/core";
 
+import { AutofocusFallbackDirective } from "../../a11y/autofocus-fallback.directive";
+import { ButtonComponent } from "../../button";
+import { IconComponent } from "../../icon";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { fadeIn } from "../animations";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
@@ -9,25 +24,45 @@ import { DialogTitleContainerDirective } from "../directives/dialog-title-contai
 })
 export class IconDirective {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Directive({
+  selector: "[bitDialogFooter]",
+})
+export class DialogFooterDirective {
+  readonly buttons = contentChildren<ButtonComponent, ElementRef<HTMLButtonElement>>(
+    ButtonComponent,
+    { read: ElementRef },
+  );
+}
+
 @Component({
   selector: "bit-simple-dialog, [bit-simple-dialog]",
   templateUrl: "./simple-dialog.component.html",
   animations: [fadeIn],
-  imports: [DialogTitleContainerDirective, TypographyDirective],
+  imports: [DialogTitleContainerDirective, TypographyDirective, IconComponent],
+  hostDirectives: [{ directive: AutofocusFallbackDirective }],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SimpleDialogComponent {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ContentChild(IconDirective) icon!: IconDirective;
+export class SimpleDialogComponent implements AfterViewInit {
+  private readonly autofocusFallback = inject(AutofocusFallbackDirective, { host: true });
+
+  private readonly dialogHeader =
+    viewChild.required<ElementRef<HTMLHeadingElement>>("dialogHeader");
+
+  private readonly footer = contentChild<DialogFooterDirective>(DialogFooterDirective);
 
   /**
    * Optional flag to hide the dialog's center icon. Defaults to false.
    */
   readonly hideIcon = input(false, { transform: booleanAttribute });
 
-  get hasIcon() {
-    return this.icon != null;
+  ngAfterViewInit() {
+    const footerButtons = this.footer()?.buttons() ?? [];
+
+    /**
+     * Ensure that the user's focus is in the dialog by setting an autofocus fallback element (i.e.
+     * a fallback for when no other elements in the dialog are set to autofocus). Use the first
+     * footer button. If none exist, use the header since it is always present.
+     */
+    this.autofocusFallback.bitAutofocusFallback.set(footerButtons[0] ?? this.dialogHeader());
   }
 }

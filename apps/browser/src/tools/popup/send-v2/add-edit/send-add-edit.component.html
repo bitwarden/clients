@@ -6,6 +6,7 @@
     [config]="config"
     (onSendCreated)="onSendCreated($event)"
     (onSendUpdated)="onSendUpdated($event)"
+    (openPasswordGenerator)="openGenerator()"
     [submitBtn]="submitBtn"
   >
   </tools-send-form>
@@ -20,7 +21,7 @@
     <button
       *ngIf="config?.mode !== 'add'"
       type="button"
-      buttonType="danger"
+      buttonType="dangerGhost"
       slot="end"
       bitIconButton="bwi-trash"
       [bitAction]="deleteSend"

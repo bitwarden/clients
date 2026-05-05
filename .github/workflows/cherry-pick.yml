@@ -1,0 +1,38 @@
+name: Automated cherry pick
+run-name: Automated cherry pick - ${{ github.repository }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_pr:
+        description: 'Pull request to cherry pick from. (e.g., 456)'
+        required: true
+        type: string
+      dest_branch:
+        description: 'Destination branch to cherry pick to. (e.g., hotfix-rc)'
+        required: true
+        type: choice
+        options:
+          - rc
+          - hotfix-rc-web
+          - hotfix-rc-desktop
+          - hotfix-rc-browser
+          - hotfix-rc-cli
+
+permissions: {}
+
+jobs:
+  cherry-pick:
+    name: Cherry Pick
+    uses: bitwarden/gh-actions/.github/workflows/_cherry-pick.yml@main
+    with:
+      source_pr: ${{ inputs.source_pr }}
+      dest_branch: ${{ inputs.dest_branch }}
+      dest_branch_allowed: ''
+    permissions:
+      contents: read
+      id-token: write
+    secrets:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}

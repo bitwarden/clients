@@ -4,8 +4,7 @@
     [formControl]="searchControl"
     class="tw-w-80"
   ></bit-search>
-  <button bitButton type="button" buttonType="primary" (click)="add()">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+  <button bitButton type="button" buttonType="primary" (click)="add()" startIcon="bwi-plus">
     {{ "newGroup" | i18n }}
   </button>
 </app-header>

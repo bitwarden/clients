@@ -1,10 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component, Inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { BillingApiServiceAbstraction as BillingApiService } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { PlanType } from "@bitwarden/common/billing/enums";
+import { ProductTierType } from "@bitwarden/common/billing/enums/product-tier-type.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -23,6 +26,7 @@ type OrganizationOffboardingParams = {
   type: "Organization";
   id: string;
   plan: PlanType;
+  productTier: ProductTierType;
 };
 
 export type OffboardingSurveyDialogParams = UserOffboardingParams | OrganizationOffboardingParams;
@@ -37,6 +41,12 @@ export enum OffboardingSurveyDialogResultType {
 type Reason = {
   value: string;
   text: string;
+};
+
+type BusinessReason = {
+  value: string;
+  labelKey: string;
+  hintKey: string | null;
 };
 
 export const openOffboardingSurvey = (
@@ -60,6 +70,41 @@ export class OffboardingSurveyComponent {
 
   protected readonly reasons: Reason[] = [];
 
+  protected readonly businessReasons: BusinessReason[] = [
+    {
+      value: "missing_features",
+      labelKey: "cancelSurveyMissingFeaturesLabel",
+      hintKey: "cancelSurveyMissingFeaturesHint",
+    },
+    {
+      value: "switched_service",
+      labelKey: "cancelSurveyTooComplexLabel",
+      hintKey: "cancelSurveyTooComplexHint",
+    },
+    {
+      value: "too_complex",
+      labelKey: "cancelSurveyNotEnoughValueLabel",
+      hintKey: "cancelSurveyNotEnoughValueHint",
+    },
+    {
+      value: "unused",
+      labelKey: "cancelSurveyNotEnoughUsageLabel",
+      hintKey: "cancelSurveyNotEnoughUsageHint",
+    },
+    {
+      value: "too_expensive",
+      labelKey: "cancelSurveyNeedsChangedLabel",
+      hintKey: "cancelSurveyNeedsChangedHint",
+    },
+    {
+      value: "other",
+      labelKey: "other",
+      hintKey: null,
+    },
+  ];
+
+  protected readonly isBusiness: boolean;
+
   protected formGroup = this.formBuilder.group({
     reason: [null, [Validators.required]],
     feedback: ["", [Validators.maxLength(this.MaxFeedbackLength)]],
@@ -74,6 +119,8 @@ export class OffboardingSurveyComponent {
     private platformUtilsService: PlatformUtilsService,
     private toastService: ToastService,
   ) {
+    this.isBusiness = this.isBusinessPlan();
+
     this.reasons = [
       {
         value: null,
@@ -125,8 +172,17 @@ export class OffboardingSurveyComponent {
       message: this.i18nService.t("canceledSubscription"),
     });
 
-    this.dialogRef.close(this.ResultType.Submitted);
+    await this.dialogRef.close(this.ResultType.Submitted);
   };
+
+  private isBusinessPlan(): boolean {
+    return (
+      this.dialogParams.type === "Organization" &&
+      [ProductTierType.Teams, ProductTierType.Enterprise, ProductTierType.TeamsStarter].includes(
+        this.dialogParams.productTier,
+      )
+    );
+  }
 
   private getSwitchingReason(): Reason {
     if (this.dialogParams.type === "User") {

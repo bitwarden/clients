@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/scheduling",
+  "version": "0.0.1",
+  "description": "Task scheduling domain: enum, abstract service, and default implementation",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "platform"
+}

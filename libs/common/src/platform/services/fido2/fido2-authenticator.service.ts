@@ -188,7 +188,6 @@ export class Fido2AuthenticatorService<
           cipher.login.username = fido2Credential.userName;
         }
         await this.cipherService.updateWithServer(cipher, activeUserId);
-        await this.cipherService.clearCache(activeUserId);
         credentialId = fido2Credential.credentialId;
       } catch (error) {
         this.logService?.error(
@@ -328,7 +327,6 @@ export class Fido2AuthenticatorService<
             this.accountService.activeAccount$.pipe(getUserId),
           );
           await this.cipherService.updateWithServer(selectedCipher, activeUserId);
-          await this.cipherService.clearCache(activeUserId);
         }
 
         const authenticatorData = await generateAuthData({

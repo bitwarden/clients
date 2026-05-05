@@ -3,6 +3,7 @@
 - **NEVER** use `chrome.*` or `browser.*` APIs directly in business logic
   - Always use `BrowserApi` abstraction: `/apps/browser/src/platform/browser/browser-api.ts`
   - Required for cross-browser compatibility (Chrome/Firefox/Safari/Opera)
+  - Exception: injected content scripts (see `.claude/rules/autofill-content-scripts.md`)
 
 - **ALWAYS** use `BrowserApi.addListener()` for event listeners in popup context
   - Safari requires manual cleanup to prevent memory leaks

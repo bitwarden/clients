@@ -1,3 +1,4 @@
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
@@ -40,4 +41,8 @@ export abstract class BiometricsService {
   abstract getShouldAutopromptNow(): Promise<boolean>;
   abstract setShouldAutopromptNow(value: boolean): Promise<void>;
   abstract canEnableBiometricUnlock(): Promise<boolean>;
+  abstract setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void>;
 }

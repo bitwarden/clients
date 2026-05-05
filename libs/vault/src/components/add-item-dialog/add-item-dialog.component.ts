@@ -1,0 +1,44 @@
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from "@angular/core";
+
+import { DIALOG_DATA, DialogModule, DialogRef, DialogService } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+
+import { AddItemGridComponent, AddItemGridResult } from "../add-item-grid/add-item-grid.component";
+
+export { AddItemGridResult as AddItemDialogResult } from "../add-item-grid/add-item-grid.component";
+export type AddItemDialogCloseResult = AddItemGridResult;
+
+export type AddItemDialogData = {
+  canCreateFolder: boolean;
+  canCreateCollection: boolean;
+  canCreateSshKey: boolean;
+};
+
+@Component({
+  selector: "vault-add-item-dialog",
+  templateUrl: "./add-item-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [DialogModule, I18nPipe, AddItemGridComponent],
+})
+export class AddItemDialogComponent {
+  protected readonly dialogRef = inject<DialogRef<AddItemDialogCloseResult>>(DialogRef);
+  protected readonly data = inject<AddItemDialogData>(DIALOG_DATA);
+
+  private readonly grid = viewChild.required(AddItemGridComponent);
+  protected readonly dialogSize = computed(() =>
+    this.grid().items().length >= 6 ? "large" : "default",
+  );
+
+  protected onItemSelected(closeResult: AddItemDialogCloseResult): void {
+    void this.dialogRef.close(closeResult);
+  }
+
+  static open(
+    dialogService: DialogService,
+    data: AddItemDialogData,
+  ): DialogRef<AddItemDialogCloseResult> {
+    return dialogService.open<AddItemDialogCloseResult, AddItemDialogData>(AddItemDialogComponent, {
+      data,
+    });
+  }
+}

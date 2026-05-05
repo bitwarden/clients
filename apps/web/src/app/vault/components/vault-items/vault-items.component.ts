@@ -19,7 +19,8 @@ import {
   CollectionView,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import {
   RestrictedCipherType,
@@ -156,16 +157,18 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canDeleteSelected$: Observable<boolean>;
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
+  protected showCopyAndLaunchActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
-
-  protected archiveFeatureEnabled$ = this.cipherArchiveService.hasArchiveFlagEnabled$;
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
     protected restrictedItemTypesService: RestrictedItemTypesService,
-    protected cipherArchiveService: CipherArchiveService,
     protected routedVaultFilterService: RoutedVaultFilterService,
+    private configService: ConfigService,
   ) {
+    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
+    );
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {

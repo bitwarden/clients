@@ -59,11 +59,11 @@ export class IconComponent {
     return {};
   });
 
-  protected data$: Observable<CipherIconDetails>;
+  protected readonly data$: Observable<CipherIconDetails>;
 
   constructor(
-    private environmentService: EnvironmentService,
-    private domainSettingsService: DomainSettingsService,
+    private readonly environmentService: EnvironmentService,
+    private readonly domainSettingsService: DomainSettingsService,
   ) {
     const iconSettings$ = combineLatest([
       this.environmentService.environment$.pipe(map((e) => e.getIconsUrl())),

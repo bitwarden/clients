@@ -37,6 +37,7 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
   },
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
+export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
@@ -81,6 +82,7 @@ export const VAULT_TIMEOUT_SETTINGS_DISK_LOCAL = new StateDefinition(
     web: "disk-local",
   },
 );
+export const VAULT_TIMEOUT_SETTINGS_MEMORY = new StateDefinition("vaultTimeoutSettings", "memory");
 
 // Autofill
 
@@ -137,6 +139,10 @@ export const EXTENSION_INITIAL_INSTALL_DISK = new StateDefinition(
 export const WEB_PUSH_SUBSCRIPTION = new StateDefinition("webPushSubscription", "disk", {
   web: "disk-local",
 });
+export const SERVER_COMMUNICATION_CONFIG_DISK = new StateDefinition(
+  "serverCommunicationConfig",
+  "disk",
+);
 
 // Design System
 

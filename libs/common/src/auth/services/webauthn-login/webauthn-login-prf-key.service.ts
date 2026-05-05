@@ -8,7 +8,7 @@ const LoginWithPrfSalt = "passwordless-login";
 export class WebAuthnLoginPrfKeyService implements WebAuthnLoginPrfKeyServiceAbstraction {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
 
-  async getLoginWithPrfSalt(): Promise<Uint8Array> {
+  async getLoginWithPrfSalt(): Promise<Uint8Array<ArrayBuffer>> {
     return await this.cryptoFunctionService.hash(LoginWithPrfSalt, "sha256");
   }
 

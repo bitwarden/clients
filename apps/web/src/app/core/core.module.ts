@@ -12,8 +12,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
-import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
@@ -69,7 +67,11 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  MasterPasswordServiceAbstraction,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   VaultTimeout,
@@ -129,8 +131,13 @@ import {
 } from "@bitwarden/key-management-ui";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
-import { DefaultSshImportPromptService, SshImportPromptService } from "@bitwarden/vault";
+import {
+  CipherFormGenerationService,
+  DefaultSshImportPromptService,
+  SshImportPromptService,
+} from "@bitwarden/vault";
 import { WebOrganizationInviteService } from "@bitwarden/web-vault/app/auth/core/services/organization-invite/web-organization-invite.service";
+import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/vault/services/web-premium-upgrade-prompt.service";
 
 import { flagEnabled } from "../../utils/flags";
@@ -152,6 +159,7 @@ import { WebPremiumInterestStateService } from "../billing/services/premium-inte
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { WebFileDownloadService } from "../core/web-file-download.service";
+import { EventService } from "../dirt/event-logs";
 import { UserKeyRotationService } from "../key-management/key-rotation/user-key-rotation.service";
 import { WebLockComponentService } from "../key-management/lock/services/web-lock-component.service";
 import { WebProcessReloadService } from "../key-management/services/web-process-reload.service";
@@ -164,7 +172,6 @@ import { WebSdkLoadService } from "../platform/web-sdk-load.service";
 import { WebStorageServiceProvider } from "../platform/web-storage-service.provider";
 import { WebSystemService } from "../platform/web-system.service";
 
-import { EventService } from "./event.service";
 import { InitService } from "./init.service";
 import { ENV_URLS } from "./injection-tokens";
 import { RouterService } from "./router.service";
@@ -286,6 +293,8 @@ const safeProviders: SafeProvider[] = [
     deps: [
       KeyServiceAbstraction,
       AccountApiServiceAbstraction,
+      MasterPasswordServiceAbstraction,
+      ConfigService,
       OrganizationInviteService,
       PolicyApiServiceAbstraction,
       LogService,
@@ -433,13 +442,15 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
+      MasterPasswordUnlockService,
+      SyncService,
       UserKeyRotationService,
       RouterService,
     ],
   }),
   safeProvider({
-    provide: DeviceManagementComponentServiceAbstraction,
-    useClass: DefaultDeviceManagementComponentService,
+    provide: CipherFormGenerationService,
+    useClass: WebCipherFormGenerationService,
     deps: [],
   }),
   safeProvider({
@@ -486,14 +497,12 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      KeyServiceAbstraction,
       InternalUserDecryptionOptionsServiceAbstraction,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
       WINDOW,
       LogService,
-      ConfigService,
     ],
   }),
   safeProvider({

@@ -55,6 +55,6 @@ export class AboutDialogComponent {
       message: this.i18nService.t("copySuccessful"),
       variant: "success",
     });
-    this.dialogRef.close();
+    void this.dialogRef.close();
   }
 }

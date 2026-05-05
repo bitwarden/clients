@@ -7,7 +7,7 @@
     [backAction]="handleBackButton"
     showBackButton
   >
-    @if (config?.originalCipher?.archivedDate && (archiveFlagEnabled$ | async)) {
+    @if (config?.originalCipher?.archivedDate) {
       <ng-container slot="end">
         <span bitBadge variant="secondary" [appA11yTitle]="'archived' | i18n">
           {{ "archived" | i18n }}
@@ -45,7 +45,7 @@
         <button
           [bitAction]="delete"
           type="button"
-          buttonType="danger"
+          buttonType="dangerGhost"
           bitIconButton="bwi-trash"
           [label]="'delete' | i18n"
         ></button>

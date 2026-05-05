@@ -88,7 +88,9 @@ export class DefaultPolicyService implements PolicyService {
     userId: UserId,
     policies?: Policy[],
   ): Observable<MasterPasswordPolicyOptions | undefined> {
-    const policies$ = policies ? of(policies) : this.policies$(userId);
+    const policies$ = policies
+      ? of(policies)
+      : this.policiesByType$(PolicyType.MasterPassword, userId);
     return policies$.pipe(
       map((obsPolicies) => {
         // TODO ([PM-23777]): replace with this.combinePoliciesIntoMasterPasswordPolicyOptions(obsPolicies))
@@ -291,17 +293,14 @@ export class DefaultPolicyService implements PolicyService {
         return false;
       case PolicyType.AutoConfirm:
         return false;
+      case PolicyType.MasterPassword:
+        // MasterPassword policy applies to everyone, including admins and owners
+        return false;
       case PolicyType.OrganizationDataOwnership:
         // organization data ownership policy applies to everyone except admins and owners
         return organization.isAdmin;
       case PolicyType.SingleOrg:
-        // Check if AutoConfirm policy is enabled for this organization
-        return allPolicies.find(
-          (p) =>
-            p.organizationId === organization.id && p.type === PolicyType.AutoConfirm && p.enabled,
-        )
-          ? false
-          : organization.canManagePolicies;
+        return organization.canManagePolicies;
       default:
         return organization.canManagePolicies;
     }

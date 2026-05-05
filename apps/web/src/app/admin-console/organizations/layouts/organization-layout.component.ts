@@ -17,17 +17,17 @@ import {
   canAccessSettingsTab,
   canAccessVaultTab,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import { PolicyType, ProviderStatusType } from "@bitwarden/common/admin-console/enums";
+import { ProviderStatusType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, SvgModule } from "@bitwarden/components";
-import { OrganizationWarningsModule } from "@bitwarden/web-vault/app/billing/organizations/warnings/organization-warnings.module";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 import { NonIndividualSubscriber } from "@bitwarden/web-vault/app/billing/types";
 import { TaxIdWarningComponent } from "@bitwarden/web-vault/app/billing/warnings/components";
@@ -52,7 +52,6 @@ import { WebLayoutModule } from "../../../layouts/web-layout.module";
     BannerModule,
     TaxIdWarningComponent,
     TaxIdWarningComponent,
-    OrganizationWarningsModule,
   ],
 })
 export class OrganizationLayoutComponent implements OnInit {
@@ -111,7 +110,7 @@ export class OrganizationLayoutComponent implements OnInit {
 
     this.hideNewOrgButton$ = this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+      switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
     );
 
     const provider$ = combineLatest([

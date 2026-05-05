@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
@@ -11,11 +13,14 @@ import { BuiltIn, Profile } from "@bitwarden/generator-core";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
   description = "passwordGeneratorPolicyDesc";
   type = PolicyType.PasswordGenerator;
+  category = PolicyCategory.VaultManagement;
+  priority = 10;
   component = PasswordGeneratorPolicyComponent;
 }
 

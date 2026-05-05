@@ -1,10 +1,7 @@
 import { inject, Injectable, NgZone } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
-import { skip, filter, combineLatestWith, tap, map, firstValueFrom } from "rxjs";
-
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { skip, filter, tap, map, firstValueFrom } from "rxjs";
 
 import { queryForAutofocusDescendents } from "../input";
 
@@ -12,8 +9,6 @@ import { queryForAutofocusDescendents } from "../input";
 export class RouterFocusManagerService {
   private router = inject(Router);
   private ngZone = inject(NgZone);
-
-  private configService = inject(ConfigService);
 
   /**
    * See associated router-focus-manager.mdx page for documentation on what this pipeline does and
@@ -27,8 +22,6 @@ export class RouterFocusManagerService {
      * so we opt out of the default focus management behavior.
      */
     skip(1),
-    combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.RouterFocusManagement)),
-    filter(([_navEvent, flagEnabled]) => flagEnabled),
     map(() => {
       const currentNavExtras = this.router.currentNavigation()?.extras;
 

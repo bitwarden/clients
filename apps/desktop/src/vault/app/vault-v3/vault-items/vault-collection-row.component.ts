@@ -4,13 +4,13 @@ import { NgClass } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   CollectionView,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { TableModule } from "@bitwarden/components";
+import { LinkModule, TableModule } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -20,8 +20,9 @@ import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden
   templateUrl: "vault-collection-row.component.html",
   imports: [
     TableModule,
+    LinkModule,
     NgClass,
-    JslibModule,
+    I18nPipe,
     RouterLink,
     OrganizationNameBadgeComponent,
     GetOrgNameFromIdPipe,

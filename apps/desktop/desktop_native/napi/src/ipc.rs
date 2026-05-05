@@ -67,7 +67,7 @@ pub mod ipc {
 
             let server = desktop_core::ipc::server::Server::start(&path, send).map_err(|e| {
                 napi::Error::from_reason(format!(
-                    "Error listening to server - Path: {path:?} - Error: {e} - {e:?}"
+                    "Error listening to server - Path: {path:?} - Error: {e:?}"
                 ))
             })?;
 
@@ -96,9 +96,7 @@ pub mod ipc {
         pub fn send(&self, message: String) -> napi::Result<u32> {
             self.server
                 .send(message)
-                .map_err(|e| {
-                    napi::Error::from_reason(format!("Error sending message - Error: {e} - {e:?}"))
-                })
+                .map_err(|e| napi::Error::from_reason(format!("Error sending message: {e:?}")))
                 // NAPI doesn't support u64 or usize, so we need to convert to u32
                 .map(|u| u32::try_from(u).unwrap_or_default())
         }

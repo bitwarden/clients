@@ -9,7 +9,7 @@ setCompodocJson(docJson);
 
 const wrapperDecorator = componentWrapperDecorator((story) => {
   return /*html*/ `
-    <div class="tw-bg-background tw-px-5 tw-py-10 tw-@container">
+    <div class="tw-bg-bg-primary tw-px-5 tw-py-10 tw-@container">
       ${story}
     </div>
   `;
@@ -28,7 +28,10 @@ const preview: Preview = {
   ],
   parameters: {
     a11y: {
-      context: "#storybook-root",
+      context: {
+        include: ["#storybook-root", ".cdk-overlay-container"],
+        exclude: [".cdk-visually-hidden"],
+      },
     },
     controls: {
       matchers: {

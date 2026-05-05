@@ -13,7 +13,7 @@ export * from "./button";
 export * from "./callout";
 export * from "./card";
 export * from "./checkbox";
-export * from "./chip-select";
+export * from "./chips";
 export * from "./color-password";
 export * from "./container";
 export * from "./copy-click";

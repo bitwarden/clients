@@ -44,7 +44,6 @@ import { Rc } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey, UserPrivateKey, UserPublicKey } from "@bitwarden/common/types/key";
 import {
@@ -105,7 +104,7 @@ describe("DefaultSetInitialPasswordService", () => {
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
 
     userId = "userId" as UserId;
-    userKey = new SymmetricCryptoKey(new Uint8Array(64).buffer as CsprngArray) as UserKey;
+    userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
     userKeyEncString = new EncString("masterKeyEncryptedUserKey");
     masterKeyEncryptedUserKey = [userKey, userKeyEncString];
 
@@ -158,9 +157,8 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
-        newLocalMasterKeyHash: "newLocalMasterKeyHash",
         newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         orgSsoIdentifier: "orgSsoIdentifier",
@@ -254,7 +252,6 @@ describe("DefaultSetInitialPasswordService", () => {
       [
         "newMasterKey",
         "newServerMasterKeyHash",
-        "newLocalMasterKeyHash",
         "newPasswordHint",
         "kdfConfig",
         "orgSsoIdentifier",
@@ -450,10 +447,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-            credentials.newLocalMasterKeyHash,
-            userId,
-          );
         });
 
         it("should create and set master password unlock data to prevent race condition with sync", async () => {
@@ -685,10 +678,6 @@ describe("DefaultSetInitialPasswordService", () => {
 
           // Assert
           expect(masterPasswordApiService.setPassword).toHaveBeenCalledWith(setPasswordRequest);
-          expect(masterPasswordService.setMasterKeyHash).toHaveBeenCalledWith(
-            credentials.newLocalMasterKeyHash,
-            userId,
-          );
         });
 
         it("should create and set master password unlock data to prevent race condition with sync", async () => {
@@ -915,7 +904,7 @@ describe("DefaultSetInitialPasswordService", () => {
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
+        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
         newServerMasterKeyHash: "newServerMasterKeyHash",
         newPasswordHint: "newPasswordHint",
       };

@@ -50,7 +50,6 @@
               [text]="c | userName"
               [id]="c.granteeId"
               [color]="c.avatarColor"
-              size="small"
             ></bit-avatar>
             <span class="tw-inline-flex tw-gap-2">
               <a bitLink href="#" appStopClick (click)="edit(c)">{{ c.email }}</a>
@@ -91,7 +90,7 @@
               type="button"
               label="{{ 'options' | i18n }}"
               bitIconButton="bwi-ellipsis-v"
-              buttonType="main"
+              buttonType="primaryGhost"
             ></button>
             <bit-menu #trustedContactOptions>
               <button
@@ -172,7 +171,6 @@
               [text]="c | userName"
               [id]="c.grantorId"
               [color]="c.avatarColor"
-              size="small"
             ></bit-avatar>
             <span class="tw-inline-flex tw-gap-2">
               <span>{{ c.email }}</span>
@@ -213,7 +211,7 @@
               type="button"
               label="{{ 'options' | i18n }}"
               bitIconButton="bwi-ellipsis-v"
-              buttonType="main"
+              buttonType="primaryGhost"
             ></button>
             <bit-menu #grantedContactOptions>
               <button

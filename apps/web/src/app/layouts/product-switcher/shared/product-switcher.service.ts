@@ -16,14 +16,11 @@ import {
 import {
   canAccessOrgAdmin,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import {
-  OrganizationUserType,
-  PolicyType,
-  ProviderType,
-} from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -34,6 +31,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { BitwardenIcon } from "@bitwarden/components";
 
 export type ProductSwitcherItem = {
   /**
@@ -44,7 +42,7 @@ export type ProductSwitcherItem = {
   /**
    * Displayed icon
    */
-  icon: string;
+  icon: BitwardenIcon;
 
   /**
    * Route for items in the `bentoProducts$` section
@@ -133,7 +131,7 @@ export class ProductSwitcherService {
 
   userHasSingleOrgPolicy$ = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
   shouldShowPremiumUpgradeButton$: Observable<boolean> = combineLatest([

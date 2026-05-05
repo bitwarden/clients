@@ -4,6 +4,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -11,6 +12,8 @@ export class DisablePersonalVaultExportPolicy extends BasePolicyEditDefinition {
   name = "disableExport";
   description = "disablePersonalVaultExportDescription";
   type = PolicyType.DisablePersonalVaultExport;
+  category = PolicyCategory.DataControl;
+  priority = 50;
   component = DisablePersonalVaultExportPolicyComponent;
 }
 

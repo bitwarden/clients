@@ -30,7 +30,6 @@ import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/pre
 import { VaultViewPasswordHistoryService } from "@bitwarden/angular/services/view-password-history.service";
 import { ItemTypes } from "@bitwarden/assets/svg";
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -39,8 +38,10 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -73,9 +74,13 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+  AddItemDialogCloseResult,
+  AddItemDialogComponent,
+  AddItemDialogResult,
   AttachmentDialogResult,
   AttachmentsV2Component,
-  ChangeLoginPasswordService,
   CipherFormConfig,
   CipherFormConfigService,
   CipherFormGenerationService,
@@ -85,7 +90,6 @@ import {
   CollectionAssignmentResult,
   createFilterFunction,
   DecryptionFailureDialogComponent,
-  DefaultChangeLoginPasswordService,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   CipherFormComponent,
@@ -130,10 +134,6 @@ const BroadcasterSubscriptionId = "VaultComponent";
     {
       provide: CipherFormConfigService,
       useClass: DefaultCipherFormConfigService,
-    },
-    {
-      provide: ChangeLoginPasswordService,
-      useClass: DefaultChangeLoginPasswordService,
     },
     {
       provide: ViewPasswordHistoryService,
@@ -201,9 +201,6 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     ),
     { initialValue: false },
   );
-  readonly archiveFlagEnabled = toSignal(this.cipherArchiveService.hasArchiveFlagEnabled$, {
-    initialValue: false,
-  });
   protected itemTypesIcon = ItemTypes;
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -213,9 +210,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   );
 
   protected readonly submitButtonText = computed(() => {
-    return this.cipher()?.isArchived &&
-      !this.userHasPremium() &&
-      this.cipherArchiveService.hasArchiveFlagEnabled$
+    return this.cipher()?.isArchived && !this.userHasPremium()
       ? this.i18nService.t("unArchiveAndSave")
       : this.i18nService.t("save");
   });
@@ -263,19 +258,18 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
     private routedVaultFilterService: RoutedVaultFilterService,
     private vaultFilterService: VaultFilterService,
     private vaultItemTransferService: VaultItemsTransferService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
     // Subscribe to filter changes from router params via the bridge service
-    // Use combineLatest to react to changes in both the filter and archive flag
     combineLatest([
       this.routedVaultFilterBridgeService.activeFilter$,
       this.routedVaultFilterService.filter$,
-      this.cipherArchiveService.hasArchiveFlagEnabled$,
     ])
       .pipe(
-        switchMap(([vaultFilter, routedFilter, archiveEnabled]) =>
-          from(this.applyVaultFilter(vaultFilter, routedFilter, archiveEnabled)),
+        switchMap(([vaultFilter, routedFilter]) =>
+          from(this.applyVaultFilter(vaultFilter, routedFilter)),
         ),
         takeUntil(this.componentIsDestroyed$),
       )
@@ -604,7 +598,7 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       }
     }
 
-    if (this.archiveFlagEnabled() && !cipher.isDeleted && !cipher.isArchived) {
+    if (!cipher.isDeleted && !cipher.isArchived) {
       menu.push({
         label: this.i18nService.t("archiveVerb"),
         click: async () => {
@@ -694,6 +688,47 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
                 .collect(EventType.Cipher_ClientCopiedCardCode, cipher.id)
                 .catch(() => {});
             },
+          });
+        }
+        break;
+      case CipherType.BankAccount:
+        if (cipher.bankAccount.accountNumber != null || cipher.bankAccount.routingNumber != null) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.bankAccount.accountNumber) {
+          menu.push({
+            label: this.i18nService.t("copyAccountNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.accountNumber,
+                "accountNumber",
+                "Account Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.routingNumber) {
+          menu.push({
+            label: this.i18nService.t("copyRoutingNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.bankAccount.routingNumber,
+                "routingNumber",
+                "Routing Number",
+              ),
+          });
+        }
+        if (cipher.bankAccount.pin) {
+          menu.push({
+            label: this.i18nService.t("copyPin"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.pin, "pin", "PIN"),
+          });
+        }
+        if (cipher.bankAccount.iban) {
+          menu.push({
+            label: this.i18nService.t("copyIban"),
+            click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
           });
         }
         break;
@@ -843,14 +878,13 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   async applyVaultFilter(
     vaultFilter: VaultFilter,
     routedFilter: Parameters<typeof createFilterFunction>[0],
-    archiveEnabled: boolean,
   ) {
     this.searchBarService.setPlaceholderText(
       this.i18nService.t(this.calculateSearchBarLocalizationString(vaultFilter)),
     );
     this.activeFilter = vaultFilter;
 
-    const filterFn = createFilterFunction(routedFilter, archiveEnabled);
+    const filterFn = createFilterFunction(routedFilter);
 
     await this.vaultItemsComponent?.reload(filterFn, vaultFilter.isDeleted, vaultFilter.isArchived);
   }
@@ -891,7 +925,34 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
   }
 
   async addFolder() {
-    this.messagingService.send("newFolder");
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM32009NewItemTypes)) {
+      const folderRef = AddEditFolderDialogComponent.open(this.dialogService);
+      const folderResult = await firstValueFrom(folderRef.closed);
+      if (folderResult === AddEditFolderDialogResult.Created) {
+        await this.syncService.fullSync(false);
+      }
+    } else {
+      this.messagingService.send("newFolder");
+    }
+  }
+
+  protected async openAddItemDialog(): Promise<void> {
+    const ref = AddItemDialogComponent.open(this.dialogService, {
+      canCreateFolder: true,
+      canCreateCollection: false,
+      canCreateSshKey: true,
+    });
+
+    const result: AddItemDialogCloseResult | undefined = await firstValueFrom(ref.closed);
+    if (result == null) {
+      return;
+    }
+
+    if (result.result === AddItemDialogResult.Cipher) {
+      await this.addCipher(result.cipherType);
+    } else if (result.result === AddItemDialogResult.Folder) {
+      await this.addFolder();
+    }
   }
 
   async editFolder(folderId: string) {

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventResponse } from "@bitwarden/common/models/response/event.response";
+import { EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 @Injectable({

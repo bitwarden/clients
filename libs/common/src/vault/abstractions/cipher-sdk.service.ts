@@ -1,5 +1,17 @@
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherListView } from "@bitwarden/sdk-internal";
+
+/**
+ * Result of decrypting all ciphers, containing both successes and failures.
+ */
+export interface DecryptAllCiphersResult {
+  /** Successfully decrypted cipher views */
+  successes: CipherView[];
+  /** Cipher views that failed to decrypt (with decryptionFailure flag set) */
+  failures: CipherView[];
+}
 
 /**
  * Service responsible for cipher operations using the SDK.
@@ -106,4 +118,63 @@ export abstract class CipherSdkService {
    * @returns A promise that resolves when the ciphers are restored
    */
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
+
+  /**
+   * Shares a cipher with an organization using the SDK.
+   * Handles encryption and API call in one operation.
+   *
+   * @param cipherView The cipher view to share
+   * @param organizationId The organization to share with
+   * @param collectionIds The collection IDs to add the cipher to
+   * @param userId The user ID to use for SDK client
+   * @param originalCipherView Optional original cipher view for password history tracking
+   * @returns A promise that resolves to the shared cipher (encrypted)
+   */
+  abstract shareWithServer(
+    cipherView: CipherView,
+    organizationId: OrganizationId,
+    collectionIds: CollectionId[],
+    userId: UserId,
+    originalCipherView?: CipherView,
+  ): Promise<CipherView | undefined>;
+
+  /**
+   * Shares multiple ciphers with an organization using the SDK.
+   * Handles encryption and API calls in one operation.
+   *
+   * @param cipherViews The cipher views to share
+   * @param organizationId The organization to share with
+   * @param collectionIds The collection IDs to add the ciphers to
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the shared ciphers (encrypted)
+   */
+  abstract shareManyWithServer(
+    cipherViews: CipherView[],
+    organizationId: OrganizationId,
+    collectionIds: CollectionId[],
+    userId: UserId,
+  ): Promise<CipherView[]>;
+
+  /**
+   * Lists and decrypts all ciphers from state using the SDK.
+   *
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the decrypt result containing successes and failures
+   */
+  abstract getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult>;
+
+  /**
+   * Fetches all ciphers for an organization from the API using the SDK.
+   * Returns encrypted ciphers for on-demand decryption and lightweight list views for display.
+   *
+   * @param organizationId The organization ID to fetch ciphers for
+   * @param userId The user ID to use for SDK client
+   * @param includeMemberItems Whether to include member items
+   * @returns A promise that resolves to the encrypted ciphers and decrypted list views
+   */
+  abstract getAllFromApiForOrganization(
+    organizationId: string,
+    userId: UserId,
+    includeMemberItems: boolean,
+  ): Promise<[Cipher[], CipherListView[]]>;
 }

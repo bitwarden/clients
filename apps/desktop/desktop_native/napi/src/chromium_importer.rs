@@ -98,9 +98,12 @@ pub mod chromium_importer {
 
     #[napi]
     pub fn get_available_profiles(browser: String) -> napi::Result<Vec<ProfileInfo>> {
-        chromium_importer::chromium::get_available_profiles(&browser)
-            .map(|profiles| profiles.into_iter().map(ProfileInfo::from).collect())
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(
+            chromium_importer::chromium::get_available_profiles(&browser)?
+                .into_iter()
+                .map(ProfileInfo::from)
+                .collect(),
+        )
     }
 
     #[napi]
@@ -108,9 +111,12 @@ pub mod chromium_importer {
         browser: String,
         profile_id: String,
     ) -> napi::Result<Vec<LoginImportResult>> {
-        chromium_importer::chromium::import_logins(&browser, &profile_id)
-            .await
-            .map(|logins| logins.into_iter().map(LoginImportResult::from).collect())
-            .map_err(|e| napi::Error::from_reason(e.to_string()))
+        Ok(
+            chromium_importer::chromium::import_logins(&browser, &profile_id)
+                .await?
+                .into_iter()
+                .map(LoginImportResult::from)
+                .collect(),
+        )
     }
 }

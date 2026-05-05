@@ -5,6 +5,7 @@ import * as path from "path";
 
 import * as inquirer from "inquirer";
 import * as JSZip from "jszip";
+import { firstValueFrom, Observable, of, timeout } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -251,8 +252,14 @@ export class CliUtils {
     return password;
   }
 
-  static convertBooleanOption(optionValue: any) {
-    return optionValue || optionValue === "" ? true : false;
+  static convertBooleanOption(optionValue: any): boolean {
+    if (typeof optionValue === "boolean") {
+      return optionValue;
+    }
+    if (typeof optionValue === "string") {
+      return optionValue === "" || optionValue.toLowerCase() === "true";
+    }
+    return false;
   }
 
   static convertNumberOption(optionValue: any, defaultValue: number) {
@@ -270,4 +277,16 @@ export class CliUtils {
   static convertStringOption(optionValue: any, defaultValue: string) {
     return optionValue != null ? String(optionValue) : defaultValue;
   }
+}
+
+/**
+ * Like `firstValueFrom`, but returns `null` instead of throwing if the observable
+ * doesn't emit within `timeoutMs` milliseconds. Useful for waiting on hot observables
+ * that may lag behind state writes.
+ */
+export async function firstValueFromOrNull<T>(
+  observable: Observable<T>,
+  timeoutMs = 5000,
+): Promise<T | null> {
+  return firstValueFrom(observable.pipe(timeout({ first: timeoutMs, with: () => of(null) })));
 }

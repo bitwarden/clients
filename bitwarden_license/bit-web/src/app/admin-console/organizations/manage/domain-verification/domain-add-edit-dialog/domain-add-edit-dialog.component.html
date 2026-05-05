@@ -28,9 +28,9 @@
             rel="noreferrer"
             href="https://bitwarden.com/help/claimed-accounts/"
             class="tw-inline-flex tw-items-center tw-gap-1"
+            endIcon="bwi-external-link"
           >
             {{ "accountOwnershipChange" | i18n }}
-            <i class="bwi bwi-external-link tw-text-xs" aria-hidden="true"></i>
           </a>
           {{ "automaticDomainClaimProcessEnd" | i18n }}
         </p>
@@ -69,7 +69,7 @@
         *ngIf="data.orgDomain"
         class="tw-ml-auto"
         bitIconButton="bwi-trash"
-        buttonType="danger"
+        buttonType="dangerGhost"
         size="default"
         label="{{ 'delete' | i18n }}"
         [bitAction]="deleteDomain"

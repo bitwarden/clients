@@ -9,7 +9,7 @@ import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vaul
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "../tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
-import { SendFiltersNavComponent } from "../tools/send-v2/send-filters-nav.component";
+import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 

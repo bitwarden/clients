@@ -4,6 +4,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
@@ -11,6 +12,8 @@ export class BlockClaimedDomainAccountCreationPolicy extends BasePolicyEditDefin
   name = "blockClaimedDomainAccountCreation";
   description = "blockClaimedDomainAccountCreationDesc";
   type = PolicyType.BlockClaimedDomainAccountCreation;
+  category = PolicyCategory.Authentication;
+  priority = 60;
   component = BlockClaimedDomainAccountCreationPolicyComponent;
 }
 
