@@ -5,7 +5,6 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
-  HostListener,
   Inject,
   Signal,
   ViewContainerRef,
@@ -196,14 +195,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       await this.dialogRef.close();
     }
   };
-
-  @HostListener("window:beforeunload", ["$event"])
-  onBeforeUnload(event: BeforeUnloadEvent): void {
-    if (this.discardGuardEnabled() && this.isFormDirty()) {
-      event.preventDefault();
-      event.returnValue = "";
-    }
-  }
 
   async ngAfterViewInit() {
     const policyResponse = await this.load();
