@@ -13427,6 +13427,18 @@
   "adminDeviceApprovalPushDesc": {
     "message": "A request has been sent to your Keeper administrator to approve this device. This dialog will close automatically when approved."
   },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
   "ssoAuthRequired": {
     "message": "SSO authentication required"
   },

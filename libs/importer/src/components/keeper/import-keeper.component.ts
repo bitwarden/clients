@@ -19,8 +19,10 @@ import {
 import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   CalloutModule,
   FormFieldModule,
@@ -33,6 +35,8 @@ import { KeeperRegion } from "../../importers/keeper/access";
 import { ImportResult } from "../../models";
 
 import { KeeperDirectImportService } from "./keeper-direct-import.service";
+
+export type KeeperImportMethod = "direct" | "csv" | "json";
 
 @Component({
   selector: "import-keeper",
@@ -54,8 +58,23 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
   private readonly logService = inject(LogService);
   private readonly keeperDirectImportService = inject(KeeperDirectImportService);
   private readonly i18nService = inject(I18nService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
 
   private readonly _parentFormGroup = signal<FormGroup | null>(null);
+
+  // Direct import requires platform APIs (deep-linking, native window) that
+  // only exist on desktop and the browser extension. CSV/Json work everywhere.
+  private readonly directSupported =
+    this.platformUtilsService.getClientType() === ClientType.Desktop ||
+    this.platformUtilsService.getClientType() === ClientType.Browser;
+
+  protected readonly methods: { value: KeeperImportMethod; label: string }[] = [
+    ...(this.directSupported
+      ? [{ value: "direct" as KeeperImportMethod, label: "directImporter" }]
+      : []),
+    { value: "csv", label: "csv" },
+    { value: "json", label: "json" },
+  ];
 
   protected readonly regions = [
     { value: KeeperRegion.Us, label: "US" },
@@ -66,16 +85,27 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     { value: KeeperRegion.UsGov, label: "US (GOV)" },
   ];
 
-  protected readonly formGroup = this.formBuilder.group({
-    email: [
-      "",
-      {
-        validators: [Validators.required, Validators.email],
-        asyncValidators: [this.validateAndEmitData()],
-        updateOn: "submit",
-      },
-    ],
-    region: [KeeperRegion.Us],
+  protected readonly formGroup = this.formBuilder.group(
+    {
+      // Method must update on change so the template can react before submit;
+      // the email validator runs on submit only.
+      method: this.formBuilder.nonNullable.control<KeeperImportMethod>(
+        this.directSupported ? "direct" : "csv",
+        { updateOn: "change" },
+      ),
+      email: ["", [Validators.email]],
+      region: [KeeperRegion.Us],
+    },
+    {
+      // Only the direct flow uses this validator; csv/json go through the
+      // parent's conventional file-based import path.
+      asyncValidators: [this.validateAndEmitDirect()],
+      updateOn: "submit",
+    },
+  );
+
+  protected readonly method = toSignal(this.formGroup.controls.method.valueChanges, {
+    initialValue: this.formGroup.controls.method.value as KeeperImportMethod,
   });
 
   protected readonly emailHint = toSignal(
@@ -102,12 +132,16 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Attempts to login to the provided Keeper email and retrieve account contents.
-   * Will return a validation error if unable to login or fetch.
-   * Emits account contents to `importCompleted`
+   * On submit in direct mode, logs into Keeper and emits the result. In
+   * csv/json mode this validator no-ops; the parent's performImport handles
+   * the file content via the conventional path.
    */
-  private validateAndEmitData(): AsyncValidatorFn {
+  private validateAndEmitDirect(): AsyncValidatorFn {
     return async () => {
+      if (this.formGroup.controls.method.value !== "direct") {
+        return null;
+      }
+
       try {
         const importResult = await this.keeperDirectImportService.handleImport(
           this.formGroup.controls.email.value!,

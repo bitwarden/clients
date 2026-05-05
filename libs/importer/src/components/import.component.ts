@@ -69,6 +69,9 @@ import {
   LinkModule,
 } from "@bitwarden/components";
 
+import { Importer } from "../importers/importer";
+import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
+import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
@@ -288,12 +291,30 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
   }
 
-  protected get showKeeperOptions(): boolean {
-    return (
-      this.format === "keeperdirect" &&
-      (this.platformUtilsService.getClientType() === ClientType.Desktop ||
-        this.platformUtilsService.getClientType() === ClientType.Browser)
-    );
+  protected get isKeeperFormat(): boolean {
+    return this.format === "keeper";
+  }
+
+  protected get keeperMethod(): "direct" | "csv" | "json" | undefined {
+    const subgroup = this.formGroup.get("keeperOptions");
+    return subgroup?.get("method")?.value;
+  }
+
+  // Factory only exposes "keeper"; csv/json variants are picked from the Method dropdown.
+  private resolveKeeperFileImporter(): Importer {
+    let importer: Importer;
+    switch (this.keeperMethod) {
+      case "csv":
+        importer = new KeeperCsvImporter();
+        break;
+      case "json":
+        importer = new KeeperJsonImporter();
+        break;
+      default:
+        throw new Error(`Unsupported Keeper method for file import: ${this.keeperMethod}`);
+    }
+    importer.organizationId = this.organizationId;
+    return importer;
   }
 
   async ngOnInit() {
@@ -480,10 +501,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    // Keeper direct import handles its own import via the importCompleted event,
-    // bypassing the file-based flow. Without this check, performImport would
-    // show a "Select a file" error since there's no file to import.
-    if (this.showKeeperOptions) {
+    // Keeper direct method handles its own import via the importCompleted
+    // event, bypassing the file-based flow. Csv/Json fall through to the
+    // conventional performImport() with an effective format of keepercsv/keeperjson.
+    if (this.isKeeperFormat && this.keeperMethod === "direct") {
       return;
     }
 
@@ -507,11 +528,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return await this.getFilePassword();
     };
 
-    const importer = this.importService.getImporter(
-      this.format,
-      promptForPassword_callback,
-      this.organizationId,
-    );
+    const importer = this.isKeeperFormat
+      ? this.resolveKeeperFileImporter()
+      : this.importService.getImporter(
+          this.format,
+          promptForPassword_callback,
+          this.organizationId,
+        );
 
     if (importer === null) {
       this.toastService.showToast({
