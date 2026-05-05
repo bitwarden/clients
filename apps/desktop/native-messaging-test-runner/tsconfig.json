@@ -6,6 +6,7 @@
     "target": "es6",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "sourceMap": false,
