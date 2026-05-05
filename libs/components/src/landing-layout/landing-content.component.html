@@ -1,6 +1,7 @@
 <div
   class="tw-flex tw-flex-col tw-flex-1 tw-items-center tw-bg-background-alt tw-p-5 tw-text-main"
-  [ngClass]="adjustedLayout() ? 'tw-pt-4' : 'tw-pt-12'"
+  [class.tw-pt-4]="adjustedLayout()"
+  [class.tw-pt-12]="!adjustedLayout()"
 >
   <div [class]="maxWidthClasses()">
     <ng-content select="bit-landing-hero"></ng-content>
