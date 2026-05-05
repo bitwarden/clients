@@ -230,6 +230,8 @@ export class ViewComponent {
       [CipherType.SecureNote]: "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
       [CipherType.BankAccount]: "viewItemHeaderBankAccount",
+      [CipherType.DriversLicense]: "viewItemHeaderDriversLicense",
+      [CipherType.Passport]: "viewItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
   }
