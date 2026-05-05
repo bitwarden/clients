@@ -1,5 +1,4 @@
-import { NgClass } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
 import { BitSvg } from "@bitwarden/assets/svg";
 
@@ -32,11 +31,15 @@ import { TypographyModule } from "../typography";
   selector: "bit-landing-hero",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./landing-hero.component.html",
-  imports: [NgClass, SvgModule, TypographyModule],
+  imports: [SvgModule, TypographyModule],
 })
 export class LandingHeroComponent {
   readonly icon = input<BitSvg | null>(null);
   readonly title = input<string | undefined>();
   readonly subtitle = input<string | undefined>();
   readonly adjustedLayout = input<boolean>(false);
+
+  protected readonly alignmentClasses = computed(() =>
+    this.adjustedLayout() ? "tw-text-left" : "tw-text-center tw-mx-auto",
+  );
 }
