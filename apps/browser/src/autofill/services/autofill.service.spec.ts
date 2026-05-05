@@ -114,7 +114,7 @@ describe("AutofillService", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation(() => of(false));
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getApiUrl.mockReturnValue("https://api.bitwarden.com");
