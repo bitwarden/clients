@@ -36,8 +36,22 @@ import { BerryComponent } from "@bitwarden/components";
 ## Count Behavior
 
 - Counts of **1-99**: Display in a compact circular shape
-- Counts of **100-999**: Display in a pill shape with padding
-- Counts **over 999**: Display as "999+" to prevent overflow
+- Counts of **100+**: Display in a pill shape with padding
+
+### Limiting displayed digits with `maxDigits`
+
+Use `maxDigits` to cap the number of digits shown. When the value reaches or exceeds `10^maxDigits`,
+the berry displays the maximum representable value followed by `+` to indicate overflow.
+
+| `maxDigits` | Cap threshold | Overflow display |
+| ----------- | ------------- | ---------------- |
+| `1`         | ≥ 10          | `9+`             |
+| `2`         | ≥ 100         | `99+`            |
+| `3`         | ≥ 1000        | `999+`           |
+
+If `maxDigits` is undefined, the full numeric value is displayed without a cap.
+
+<Canvas of={stories.WithMaxDigits} />
 
 ## Accessibility
 

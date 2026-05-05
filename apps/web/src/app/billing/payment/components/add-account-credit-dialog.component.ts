@@ -186,7 +186,7 @@ export class AddAccountCreditDialogComponent {
       switch (result.type) {
         case "success": {
           this.platformUtilsService.launchUri(result.value);
-          this.dialogRef.close("launched");
+          await this.dialogRef.close("launched");
           break;
         }
         case "error": {
@@ -195,14 +195,14 @@ export class AddAccountCreditDialogComponent {
             title: "",
             message: result.message,
           });
-          this.dialogRef.close("error");
+          await this.dialogRef.close("error");
           break;
         }
       }
     }
 
     this.payPalForm.nativeElement.submit();
-    this.dialogRef.close("launched");
+    await this.dialogRef.close("launched");
   };
 
   formatAmount = (): void => {

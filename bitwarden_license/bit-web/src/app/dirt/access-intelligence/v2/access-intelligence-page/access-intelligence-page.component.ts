@@ -13,7 +13,7 @@ import {
 import { toObservable, toSignal, takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, concat, distinctUntilChanged, filter, map, of, switchMap } from "rxjs";
-import { concatMap, delay, skip } from "rxjs/operators";
+import { concatMap, delay, finalize, skip } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -27,6 +27,8 @@ import {
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -43,9 +45,12 @@ import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.mod
 
 import { EmptyStateCardComponent } from "../../empty-state-card.component";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { PageLoadingComponent } from "../../shared/page-loading.component";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { ActivityTabComponent } from "../activity-tab/activity-tab.component";
+import { AllApplicationsTabComponent } from "../all-applications-tab/all-applications-tab.component";
 import { ApplicationsTabComponent } from "../applications-tab/applications-tab.component";
+import { CriticalApplicationsTabComponent } from "../critical-applications-tab/critical-applications-tab.component";
 import {
   AppAtRiskMembersData,
   CriticalAtRiskAppsData,
@@ -66,7 +71,9 @@ type ProgressStep = ReportProgress | null;
   templateUrl: "./access-intelligence-page.component.html",
   imports: [
     ActivityTabComponent,
+    AllApplicationsTabComponent,
     ApplicationsTabComponent,
+    CriticalApplicationsTabComponent,
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
@@ -74,6 +81,7 @@ type ProgressStep = ReportProgress | null;
     IconComponent,
     JslibModule,
     HeaderModule,
+    PageLoadingComponent,
     TabsModule,
     ReportLoadingComponent,
   ],
@@ -115,20 +123,29 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
   protected readonly emptyStateVideoSrc: string | null =
     "/videos/risk-insights-mark-as-critical.mp4";
 
-  protected readonly currentDialogRef = signal<DialogRef<
-    unknown,
-    AccessIntelligenceDrawerV2Component
-  > | null>(null);
+  protected readonly currentDialogRef = signal<
+    DialogRef<unknown, AccessIntelligenceDrawerV2Component> | undefined
+  >(undefined);
 
   // Prevents jarring quick transitions between progress steps
   private readonly STEP_DISPLAY_DELAY_MS = 250;
 
+  protected readonly initializing = signal(true);
   protected readonly currentProgressStep = signal<ProgressStep>(null);
 
   protected readonly hasReportData = computed(() => {
     const report = this.report();
     return report !== null && report !== undefined && report.reports.length > 0;
   });
+
+  protected readonly criticalAppsCount = computed(
+    () => this.report()?.getCriticalApplications().length ?? 0,
+  );
+
+  readonly milestone11Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Milestone11AppPageImprovements),
+    { initialValue: false },
+  );
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -138,6 +155,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     protected readonly i18nService: I18nService,
     private readonly dialogService: DialogService,
     private readonly logService: LogService,
+    private readonly configService: ConfigService,
   ) {
     this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
       this.tabIndex.set(
@@ -181,8 +199,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
         map((params) => params.get("organizationId")),
         filter(Boolean),
         switchMap((orgId) => {
+          this.initializing.set(true);
           this.organizationId.set(orgId as OrganizationId);
-          return this.accessIntelligenceService.initializeForOrganization$(orgId as OrganizationId);
+          return this.accessIntelligenceService
+            .initializeForOrganization$(orgId as OrganizationId)
+            .pipe(finalize(() => this.initializing.set(false)));
         }),
       )
       .subscribe();
@@ -190,11 +211,11 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     this.setupDrawerSubscription();
 
     // Close any open dialogs (happens when navigating between orgs)
-    this.currentDialogRef()?.close();
+    void this.currentDialogRef()?.close();
   }
 
   ngOnDestroy(): void {
-    this.currentDialogRef()?.close();
+    void this.currentDialogRef()?.close();
   }
 
   /**
@@ -225,7 +246,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     // Reset drawer state and close drawer when tabs are changed
     // This ensures card selection state is cleared (PM-29263)
     this.drawerStateService.closeDrawer();
-    this.currentDialogRef()?.close();
+    await this.currentDialogRef()?.close();
   }
 
   /**
@@ -267,11 +288,13 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       )
       .subscribe((content) => {
         if (content) {
-          this.currentDialogRef.set(
-            this.dialogService.openDrawer(AccessIntelligenceDrawerV2Component, { data: content }),
-          );
+          void this.dialogService
+            .openDrawer(AccessIntelligenceDrawerV2Component, {
+              data: content,
+            })
+            .then((drawerRef) => this.currentDialogRef.set(drawerRef));
         } else {
-          this.currentDialogRef()?.close();
+          void this.currentDialogRef()?.close();
         }
       });
   }

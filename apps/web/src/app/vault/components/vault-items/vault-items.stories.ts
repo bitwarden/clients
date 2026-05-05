@@ -127,7 +127,7 @@ export default {
           useValue: {
             getFeatureFlag$() {
               // does not currently affect any display logic, default all to OFF
-              return false;
+              return of(false);
             },
           },
         },
@@ -162,6 +162,22 @@ export default {
               type: null,
             }),
           },
+        },
+        {
+          provide: AccountService,
+          useValue: {
+            async getAccount() {
+              return { id: "account-id", profile: { name: "Foo" } };
+            },
+          } as Partial<AccountService>,
+        },
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            isDesktop() {
+              return false;
+            },
+          } as Partial<PlatformUtilsService>,
         },
         {
           provide: PremiumUpgradePromptService,

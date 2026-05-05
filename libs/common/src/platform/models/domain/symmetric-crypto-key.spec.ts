@@ -10,7 +10,7 @@ describe("SymmetricCryptoKey", () => {
       new SymmetricCryptoKey(null);
     };
 
-    expect(t).toThrowError("Must provide key");
+    expect(t).toThrow("Must provide key");
   });
 
   describe("guesses encKey from key length", () => {
@@ -47,7 +47,7 @@ describe("SymmetricCryptoKey", () => {
         new SymmetricCryptoKey(makeStaticByteArray(30));
       };
 
-      expect(t).toThrowError(`Unsupported encType/key length 30`);
+      expect(t).toThrow(`Unsupported encType/key length 30`);
     });
   });
 

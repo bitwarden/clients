@@ -7,6 +7,7 @@ import {
   inject,
   Input,
   Output,
+  output,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
@@ -22,7 +23,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -122,12 +122,14 @@ export class VaultHeaderComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeleteCollection = new EventEmitter<void>();
 
+  /** Emits an event when the add item dialog should be opened */
+  readonly onOpenAddItemDialog = output<void>();
+
   constructor(
     private readonly i18nService: I18nService,
     private readonly collectionAdminService: CollectionAdminService,
     private readonly dialogService: DialogService,
     private readonly router: Router,
-    private readonly configService: ConfigService,
     private readonly accountService: AccountService,
   ) {}
 
@@ -255,6 +257,10 @@ export class VaultHeaderComponent {
 
   protected addCipher(cipherType?: CipherType) {
     this.onAddCipher.emit(cipherType);
+  }
+
+  protected openAddItemDialog(): void {
+    this.onOpenAddItemDialog.emit();
   }
 
   async addFolder(): Promise<void> {

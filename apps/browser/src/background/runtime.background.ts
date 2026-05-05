@@ -87,6 +87,7 @@ export default class RuntimeBackground {
         BiometricsCommands.GetBiometricsStatusForUser,
         BiometricsCommands.CanEnableBiometricUnlock,
         "getUserPremiumStatus",
+        "getUrlAutofillTargetingRules",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -220,6 +221,9 @@ export default class RuntimeBackground {
         );
         return result;
       }
+      case "getUrlAutofillTargetingRules": {
+        return await this.main.domainSettingsService.getTargetingRulesForUrl(sender.tab?.url);
+      }
     }
   }
 
@@ -319,6 +323,7 @@ export default class RuntimeBackground {
           await this.main.updateOverlayCiphers();
 
           await this.autofillService.setAutoFillOnPageLoadOrgPolicy();
+          void this.main.targetingRulesDataService.forceUpdate();
         }
         break;
       case "openPopup":
