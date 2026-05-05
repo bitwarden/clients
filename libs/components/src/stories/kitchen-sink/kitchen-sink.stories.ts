@@ -123,9 +123,14 @@ async function openSideNav(canvas: HTMLElement) {
   );
   if (toggleButton.getAttribute("aria-expanded") === "false") {
     await userEvent.click(toggleButton);
-    await waitFor(() => {
-      if (toggleButton.getAttribute("aria-expanded") !== "true") {throw new Error();}
-    });
+    await waitFor(
+      () => {
+        // Re-query to avoid reading a stale reference after Angular re-renders the element.
+        const btn = getByRole(canvas, "button", { name: "Toggle side navigation" });
+        if (btn.getAttribute("aria-expanded") !== "true") {throw new Error();}
+      },
+      { timeout: 5000 },
+    );
   }
 }
 
@@ -193,7 +198,9 @@ export const SimpleDialogOpen: Story = {
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(submitButton);
-    await waitFor(() => getByRole(canvas.ownerDocument.body, "dialog"));
+    await waitFor(() => {
+      if (!canvas.ownerDocument.querySelector("cdk-dialog-container")) {throw new Error();}
+    });
   },
 };
 
@@ -216,7 +223,9 @@ export const VirtualScrollBlockingDialog: Story = {
     });
 
     await userEvent.click(dialogButton);
-    await waitFor(() => getByRole(canvas.ownerDocument.body, "dialog"));
+    await waitFor(() => {
+      if (!canvas.ownerDocument.querySelector("cdk-dialog-container")) {throw new Error();}
+    });
   },
 };
 
