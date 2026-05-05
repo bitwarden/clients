@@ -552,64 +552,15 @@ export class CipherService implements CipherServiceAbstraction {
       return [[], []];
     }
 
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
-      const decryptStartTime = performance.now();
-
-      const result = await this.decryptCiphersWithSdk(ciphers, userId, true);
-
-      this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
-        ["Items", ciphers.length],
-      ]);
-
-      return result;
-    }
-
-    const keys = await firstValueFrom(this.keyService.cipherDecryptionKeys$(userId));
-    if (keys == null || (keys.userKey == null && Object.keys(keys.orgKeys).length === 0)) {
-      // return early if there are no keys to decrypt with
-      return null;
-    }
-    // Group ciphers by orgId or under 'null' for the user's ciphers
-    const grouped = ciphers.reduce(
-      (agg, c) => {
-        agg[c.organizationId] ??= [];
-        agg[c.organizationId].push(c);
-        return agg;
-      },
-      {} as Record<string, Cipher[]>,
-    );
     const decryptStartTime = performance.now();
-    const allCipherViews = (
-      await Promise.all(
-        Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
-          const key = keys.orgKeys[orgId as OrganizationId] ?? keys.userKey;
-          return await Promise.all(
-            groupedCiphers.map(async (cipher) => {
-              return await cipher.decrypt(key);
-            }),
-          );
-        }),
-      )
-    )
-      .flat()
-      .sort(this.getLocaleSortingFunction());
+
+    const result = await this.decryptCiphersWithSdk(ciphers, userId, true);
 
     this.logService.measure(decryptStartTime, "Vault", "CipherService", "decrypt complete", [
       ["Items", ciphers.length],
     ]);
 
-    // Split ciphers into two arrays, one for successfully decrypted ciphers and one for ciphers that failed to decrypt
-    return allCipherViews.reduce(
-      (acc, c) => {
-        if (c.decryptionFailure) {
-          acc[1].push(c);
-        } else {
-          acc[0].push(c);
-        }
-        return acc;
-      },
-      [[], []] as [CipherView[], CipherView[]],
-    );
+    return result;
   }
 
   /**
@@ -619,12 +570,7 @@ export class CipherService implements CipherServiceAbstraction {
    * @returns A promise that resolves to the decrypted cipher view.
    */
   async decrypt(cipher: Cipher, userId: UserId): Promise<CipherView> {
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM19941MigrateCipherDomainToSdk)) {
-      return await this.cipherEncryptionService.decrypt(cipher, userId);
-    } else {
-      const encKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
-      return await cipher.decrypt(encKey);
-    }
+    return await this.cipherEncryptionService.decrypt(cipher, userId);
   }
 
   async getAllDecryptedForGrouping(
@@ -1898,15 +1844,11 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     useLegacyDecryption?: boolean,
   ): Promise<Uint8Array> {
-    const useSdkDecryption = await this.configService.getFeatureFlag(
-      FeatureFlag.PM19941MigrateCipherDomainToSdk,
-    );
-
     const cipherDomain = await firstValueFrom(
       this.ciphers$(userId).pipe(map((ciphersData) => new Cipher(ciphersData[cipherId]))),
     );
 
-    if (useSdkDecryption && !useLegacyDecryption) {
+    if (!useLegacyDecryption) {
       const encryptedContent = await response.arrayBuffer();
       return this.cipherEncryptionService.decryptAttachmentContent(
         cipherDomain,
@@ -1916,6 +1858,8 @@ export class CipherService implements CipherServiceAbstraction {
       );
     }
 
+    // The SDK doesn't currently support emergency access for attachments, so we need to keep this legacy path
+    // until the SDK is updated to support it.
     const encBuf = await EncArrayBuffer.fromResponse(response);
     const key =
       attachment.key != null
