@@ -6006,8 +6006,15 @@
   "downloadAttachments": {
     "message": "Download attachments"
   },
-  "downloadEventLogs": {
-    "message": "Download event logs"
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "Experiencing an issue? Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
     "message": "Download"
