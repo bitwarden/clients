@@ -22,6 +22,17 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkResponseModel(r);
   }
 
+  async get(organizationId: string): Promise<OrganizationInviteLinkResponseModel> {
+    const r = await this.apiService.send(
+      "GET",
+      `/organizations/${organizationId}/invite-link`,
+      null,
+      true,
+      true,
+    );
+    return new OrganizationInviteLinkResponseModel(r);
+  }
+
   async update(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
@@ -30,17 +41,6 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
       "PUT",
       `/organizations/${organizationId}/invite-link`,
       request,
-      true,
-      true,
-    );
-    return new OrganizationInviteLinkResponseModel(r);
-  }
-
-  async get(organizationId: string): Promise<OrganizationInviteLinkResponseModel> {
-    const r = await this.apiService.send(
-      "GET",
-      `/organizations/${organizationId}/invite-link`,
-      null,
       true,
       true,
     );

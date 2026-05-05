@@ -50,10 +50,12 @@ import {
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
@@ -453,6 +455,7 @@ export default class MainBackground {
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
+  newPolicyService: InternalNewPolicyService;
   sendService: InternalSendServiceAbstraction;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadServiceAbstraction;
@@ -798,6 +801,8 @@ export default class MainBackground {
       this.accountService,
     );
 
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
+
     const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
       this.platformUtilsService,
     );
@@ -854,6 +859,7 @@ export default class MainBackground {
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(
       this.policyService,
+      this.newPolicyService,
       this.apiService,
       this.accountService,
     );
@@ -1153,6 +1159,7 @@ export default class MainBackground {
       this.collectionService,
       this.messagingService,
       this.policyService,
+      this.newPolicyService,
       this.sendService,
       this.logService,
       this.keyConnectorService,
@@ -1342,6 +1349,7 @@ export default class MainBackground {
       this.authRequestAnsweringService,
       this.configService,
       this.policyService,
+      this.newPolicyService,
       this.autoConfirmService,
     );
 
