@@ -10,6 +10,7 @@ import {
   formContainsKeyword,
   isNonLoginUsernameField,
   isAmbiguousFieldNonLogin,
+  KeywordMatchMode,
 } from "./qualification";
 
 function neutralField(overrides = {}) {
@@ -64,13 +65,13 @@ describe("fieldContainsKeyword", () => {
   it("matchesToken mode: matches a keyword that is exactly a token", () => {
     const field = createAutofillFieldMock({ htmlName: "email" });
 
-    expect(fieldContainsKeyword(field, ["email"], "matchesToken")).toBe(true);
+    expect(fieldContainsKeyword(field, ["email"], KeywordMatchMode.MatchesToken)).toBe(true);
   });
 
   it("matchesToken mode: does not match when keyword is only part of a token", () => {
     const field = createAutofillFieldMock({ htmlName: "emailaddress" });
 
-    expect(fieldContainsKeyword(field, ["email"], "matchesToken")).toBe(false);
+    expect(fieldContainsKeyword(field, ["email"], KeywordMatchMode.MatchesToken)).toBe(false);
   });
 
   it("caching: second call on same field uses cached data without re-computing", () => {
@@ -181,13 +182,13 @@ describe("formContainsKeyword", () => {
   it("matchesToken mode: matches a keyword that is exactly a token", () => {
     const form = createAutofillFormMock({ htmlName: "newsletter" });
 
-    expect(formContainsKeyword(form, ["newsletter"], "matchesToken")).toBe(true);
+    expect(formContainsKeyword(form, ["newsletter"], KeywordMatchMode.MatchesToken)).toBe(true);
   });
 
   it("matchesToken mode: does not match when keyword is only part of a token", () => {
     const form = createAutofillFormMock({ htmlName: "newslettersubscribe" });
 
-    expect(formContainsKeyword(form, ["newsletter"], "matchesToken")).toBe(false);
+    expect(formContainsKeyword(form, ["newsletter"], KeywordMatchMode.MatchesToken)).toBe(false);
   });
 
   it("hyphenated keyword: strips hyphens before matching so 'mailing-list' matches htmlClass 'mailinglist'", () => {

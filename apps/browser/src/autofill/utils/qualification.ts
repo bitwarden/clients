@@ -3,6 +3,12 @@ import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutoFillConstants } from "../services/autofill-constants";
 
+export const KeywordMatchMode = Object.freeze({
+  AppearsWithin: "appearsWithin",
+  MatchesToken: "matchesToken",
+} as const);
+export type KeywordMatchMode = (typeof KeywordMatchMode)[keyof typeof KeywordMatchMode];
+
 // Module-level cache
 const autofillFieldKeywordsCache: WeakMap<
   AutofillField,
@@ -85,11 +91,11 @@ function buildAutofillFieldKeywords(field: AutofillField) {
 export function fieldContainsKeyword(
   field: AutofillField,
   keywords: readonly string[],
-  mode: "appearsWithin" | "matchesToken" = "appearsWithin",
+  mode: KeywordMatchMode = KeywordMatchMode.AppearsWithin,
 ): boolean {
   const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
   const { keywordsSet, stringValue } = buildAutofillFieldKeywords(field);
-  if (mode === "appearsWithin") {
+  if (mode === KeywordMatchMode.AppearsWithin) {
     return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
   }
   return parsedKeywords.some((k) => keywordsSet.has(k));
@@ -103,11 +109,11 @@ export function fieldContainsKeyword(
 export function formContainsKeyword(
   form: AutofillForm,
   keywords: readonly string[],
-  mode: "appearsWithin" | "matchesToken" = "appearsWithin",
+  mode: KeywordMatchMode = KeywordMatchMode.AppearsWithin,
 ): boolean {
   const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
   const { keywordsSet, stringValue } = buildAutofillFormKeywords(form);
-  if (mode === "appearsWithin") {
+  if (mode === KeywordMatchMode.AppearsWithin) {
     return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
   }
   return parsedKeywords.some((k) => keywordsSet.has(k));
