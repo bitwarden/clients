@@ -1,4 +1,4 @@
-import { importProvidersFrom } from "@angular/core";
+import { importProvidersFrom, signal } from "@angular/core";
 import {
   applicationConfig,
   componentWrapperDecorator,
@@ -253,11 +253,9 @@ export const TwentyFourDataPoints: Story = {
   },
 };
 
-/**
- * Helper used by the All-time stories below to flip the period selector to
- * "All time" so the chart renders the All-time code path in Storybook and
- * Chromatic, mirroring the unit-test coverage in trend-widget.component.spec.ts.
- */
+const REFERENCE_TODAY = "2026-04-30T12:00:00Z";
+
+/** Drives the period selector to "All time". */
 async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
   const canvas = within(canvasElement);
   // The trigger button's accessible name comes from aria-label="Time period";
@@ -276,25 +274,23 @@ async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
  * Renders the narrowest multi-day window the chart supports.
  */
 export const AllTimeNarrowSpan: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      selectedTimespan: signal(TimePeriod.AllTime),
+    },
+  }),
   args: {
     data: {
       timeframe: TimePeriod.AllTime,
       dataView: "applications",
-      dataPoints: (() => {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const today = new Date();
-        return [
-          { timestamp: yesterday.toISOString(), atRisk: 12, total: 50 },
-          { timestamp: today.toISOString(), atRisk: 14, total: 50 },
-        ];
-      })(),
+      dataPoints: [
+        { timestamp: "2026-04-29T12:00:00Z", atRisk: 12, total: 50 },
+        { timestamp: REFERENCE_TODAY, atRisk: 14, total: 50 },
+      ],
     },
     loading: false,
     error: null,
-  },
-  play: async ({ canvasElement }) => {
-    await selectAllTime(canvasElement);
   },
 };
 
@@ -303,17 +299,20 @@ export const AllTimeNarrowSpan: Story = {
  * Renders the chart's behavior when only one report exists for the org.
  */
 export const AllTimeSingleDay: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      selectedTimespan: signal(TimePeriod.AllTime),
+    },
+  }),
   args: {
     data: {
       timeframe: TimePeriod.AllTime,
       dataView: "passwords",
-      dataPoints: [{ timestamp: new Date().toISOString(), atRisk: 45, total: 180 }],
+      dataPoints: [{ timestamp: REFERENCE_TODAY, atRisk: 45, total: 180 }],
     },
     loading: false,
     error: null,
-  },
-  play: async ({ canvasElement }) => {
-    await selectAllTime(canvasElement);
   },
 };
 
@@ -322,25 +321,43 @@ export const AllTimeSingleDay: Story = {
  * Renders the wide-span case where the chart fits to the data range.
  */
 export const AllTimeWideSpan: Story = {
+  render: (args) => ({
+    props: {
+      ...args,
+      selectedTimespan: signal(TimePeriod.AllTime),
+    },
+  }),
   args: {
     data: {
       timeframe: TimePeriod.AllTime,
       dataView: "members",
-      dataPoints: (() => {
-        const sixMonthsAgo = new Date();
-        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-        const threeMonthsAgo = new Date();
-        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-        const oneMonthAgo = new Date();
-        oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-        const today = new Date();
-        return [
-          { timestamp: sixMonthsAgo.toISOString(), atRisk: 80, total: 400 },
-          { timestamp: threeMonthsAgo.toISOString(), atRisk: 95, total: 410 },
-          { timestamp: oneMonthAgo.toISOString(), atRisk: 110, total: 420 },
-          { timestamp: today.toISOString(), atRisk: 130, total: 430 },
-        ];
-      })(),
+      dataPoints: [
+        { timestamp: "2025-10-30T12:00:00Z", atRisk: 80, total: 400 },
+        { timestamp: "2026-01-30T12:00:00Z", atRisk: 95, total: 410 },
+        { timestamp: "2026-03-30T12:00:00Z", atRisk: 110, total: 420 },
+        { timestamp: REFERENCE_TODAY, atRisk: 130, total: 430 },
+      ],
+    },
+    loading: false,
+    error: null,
+  },
+};
+
+/**
+ * Starts in Past month and clicks the period selector to "All time".
+ * Excluded from autodocs and Chromatic.
+ */
+export const AllTimeFullFlow: Story = {
+  tags: ["!autodocs"],
+  parameters: { chromatic: { disableSnapshot: true } },
+  args: {
+    data: {
+      timeframe: TimePeriod.PastMonth,
+      dataView: "applications",
+      dataPoints: [
+        { timestamp: "2026-04-29T12:00:00Z", atRisk: 12, total: 50 },
+        { timestamp: REFERENCE_TODAY, atRisk: 14, total: 50 },
+      ],
     },
     loading: false,
     error: null,
