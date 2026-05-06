@@ -1,0 +1,42 @@
+<bit-dialog [title]="'recoverAccount' | i18n" [subtitle]="dialogData.email">
+  <ng-container bitDialogContent>
+    <p>{{ "recoverAccountWarning" | i18n }}</p>
+
+    <form [formGroup]="form" class="tw-flex tw-flex-col tw-gap-2">
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="resetMasterPassword" />
+        <bit-label>{{ "resetMasterPassword" | i18n }}</bit-label>
+      </bit-form-control>
+
+      @if (form.value.resetMasterPassword) {
+        <auth-input-password
+          [flow]="inputPasswordFlow"
+          [masterPasswordPolicyOptions]="masterPasswordPolicyOptions$ | async"
+        ></auth-input-password>
+      }
+
+      <bit-form-control>
+        <input type="checkbox" bitCheckbox formControlName="resetTwoFactor" />
+        <bit-label>{{ "resetTwoStepLogin" | i18n }}</bit-label>
+        <bit-hint *ngIf="twoFactorPolicyEnabled$ | async">{{
+          "resetTwoStepLoginDesc" | i18n
+        }}</bit-hint>
+      </bit-form-control>
+    </form>
+  </ng-container>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [bitAction]="handlePrimaryButtonClick"
+      [disabled]="!form.value.resetMasterPassword && !form.value.resetTwoFactor"
+    >
+      {{ "save" | i18n }}
+    </button>
+    <button type="button" bitButton buttonType="secondary" bitDialogClose>
+      {{ "cancel" | i18n }}
+    </button>
+  </ng-container>
+</bit-dialog>

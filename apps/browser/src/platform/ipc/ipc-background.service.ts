@@ -29,10 +29,30 @@ export class IpcBackgroundService extends IpcService {
       // This function uses classes and functions defined in the SDK, so we need to wait for the SDK to load.
       await SdkLoadService.Ready;
       this.communicationBackend = new IpcCommunicationBackend({
-        async send(message: OutgoingMessage): Promise<void> {
-          if (typeof message.destination === "object" && message.destination.Web != undefined) {
+        send: async (message: OutgoingMessage): Promise<void> => {
+          if (typeof message.destination === "object" && "Web" in message.destination) {
+            try {
+              const frame = await chrome.webNavigation.getFrame({
+                tabId: message.destination.Web.tab_id,
+                frameId: 0,
+              });
+              if (
+                frame?.documentId != null &&
+                frame.documentId !== message.destination.Web.document_id
+              ) {
+                this.logService.warning("[IPC] Dropping message to Web tab: document has changed");
+                return;
+              }
+            } catch {
+              // Tab may have been closed, or API not available. Drop the message.
+              this.logService.warning(
+                "[IPC] Dropping message to Web tab: tab no longer accessible",
+              );
+              return;
+            }
+
             await BrowserApi.tabSendMessage(
-              { id: message.destination.Web.id } as chrome.tabs.Tab,
+              { id: message.destination.Web.tab_id } as chrome.tabs.Tab,
               {
                 type: "bitwarden-ipc-message",
                 message: {
@@ -51,7 +71,11 @@ export class IpcBackgroundService extends IpcService {
       });
 
       BrowserApi.messageListener("platform.ipc", (message, sender) => {
-        if (!isIpcMessage(message) || message.message.destination !== "BrowserBackground") {
+        if (
+          !isIpcMessage(message) ||
+          typeof message.message.destination !== "object" ||
+          !("BrowserBackground" in message.message.destination)
+        ) {
           return;
         }
 
@@ -60,12 +84,23 @@ export class IpcBackgroundService extends IpcService {
           return;
         }
 
+        if (sender.documentId === undefined) {
+          this.logService.warning(
+            "[IPC] Received message from tab without documentId (unsupported browser version)",
+          );
+          return;
+        }
+
         this.communicationBackend?.receive(
           new IncomingMessage(
             new Uint8Array(message.message.payload),
             message.message.destination,
             {
-              Web: { id: sender.tab.id },
+              Web: {
+                tab_id: sender.tab.id,
+                document_id: sender.documentId,
+                origin: sender.origin ?? "",
+              },
             },
             message.message.topic,
           ),

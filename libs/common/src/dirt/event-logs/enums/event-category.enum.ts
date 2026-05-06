@@ -47,6 +47,10 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.Cipher_Restored,
     EventType.Cipher_ClientToggledCardNumberVisible,
     EventType.Cipher_ClientToggledTOTPSeedVisible,
+    EventType.Cipher_ClientCopiedBankAccountNumber,
+    EventType.Cipher_ClientCopiedBankAccountPin,
+    EventType.Cipher_ClientToggledBankAccountNumberVisible,
+    EventType.Cipher_ClientToggledBankAccountPinVisible,
   ],
   [EventCategory.CollectionEvents]: [
     EventType.Collection_Created,
@@ -68,6 +72,7 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.OrganizationUser_ResetPassword_Enroll,
     EventType.OrganizationUser_ResetPassword_Withdraw,
     EventType.OrganizationUser_AdminResetPassword,
+    EventType.OrganizationUser_AdminResetTwoFactor,
     EventType.OrganizationUser_ResetSsoLink,
     EventType.OrganizationUser_FirstSsoLogin,
     EventType.OrganizationUser_Revoked,
@@ -77,6 +82,8 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.OrganizationUser_Deleted,
     EventType.OrganizationUser_Left,
     EventType.OrganizationUser_SelfRevoked,
+    EventType.OrganizationUser_Revoked_TwoFactorNonCompliance,
+    EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance,
   ],
   [EventCategory.OrganizationEvents]: [
     EventType.Organization_Updated,

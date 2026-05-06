@@ -54,6 +54,8 @@ export default {
               submenu: "submenu",
               toggleCollapse: "toggle collapse",
               loading: "Loading",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
             });
           },
         },
@@ -115,6 +117,7 @@ export const ContentSlots: Story = {
           <bit-avatar
             slot="start"
             text="Foo"
+            size="lg"
           ></bit-avatar>
           foo&#64;bitwarden.com
           <ng-container slot="secondary">
@@ -203,7 +206,7 @@ export const TextOverflowWrap: Story = {
 };
 
 const multipleActionListTemplate = /*html*/ `
-  <bit-item-group aria-label="Multiple Action List">
+  <bit-item-group>
     <bit-item>
       <button type="button" bit-item-content>
         <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>
@@ -332,7 +335,7 @@ export const SingleActionList: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-item-group aria-label="Single Action List">
+      <bit-item-group>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
@@ -378,7 +381,7 @@ export const SingleActionWithBadge: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-item-group aria-label="Single Action With Badge">
+      <bit-item-group>
         <bit-item>
           <a bit-item-content href="#">
             Foobar
@@ -416,7 +419,7 @@ export const VirtualScrolling: Story = {
     },
     template: /*html*/ `
       <cdk-virtual-scroll-viewport [itemSize]="54" class="tw-h-[500px]">
-        <bit-item-group aria-label="Virtual Scrolling">
+        <bit-item-group>
           <bit-item *cdkVirtualFor="let item of data">
             <button type="button" bit-item-content>
               <i slot="start" class="bwi bwi-globe tw-text-2xl tw-text-muted" aria-hidden="true"></i>

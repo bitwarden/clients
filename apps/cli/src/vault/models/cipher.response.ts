@@ -30,11 +30,11 @@ export class CipherResponse extends CipherWithIdExport implements BaseResponse {
       this.creationDate = o.creationDate;
     }
     this.deletedDate = o.deletedDate;
-    if (o.passwordHistory != null) {
+    if (o.passwordHistory != null && o.viewPassword !== false) {
       this.passwordHistory = o.passwordHistory.map((h) => new PasswordHistoryResponse(h));
     }
     if (o.type === CipherType.Login && o.login != null) {
-      this.login = new LoginResponse(o.login);
+      this.login = new LoginResponse(o.login, o.viewPassword);
     }
   }
 }

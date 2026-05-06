@@ -11,8 +11,11 @@
   "activity": {
     "message": "Aktivita"
   },
-  "applicationsAtRisk": {
-    "message": "Ohrožené aplikace"
+  "criticalAppsAtRisk": {
+    "message": "Kritické rizikové aplikace"
+  },
+  "allCriticalApps": {
+    "message": "Všechny kritické aplikace"
   },
   "appLogoLabel": {
     "message": "Logo Bitwarden"
@@ -325,6 +328,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Nepodařilo se označit aplikace jako kritické"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Nepodařilo se zrušit označení aplikace jako kritické"
+  },
   "application": {
     "message": "Aplikace"
   },
@@ -631,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Zobrazit detekci shody"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Skrýt detekci shody"
+  },
   "autoFillOnPageLoad": {
     "message": "Automaticky vyplnit při načtení stránky?"
   },
@@ -750,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "Bitwarden umí ukládat a vyplňovat dvoufázové ověřovací kódy. Vyberte ikonu fotoaparátu a pořiďte snímek obrazovky ověřovacího QR kódu této webové stránky nebo klíč zkopírujte a vložte do tohoto pole."
+  },
+  "totpCapture": {
+    "message": "Naskenovat QR kód z aktuální webové stránky"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Zjistěte více o autentizátorech"
@@ -982,6 +997,27 @@
   "typeSshKey": {
     "message": "SSH klíč"
   },
+  "typeLoginSubtitle": {
+    "message": "Webová stránka nebo aplikace"
+  },
+  "typeCardSubtitle": {
+    "message": "Kreditní nebo debetní karta"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Osobní informace"
+  },
+  "typeNoteSubtitle": {
+    "message": "Důležitý text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Přihlašovací token serveru"
+  },
+  "folderSubtitle": {
+    "message": "Uspořádat položky"
+  },
+  "collectionSubtitle": {
+    "message": "Uspořádat sdílené položky"
+  },
   "typeLoginPlural": {
     "message": "Přihlašovací údaje"
   },
@@ -1050,6 +1086,9 @@
   },
   "addItem": {
     "message": "Přidat položku"
+  },
+  "chooseItemToAdd": {
+    "message": "Vyberte položku k přidání"
   },
   "editItem": {
     "message": "Upravit položku"
@@ -3913,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Pozvěte nového uživatele do Vaší organizace zadáním e-mailové adresy jeho účtu na Bitwardenu. Pokud ještě nemá účet na Bitwardenu, bude vyzván k vytvoření nového účtu."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "Zadejte až $COUNT$ e-mailů oddělených čárkou.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Zadejte až $BATCHLIMIT$ e-mailů oddělených čárkou (zbývá $REMAININGSEATS$ uživatelů).",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3927,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "Zbývá Vám 0 pozvánek."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Zadejte až $BATCHLIMIT$ e-mailů najednou, oddělených čárkami.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Tento uživatel používá pro ochranu svého účtu dvoufázové přihlášení."
@@ -4301,6 +4353,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "1 nebo více e-mailů patří odvolaným členům. Pro opětovné pozvání obnovte jejich přístup."
+  },
   "restoredUserId": {
     "message": "Byl obnoven přístup do organizace uživateli $ID$.",
     "placeholders": {
@@ -4450,6 +4505,24 @@
   },
   "loginStatus": {
     "message": "Stav přihlášení"
+  },
+  "recentlyActive": {
+    "message": "Nedávná aktivita"
+  },
+  "recentlyActiveToday": {
+    "message": "Dnes"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Posledních 7 dnů"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Posledních 14 dnů"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Posledních 30 dnů"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Před více než 30 dny"
   },
   "firstLogin": {
     "message": "První přihlášení"
@@ -5176,6 +5249,12 @@
   },
   "atAnyTime": {
     "message": "můžete kdykoli."
+  },
+  "byEmail": {
+    "message": "E-mailem"
+  },
+  "byLink": {
+    "message": "Pomocí odkazu"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Pokračováním souhlasíte s dokumenty"
@@ -6238,6 +6317,16 @@
     "message": "Z důvodu podnikových zásad můžete smazat pouze existující Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Ovládání Send"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Nastavte volby pro vytváření a úpravu Send, včetně možnosti odebrat Send.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Uživatelé organizace, kteří mohou spravovat zásady organizace, jsou od prosazování těchto zásad osvobozeni."
+  },
   "sendOptions": {
     "message": "Volby Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6593,6 +6682,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Hlavní heslo uživatele $ID$ bylo resetováno.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Reset dvoufázového přihlášení pro uživatele $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7051,6 +7149,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Akce časového limitu relace"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Spravováno rozšířením prohlížeče Bitwarden. Pro úpravu otevřete rozšíření prohlížeče."
   },
   "immediately": {
     "message": "Okamžitě"
@@ -8203,6 +8304,10 @@
     "message": "Kopírovat klíč SCIM API do schránky",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Zobrazit klíč SCIM API",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Měnit klíč SCIM API",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8233,6 +8338,28 @@
   "scimSettingsSaved": {
     "message": "Nastavení SCIM bylo uloženo",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Je povolena jen jedna integrace tohoto typu ($TYPE$). Konfliktní integrace je: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Již existuje jiná integrace se stejným typem ($TYPE$). Obnovte prohlížeč a zkuste to znovu.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Je vyžadován vstup."
@@ -8395,6 +8522,15 @@
   },
   "pink": {
     "message": "Růžová"
+  },
+  "coral": {
+    "message": "Korálová"
+  },
+  "purple": {
+    "message": "Fialová"
+  },
+  "blue": {
+    "message": "Modrá"
   },
   "customColor": {
     "message": "Vlastní barva"
@@ -9446,6 +9582,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "Uživatel se pokusil vstoupit na známý phishingový web"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "Uživatel opustil stránku s varováním o phishingu"
+  },
+  "phishingBlockerBypassed": {
+    "message": "Uživatel obešel varování o phishingu"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -9690,6 +9835,30 @@
   },
   "recoverAccount": {
     "message": "Obnovit účet"
+  },
+  "recoverAccountWarning": {
+    "message": "Po resetování hesla nebo dvoufázového přihlášení pro tohoto člena, budou informováni o změně a odhlášeni."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Obnoví účty, když je zapomenuto nebo ztraceno hlavní heslo, dvoufázové přihlášení nebo důvěryhodná zařízení."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "Existující účty s hlavním heslem vyžadují, aby se členové sami přihlásili před tím, než budou moci správci obnovit své účty."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Automaticky zapsat nové členy do obnovy účtu"
+  },
+  "resetMasterPassword": {
+    "message": "Obnovit hlavní heslo"
+  },
+  "resetTwoStepLogin": {
+    "message": "Resetovat dvoufázové přihlášení"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "Přístup člena bude odvolán, dokud nenastaví dvoufázové přihlášení"
+  },
+  "recoverAccountSuccess": {
+    "message": "Účet byl úspěšně obnoven!"
   },
   "updatedTempPassword": {
     "message": "Uživatel aktualizoval heslo vydané prostřednictvím obnovení účtu."
@@ -10244,6 +10413,46 @@
   "switchToFreeOrg": {
     "message": "Přepínání na bezplatnou organizaci",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Chybějící funkce nebo funkčnost",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Něco, co jsme potřebovali, nebylo k dispozici",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Příliš obtížné vytvořit nebo spravovat",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "Onboarding, správa nebo každodenní používání bylo příliš složité",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Poměr cena/výkon není dostatečný",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "Cena neodpovídá tomu, co za ni dostaneme",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "V našem týmu nevyužijeme",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Nemohli jsme přesvědčit lidi, aby jej skutečně používali",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "Naše potřeby se změnily",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorganizace, prodej/nákup společnosti, posun priorit, nebo již nepotřebujeme správce hesel",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
     "message": "Zdarma na 1 rok"
@@ -11831,6 +12040,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "Vaše předplatné se brzy obnoví. Chcete-li zajistit nepřerušenou službu, kontaktujte poskytovatele Bitwardenu pro potvrzení obnovení před $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "Faktura pro Vaše předplatné byla vystavena dne $ISSUED_DATE$. Chcete-li zajistit nepřerušovanou službu, kontaktujte $RESELLER$ pro potvrzení obnovení před $DUE_DATE$.",
     "placeholders": {
@@ -11857,6 +12075,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "Faktura za Vaše předplatné nebyla zaplacena. Chcete-li zajistit nepřerušovanou službu, kontaktujte poskytovatele Bitwardenu pro potvrzení obnovení před $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -12992,6 +13219,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Když odeberete úložiště, obdržíte kredit, který bude automaticky převeden do Vašeho dalšího vyúčtování."
   },
@@ -13162,5 +13392,39 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "Váš bankovní účet musí být pro ověření tohoto upgradu ověřen. Ověřte svůj bankovní účet nebo vyberte jiný způsob platby."
+  },
+  "discardEdits": {
+    "message": "Zahodit úpravy"
+  },
+  "discardEditsMessage": {
+    "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny"
+  },
+  "backToEditing": {
+    "message": "Zpět k úpravám"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Ukládání úprav Send selhalo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Boční navigace"
+  },
+  "skipLink": {
+    "message": "Přeskočit odkaz"
+  },
+  "callout": {
+    "message": "Popisek",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Ukazatel průběhu",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

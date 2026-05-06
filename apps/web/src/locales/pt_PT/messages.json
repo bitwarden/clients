@@ -11,8 +11,11 @@
   "activity": {
     "message": "Atividade"
   },
-  "applicationsAtRisk": {
-    "message": "Aplicações em risco"
+  "criticalAppsAtRisk": {
+    "message": "Apps críticas em risco"
+  },
+  "allCriticalApps": {
+    "message": "Todas as apps críticas"
   },
   "appLogoLabel": {
     "message": "Logótipo do Bitwarden"
@@ -325,6 +328,9 @@
   "applicationsMarkedAsCriticalFail": {
     "message": "Falha ao marcar aplicações como críticas"
   },
+  "applicationsUnmarkedAsCriticalFail": {
+    "message": "Falha ao desmarcar aplicações como críticas"
+  },
   "application": {
     "message": "Aplicação"
   },
@@ -631,6 +637,12 @@
       }
     }
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar deteção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar deteção de correspondência"
+  },
   "autoFillOnPageLoad": {
     "message": "Preencher automaticamente ao carregar a página?"
   },
@@ -750,6 +762,9 @@
   },
   "totpHelperWithCapture": {
     "message": "O Bitwarden pode armazenar e preencher códigos de verificação de dois passos. Selecione o ícone da câmara para tirar uma captura de ecrã do código QR do autenticador deste site ou copie e cole a chave neste campo."
+  },
+  "totpCapture": {
+    "message": "Digitalize o código QR do autenticador a partir da página Web atual"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Saiba mais sobre os autenticadores"
@@ -982,6 +997,27 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeLoginSubtitle": {
+    "message": "Site ou app"
+  },
+  "typeCardSubtitle": {
+    "message": "Cartão de crédito ou débito"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Informações pessoais"
+  },
+  "typeNoteSubtitle": {
+    "message": "Texto importante"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Token de início de sessão no servidor"
+  },
+  "folderSubtitle": {
+    "message": "Organize os seus itens"
+  },
+  "collectionSubtitle": {
+    "message": "Organize itens partilhados"
+  },
   "typeLoginPlural": {
     "message": "Credenciais"
   },
@@ -1050,6 +1086,9 @@
   },
   "addItem": {
     "message": "Adicionar item"
+  },
+  "chooseItemToAdd": {
+    "message": "Escolher item a adicionar"
   },
   "editItem": {
     "message": "Editar item"
@@ -3913,12 +3952,16 @@
   "inviteUserDesc": {
     "message": "Convide um novo utilizador para a sua organização introduzindo o endereço de e-mail da sua conta Bitwarden abaixo. Se o utilizador ainda não tiver uma conta Bitwarden, ser-lhe-á pedido que crie uma nova conta."
   },
-  "inviteMultipleEmailDesc": {
-    "message": "Introduza até $COUNT$ e-mails, separando-os com uma vírgula.",
+  "inviteMultipleEmailsWithSeatLimit": {
+    "message": "Introduza até $BATCHLIMIT$ e-mails, separados por vírgulas. ($REMAININGSEATS$ lugares restantes)",
     "placeholders": {
-      "count": {
+      "batchlimit": {
         "content": "$1",
         "example": "20"
+      },
+      "remainingseats": {
+        "content": "$2",
+        "example": "9999"
       }
     }
   },
@@ -3927,6 +3970,15 @@
   },
   "inviteZeroEmailDesc": {
     "message": "Restam-lhe 0 convites."
+  },
+  "inviteMultipleEmailsNoSeatLimit": {
+    "message": "Introduza até $BATCHLIMIT$ e-mails de cada vez, separados por vírgulas.",
+    "placeholders": {
+      "batchlimit": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "userUsingTwoStep": {
     "message": "Este utilizador está a utilizar a verificação de dois passos para proteger a sua conta."
@@ -4301,6 +4353,9 @@
       }
     }
   },
+  "revokedEmailError": {
+    "message": "Um ou mais e-mails pertencem a membros com acesso revogado. Restaure o acesso para os voltar a convidar."
+  },
   "restoredUserId": {
     "message": "Acesso à organização restaurado para $ID$.",
     "placeholders": {
@@ -4450,6 +4505,24 @@
   },
   "loginStatus": {
     "message": "Estado do início de sessão"
+  },
+  "recentlyActive": {
+    "message": "Ativo recentemente"
+  },
+  "recentlyActiveToday": {
+    "message": "Hoje"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Últimos 7 dias"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Últimos 14 dias"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Últimos 30 dias"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Há mais de 30 dias"
   },
   "firstLogin": {
     "message": "Primeiro início de sessão"
@@ -5176,6 +5249,12 @@
   },
   "atAnyTime": {
     "message": "a qualquer altura."
+  },
+  "byEmail": {
+    "message": "Por e-mail"
+  },
+  "byLink": {
+    "message": "Por link"
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ao continuar, concorda com os"
@@ -6238,6 +6317,16 @@
     "message": "Devido a uma política da empresa, só é possível eliminar um Send existente.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "sendControls": {
+    "message": "Controlos do Send"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Defina opções para criar e editar Sends, incluindo a possibilidade de os remover.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsExemption": {
+    "message": "Os membros da organização que podem gerir as políticas da organização estão isentos da aplicação desta política."
+  },
   "sendOptions": {
     "message": "Opções do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
@@ -6593,6 +6682,15 @@
   },
   "eventAdminPasswordReset": {
     "message": "Redefinição da palavra-passe mestra do utilizador $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "eventAdminResetTwoFactor": {
+    "message": "Reposição da verificação de dois passos para o utilizador $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7051,6 +7149,9 @@
   },
   "sessionTimeoutAction": {
     "message": "Ação de tempo limite da sessão"
+  },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Gerido pela extensão do navegador Bitwarden. Abra a app do navegador para editar."
   },
   "immediately": {
     "message": "Imediatamente"
@@ -8203,6 +8304,10 @@
     "message": "Copiar a chave da API SCIM para a área de transferência",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
+  "viewScimApiKey": {
+    "message": "Ver a chave da API SCIM",
+    "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
+  },
   "rotateScimKey": {
     "message": "Regenerar a chave da API SCIM",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
@@ -8233,6 +8338,28 @@
   "scimSettingsSaved": {
     "message": "Definições SCIM guardadas",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "onlyOneIntegrationOfTypeAllowed": {
+    "message": "Apenas é permitida uma integração deste tipo ($TYPE$). A integração em conflito é: $NAME$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      },
+      "name": {
+        "content": "$2",
+        "example": "Huntress"
+      }
+    }
+  },
+  "anotherIntegrationWithSameTypeExists": {
+    "message": "Já existe outra integração do mesmo tipo ($TYPE$). Atualize o navegador e tente novamente.",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "HEC"
+      }
+    }
   },
   "inputRequired": {
     "message": "Campo obrigatório."
@@ -8395,6 +8522,15 @@
   },
   "pink": {
     "message": "Rosa"
+  },
+  "coral": {
+    "message": "Coral"
+  },
+  "purple": {
+    "message": "Roxo"
+  },
+  "blue": {
+    "message": "Azul"
   },
   "customColor": {
     "message": "Cor personalizada"
@@ -9446,6 +9582,15 @@
       }
     }
   },
+  "phishingBlockerSiteAccessed": {
+    "message": "O utilizador tentou aceder a um site de phishing conhecido"
+  },
+  "phishingBlockerSiteExited": {
+    "message": "O utilizador saiu da página de aviso de phishing"
+  },
+  "phishingBlockerBypassed": {
+    "message": "O utilizador ignorou o aviso de phishing"
+  },
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
@@ -9690,6 +9835,30 @@
   },
   "recoverAccount": {
     "message": "Recuperar conta"
+  },
+  "recoverAccountWarning": {
+    "message": "Ao redefinir a palavra-passe ou a verificação de dois passos deste membro, este será notificado da alteração e a sessão será terminada."
+  },
+  "accountRecoveryPolicyDescV2": {
+    "message": "Recupere contas quando a palavra-passe mestra, a verificação de dois passos ou os dispositivos fidedignos forem esquecidos ou perdidos."
+  },
+  "accountRecoveryPolicyWarningV2": {
+    "message": "As contas existentes com palavras-passe mestras exigirão que os membros se inscrevam antes de os administradores poderem recuperar as suas contas."
+  },
+  "resetPasswordPolicyAutoEnrollCheckboxV2": {
+    "message": "Inscrever automaticamente novos membros na recuperação de conta"
+  },
+  "resetMasterPassword": {
+    "message": "Redefinir a palavra-passe mestra"
+  },
+  "resetTwoStepLogin": {
+    "message": "Redefinir a verificação de dois passos"
+  },
+  "resetTwoStepLoginDesc": {
+    "message": "O acesso do membro será revogado até que configure a verificação de dois passos"
+  },
+  "recoverAccountSuccess": {
+    "message": "Recuperação de conta bem-sucedida!"
   },
   "updatedTempPassword": {
     "message": "O utilizador atualizou uma palavra-passe emitida através da recuperação de conta."
@@ -10245,6 +10414,46 @@
     "message": "A passar para uma organização gratuita",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
+  "cancelSurveyMissingFeaturesLabel": {
+    "message": "Funcionalidades ou capacidades em falta",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyMissingFeaturesHint": {
+    "message": "Algo de que precisávamos não estava disponível",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexLabel": {
+    "message": "Demasiado difícil de configurar ou gerir",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyTooComplexHint": {
+    "message": "O onboarding, a administração ou a utilização no dia a dia eram demasiado complexos",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueLabel": {
+    "message": "Não estamos a obter valor suficiente para o custo",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughValueHint": {
+    "message": "O preço não corresponde ao valor que retiramos da solução",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageLabel": {
+    "message": "Utilização insuficiente pela nossa equipa",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNotEnoughUsageHint": {
+    "message": "Não conseguimos fazer com que as pessoas o utilizassem",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedLabel": {
+    "message": "As nossas necessidades mudaram",
+    "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
+  "cancelSurveyNeedsChangedHint": {
+    "message": "Reorganização, aquisição, mudança de prioridades ou deixámos de precisar de um gestor de palavras-passe",
+    "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
+  },
   "freeForOneYear": {
     "message": "Gratuito durante 1 ano"
   },
@@ -10362,7 +10571,7 @@
     "description": "A subscription status label."
   },
   "pastDue": {
-    "message": "Vencida",
+    "message": "Caducada",
     "description": "A subscription status label"
   },
   "subscriptionExpired": {
@@ -11831,6 +12040,15 @@
       }
     }
   },
+  "resellerRenewalWarningMsgV2": {
+    "message": "A sua subscrição será renovada em breve. Para garantir um serviço ininterrupto, contacte o seu fornecedor do Bitwarden para confirmar a renovação antes de $RENEWAL_DATE$.",
+    "placeholders": {
+      "renewal_date": {
+        "content": "$1",
+        "example": "01/01/2024"
+      }
+    }
+  },
   "resellerOpenInvoiceWarningMgs": {
     "message": "A fatura da sua subscrição foi emitida a $ISSUED_DATE$. Para garantir um serviço ininterrupto, contacte a $RESELLER$ para confirmar a sua renovação antes de $DUE_DATE$.",
     "placeholders": {
@@ -11857,6 +12075,15 @@
       },
       "grace_period_end": {
         "content": "$2",
+        "example": "02/14/2024"
+      }
+    }
+  },
+  "resellerPastDueWarningMsgV2": {
+    "message": "A fatura da sua subscrição não foi paga. Para garantir a continuidade do serviço, contacte o seu fornecedor do Bitwarden para confirmar a sua renovação antes de $GRACE_PERIOD_END$.",
+    "placeholders": {
+      "grace_period_end": {
+        "content": "$1",
         "example": "02/14/2024"
       }
     }
@@ -12992,6 +13219,9 @@
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "utilizador@bitwarden.com, utilizador@acme.com"
+  },
   "whenYouRemoveStorage": {
     "message": "Ao remover espaço de armazenamento, receberá um crédito proporcional na conta, que será automaticamente aplicado na sua próxima fatura."
   },
@@ -13162,5 +13392,39 @@
         "example": "4"
       }
     }
+  },
+  "unverifiedBankAccountNotSupportedForUpgrade": {
+    "message": "A sua conta bancária tem de ser verificada antes de poder ser utilizada para esta atualização. Por favei, verifique a sua conta bancária ou escolha outro método de pagamento."
+  },
+  "discardEdits": {
+    "message": "Descartar alterações"
+  },
+  "discardEditsMessage": {
+    "message": "Se fechar esta vista, as alterações não guardadas serão descartadas"
+  },
+  "backToEditing": {
+    "message": "Voltar à edição"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "O Send tem alterações não guardadas. Tem a certeza de que pretende sair?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Falha ao guardar as alterações do Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sideNavigation": {
+    "message": "Navegação lateral"
+  },
+  "skipLink": {
+    "message": "Ignorar link"
+  },
+  "callout": {
+    "message": "Aviso",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Barra de progresso",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

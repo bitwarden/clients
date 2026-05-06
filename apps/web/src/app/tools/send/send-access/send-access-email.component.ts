@@ -33,7 +33,7 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
   readonly backToEmail = output<void>();
 
   ngOnInit() {
-    this.email = new FormControl("", Validators.required);
+    this.email = new FormControl("", [Validators.required, Validators.email]);
     this.otp = new FormControl("");
     this.formGroup().addControl("email", this.email);
     this.formGroup().addControl("otp", this.otp);
@@ -43,7 +43,7 @@ export class SendAccessEmailComponent implements OnInit, OnDestroy {
       if (isOtpMode) {
         this.email.clearValidators();
       } else {
-        this.email.setValidators([Validators.required]);
+        this.email.setValidators([Validators.required, Validators.email]);
       }
       this.email.updateValueAndValidity();
     });

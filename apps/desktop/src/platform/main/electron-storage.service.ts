@@ -1,18 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as fs from "fs";
-
 import { ipcMain } from "electron";
-import ElectronStore, { Options as ElectronStoreOptions } from "electron-store";
 import { Subject } from "rxjs";
 
 import {
   AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
-import { NodeUtils } from "@bitwarden/node/node-utils";
 
-import { isWindowsPortable } from "../../utils";
+import { StorageBackend } from "./storage/storage-backend";
 
 interface BaseOptions<T extends string> {
   action: T;
@@ -26,21 +22,10 @@ interface SaveOptions extends BaseOptions<"save"> {
 type Options = BaseOptions<"get"> | BaseOptions<"has"> | SaveOptions | BaseOptions<"remove">;
 
 export class ElectronStorageService implements AbstractStorageService {
-  private store: ElectronStore;
   private updatesSubject = new Subject<StorageUpdate>();
   updates$;
 
-  constructor(dir: string, defaults = {}) {
-    if (!fs.existsSync(dir)) {
-      NodeUtils.mkdirpSync(dir, "700");
-    }
-    const fileMode = isWindowsPortable() ? 0o666 : 0o600;
-    const storeConfig: ElectronStoreOptions<Record<string, unknown>> = {
-      defaults: defaults,
-      name: "data",
-      configFileMode: fileMode,
-    };
-    this.store = new ElectronStore(storeConfig);
+  constructor(private backend: StorageBackend) {
     this.updates$ = this.updatesSubject.asObservable();
 
     ipcMain.handle("storageService", (event, options: Options) => {
@@ -61,13 +46,17 @@ export class ElectronStorageService implements AbstractStorageService {
     return true;
   }
 
+  dispose(): void {
+    this.backend.flush();
+  }
+
   get<T>(key: string): Promise<T> {
-    const val = this.store.get(key) as T;
+    const val = this.backend.read()[key] as T;
     return Promise.resolve(val != null ? val : null);
   }
 
   has(key: string): Promise<boolean> {
-    const val = this.store.get(key);
+    const val = this.backend.read()[key];
     return Promise.resolve(val != null);
   }
 
@@ -80,13 +69,17 @@ export class ElectronStorageService implements AbstractStorageService {
       obj = Array.from(obj);
     }
 
-    this.store.set(key, obj);
+    this.backend.update((store) => ({ ...store, [key]: obj }));
     this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();
   }
 
   remove(key: string): Promise<void> {
-    this.store.delete(key);
+    this.backend.update((store) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { [key]: _, ...rest } = store;
+      return rest;
+    });
     this.updatesSubject.next({ key, updateType: "remove" });
     return Promise.resolve();
   }

@@ -1,8 +1,5 @@
 import { combineLatest, map, Observable } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-
 import { UserId } from "../../../types/guid";
 import { PolicyType } from "../../enums";
 import { OrganizationData } from "../../models/data/organization.data";
@@ -68,15 +65,22 @@ export function canAccessOrgAdmin(org: Organization): boolean {
   );
 }
 
-export function canAccessEmergencyAccess(
-  userId: UserId,
-  configService: ConfigService,
-  policyService: PolicyService,
-) {
+export function canAccessEmergencyAccess(userId: UserId, policyService: PolicyService) {
+  return policyService
+    .policyAppliesToUser$(PolicyType.AutoConfirm, userId)
+    .pipe(map((policyAppliesToUser) => !policyAppliesToUser));
+}
+
+/**
+ * Returns true when the user is constrained to a single organization.
+ * Combines SingleOrg and AutoConfirm policy checks — AutoConfirm implies
+ * a single-organization constraint for all members.
+ */
+export function singleOrganizationPolicyApplies$(userId: UserId, policyService: PolicyService) {
   return combineLatest([
-    configService.getFeatureFlag$(FeatureFlag.AutoConfirm),
+    policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
     policyService.policyAppliesToUser$(PolicyType.AutoConfirm, userId),
-  ]).pipe(map(([enabled, policyAppliesToUser]) => !(enabled && policyAppliesToUser)));
+  ]).pipe(map(([singleOrg, autoConfirm]) => singleOrg || autoConfirm));
 }
 
 /**

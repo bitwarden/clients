@@ -12,12 +12,11 @@ import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { VaultItemDialogResult } from "@bitwarden/vault";
 import {
   UnifiedUpgradeDialogComponent,
   UnifiedUpgradeDialogStatus,
 } from "@bitwarden/web-vault/app/billing/individual/upgrade/unified-upgrade-dialog/unified-upgrade-dialog.component";
-
-import { VaultItemDialogResult } from "../components/vault-item-dialog/vault-item-dialog.component";
 
 @Injectable()
 export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePromptService {
@@ -95,7 +94,7 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
       await this.router.navigate(route);
     }
     if (confirmed && this.dialog) {
-      this.dialog.close(VaultItemDialogResult.PremiumUpgrade);
+      await this.dialog.close(VaultItemDialogResult.PremiumUpgrade);
     }
   }
 
@@ -108,7 +107,7 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
   private async redirectToSubscriptionPage() {
     await this.router.navigate([this.subscriptionPageRoute]);
     if (this.dialog) {
-      this.dialog.close(VaultItemDialogResult.PremiumUpgrade);
+      await this.dialog.close(VaultItemDialogResult.PremiumUpgrade);
     }
   }
 

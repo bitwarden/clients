@@ -4,6 +4,7 @@ import { switchMap } from "rxjs";
 
 import { InputPasswordComponent, InputPasswordFlow } from "@bitwarden/auth/angular";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -47,6 +48,17 @@ export type AccountRecoveryDialogData = {
    * The organization's `organizationId`
    */
   organizationId: OrganizationId;
+
+  /**
+   * The organization user's role type, used to determine policy exemption
+   */
+  organizationUserType: OrganizationUserType;
+
+  /**
+   * Whether the organization user currently has two-step login enabled.
+   * Used to disable the reset two-step login option when not applicable.
+   */
+  twoFactorEnabled: boolean;
 };
 
 export const AccountRecoveryDialogResultType = {
@@ -127,7 +139,7 @@ export class AccountRecoveryDialogComponent {
       message: this.i18nService.t("resetPasswordSuccess"),
     });
 
-    this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
+    await this.dialogRef.close(AccountRecoveryDialogResultType.Ok);
   };
 
   /**
@@ -137,10 +149,7 @@ export class AccountRecoveryDialogComponent {
    */
   static open = (
     dialogService: DialogService,
-    dialogConfig: DialogConfig<
-      AccountRecoveryDialogData,
-      DialogRef<AccountRecoveryDialogResultType, unknown>
-    >,
+    dialogConfig: DialogConfig<AccountRecoveryDialogData, AccountRecoveryDialogResultType>,
   ) => {
     return dialogService.open<AccountRecoveryDialogResultType, AccountRecoveryDialogData>(
       AccountRecoveryDialogComponent,

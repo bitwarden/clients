@@ -211,6 +211,7 @@ describe("AutofillOverlayContentService", () => {
           htmlName: "username",
           htmlID: "username",
           placeholder: "username",
+          targeted: false,
         });
       });
 
@@ -1165,9 +1166,72 @@ describe("AutofillOverlayContentService", () => {
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
         });
+
+        it("does not open the autofill inline menu for readonly fields", async () => {
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+        });
+
+        it("skips setup when focusing a readonly field", async () => {
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.KEYUP,
+            expect.any(Function),
+          );
+        });
       });
 
       describe("hidden form field focus event", () => {
+        it("updates hidden field readonly from readonly or aria-readonly instead of disabled", async () => {
+          autofillFieldData.viewable = false;
+          autofillFieldData.readonly = false;
+          autofillFieldData.disabled = false;
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          input.disabled = false;
+          input.setAttribute("aria-readonly", "true");
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+          expect(autofillFieldData.readonly).toBe(true);
+          expect(autofillFieldData.disabled).toBe(false);
+        });
+
+        it("skips setup when hidden field is readonly on fallback", async () => {
+          autofillFieldData.viewable = false;
+          const input = autofillFieldElement as HTMLInputElement;
+          input.readOnly = true;
+          await autofillOverlayContentService.setupOverlayListeners(
+            autofillFieldElement,
+            autofillFieldData,
+            pageDetailsMock,
+          );
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.KEYUP,
+            expect.any(Function),
+          );
+        });
+
         it("sets up the inline menu listeners if the autofill field data is in the cache", async () => {
           autofillFieldData.viewable = false;
           await autofillOverlayContentService.setupOverlayListeners(
@@ -1798,6 +1862,13 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService.clearUserFilledFields();
 
       expect(autofillOverlayContentService["userFilledFields"]).toEqual({});
+    });
+
+    it("does not throw when userFilledFields is null such as after destroy)", () => {
+      autofillOverlayContentService["userFilledFields"] = null;
+
+      expect(() => autofillOverlayContentService.clearUserFilledFields()).not.toThrow();
+      expect(autofillOverlayContentService["userFilledFields"]).toBeNull();
     });
   });
 
@@ -2710,7 +2781,7 @@ describe("AutofillOverlayContentService", () => {
       );
       expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
         EVENTS.KEYUP,
-        autofillOverlayContentService["handleFormFieldKeyupEvent"],
+        autofillOverlayContentService["handleFormFieldKeyupEventAsListener"],
       );
       expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
         autofillFieldElement,
