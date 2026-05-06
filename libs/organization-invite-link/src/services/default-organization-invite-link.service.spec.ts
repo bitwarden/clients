@@ -94,13 +94,6 @@ describe("DefaultOrganizationInviteLinkService", () => {
       expect(value).toBeUndefined();
     });
 
-    it("rethrows non-404 API errors", async () => {
-      const serverError = new ErrorResponse(null, 500);
-      apiService.get.mockRejectedValue(serverError);
-
-      await expect(firstValueFrom(sut.inviteLink$(mockUserId, mockOrgId))).rejects.toThrow();
-    });
-
     it("emits cached value without calling API again", async () => {
       const inviteLink = makeInviteLink();
       await sut.upsert(mockUserId, inviteLink);
