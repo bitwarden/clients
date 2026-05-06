@@ -7,7 +7,7 @@ const CSV_COLUMNS = ["timestamp", "level", "target", "message", "fields"] as con
 /**
  * Build a CSV download payload for {@link FlightRecorderEvent}s.
  *
- * Returns a `fileName` of the form `Bitwarden-account-events-YYYY-MM-DD.csv`
+ * Returns a `fileName` of the form `Bitwarden-diagnostic-report-YYYY-MM-DD.csv`
  * and a CSV-encoded `blobData` ready to pass to `FileDownloadService.download`.
  *
  * @param events The events to encode.
@@ -31,7 +31,7 @@ export function buildFlightRecorderCsvExport(
   });
 
   const datePart = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-  const fileName = `Bitwarden-account-events-${datePart}.csv`;
+  const fileName = `Bitwarden-diagnostic-report-${datePart}.csv`;
 
   return { fileName, blobData };
 }
