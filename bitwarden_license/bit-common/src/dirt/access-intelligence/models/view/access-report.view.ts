@@ -158,28 +158,31 @@ export class AccessReportView implements View {
   }
 
   /**
-   * Get at-risk password count for a specific member
-   *
-   * Counts all at-risk passwords across applications where member has access.
-   * Optionally limits count to a specific application.
+   * Get at-risk password count for a member across ALL applications.
    *
    * @param memberId - Organization user ID
-   * @param applicationName - Optional: limit count to specific application
-   * @returns Count of at-risk passwords for this member
+   * @returns Count of at-risk passwords for this member across every application
    */
-  getAtRiskPasswordCountForMember(memberId: string, applicationName?: string): number {
-    if (applicationName) {
-      // Count only within specific application
-      const app = this.getApplicationByName(applicationName);
-      if (!app || !app.isMemberAtRisk(memberId)) {
-        return 0;
-      }
-      return app.getAtRiskCipherIds().length;
-    }
-
-    // Count across all applications where member is at-risk
+  getAtRiskPasswordCountForMember(memberId: string): number {
     let count = 0;
     this.reports.forEach((report) => {
+      if (report.memberRefs[memberId] === true) {
+        count += report.getAtRiskCipherIds().length;
+      }
+    });
+    return count;
+  }
+
+  /**
+   * Get at-risk password count for a member scoped to critical applications only.
+   *
+   * @param memberId - Organization user ID
+   * @returns Count of at-risk passwords for this member across applications
+   *   flagged critical
+   */
+  getCriticalAtRiskPasswordCountForMember(memberId: string): number {
+    let count = 0;
+    this.getCriticalApplications().forEach((report) => {
       if (report.memberRefs[memberId] === true) {
         count += report.getAtRiskCipherIds().length;
       }
@@ -198,21 +201,23 @@ export class AccessReportView implements View {
    * @param applicationNames - Names of the applications to mark as critical
    */
   markApplicationsAsCritical(applicationNames: string[]): void {
-    for (const applicationName of applicationNames) {
-      const app = this.applications.find((a) => a.applicationName === applicationName);
+    const knownNames = new Set(this.reports.map((r) => r.applicationName));
 
-      if (app) {
-        app.isCritical = true;
-        if (!app.reviewedDate) {
-          app.reviewedDate = new Date();
-        }
-      } else {
-        // Application not in list, add it
-        const newApp = new AccessReportSettingsView();
-        newApp.applicationName = applicationName;
-        newApp.isCritical = true;
-        newApp.reviewedDate = new Date();
-        this.applications.push(newApp);
+    for (const applicationName of applicationNames) {
+      if (!knownNames.has(applicationName)) {
+        continue;
+      }
+
+      let app = this.applications.find((a) => a.applicationName === applicationName);
+      if (!app) {
+        app = new AccessReportSettingsView();
+        app.applicationName = applicationName;
+        this.applications.push(app);
+      }
+
+      app.isCritical = true;
+      if (!app.reviewedDate) {
+        app.reviewedDate = new Date();
       }
     }
 
@@ -246,16 +251,19 @@ export class AccessReportView implements View {
    * @param reviewedDate - Date of review (defaults to current date)
    */
   markApplicationAsReviewed(applicationName: string, reviewedDate?: Date): void {
-    const app = this.applications.find((a) => a.applicationName === applicationName);
-
-    if (app) {
-      app.reviewedDate = reviewedDate ?? new Date();
-    } else {
-      const newApp = new AccessReportSettingsView();
-      newApp.applicationName = applicationName;
-      newApp.reviewedDate = reviewedDate ?? new Date();
-      this.applications.push(newApp);
+    const knownNames = new Set(this.reports.map((r) => r.applicationName));
+    if (!knownNames.has(applicationName)) {
+      return;
     }
+
+    let app = this.applications.find((a) => a.applicationName === applicationName);
+    if (!app) {
+      app = new AccessReportSettingsView();
+      app.applicationName = applicationName;
+      this.applications.push(app);
+    }
+
+    app.reviewedDate = reviewedDate ?? new Date();
   }
 
   // === Computation Methods ===
