@@ -363,7 +363,9 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
       return;
     }
     const pastedText = event.clipboardData?.getData("text")?.trim() ?? "";
-    if (!pastedText) {return;}
+    if (!pastedText) {
+      return;
+    }
     event.preventDefault();
     this.secret.setValue(pastedText); // triggers valueChanges → processSecretChanges → onChange
     // → dialog's secret FormControl updates synchronously
