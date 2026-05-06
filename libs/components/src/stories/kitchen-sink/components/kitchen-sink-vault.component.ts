@@ -86,8 +86,8 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         Our form components provide consistent styling and validation patterns.
       </p>
       <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="tourService.endTour()">
-          Finish Tour
+        <button type="button" bitButton buttonType="primary" (click)="tourService.nextStep()">
+          Next
         </button>
         <button type="button" bitButton buttonType="secondary" (click)="tourService.endTour()">
           Skip Tour
