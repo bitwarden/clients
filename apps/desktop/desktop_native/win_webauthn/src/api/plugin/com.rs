@@ -40,6 +40,14 @@ impl ComBuffer {
         Self(ptr.cast())
     }
 
+    pub(crate) fn as_ptr<T>(&self) -> *const T {
+        self.0.cast().as_ptr()
+    }
+
+    pub(crate) fn as_mut_ptr<T>(&self) -> *mut T {
+        self.0.cast().as_ptr()
+    }
+
     pub fn into_raw<T>(self) -> *mut T {
         let this = ManuallyDrop::new(self);
         this.0.cast().as_ptr()
