@@ -45,6 +45,6 @@ export class PopoverComponent {
   );
 
   protected readonly titleClasses = computed(() =>
-    [this.header() ? "" : "tw-pe-6", "tw-text-fg-heading", "!tw-mb-0"].join(" "),
+    [this.header() ? "" : "tw-pe-7", "tw-text-fg-heading", "!tw-mb-0"].join(" "),
   );
 }
