@@ -638,11 +638,20 @@
   "issueYear": {
     "message": "Issue year"
   },
-  "enterMonth": {
-    "message": "Enter a month"
+   "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
   },
   "enterYear": {
-    "message": "Enter a year"
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "select": {
     "message": "Select"

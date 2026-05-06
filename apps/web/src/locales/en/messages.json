@@ -8108,10 +8108,19 @@
     "message": "required"
   },
   "enterMonth": {
-    "message": "Enter a month"
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
   },
   "enterYear": {
-    "message": "Enter a year"
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "charactersCurrentAndMaximum": {
     "message": "$CURRENT$/$MAX$ character maximum",
