@@ -437,6 +437,18 @@ module.exports.buildConfig = function buildConfig(params) {
       );
     }
 
+    // Chrome-only: side panel placeholder page (disabled by default, enabled per-tab for triage)
+    if (browser === "chrome") {
+      mainConfig.plugins.push(
+        new HtmlWebpackPlugin({
+          template: path.resolve(__dirname, "src/sidepanel-disabled.html"),
+          filename: "sidepanel-disabled.html",
+          chunks: [],
+          inject: false,
+        }),
+      );
+    }
+
     const target = browser === "firefox" ? "web" : "webworker";
 
     /**

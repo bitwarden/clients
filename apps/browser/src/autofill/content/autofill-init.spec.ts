@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
@@ -12,6 +13,8 @@ import {
   mockQuerySelectorAllDefinedCall,
   sendMockExtensionMessage,
 } from "../spec/testing-utils";
+import { AutofillTriageResponse } from "../types/autofill-triage";
+import { EventSecurity } from "../utils/event-security";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
@@ -104,6 +107,41 @@ describe("AutofillInit", () => {
       expect(chrome.runtime.onMessage.addListener).toHaveBeenCalledWith(
         autofillInit["handleExtensionMessage"],
       );
+    });
+
+    it("registers a contextmenu event listener on the document", () => {
+      jest.spyOn(document, "addEventListener");
+
+      autofillInit["setupExtensionMessageListeners"]();
+
+      expect(document.addEventListener).toHaveBeenCalledWith(
+        "contextmenu",
+        autofillInit["handleContextMenuClick"],
+      );
+    });
+  });
+
+  describe("handleContextMenuClick", () => {
+    it("stores the target element when the event is trusted", () => {
+      const el = document.createElement("input");
+      const event = new MouseEvent("contextmenu");
+      Object.defineProperty(event, "target", { value: el });
+      jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
+
+      autofillInit["handleContextMenuClick"](event);
+
+      expect(autofillInit["lastContextMenuClickedElement"]).toBe(el);
+    });
+
+    it("does not store the target element when the event is not trusted", () => {
+      const el = document.createElement("input");
+      const event = new MouseEvent("contextmenu");
+      Object.defineProperty(event, "target", { value: el });
+      jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(false);
+
+      autofillInit["handleContextMenuClick"](event);
+
+      expect(autofillInit["lastContextMenuClickedElement"]).toBeNull();
     });
   });
 
@@ -254,6 +292,98 @@ describe("AutofillInit", () => {
             tab: message.tab,
             details: pageDetails,
             sender: message.sender,
+          });
+        });
+      });
+
+      describe("collectAutofillTriage", () => {
+        const pageDetails: AutofillPageDetails = {
+          title: "title",
+          url: "http://example.com",
+          documentUrl: "documentUrl",
+          forms: {},
+          fields: [],
+          collectedTimestamp: 0,
+        };
+
+        beforeEach(() => {
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "getPageDetails")
+            .mockResolvedValue(pageDetails);
+        });
+
+        it("returns page details with no targetFieldRef when no element was right-clicked", async () => {
+          const sendResponse = jest.fn();
+          sendMockExtensionMessage({ command: "collectAutofillTriage" }, sender, sendResponse);
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith<[AutofillTriageResponse]>({
+            pageDetails,
+            targetFieldRef: undefined,
+          });
+        });
+
+        it("returns targetFieldRef matching the right-clicked field's htmlID", async () => {
+          const field = mock<AutofillField>({ htmlID: "username", htmlName: null });
+          const detailsWithField = { ...pageDetails, fields: [field] };
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "getPageDetails")
+            .mockResolvedValue(detailsWithField);
+
+          const clickedEl = Object.assign(document.createElement("input"), { id: "username" });
+          Object.defineProperty(clickedEl, "isTrusted", { value: true });
+          document.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true }));
+          autofillInit["lastContextMenuClickedElement"] = clickedEl;
+
+          const sendResponse = jest.fn();
+          sendMockExtensionMessage({ command: "collectAutofillTriage" }, sender, sendResponse);
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith<[AutofillTriageResponse]>({
+            pageDetails: detailsWithField,
+            targetFieldRef: "username",
+          });
+        });
+
+        it("returns targetFieldRef matching the right-clicked field's htmlName when htmlID does not match", async () => {
+          const field = mock<AutofillField>({ htmlID: null, htmlName: "email" });
+          const detailsWithField = { ...pageDetails, fields: [field] };
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "getPageDetails")
+            .mockResolvedValue(detailsWithField);
+
+          const clickedEl = Object.assign(document.createElement("input"), { name: "email" });
+          autofillInit["lastContextMenuClickedElement"] = clickedEl;
+
+          const sendResponse = jest.fn();
+          sendMockExtensionMessage({ command: "collectAutofillTriage" }, sender, sendResponse);
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith<[AutofillTriageResponse]>({
+            pageDetails: detailsWithField,
+            targetFieldRef: "email",
+          });
+        });
+
+        it("returns targetFieldRef as undefined when the clicked element does not match any field", async () => {
+          const field = mock<AutofillField>({ htmlID: "password", htmlName: "password" });
+          const detailsWithField = { ...pageDetails, fields: [field] };
+          jest
+            .spyOn(autofillInit["collectAutofillContentService"], "getPageDetails")
+            .mockResolvedValue(detailsWithField);
+
+          const clickedEl = Object.assign(document.createElement("input"), {
+            id: "unrelated-field",
+          });
+          autofillInit["lastContextMenuClickedElement"] = clickedEl;
+
+          const sendResponse = jest.fn();
+          sendMockExtensionMessage({ command: "collectAutofillTriage" }, sender, sendResponse);
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith<[AutofillTriageResponse]>({
+            pageDetails: detailsWithField,
+            targetFieldRef: undefined,
           });
         });
       });

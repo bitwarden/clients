@@ -22,6 +22,24 @@ describe("BrowserPopupUtils", () => {
     });
   });
 
+  describe("inSidePanel", () => {
+    it("should return true if the window URL contains uilocation=sidepanel", () => {
+      const win = {
+        location: { href: "https://jest-testing.com?uilocation=sidepanel" },
+      } as Window;
+
+      expect(BrowserPopupUtils.inSidePanel(win)).toBe(true);
+    });
+
+    it("should return false if the window URL does not contain uilocation=sidepanel", () => {
+      const win = {
+        location: { href: "https://jest-testing.com?uilocation=popout" },
+      } as Window;
+
+      expect(BrowserPopupUtils.inSidePanel(win)).toBe(false);
+    });
+  });
+
   describe("inPopout", () => {
     it("should return true if the window contains the popout query param", () => {
       const win = { location: { href: "https://jest-testing.com?uilocation=popout" } } as Window;

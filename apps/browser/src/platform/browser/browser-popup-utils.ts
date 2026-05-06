@@ -38,6 +38,15 @@ export default class BrowserPopupUtils {
   }
 
   /**
+   * Identifies if the popup is within the Chrome Side Panel.
+   *
+   * @param win - The passed window object.
+   */
+  static inSidePanel(win: Window): boolean {
+    return BrowserPopupUtils.urlContainsSearchParams(win, "uilocation", "sidepanel");
+  }
+
+  /**
    * Check if the current popup view is open inside of the current browser tab
    * (it is possible in Chrome to open the extension in a tab)
    */
