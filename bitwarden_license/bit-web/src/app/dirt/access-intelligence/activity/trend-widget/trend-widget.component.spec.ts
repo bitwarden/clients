@@ -277,20 +277,21 @@ describe("TrendWidgetComponent", () => {
     }
 
     beforeEach(() => {
+      jest.useFakeTimers().setSystemTime(new Date("2026-04-30T12:00:00Z"));
       fixture.componentRef.setInput("loading", false);
       fixture.componentRef.setInput("error", null);
     });
 
-    it("pads a multi-day narrow range with one day on each side (PM-35323)", () => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const today = new Date();
+    afterEach(() => {
+      jest.useRealTimers();
+    });
 
+    it("pads a multi-day narrow range with one day on each side", () => {
       fixture.componentRef.setInput(
         "data",
         mkData([
-          { timestamp: yesterday.toISOString(), atRisk: 1, total: 2 },
-          { timestamp: today.toISOString(), atRisk: 2, total: 3 },
+          { timestamp: "2026-04-29T12:00:00Z", atRisk: 1, total: 2 },
+          { timestamp: "2026-04-30T12:00:00Z", atRisk: 2, total: 3 },
         ]),
       );
       component.selectedTimespan.set(TimePeriod.AllTime);
@@ -300,18 +301,16 @@ describe("TrendWidgetComponent", () => {
       const xMin = config.xMin as Date;
       const xMax = config.xMax as Date;
 
-      const expectedXMin = new Date(
-        yesterday.getFullYear(),
-        yesterday.getMonth(),
-        yesterday.getDate() - 1,
-      );
-      const expectedXMax = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+      const apr29 = new Date("2026-04-29T12:00:00Z");
+      const apr30 = new Date("2026-04-30T12:00:00Z");
+      const expectedXMin = new Date(apr29.getFullYear(), apr29.getMonth(), apr29.getDate() - 1);
+      const expectedXMax = new Date(apr30.getFullYear(), apr30.getMonth(), apr30.getDate() + 1);
       expect(xMin.getTime()).toBe(expectedXMin.getTime());
       expect(xMax.getTime()).toBe(expectedXMax.getTime());
     });
 
-    it("pads a single-day dataset by ±1 day (PM-34579 regression)", () => {
-      const today = new Date();
+    it("pads a single-day dataset by ±1 day", () => {
+      const today = new Date("2026-04-30T12:00:00Z");
 
       fixture.componentRef.setInput(
         "data",
@@ -331,9 +330,8 @@ describe("TrendWidgetComponent", () => {
     });
 
     it("pads a wide natural data range by one day on each side", () => {
-      const oldest = new Date();
-      oldest.setMonth(oldest.getMonth() - 6);
-      const newest = new Date();
+      const oldest = new Date("2025-10-30T12:00:00Z");
+      const newest = new Date("2026-04-30T12:00:00Z");
 
       fixture.componentRef.setInput(
         "data",
@@ -356,7 +354,7 @@ describe("TrendWidgetComponent", () => {
     });
 
     it("does not force a range when the period is not AllTime", () => {
-      const today = new Date();
+      const today = new Date("2026-04-30T12:00:00Z");
       fixture.componentRef.setInput(
         "data",
         mkData([{ timestamp: today.toISOString(), atRisk: 1, total: 2 }]),
