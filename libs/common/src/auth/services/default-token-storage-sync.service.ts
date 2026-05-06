@@ -316,6 +316,10 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
         const key = await this.getOrCreateAccessTokenKey(userId);
         const encryptedAccessToken = await this.encryptService.encryptString(accessToken, key);
         const encryptedString = encryptedAccessToken.encryptedString ?? null;
+        // TODO: randomized EncString IVs defeat this `prev !== new` guard, so the first emission
+        // post-hydration always re-writes the same plaintext under a new IV — costly on platforms
+        // like desktop where disk writes load a large data.json. Out of scope to fix here as guard was
+        // pre-existing.
         await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
           .update((_) => encryptedString, {
