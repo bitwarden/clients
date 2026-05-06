@@ -73,8 +73,10 @@ export class InitService {
       await this.tokenStorageSyncService.init();
 
       const accounts = await firstValueFrom(this.accountService.accounts$);
+      const userIds = Object.keys(accounts) as UserId[];
+
       const setUserKeyInMemoryPromises = [];
-      for (const userId of Object.keys(accounts) as UserId[]) {
+      for (const userId of userIds) {
         // For each acct, we must await the process of setting the user key in memory
         // if the auto user key is set to avoid race conditions of any code trying to access
         // the user key from mem.
