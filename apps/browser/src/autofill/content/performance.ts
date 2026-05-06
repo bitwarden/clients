@@ -20,14 +20,19 @@ const namesCache: Record<string, PerfNames> = {};
 let namesCacheSize = 0;
 const NAMES_CACHE_WARN_THRESHOLD = 64;
 
+const NAMES_SUFFIX = "autofill:bw";
+function formatMark(name: string, mark: string) {
+  return `${name}:${mark}:${NAMES_SUFFIX}`;
+}
+
 function resolveNames(name: string): PerfNames {
   let names = namesCache[name];
   if (!names) {
     names = {
-      measure: name,
-      start: name + ":start",
-      end: name + ":end",
-      poison: name + ":poison",
+      measure: `${name}:${NAMES_SUFFIX}`,
+      start: formatMark(name, "start"),
+      end: formatMark(name, "end"),
+      poison: formatMark(name, "poison"),
     };
     namesCache[name] = names;
     namesCacheSize++;
@@ -109,12 +114,15 @@ function flushBuffer(): void {
 /**
  * Activates instrumentation for all stopwatches and measures. This is a one-way
  * latch — once enabled, instrumentation remains active for the lifetime of the
- * content script. Creates a `perf:enabled` mark to anchor the instrumentation
+ * content script. Creates a `perf:enabled:autofill:bw` mark to anchor the instrumentation
  * start in the performance timeline.
  */
 export function enableInstrumentation(): void {
   enabled = true;
-  performance.mark("perf:enabled");
+  // LogService is not available in content scripts
+  // eslint-disable-next-line no-console
+  console.warn("⏱️ Bitwarden autofill profiler enabled. ⏱️");
+  performance.mark(`perf:enabled:${NAMES_SUFFIX}`);
 }
 
 /** Returns whether instrumentation is currently enabled. */
@@ -188,7 +196,7 @@ export function measure<T>(name: string, fn: () => T): T {
 }
 
 /**
- * Marks a measurement as poisoned by writing a `${name}:poison` mark to the
+ * Marks a measurement as poisoned by writing a `${name}:poison:autofill:bw` mark to the
  * Performance Timeline. Use when an unexpected error or external factor has
  * compromised the timing data, making it unreliable. Consumers should check
  * for poison marks before trusting extracted measures.

@@ -44,7 +44,7 @@ Drains the buffer and materializes each entry as a pair of `performance.mark` en
 
 ### Name stability
 
-Each stage produces entries with structured names: for a measure called `"foo"`, the marks are `foo:start`, `foo:end`, and (if poisoned) `foo:poison`. These names are part of the public contract — they are visible in browser developer tools and relied upon by test infrastructure. Changing the suffix convention (`:start`, `:end`, `:poison`) is a breaking change.
+Each stage produces entries with structured names: for a measure called `"foo:autofill:bw"`, the marks are `foo:start:autofill:bw`, `foo:end:autofill:bw`, and (if poisoned) `foo:poison:autofill:bw`. These names are part of the public contract — they are visible in browser developer tools and relied upon by test infrastructure. Changing the suffix convention (`:start:autofill:bw`, `:end:autofill:bw`, `:poison:autofill:bw`) is a breaking change.
 
 ### Privacy
 
@@ -92,14 +92,24 @@ Async functions are out of scope. If a measured function returns a Promise, the 
 
 ### Poison mechanism
 
-`poison(name)` writes a `${name}:poison` mark to the Performance Timeline. Consumers extracting measures via `performance.getEntriesByName()` should check for the corresponding poison mark before trusting the data. The convention is explicit and visible in browser developer tools — a poisoned measurement is impossible to overlook when inspecting the timeline.
+`poison(name)` writes a `${name}:poison:autofill:bw` mark to the Performance Timeline. Consumers extracting measures via `performance.getEntriesByName()` should check for the corresponding poison mark before trusting the data. The convention is explicit and visible in browser developer tools — a poisoned measurement is impossible to overlook when inspecting the timeline.
 
 Poisoning is not automatic so that the framework can instrument error paths.
 
-## Further optimization opportunities
+## Build-time activation gate
 
-The current design uses a runtime `enabled` flag checked at call time. This is simple, flexible (instrumentation can be activated at any point), and the overhead is negligible — a single predicted branch per call. But it's not zero.
+Instrumentation is activated only when the bootstrap is compiled with `BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS=true`. webpack's `DefinePlugin` substitutes the env var with a literal boolean at build time, and the bootstrap's `if (process.env.BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS) { enableInstrumentation(); useTimeoutForFlush(); }` becomes either `if (true) { ... }` (benchmark builds) or `if (false) { ... }` (production builds).
 
-A compile-time build gate (e.g., a webpack `DefinePlugin` constant) could eliminate that remaining overhead entirely. When the flag is `false` at build time, the minifier strips the dead branches and the instrumented code paths cease to exist in the bundle. The `stopwatch` wrapper becomes a pure passthrough with no branch at all.
+### Why a build-time gate, not a runtime control
 
-Content scripts are currently excluded from Terser minification (`webpack.base.js`), so a compile-time flag alone would produce `if (false) { ... }` blocks that ship as inert bytes but are never executed. If content script minification is ever enabled, those dead branches would be stripped automatically — achieving true zero-cost instrumentation in production builds.
+A runtime knob — a window global, a localStorage entry, a custom event the page can dispatch — would let a hostile host page enable autofill instrumentation against itself. Once enabled, the page could read the resulting `performance.measure` entries directly and observe the timing of internal autofill operations against its own DOM. That is a side channel into how the extension handles credentials, and we don't want it to exist as an addressable surface.
+
+Build-time gating closes that surface. In production, the flag is substituted to the literal `false`; the call to `enableInstrumentation()` is unreachable; the module-level `enabled` flag in `performance.ts` stays false for the lifetime of the content script. There is no runtime variable for any caller — page or otherwise — to flip.
+
+### What the gate does not do
+
+Content scripts are excluded from Terser minification (`webpack.base.js`), so the dead branch and the symbols it references — `enableInstrumentation`, `useTimeoutForFlush`, the buffer logic in `performance.ts` — survive in the production bundle as dead code. If the content-script Terser exclusion is ever revisited, those branches would be stripped automatically and the instrumented code paths would cease to exist in production at all.
+
+### Relationship to the runtime `enabled` flag
+
+The runtime `enabled` flag is still checked at every wrapped call site. It exists because it lets `enableInstrumentation()` be called late (after wrapping), and because the per-call branch is negligible — a CPU branch predictor learns the never-taken pattern immediately and the cost is a single comparison instruction. The build-time gate doesn't replace it; it controls whether `enableInstrumentation()` is ever called at all.

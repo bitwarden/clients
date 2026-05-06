@@ -135,6 +135,9 @@ module.exports.buildConfig = function buildConfig(params) {
     new webpack.DefinePlugin({
       "process.env": {
         ENV: JSON.stringify(ENV),
+        BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS: JSON.stringify(
+          process.env.BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS === "true",
+        ),
       },
     }),
     new webpack.EnvironmentPlugin({
