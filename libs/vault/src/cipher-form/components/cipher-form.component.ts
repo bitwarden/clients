@@ -347,7 +347,7 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
     private cipherFormCacheService: CipherFormCacheService,
     private cipherArchiveService: CipherArchiveService,
     private accountService: AccountService,
-  ) { }
+  ) {}
 
   /**
    * Counts the number of invalid fields in a form group.

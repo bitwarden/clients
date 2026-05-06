@@ -194,7 +194,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected cipherArchiveService: CipherArchiveService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     protected configService: ConfigService,
-  ) { }
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this.filters = await this.buildAllFilters();

@@ -60,7 +60,7 @@ describe("PassportSectionComponent", () => {
       expect(component.passportForm.getRawValue()).toEqual({
         surname: "",
         givenName: "",
-        dateOfBirth: { month: "", day: "", year: "" },
+        dateOfBirth: "",
         sex: "",
         birthPlace: "",
         nationality: "",
@@ -69,8 +69,8 @@ describe("PassportSectionComponent", () => {
         passportType: "",
         nationalIdentificationNumber: "",
         issuingAuthority: "",
-        issueDate: { month: "", day: "", year: "" },
-        expirationDate: { month: "", day: "", year: "" },
+        issueDate: "",
+        expirationDate: "",
       });
     });
 

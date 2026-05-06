@@ -9,6 +9,7 @@ import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginApi } from "../api/login.api";
+import { PassportApi } from "../api/passport.api";
 import { SecureNoteApi } from "../api/secure-note.api";
 import { SshKeyApi } from "../api/ssh-key.api";
 
@@ -34,6 +35,7 @@ export class CipherResponse extends BaseResponse {
   secureNote: SecureNoteApi;
   sshKey: SshKeyApi;
   bankAccount: BankAccountApi;
+  passport: PassportApi;
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
@@ -100,6 +102,11 @@ export class CipherResponse extends BaseResponse {
     const bankAccount = this.getResponseProperty("BankAccount");
     if (bankAccount != null) {
       this.bankAccount = new BankAccountApi(bankAccount);
+    }
+
+    const passport = this.getResponseProperty("Passport");
+    if (passport != null) {
+      this.passport = new PassportApi(passport);
     }
 
     const fields = this.getResponseProperty("Fields");

@@ -30,6 +30,7 @@ import { Card } from "./card";
 import { Field } from "./field";
 import { Identity } from "./identity";
 import { Login } from "./login";
+import { Passport } from "./passport";
 import { Password } from "./password";
 import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
@@ -56,6 +57,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   secureNote?: SecureNote;
   sshKey?: SshKey;
   bankAccount?: BankAccount;
+  passport?: Passport;
   attachments?: Attachment[];
   fields?: Field[];
   passwordHistory?: Password[];
@@ -111,6 +113,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
       case CipherType.BankAccount:
         this.bankAccount = new BankAccount(obj.bankAccount);
+        break;
+      case CipherType.Passport:
+        this.passport = new Passport(obj.passport);
         break;
       default:
         break;
@@ -191,6 +196,14 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       case CipherType.BankAccount:
         if (this.bankAccount != null) {
           model.bankAccount = await this.bankAccount.decrypt(
+            cipherDecryptionKey,
+            `Cipher Id: ${this.id}`,
+          );
+        }
+        break;
+      case CipherType.Passport:
+        if (this.passport != null) {
+          model.passport = await this.passport.decrypt(
             cipherDecryptionKey,
             `Cipher Id: ${this.id}`,
           );
@@ -300,6 +313,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           c.bankAccount = this.bankAccount.toBankAccountData();
         }
         break;
+      case CipherType.Passport:
+        if (this.passport != null) {
+          c.passport = this.passport.toPassportData();
+        }
+        break;
       default:
         break;
     }
@@ -387,6 +405,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           domain.bankAccount = BankAccount.fromJSON(obj.bankAccount);
         }
         break;
+      case CipherType.Passport:
+        if (obj.passport != null) {
+          domain.passport = Passport.fromJSON(obj.passport);
+        }
+        break;
       default:
         break;
     }
@@ -471,6 +494,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           sdkCipher.bankAccount = this.bankAccount.toSdkBankAccount();
         }
         break;
+      case CipherType.Passport:
+        if (this.passport != null) {
+          sdkCipher.passport = this.passport.toSdkPassport();
+        }
+        break;
       default:
         break;
     }
@@ -527,6 +555,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.identity = Identity.fromSdkIdentity(sdkCipher.identity);
     cipher.sshKey = SshKey.fromSdkSshKey(sdkCipher.sshKey);
     cipher.bankAccount = BankAccount.fromSdkBankAccount(sdkCipher.bankAccount);
+    cipher.passport = Passport.fromSdkPassport(sdkCipher.passport);
 
     return cipher;
   }

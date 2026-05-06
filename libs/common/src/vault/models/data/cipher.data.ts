@@ -11,6 +11,7 @@ import { CardData } from "./card.data";
 import { FieldData } from "./field.data";
 import { IdentityData } from "./identity.data";
 import { LoginData } from "./login.data";
+import { PassportData } from "./passport.data";
 import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
 import { SshKeyData } from "./ssh-key.data";
@@ -34,6 +35,7 @@ export class CipherData {
   identity?: IdentityData;
   sshKey?: SshKeyData;
   bankAccount?: BankAccountData;
+  passport?: PassportData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
   passwordHistory?: PasswordHistoryData[];
@@ -87,6 +89,9 @@ export class CipherData {
         break;
       case CipherType.BankAccount:
         this.bankAccount = new BankAccountData(response.bankAccount);
+        break;
+      case CipherType.Passport:
+        this.passport = new PassportData(response.passport);
         break;
       default:
         break;

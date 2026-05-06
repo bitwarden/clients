@@ -27,6 +27,11 @@ export class NewItemNudgeComponent {
         return of(false);
       }
       const nudgeType = this.mapToNudgeType(cipherType);
+
+      if (!nudgeType) {
+        return of(false);
+      }
+
       return this.nudgesService.showNudgeSpotlight$(nudgeType, userId);
     }),
   );
@@ -40,7 +45,7 @@ export class NewItemNudgeComponent {
     private nudgesService: NudgesService,
   ) {}
 
-  mapToNudgeType(cipherType: CipherType): NudgeType {
+  mapToNudgeType(cipherType: CipherType): NudgeType | null {
     switch (cipherType) {
       case CipherType.Login: {
         const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
@@ -83,6 +88,9 @@ export class NewItemNudgeComponent {
         this.nudgeTitle = this.i18nService.t("newBankAccountNudgeTitle");
         this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
         return NudgeType.NewBankAccountItemStatus;
+
+      case CipherType.Passport:
+        return null;
 
       default:
         throw new Error("Unsupported cipher type");
