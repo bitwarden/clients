@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
-import { BannerComponent, ButtonComponent, IconComponent } from "@bitwarden/components";
+import { BannerComponent, ButtonModule } from "@bitwarden/components";
 
 import { VaultOrganizationUserNotificationsService } from "../../services/vault-organization-user-notifications.service";
 
@@ -9,7 +9,7 @@ import { VaultOrganizationUserNotificationsService } from "../../services/vault-
   selector: "vault-organization-user-notifications",
   templateUrl: "./vault-organization-user-notifications.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [BannerComponent, ButtonComponent, IconComponent],
+  imports: [BannerComponent, ButtonModule],
   providers: [VaultOrganizationUserNotificationsService],
 })
 export class VaultOrganizationUserNotificationsComponent {
