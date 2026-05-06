@@ -14,7 +14,11 @@ use std::fmt;
 
 use anyhow::anyhow;
 use rkyv::{Archive, Deserialize, Serialize};
-use ssh_key::private::{Ed25519Keypair, RsaKeypair};
+use signature::Signer as _;
+use ssh_key::{
+    private::{Ed25519Keypair, RsaKeypair},
+    Signature,
+};
 
 pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 
@@ -23,6 +27,25 @@ pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 pub enum PrivateKey {
     Ed25519(Ed25519Keypair),
     Rsa(RsaKeypair),
+}
+
+impl PrivateKey {
+    /// Signs the provided data using this private key.
+    ///
+    /// # Returns
+    ///
+    /// A [`Signature`] containing the algorithm identifier and raw signature bytes.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the underlying signing operation fails.
+    pub fn sign(&self, data: &[u8]) -> anyhow::Result<Signature> {
+        match self {
+            Self::Ed25519(kp) => kp.try_sign(data),
+            Self::Rsa(kp) => kp.try_sign(data),
+        }
+        .map_err(|e| anyhow!("Signing failed: {}", e))
+    }
 }
 
 impl TryFrom<ssh_key::private::PrivateKey> for PrivateKey {
@@ -85,6 +108,7 @@ impl fmt::Display for PublicKey {
 
 #[cfg(test)]
 mod tests {
+    use signature::Verifier as _;
     use ssh_key::{
         private::{Ed25519Keypair, RsaKeypair},
         rand_core::OsRng,
@@ -120,5 +144,56 @@ mod tests {
 
         let private_key = PrivateKey::try_from(ssh_key).unwrap();
         assert!(matches!(private_key, PrivateKey::Rsa(_)));
+    }
+
+    #[test]
+    fn test_privatekey_sign_ed25519_algorithm() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let private_key = PrivateKey::Ed25519(keypair);
+        const TEST_DATA: &[u8] = b"test data";
+
+        let sig = private_key.sign(TEST_DATA).unwrap();
+
+        assert_eq!(sig.algorithm(), ssh_key::Algorithm::Ed25519);
+    }
+
+    #[test]
+    fn test_privatekey_sign_rsa_algorithm() {
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let private_key = PrivateKey::Rsa(keypair);
+        const TEST_DATA: &[u8] = b"test data";
+
+        let sig = private_key.sign(TEST_DATA).unwrap();
+
+        assert_eq!(
+            sig.algorithm(),
+            ssh_key::Algorithm::Rsa {
+                hash: Some(ssh_key::HashAlg::Sha512),
+            }
+        );
+    }
+
+    #[test]
+    fn test_privatekey_sign_ed25519_signature() {
+        let keypair = Ed25519Keypair::random(&mut OsRng);
+        let public_key = keypair.public; // use copy impl
+        let private_key = PrivateKey::Ed25519(keypair);
+        const TEST_DATA: &[u8] = b"test data";
+
+        let sig = private_key.sign(TEST_DATA).unwrap();
+
+        public_key.verify(TEST_DATA, &sig).unwrap();
+    }
+
+    #[test]
+    fn test_privatekey_sign_rsa_signature() {
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let public_key = keypair.public.clone(); // use clone impl
+        let private_key = PrivateKey::Rsa(keypair);
+        const TEST_DATA: &[u8] = b"test data";
+
+        let sig = private_key.sign(TEST_DATA).unwrap();
+
+        public_key.verify(TEST_DATA, &sig).unwrap();
     }
 }
