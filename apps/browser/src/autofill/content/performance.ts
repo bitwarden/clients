@@ -196,7 +196,7 @@ export function measure<T>(name: string, fn: () => T): T {
 }
 
 /**
- * Marks a measurement as poisoned by writing a `${name}:poison` mark to the
+ * Marks a measurement as poisoned by writing a `${name}:poison:autofill:bw` mark to the
  * Performance Timeline. Use when an unexpected error or external factor has
  * compromised the timing data, making it unreliable. Consumers should check
  * for poison marks before trusting extracted measures.
