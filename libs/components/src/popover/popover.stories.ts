@@ -77,7 +77,9 @@ const defaultContent = /*html*/ `
 const withMediaAndFooterContent = /*html*/ `
   <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
     <bit-popover-header>
-      <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Slot" alt="" />
+      <div slot="media" class="tw-h-[200px] tw-bg-bg-gray tw-flex tw-items-center tw-justify-center">
+        <h1>Media Slot</h1>
+      </div>
     </bit-popover-header>
     A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
     <bit-popover-footer>
@@ -96,15 +98,13 @@ export const Default: Story = {
       <div class="tw-mt-44 tw-h-[400px]">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       ${defaultContent}
       `,
@@ -123,15 +123,13 @@ export const WithFooter: Story = {
       <div class="tw-mt-44 tw-h-[400px]">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
         A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
@@ -158,19 +156,19 @@ export const WithMedia: Story = {
       <div class="tw-mt-44 tw-h-[400px]">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
         <bit-popover-header>
-          <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Slot" alt="" />
+          <div slot="media" class="tw-h-[200px] tw-bg-bg-gray tw-flex tw-items-center tw-justify-center">
+            <h1>Media Slot</h1>
+          </div>
         </bit-popover-header>
         A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
       </bit-popover>
@@ -190,15 +188,13 @@ export const WithMediaAndFooter: Story = {
       <div class="tw-mt-44 tw-h-[500px]">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       ${withMediaAndFooterContent}
       `,
@@ -225,19 +221,19 @@ export const Stepper: Story = {
       <div class="tw-mt-44 tw-h-[500px]">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
         <bit-popover-header>
-          <img slot="media" src="https://placehold.co/352x160/e2e8f0/64748b?text=Media+Header" alt="" />
+          <div class="tw-h-[200px] tw-bg-bg-gray tw-flex tw-items-center tw-justify-center">
+            <h1>Media Slot</h1>
+          </div>
         </bit-popover-header>
         <p class="tw-mb-2 tw-mt-0">A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.</p>
         <ul class="tw-list-none tw-ps-0 tw-mb-2 tw-mt-0">
@@ -287,16 +283,14 @@ export const RightStart: Story = {
       <div class="tw-h-[500px] tw-mt-44">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       ${defaultContent}
       `,
@@ -316,16 +310,14 @@ export const RightCenter: Story = {
       <div class="tw-h-[500px] tw-mt-44">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       ${defaultContent}
       `,
@@ -345,16 +337,14 @@ export const RightEnd: Story = {
       <div class="tw-h-[500px] tw-mt-44">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
       ${defaultContent}
       `,
@@ -375,16 +365,14 @@ export const LeftStart: Story = {
         <div class="tw-flex tw-justify-end">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -406,16 +394,14 @@ export const LeftCenter: Story = {
         <div class="tw-flex tw-justify-end">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -437,16 +423,14 @@ export const LeftEnd: Story = {
         <div class="tw-flex tw-justify-end">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -468,16 +452,14 @@ export const BelowStart: Story = {
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -499,16 +481,14 @@ export const BelowCenter: Story = {
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -530,16 +510,14 @@ export const BelowEnd: Story = {
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -561,16 +539,14 @@ export const AboveStart: Story = {
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -592,16 +568,14 @@ export const AboveCenter: Story = {
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -623,16 +597,14 @@ export const AboveEnd: Story = {
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
       ${defaultContent}
@@ -682,7 +654,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step1Ref="popoverAnchor"
           >
-            <i class="bwi bwi-plus-circle tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-plus-circle" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Create</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Add new items</p>
           </div>
@@ -696,7 +668,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step2Ref="popoverAnchor"
           >
-            <i class="bwi bwi-search tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-search" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Search</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Find anything</p>
           </div>
@@ -710,7 +682,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step3Ref="popoverAnchor"
           >
-            <i class="bwi bwi-cog tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-cog" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Settings</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Configure options</p>
           </div>
@@ -795,7 +767,7 @@ export const MultipleSpotlights: Story = {
             [spotlightPadding]="12"
             [position]="'below-center'"
           >
-            <i class="bwi bwi-star tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-star" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Feature 1</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">First feature card</p>
           </div>
@@ -809,7 +781,7 @@ export const MultipleSpotlights: Story = {
             [spotlightPadding]="12"
             [position]="'below-center'"
           >
-            <i class="bwi bwi-heart tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-heart" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Feature 2</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Second feature card</p>
           </div>
