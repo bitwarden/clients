@@ -670,7 +670,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         [CipherType.SecureNote]: "newItemHeaderNote",
         [CipherType.SshKey]: "newItemHeaderSshKey",
         [CipherType.BankAccount]: "newItemHeaderBankAccount",
-        [CipherType.DriversLicense]: "newItemHeaderLicense",
+        [CipherType.DriversLicense]: "newItemHeaderDriversLicense",
         [CipherType.Passport]: "newItemHeaderPassport",
       },
       edit: {

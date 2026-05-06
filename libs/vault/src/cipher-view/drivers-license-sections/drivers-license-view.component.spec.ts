@@ -3,10 +3,16 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DriversLicenseView } from "@bitwarden/common/vault/models/view/drivers-license.view";
+
+import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { PasswordRepromptService } from "../../services/password-reprompt.service";
 
 import { DriversLicenseViewComponent } from "./drivers-license-view.component";
 
@@ -32,13 +38,14 @@ describe("DriversLicenseViewComponent", () => {
         DatePipe,
         { provide: EventCollectionService, useValue: mock<EventCollectionService>({ collect }) },
         { provide: I18nService, useValue: { t: (...keys: string[]) => keys.join(" ") } },
+        { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
+        { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
+        { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
+        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: CipherService, useValue: mock<CipherService>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    })
-      .overrideComponent(DriversLicenseViewComponent, {
-        set: { template: "<div></div>", imports: [] },
-      })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(DriversLicenseViewComponent);
     component = fixture.componentInstance;
@@ -57,14 +64,10 @@ describe("DriversLicenseViewComponent", () => {
     });
 
     it("formats a full date as longDate", () => {
-      expect(component.formatDate("2024-1-15")).toBe("January 15, 2024");
+      expect(component.formatDate("2024-01-15")).toBe("January 15, 2024");
     });
 
-    it("formats a year and month without a day", () => {
-      expect(component.formatDate("2024-1")).toBe("January 2024");
-    });
-
-    it("returns the year string when only a year is present", () => {
+    it("returns the date string when only year is present", () => {
       expect(component.formatDate("2024")).toBe("2024");
     });
 

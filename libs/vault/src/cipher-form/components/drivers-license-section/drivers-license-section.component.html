@@ -32,40 +32,12 @@
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
-    <div formGroupName="dateOfBirth" class="tw-flex tw-flex-wrap tw-gap-1">
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "birthMonth" | i18n }}</bit-label>
-        <bit-select formControlName="month">
-          @for (month of months; track month.value) {
-            <bit-option [value]="month.value" [label]="month.name"></bit-option>
-          }
-        </bit-select>
-      </bit-form-field>
-
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "birthDay" | i18n }}</bit-label>
-        <input
-          id="dateOfBirthDay"
-          bitInput
-          formControlName="day"
-          type="text"
-          inputmode="numeric"
-          maxlength="2"
-        />
-      </bit-form-field>
-
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "birthYear" | i18n }}</bit-label>
-        <input
-          id="dateOfBirthYear"
-          bitInput
-          formControlName="year"
-          type="text"
-          inputmode="numeric"
-          maxlength="4"
-        />
-      </bit-form-field>
-    </div>
+    <vault-date-field-group
+      formControlName="dateOfBirth"
+      [monthLabel]="'birthMonth' | i18n"
+      [dayLabel]="'birthDay' | i18n"
+      [yearLabel]="'birthYear' | i18n"
+    />
 
     <bit-form-field>
       <bit-label>{{ "issuingCountry" | i18n }}</bit-label>
@@ -82,75 +54,19 @@
       <input id="issuingAuthority" bitInput formControlName="issuingAuthority" type="text" />
     </bit-form-field>
 
-    <div formGroupName="issueDate" class="tw-flex tw-flex-wrap tw-gap-1">
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "issueMonth" | i18n }}</bit-label>
-        <bit-select formControlName="month">
-          @for (month of months; track month.value) {
-            <bit-option [value]="month.value" [label]="month.name"></bit-option>
-          }
-        </bit-select>
-      </bit-form-field>
+    <vault-date-field-group
+      formControlName="issueDate"
+      [monthLabel]="'issueMonth' | i18n"
+      [dayLabel]="'issueDay' | i18n"
+      [yearLabel]="'issueYear' | i18n"
+    />
 
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "issueDay" | i18n }}</bit-label>
-        <input
-          id="issueDateDay"
-          bitInput
-          formControlName="day"
-          type="text"
-          inputmode="numeric"
-          maxlength="2"
-        />
-      </bit-form-field>
-
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "issueYear" | i18n }}</bit-label>
-        <input
-          id="issueDateYear"
-          bitInput
-          formControlName="year"
-          type="text"
-          inputmode="numeric"
-          maxlength="4"
-        />
-      </bit-form-field>
-    </div>
-
-    <div formGroupName="expirationDate" class="tw-flex tw-flex-wrap tw-gap-1">
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "expirationMonth" | i18n }}</bit-label>
-        <bit-select formControlName="month">
-          @for (month of months; track month.value) {
-            <bit-option [value]="month.value" [label]="month.name"></bit-option>
-          }
-        </bit-select>
-      </bit-form-field>
-
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "expirationDay" | i18n }}</bit-label>
-        <input
-          id="expirationDateDay"
-          bitInput
-          formControlName="day"
-          type="text"
-          inputmode="numeric"
-          maxlength="2"
-        />
-      </bit-form-field>
-
-      <bit-form-field class="tw-flex-1">
-        <bit-label>{{ "expirationYear" | i18n }}</bit-label>
-        <input
-          id="expirationDateYear"
-          bitInput
-          formControlName="year"
-          type="text"
-          inputmode="numeric"
-          maxlength="4"
-        />
-      </bit-form-field>
-    </div>
+    <vault-date-field-group
+      formControlName="expirationDate"
+      [monthLabel]="'expirationMonth' | i18n"
+      [dayLabel]="'expirationDay' | i18n"
+      [yearLabel]="'expirationYear' | i18n"
+    />
 
     <bit-form-field disableMargin>
       <bit-label>{{ "licenseClass" | i18n }}</bit-label>

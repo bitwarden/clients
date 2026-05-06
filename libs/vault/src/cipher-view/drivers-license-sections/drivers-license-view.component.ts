@@ -50,15 +50,10 @@ export class DriversLicenseViewComponent {
 
     if (year && month && day) {
       const date = new Date(+year, +month - 1, +day);
-      return this.datePipe.transform(date, "longDate") ?? dateStr;
+      return this.datePipe.transform(date, "longDate") ?? "";
     }
 
-    if (year && month) {
-      const date = new Date(+year, +month - 1, 1);
-      return this.datePipe.transform(date, "MMMM y") ?? dateStr;
-    }
-
-    return year ?? dateStr;
+    return dateStr;
   }
 
   async toggleLicenseNumberVisible(visible: boolean) {
