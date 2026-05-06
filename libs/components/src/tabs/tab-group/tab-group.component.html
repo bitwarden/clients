@@ -69,7 +69,7 @@
       role="tabpanel"
       [id]="getTabContentId(i)"
       [attr.tabindex]="tab.contentTabIndex()"
-      [attr.labelledby]="getTabLabelId(i)"
+      [attr.aria-labelledby]="getTabLabelId(i)"
       [active]="tab.isActive()"
       [content]="tab.content"
       [preserveContent]="preserveContent()"
