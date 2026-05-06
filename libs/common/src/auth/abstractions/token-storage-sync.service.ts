@@ -33,15 +33,25 @@ export abstract class TokenStorageSyncService {
   abstract init(): Promise<void>;
 
   /**
-   * Imperatively clears all tokens from the persistent tier (disk + OS secure storage)
-   * for the given user. Intended to be called from logout paths immediately after
-   * `TokenService.clearTokensFromMemory(userId)` and awaited before the rest of the logout flow runs.
+   * Clears every persistent copy of the user's authentication tokens — access token,
+   * refresh token, API key client ID, and API key client secret — for the given user.
    *
-   * Why this exists in addition to the reactive subscription: the per-user subscription
-   * also observes the memory clear and emits a wipe, but the wipe is fire-and-forget
-   * inside `subscribe()`. App close, browser tab close, CLI exit, or MV3 service worker
+   * On all platforms, this clears the disk-backed state for each of those four tokens.
+   * On platforms that support OS secure storage (Keychain, DPAPI, etc.), it additionally
+   * removes the refresh token and the access token's encryption key from secure storage.
+   * Secure storage remove failures are logged, not thrown.
+   *
+   * Intended to be called from logout paths immediately after
+   * `TokenService.clearTokensFromMemory(userId)` and awaited before the rest of the
+   * logout flow runs.
+   *
+   * Why this exists alongside the reactive subscription: the per-user subscription also
+   * observes the memory clear and emits a wipe, but that wipe is fire-and-forget inside
+   * `subscribe()`. App close, browser tab close, CLI exit, or MV3 service worker
    * termination between the memory clear and the async wipe can leave tokens on disk.
-   * An explicit awaited call closes that window. Idempotent — safe when disk is already clear.
+   * An explicit awaited call closes that window.
+   *
+   * Idempotent — safe when disk is already clear.
    */
   abstract clearTokensFromDisk(userId: UserId): Promise<void>;
 }

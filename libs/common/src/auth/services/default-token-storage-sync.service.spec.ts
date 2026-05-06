@@ -654,7 +654,7 @@ describe("DefaultTokenStorageSyncService", () => {
       });
     });
 
-    describe("wipeTokensFromDisk — secure storage removal", () => {
+    describe("clearTokensFromDisk — secure storage removal (via reactive sync)", () => {
       it("removes access token key and refresh token from OS secure storage when wiping", async () => {
         sut = createService(true);
 

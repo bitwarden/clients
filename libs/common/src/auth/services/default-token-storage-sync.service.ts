@@ -60,10 +60,6 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     this.startAccountSubscriptions();
   }
 
-  async clearTokensFromDisk(userId: UserId): Promise<void> {
-    await this.wipeTokensFromDisk(userId);
-  }
-
   /**
    * Hydrates memory for every account known at startup. Must complete before any token
    * reads are served or subscriptions start.
@@ -245,7 +241,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
   }
 
   /**
-   * Dispatches to {@link writeTokensToDisk} or {@link wipeTokensFromDisk} based on the
+   * Dispatches to {@link writeTokensToDisk} or {@link clearTokensFromDisk} based on the
    * security invariant.
    *
    * A null access token means the user has logged out — disk is wiped unconditionally
@@ -261,13 +257,13 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     timeout: VaultTimeout,
   ): Promise<void> {
     if (!accessToken) {
-      await this.wipeTokensFromDisk(userId);
+      await this.clearTokensFromDisk(userId);
       return;
     }
     if (this.shouldPersistToDisk(action, timeout)) {
       await this.writeTokensToDisk(userId, accessToken, refreshToken, clientId, clientSecret);
     } else {
-      await this.wipeTokensFromDisk(userId);
+      await this.clearTokensFromDisk(userId);
     }
   }
 
@@ -365,14 +361,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       });
   }
 
-  /**
-   * Clears all token storage locations for the given user.
-   *
-   * JSON disk state keys are cleared on all platforms. On secure storage platforms,
-   * the access token key and refresh token are also removed from OS secure storage.
-   * Secure storage remove failures are logged but do not throw.
-   */
-  private async wipeTokensFromDisk(userId: UserId): Promise<void> {
+  async clearTokensFromDisk(userId: UserId): Promise<void> {
     await Promise.all([
       this.singleUserStateProvider
         .get(userId, ACCESS_TOKEN_DISK)
