@@ -1,3 +1,5 @@
+import { UserId } from "../../types/guid";
+
 /**
  * Owns all token disk persistence decisions for the application.
  *
@@ -29,4 +31,17 @@ export abstract class TokenStorageSyncService {
    *    memory state whenever tokens or vault timeout settings change.
    */
   abstract init(): Promise<void>;
+
+  /**
+   * Imperatively clears all tokens from the persistent tier (disk + OS secure storage)
+   * for the given user. Intended to be called from logout paths immediately after
+   * `TokenService.clearTokens(userId)` and awaited before the rest of the logout flow runs.
+   *
+   * Why this exists in addition to the reactive subscription: the per-user subscription
+   * also observes the memory clear and emits a wipe, but the wipe is fire-and-forget
+   * inside `subscribe()`. App close, browser tab close, CLI exit, or MV3 service worker
+   * termination between the memory clear and the async wipe can leave tokens on disk.
+   * An explicit awaited call closes that window. Idempotent — safe when disk is already clear.
+   */
+  abstract clearTokensFromDisk(userId: UserId): Promise<void>;
 }

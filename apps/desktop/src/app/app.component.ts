@@ -42,6 +42,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { TokenStorageSyncService } from "@bitwarden/common/auth/abstractions/token-storage-sync.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -179,6 +180,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private pinService: PinServiceAbstraction,
     private readonly tokenService: TokenService,
+    private readonly tokenStorageSyncService: TokenStorageSyncService,
     private readonly lockService: LockService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
@@ -746,6 +748,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
       await this.stateService.clean({ userId: userBeingLoggedOut });
       await this.tokenService.clearTokens(userBeingLoggedOut);
+      await this.tokenStorageSyncService.clearTokensFromDisk(userBeingLoggedOut);
       await this.accountService.clean(userBeingLoggedOut);
 
       // HACK: Wait for the user logging outs authentication status to transition to LoggedOut

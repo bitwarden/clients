@@ -1912,6 +1912,7 @@ export default class MainBackground {
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
     await this.tokenService.clearTokens(userBeingLoggedOut);
+    await this.tokenStorageSyncService.clearTokensFromDisk(userBeingLoggedOut);
     await this.accountService.clean(userBeingLoggedOut);
 
     await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);

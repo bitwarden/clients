@@ -1137,6 +1137,7 @@ export class ServiceContainer {
 
     await this.stateService.clean({ userId: userId });
     await this.tokenService.clearTokens(userId);
+    await this.tokenStorageSyncService.clearTokensFromDisk(userId as UserId);
     await this.accountService.clean(userId as UserId);
     await this.accountService.switchAccount(null);
     process.env.BW_SESSION = undefined;

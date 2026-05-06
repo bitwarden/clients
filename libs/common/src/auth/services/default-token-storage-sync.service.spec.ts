@@ -911,4 +911,67 @@ describe("DefaultTokenStorageSyncService", () => {
       );
     });
   });
+
+  describe("clearTokensFromDisk", () => {
+    it("clears all four token disk state keys for the given user", async () => {
+      sut = createService(false);
+
+      await singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).update((_) => "diskAccess");
+      await singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => "diskRefresh");
+      await singleUserStateProvider
+        .get(userId, API_KEY_CLIENT_ID_DISK)
+        .update((_) => "diskClientId");
+      await singleUserStateProvider
+        .get(userId, API_KEY_CLIENT_SECRET_DISK)
+        .update((_) => "diskClientSecret");
+
+      await sut.clearTokensFromDisk(userId);
+
+      expect(
+        await firstValueFrom(singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$),
+      ).toBeNull();
+      expect(
+        await firstValueFrom(singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).state$),
+      ).toBeNull();
+      expect(
+        await firstValueFrom(singleUserStateProvider.get(userId, API_KEY_CLIENT_ID_DISK).state$),
+      ).toBeNull();
+      expect(
+        await firstValueFrom(
+          singleUserStateProvider.get(userId, API_KEY_CLIENT_SECRET_DISK).state$,
+        ),
+      ).toBeNull();
+    });
+
+    it("removes access token key and refresh token from OS secure storage on secure storage platforms", async () => {
+      sut = createService(true);
+      secureStorageService.remove.mockResolvedValue();
+
+      await sut.clearTokensFromDisk(userId);
+
+      expect(secureStorageService.remove).toHaveBeenCalledWith(
+        `${userId}_accessTokenKey`,
+        expect.objectContaining({ useSecureStorage: true, userId }),
+      );
+      expect(secureStorageService.remove).toHaveBeenCalledWith(
+        `${userId}_refreshToken`,
+        expect.objectContaining({ useSecureStorage: true, userId }),
+      );
+    });
+
+    it("does not call secure storage when the platform does not support it", async () => {
+      sut = createService(false);
+
+      await sut.clearTokensFromDisk(userId);
+
+      expect(secureStorageService.remove).not.toHaveBeenCalled();
+    });
+
+    it("is idempotent — running twice when disk is already clear does not throw", async () => {
+      sut = createService(false);
+
+      await sut.clearTokensFromDisk(userId);
+      await expect(sut.clearTokensFromDisk(userId)).resolves.not.toThrow();
+    });
+  });
 });

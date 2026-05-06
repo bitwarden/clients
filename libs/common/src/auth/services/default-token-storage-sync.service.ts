@@ -60,6 +60,10 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     this.startAccountSubscriptions();
   }
 
+  async clearTokensFromDisk(userId: UserId): Promise<void> {
+    await this.wipeTokensFromDisk(userId);
+  }
+
   /**
    * Hydrates memory for every account known at startup. Must complete before any token
    * reads are served or subscriptions start.
