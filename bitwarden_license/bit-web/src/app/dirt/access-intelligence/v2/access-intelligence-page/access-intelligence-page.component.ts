@@ -347,9 +347,15 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
    * Derives critical applications' at-risk members drawer content.
    */
   private getCriticalAtRiskMembersContent(report: AccessReportView): CriticalAtRiskMembersData {
+    const members = report.getCriticalAtRiskMembers();
     return {
       type: DrawerType.CriticalAtRiskMembers,
-      members: this.mapMembersToDrawerData(report.getCriticalAtRiskMembers(), report),
+      members: members.map((member) => ({
+        email: member.email,
+        userName: member.userName ?? "",
+        userGuid: member.id,
+        atRiskPasswordCount: report.getCriticalAtRiskPasswordCountForMember(member.id),
+      })),
     };
   }
 
@@ -378,7 +384,9 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
       email: member.email,
       userName: member.userName ?? "",
       userGuid: member.id,
-      atRiskPasswordCount: report.getAtRiskPasswordCountForMember(member.id, app?.applicationName),
+      atRiskPasswordCount:
+        app?.getAtRiskPasswordCountForMember(member.id) ??
+        report.getAtRiskPasswordCountForMember(member.id),
     }));
   }
 }
