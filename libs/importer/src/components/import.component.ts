@@ -7,6 +7,7 @@ import {
   DestroyRef,
   EventEmitter,
   Inject,
+  input,
   Input,
   OnDestroy,
   OnInit,
@@ -16,6 +17,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
 import * as JSZip from "jszip";
 import {
   Observable,
@@ -70,7 +72,7 @@ import {
 } from "@bitwarden/components";
 
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
-import { ImportOption, ImportResult, ImportType } from "../models";
+import { ImportOption, ImportType } from "../models";
 import {
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
@@ -82,6 +84,7 @@ import {
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
   ImportSuccessDialogComponent,
+  ImportSuccessDialogData,
 } from "./dialog";
 import { ImporterProviders } from "./importer-providers";
 import { ImportLastPassComponent } from "./lastpass";
@@ -170,6 +173,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input()
   onImportFromBrowser: (browser: string, profile: string) => Promise<any[]>;
+
+  protected readonly returnTo = input<string | undefined>(undefined);
 
   protected organization: Organization | undefined = undefined;
   protected destroy$ = new Subject<void>();
@@ -269,6 +274,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private destroyRef: DestroyRef,
     protected importMetadataService: ImportMetadataServiceAbstraction,
+    private router: Router,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -526,8 +532,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       );
 
       //No errors, display success message
-      this.dialogService.open<unknown, ImportResult>(ImportSuccessDialogComponent, {
-        data: result,
+      const returnDestination = this.returnTo()
+        ? this.resolveReturnDestination(this.returnTo())
+        : undefined;
+      this.dialogService.open<unknown, ImportSuccessDialogData>(ImportSuccessDialogComponent, {
+        data: {
+          importResult: result,
+          ...returnDestination,
+        },
       });
 
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -693,5 +705,25 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  protected resolveReturnDestination(
+    returnTo: string,
+  ): { returnUrl: string; returnLabel: string } | undefined {
+    if (!this.organizationId) {
+      return undefined;
+    }
+    const destinations: Record<string, () => { returnUrl: string; returnLabel: string }> = {
+      "access-intelligence": () => ({
+        returnUrl: this.router.serializeUrl(
+          this.router.createUrlTree(
+            ["/organizations", this.organizationId, "access-intelligence"],
+            { queryParams: { source: "import", status: "success" } },
+          ),
+        ),
+        returnLabel: this.i18nService.t("goToAccessIntelligence"),
+      }),
+    };
+    return destinations[returnTo]?.();
   }
 }
