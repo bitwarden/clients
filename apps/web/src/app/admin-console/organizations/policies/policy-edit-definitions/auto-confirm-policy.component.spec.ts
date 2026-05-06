@@ -65,7 +65,7 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
     // Defaults: admin org, no policies, API calls succeed, setup dialog visible
     organizationService.organizations$.mockReturnValue(of([makeOrg(true, false)]));
     policyService.policies$.mockReturnValue(of([]));
-    policyApiService.putPolicyVNext.mockResolvedValue(undefined);
+    policyApiService.putPolicy.mockResolvedValue(undefined);
     autoConfirmService.configuration$.mockReturnValue(
       of(Object.assign(new AutoConfirmState(), { showSetupDialog: true })),
     );
@@ -104,11 +104,11 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
 
       await runSideEffect();
 
-      expect(policyApiService.putPolicyVNext).toHaveBeenCalledWith(orgId, PolicyType.SingleOrg, {
+      expect(policyApiService.putPolicy).toHaveBeenCalledWith(orgId, PolicyType.SingleOrg, {
         policy: { enabled: true, data: null },
         metadata: null,
       });
-      expect(policyApiService.putPolicyVNext).toHaveBeenCalledWith(
+      expect(policyApiService.putPolicy).toHaveBeenCalledWith(
         orgId,
         PolicyType.AutoConfirm,
         expect.objectContaining({ policy: expect.objectContaining({ enabled: true }) }),
@@ -120,7 +120,7 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
 
       await runSideEffect();
 
-      const singleOrgEnableCalls = policyApiService.putPolicyVNext.mock.calls.filter(
+      const singleOrgEnableCalls = policyApiService.putPolicy.mock.calls.filter(
         ([, type, req]) => type === PolicyType.SingleOrg && req?.policy?.enabled === true,
       );
       expect(singleOrgEnableCalls).toHaveLength(0);
@@ -131,7 +131,7 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
 
       await runSideEffect();
 
-      expect(policyApiService.putPolicyVNext).toHaveBeenCalledWith(
+      expect(policyApiService.putPolicy).toHaveBeenCalledWith(
         orgId,
         PolicyType.AutoConfirm,
         expect.objectContaining({ policy: expect.objectContaining({ enabled: false }) }),
@@ -143,14 +143,14 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
     it("rolls back SingleOrg when AutoConfirm save fails and SingleOrg was enabled during this action", async () => {
       policyService.policies$.mockReturnValue(of([])); // SingleOrg not previously enabled
 
-      policyApiService.putPolicyVNext
+      policyApiService.putPolicy
         .mockResolvedValueOnce(undefined) // SingleOrg enable → success
         .mockRejectedValueOnce(new Error("network error")) // AutoConfirm save → fail
         .mockResolvedValueOnce(undefined); // SingleOrg rollback → success
 
       await expect(runSideEffect()).rejects.toThrow("network error");
 
-      expect(policyApiService.putPolicyVNext).toHaveBeenCalledWith(orgId, PolicyType.SingleOrg, {
+      expect(policyApiService.putPolicy).toHaveBeenCalledWith(orgId, PolicyType.SingleOrg, {
         policy: { enabled: false, data: null },
         metadata: null,
       });
@@ -160,11 +160,11 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
       policyService.policies$.mockReturnValue(
         of([makePolicy(PolicyType.SingleOrg, true)]), // SingleOrg already on
       );
-      policyApiService.putPolicyVNext.mockRejectedValueOnce(new Error("network error"));
+      policyApiService.putPolicy.mockRejectedValueOnce(new Error("network error"));
 
       await expect(runSideEffect()).rejects.toThrow("network error");
 
-      const singleOrgDisableCalls = policyApiService.putPolicyVNext.mock.calls.filter(
+      const singleOrgDisableCalls = policyApiService.putPolicy.mock.calls.filter(
         ([, type, req]) => type === PolicyType.SingleOrg && req?.policy?.enabled === false,
       );
       expect(singleOrgDisableCalls).toHaveLength(0);
