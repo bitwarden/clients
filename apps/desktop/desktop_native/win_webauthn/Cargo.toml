@@ -6,6 +6,7 @@ edition.workspace = true
 publish.workspace = true
 
 [target.'cfg(windows)'.dependencies]
+base64 = { workspace = true }
 tracing = { workspace = true }
 windows = { workspace = true, features = [
     "Win32_Foundation",

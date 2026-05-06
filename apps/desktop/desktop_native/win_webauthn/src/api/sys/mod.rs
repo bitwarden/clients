@@ -10,6 +10,11 @@ use std::{num::NonZeroU32, ptr::NonNull};
 
 use windows::core::BOOL;
 
+pub(super) const WEBAUTHN_CREDENTIAL_ATTESTATION_VERSION_8: u32 = 8;
+
+// WebAuthn Attestation Decode types
+pub(super) const WEBAUTHN_ATTESTATION_DECODE_NONE: u32 = 0;
+
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub(super) struct WEBAUTHN_COSE_CREDENTIAL_PARAMETER {
