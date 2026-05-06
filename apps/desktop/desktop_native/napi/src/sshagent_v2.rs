@@ -37,7 +37,7 @@ pub mod sshagent_v2 {
     }
 
     /// A sign request's SIG namespace
-    #[napi(string_enum)]
+    #[napi(string_enum = "camelCase")]
     #[derive(Debug)]
     pub enum SIGNamespace {
         Git,
