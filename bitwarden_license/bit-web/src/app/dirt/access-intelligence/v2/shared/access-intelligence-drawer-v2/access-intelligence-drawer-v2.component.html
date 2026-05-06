@@ -1,6 +1,6 @@
 <!-- Organization-wide At-Risk Members -->
 @if (data.type === DrawerType.OrgAtRiskMembers) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskMembersWithCount" | i18n: data.members?.length ?? 0 }}</span>
     </ng-container>
@@ -43,7 +43,7 @@
 
 <!-- Application-specific At-Risk Members -->
 @if (data.type === DrawerType.AppAtRiskMembers) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ data.applicationName }}</span>
     </ng-container>
@@ -70,7 +70,7 @@
 
 <!-- Organization-wide At-Risk Applications -->
 @if (data.type === DrawerType.OrgAtRiskApps) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskApplicationsWithCount" | i18n: data.applications?.length ?? 0 }}</span>
     </ng-container>
@@ -114,7 +114,7 @@
 
 <!-- Critical Applications' At-Risk Members -->
 @if (data.type === DrawerType.CriticalAtRiskMembers) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskMembersWithCount" | i18n: data.members?.length ?? 0 }}</span>
     </ng-container>
@@ -159,7 +159,7 @@
 
 <!-- Critical Applications' At-Risk Apps -->
 @if (data.type === DrawerType.CriticalAtRiskApps) {
-  <bit-dialog dialogSize="small" disablePadding="false">
+  <bit-dialog dialogSize="small">
     <ng-container bitDialogTitle>
       <span>{{ "atRiskApplicationsWithCount" | i18n: data.applications?.length ?? 0 }}</span>
     </ng-container>
