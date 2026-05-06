@@ -292,6 +292,12 @@ export class CipherViewLikeUtils {
         return !!cipher.bankAccount?.iban;
       case "licenseNumber":
         return !!cipher.driversLicense?.licenseNumber;
+      case "firstName":
+        return !!cipher.driversLicense?.firstName;
+      case "middleName":
+        return !!cipher.driversLicense?.middleName;
+      case "lastName":
+        return !!cipher.driversLicense?.lastName;
       default:
         return false;
     }

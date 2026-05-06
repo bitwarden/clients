@@ -623,6 +623,41 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
       });
     }
 
+    const addDriverLicenseFields = () => {
+      const fields = ["firstName", "middleName", "lastName", "licenseNumber"] as const;
+      const fieldLabels: Record<(typeof fields)[number], { copyLabelKey: string; aType?: string }> =
+        {
+          firstName: {
+            copyLabelKey: "copyFirstName",
+          },
+          middleName: {
+            copyLabelKey: "copyMiddleName",
+          },
+          lastName: {
+            copyLabelKey: "copyLastName",
+          },
+          licenseNumber: {
+            copyLabelKey: "copyLicenseNumber",
+            aType: "License Number",
+          },
+        };
+      const hasAnyField = fields.some((field) => cipher.driversLicense?.[field] != null);
+      if (hasAnyField) {
+        menu.push({ type: "separator" });
+      }
+
+      fields.forEach((field) => {
+        const value = cipher.driversLicense?.[field];
+        if (value != null) {
+          const { copyLabelKey, aType } = fieldLabels[field];
+          menu.push({
+            label: this.i18nService.t(copyLabelKey),
+            click: () => this.copyValue(cipher, value, field, aType),
+          });
+        }
+      });
+    };
+
     switch (cipher.type) {
       case CipherType.Login:
         if (
@@ -731,6 +766,9 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
             click: () => this.copyValue(cipher, cipher.bankAccount.iban, "iban", "IBAN"),
           });
         }
+        break;
+      case CipherType.DriversLicense:
+        addDriverLicenseFields();
         break;
       default:
         break;
