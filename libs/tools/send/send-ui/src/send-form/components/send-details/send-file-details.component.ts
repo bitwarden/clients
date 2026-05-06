@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, Validators, ReactiveFormsModule, FormsModule } from "@angular/forms";
 
@@ -30,6 +30,8 @@ import { SendFormService } from "../../abstractions/send-form.service";
 export class SendFileDetailsComponent implements OnInit {
   protected readonly sendFormService = inject(SendFormService);
   private readonly formBuilder = inject(FormBuilder);
+
+  protected readonly editing = input<boolean>();
 
   readonly sendFileDetailsForm = this.formBuilder.group({
     file: this.formBuilder.control<SendFileView | null>(null, Validators.required),

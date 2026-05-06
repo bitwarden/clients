@@ -176,10 +176,10 @@ export class DefaultSendFormService implements SendFormService {
     return true;
   }
 
-  async removeSendPassword(): Promise<void> {
+  async removeSendPassword(): Promise<boolean> {
     const originalSendViewId = this.originalSendView()?.id;
     if (!originalSendViewId) {
-      return;
+      return false;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "removePassword" },
@@ -188,7 +188,7 @@ export class DefaultSendFormService implements SendFormService {
     });
 
     if (!confirmed) {
-      return;
+      return false;
     }
 
     await this.sendApiService.removePassword(originalSendViewId);
@@ -202,5 +202,6 @@ export class DefaultSendFormService implements SendFormService {
     const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));
     const updatedSendView = await this.decryptSend(updatedSend);
     this._originalSendView.set(updatedSendView);
+    return true;
   }
 }

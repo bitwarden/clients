@@ -76,7 +76,8 @@ export abstract class SendFormService {
   abstract promptForUnsavedEdits(): Promise<boolean>;
 
   /** A function that removes the password from a Send, or returns immediately if
-   * the Send is not protected by password
+   * the Send is not protected by password. Returns a boolean indicating whether
+   * the password was removed successfully or not
    */
-  abstract removeSendPassword(): Promise<void>;
+  abstract removeSendPassword(): Promise<boolean>;
 }

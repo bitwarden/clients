@@ -1,6 +1,6 @@
 <bit-section [formGroup]="sendFileDetailsForm">
   @if (sendFormService.sendFormConfig.mode === "edit") {
-    <div>
+    <div [class]="!editing() ? 'tw-border-secondary-300/50 tw-border-b tw-pb-[2px]' : ''">
       <div bitTypography="body2" class="tw-text-muted">{{ "file" | i18n }}</div>
       <div class="tw-text-wrap tw-break-all" data-testid="file-name">
         {{ sendFormService.originalSendView()?.file.fileName }}

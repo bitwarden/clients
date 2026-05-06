@@ -13,7 +13,7 @@
       <tools-send-text-details [editing]="editing()"></tools-send-text-details>
     }
     @if (sendFormService.sendFormConfig.sendType === SendType.File) {
-      <tools-send-file-details></tools-send-file-details>
+      <tools-send-file-details [editing]="editing()"></tools-send-file-details>
     }
 
     <bit-form-field>

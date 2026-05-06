@@ -3,7 +3,11 @@
     @if (!editing()) {
       <bit-card>
         <div bitTypography="h4">{{ "sendLink" | i18n }}</div>
-        <div class="tw-text-muted tw-mt-2 tw-mb-4 tw-truncate" bitTypography="body2">
+        <div
+          class="tw-text-muted tw-mt-2 tw-mb-4 tw-truncate"
+          bitTypography="body2"
+          aria-hidden="true"
+        >
           {{ sendLink() }}
         </div>
         <button
