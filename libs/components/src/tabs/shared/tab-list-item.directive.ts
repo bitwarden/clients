@@ -1,5 +1,5 @@
 import { FocusableOption } from "@angular/cdk/a11y";
-import { Directive, ElementRef, Input, input } from "@angular/core";
+import { Directive, ElementRef, computed, inject, input } from "@angular/core";
 
 /**
  * Directive used for styling tab header items for both nav links (anchor tags)
@@ -8,21 +8,21 @@ import { Directive, ElementRef, Input, input } from "@angular/core";
 @Directive({
   selector: "[bitTabListItem]",
   host: {
-    "[attr.disabled]": "disabled || null",
+    "[attr.disabled]": "disabledInput() || null",
     "[attr.aria-selected]": "active() === true",
-    "[class]": "classList",
+    "[class]": "classList()",
   },
 })
 export class TabListItemDirective implements FocusableOption {
   readonly active = input<boolean>();
-  // TODO: Skipped for signal migration because:
-  //  This input overrides a field from a superclass, while the superclass field
-  //  is not migrated.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() disabled = false;
+  readonly disabledInput = input(false, { alias: "disabled" });
 
-  constructor(readonly elementRef: ElementRef) {}
+  // Satisfies FocusableOption interface from CDK (cannot change external interface)
+  get disabled(): boolean {
+    return this.disabledInput();
+  }
+
+  readonly elementRef = inject(ElementRef);
 
   focus() {
     this.elementRef.nativeElement.focus();
@@ -32,26 +32,26 @@ export class TabListItemDirective implements FocusableOption {
     this.elementRef.nativeElement.click();
   }
 
-  get classList(): string[] {
-    return this.baseClassList
+  protected readonly classList = computed(() =>
+    this.baseClassList
       .concat(this.active() ? this.activeClassList : [])
-      .concat(this.disabled ? this.disabledClassList : [])
-      .concat(this.textColorClassList);
-  }
+      .concat(this.disabledInput() ? this.disabledClassList : [])
+      .concat(this.textColorClassList()),
+  );
 
   /**
    * Classes used for styling tab item text color.
    * Separate text color class list required to override bootstrap classes in Web.
    */
-  get textColorClassList(): string[] {
-    if (this.disabled) {
+  protected readonly textColorClassList = computed(() => {
+    if (this.disabledInput()) {
       return ["!tw-text-fg-disabled", "hover:!tw-text-fg-disabled"];
     }
     if (this.active()) {
       return ["!tw-text-fg-brand"];
     }
     return ["!tw-text-fg-body", "hover:!tw-text-fg-brand"];
-  }
+  });
 
   readonly baseClassList: string[] = [
     "tw-block",
@@ -62,7 +62,6 @@ export class TabListItemDirective implements FocusableOption {
     "tw-pb-3",
     "tw-text-sm",
     "tw-font-medium",
-    "tw-transition",
     "tw-bg-transparent",
     "tw-outline-none",
     "tw-group/tab-list-item",
