@@ -1,16 +1,8 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  OnInit,
-  signal,
-  WritableSignal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, Observable, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -46,7 +38,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
     LinkComponent,
   ],
 })
-export class ByLinkTabComponent implements OnInit {
+export class ByLinkTabComponent {
   readonly organizationId = input.required<OrganizationId, string>({
     transform: (value: string) => value as OrganizationId,
   });
@@ -62,8 +54,6 @@ export class ByLinkTabComponent implements OnInit {
     toObservable(this.organizationId),
   ]).pipe(switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)));
 
-  protected readonly showCallout: WritableSignal<boolean> = signal(false);
-
   protected readonly form = this.fb.group({
     domains: ["", Validators.required],
   });
@@ -75,10 +65,6 @@ export class ByLinkTabComponent implements OnInit {
         this.form.markAsPristine();
       }
     });
-  }
-
-  async ngOnInit() {
-    this.showCallout.set(await firstValueFrom(this.inviteLink$.pipe(map((link) => link == null))));
   }
 
   readonly save = async () => {
@@ -106,8 +92,6 @@ export class ByLinkTabComponent implements OnInit {
     }
 
     this.form.markAsPristine();
-
-    this.showCallout.set(false);
 
     this.toastService.showToast({
       variant: "success",

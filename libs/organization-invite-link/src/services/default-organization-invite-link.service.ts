@@ -1,8 +1,9 @@
-import { catchError, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -38,7 +39,6 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
         }
         return of(state);
       }),
-      catchError(() => of(undefined)),
     );
   }
 
@@ -104,8 +104,8 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     let response: OrganizationInviteLinkResponseModel;
     try {
       response = await this.apiService.get(orgId);
-    } catch (e: any) {
-      if (e.status === 404) {
+    } catch (e) {
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
         return undefined;
       }
       throw e;
