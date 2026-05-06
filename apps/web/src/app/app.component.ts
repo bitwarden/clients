@@ -13,7 +13,6 @@ import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenStorageSyncService } from "@bitwarden/common/auth/abstractions/token-storage-sync.service";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
@@ -76,7 +75,6 @@ export class AppComponent implements OnDestroy, OnInit {
     private deviceTrustToastService: DeviceTrustToastService,
     private readonly destroy: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
-    private readonly tokenService: TokenService,
     private readonly tokenStorageSyncService: TokenStorageSyncService,
     private readonly routerFocusManager: RouterFocusManagerService,
   ) {
@@ -266,7 +264,6 @@ export class AppComponent implements OnDestroy, OnInit {
 
     this.authService.logOut(async () => {
       await this.stateService.clean({ userId: userId });
-      await this.tokenService.clearTokensFromMemory(userId);
       await this.tokenStorageSyncService.clearTokensFromDisk(userId);
       await this.accountService.clean(userId);
       await this.accountService.switchAccount(null);

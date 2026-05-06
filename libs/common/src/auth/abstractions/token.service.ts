@@ -12,8 +12,13 @@ import { DecodedAccessToken } from "../services/token.service";
  * memory state exclusively. Disk persistence (and OS secure storage) is owned entirely by
  * `TokenStorageSyncService`, which reacts to changes on the observables exposed here and
  * decides whether to write to or wipe the persistent tier based on the user's vault timeout
- * settings. Logout sites must call both `clearTokensFromMemory(userId)` (this service) and
- * `tokenStorageSyncService.clearTokensFromDisk(userId)` for a complete wipe.
+ * settings.
+ *
+ * **Logout cleanup.** The four token memory state keys use `clearOn: ["logout"]`, so they are
+ * cleared automatically by `StateEventRunnerService.handleEvent("logout", userId)`
+ * Logout sites are still required to call
+ * `tokenStorageSyncService.clearTokensFromDisk(userId)` to wipe disk and OS secure storage
+ * synchronously.
  *
  * The two-factor token methods (`setTwoFactorToken`, `getTwoFactorToken`, `clearTwoFactorToken`)
  * are an exception — they read/write a global disk-backed state key and are unrelated to the
@@ -54,15 +59,6 @@ export abstract class TokenService {
     refreshToken?: string,
     clientIdClientSecret?: [string, string],
   ): Promise<SetTokensResult>;
-
-  /**
-   * Clears the access token, refresh token, API Key Client ID, and API Key Client Secret from memory.
-   * Logout sites must additionally call `tokenStorageSyncService.clearTokensFromDisk(userId)` to
-   * synchronously wipe the persistent tier — see the class JSDoc.
-   * @param userId The user id to clear the tokens for.
-   * @returns A promise that resolves when the tokens have been cleared from memory.
-   */
-  abstract clearTokensFromMemory(userId: UserId): Promise<void>;
 
   /**
    * Sets the access token in memory. Disk persistence is handled reactively by TokenStorageSyncService.

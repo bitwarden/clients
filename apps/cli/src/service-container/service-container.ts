@@ -1136,7 +1136,6 @@ export class ServiceContainer {
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
 
     await this.stateService.clean({ userId: userId });
-    await this.tokenService.clearTokensFromMemory(userId as UserId);
     await this.tokenStorageSyncService.clearTokensFromDisk(userId as UserId);
     await this.accountService.clean(userId as UserId);
     await this.accountService.switchAccount(null);

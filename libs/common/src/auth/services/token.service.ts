@@ -200,10 +200,6 @@ export class TokenService implements TokenServiceAbstraction {
     return await this._setAccessToken(accessToken, userId);
   }
 
-  private async clearAccessToken(userId: UserId): Promise<void> {
-    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
-  }
-
   async getAccessToken(userId: UserId): Promise<string | null> {
     if (!userId) {
       return null;
@@ -234,14 +230,6 @@ export class TokenService implements TokenServiceAbstraction {
     return await this.getStateValueByUserIdAndKeyDef(userId, REFRESH_TOKEN_MEMORY);
   }
 
-  private async clearRefreshToken(userId: UserId): Promise<void> {
-    if (!userId) {
-      throw new Error("User id not found. Cannot clear refresh token.");
-    }
-
-    await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
-  }
-
   async setClientId(clientId: string, userId?: UserId): Promise<string> {
     userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
 
@@ -262,16 +250,6 @@ export class TokenService implements TokenServiceAbstraction {
     return await this.getStateValueByUserIdAndKeyDef(userId, API_KEY_CLIENT_ID_MEMORY);
   }
 
-  private async clearClientId(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
-    if (!userId) {
-      throw new Error("User id not found. Cannot clear client id.");
-    }
-
-    await this.singleUserStateProvider.get(userId, API_KEY_CLIENT_ID_MEMORY).update((_) => null);
-  }
-
   async setClientSecret(clientSecret: string, userId?: UserId): Promise<string> {
     userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
 
@@ -290,18 +268,6 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     return await this.getStateValueByUserIdAndKeyDef(userId, API_KEY_CLIENT_SECRET_MEMORY);
-  }
-
-  private async clearClientSecret(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
-    if (!userId) {
-      throw new Error("User id not found. Cannot clear client secret.");
-    }
-
-    await this.singleUserStateProvider
-      .get(userId, API_KEY_CLIENT_SECRET_MEMORY)
-      .update((_) => null);
   }
 
   async setTwoFactorToken(email: string, twoFactorToken: string): Promise<void> {
@@ -331,15 +297,6 @@ export class TokenService implements TokenServiceAbstraction {
       delete emailTwoFactorTokenRecord[email];
       return emailTwoFactorTokenRecord;
     });
-  }
-
-  async clearTokensFromMemory(userId: UserId): Promise<void> {
-    await Promise.all([
-      this.clearAccessToken(userId),
-      this.clearRefreshToken(userId),
-      this.clearClientId(userId),
-      this.clearClientSecret(userId),
-    ]);
   }
 
   // jwthelper methods

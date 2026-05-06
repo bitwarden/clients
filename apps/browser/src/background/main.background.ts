@@ -1911,7 +1911,6 @@ export default class MainBackground {
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
-    await this.tokenService.clearTokensFromMemory(userBeingLoggedOut);
     await this.tokenStorageSyncService.clearTokensFromDisk(userBeingLoggedOut);
     await this.accountService.clean(userBeingLoggedOut);
 

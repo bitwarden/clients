@@ -197,20 +197,6 @@ describe("TokenService", () => {
       });
     });
 
-    describe("clearAccessToken", () => {
-      it("clears the access token from memory for the given user", async () => {
-        singleUserStateProvider
-          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
-          .nextState(accessTokenJwt);
-
-        await (tokenService as any).clearAccessToken(userIdFromAccessToken);
-
-        expect(
-          singleUserStateProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextMock,
-        ).toHaveBeenCalledWith(null);
-      });
-    });
-
     describe("decodeAccessToken", () => {
       it("retrieves the requested user's token when the passed in parameter is a Guid", async () => {
         tokenService.getAccessToken = jest.fn().mockResolvedValue(accessTokenJwt);
@@ -657,25 +643,6 @@ describe("TokenService", () => {
         expect(result).toEqual(refreshToken);
       });
     });
-
-    describe("clearRefreshToken", () => {
-      it("throws an error when no user id is provided", async () => {
-        const result = (tokenService as any).clearRefreshToken();
-        await expect(result).rejects.toThrow("User id not found. Cannot clear refresh token.");
-      });
-
-      it("clears the refresh token from memory when given a user id", async () => {
-        singleUserStateProvider
-          .getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY)
-          .nextState(refreshToken);
-
-        await (tokenService as any).clearRefreshToken(userIdFromAccessToken);
-
-        expect(
-          singleUserStateProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextMock,
-        ).toHaveBeenCalledWith(null);
-      });
-    });
   });
 
   describe("Client Id methods", () => {
@@ -719,39 +686,6 @@ describe("TokenService", () => {
 
         const result = await tokenService.getClientId(userIdFromAccessToken);
         expect(result).toEqual(clientId);
-      });
-    });
-
-    describe("clearClientId", () => {
-      it("throws an error when no user id is provided and there is no active user in global state", async () => {
-        const result = (tokenService as any).clearClientId();
-        await expect(result).rejects.toThrow("User id not found. Cannot clear client id.");
-      });
-
-      it("clears the client id from memory when a user id is specified", async () => {
-        singleUserStateProvider
-          .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-          .nextState(clientId);
-
-        await (tokenService as any).clearClientId(userIdFromAccessToken);
-
-        expect(
-          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY).nextMock,
-        ).toHaveBeenCalledWith(null);
-      });
-
-      it("clears the client id from memory when there is a global active user", async () => {
-        singleUserStateProvider
-          .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
-          .nextState(clientId);
-
-        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
-
-        await (tokenService as any).clearClientId();
-
-        expect(
-          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY).nextMock,
-        ).toHaveBeenCalledWith(null);
       });
     });
   });
@@ -799,41 +733,6 @@ describe("TokenService", () => {
 
         const result = await tokenService.getClientSecret(userIdFromAccessToken);
         expect(result).toEqual(clientSecret);
-      });
-    });
-
-    describe("clearClientSecret", () => {
-      it("throws an error when no user id is provided and there is no active user in global state", async () => {
-        const result = (tokenService as any).clearClientSecret();
-        await expect(result).rejects.toThrow("User id not found. Cannot clear client secret.");
-      });
-
-      it("clears the client secret from memory when a user id is specified", async () => {
-        singleUserStateProvider
-          .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-          .nextState(clientSecret);
-
-        await (tokenService as any).clearClientSecret(userIdFromAccessToken);
-
-        expect(
-          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-            .nextMock,
-        ).toHaveBeenCalledWith(null);
-      });
-
-      it("clears the client secret from memory when there is a global active user", async () => {
-        singleUserStateProvider
-          .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-          .nextState(clientSecret);
-
-        globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID).nextState(userIdFromAccessToken);
-
-        await (tokenService as any).clearClientSecret();
-
-        expect(
-          singleUserStateProvider.getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
-            .nextMock,
-        ).toHaveBeenCalledWith(null);
       });
     });
   });
@@ -938,24 +837,6 @@ describe("TokenService", () => {
 
       expect((tokenService as any).setRefreshToken).not.toHaveBeenCalled();
       expect(result).toStrictEqual(new SetTokensResult(accessTokenJwt));
-    });
-  });
-
-  describe("clearTokensFromMemory", () => {
-    it("clears access, refresh, client id, and client secret for the given user id", async () => {
-      const userId = "userId" as UserId;
-
-      (tokenService as any).clearAccessToken = jest.fn();
-      (tokenService as any).clearRefreshToken = jest.fn();
-      (tokenService as any).clearClientId = jest.fn();
-      (tokenService as any).clearClientSecret = jest.fn();
-
-      await tokenService.clearTokensFromMemory(userId);
-
-      expect((tokenService as any).clearAccessToken).toHaveBeenCalledWith(userId);
-      expect((tokenService as any).clearRefreshToken).toHaveBeenCalledWith(userId);
-      expect((tokenService as any).clearClientId).toHaveBeenCalledWith(userId);
-      expect((tokenService as any).clearClientSecret).toHaveBeenCalledWith(userId);
     });
   });
 
