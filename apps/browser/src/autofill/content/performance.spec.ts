@@ -123,7 +123,11 @@ describe("Performance instrumentation", () => {
 
       expect(markSpy).toHaveBeenCalledWith("myFunc:start:autofill:bw", { startTime: 100 });
       expect(markSpy).toHaveBeenCalledWith("myFunc:end:autofill:bw", { startTime: 105 });
-      expect(measureSpy).toHaveBeenCalledWith("myFunc:autofill:bw", "myFunc:start:autofill:bw", "myFunc:end:autofill:bw");
+      expect(measureSpy).toHaveBeenCalledWith(
+        "myFunc:autofill:bw",
+        "myFunc:start:autofill:bw",
+        "myFunc:end:autofill:bw",
+      );
     });
 
     it("does not record a timing entry when the wrapped function throws", () => {
@@ -192,7 +196,11 @@ describe("Performance instrumentation", () => {
       expect(result).toBe(42);
       expect(markSpy).toHaveBeenCalledWith("block:start:autofill:bw", { startTime: 200 });
       expect(markSpy).toHaveBeenCalledWith("block:end:autofill:bw", { startTime: 210 });
-      expect(measureSpy).toHaveBeenCalledWith("block:autofill:bw", "block:start:autofill:bw", "block:end:autofill:bw");
+      expect(measureSpy).toHaveBeenCalledWith(
+        "block:autofill:bw",
+        "block:start:autofill:bw",
+        "block:end:autofill:bw",
+      );
     });
 
     it("does not record a timing entry when the function throws", () => {
