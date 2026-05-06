@@ -21,7 +21,7 @@ let namesCacheSize = 0;
 const NAMES_CACHE_WARN_THRESHOLD = 64;
 
 const NAMES_SUFFIX = "autofill:bw";
-function formatMark(name: string, mark: string){
+function formatMark(name: string, mark: string) {
   return `${name}:${mark}:${NAMES_SUFFIX}`;
 }
 
@@ -119,6 +119,8 @@ function flushBuffer(): void {
  */
 export function enableInstrumentation(): void {
   enabled = true;
+  // LogService is not available in content scripts
+  // eslint-disable-next-line no-console
   console.warn("⏱️ Bitwarden autofill profiler enabled. ⏱️");
   performance.mark(`perf:enabled:${NAMES_SUFFIX}`);
 }

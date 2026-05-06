@@ -11,10 +11,8 @@ import { enableInstrumentation, useTimeoutForFlush } from "./performance";
 
 (function (windowContext) {
   if (!windowContext.bitwardenAutofillInit) {
-    if (windowContext.__BITWARDEN_ENABLE_INSTRUMENTATION__) {
+    if (process.env.BW_INCLUDE_CONTENT_SCRIPT_MEASUREMENTS) {
       enableInstrumentation();
-    }
-    if (windowContext.__BITWARDEN_USE_TIMEOUT_FLUSH__) {
       useTimeoutForFlush();
     }
 
