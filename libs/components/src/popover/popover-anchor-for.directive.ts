@@ -68,6 +68,15 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Padding around the spotlight cutout in pixels */
   readonly spotlightPadding = input<number>(0);
 
+  /**
+   * CSS selector to find a child element within the anchor to use as the spotlight target.
+   * If not provided, the anchor element itself is used.
+   */
+  readonly spotlightTargetSelector = input<string>();
+
+  /** Minimum distance in pixels between the popover and the viewport edge */
+  readonly viewportMargin = input<number>(0);
+
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private readonly hasInitialized = signal(false);
@@ -103,7 +112,8 @@ export class PopoverAnchorForDirective implements OnDestroy {
         .withPositions(this.positions)
         .withLockedPosition(true)
         .withFlexibleDimensions(false)
-        .withPush(true),
+        .withPush(true)
+        .withViewportMargin(this.viewportMargin()),
     };
   }
 
@@ -144,8 +154,13 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
     // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
+      const selector = this.spotlightTargetSelector();
+      const spotlightEl = selector
+        ? ((this.elementRef.nativeElement.querySelector(selector) as HTMLElement | null) ??
+          this.elementRef.nativeElement)
+        : this.elementRef.nativeElement;
       this.spotlightService.register(this);
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
+      this.spotlightService.showSpotlight(spotlightEl, this.spotlightPadding());
     }
 
     this.popoverOpen.set(true);
