@@ -2,12 +2,10 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
+import { BiometricsStatus } from "@bitwarden/key-management";
 
 import { DesktopBiometricsService } from "./desktop.biometrics.service";
 
@@ -17,11 +15,7 @@ import { DesktopBiometricsService } from "./desktop.biometrics.service";
  */
 @Injectable()
 export class RendererBiometricsService extends DesktopBiometricsService {
-  constructor(
-    private tokenService: TokenService,
-    private sdkService: SdkService,
-    private biometricStateService: BiometricStateService,
-  ) {
+  constructor(private tokenService: TokenService) {
     super();
   }
 
@@ -86,16 +80,7 @@ export class RendererBiometricsService extends DesktopBiometricsService {
   }
 
   async enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void> {
-    await ipc.keyManagement.biometric.enrollPersistent(userId, key.toBase64());
-    const keyId = (await firstValueFrom(this.sdkService.client$))
-      .crypto()
-      .get_key_id_for_symmetric_key(key.toEncoded());
-    if (keyId != null) {
-      await this.biometricStateService.setBiometricEnrolledKeyId(
-        userId,
-        Utils.fromBufferToB64(keyId),
-      );
-    }
+    return await ipc.keyManagement.biometric.enrollPersistent(userId, key.toBase64());
   }
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
