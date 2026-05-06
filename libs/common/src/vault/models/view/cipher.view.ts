@@ -27,7 +27,6 @@ import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { LoginView } from "./login.view";
-import { PassportView } from "./passport.view";
 import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
@@ -54,7 +53,6 @@ export class CipherView implements View, InitializerMetadata {
   sshKey = new SshKeyView();
   bankAccount = new BankAccountView();
   driversLicense = new DriversLicenseView();
-  passport = new PassportView();
   attachments: AttachmentView[] = [];
   fields: FieldView[] = [];
   passwordHistory: PasswordHistoryView[] = [];
@@ -115,8 +113,6 @@ export class CipherView implements View, InitializerMetadata {
         return this.bankAccount;
       case CipherType.DriversLicense:
         return this.driversLicense;
-      case CipherType.Passport:
-        return this.passport;
       default:
         break;
     }
@@ -285,9 +281,6 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.DriversLicense:
         view.driversLicense = DriversLicenseView.fromJSON(obj.driversLicense);
         break;
-      case CipherType.Passport:
-        view.passport = PassportView.fromJSON(obj.passport);
-        break;
       default:
         break;
     }
@@ -386,11 +379,6 @@ export class CipherView implements View, InitializerMetadata {
           ? DriversLicenseView.fromSdkDriversLicenseView(obj.driversLicense)
           : new DriversLicenseView();
         break;
-      case CipherType.Passport:
-        cipherView.passport = obj.passport
-          ? PassportView.fromSdkPassportView(obj.passport)
-          : new PassportView();
-        break;
       default:
         break;
     }
@@ -487,9 +475,6 @@ export class CipherView implements View, InitializerMetadata {
       case CipherType.DriversLicense:
         viewType = { driversLicense: this.driversLicense?.toSdkDriversLicenseView() };
         break;
-      case CipherType.Passport:
-        viewType = { passport: this.passport?.toSdkPassportView() };
-        break;
       default:
         viewType = {
           // Default to empty login - should not be valid code path.
@@ -570,9 +555,6 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.DriversLicense:
         sdkCipherView.driversLicense = this.driversLicense?.toSdkDriversLicenseView();
-        break;
-      case CipherType.Passport:
-        sdkCipherView.passport = this.passport?.toSdkPassportView();
         break;
       default:
         break;
