@@ -11,16 +11,31 @@
     @if (!hasReportData()) {
       <!-- Show empty state when there's no report data -->
       <div @fadeIn class="tw-flex tw-justify-center tw-items-center tw-min-h-[70vh] tw-w-full">
-        <!-- V2: Show empty state for no reports run -->
-        <empty-state-card
-          [videoSrc]="emptyStateVideoSrc"
-          [title]="this.i18nService.t('noReportsRunTitle')"
-          [description]="this.i18nService.t('noReportsRunDescription')"
-          [benefits]="emptyStateBenefits"
-          [buttonText]="this.i18nService.t('riskInsightsRunReport')"
-          [buttonIcon]="''"
-          [buttonAction]="this.generateReport.bind(this)"
-        ></empty-state-card>
+        @if (!hasCiphers()) {
+          <!-- Show Empty state when there are no applications (no ciphers to make reports on) -->
+          <empty-state-card
+            [videoSrc]="emptyStateVideoSrc"
+            [title]="this.i18nService.t('noDataInOrgTitle')"
+            [description]="this.i18nService.t('noDataInOrgDescription')"
+            [benefits]="emptyStateBenefits"
+            [buttonText]="this.i18nService.t('importData')"
+            [buttonIcon]="'bwi bwi-download'"
+            [buttonAction]="this.goToImportPage"
+          >
+          </empty-state-card>
+        } @else {
+          <!-- V2: Show empty state for no reports run -->
+          <empty-state-card
+            [videoSrc]="emptyStateVideoSrc"
+            [title]="this.i18nService.t('noReportsRunTitle')"
+            [description]="this.i18nService.t('noReportsRunDescription')"
+            [benefits]="emptyStateBenefits"
+            [buttonText]="this.i18nService.t('riskInsightsRunReport')"
+            [buttonIcon]="''"
+            [buttonAction]="this.generateReport.bind(this)"
+          >
+          </empty-state-card>
+        }
       </div>
     } @else {
       <!-- Show screen when there is report data -->
