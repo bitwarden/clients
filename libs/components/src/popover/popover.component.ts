@@ -25,18 +25,6 @@ export class PopoverComponent {
   /** Optional title displayed in the popover header */
   readonly title = input("");
 
-  /** Optional CSS class(es) applied to the inner content container */
-  readonly panelClass = input<string>("");
-
-  /** Optional CSS class(es) applied to the title element */
-  readonly titleClass = input<string>("");
-
-  /** Optional CSS class(es) applied to the header row (title + close button) */
-  readonly headerClass = input<string>("");
-
-  /** Optional CSS class(es) applied to the body content container */
-  readonly contentClass = input<string>("");
-
   /** Event emitted when the popover should close */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
