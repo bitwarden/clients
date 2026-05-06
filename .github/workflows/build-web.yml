@@ -461,27 +461,12 @@ jobs:
     needs: build-containers
     permissions:
       id-token: write
-      actions: write
     steps:
-      - name: Log in to Azure
-        uses: bitwarden/gh-actions/azure-login@main
+      - name: Trigger deployment
+        uses: bitwarden/gh-actions/trigger-actions@main
         with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Trigger web vault deploy using GitHub Run ID
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            await github.rest.actions.createWorkflowDispatch({
-              owner: 'bitwarden',
-              repo: 'clients',
-              workflow_id: 'deploy-web.yml',
-              ref: 'main',
-              inputs: {
-                'environment': 'USDEV',
-                'build-web-run-id': '${{ github.run_id }}'
-              }
-            })
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          task: deploy-webvault-dev
+          description: "Triggered by build-web on main"

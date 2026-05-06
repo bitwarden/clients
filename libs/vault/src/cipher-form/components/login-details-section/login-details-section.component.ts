@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DatePipe, NgIf } from "@angular/common";
+import { DatePipe } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit, Optional } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
@@ -43,7 +43,6 @@ import { AutofillOptionsComponent } from "../autofill-options/autofill-options.c
     FormFieldModule,
     IconButtonModule,
     AsyncActionsModule,
-    NgIf,
     PopoverModule,
     AutofillOptionsComponent,
     LinkModule,
