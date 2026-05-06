@@ -36,7 +36,7 @@ export class InitService {
     return async () => {
       await this.sdkLoadService.loadAndInit();
       await this.migrationRunner.waitForCompletion(); // Browser background is responsible for migrations
-      await this.tokenStorageSyncService.init();
+      await this.tokenStorageSyncService.waitForHydration();
       await this.i18nService.init();
       this.twoFactorService.init();
       await this.viewCacheService.init();

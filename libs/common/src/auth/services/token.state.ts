@@ -87,3 +87,12 @@ export const SECURITY_STAMP_MEMORY = new UserKeyDefinition<string>(TOKEN_MEMORY,
   deserializer: (securityStamp) => securityStamp,
   clearOn: ["logout"],
 });
+
+// Coordination flag set by TokenStorageSyncService.init() and awaited by waitForHydration().
+export const TOKEN_STORAGE_HYDRATED = new KeyDefinition<boolean>(
+  TOKEN_MEMORY,
+  "tokenStorageHydrated",
+  {
+    deserializer: (hydrated) => hydrated,
+  },
+);

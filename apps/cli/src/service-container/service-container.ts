@@ -580,6 +580,7 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       this.accountService,
       this.singleUserStateProvider,
+      this.globalStateProvider,
       this.secureStorageService,
       this.encryptService,
       this.keyGenerationService,

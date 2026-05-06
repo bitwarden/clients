@@ -805,6 +805,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       AccountServiceAbstraction,
       SingleUserStateProvider,
+      GlobalStateProvider,
       SECURE_STORAGE,
       EncryptService,
       KeyGenerationService,

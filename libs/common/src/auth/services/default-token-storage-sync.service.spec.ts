@@ -1,7 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { FakeSingleUserStateProvider } from "../../../spec";
+import { FakeGlobalStateProvider, FakeSingleUserStateProvider } from "../../../spec";
 import { KeyGenerationService } from "../../key-management/crypto";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
@@ -25,6 +25,7 @@ import {
   API_KEY_CLIENT_SECRET_MEMORY,
   REFRESH_TOKEN_DISK,
   REFRESH_TOKEN_MEMORY,
+  TOKEN_STORAGE_HYDRATED,
 } from "./token.state";
 
 describe("DefaultTokenStorageSyncService", () => {
@@ -34,6 +35,7 @@ describe("DefaultTokenStorageSyncService", () => {
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
   let accountService: MockProxy<AccountService>;
   let singleUserStateProvider: FakeSingleUserStateProvider;
+  let globalStateProvider: FakeGlobalStateProvider;
   let secureStorageService: MockProxy<AbstractStorageService>;
   let encryptService: MockProxy<EncryptService>;
   let keyGenerationService: MockProxy<KeyGenerationService>;
@@ -59,6 +61,7 @@ describe("DefaultTokenStorageSyncService", () => {
     jest.clearAllMocks();
 
     singleUserStateProvider = new FakeSingleUserStateProvider();
+    globalStateProvider = new FakeGlobalStateProvider();
 
     tokenService = mock<TokenService>();
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
@@ -93,6 +96,7 @@ describe("DefaultTokenStorageSyncService", () => {
       vaultTimeoutSettingsService,
       accountService,
       singleUserStateProvider,
+      globalStateProvider,
       secureStorageService,
       encryptService,
       keyGenerationService,
@@ -972,6 +976,64 @@ describe("DefaultTokenStorageSyncService", () => {
 
       await sut.clearTokensFromDisk(userId);
       await expect(sut.clearTokensFromDisk(userId)).resolves.not.toThrow();
+    });
+  });
+
+  describe("init() idempotency and waitForHydration()", () => {
+    beforeEach(() => {
+      sut = createService(false);
+    });
+
+    it("publishes the hydration sentinel after init() completes", async () => {
+      const hydratedState = globalStateProvider.getFake(TOKEN_STORAGE_HYDRATED);
+      expect(await firstValueFrom(hydratedState.state$)).toBeNull();
+
+      await sut.init();
+
+      expect(await firstValueFrom(hydratedState.state$)).toBe(true);
+    });
+
+    it("skips re-hydration on subsequent init() calls (covers MV3 SW respawn)", async () => {
+      singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("diskValue");
+      await sut.init();
+      // Simulate a fresher in-memory token written between SW lifetimes.
+      await singleUserStateProvider
+        .getFake(userId, ACCESS_TOKEN_MEMORY)
+        .update(() => "memoryValueWrittenAfterHydration");
+
+      // A respawned SW re-instantiates the service and calls init() again.
+      const sutAfterRespawn = createService(false);
+      await sutAfterRespawn.init();
+
+      // Hydrate did NOT run again — the in-memory fresher value was preserved.
+      const memoryValue = await firstValueFrom(
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_MEMORY).state$,
+      );
+      expect(memoryValue).toBe("memoryValueWrittenAfterHydration");
+    });
+
+    it("waitForHydration() resolves once the sentinel is published", async () => {
+      const popupSut = createService(false);
+      let resolved = false;
+      const waitPromise = popupSut.waitForHydration().then(() => {
+        resolved = true;
+      });
+
+      // Sentinel still null — popup is blocked.
+      await Promise.resolve();
+      expect(resolved).toBe(false);
+
+      // Owning context completes init(); popup unblocks.
+      await sut.init();
+      await waitPromise;
+      expect(resolved).toBe(true);
+    });
+
+    it("waitForHydration() resolves immediately if hydration already complete", async () => {
+      await sut.init();
+
+      const popupSut = createService(false);
+      await expect(popupSut.waitForHydration()).resolves.toBeUndefined();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Subscription, combineLatest, firstValueFrom, from, switchMap } from "rxjs";
+import { Subscription, combineLatest, filter, firstValueFrom, from, switchMap } from "rxjs";
 import { Opaque } from "type-fest";
 
 import { KeyGenerationService } from "../../key-management/crypto";
@@ -12,7 +12,7 @@ import { AbstractStorageService } from "../../platform/abstractions/storage.serv
 import { StorageLocation } from "../../platform/enums";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
-import { SingleUserStateProvider } from "../../platform/state";
+import { GlobalState, GlobalStateProvider, SingleUserStateProvider } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { AccountService } from "../abstractions/account.service";
 import { TokenStorageSyncService as TokenStorageSyncServiceAbstraction } from "../abstractions/token-storage-sync.service";
@@ -27,6 +27,7 @@ import {
   API_KEY_CLIENT_SECRET_MEMORY,
   REFRESH_TOKEN_DISK,
   REFRESH_TOKEN_MEMORY,
+  TOKEN_STORAGE_HYDRATED,
 } from "./token.state";
 
 /** Opaque type for the per-user symmetric key used to encrypt the access token on disk. */
@@ -43,21 +44,36 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    */
   private readonly perUserSubscriptions = new Map<UserId, Subscription>();
 
+  private readonly hydratedState: GlobalState<boolean>;
+
   constructor(
     private readonly tokenService: TokenService,
     private readonly vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly accountService: AccountService,
     private readonly singleUserStateProvider: SingleUserStateProvider,
+    globalStateProvider: GlobalStateProvider,
     private readonly secureStorageService: AbstractStorageService,
     private readonly encryptService: EncryptService,
     private readonly keyGenerationService: KeyGenerationService,
     private readonly platformSupportsSecureStorage: boolean,
     private readonly logService: LogService,
-  ) {}
+  ) {
+    this.hydratedState = globalStateProvider.get(TOKEN_STORAGE_HYDRATED);
+  }
 
   async init(): Promise<void> {
-    await this.hydrateAllAccounts();
+    // Skip re-hydrate when memory is already populated (MV3 SW respawn).
+    const alreadyHydrated = await firstValueFrom(this.hydratedState.state$);
+    if (!alreadyHydrated) {
+      await this.hydrateAllAccounts();
+      await this.hydratedState.update(() => true);
+    }
+    // Always (re)wire — perUserSubscriptions is per-instance.
     this.startAccountSubscriptions();
+  }
+
+  async waitForHydration(): Promise<void> {
+    await firstValueFrom(this.hydratedState.state$.pipe(filter((v): v is true => v === true)));
   }
 
   /**

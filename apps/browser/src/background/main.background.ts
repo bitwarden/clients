@@ -818,6 +818,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       this.accountService,
       this.singleUserStateProvider,
+      this.globalStateProvider,
       this.secureStorageService,
       this.encryptService,
       this.keyGenerationService,
