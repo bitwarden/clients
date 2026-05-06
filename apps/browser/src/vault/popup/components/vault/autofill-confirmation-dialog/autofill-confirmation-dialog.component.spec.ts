@@ -475,10 +475,25 @@ describe("AutofillConfirmationDialogComponent", () => {
       expect(text).toContain("loginNeverMatchDesc");
     });
 
-    it("isNeverStrategy and currentUrlMatchesSavedUri are both true, driving the green current website callout", async () => {
+    it("currentUrlMatchesNeverUri is true when the matching URI is itself the Never one", async () => {
       const { component: c } = await createFreshFixture({ params: neverMatchParams });
-      expect(c.isNeverStrategy()).toBe(true);
-      expect(c.currentUrlMatchesSavedUri()).toBe(true);
+      expect(c.currentUrlMatchesNeverUri()).toBe(true);
+    });
+
+    it("does NOT show Never UI when a Never URI exists but the matching URI is not the Never one", async () => {
+      const { fixture: vf, component: c } = await createFreshFixture({
+        params: {
+          currentUrl: "https://example.com/path",
+          savedUris: [
+            makeUri("https://other.com/secret", UriMatchStrategy.Never),
+            makeUri("https://example.com", UriMatchStrategy.Exact),
+          ],
+        },
+      });
+      expect(c.currentUrlMatchesNeverUri()).toBe(false);
+      const text = vf.nativeElement.textContent as string;
+      expect(text).not.toContain("loginNeverMatchTitle");
+      expect(text).not.toContain("neverMatch");
     });
 
     it("shows URI match rule label and neverMatch badge", async () => {

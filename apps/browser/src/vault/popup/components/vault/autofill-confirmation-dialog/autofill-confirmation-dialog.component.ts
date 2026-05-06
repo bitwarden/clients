@@ -105,24 +105,23 @@ export class AutofillConfirmationDialogComponent {
   readonly viewOnly = signal<boolean>(this.params.viewOnly ?? false);
   readonly savedUrlsExpanded = signal<boolean>(false);
 
-  readonly isNeverStrategy = computed<boolean>(() => {
-    const uriMatchSetting = this.uriMatchSetting();
-    return (
-      uriMatchSetting === UriMatchStrategy.Never ||
-      this.savedUrls().some((u) => u.match === UriMatchStrategy.Never)
-    );
-  });
-
-  readonly currentUrlMatchesSavedUri = computed<boolean>(() => {
+  readonly currentUrlMatchesNeverUri = computed<boolean>(() => {
     const currentHostname = Utils.getHostname(this.currentUrl());
     if (!currentHostname) {
       return false;
     }
-    return this.savedUrls().some((u) => Utils.getHostname(u.uri ?? "") === currentHostname);
+    const uriMatchSetting = this.uriMatchSetting();
+    return this.savedUrls().some((u) => {
+      const effectiveMatch = u.match ?? uriMatchSetting;
+      return (
+        effectiveMatch === UriMatchStrategy.Never &&
+        Utils.getHostname(u.uri ?? "") === currentHostname
+      );
+    });
   });
 
   readonly dialogTitle = computed(() => {
-    if (this.isNeverStrategy() && this.currentUrlMatchesSavedUri()) {
+    if (this.currentUrlMatchesNeverUri()) {
       return this.i18nService.t("loginNeverMatchTitle");
     }
     return this.savedUrls().length === 0
@@ -135,11 +134,8 @@ export class AutofillConfirmationDialogComponent {
     if (count === 0) {
       return this.i18nService.t("loginNoSiteDesc");
     }
-    if (this.isNeverStrategy() && this.currentUrlMatchesSavedUri()) {
+    if (this.currentUrlMatchesNeverUri()) {
       return this.i18nService.t("loginNeverMatchDesc");
-    }
-    if (this.isNeverStrategy()) {
-      return this.i18nService.t("confirmAutofillDesc");
     }
     if (count === 1) {
       return this.i18nService.t("loginSingleSiteDesc");
