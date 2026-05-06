@@ -154,15 +154,15 @@ export class AutoFillConstants {
     "kennwort ändern",
   ];
 
-  /** Strict non-login keywords disqualify a form for login unconditionally. */
-  static readonly StrictNonLoginKeywords = ["newsletter"] as const;
-
   /**
-   * Broad non-login keywords used only in case of ambiguously structured
-   * possible login input (e.g. lone username, no passwords).
+   * Non-login keywords with high enough confidence to disqualify a form for login on their own.
+   * Included by default in {@link ComprehensiveNonLoginKeywords}.
    */
-  static readonly BroadNonLoginKeywords = [
-    ...AutoFillConstants.StrictNonLoginKeywords,
+  static readonly StrongNonLoginKeywords = ["newsletter"] as const;
+
+  /** Full lexicon of non-login keywords. */
+  static readonly ComprehensiveNonLoginKeywords = [
+    ...AutoFillConstants.StrongNonLoginKeywords,
     "mailing list",
     "subscribe",
     "subscription",
@@ -170,7 +170,7 @@ export class AutoFillConstants {
   ] as const;
 
   /** Login-positive heading text used to short-circuit ambiguous-case disqualification. */
-  static readonly LoginPositiveHeadingKeywords = [
+  static readonly StrongLoginHeadingKeywords = [
     "sign in",
     "signin",
     "log in",

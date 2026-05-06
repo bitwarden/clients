@@ -210,7 +210,7 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
 
 /**
  * True if the field's parent form carries a non-login signal, scanned against
- * {@link AutoFillConstants.StrictNonLoginKeywords}.
+ * {@link AutoFillConstants.StrongNonLoginKeywords}.
  */
 function isNonLoginFormContext(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
   const fieldForm = field.form;
@@ -223,7 +223,7 @@ function isNonLoginFormContext(field: AutofillField, pageDetails: AutofillPageDe
     return false;
   }
 
-  return formContainsKeyword(parentForm, AutoFillConstants.StrictNonLoginKeywords);
+  return formContainsKeyword(parentForm, AutoFillConstants.StrongNonLoginKeywords);
 }
 
 /**
@@ -261,7 +261,7 @@ export function isNonLoginUsernameField(
     return true;
   }
 
-  return anyFieldInFormMatches(field, pageDetails, AutoFillConstants.StrictNonLoginKeywords);
+  return anyFieldInFormMatches(field, pageDetails, AutoFillConstants.StrongNonLoginKeywords);
 }
 
 /**
@@ -272,13 +272,13 @@ export function isAmbiguousFieldNonLogin(
   field: AutofillField,
   pageDetails: AutofillPageDetails,
 ): boolean {
-  const keywords = AutoFillConstants.BroadNonLoginKeywords;
+  const keywords = AutoFillConstants.ComprehensiveNonLoginKeywords;
   const parentForm = field.form ? pageDetails.forms?.[field.form] : undefined;
 
   if (parentForm) {
     const headingClassification = classifyHeadings(
       parentForm.htmlAncestorHeadings,
-      AutoFillConstants.LoginPositiveHeadingKeywords,
+      AutoFillConstants.StrongLoginHeadingKeywords,
       keywords,
     );
     if (headingClassification === "login") {

@@ -396,16 +396,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * ordered by depth of common ancestor (closest first). Sibling-form headings skipped.
    */
   private getAncestorHeadings(formElement: HTMLFormElement): string[] {
-    const scope = formElement.parentElement?.closest("section, article, main, aside, form");
+    const scope = formElement.parentElement?.closest("section, article, main, aside");
     if (!scope) {
       return [];
     }
 
-    const formAncestorDepths = new Map<Element, number>();
+    const ancestorDepths = new Map<Element, number>();
     let cursor: Element | null = formElement;
     let depth = 0;
     while (cursor) {
-      formAncestorDepths.set(cursor, depth++);
+      ancestorDepths.set(cursor, depth++);
       if (cursor === scope) {
         break;
       }
@@ -413,24 +413,23 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     return Array.from(scope.querySelectorAll("h1, h2, h3, h4, h5, h6"))
-      .filter((h) => {
-        const f = h.closest("form");
-        return f === null || f === formElement;
-      })
-      .map((heading) => {
+      .flatMap((heading) => {
+        const f = heading.closest("form");
+        if (f !== null && f !== formElement) {
+          return [];
+        }
         const text = this.getTextContentFromElement(heading);
         if (!text) {
-          return null;
+          return [];
         }
-        // Every retained heading lives under `scope`, and `scope` is in `formAncestorDepths`,
+        // Every retained heading lives under `scope`, and `scope` is in `ancestorDepths`,
         // so the walk always terminates at a known ancestor.
         let ancestor: Element = heading;
-        while (!formAncestorDepths.has(ancestor)) {
+        while (!ancestorDepths.has(ancestor)) {
           ancestor = ancestor.parentElement!;
         }
-        return { text, distance: formAncestorDepths.get(ancestor)! };
+        return [{ text, distance: ancestorDepths.get(ancestor)! }];
       })
-      .filter((entry): entry is { text: string; distance: number } => entry !== null)
       .sort((a, b) => a.distance - b.distance)
       .map((entry) => entry.text);
   }
