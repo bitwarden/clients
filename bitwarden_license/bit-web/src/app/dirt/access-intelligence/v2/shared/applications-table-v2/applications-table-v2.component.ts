@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -59,7 +59,7 @@ export class ApplicationsTableV2Component {
     });
   }
 
-  allAppsSelected(): boolean {
+  readonly allAppsSelected = computed(() => {
     const tableData = this.dataSource().filteredData;
     const selectedUrls = this.selectedUrls();
 
@@ -68,7 +68,7 @@ export class ApplicationsTableV2Component {
     }
 
     return tableData.length > 0 && tableData.every((row) => selectedUrls.has(row.applicationName));
-  }
+  });
 
   selectAllChanged(target: HTMLInputElement) {
     this.selectAllChange.emit(target.checked);

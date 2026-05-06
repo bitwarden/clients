@@ -119,7 +119,7 @@ export abstract class MemberCipherMappingService {
    *   groupMemberships: this.getGroupMemberships(orgId),
    * }).pipe(
    *   switchMap(({ ciphers, members, collectionAccess, groupMemberships }) =>
-   *     this.memberMappingService.mapCiphersToMembers(
+   *     this.memberMappingService.mapCiphersToMembers$(
    *       ciphers,
    *       members,
    *       collectionAccess,
@@ -133,7 +133,7 @@ export abstract class MemberCipherMappingService {
    * )
    * ```
    */
-  abstract mapCiphersToMembers(
+  abstract mapCiphersToMembers$(
     ciphers: CipherView[],
     members: OrganizationUserView[],
     collectionAccess: CollectionAccessDetails[],
@@ -152,7 +152,7 @@ export abstract class MemberCipherMappingService {
    *
    * @example
    * ```typescript
-   * this.memberMappingService.buildMemberRegistry(allMembers).pipe(
+   * this.memberMappingService.buildMemberRegistry$(allMembers).pipe(
    *   map(registry => {
    *     console.log(`Registry size: ${registry.size()}`);
    *     const alice = registry.get("user-id-123");
@@ -160,5 +160,5 @@ export abstract class MemberCipherMappingService {
    * )
    * ```
    */
-  abstract buildMemberRegistry(members: OrganizationUserView[]): Observable<MemberRegistry>;
+  abstract buildMemberRegistry$(members: OrganizationUserView[]): Observable<MemberRegistry>;
 }

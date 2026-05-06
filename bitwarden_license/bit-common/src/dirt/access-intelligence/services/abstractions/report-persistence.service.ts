@@ -71,7 +71,7 @@ export abstract class ReportPersistenceService {
    *
    * @example
    * ```typescript
-   * this.persistenceService.loadReport$(orgId).subscribe((result) => {
+   * this.persistenceService.loadLastReport$(orgId).subscribe((result) => {
    *   if (result) {
    *     console.log('Loaded:', result.report.id, 'legacy blobs:', result.hadLegacyBlobs);
    *   } else {
@@ -80,7 +80,7 @@ export abstract class ReportPersistenceService {
    * });
    * ```
    */
-  abstract loadReport$(
+  abstract loadLastReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null>;
 }

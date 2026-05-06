@@ -47,20 +47,5 @@ export class AccessReportApi extends BaseResponse {
 
     const reportFile = this.getResponseProperty("reportFile");
     this.reportFile = reportFile != null ? new ReportFileApi(reportFile) : undefined;
-
-    // Use when individual values are encrypted
-    // const summary = this.getResponseProperty("summaryData");
-    // if (summary != null) {
-    //   this.summary = new AccessReportSummaryApi(summary);
-    // }
-
-    // const reports = this.getResponseProperty("reportData");
-    // if (reports != null) {
-    //   this.reports = reports.map((r: any) => new ApplicationHealthApi(r));
-    // }
-    // const applications = this.getResponseProperty("applicationData");
-    // if (applications != null) {
-    //   this.applications = applications.map((f: any) => new AccessReportSettingsApi(f));
-    // }
   }
 }

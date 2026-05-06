@@ -20,23 +20,21 @@ export class AccessReportMetricsApi extends BaseResponse {
       return;
     }
 
-    this.totalApplicationCount = this.getResponseProperty("totalApplicationCount");
-    this.totalAtRiskApplicationCount = this.getResponseProperty("totalAtRiskApplicationCount");
-    this.totalCriticalApplicationCount = this.getResponseProperty("totalCriticalApplicationCount");
-    this.totalCriticalAtRiskApplicationCount = this.getResponseProperty(
-      "totalCriticalAtRiskApplicationCount",
-    );
-    this.totalMemberCount = this.getResponseProperty("totalMemberCount");
-    this.totalAtRiskMemberCount = this.getResponseProperty("totalAtRiskMemberCount");
-    this.totalCriticalMemberCount = this.getResponseProperty("totalCriticalMemberCount");
-    this.totalCriticalAtRiskMemberCount = this.getResponseProperty(
-      "totalCriticalAtRiskMemberCount",
-    );
-    this.totalPasswordCount = this.getResponseProperty("totalPasswordCount");
-    this.totalAtRiskPasswordCount = this.getResponseProperty("totalAtRiskPasswordCount");
-    this.totalCriticalPasswordCount = this.getResponseProperty("totalCriticalPasswordCount");
-    this.totalCriticalAtRiskPasswordCount = this.getResponseProperty(
-      "totalCriticalAtRiskPasswordCount",
-    );
+    this.totalApplicationCount = this.getResponseProperty("totalApplicationCount") ?? 0;
+    this.totalAtRiskApplicationCount = this.getResponseProperty("totalAtRiskApplicationCount") ?? 0;
+    this.totalCriticalApplicationCount =
+      this.getResponseProperty("totalCriticalApplicationCount") ?? 0;
+    this.totalCriticalAtRiskApplicationCount =
+      this.getResponseProperty("totalCriticalAtRiskApplicationCount") ?? 0;
+    this.totalMemberCount = this.getResponseProperty("totalMemberCount") ?? 0;
+    this.totalAtRiskMemberCount = this.getResponseProperty("totalAtRiskMemberCount") ?? 0;
+    this.totalCriticalMemberCount = this.getResponseProperty("totalCriticalMemberCount") ?? 0;
+    this.totalCriticalAtRiskMemberCount =
+      this.getResponseProperty("totalCriticalAtRiskMemberCount") ?? 0;
+    this.totalPasswordCount = this.getResponseProperty("totalPasswordCount") ?? 0;
+    this.totalAtRiskPasswordCount = this.getResponseProperty("totalAtRiskPasswordCount") ?? 0;
+    this.totalCriticalPasswordCount = this.getResponseProperty("totalCriticalPasswordCount") ?? 0;
+    this.totalCriticalAtRiskPasswordCount =
+      this.getResponseProperty("totalCriticalAtRiskPasswordCount") ?? 0;
   }
 }

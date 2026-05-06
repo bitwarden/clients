@@ -120,6 +120,20 @@ export class ApplicationHealthView implements View {
   }
 
   /**
+   * Get at-risk password count for a member in this application.
+   *
+   * @param memberId - Organization user ID
+   * @returns Count of at-risk passwords for this member in this application,
+   *   or 0 if the member is not at-risk here
+   */
+  getAtRiskPasswordCountForMember(memberId: string): number {
+    if (!this.isMemberAtRisk(memberId)) {
+      return 0;
+    }
+    return this.getAtRiskCipherIds().length;
+  }
+
+  /**
    * Get all cipher IDs for this application
    *
    * @returns Array of cipher IDs

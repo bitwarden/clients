@@ -78,7 +78,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
+    return this.reportPersistenceService.loadLastReport$(orgId).pipe(
       switchMap((result) => {
         if (!result) {
           return of(null);
@@ -167,7 +167,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
 
         // Generate report
         return this.reportGenerationService
-          .generateReport(
+          .generateReport$(
             orgData.ciphers,
             members,
             collectionAccess,
@@ -227,7 +227,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadReport$(orgId).pipe(
+    return this.reportPersistenceService.loadLastReport$(orgId).pipe(
       tap((result) => {
         this._report.next(result?.report ?? null);
         this._loading.next(false);
