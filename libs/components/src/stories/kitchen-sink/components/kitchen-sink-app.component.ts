@@ -21,7 +21,6 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
           [bitPopoverAnchorFor]="tourStep4"
           [popoverOpen]="tourService.tourStep() === 4"
           [spotlight]="true"
-          [spotlightPadding]="12"
           [position]="'right-center'"
         ></bit-nav-item>
         <bit-nav-group text="Examples" icon="bwi-cog" [open]="true">

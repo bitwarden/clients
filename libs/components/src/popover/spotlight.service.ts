@@ -160,7 +160,13 @@ export class SpotlightService {
     this.borderElement.style.display = "block";
     this.borderOverlayRef.attach(new DomPortal(this.borderElement));
 
-    // Resize observer keeps the overlay size in sync if the target element resizes
+    // ResizeObserver doesn't fire for display:inline elements (the default for custom elements
+    // with no explicit host display). Observe the nearest block ancestor instead so layout
+    // changes that affect the target's visual size (e.g. sidenav collapsing) are captured.
+    // The callback always reads offsetWidth/offsetHeight from the actual target.
+    const observeTarget =
+      computedStyle.display === "inline" ? (target.parentElement ?? target) : target;
+
     this.resizeObserver = new ResizeObserver(() => {
       if (!this.currentTarget || !this.borderOverlayRef) {
         return;
@@ -171,7 +177,7 @@ export class SpotlightService {
       });
       this.borderOverlayRef.updatePosition();
     });
-    this.resizeObserver.observe(target);
+    this.resizeObserver.observe(observeTarget);
   }
 
   private disposeBorderOverlay(): void {
