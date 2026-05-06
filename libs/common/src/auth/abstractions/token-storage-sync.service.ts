@@ -35,7 +35,7 @@ export abstract class TokenStorageSyncService {
   /**
    * Imperatively clears all tokens from the persistent tier (disk + OS secure storage)
    * for the given user. Intended to be called from logout paths immediately after
-   * `TokenService.clearTokens(userId)` and awaited before the rest of the logout flow runs.
+   * `TokenService.clearTokensFromMemory(userId)` and awaited before the rest of the logout flow runs.
    *
    * Why this exists in addition to the reactive subscription: the per-user subscription
    * also observes the memory clear and emits a wipe, but the wipe is fire-and-forget

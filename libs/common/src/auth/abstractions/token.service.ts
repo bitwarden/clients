@@ -4,6 +4,21 @@ import { UserId } from "../../types/guid";
 import { SetTokensResult } from "../models/domain/set-tokens-result";
 import { DecodedAccessToken } from "../services/token.service";
 
+/**
+ * Manages the application's authentication tokens (access, refresh, API key client ID/secret)
+ * and the per-email two-factor "remember me" token.
+ *
+ * **Memory-only contract.** All token reads and writes performed by this service operate on
+ * memory state exclusively. Disk persistence (and OS secure storage) is owned entirely by
+ * `TokenStorageSyncService`, which reacts to changes on the observables exposed here and
+ * decides whether to write to or wipe the persistent tier based on the user's vault timeout
+ * settings. Logout sites must call both `clearTokensFromMemory(userId)` (this service) and
+ * `tokenStorageSyncService.clearTokensFromDisk(userId)` for a complete wipe.
+ *
+ * The two-factor token methods (`setTwoFactorToken`, `getTwoFactorToken`, `clearTwoFactorToken`)
+ * are an exception — they read/write a global disk-backed state key and are unrelated to the
+ * memory-first authentication-token model.
+ */
 export abstract class TokenService {
   /**
    * Returns an observable that emits a boolean indicating whether the user has an access token.
@@ -11,16 +26,16 @@ export abstract class TokenService {
    */
   abstract hasAccessToken$(userId: UserId): Observable<boolean>;
 
-  /** Observable stream of the plaintext access token for the given user. Used by TokenStorageSyncService. */
+  /** Observable stream of the plaintext access token in memory for the given user. */
   abstract accessToken$(userId: UserId): Observable<string | null>;
 
-  /** Observable stream of the plaintext refresh token for the given user. Used by TokenStorageSyncService. */
+  /** Observable stream of the plaintext refresh token in memory for the given user. */
   abstract refreshToken$(userId: UserId): Observable<string | null>;
 
-  /** Observable stream of the API key client ID for the given user. Used by TokenStorageSyncService. */
+  /** Observable stream of the API key client ID in memory for the given user. */
   abstract clientId$(userId: UserId): Observable<string | null>;
 
-  /** Observable stream of the API key client secret for the given user. Used by TokenStorageSyncService. */
+  /** Observable stream of the API key client secret in memory for the given user. */
   abstract clientSecret$(userId: UserId): Observable<string | null>;
 
   /**
@@ -41,11 +56,13 @@ export abstract class TokenService {
   ): Promise<SetTokensResult>;
 
   /**
-   * Clears the access token, refresh token, API Key Client ID, and API Key Client Secret out of memory, disk, and secure storage if supported.
-   * @param userId The optional user id to clear the tokens for; if not provided, the active user id is used.
-   * @returns A promise that resolves when the tokens have been cleared.
+   * Clears the access token, refresh token, API Key Client ID, and API Key Client Secret from memory.
+   * Logout sites must additionally call `tokenStorageSyncService.clearTokensFromDisk(userId)` to
+   * synchronously wipe the persistent tier — see the class JSDoc.
+   * @param userId The user id to clear the tokens for.
+   * @returns A promise that resolves when the tokens have been cleared from memory.
    */
-  abstract clearTokens(userId?: UserId): Promise<void>;
+  abstract clearTokensFromMemory(userId: UserId): Promise<void>;
 
   /**
    * Sets the access token in memory. Disk persistence is handled reactively by TokenStorageSyncService.
@@ -54,28 +71,16 @@ export abstract class TokenService {
    */
   abstract setAccessToken(accessToken: string): Promise<string>;
 
-  // TODO: revisit having this public clear method approach once the state service is fully deprecated.
   /**
-   * Clears the access token for the given user id out of memory, disk, and secure storage if supported.
-   * @param userId The optional user id to clear the access token for; if not provided, the active user id is used.
-   * @returns A promise that resolves when the access token has been cleared.
-   *
-   * Note: This method is required so that the StateService doesn't have to inject the VaultTimeoutSettingsService to
-   * pass in the vaultTimeoutAction and vaultTimeout.
-   * This avoids a circular dependency between the StateService, TokenService, and VaultTimeoutSettingsService.
-   */
-  abstract clearAccessToken(userId?: UserId): Promise<void>;
-
-  /**
-   * Gets the access token
-   * @param userId - The optional user id to get the access token for; if not provided, the active user is used.
+   * Gets the access token from memory for the given user.
+   * @param userId The user id to get the access token for.
    * @returns A promise that resolves with the access token or null.
    */
   abstract getAccessToken(userId: UserId): Promise<string | null>;
 
   /**
-   * Gets the refresh token.
-   * @param userId - The optional user id to get the refresh token for; if not provided, the active user is used.
+   * Gets the refresh token from memory for the given user.
+   * @param userId The user id to get the refresh token for.
    * @returns A promise that resolves with the refresh token or null.
    */
   abstract getRefreshToken(userId: UserId): Promise<string | null>;
@@ -197,7 +202,7 @@ export abstract class TokenService {
 
   /**
    * Gets whether or not the user authenticated via an external mechanism.
-   * @param userId The optional user id to check for external authN status; if not provided, the active user is used.
+   * @param userId The user id to check for external authN status.
    * @returns A promise that resolves with a boolean representing the user's external authN status.
    */
   abstract getIsExternal(userId: UserId): Promise<boolean>;

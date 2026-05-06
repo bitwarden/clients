@@ -200,13 +200,7 @@ export class TokenService implements TokenServiceAbstraction {
     return await this._setAccessToken(accessToken, userId);
   }
 
-  async clearAccessToken(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
-    if (!userId) {
-      throw new Error("User id not found. Cannot clear access token.");
-    }
-
+  private async clearAccessToken(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
   }
 
@@ -339,14 +333,7 @@ export class TokenService implements TokenServiceAbstraction {
     });
   }
 
-  // TODO: stop accepting optional userIds
-  async clearTokens(userId?: UserId): Promise<void> {
-    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
-
-    if (!userId) {
-      throw new Error("User id not found. Cannot clear tokens.");
-    }
-
+  async clearTokensFromMemory(userId: UserId): Promise<void> {
     await Promise.all([
       this.clearAccessToken(userId),
       this.clearRefreshToken(userId),

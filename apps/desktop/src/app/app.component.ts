@@ -747,7 +747,7 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
       await this.stateService.clean({ userId: userBeingLoggedOut });
-      await this.tokenService.clearTokens(userBeingLoggedOut);
+      await this.tokenService.clearTokensFromMemory(userBeingLoggedOut);
       await this.tokenStorageSyncService.clearTokensFromDisk(userBeingLoggedOut);
       await this.accountService.clean(userBeingLoggedOut);
 
