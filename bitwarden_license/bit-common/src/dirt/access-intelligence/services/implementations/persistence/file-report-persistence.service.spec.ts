@@ -7,7 +7,8 @@ import {
   FileUploadApiMethods,
   FileUploadService,
 } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
-import { FileUploadType } from "@bitwarden/common/platform/enums";
+import { FileUploadType, EncryptionType } from "@bitwarden/common/platform/enums";
+import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { makeEncString } from "@bitwarden/common/spec";
 import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/types/guid";
 import { LogService } from "@bitwarden/logging";
@@ -16,6 +17,7 @@ import {
   AccessReport,
   AccessReportApi,
   AccessReportFileApi,
+  AccessReportSummaryView,
   AccessReportView,
 } from "../../../../access-intelligence/models";
 import {
@@ -24,7 +26,11 @@ import {
   createRiskInsightsSummary,
 } from "../../../../reports/risk-insights/testing/test-helpers";
 import { AccessIntelligenceApiService } from "../../abstractions/access-intelligence-api.service";
-import { AccessReportEncryptionService } from "../../abstractions/access-report-encryption.service";
+import {
+  AccessReportEncryptionService,
+  DecryptedAccessReportData,
+  FileEncryptedDataWithKey,
+} from "../../abstractions/access-report-encryption.service";
 
 import { FileReportPersistenceService } from "./file-report-persistence.service";
 
@@ -58,32 +64,31 @@ describe("FileReportPersistenceService", () => {
     });
   }
 
-  function makeMockDomain(): AccessReport {
-    const domain = new AccessReport();
-    domain.reports = makeEncString("encrypted-reports");
-    domain.summary = makeEncString("encrypted-summary");
-    domain.applications = makeEncString("encrypted-apps");
-    domain.contentEncryptionKey = makeEncString("encryption-key");
-    domain.creationDate = new Date();
-    return domain;
+  function makeEncArrayBuffer(): EncArrayBuffer {
+    return EncArrayBuffer.fromParts(
+      EncryptionType.AesCbc256_HmacSha256_B64,
+      new Uint8Array(16),
+      new Uint8Array(32),
+      new Uint8Array(32),
+    );
   }
 
-  beforeAll(() => {
-    // jsdom does not implement File.bytes() or Blob.text() — polyfill for tests
-    if (!File.prototype.bytes) {
-      Object.defineProperty(File.prototype, "bytes", {
-        value: () => Promise.resolve(new Uint8Array(0)),
-        writable: true,
-      });
-    }
+  function makeFileEncryptedData(): FileEncryptedDataWithKey {
+    return {
+      organizationId,
+      encryptedReportData: makeEncArrayBuffer(),
+      encryptedFileName: makeEncString("enc-filename"),
+      encryptedSummaryData: makeEncString("enc-summary"),
+      encryptedApplicationData: makeEncString("enc-apps"),
+      contentEncryptionKey: makeEncString("enc-key"),
+    };
+  }
 
-    if (!Blob.prototype.text) {
-      Object.defineProperty(Blob.prototype, "text", {
-        value: () => Promise.resolve(""),
-        writable: true,
-      });
-    }
-  });
+  const mockDecryptedData: DecryptedAccessReportData = {
+    reportData: { reports: [], memberRegistry: {} },
+    summaryData: new AccessReportSummaryView(),
+    applicationData: [],
+  };
 
   beforeEach(() => {
     mockApiService = mock<AccessIntelligenceApiService>();
@@ -110,18 +115,19 @@ describe("FileReportPersistenceService", () => {
   describe("saveReport$", () => {
     it("should encrypt view, create report, upload file, and return report ID and key", async () => {
       const view = createRiskInsights({ organizationId });
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
+      mockEncryptionService.encryptReportFile$.mockReturnValue(of(makeFileEncryptedData()));
       mockApiService.createReport$.mockReturnValue(of(makeCreateResponse()));
-      mockFileUploadService.uploadRaw.mockResolvedValue(undefined);
+      mockFileUploadService.upload.mockResolvedValue(undefined);
 
       const result = await firstValueFrom(service.saveReport$(view, organizationId));
 
       expect(result.id).toBe(reportId);
       expect(result.contentEncryptionKey).toBeDefined();
-      expect(AccessReport.fromView).toHaveBeenCalledWith(view, mockEncryptionService, {
-        organizationId,
-        userId,
-      });
+      expect(mockEncryptionService.encryptReportFile$).toHaveBeenCalledWith(
+        { organizationId, userId },
+        view.toEncryptionPayload(),
+        view.contentEncryptionKey,
+      );
       expect(mockApiService.createReport$).toHaveBeenCalledWith(
         organizationId,
         expect.objectContaining({
@@ -131,36 +137,26 @@ describe("FileReportPersistenceService", () => {
       );
     });
 
-    it("should pass upload URL and type from createReport$ response to fileUploadService", async () => {
+    it("should pass upload URL, encrypted filename, and EncArrayBuffer to fileUploadService", async () => {
       const view = createRiskInsights({ organizationId });
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
+      const encryptedData = makeFileEncryptedData();
+      mockEncryptionService.encryptReportFile$.mockReturnValue(of(encryptedData));
       mockApiService.createReport$.mockReturnValue(
         of(makeCreateResponse("https://azure.blob/upload", FileUploadType.Azure)),
       );
-      mockFileUploadService.uploadRaw.mockResolvedValue(undefined);
+      mockFileUploadService.upload.mockResolvedValue(undefined);
 
       await firstValueFrom(service.saveReport$(view, organizationId));
 
-      expect(mockFileUploadService.uploadRaw).toHaveBeenCalledWith(
+      expect(mockFileUploadService.upload).toHaveBeenCalledWith(
         { url: "https://azure.blob/upload", fileUploadType: FileUploadType.Azure },
-        expect.anything(),
-        expect.anything(),
+        encryptedData.encryptedFileName,
+        encryptedData.encryptedReportData,
         expect.objectContaining({
           postDirect: expect.any(Function),
           renewFileUploadUrl: expect.any(Function),
           rollback: expect.any(Function),
         }),
-      );
-    });
-
-    it("should throw if contentEncryptionKey is absent from domain", async () => {
-      const view = createRiskInsights({ organizationId });
-      const domainNoKey = new AccessReport();
-      domainNoKey.contentEncryptionKey = undefined;
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(domainNoKey));
-
-      await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
-        "Report encryption key not found",
       );
     });
 
@@ -173,9 +169,20 @@ describe("FileReportPersistenceService", () => {
       );
     });
 
+    it("should propagate encryption errors", async () => {
+      const view = createRiskInsights({ organizationId });
+      mockEncryptionService.encryptReportFile$.mockReturnValue(
+        throwError(() => new Error("Encryption failed")),
+      );
+
+      await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
+        "Encryption failed",
+      );
+    });
+
     it("should propagate createReport$ errors", async () => {
       const view = createRiskInsights({ organizationId });
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
+      mockEncryptionService.encryptReportFile$.mockReturnValue(of(makeFileEncryptedData()));
       mockApiService.createReport$.mockReturnValue(throwError(() => new Error("API error")));
 
       await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
@@ -185,9 +192,9 @@ describe("FileReportPersistenceService", () => {
 
     it("should propagate file upload errors", async () => {
       const view = createRiskInsights({ organizationId });
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
+      mockEncryptionService.encryptReportFile$.mockReturnValue(of(makeFileEncryptedData()));
       mockApiService.createReport$.mockReturnValue(of(makeCreateResponse()));
-      mockFileUploadService.uploadRaw.mockRejectedValue(new Error("Upload failed"));
+      mockFileUploadService.upload.mockRejectedValue(new Error("Upload failed"));
 
       await expect(firstValueFrom(service.saveReport$(view, organizationId))).rejects.toThrow(
         "Upload failed",
@@ -199,11 +206,13 @@ describe("FileReportPersistenceService", () => {
 
       beforeEach(async () => {
         const view = createRiskInsights({ organizationId });
-        jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
+        mockEncryptionService.encryptReportFile$.mockReturnValue(of(makeFileEncryptedData()));
         mockApiService.createReport$.mockReturnValue(of(makeCreateResponse()));
-        mockFileUploadService.uploadRaw.mockImplementation(async (_data, _name, _file, methods) => {
-          capturedMethods = methods;
-        });
+        mockFileUploadService.upload.mockImplementation(
+          async (_uploadData, _name, _file, methods) => {
+            capturedMethods = methods;
+          },
+        );
 
         await firstValueFrom(service.saveReport$(view, organizationId));
       });
@@ -250,6 +259,16 @@ describe("FileReportPersistenceService", () => {
   });
 
   describe("saveApplicationMetadata$", () => {
+    function makeMockDomain(): AccessReport {
+      const domain = new AccessReport();
+      domain.reports = makeEncString("encrypted-reports");
+      domain.summary = makeEncString("encrypted-summary");
+      domain.applications = makeEncString("encrypted-apps");
+      domain.contentEncryptionKey = makeEncString("encryption-key");
+      domain.creationDate = new Date();
+      return domain;
+    }
+
     it("should call updateReportSettings$ with encrypted application data, summary, and metrics", async () => {
       const summary = createRiskInsightsSummary({
         totalApplicationCount: 5,
@@ -339,6 +358,11 @@ describe("FileReportPersistenceService", () => {
       return decryptedView;
     }
 
+    function mockFileDecrypt() {
+      jest.spyOn(EncArrayBuffer, "fromResponse").mockResolvedValue(makeEncArrayBuffer());
+      mockEncryptionService.decryptReportFile$.mockReturnValue(of(mockDecryptedData));
+    }
+
     it("should return null if the API returns 404", async () => {
       mockApiService.getLatestReport$.mockReturnValue(
         throwError(() => new ErrorResponse({ Message: "Not found" }, 404)),
@@ -388,9 +412,9 @@ describe("FileReportPersistenceService", () => {
       });
       mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
       mockApiService.downloadReportFileAzure$.mockReturnValue(
-        of({ blob: new Blob(["file-content"]), fileName: "report.json" }),
+        of({ blob: new Blob(), fileName: "report.json" }),
       );
-      mockDecrypt();
+      mockFileDecrypt();
 
       await firstValueFrom(service.loadReport$(organizationId));
 
@@ -406,9 +430,9 @@ describe("FileReportPersistenceService", () => {
       });
       mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
       mockApiService.downloadReportFile$.mockReturnValue(
-        of({ blob: new Blob(["file-content"]), fileName: "report.json" }),
+        of({ blob: new Blob(), fileName: "report.json" }),
       );
-      mockDecrypt();
+      mockFileDecrypt();
 
       await firstValueFrom(service.loadReport$(organizationId));
 
@@ -416,7 +440,31 @@ describe("FileReportPersistenceService", () => {
       expect(mockApiService.downloadReportFileAzure$).not.toHaveBeenCalled();
     });
 
-    it("should decrypt and return the report view", async () => {
+    it("should call decryptReportFile$ with EncArrayBuffer and EncString fields for V2 path", async () => {
+      const apiResponse = makeApiResponse({
+        reportFileDownloadUrl: "https://example.com/file",
+        fileUploadType: FileUploadType.Azure,
+      });
+      mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
+      mockApiService.downloadReportFileAzure$.mockReturnValue(
+        of({ blob: new Blob(), fileName: "report.json" }),
+      );
+      const encBuf = makeEncArrayBuffer();
+      jest.spyOn(EncArrayBuffer, "fromResponse").mockResolvedValue(encBuf);
+      mockEncryptionService.decryptReportFile$.mockReturnValue(of(mockDecryptedData));
+
+      await firstValueFrom(service.loadReport$(organizationId));
+
+      expect(mockEncryptionService.decryptReportFile$).toHaveBeenCalledWith(
+        { organizationId, userId },
+        encBuf,
+        expect.objectContaining({ encryptedString: apiResponse.summary }),
+        expect.objectContaining({ encryptedString: apiResponse.applications }),
+        expect.objectContaining({ encryptedString: apiResponse.contentEncryptionKey }),
+      );
+    });
+
+    it("should decrypt and return the report view (V1 fallback)", async () => {
       mockApiService.getLatestReport$.mockReturnValue(of(makeApiResponse()));
       const expectedView = mockDecrypt();
 
@@ -427,7 +475,26 @@ describe("FileReportPersistenceService", () => {
       expect(result!.hadLegacyBlobs).toBe(false);
     });
 
-    it("should propagate decryption errors", async () => {
+    it("should map decrypted data to AccessReportView for V2 file path", async () => {
+      const apiResponse = makeApiResponse({
+        reportFileDownloadUrl: "https://example.com/file",
+        fileUploadType: FileUploadType.Azure,
+      });
+      mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
+      mockApiService.downloadReportFileAzure$.mockReturnValue(
+        of({ blob: new Blob(), fileName: "report.json" }),
+      );
+      mockFileDecrypt();
+
+      const result = await firstValueFrom(service.loadReport$(organizationId));
+
+      expect(result).not.toBeNull();
+      expect(result!.report.id).toBe(reportId);
+      expect(result!.report.organizationId).toBe(organizationId);
+      expect(result!.hadLegacyBlobs).toBe(false);
+    });
+
+    it("should propagate decryption errors (V1 fallback)", async () => {
       mockApiService.getLatestReport$.mockReturnValue(of(makeApiResponse()));
       jest
         .spyOn(AccessReport.prototype, "decrypt")
@@ -435,6 +502,25 @@ describe("FileReportPersistenceService", () => {
 
       await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
         "Decryption failed",
+      );
+    });
+
+    it("should propagate decryptReportFile$ errors (V2 file path)", async () => {
+      const apiResponse = makeApiResponse({
+        reportFileDownloadUrl: "https://example.com/file",
+        fileUploadType: FileUploadType.Azure,
+      });
+      mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
+      mockApiService.downloadReportFileAzure$.mockReturnValue(
+        of({ blob: new Blob(), fileName: "report.json" }),
+      );
+      jest.spyOn(EncArrayBuffer, "fromResponse").mockResolvedValue(makeEncArrayBuffer());
+      mockEncryptionService.decryptReportFile$.mockReturnValue(
+        throwError(() => new Error("File decryption failed")),
+      );
+
+      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+        "File decryption failed",
       );
     });
 
