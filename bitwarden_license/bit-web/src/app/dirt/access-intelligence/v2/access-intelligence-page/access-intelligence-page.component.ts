@@ -27,11 +27,13 @@ import {
   AccessReportView,
 } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { ReportProgress } from "@bitwarden/bit-common/dirt/reports/risk-insights";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   AsyncActionsModule,
@@ -147,10 +149,14 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
-  private readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
-    initialValue: [],
+  protected readonly activeUserId = toSignal(this.accountService.activeAccount$.pipe(getUserId), {
+    initialValue: null,
   });
-  protected readonly hasCiphers = computed(() => this.ciphers().length > 0);
+
+  protected readonly hasCiphers = toSignal(
+    this.accessIntelligenceService.doesUserHaveCiphers(this.activeUserId() as UserId),
+    { initialValue: false },
+  );
 
   protected readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
 
@@ -163,6 +169,7 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     private readonly dialogService: DialogService,
     private readonly logService: LogService,
     private readonly configService: ConfigService,
+    private readonly accountService: AccountService,
   ) {
     this.route.queryParams
       .pipe(takeUntilDestroyed(this.destroyRef))

@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
@@ -16,10 +16,12 @@ import {
   createReport,
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
@@ -46,7 +48,10 @@ type MockAccessIntelligenceDataService = {
   ciphers$: BehaviorSubject<CipherView[]>;
   initializeForOrganization$: jest.Mock;
   generateNewReport$: jest.Mock;
+  doesUserHaveCiphers: (userId: UserId) => Observable<boolean>;
 };
+
+const USER_ID = "user-1" as unknown as UserId;
 
 describe("AccessIntelligencePageComponent", () => {
   let component: AccessIntelligencePageComponent;
@@ -62,6 +67,9 @@ describe("AccessIntelligencePageComponent", () => {
     paramMap: BehaviorSubject<any>;
     queryParams: BehaviorSubject<any>;
   };
+  let doesUserHaveCiphersSubject: BehaviorSubject<boolean>;
+
+  const mockAccountService = mockAccountServiceWith(USER_ID);
 
   /**
    * Helper to access protected/private members for testing.
@@ -86,6 +94,8 @@ describe("AccessIntelligencePageComponent", () => {
   });
 
   beforeEach(async () => {
+    doesUserHaveCiphersSubject = new BehaviorSubject<boolean>(false);
+
     // Create mock services
     mockAccessIntelligenceService = {
       report$: new BehaviorSubject<AccessReportView | null>(null),
@@ -95,6 +105,7 @@ describe("AccessIntelligencePageComponent", () => {
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
       ciphers$: new BehaviorSubject<CipherView[]>([]),
+      doesUserHaveCiphers: (_userId: UserId) => doesUserHaveCiphersSubject.asObservable(),
     };
 
     mockDrawerStateService = {
@@ -141,6 +152,7 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: AccountService, useValue: mockAccountService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     })
@@ -420,7 +432,7 @@ describe("AccessIntelligencePageComponent", () => {
     });
 
     it("should report ciphers present when vault has items", async () => {
-      mockAccessIntelligenceService.ciphers$.next([new CipherView()]);
+      doesUserHaveCiphersSubject.next(true);
 
       await component.ngOnInit();
       fixture.detectChanges();

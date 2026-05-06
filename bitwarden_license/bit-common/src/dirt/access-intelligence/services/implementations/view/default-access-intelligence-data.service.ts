@@ -1,6 +1,7 @@
 import {
   BehaviorSubject,
   catchError,
+  filter,
   forkJoin,
   from,
   map,
@@ -17,7 +18,7 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import type { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
@@ -124,6 +125,26 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         this._report.next(null);
         return of(undefined as void);
       }),
+    );
+  }
+
+  doesUserHaveCiphers(userId: UserId): Observable<boolean> {
+    this.logService.debug(
+      "[DefaultAccessIntelligenceDataService] Checking if user has ciphers",
+      userId,
+    );
+
+    if (this._ciphers.value.length > 0) {
+      return of(true);
+    }
+
+    // check if there are ciphers in cache
+    return this.cipherService.cipherViews$(userId).pipe(
+      filter(
+        (ciphers) =>
+          ciphers.filter((c) => c.organizationId === this._currentOrgId.value).length > 0,
+      ),
+      map((ciphers) => ciphers.length > 0),
     );
   }
 
