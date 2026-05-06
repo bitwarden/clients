@@ -260,6 +260,7 @@ export class SecretService {
 
         const name = await this.decryptField(new EncString(s.name), orgKey);
         secretListView.name = name.value;
+        secretListView.decryptionError = name.error;
         secretListView.creationDate = s.creationDate;
         secretListView.revisionDate = s.revisionDate;
 
