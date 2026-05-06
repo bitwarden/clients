@@ -1,5 +1,12 @@
-<bit-popover [title]="service.getStepTitle(stepId())" (closed)="service.completeTour()">
-  <p bitTypography="body2" class="tw-mb-3">
+<bit-popover
+  [title]="service.getStepTitle(stepId())"
+  (closed)="service.completeTour()"
+  panelClass="!tw-w-[340px] !tw-pt-6 !tw-pb-6"
+  headerClass="!tw-ps-6"
+  titleClass="!tw-text-lg"
+  contentClass="!tw-px-6"
+>
+  <p bitTypography="body2" class="tw-mb-3 tw-text-fg-body">
     {{ service.getStepDescription(stepId()) }}
   </p>
 
@@ -20,7 +27,7 @@
   <!-- Footer with navigation -->
   <div class="tw-flex tw-items-center tw-justify-between tw-pt-2">
     <span bitTypography="body2" class="tw-text-muted">
-      {{ "coachmarkStepIndicator" | i18n: service.currentStepNumber() : service.totalSteps() }}
+      {{ "coachmarkStepsIndicator" | i18n: service.currentStepNumber() : service.totalSteps() }}
     </span>
 
     <div class="tw-flex tw-gap-2">

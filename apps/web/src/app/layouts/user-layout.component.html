@@ -11,16 +11,25 @@
       [text]="'tools' | i18n"
       route="tools"
       [open]="toolsNavGroupOpen()"
+      [bitPopoverAnchorFor]="importCoachmark.popover()"
+      [popoverOpen]="importCoachmarkOpen() && !sideNavService.open()"
+      [position]="coachmarkService.getStepPosition('importData')"
+      [closeOnBackdropClick]="false"
+      [spotlight]="true"
+      spotlightTargetSelector="[data-testid='nav-item-container']"
+      [viewportMargin]="24"
     >
       <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
       <bit-nav-item
         [text]="'importNoun' | i18n"
         route="tools/import"
         [bitPopoverAnchorFor]="importCoachmark.popover()"
-        [popoverOpen]="importCoachmarkOpen()"
+        [popoverOpen]="importCoachmarkOpen() && sideNavService.open()"
         [position]="coachmarkService.getStepPosition('importData')"
         [closeOnBackdropClick]="false"
         [spotlight]="true"
+        spotlightTargetSelector="[data-testid='nav-item-container']"
+        [viewportMargin]="24"
       ></bit-nav-item>
       <app-coachmark #importCoachmark stepId="importData" />
       <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
@@ -34,6 +43,8 @@
       [position]="coachmarkService.getStepPosition('monitorSecurity')"
       [closeOnBackdropClick]="false"
       [spotlight]="true"
+      spotlightTargetSelector="[data-testid='nav-item-container']"
+      [viewportMargin]="24"
     ></bit-nav-item>
     <app-coachmark #reportsCoachmark stepId="monitorSecurity" />
     <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
