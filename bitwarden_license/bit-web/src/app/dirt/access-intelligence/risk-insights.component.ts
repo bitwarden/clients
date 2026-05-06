@@ -149,10 +149,13 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    this.milestone11Enabled = await this.configService.getFeatureFlag(
-      FeatureFlag.Milestone11AppPageImprovements,
-    );
-
+    // Set up paramMap subscription first (synchronously) so that organizationId
+    // is assigned before any subsequent await yields control back to Angular's
+    // change-detection loop. Delaying this until after the feature-flag await
+    // creates a window where the template can render with organizationId = ""
+    // if the data service still has a non-Initializing state, causing child
+    // components (e.g. PasswordChangeMetricComponent) to fire API calls with
+    // an empty organizationId.
     this.route.paramMap
       .pipe(
         takeUntilDestroyed(this.destroyRef),
@@ -168,6 +171,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         }),
       )
       .subscribe();
+
+    this.milestone11Enabled = await this.configService.getFeatureFlag(
+      FeatureFlag.Milestone11AppPageImprovements,
+    );
 
     // Subscribe to report data updates
     // This declarative pattern ensures proper cleanup and prevents memory leaks
