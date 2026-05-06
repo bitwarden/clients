@@ -45,7 +45,7 @@ export class NewItemNudgeComponent {
     private nudgesService: NudgesService,
   ) {}
 
-  mapToNudgeType(cipherType: CipherType): NudgeType {
+  mapToNudgeType(cipherType: CipherType): NudgeType | null {
     switch (cipherType) {
       case CipherType.Login: {
         const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
