@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { combineLatest, firstValueFrom, Observable, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, Observable, shareReplay, switchMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -52,7 +52,10 @@ export class ByLinkTabComponent {
   protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([
     this.accountService.activeAccount$.pipe(getUserId),
     toObservable(this.organizationId),
-  ]).pipe(switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)));
+  ]).pipe(
+    switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   protected readonly form = this.fb.group({
     domains: ["", Validators.required],
