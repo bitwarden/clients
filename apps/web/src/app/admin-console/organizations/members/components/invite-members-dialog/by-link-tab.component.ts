@@ -1,26 +1,28 @@
 import { CommonModule } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  OnInit,
-  signal,
-  WritableSignal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { takeUntilDestroyed, toObservable } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  firstValueFrom,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
   CalloutModule,
   FormFieldModule,
+  IconButtonModule,
   LinkComponent,
   ToastService,
 } from "@bitwarden/components";
@@ -42,11 +44,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
     CommonModule,
     FormFieldModule,
     I18nPipe,
+    IconButtonModule,
     ReactiveFormsModule,
     LinkComponent,
   ],
 })
-export class ByLinkTabComponent implements OnInit {
+export class ByLinkTabComponent {
   readonly organizationId = input.required<OrganizationId, string>({
     transform: (value: string) => value as OrganizationId,
   });
@@ -56,15 +59,28 @@ export class ByLinkTabComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly fb = inject(FormBuilder);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+
+  private readonly userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
   protected readonly inviteLink$: Observable<OrganizationInviteLink | undefined> = combineLatest([
-    this.accountService.activeAccount$.pipe(getUserId),
+    this.userId$,
     toObservable(this.organizationId),
-  ]).pipe(switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)));
+  ]).pipe(
+    switchMap(([userId, orgId]) => this.inviteLinkService.inviteLink$(userId, orgId)),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
-  protected readonly showCallout: WritableSignal<boolean> = signal(false);
+  protected readonly inviteLinkUrl$: Observable<string> = combineLatest([
+    this.userId$,
+    this.inviteLink$.pipe(filter((link) => link != null)),
+  ]).pipe(
+    switchMap(([userId, inviteLink]) => this.inviteLinkService.reconstructUrl(inviteLink, userId)),
+  );
 
-  protected readonly form = this.fb.group({
+  readonly hasInviteLinkUrl$: Observable<boolean> = of(false);
+
+  readonly form = this.fb.group({
     domains: ["", Validators.required],
   });
 
@@ -77,17 +93,13 @@ export class ByLinkTabComponent implements OnInit {
     });
   }
 
-  async ngOnInit() {
-    this.showCallout.set(await firstValueFrom(this.inviteLink$.pipe(map((link) => link == null))));
-  }
-
   readonly save = async () => {
     this.form.markAllAsTouched();
     if (this.form.invalid) {
       return;
     }
 
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userId = await firstValueFrom(this.userId$);
     const rawDomains = this.form.value.domains;
     if (rawDomains == null) {
       throw new Error("Must provide at least one valid domain.");
@@ -107,11 +119,33 @@ export class ByLinkTabComponent implements OnInit {
 
     this.form.markAsPristine();
 
-    this.showCallout.set(false);
-
     this.toastService.showToast({
       variant: "success",
       message: this.i18nService.t("domainsEdited"),
+    });
+  };
+
+  readonly copyLink = async () => {
+    const url = await firstValueFrom(this.inviteLinkUrl$);
+    if (url == null) {
+      return;
+    }
+
+    this.platformUtilsService.copyToClipboard(url);
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("inviteLinkCopied"),
+    });
+  };
+
+  readonly refreshLink = async () => {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.inviteLinkService.refreshInviteLink(userId, this.organizationId());
+
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("inviteLinkRegenerated"),
     });
   };
 }

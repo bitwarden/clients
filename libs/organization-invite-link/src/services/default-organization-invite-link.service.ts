@@ -1,8 +1,10 @@
-import { catchError, firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
@@ -25,6 +27,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     private readonly keyGenerationService: KeyGenerationService,
     private readonly apiService: OrganizationInviteLinkApiService,
     private readonly stateProvider: StateProvider,
+    private readonly environmentService: EnvironmentService,
   ) {}
 
   inviteLink$(
@@ -38,7 +41,16 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
         }
         return of(state);
       }),
-      catchError(() => of(undefined)),
+    );
+  }
+
+  reconstructUrl(inviteLink: OrganizationInviteLink, userId: UserId): Observable<string> {
+    return this.getOrgKey(userId, inviteLink.organizationId as OrganizationId).pipe(
+      switchMap((orgKey) => {
+        const encKey = new EncString(inviteLink.encryptedInviteKey);
+        return this.encryptService.unwrapSymmetricKey(encKey, orgKey);
+      }),
+      switchMap((rawInviteKey) => this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64)),
     );
   }
 
@@ -67,34 +79,21 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.updateInviteLink(userId, orgId, domains);
   }
 
-  async reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string> {
-    const inviteLink = await firstValueFrom(
-      this.inviteLink$(userId, orgId).pipe(
-        map((inviteLink) => {
-          if (inviteLink == null) {
-            throw new Error("Organization does not have an invite link to reconstruct");
-          }
-          return inviteLink;
-        }),
-      ),
-    );
-    const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
-    const encKey = new EncString(inviteLink.encryptedInviteKey);
-    const rawInviteKey = await this.encryptService.unwrapSymmetricKey(encKey, orgKey);
-
-    return this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64);
-  }
-
   async upsert(userId: UserId, data: OrganizationInviteLink): Promise<void> {
-    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => data);
+    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => {
+      return data;
+    });
   }
 
   async delete(userId: UserId, orgId: OrganizationId): Promise<void> {
+    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => undefined);
     await this.apiService.delete(orgId);
   }
 
-  private buildInviteUrl(code: string, keyB64: string): string {
-    return `/#/join/${code}?key=${keyB64}`;
+  private buildInviteUrl(code: string, keyB64: string): Observable<string> {
+    return this.environmentService.environment$.pipe(
+      map((env) => `${env.getWebVaultUrl()}/#/join/${code}?key=${keyB64}`),
+    );
   }
 
   private async getInviteLink(
@@ -104,8 +103,8 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     let response: OrganizationInviteLinkResponseModel;
     try {
       response = await this.apiService.get(orgId);
-    } catch (e: any) {
-      if (e.status === 404) {
+    } catch (e) {
+      if (e instanceof ErrorResponse && e.statusCode === 404) {
         return undefined;
       }
       throw e;
