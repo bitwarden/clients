@@ -26,8 +26,8 @@ export class MainSshAgentService {
   private request_id = 0;
   private agentState: sshagent.SshAgentState;
 
-  // The napi callbacks (requestUnlock, requestSign) are awaited directly by the Rust agent,
-  // so they must return a Promise that resolves with the user's decision.
+  // The napi callback requestSign() is awaited directly by the Rust agent,
+  // so it must return a Promise that resolves with the user's decision.
   // The approval dialog lives in the renderer (a separate process), so bridging a callback
   // to a user decision requires a round-trip: main fires a message to the renderer, the
   // renderer responds via a separate IPC call. Because multiple SSH clients can connect
@@ -187,6 +187,8 @@ export class MainSshAgentService {
     });
   }
 
+  // Starts the Agent.
+  // @pre: The agent must not be running. The caller may utilize `is_running()` and `stop()`.
   private async initV2() {
     const signCb = (data: sshagent_v2.SignRequestData) => this.requestSign(data);
     try {
