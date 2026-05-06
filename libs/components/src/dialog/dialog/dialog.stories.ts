@@ -288,7 +288,7 @@ export const WithoutFooter: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disablePadding]="disablePadding" [disableAnimations]="disableAnimations" background="alt">
+      <bit-dialog [dialogSize]="dialogSize" [title]="title" [subtitle]="subtitle" [loading]="loading" [disableAnimations]="disableAnimations" background="alt">
         <ng-container bitDialogContent>Dialog body text goes here.</ng-container>
       </bit-dialog>
     `,
