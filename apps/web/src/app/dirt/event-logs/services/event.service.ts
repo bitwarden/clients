@@ -11,6 +11,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BitwardenIcon } from "@bitwarden/components";
 
 @Injectable()
 export class EventService {
@@ -197,6 +198,34 @@ export class EventService {
         msg = this.i18nService.t("editedCollectionsForItem", this.formatCipherId(ev, options));
         humanReadableMsg = this.i18nService.t(
           "editedCollectionsForItem",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledBankAccountNumberVisible:
+        msg = this.i18nService.t("viewedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledBankAccountPinVisible:
+        msg = this.i18nService.t("viewedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountPinItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountNumber:
+        msg = this.i18nService.t("copiedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountPin:
+        msg = this.i18nService.t("copiedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountPinItemId",
           this.getShortId(ev.cipherId),
         );
         break;
@@ -741,7 +770,7 @@ export class EventService {
     };
   }
 
-  private getAppInfo(ev: EventResponse): [string, string] {
+  private getAppInfo(ev: EventResponse): [BitwardenIcon, string] {
     if (ev.serviceAccountId) {
       return ["bwi-globe", this.i18nService.t("sdk")];
     }
@@ -999,7 +1028,7 @@ export class EventService {
 export class EventInfo {
   message: string;
   humanReadableMessage: string;
-  appIcon: string;
+  appIcon: BitwardenIcon;
   appName: string;
 }
 

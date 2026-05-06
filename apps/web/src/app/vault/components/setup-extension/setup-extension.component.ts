@@ -1,4 +1,3 @@
-import { NgIf } from "@angular/common";
 import { Component, DestroyRef, inject, OnDestroy, OnInit, DOCUMENT } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
@@ -48,7 +47,6 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
   imports: [
-    NgIf,
     JslibModule,
     ButtonComponent,
     LinkModule,
