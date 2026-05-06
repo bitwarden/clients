@@ -91,23 +91,21 @@
     <button
       type="button"
       class="block primary"
-      bitButton
-      appA11yTitle="{{ 'addItem' | i18n }}"
+      bitIconButton="bwi-plus"
+      [label]="'addItem' | i18n"
       [disabled]="deleted"
       [bitMenuTriggerFor]="addCipherMenu"
-    >
-      <i class="bwi bwi-plus bwi-lg" aria-hidden="true"></i>
-    </button>
+    ></button>
     <bit-menu #addCipherMenu>
       @for (itemTypes of itemTypes$ | async; track itemTypes.type) {
         <button type="button" bitMenuItem (click)="addCipher(itemTypes.type)">
-          <i class="bwi {{ itemTypes.icon }} tw-mr-1" aria-hidden="true"></i>
+          <i slot="start" class="bwi {{ itemTypes.icon }}" aria-hidden="true"></i>
           {{ itemTypes.labelKey | i18n }}
         </button>
       }
       <bit-menu-divider />
       <button type="button" bitMenuItem (click)="onAddFolder.emit()">
-        <i class="bwi bwi-folder tw-mr-1" aria-hidden="true"></i>
+        <i slot="start" class="bwi bwi-folder" aria-hidden="true"></i>
         {{ "folder" | i18n }}
       </button>
     </bit-menu>

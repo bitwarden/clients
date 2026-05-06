@@ -20,8 +20,13 @@
     }
 
     @if (!hasCustomFields && !isPartialEdit && allowNewField) {
-      <button bitLink type="button" linkType="primary" (click)="addCustomField()">
-        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
+      <button
+        bitLink
+        startIcon="bwi-plus"
+        type="button"
+        linkType="primary"
+        (click)="addCustomField()"
+      >
         {{ "addField" | i18n }}
       </button>
     }

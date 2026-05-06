@@ -7,8 +7,8 @@
         buttonType="primary"
         type="button"
         (click)="openAddEditFolderDialog()"
+        startIcon="bwi-plus"
       >
-        <i class="bwi bwi-plus" aria-hidden="true"></i>
         {{ "new" | i18n }}
       </button>
       <app-pop-out></app-pop-out>
@@ -46,8 +46,8 @@
           slot="button"
           (click)="openAddEditFolderDialog()"
           data-testid="empty-new-folder-button"
+          startIcon="bwi-plus"
         >
-          <i class="bwi bwi-plus" aria-hidden="true"></i>
           {{ "newFolder" | i18n }}
         </button>
       </bit-no-items>

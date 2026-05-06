@@ -109,13 +109,13 @@
 
         @if (!isPartialEdit && !parentFormDisabled) {
           <button
+            startIcon="bwi-plus"
             type="button"
             bitLink
             linkType="primary"
             (click)="openAddEditCustomFieldDialog()"
             data-testid="add-field-button"
           >
-            <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
             {{ "addField" | i18n }}
           </button>
         }
