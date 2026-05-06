@@ -74,9 +74,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
    */
   readonly spotlightTargetSelector = input<string>();
 
-  /** Minimum distance in pixels between the popover and the viewport edge */
-  readonly viewportMargin = input<number>(0);
-
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private readonly hasInitialized = signal(false);
@@ -112,8 +109,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
         .withPositions(this.positions)
         .withLockedPosition(true)
         .withFlexibleDimensions(false)
-        .withPush(true)
-        .withViewportMargin(this.viewportMargin()),
+        .withPush(true),
     };
   }
 
