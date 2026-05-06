@@ -20,7 +20,7 @@
       <bit-label>{{ "sendControlRecipientAccessMethod" | i18n }}</bit-label>
       <bit-select formControlName="whoCanAccess">
         @for (accessOption of sendAccessOptions; track accessOption.value) {
-          <bit-option [label]="accessOption.name" [value]="accessOption.value"></bit-option>
+          <bit-option [label]="accessOption.label" [value]="accessOption.value"></bit-option>
         }
       </bit-select>
     </bit-form-field>

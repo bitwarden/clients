@@ -15,7 +15,7 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { map, firstValueFrom, switchMap, filter, combineLatest, of } from "rxjs";
+import { map, firstValueFrom, switchMap, filter, combineLatest, of, startWith } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -185,7 +185,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     this.policyComponent.set(component);
 
     combineLatest([
-      component.enabled.valueChanges,
+      component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
       component.data?.valueChanges ?? of({}),
       component.data?.statusChanges ?? of("VALID"),
     ])

@@ -26,7 +26,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
-import { SwitchComponent } from "@bitwarden/components";
+import { Option, SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -61,11 +61,11 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
 
-  protected readonly sendAccessOptions: { name: string; value: WhoCanAccessType }[] = [
-    { name: this.i18nService.t("any"), value: WhoCanAccessType.Any },
-    { name: this.i18nService.t("emailVerification"), value: WhoCanAccessType.SpecificPeople },
+  protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
+    { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
+    { label: this.i18nService.t("emailVerification"), value: WhoCanAccessType.SpecificPeople },
     {
-      name: this.i18nService.t("sendAccessOptionAnyoneWithAPassword"),
+      label: this.i18nService.t("sendAccessOptionAnyoneWithAPassword"),
       value: WhoCanAccessType.PasswordProtected,
     },
   ];
