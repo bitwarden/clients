@@ -145,7 +145,7 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
     if (!this.enabled.value) {
       return null;
     }
-    return this.data.getRawValue();
+    return this.data.value;
   }
 
   constructor() {
