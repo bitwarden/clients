@@ -8,11 +8,11 @@
     >
       <bit-icon
         name="bwi-info-circle"
-        [class]="notificationData()?.header ? 'tw-shrink-0 tw-text-2xl' : 'tw-shrink-0 tw-mt-1'"
+        [class]="notificationData()?.header ? 'tw-shrink-0 tw-text-4xl' : 'tw-shrink-0 tw-mt-1'"
       ></bit-icon>
       <span class="tw-grow tw-max-w-[800px] lg:tw-grow-0">
         @if (notificationData()?.header) {
-          <span class="tw-block tw-font-semibold">{{ notificationData()?.header }}</span>
+          <span class="tw-block tw-font-semibold tw-text-xl">{{ notificationData()?.header }}</span>
         }
         {{ notificationData()?.description }}
       </span>
