@@ -173,41 +173,42 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    * On secure-storage platforms the refresh token normally lives in OS secure storage, but
    * `writeTokensToDisk` falls back to {@link REFRESH_TOKEN_DISK} when secure storage `save`
    * fails (e.g. intermittent Windows 10/11 failures). To honor that fallback across app
-   * restarts we read OS secure storage first, then fall back to the disk JSON copy.
+   * restarts we read secure storage first (cheaper than loading the disk JSON), then fall
+   * back to the disk copy when secure storage misses — whether it returned null or threw.
    *
-   * If the secure storage read itself throws, we fire the logout callback so the owning
-   * context can drive the user-facing dialog. Most often hits Linux distros without a
-   * configured secure storage provider.
+   * Secure-storage throws most often hit Linux distros without a configured provider; those
+   * users typically have a disk-resident RT from a prior session and recovery from disk
+   * keeps them signed in. The logout callback only fires when both locations miss *and*
+   * secure storage threw.
    */
   private async hydrateRefreshToken(userId: UserId): Promise<void> {
+    let secureStorageReadError: unknown = null;
+
     if (this.platformSupportsSecureStorage) {
-      let secureRefreshToken: string | null = null;
       try {
-        secureRefreshToken = await this.secureStorageService.get<string>(
+        const secureRefreshToken = await this.secureStorageService.get<string>(
           `${userId}${this.refreshTokenSecureStorageKey}`,
           this.getSecureStorageOptions(userId),
         );
+        if (secureRefreshToken) {
+          await this.singleUserStateProvider
+            .get(userId, REFRESH_TOKEN_MEMORY)
+            .update((_) => secureRefreshToken);
+          return;
+        }
       } catch (e) {
         this.logService.error(
-          "[TokenStorageSyncService] Failed to read refresh token from secure storage. Logging user out.",
+          "[TokenStorageSyncService] Failed to read refresh token from secure storage; trying disk fallback.",
           e,
         );
-        await this.logoutCallback("refreshTokenSecureStorageRetrievalFailure", userId);
-        return;
-      }
-
-      if (secureRefreshToken) {
-        await this.singleUserStateProvider
-          .get(userId, REFRESH_TOKEN_MEMORY)
-          .update((_) => secureRefreshToken);
-        return;
+        secureStorageReadError = e;
       }
     }
 
-    // Fallback: REFRESH_TOKEN_DISK on every platform.
-    //   - Non-secure-storage platforms: this is the primary location.
-    //   - Secure-storage platforms: covers writeTokensToDisk's secure-storage-save-failed
-    //     fallback, plus pre-secure-storage-migration users.
+    // Disk fallback. On non-secure-storage platforms this is the primary location;
+    // on secure-storage platforms it covers writeTokensToDisk's save-failed fallback
+    // and Linux-without-secure-storage users (where the secure-storage read throws
+    // every time).
     const diskRefreshToken = await firstValueFrom(
       this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).state$,
     );
@@ -215,6 +216,16 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       await this.singleUserStateProvider
         .get(userId, REFRESH_TOKEN_MEMORY)
         .update((_) => diskRefreshToken);
+      return;
+    }
+
+    // Both locations miss. Only signal logout when secure storage threw — a clean miss
+    // (both null) is a fresh-install / post-orphan-cleanup state and shouldn't logout.
+    if (secureStorageReadError) {
+      this.logService.error(
+        "[TokenStorageSyncService] Disk fallback also empty after secure-storage read failure. Logging user out.",
+      );
+      await this.logoutCallback("refreshTokenSecureStorageRetrievalFailure", userId);
     }
   }
 

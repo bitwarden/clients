@@ -420,15 +420,22 @@ describe("DefaultTokenStorageSyncService", () => {
           singleUserStateProvider.getFake(userId, REFRESH_TOKEN_MEMORY).state$,
         );
         expect(memoryValue).toBeNull();
+        // Clean miss (no error from secure storage, no value on disk) is a fresh-install /
+        // post-orphan-cleanup state — must not log an error or fire logoutCallback.
+        expect(logoutCallback).not.toHaveBeenCalled();
+        expect(logService.error).not.toHaveBeenCalled();
       });
 
-      it("logs error when secure storage retrieval fails for refresh token", async () => {
+      it("logs the disk-fallback attempt when secure storage retrieval throws for refresh token", async () => {
         singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plaintextAT");
         secureStorageService.get.mockRejectedValue(new Error("Secure storage error"));
 
         await sut.init();
 
-        expect(logService.error).toHaveBeenCalled();
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining("trying disk fallback"),
+          expect.any(Error),
+        );
       });
 
       it("hydrates refresh token from REFRESH_TOKEN_DISK when secure storage returns null on a secure-storage platform", async () => {
@@ -449,6 +456,33 @@ describe("DefaultTokenStorageSyncService", () => {
           singleUserStateProvider.getFake(userId, REFRESH_TOKEN_MEMORY).state$,
         );
         expect(memoryValue).toEqual("diskRefreshToken");
+      });
+
+      it("hydrates refresh token from REFRESH_TOKEN_DISK when secure storage throws on a secure-storage platform (Linux without configured secure-storage provider)", async () => {
+        // Seed plaintext AT on disk so hydrateOrClear takes the hydrate path. Plaintext on
+        // a secure-storage platform is the encrypt-failure fallback state — hydrated as-is
+        // without invoking the AT-key-decrypt path that would otherwise fire its own logout.
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plaintextAT");
+
+        // RT sits on disk because writeTokensToDisk's save-failed fallback wrote it there in
+        // a prior session.
+        singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("diskRT");
+
+        // Secure storage throws on every get — typical of Linux distros without a configured
+        // secure-storage provider.
+        secureStorageService.get.mockRejectedValue(new Error("Secure storage unavailable"));
+
+        await sut.init();
+
+        const memoryValue = await firstValueFrom(
+          singleUserStateProvider.getFake(userId, REFRESH_TOKEN_MEMORY).state$,
+        );
+        expect(memoryValue).toEqual("diskRT");
+        expect(logoutCallback).not.toHaveBeenCalled();
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining("trying disk fallback"),
+          expect.any(Error),
+        );
       });
 
       describe("orphan cleanup (no access token on disk)", () => {
@@ -621,6 +655,11 @@ describe("DefaultTokenStorageSyncService", () => {
           expect(logoutCallback).toHaveBeenCalledWith(
             "refreshTokenSecureStorageRetrievalFailure",
             userId,
+          );
+          // The logout signal is preceded by a follow-up error log indicating that the disk
+          // fallback was also empty.
+          expect(logService.error).toHaveBeenCalledWith(
+            expect.stringContaining("Disk fallback also empty"),
           );
         });
       });
