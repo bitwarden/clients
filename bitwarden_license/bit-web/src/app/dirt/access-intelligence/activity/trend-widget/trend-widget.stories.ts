@@ -253,6 +253,37 @@ export const TwentyFourDataPoints: Story = {
   },
 };
 
+/**
+ * Multi-year dataset: 15 data points spread across roughly 3 years (anchored at 2026-04-30).
+ */
+export const MultiYearDataPoints: Story = {
+  args: {
+    data: {
+      timeframe: TimePeriod.PastMonth,
+      dataView: "members",
+      dataPoints: [
+        { timestamp: "2023-04-30T00:00:00Z", atRisk: 100, total: 400 },
+        { timestamp: "2023-07-15T00:00:00Z", atRisk: 108, total: 412 },
+        { timestamp: "2023-09-30T00:00:00Z", atRisk: 115, total: 425 },
+        { timestamp: "2023-12-15T00:00:00Z", atRisk: 122, total: 438 },
+        { timestamp: "2024-03-01T00:00:00Z", atRisk: 130, total: 450 },
+        { timestamp: "2024-05-15T00:00:00Z", atRisk: 138, total: 462 },
+        { timestamp: "2024-08-01T00:00:00Z", atRisk: 145, total: 475 },
+        { timestamp: "2024-10-15T00:00:00Z", atRisk: 152, total: 488 },
+        { timestamp: "2025-01-01T00:00:00Z", atRisk: 160, total: 500 },
+        { timestamp: "2025-03-15T00:00:00Z", atRisk: 168, total: 515 },
+        { timestamp: "2025-06-01T00:00:00Z", atRisk: 175, total: 530 },
+        { timestamp: "2025-08-15T00:00:00Z", atRisk: 182, total: 545 },
+        { timestamp: "2025-11-01T00:00:00Z", atRisk: 188, total: 560 },
+        { timestamp: "2026-01-15T00:00:00Z", atRisk: 195, total: 580 },
+        { timestamp: "2026-04-30T00:00:00Z", atRisk: 200, total: 600 },
+      ],
+    },
+    loading: false,
+    error: null,
+  },
+};
+
 async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
   const canvas = within(canvasElement);
   // The trigger button's accessible name comes from aria-label="Time period";
