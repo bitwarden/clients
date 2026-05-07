@@ -70,18 +70,18 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
   ) {
     this.months = [
       { name: "-- " + this.i18nService.t("select") + " --", value: "" },
-      { name: "01 - " + this.i18nService.t("january"), value: "1" },
-      { name: "02 - " + this.i18nService.t("february"), value: "2" },
-      { name: "03 - " + this.i18nService.t("march"), value: "3" },
-      { name: "04 - " + this.i18nService.t("april"), value: "4" },
-      { name: "05 - " + this.i18nService.t("may"), value: "5" },
-      { name: "06 - " + this.i18nService.t("june"), value: "6" },
-      { name: "07 - " + this.i18nService.t("july"), value: "7" },
-      { name: "08 - " + this.i18nService.t("august"), value: "8" },
-      { name: "09 - " + this.i18nService.t("september"), value: "9" },
-      { name: "10 - " + this.i18nService.t("october"), value: "10" },
-      { name: "11 - " + this.i18nService.t("november"), value: "11" },
-      { name: "12 - " + this.i18nService.t("december"), value: "12" },
+      { name: this.i18nService.t("january"), value: "1" },
+      { name: this.i18nService.t("february"), value: "2" },
+      { name: this.i18nService.t("march"), value: "3" },
+      { name: this.i18nService.t("april"), value: "4" },
+      { name: this.i18nService.t("may"), value: "5" },
+      { name: this.i18nService.t("june"), value: "6" },
+      { name: this.i18nService.t("july"), value: "7" },
+      { name: this.i18nService.t("august"), value: "8" },
+      { name: this.i18nService.t("september"), value: "9" },
+      { name: this.i18nService.t("october"), value: "10" },
+      { name: this.i18nService.t("november"), value: "11" },
+      { name: this.i18nService.t("december"), value: "12" },
     ];
 
     this.internalForm = this.formBuilder.group({
@@ -96,7 +96,6 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
     this.setupNumericFilter(this.internalForm.get("year")!);
 
     this.internalForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.validateAllOrNothing();
       this.validateDayRange();
       const combined = this.combineDate(
         this.internalForm.get("month")!.value,
@@ -149,6 +148,7 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
     this.internalForm.get("month")!.markAsTouched();
     this.internalForm.get("day")!.markAsTouched();
     this.internalForm.get("year")!.markAsTouched();
+    this.validateAllOrNothing();
   }
 
   /**
