@@ -1,6 +1,6 @@
 # Technical Requirements for Push-Based Event Delivery
 
-> Purpose: Output of [PM-35268](https://bitwarden.atlassian.net/browse/PM-35268). This document explains how to implement a push-based event delivery integration for organization event management.
+> Purpose: This document explains how to implement a push-based event delivery integration for organization event management.
 
 ## Why this matters
 
