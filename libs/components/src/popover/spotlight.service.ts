@@ -58,30 +58,33 @@ export class SpotlightService {
    * @param padding - Padding around the element in pixels
    */
   showSpotlight(target: HTMLElement, padding: number, showBorder = false): void {
+    const resolvedTarget =
+      (target.querySelector("[data-spotlight-target]") as HTMLElement | null) ?? target;
+
     if (this.hideTimeout !== null) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
     }
 
-    if (this.currentTarget === target && this.currentPadding === padding) {
+    if (this.currentTarget === resolvedTarget && this.currentPadding === padding) {
       return;
     }
 
-    const isNewTarget = this.currentTarget !== target;
-    this.currentTarget = target;
+    const isNewTarget = this.currentTarget !== resolvedTarget;
+    this.currentTarget = resolvedTarget;
     this.currentPadding = padding;
     this.currentShowBorder = showBorder;
 
     // Scroll the new target into view
-    if (isNewTarget && typeof target.scrollIntoView === "function") {
-      target.scrollIntoView({ block: "center", inline: "nearest" });
+    if (isNewTarget && typeof resolvedTarget.scrollIntoView === "function") {
+      resolvedTarget.scrollIntoView({ block: "center", inline: "nearest" });
     }
 
     this.backdropElement.style.display = "block";
 
     // Recreate the CDK border overlay for the new target/padding
     this.disposeBorderOverlay();
-    this.createBorderOverlay(target, padding);
+    this.createBorderOverlay(resolvedTarget, padding);
   }
 
   /**
