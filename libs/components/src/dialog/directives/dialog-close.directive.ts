@@ -17,7 +17,7 @@ export class DialogCloseDirective {
 
   @HostListener("click")
   close(): void {
-    if (this.disableClose) {
+    if (this.disableClose || !this.dialogRef) {
       return;
     }
 
