@@ -176,7 +176,7 @@ mod tests {
     #[test]
     fn test_privatekey_sign_ed25519_signature() {
         let keypair = Ed25519Keypair::random(&mut OsRng);
-        let public_key = keypair.public; // use copy impl
+        let public_key = keypair.public;
         let private_key = PrivateKey::Ed25519(keypair);
         const TEST_DATA: &[u8] = b"test data";
 
@@ -188,7 +188,7 @@ mod tests {
     #[test]
     fn test_privatekey_sign_rsa_signature() {
         let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
-        let public_key = keypair.public.clone(); // use clone impl
+        let public_key = keypair.public.clone(); // RsaKepair doesn't implement copy
         let private_key = PrivateKey::Rsa(keypair);
         const TEST_DATA: &[u8] = b"test data";
 
