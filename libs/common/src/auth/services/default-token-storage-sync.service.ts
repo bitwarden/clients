@@ -1,6 +1,10 @@
 import { Subscription, combineLatest, filter, firstValueFrom, from, switchMap } from "rxjs";
 import { Opaque } from "type-fest";
 
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
+// eslint-disable-next-line no-restricted-imports
+import { LogoutReason } from "@bitwarden/auth/common";
+
 import { KeyGenerationService } from "../../key-management/crypto";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
@@ -57,6 +61,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     private readonly keyGenerationService: KeyGenerationService,
     private readonly platformSupportsSecureStorage: boolean,
     private readonly logService: LogService,
+    private readonly logoutCallback: (reason: LogoutReason, userId: UserId) => Promise<void>,
   ) {
     this.hydratedState = globalStateProvider.get(TOKEN_STORAGE_HYDRATED);
   }
@@ -123,6 +128,127 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
   }
 
   /**
+   * Hydrates the refresh token into memory.
+   *
+   * On secure-storage platforms the refresh token normally lives in OS secure storage, but
+   * `writeTokensToDisk` falls back to {@link REFRESH_TOKEN_DISK} when secure storage `save`
+   * fails (e.g. intermittent Windows 10/11 failures). To honor that fallback across app
+   * restarts we read OS secure storage first, then fall back to the disk JSON copy.
+   *
+   * If the secure storage read itself throws, we fire the logout callback so the owning
+   * context can drive the user-facing dialog. Most often hits Linux distros without a
+   * configured secure storage provider.
+   */
+  private async hydrateRefreshToken(userId: UserId): Promise<void> {
+    if (this.platformSupportsSecureStorage) {
+      let secureRefreshToken: string | null = null;
+      try {
+        secureRefreshToken = await this.secureStorageService.get<string>(
+          `${userId}${this.refreshTokenSecureStorageKey}`,
+          this.getSecureStorageOptions(userId),
+        );
+      } catch (e) {
+        this.logService.error(
+          "[TokenStorageSyncService] Failed to read refresh token from secure storage. Logging user out.",
+          e,
+        );
+        await this.logoutCallback("refreshTokenSecureStorageRetrievalFailure", userId);
+        return;
+      }
+
+      if (secureRefreshToken) {
+        await this.singleUserStateProvider
+          .get(userId, REFRESH_TOKEN_MEMORY)
+          .update((_) => secureRefreshToken);
+        return;
+      }
+    }
+
+    // Fallback: REFRESH_TOKEN_DISK on every platform.
+    //   - Non-secure-storage platforms: this is the primary location.
+    //   - Secure-storage platforms: covers writeTokensToDisk's secure-storage-save-failed
+    //     fallback, plus pre-secure-storage-migration users.
+    const diskRefreshToken = await firstValueFrom(
+      this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).state$,
+    );
+    if (diskRefreshToken) {
+      await this.singleUserStateProvider
+        .get(userId, REFRESH_TOKEN_MEMORY)
+        .update((_) => diskRefreshToken);
+    }
+  }
+
+  /**
+   * Hydrates the access token into memory on a secure-storage platform.
+   *
+   * The disk copy is normally encrypted with a per-user `AccessTokenKey` stored in OS
+   * secure storage. If the key is unrecoverable (secure storage throws or returns null)
+   * while the disk copy is encrypted, or if decryption itself throws, we fire the logout
+   * callback so the owning context can drive the user-facing "you've been logged out"
+   * UX. A plaintext token on disk — produced by the encrypt-failure fallback in
+   * `writeTokensToDisk` — is hydrated as-is and never triggers logout.
+   */
+  private async hydrateAccessTokenOnSecureStoragePlatform(userId: UserId): Promise<void> {
+    const diskAccessToken = await firstValueFrom(
+      this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
+    );
+    if (!diskAccessToken) {
+      return;
+    }
+
+    const diskAccessTokenIsEncrypted = EncString.isSerializedEncString(diskAccessToken);
+
+    let accessTokenKey: AccessTokenKey | null;
+    try {
+      accessTokenKey = await this.getAccessTokenKey(userId);
+    } catch (e) {
+      if (diskAccessTokenIsEncrypted) {
+        this.logService.error(
+          "[TokenStorageSyncService] Access token key retrieval failed; cannot decrypt encrypted access token. Logging user out.",
+          e,
+        );
+        await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
+        return;
+      }
+      // Token on disk is plaintext and key retrieval threw — typically Linux distros
+      // without a configured secure storage provider.
+      await this.singleUserStateProvider
+        .get(userId, ACCESS_TOKEN_MEMORY)
+        .update((_) => diskAccessToken);
+      return;
+    }
+
+    if (!diskAccessTokenIsEncrypted) {
+      // Plaintext access token on disk — the encrypt-failure fallback path produced by
+      // writeTokensToDisk when getOrCreateAccessTokenKey or encryption throws.
+      await this.singleUserStateProvider
+        .get(userId, ACCESS_TOKEN_MEMORY)
+        .update((_) => diskAccessToken);
+      return;
+    }
+
+    if (!accessTokenKey) {
+      this.logService.error(
+        "[TokenStorageSyncService] Access token key not found in secure storage; cannot decrypt encrypted access token. Logging user out.",
+      );
+      await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
+      return;
+    }
+
+    try {
+      const encString = new EncString(diskAccessToken as EncryptedString);
+      const plaintext = await this.encryptService.decryptString(encString, accessTokenKey);
+      await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => plaintext);
+    } catch (e) {
+      this.logService.error(
+        "[TokenStorageSyncService] Failed to decrypt access token. Logging user out.",
+        e,
+      );
+      await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
+    }
+  }
+
+  /**
    * Reads tokens from the persistent tier for a single user, decrypts where necessary,
    * and writes plaintext directly into the memory state keys via `SingleUserStateProvider`.
    *
@@ -133,28 +259,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
   private async hydrateMemoryFromPersistentStorage(userId: UserId): Promise<void> {
     // Access token
     if (this.platformSupportsSecureStorage) {
-      const encryptedAccessToken = await firstValueFrom(
-        this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
-      );
-      if (encryptedAccessToken) {
-        try {
-          const key = await this.getAccessTokenKey(userId);
-          if (key && EncString.isSerializedEncString(encryptedAccessToken)) {
-            const encString = new EncString(encryptedAccessToken as EncryptedString);
-            const plaintext = await this.encryptService.decryptString(encString, key);
-            await this.singleUserStateProvider
-              .get(userId, ACCESS_TOKEN_MEMORY)
-              .update((_) => plaintext);
-          } else if (!EncString.isSerializedEncString(encryptedAccessToken)) {
-            // Pre-migration: unencrypted access token on disk
-            await this.singleUserStateProvider
-              .get(userId, ACCESS_TOKEN_MEMORY)
-              .update((_) => encryptedAccessToken);
-          }
-        } catch (e) {
-          this.logService.error("[TokenStorageSyncService] Failed to decrypt access token", e);
-        }
-      }
+      await this.hydrateAccessTokenOnSecureStoragePlatform(userId);
     } else {
       const accessToken = await firstValueFrom(
         this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
@@ -167,33 +272,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     }
 
     // Refresh token
-    if (this.platformSupportsSecureStorage) {
-      try {
-        const refreshToken = await this.secureStorageService.get<string>(
-          `${userId}${this.refreshTokenSecureStorageKey}`,
-          this.getSecureStorageOptions(userId),
-        );
-        if (refreshToken) {
-          await this.singleUserStateProvider
-            .get(userId, REFRESH_TOKEN_MEMORY)
-            .update((_) => refreshToken);
-        }
-      } catch (e) {
-        this.logService.error(
-          "[TokenStorageSyncService] Failed to read refresh token from secure storage",
-          e,
-        );
-      }
-    } else {
-      const refreshToken = await firstValueFrom(
-        this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).state$,
-      );
-      if (refreshToken) {
-        await this.singleUserStateProvider
-          .get(userId, REFRESH_TOKEN_MEMORY)
-          .update((_) => refreshToken);
-      }
-    }
+    await this.hydrateRefreshToken(userId);
 
     // Client ID and client secret: plaintext in JSON disk state on all platforms.
     const clientId = await firstValueFrom(
@@ -313,17 +392,27 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     // Access token
     if (this.platformSupportsSecureStorage) {
       try {
-        const key = await this.getOrCreateAccessTokenKey(userId);
-        const encryptedAccessToken = await this.encryptService.encryptString(accessToken, key);
-        const encryptedString = encryptedAccessToken.encryptedString ?? null;
+        // Secure storage implementations have variable length limitations (Windows), so we cannot
+        // store the access token directly. Instead, we encrypt with accessTokenKey and store that
+        // in secure storage.
+
+        const accessTokenKey = await this.getOrCreateAccessTokenKey(userId);
+        const encryptedAccessToken = await this.encryptService.encryptString(
+          accessToken,
+          accessTokenKey,
+        );
+
+        // TODO: IN SCOPE: this should error if `encryptedAccessToken.encryptedString` is undefined
+        const typeSafeEncryptedAccessToken = encryptedAccessToken.encryptedString ?? null;
+
         // TODO: randomized EncString IVs defeat this `prev !== new` guard, so the first emission
         // post-hydration always re-writes the same plaintext under a new IV — costly on platforms
         // like desktop where disk writes load a large data.json. Out of scope to fix here as guard was
         // pre-existing.
         await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
-          .update((_) => encryptedString, {
-            shouldUpdate: (prev) => prev !== encryptedString,
+          .update((_) => typeSafeEncryptedAccessToken, {
+            shouldUpdate: (prev) => prev !== typeSafeEncryptedAccessToken,
           });
       } catch (e) {
         this.logService.error(
@@ -349,6 +438,18 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
             refreshToken,
             this.getSecureStorageOptions(userId),
           );
+
+          // Verify the save persisted by reading it back. Intermittent silent failures
+          // have been observed on Windows 10/11 where save() resolves without error but
+          // the value never actually lands in secure storage. Throw to trigger the disk
+          // fallback below if the read-back returns nothing.
+          const persistedRefreshToken = await this.secureStorageService.get<string>(
+            `${userId}${this.refreshTokenSecureStorageKey}`,
+            this.getSecureStorageOptions(userId),
+          );
+          if (!persistedRefreshToken) {
+            throw new Error("Refresh token unable to be retrieved from secure storage after save.");
+          }
         }
         // Clear disk location — on secure storage platforms the refresh token lives in OS secure storage only
         await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
@@ -454,20 +555,28 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       throw new Error("Platform does not support secure storage. Cannot obtain access token key.");
     }
 
-    let key = await this.getAccessTokenKey(userId);
-    if (!key) {
-      key = (await this.keyGenerationService.createKey(512)) as AccessTokenKey;
+    // First see if we have an accessTokenKey in secure storage and return it if we do
+    // Note: retrieving/saving data from/to secure storage on linux will throw if the
+    // distro doesn't have a secure storage provider
+    let accessTokenKey = await this.getAccessTokenKey(userId);
+
+    if (!accessTokenKey) {
+      // Otherwise, create a new one and save it to secure storage, then return it
+      accessTokenKey = (await this.keyGenerationService.createKey(512)) as AccessTokenKey;
       await this.secureStorageService.save<AccessTokenKey>(
         `${userId}${this.accessTokenKeySecureStorageKey}`,
-        key,
+        accessTokenKey,
         this.getSecureStorageOptions(userId),
       );
-      const saved = await this.getAccessTokenKey(userId);
-      if (!saved) {
+
+      // We are having intermittent issues with access token keys not saving into secure storage on windows 10/11.
+      // So, let's add a check to ensure we can read the value after writing it.
+      const savedAccessTokenKey = await this.getAccessTokenKey(userId);
+      if (!savedAccessTokenKey) {
         throw new Error("Access token key unable to be retrieved from secure storage after save.");
       }
     }
-    return key;
+    return accessTokenKey;
   }
 
   /** Builds the `StorageOptions` for OS secure storage operations for the given user. */

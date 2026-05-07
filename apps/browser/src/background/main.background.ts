@@ -824,6 +824,7 @@ export default class MainBackground {
       this.keyGenerationService,
       this.platformUtilsService.supportsSecureStorage(),
       this.logService,
+      (logoutReason: LogoutReason, userId: UserId) => this.logout(logoutReason, userId),
     );
 
     this.apiService = new ApiService(

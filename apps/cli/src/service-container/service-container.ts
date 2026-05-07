@@ -586,6 +586,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.platformUtilsService.supportsSecureStorage(),
       this.logService,
+      logoutCallback,
     );
 
     const refreshAccessTokenErrorCallback = () => {

@@ -40,6 +40,7 @@ describe("DefaultTokenStorageSyncService", () => {
   let encryptService: MockProxy<EncryptService>;
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let logService: MockProxy<LogService>;
+  let logoutCallback: jest.Mock;
 
   const userId = "user-1" as UserId;
   const accountInfo: AccountInfo = {
@@ -70,6 +71,7 @@ describe("DefaultTokenStorageSyncService", () => {
     encryptService = mock<EncryptService>();
     keyGenerationService = mock<KeyGenerationService>();
     logService = mock<LogService>();
+    logoutCallback = jest.fn().mockResolvedValue(undefined);
 
     accounts$ = new BehaviorSubject<Record<UserId, AccountInfo>>({ [userId]: accountInfo });
     accountService.accounts$ = accounts$;
@@ -102,6 +104,7 @@ describe("DefaultTokenStorageSyncService", () => {
       keyGenerationService,
       platformSupportsSecureStorage,
       logService,
+      logoutCallback,
     );
   }
 
@@ -199,8 +202,8 @@ describe("DefaultTokenStorageSyncService", () => {
         expect(memoryValue).toEqual("decryptedAccessToken");
       });
 
-      it("copies pre-migration unencrypted access token from disk to memory when key exists but token is not encrypted", async () => {
-        // Pre-migration: token on disk is not an EncString
+      it("copies plaintext access token from disk to memory when key exists but token on disk is not encrypted (encrypt-failure fallback state)", async () => {
+        // Token on disk is not an EncString — produced by the encrypt-failure fallback in writeTokensToDisk.
         singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plainJwtToken");
 
         const mockKey = {} as SymmetricCryptoKey;
@@ -564,7 +567,7 @@ describe("DefaultTokenStorageSyncService", () => {
         await sut.init();
 
         expect(logService.error).toHaveBeenCalledWith(
-          "[TokenStorageSyncService] Failed to decrypt access token",
+          "[TokenStorageSyncService] Failed to decrypt access token. Logging user out.",
           expect.any(Error),
         );
 
@@ -1034,6 +1037,171 @@ describe("DefaultTokenStorageSyncService", () => {
 
       const popupSut = createService(false);
       await expect(popupSut.waitForHydration()).resolves.toBeUndefined();
+    });
+  });
+
+  // Tests below cover behavior preserved from the legacy TokenService disk-storage logic that
+  // would otherwise be lost in the memory-first refactor. Each test asserts a single behavior
+  // and was written before the corresponding fix was implemented.
+  describe("preserved-from-legacy disk-storage behaviors", () => {
+    const encryptedAccessToken = "2.abc==|def==|ghi==" as `${number}.${string}|${string}|${string}`;
+
+    describe("hydrateMemoryFromPersistentStorage — access token decrypt failure signals logout", () => {
+      it("fires logoutCallback('accessTokenUnableToBeDecrypted') when access token key retrieval throws and disk holds an encrypted token", async () => {
+        sut = createService(true);
+
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState(encryptedAccessToken);
+        // Secure storage throws when reading the access token key (e.g. Linux without a
+        // configured secure storage provider). Refresh token read returns null cleanly so
+        // it doesn't trigger its own logout signal.
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}_accessTokenKey`) {
+            throw new Error("Secure storage unavailable");
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        expect(logoutCallback).toHaveBeenCalledWith("accessTokenUnableToBeDecrypted", userId);
+      });
+
+      it("fires logoutCallback('accessTokenUnableToBeDecrypted') when access token key is missing and disk holds an encrypted token", async () => {
+        sut = createService(true);
+
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState(encryptedAccessToken);
+        // Secure storage returns null for the access token key — encrypted token is unrecoverable.
+        secureStorageService.get.mockResolvedValue(null);
+
+        await sut.init();
+
+        expect(logoutCallback).toHaveBeenCalledWith("accessTokenUnableToBeDecrypted", userId);
+      });
+
+      it("fires logoutCallback('accessTokenUnableToBeDecrypted') when decryption itself throws", async () => {
+        sut = createService(true);
+
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState(encryptedAccessToken);
+
+        const mockKey = {} as SymmetricCryptoKey;
+        secureStorageService.get.mockResolvedValue({ keyB64: "someKeyB64" });
+        jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+        encryptService.decryptString.mockRejectedValue(new Error("Decryption failed"));
+
+        await sut.init();
+
+        expect(logoutCallback).toHaveBeenCalledWith("accessTokenUnableToBeDecrypted", userId);
+      });
+
+      it("does not fire logoutCallback when disk holds an unencrypted access token (encrypt-failure fallback) even if key retrieval throws", async () => {
+        sut = createService(true);
+
+        // Token on disk is plaintext, not an EncString — produced by writeTokensToDisk's encrypt-failure fallback.
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plainJwtToken");
+        // Only the access token key read throws; refresh token read returns null cleanly
+        // so it doesn't trigger its own logout signal.
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}_accessTokenKey`) {
+            throw new Error("Secure storage unavailable");
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        expect(logoutCallback).not.toHaveBeenCalled();
+        const memoryValue = await firstValueFrom(
+          singleUserStateProvider.getFake(userId, ACCESS_TOKEN_MEMORY).state$,
+        );
+        expect(memoryValue).toEqual("plainJwtToken");
+      });
+    });
+
+    describe("hydrateMemoryFromPersistentStorage — refresh token secure storage retrieval failure signals logout", () => {
+      it("fires logoutCallback('refreshTokenSecureStorageRetrievalFailure') when secure storage read throws", async () => {
+        sut = createService(true);
+
+        // Access token key + access token absent so the access token branch doesn't fire its
+        // own logout signal — we want to assert the refresh token path independently.
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}${"_refreshToken"}`) {
+            throw new Error("Secure storage unavailable");
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        expect(logoutCallback).toHaveBeenCalledWith(
+          "refreshTokenSecureStorageRetrievalFailure",
+          userId,
+        );
+      });
+    });
+
+    describe("writeTokensToDisk — refresh token secure storage save read-back verification (Windows 10/11)", () => {
+      it("falls back to disk when secure storage save resolves without throwing but the value is not actually persisted", async () => {
+        sut = createService(true);
+
+        const mockKey = {} as SymmetricCryptoKey;
+        encryptService.encryptString.mockResolvedValue({
+          encryptedString: "2.enc==|data==|iv==",
+        } as EncString);
+
+        // Simulate the Windows 10/11 silent-failure mode:
+        //   - save() resolves without throwing
+        //   - read-back returns null even though we just wrote a non-null value
+        const savedRefreshToken: string | null = null;
+        secureStorageService.save.mockImplementation(async () => {
+          // Intentionally do nothing — simulates the save silently failing.
+        });
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}_accessTokenKey`) {
+            return { keyB64: "someKeyB64" };
+          }
+          if (key === `${userId}_refreshToken`) {
+            return savedRefreshToken;
+          }
+          return null;
+        });
+        jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+
+        vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+        vaultTimeout$.next(VaultTimeoutStringType.Never);
+
+        await sut.init();
+        refreshToken$.next("myRefreshToken");
+        accessToken$.next("plaintextToken");
+
+        await new Promise((r) => setTimeout(r, 50));
+
+        // The refresh token should have ended up on disk as a fallback.
+        const diskRefresh = await firstValueFrom(
+          singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).state$,
+        );
+        expect(diskRefresh).toEqual("myRefreshToken");
+      });
+    });
+
+    describe("hydrateMemoryFromPersistentStorage — refresh token disk fallback on secure-storage platforms", () => {
+      it("hydrates refresh token from REFRESH_TOKEN_DISK when secure storage returns null on a secure-storage platform", async () => {
+        sut = createService(true);
+
+        // Simulates the runtime fallback state created by writeTokensToDisk when secure
+        // storage save throws: refresh token sits in REFRESH_TOKEN_DISK rather than secure
+        // storage. On the next app start, hydration must pick it up.
+        singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("diskRefreshToken");
+
+        // Secure storage returns null for the refresh token key (no value persisted).
+        secureStorageService.get.mockResolvedValue(null);
+
+        await sut.init();
+
+        const memoryValue = await firstValueFrom(
+          singleUserStateProvider.getFake(userId, REFRESH_TOKEN_MEMORY).state$,
+        );
+        expect(memoryValue).toEqual("diskRefreshToken");
+      });
     });
   });
 });

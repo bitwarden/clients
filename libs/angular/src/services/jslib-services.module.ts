@@ -811,6 +811,7 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SUPPORTS_SECURE_STORAGE,
       LogService,
+      LOGOUT_CALLBACK,
     ],
   }),
   safeProvider({
