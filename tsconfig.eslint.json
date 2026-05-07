@@ -5,7 +5,8 @@
     ".storybook/manager.js",
     ".storybook/test-runner.ts",
     ".storybook/format-args-for-code-snippet.ts",
-    ".lit-storybook/main.ts"
+    ".lit-storybook/main.ts",
+    ".lit-storybook/preview.ts"
   ],
   "include": ["apps/**/*", "libs/**/*", "bitwarden_license/**/*", "scripts/**/*"],
   "exclude": ["**/build", "**/dist"]
