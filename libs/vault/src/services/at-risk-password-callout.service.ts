@@ -35,7 +35,7 @@ export const DISMISSED_AT_RISK_CIPHERS_KEY = new UserKeyDefinition<DismissedAtRi
   "dismissedAtRiskCiphers",
   {
     deserializer: (obj) => obj ?? {},
-    clearOn: ["logout"],
+    clearOn: [], // Persist dismissals across lock/logout so users are not re-shown callouts they already dismissed
   },
 );
 
