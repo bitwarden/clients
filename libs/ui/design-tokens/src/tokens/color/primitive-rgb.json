@@ -1,0 +1,24 @@
+{
+  "color": {
+    "brand-950-rgb": {
+      "$value": "{color.brand-950}",
+      "$type": "color"
+    },
+    "gray-400-rgb": {
+      "$value": "{color.gray-400}",
+      "$type": "color"
+    },
+    "gray-950-rgb": {
+      "$value": "{color.gray-950}",
+      "$type": "color"
+    },
+    "white-rgb": {
+      "$value": "{color.white}",
+      "$type": "color"
+    },
+    "black-rgb": {
+      "$value": "{color.black}",
+      "$type": "color"
+    }
+  }
+}

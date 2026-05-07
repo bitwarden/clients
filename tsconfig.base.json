@@ -73,7 +73,8 @@
       "@bitwarden/vault-export-core": ["./libs/tools/export/vault-export/vault-export-core/src"],
       "@bitwarden/vault-export-ui": ["./libs/tools/export/vault-export/vault-export-ui/src"],
       "@bitwarden/web-vault/*": ["./apps/web/src/*"],
-      "@bitwarden/byte": ["./libs/ui/byte/src/index.ts"]
+      "@bitwarden/byte": ["./libs/ui/byte/src/index.ts"],
+      "@bitwarden/design-tokens": ["./libs/ui/design-tokens/src/index.ts"]
     },
     "plugins": [
       {

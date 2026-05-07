@@ -1,0 +1,34 @@
+{
+  "color": {
+    "transparent-hover": {
+      "$value": "#00000005",
+      "$type": "color",
+      "$mods": {
+        "dark": "#ffffff05"
+      }
+    },
+    "hover-default": {
+      "$value": "#1a41ac1a",
+      "$type": "color",
+      "$mods": {
+        "dark": "#aac3ef1a"
+      }
+    },
+    "hover-contrast": {
+      "$value": "#ffffff26",
+      "$type": "color",
+      "$mods": {
+        "dark": "#00000026"
+      }
+    }
+  },
+  "tw": {
+    "ring-offset-color": {
+      "$value": "#ffffff",
+      "$type": "color",
+      "$mods": {
+        "dark": "#1f242e"
+      }
+    }
+  }
+}

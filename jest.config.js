@@ -67,6 +67,7 @@ module.exports = {
     "<rootDir>/libs/scheduling/jest.config.js",
     "<rootDir>/libs/organization-invite-link/jest.config.js",
     "<rootDir>/libs/ui/byte/jest.config.js",
+    "<rootDir>/libs/ui/design-tokens/jest.config.js",
   ],
 
   // Workaround for a memory leak that crashes tests in CI:

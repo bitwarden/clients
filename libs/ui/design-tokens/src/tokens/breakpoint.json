@@ -1,0 +1,8 @@
+{
+  "tw": {
+    "sm-breakpoint": {
+      "$value": "640px",
+      "$type": "dimension"
+    }
+  }
+}
