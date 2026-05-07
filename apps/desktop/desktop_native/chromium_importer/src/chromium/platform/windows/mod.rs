@@ -26,26 +26,32 @@ pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Brave",
         data_dir: &["AppData/Local/BraveSoftware/Brave-Browser/User Data"],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Chrome",
         data_dir: &["AppData/Local/Google/Chrome/User Data"],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Chromium",
         data_dir: &["AppData/Local/Chromium/User Data"],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Microsoft Edge",
         data_dir: &["AppData/Local/Microsoft/Edge/User Data"],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Opera",
         data_dir: &["AppData/Roaming/Opera Software/Opera Stable"],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Vivaldi",
         data_dir: &["AppData/Local/Vivaldi/User Data"],
+        bundle_id: None,
     },
 ];
 

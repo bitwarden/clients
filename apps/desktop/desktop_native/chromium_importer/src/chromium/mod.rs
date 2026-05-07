@@ -51,35 +51,104 @@ pub enum LoginImportResult {
 }
 
 pub trait InstalledBrowserRetriever {
-    fn get_installed_browsers() -> Result<Vec<String>>;
+    fn get_installed_browsers(mas_build: bool) -> Vec<String>;
 }
 
 pub struct DefaultInstalledBrowserRetriever {}
 
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
-    fn get_installed_browsers() -> Result<Vec<String>> {
-        let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
-
-        for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            let data_dir = get_and_validate_data_dir(config);
-            if data_dir.is_ok() {
-                browsers.push((*browser).to_string());
-            }
+    fn get_installed_browsers(mas_build: bool) -> Vec<String> {
+        // Show all browsers for MAS builds, user will grant access when selected
+        if mas_build {
+            return SUPPORTED_BROWSER_MAP
+                .keys()
+                .map(|browser| (*browser).to_string())
+                .collect();
         }
-
-        Ok(browsers)
+        // When not in sandbox, check file system directly
+        SUPPORTED_BROWSER_MAP
+            .iter()
+            .filter_map(|(browser, config)| {
+                get_and_validate_data_dir(config)
+                    .ok()
+                    .filter(|data_dir| data_dir.exists())
+                    .map(|_| (*browser).to_string())
+            })
+            .collect()
     }
 }
 
-pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
+#[allow(unused_variables, clippy::unused_async)]
+pub async fn get_available_profiles(
+    browser_name: &str,
+    mas_build: bool,
+) -> Result<Vec<ProfileInfo>> {
+    // MAS builds resolve the data dir from the security-scoped bookmark — `dirs::home_dir()`
+    // returns the sandbox container path under the App Sandbox, not the user's real $HOME.
+    #[cfg(target_os = "macos")]
+    if mas_build {
+        let access = platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
+        let read_result = load_local_state(access.path()).map(|s| get_profile_info(&s));
+        access.close().await?;
+        return read_result;
+    }
+
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
 }
 
+/// Pre-translated picker dialog strings supplied by the renderer (which has the
+/// i18n service). The native side concatenates these with the resolved browser
+/// data path it computes via `getpwuid`.
+#[cfg(target_os = "macos")]
+pub struct PickerStrings {
+    pub message: String,
+    pub expected_location_label: String,
+    pub prompt: String,
+}
+
+/// Request access to browser directory (MAS builds only)
+/// This shows the permission dialog and creates a security-scoped bookmark
+#[cfg(target_os = "macos")]
+pub async fn request_browser_access(
+    browser_name: &str,
+    picker_strings: PickerStrings,
+    mas_build: bool,
+) -> Result<()> {
+    if mas_build {
+        platform::sandbox::ScopedBrowserAccess::request_only(browser_name, &picker_strings).await?;
+    }
+    Ok(())
+}
+
+#[allow(unused_variables)]
 pub async fn import_logins(
-    browser_name: &String,
-    profile_id: &String,
+    browser_name: &str,
+    profile_id: &str,
+    mas_build: bool,
 ) -> Result<Vec<LoginImportResult>> {
+    // MAS builds resolve the data dir from the security-scoped bookmark — `dirs::home_dir()`
+    // returns the sandbox container path under the App Sandbox, not the user's real $HOME.
+    // `ScopedBrowserAccess::close()` is awaited on the success path so the security scope
+    // is released before the function returns; `Drop` is a defensive backstop on the error path.
+    #[cfg(target_os = "macos")]
+    let access = if mas_build {
+        Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
+    } else {
+        None
+    };
+
+    #[cfg(target_os = "macos")]
+    let (data_dir, local_state) = match access.as_ref() {
+        Some(a) => {
+            let data_dir = a.path().to_path_buf();
+            let local_state = load_local_state(&data_dir)?;
+            (data_dir, local_state)
+        }
+        None => load_local_state_for_browser(browser_name)?,
+    };
+
+    #[cfg(not(target_os = "macos"))]
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
@@ -104,6 +173,11 @@ pub async fn import_logins(
 
     let results = decrypt_logins(all_logins, &mut crypto_service).await;
 
+    #[cfg(target_os = "macos")]
+    if let Some(a) = access {
+        a.close().await?;
+    }
+
     Ok(results)
 }
 
@@ -115,6 +189,10 @@ pub async fn import_logins(
 pub(crate) struct BrowserConfig {
     pub name: &'static str,
     pub data_dir: &'static [&'static str],
+    /// macOS application bundle identifier; used by sandbox builds to detect installation
+    /// without filesystem access. `None` on platforms where bundle IDs do not apply.
+    #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+    pub bundle_id: Option<&'static str>,
 }
 
 pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
@@ -177,9 +255,9 @@ struct OsCrypt {
     app_bound_encrypted_key: Option<String>,
 }
 
-fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, LocalState)> {
+fn load_local_state_for_browser(browser_name: &str) -> Result<(PathBuf, LocalState)> {
     let config = SUPPORTED_BROWSER_MAP
-        .get(browser_name.as_str())
+        .get(browser_name)
         .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
     let data_dir = get_and_validate_data_dir(config)?;
@@ -222,11 +300,7 @@ struct EncryptedLogin {
     encrypted_note: Vec<u8>,
 }
 
-fn get_logins(
-    browser_dir: &Path,
-    profile_id: &String,
-    filename: &str,
-) -> Result<Vec<EncryptedLogin>> {
+fn get_logins(browser_dir: &Path, profile_id: &str, filename: &str) -> Result<Vec<EncryptedLogin>> {
     let login_data_path = browser_dir.join(profile_id).join(filename);
 
     // Sometimes database files are not present, so nothing to import

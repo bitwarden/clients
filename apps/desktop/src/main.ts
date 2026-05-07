@@ -34,7 +34,6 @@ import {
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService, StorageServiceProvider } from "@bitwarden/storage-core";
 
-import { ChromiumImporterService } from "./app/tools/import/chromium-importer.service";
 import { MainDesktopAutotypeService } from "./autofill/main/main-desktop-autotype.service";
 import { MainSshAgentService } from "./autofill/main/main-ssh-agent.service";
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -46,6 +45,7 @@ import { AUTOSTART_FLAG, MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
 import { PowerMonitorMain } from "./main/power-monitor.main";
 import { SsoCookieMain } from "./main/sso-cookie.main";
+import { ChromiumImporterService } from "./main/tools/import/chromium-importer.service";
 import { TrayMain } from "./main/tray.main";
 import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";

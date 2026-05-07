@@ -130,10 +130,10 @@ export declare namespace biometrics_v2 {
 }
 
 export declare namespace chromium_importer {
-  export function getAvailableProfiles(browser: string): Array<ProfileInfo>
+  export function getAvailableProfiles(browser: string, masBuild: boolean): Promise<Array<ProfileInfo>>
   /** Returns OS aware metadata describing supported Chromium based importers as a JSON string. */
-  export function getMetadata(): Record<string, NativeImporterMetadata>
-  export function importLogins(browser: string, profileId: string): Promise<Array<LoginImportResult>>
+  export function getMetadata(masBuild: boolean): Record<string, NativeImporterMetadata>
+  export function importLogins(browser: string, profileId: string, masBuild: boolean): Promise<Array<LoginImportResult>>
   export interface Login {
     url: string
     username: string
@@ -154,10 +154,17 @@ export declare namespace chromium_importer {
     loaders: Array<string>
     instructions: string
   }
+  /** Pre-translated picker dialog strings supplied by the renderer. */
+  export interface PickerStrings {
+    message: string
+    expectedLocationLabel: string
+    prompt: string
+  }
   export interface ProfileInfo {
     id: string
     name: string
   }
+  export function requestBrowserAccess(browser: string, pickerStrings: PickerStrings, masBuild: boolean): Promise<void>
 }
 
 export declare namespace clipboards {
