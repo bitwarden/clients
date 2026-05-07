@@ -102,6 +102,7 @@ export class Organization {
   usePhishingBlocker: boolean;
   useMyItems: boolean;
   exemptFromBillingAutomation: boolean;
+  useInviteLinks: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -170,6 +171,7 @@ export class Organization {
     this.usePhishingBlocker = obj.usePhishingBlocker;
     this.useMyItems = obj.useMyItems;
     this.exemptFromBillingAutomation = obj.exemptFromBillingAutomation ?? false;
+    this.useInviteLinks = obj.useInviteLinks;
   }
 
   get canAccess() {

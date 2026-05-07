@@ -12,8 +12,6 @@ import {
   OrganizationUserApiService,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
-import { DefaultDeviceManagementComponentService } from "@bitwarden/angular/auth/device-management/default-device-management-component.service";
-import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
 import { ChangePasswordService } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordService } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.service.abstraction";
 import { PremiumInterestStateService } from "@bitwarden/angular/billing/services/premium-interest/premium-interest-state.service.abstraction";
@@ -451,11 +449,6 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: DeviceManagementComponentServiceAbstraction,
-    useClass: DefaultDeviceManagementComponentService,
-    deps: [],
-  }),
-  safeProvider({
     provide: CipherFormGenerationService,
     useClass: WebCipherFormGenerationService,
     deps: [],
@@ -504,14 +497,12 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      KeyServiceAbstraction,
       InternalUserDecryptionOptionsServiceAbstraction,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
       WINDOW,
       LogService,
-      ConfigService,
     ],
   }),
   safeProvider({

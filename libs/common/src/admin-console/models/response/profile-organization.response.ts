@@ -66,6 +66,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   usePhishingBlocker: boolean;
   useMyItems: boolean;
   exemptFromBillingAutomation: boolean;
+  useInviteLinks: boolean;
 
   constructor(response: any) {
     super(response);
@@ -144,5 +145,6 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
     this.exemptFromBillingAutomation =
       this.getResponseProperty("ExemptFromBillingAutomation") ?? false;
+    this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? false;
   }
 }

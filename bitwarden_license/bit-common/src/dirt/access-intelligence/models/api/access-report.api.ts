@@ -7,6 +7,8 @@ import { AccessReport } from "../domain/access-report";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessReportView } from "../view/access-report.view";
 
+import { ReportFileApi } from "./report-file.api";
+
 /**
  * Converts an AccessReport API response
  *
@@ -24,6 +26,8 @@ export class AccessReportApi extends BaseResponse {
   memberRegistry: string = "";
   creationDate: string = "";
   contentEncryptionKey: string = "";
+  reportFile?: ReportFileApi;
+  reportFileDownloadUrl?: string;
 
   constructor(data: any = null) {
     super(data);
@@ -39,20 +43,9 @@ export class AccessReportApi extends BaseResponse {
     this.summary = this.getResponseProperty("summaryData");
     this.memberRegistry = this.getResponseProperty("memberRegistry") ?? "";
     this.contentEncryptionKey = this.getResponseProperty("contentEncryptionKey");
+    this.reportFileDownloadUrl = this.getResponseProperty("reportFileDownloadUrl") ?? undefined;
 
-    // Use when individual values are encrypted
-    // const summary = this.getResponseProperty("summaryData");
-    // if (summary != null) {
-    //   this.summary = new AccessReportSummaryApi(summary);
-    // }
-
-    // const reports = this.getResponseProperty("reportData");
-    // if (reports != null) {
-    //   this.reports = reports.map((r: any) => new ApplicationHealthApi(r));
-    // }
-    // const applications = this.getResponseProperty("applicationData");
-    // if (applications != null) {
-    //   this.applications = applications.map((f: any) => new AccessReportSettingsApi(f));
-    // }
+    const reportFile = this.getResponseProperty("reportFile");
+    this.reportFile = reportFile != null ? new ReportFileApi(reportFile) : undefined;
   }
 }

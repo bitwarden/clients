@@ -23,8 +23,12 @@ export {
 } from "./components/assign-collections.component";
 
 export { DownloadAttachmentComponent } from "./components/download-attachment/download-attachment.component";
+export { TruncatedFilenameComponent } from "./components/truncated-filename";
+export { truncateFilename } from "./components/truncated-filename/truncate-filename";
+export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
+export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/add-item-grid/add-item-grid.component";
@@ -40,10 +44,8 @@ export * from "./components/organization-name-badge/organization-name-badge.comp
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
-export * from "./abstractions/change-login-password.service";
 export * from "./abstractions/vault-items-transfer.service";
 export * from "./services/default-vault-items-transfer.service";
-export * from "./services/default-change-login-password.service";
 export * from "./services/archive-cipher-utilities.service";
 
 export * from "./models/vault-filter.type";

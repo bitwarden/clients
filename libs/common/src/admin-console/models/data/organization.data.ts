@@ -71,6 +71,7 @@ export class OrganizationData {
   usePhishingBlocker: boolean;
   useMyItems: boolean;
   exemptFromBillingAutomation: boolean;
+  useInviteLinks: boolean;
 
   constructor(
     response?: ProfileOrganizationResponse,
@@ -143,6 +144,7 @@ export class OrganizationData {
     this.usePhishingBlocker = response.usePhishingBlocker;
     this.useMyItems = response.useMyItems;
     this.exemptFromBillingAutomation = response.exemptFromBillingAutomation ?? false;
+    this.useInviteLinks = response.useInviteLinks;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;

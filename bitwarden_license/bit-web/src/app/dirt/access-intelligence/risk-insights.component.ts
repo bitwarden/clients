@@ -14,7 +14,16 @@ import {
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { concat, EMPTY, firstValueFrom, of } from "rxjs";
-import { concatMap, delay, distinctUntilChanged, map, skip, tap } from "rxjs/operators";
+import {
+  concatMap,
+  delay,
+  distinctUntilChanged,
+  filter,
+  map,
+  skip,
+  switchMap,
+  tap,
+} from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
@@ -34,7 +43,9 @@ import {
   ButtonModule,
   DialogRef,
   DialogService,
+  IconModule,
   TabsModule,
+  ToastService,
 } from "@bitwarden/components";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
@@ -62,6 +73,7 @@ type ProgressStep = ReportProgress | null;
     AsyncActionsModule,
     ButtonModule,
     CommonModule,
+    IconModule,
     CriticalApplicationsComponent,
     EmptyStateCardComponent,
     JslibModule,
@@ -102,7 +114,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   protected emptyStateVideoSrc: string | null = "/videos/risk-insights-mark-as-critical.mp4";
 
   protected IMPORT_ICON = "bwi bwi-download";
-  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | null = null;
+  protected currentDialogRef: DialogRef<unknown, RiskInsightsDrawerDialogComponent> | undefined;
 
   // Current progress step for loading component (null = not loading)
   // Uses concatMap with delay to ensure each step is displayed for a minimum time
@@ -110,6 +122,8 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
 
   // Minimum time to display each progress step (in milliseconds)
   private readonly STEP_DISPLAY_DELAY_MS = 250;
+
+  private readonly invokedFrom = signal<{ source: string; status: string } | null>(null);
 
   // TODO: See https://github.com/bitwarden/clients/pull/16832#discussion_r2474523235
 
@@ -122,10 +136,16 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     private fileDownloadService: FileDownloadService,
     private logService: LogService,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {
-    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ tabIndex }) => {
-      this.tabIndex = !isNaN(Number(tabIndex)) ? Number(tabIndex) : RiskInsightsTabType.AllActivity;
-    });
+    this.route.queryParams
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(({ tabIndex, source, status }) => {
+        this.tabIndex = !isNaN(Number(tabIndex))
+          ? Number(tabIndex)
+          : RiskInsightsTabType.AllActivity;
+        this.invokedFrom.set({ source, status });
+      });
   }
 
   async ngOnInit() {
@@ -159,6 +179,19 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         this.dataLastUpdated = report?.creationDate ?? null;
       });
 
+    // Show error toast when report generation or save fails
+    this.dataService.reportStatus$
+      .pipe(
+        filter((status) => status === ReportStatus.Error),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.toastService.showToast({
+          message: this.i18nService.t("reportGenerationFailed"),
+          variant: "error",
+        });
+      });
+
     // Subscribe to drawer state changes
     this.dataService.drawerDetails$
       .pipe(
@@ -167,21 +200,25 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
             prev.activeDrawerType === curr.activeDrawerType && prev.invokerId === curr.invokerId,
         ),
         takeUntilDestroyed(this.destroyRef),
+        switchMap(async (details) => {
+          if (details.activeDrawerType !== DrawerType.None) {
+            this.currentDialogRef = await this.dialogService.openDrawer(
+              RiskInsightsDrawerDialogComponent,
+              {
+                data: details,
+              },
+            );
+          } else {
+            await this.currentDialogRef?.close();
+          }
+        }),
       )
-      .subscribe((details) => {
-        if (details.activeDrawerType !== DrawerType.None) {
-          this.currentDialogRef = this.dialogService.openDrawer(RiskInsightsDrawerDialogComponent, {
-            data: details,
-          });
-        } else {
-          this.currentDialogRef?.close();
-        }
-      });
+      .subscribe();
 
     // if any dialogs are open close it
     // this happens when navigating between orgs
     // or just navigating away from the page and back
-    this.currentDialogRef?.close();
+    await this.currentDialogRef?.close();
 
     // Subscribe to progress steps with delay to ensure each step is displayed for a minimum time
     // - skip(1): Skip initial BehaviorSubject emission (may contain stale Complete from previous run)
@@ -220,11 +257,15 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       .subscribe((step) => {
         this.currentProgressStep.set(step);
       });
+
+    if (this.invokedFrom()?.source && this.invokedFrom()?.status) {
+      this.handleReturnParams(this.invokedFrom()?.source, this.invokedFrom()?.status);
+    }
   }
 
   ngOnDestroy(): void {
     this.dataService.destroy();
-    this.currentDialogRef?.close();
+    void this.currentDialogRef?.close();
   }
 
   /**
@@ -247,7 +288,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
     // Reset drawer state and close drawer when tabs are changed
     // This ensures card selection state is cleared (PM-29263)
     this.dataService.closeDrawer();
-    this.currentDialogRef?.close();
+    await this.currentDialogRef?.close();
   }
 
   // Empty state methods
@@ -256,13 +297,10 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
   // we want to add this new button as a second option on the empty state card
 
   goToImportPage = () => {
-    void this.router.navigate([
-      "/organizations",
-      this.organizationId,
-      "settings",
-      "tools",
-      "import",
-    ]);
+    void this.router.navigate(
+      ["/organizations", this.organizationId, "settings", "tools", "import"],
+      { queryParams: { returnTo: "access-intelligence" } },
+    );
   };
 
   /**
@@ -286,7 +324,7 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
         fileName: ExportHelper.getFileName("at-risk-members"),
         blobData: exportToCSV(drawerDetails.atRiskMemberDetails, {
           email: this.i18nService.t("email"),
-          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+          atRiskPasswordCount: this.i18nService.t("atRiskApplications"),
         }),
         blobOptions: { type: "text/plain" },
       });
@@ -326,4 +364,22 @@ export class RiskInsightsComponent implements OnInit, OnDestroy {
       this.logService.error("Failed to download at-risk applications", error);
     }
   };
+
+  private handleReturnParams(source: string | undefined, status: string | undefined): void {
+    if (source === "import" && status === "success") {
+      this.generateReport();
+    }
+
+    this.clearQueryParams(this.router, this.route, ["source", "status"]);
+  }
+
+  private clearQueryParams(router: Router, route: ActivatedRoute, params: string[]) {
+    // we don't want these params to persist in the URL after handling them, so we remove them
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { source: null, status: null },
+      queryParamsHandling: "merge",
+      replaceUrl: true,
+    });
+  }
 }
