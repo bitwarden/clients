@@ -1801,25 +1801,25 @@
     "message": "Ova stranica ne odgovara tvojim spremljenim podacima za prijavu. Prije nego što uneseš svoje podatke za prijavu, provjeri je li riječ o pouzdanoj stranici."
   },
   "loginHasNoSiteSaved": {
-    "message": "Login has no site saved"
+    "message": "Prijava nema spremljenu web stranicu"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "Web mjesto nije ispravno"
   },
   "loginNoSiteDesc": {
-    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+    "message": "Za ovu prijavu još nije spremljena nijedna web-stranica. Prije auto-ispune provjeri jesi li na pouzdanoj web-lokaciji."
   },
   "loginSingleSiteDesc": {
-    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Ova stranica ne odgovara spremljenoj za ovu prijavu. Prije auto-ispune provjeri jesi li na pouzdanoj stranici."
   },
   "loginMultipleSitesDesc": {
-    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Ova stranica ne odgovara spremljenima za ovu prijavu. Prije auto-ispune provjeri jesi li na pouzdanoj stranici."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Auto-ispuni i spremi ovu stranicu"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Samo auto-ispuni"
   },
   "showInlineMenuLabel": {
     "message": "Prikaži prijedloge auto-ispune na poljima obrazaca"
@@ -2132,29 +2132,38 @@
   "typeSshKey": {
     "message": "SSH ključ"
   },
+  "bankAccount": {
+    "message": "Bank account"
+  },
   "typeNote": {
     "message": "Bilješka"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Mrežna stranica ili aplikacija"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Kreditna ili debitna kartica"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Osobni podaci"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Važni tekst"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Token prijavnog poslužitelja"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organiziraj svoje stavke"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organiziraj dijeljene stavke"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "newItemHeaderLogin": {
     "message": "Nova prijava",
@@ -2175,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "Novi SSH ključ",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Novi teksutalni Send",
@@ -2204,6 +2225,18 @@
     "message": "Uredi SSH ključ",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Uredi tekstualni Send",
     "description": "Header for edit text send"
@@ -2232,8 +2265,20 @@
     "message": "Prikaži SSH ključ",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Odaberi stavku za dodavanje"
   },
   "passwordHistory": {
     "message": "Povijest"
@@ -2895,7 +2940,7 @@
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
   "atRiskNavigatePromptV2": {
-    "message": "Your password for this site is at-risk. $ORGANIZATION$ has requested that you navigate to your account settings and change it.",
+    "message": "Tvoja lozinka za ovu stranicu je ugrožena. $ORGANIZATION$ je zatražila da ju promijenite u postavkana računa.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3826,22 +3871,22 @@
     "message": "Status prijave"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Nedavno aktivno"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Danas"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Zadnjih 7 dana"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Zadnjih 14 dana"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Zadnjih 30 dana"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Prije više od 30 dana"
   },
   "masterPasswordChanged": {
     "message": "Glavna lozinka promijenjena"
@@ -4497,6 +4542,9 @@
   },
   "chooseFile": {
     "message": "Odaberi datoteku"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
   },
   "noFileChosen": {
     "message": "Nije odabrana datoteka"
@@ -6191,10 +6239,10 @@
     "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden desktop app. Open the desktop app to edit."
+    "message": "Upravlja se putem Bitwarden aplikacije na računalu. Za uređivanje, otvori Bitwarden aplikaciju."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "dovršeno $PERCENT$ %",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -6290,7 +6338,7 @@
     "message": "korisnik@bitwarden.com , korisnik@primjer.hr"
   },
   "emailPlaceholderMultiple": {
-    "message": "user@bitwarden.com, user@acme.com"
+    "message": "korisnik@bitwarden.com, korisnik@primjer.hr"
   },
   "downloadBitwardenApps": {
     "message": "Preuzmi Bitwarden aplikaciju"
@@ -6305,21 +6353,104 @@
   "userVerificationFailed": {
     "message": "Nije uspjela provjera korisnika."
   },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company (business)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual (personal)"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "downloadFailed": {
     "message": "Preuzimanje neuspjelo."
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Bočna navigacija"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Preskoči poveznicu"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Oblačić",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Traka napretka",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   }
 }

@@ -165,7 +165,7 @@
     "message": "Sozialversicherungsnummer kopieren"
   },
   "copyPassportNumber": {
-    "message": "Passnummer kopieren"
+    "message": "Reisepassnummer kopieren"
   },
   "copyLicenseNumber": {
     "message": "Lizenznummer kopieren"
@@ -1801,25 +1801,25 @@
     "message": "Diese Website stimmt nicht mit deinen gespeicherten Zugangsdaten überein. Stelle sicher, dass dies eine vertrauenswürdige Website ist, bevor du deine Zugangsdaten eingibst."
   },
   "loginHasNoSiteSaved": {
-    "message": "Login has no site saved"
+    "message": "Keine Website für diese Zugangsdaten gespeichert"
   },
   "siteDoesntMatch": {
-    "message": "Site doesn't match"
+    "message": "Website stimmt nicht überein"
   },
   "loginNoSiteDesc": {
-    "message": "This login has no website saved yet. Verify you're on a trusted site before autofilling."
+    "message": "Für diese Zugangsdaten ist noch keine Website gespeichert. Vergewissere dich vor dem automatischen Ausfüllen, dass du dich auf einer vertrauenswürdigen Website befindest."
   },
   "loginSingleSiteDesc": {
-    "message": "This site doesn't match the one you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Diese Website stimmt nicht mit der Website überein, die du für diese Zugangsdaten gespeichert hast. Vergewissere dich vor dem automatischen Ausfüllen, dass du dich auf einer vertrauenswürdigen Website befindest."
   },
   "loginMultipleSitesDesc": {
-    "message": "This site doesn't match the ones you have saved for this login. Verify you're on a trusted site before autofilling."
+    "message": "Diese Website stimmt nicht mit den Websites überein, die du für diese Zugangsdaten gespeichert hast. Vergewissere dich vor dem automatischen Ausfüllen, dass du dich auf einer vertrauenswürdigen Website befindest."
   },
   "autofillAndSaveThisSite": {
-    "message": "Autofill and save this site"
+    "message": "Auto-Ausfüllen und diese Website speichern"
   },
   "autofillOnly": {
-    "message": "Autofill only"
+    "message": "Nur Auto-Ausfüllen"
   },
   "showInlineMenuLabel": {
     "message": "Vorschläge zum Auto-Ausfüllen in Formularfeldern anzeigen"
@@ -2132,8 +2132,14 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "bankAccount": {
+    "message": "Bankkonto"
+  },
   "typeNote": {
     "message": "Notiz"
+  },
+  "typeBankAccount": {
+    "message": "Bankkonto"
   },
   "typeLoginSubtitle": {
     "message": "Website oder App"
@@ -2156,6 +2162,9 @@
   "collectionSubtitle": {
     "message": "Geteilte Einträge organisieren"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdaten"
+  },
   "newItemHeaderLogin": {
     "message": "Neue Zugangsdaten",
     "description": "Header for new login item type"
@@ -2175,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "Neuer SSH-Schlüssel",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Neues Bankkonto",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Neuer Führerschein",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Neuer Reisepass",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Neues Text-Send",
@@ -2204,6 +2225,18 @@
     "message": "SSH-Schlüssel bearbeiten",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Bankkonto bearbeiten",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Führerschein bearbeiten",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Reisepass bearbeiten",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Text-Send bearbeiten",
     "description": "Header for edit text send"
@@ -2231,6 +2264,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH-Schlüssel anzeigen",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankkonto anzeigen",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Führerschein anzeigen",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Reisepass anzeigen",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Wähle einen Eintrag zum Hinzufügen aus"
@@ -4498,6 +4543,9 @@
   "chooseFile": {
     "message": "Datei auswählen"
   },
+  "chooseFileSentenceCase": {
+    "message": "Datei auswählen"
+  },
   "noFileChosen": {
     "message": "Keine Datei ausgewählt"
   },
@@ -6305,21 +6353,104 @@
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
   },
+  "bankName": {
+    "message": "Bankname"
+  },
+  "nameOnAccount": {
+    "message": "Name des Kontoinhabers"
+  },
+  "bankAccountType": {
+    "message": "Kontoart"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Unternehmen (Firma)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Einzelperson (privat)"
+  },
+  "accountNumber": {
+    "message": "Kontonummer"
+  },
+  "bankRoutingNumber": {
+    "message": "Bankleitzahl",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial-/Institutionsnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-Code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefonnummer der Bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankkonto suchen"
+  },
+  "copyAccountNumber": {
+    "message": "Kontonummer kopieren"
+  },
+  "copyRoutingNumber": {
+    "message": "Bankleitzahl kopieren"
+  },
+  "copyPin": {
+    "message": "PIN kopieren"
+  },
+  "copyIban": {
+    "message": "IBAN kopieren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Wird überprüft"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ersparnisse"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Einlagenzertifikat"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kreditrahmen"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Anlage/Wertpapierhandel"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Finanzmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Sonstige"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Deine Bankdaten sicher speichern"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Speicher deine Bankdaten, um auf allen deinen Geräten einfach und sicher darauf zugreifen zu können."
+  },
   "downloadFailed": {
     "message": "Download fehlgeschlagen."
   },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Seitennavigation"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Link überspringen"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Meldung",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Speichern der Send-Änderungen fehlgeschlagen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
   }
 }

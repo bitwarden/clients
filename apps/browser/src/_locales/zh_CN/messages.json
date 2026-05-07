@@ -2132,8 +2132,14 @@
   "typeSshKey": {
     "message": "SSH 密钥"
   },
+  "bankAccount": {
+    "message": "Bank account"
+  },
   "typeNote": {
     "message": "笔记"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
   },
   "typeLoginSubtitle": {
     "message": "网站或 App"
@@ -2156,6 +2162,9 @@
   "collectionSubtitle": {
     "message": "组织共享的项目"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
   "newItemHeaderLogin": {
     "message": "新增登录",
     "description": "Header for new login item type"
@@ -2175,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "新增 SSH 密钥",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "新增文本 Send",
@@ -2204,6 +2225,18 @@
     "message": "编辑 SSH 密钥",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "编辑文本 Send",
     "description": "Header for edit text send"
@@ -2231,6 +2264,18 @@
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "选择要添加的项目"
@@ -3263,7 +3308,7 @@
     "message": "您的主密码不符合某一项或多项组织策略要求。要访问密码库，必须立即更新您的主密码。继续操作将使您注销当前会话，并要求您重新登录。其他设备上的活动会话可能会继续保持活动状态长达一小时。"
   },
   "tdeDisabledMasterPasswordRequired": {
-    "message": "您的组织禁用了信任设备加密。要访问您的密码库，请设置一个主密码。"
+    "message": "您的组织禁用了受信任设备加密。要访问您的密码库，请设置一个主密码。"
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "自动注册"
@@ -3856,7 +3901,7 @@
     "message": "主密码弱且曾经暴露"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
+    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "checkForBreaches": {
     "message": "检查已知的数据泄露是否包含此密码"
@@ -4498,6 +4543,9 @@
   "chooseFile": {
     "message": "选择文件"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "未选择文件"
   },
@@ -4944,7 +4992,7 @@
     }
   },
   "noValuesToCopy": {
-    "message": "没有要复制的值"
+    "message": "没有可复制的值"
   },
   "assignToCollections": {
     "message": "分配到集合"
@@ -4962,7 +5010,7 @@
     "message": "我的项目"
   },
   "adminConsole": {
-    "message": "管理控制台"
+    "message": "Admin Console"
   },
   "admin": {
     "message": "管理员"
@@ -5985,7 +6033,7 @@
     "message": "使用身份，快速自动填充冗长的注册或联系表单。"
   },
   "newNoteNudgeTitle": {
-    "message": "保持您的敏感数据的安全"
+    "message": "确保您的敏感数据的安全"
   },
   "newNoteNudgeBody": {
     "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
@@ -6305,6 +6353,82 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company (business)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual (personal)"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "downloadFailed": {
     "message": "下载失败。"
   },
@@ -6321,5 +6445,12 @@
   "progressBar": {
     "message": "进度条",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   }
 }

@@ -2132,8 +2132,14 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "bankAccount": {
+    "message": "Банковский счет"
+  },
   "typeNote": {
     "message": "Заметка"
+  },
+  "typeBankAccount": {
+    "message": "Банковский счет"
   },
   "typeLoginSubtitle": {
     "message": "Веб-сайт или приложение"
@@ -2156,6 +2162,9 @@
   "collectionSubtitle": {
     "message": "Организуйте общие элементы"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Банковские реквизиты"
+  },
   "newItemHeaderLogin": {
     "message": "Новый логин",
     "description": "Header for new login item type"
@@ -2175,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "Новый ключ SSH",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Новый банковский счет",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Новая лицензия",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Новый паспорт",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Новая текстовая Send",
@@ -2204,6 +2225,18 @@
     "message": "Редактировать ключ SSH",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Изменить банковский счет",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Изменить лицензию",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Изменить паспорт",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Изменить текстовую Send",
     "description": "Header for edit text send"
@@ -2231,6 +2264,18 @@
   "viewItemHeaderSshKey": {
     "message": "Просмотр ключа SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Посмотреть банковский счет",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Просмотреть лицензию",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Просмотреть паспорт",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -4498,6 +4543,9 @@
   "chooseFile": {
     "message": "Выбрать файл"
   },
+  "chooseFileSentenceCase": {
+    "message": "Выбрать файл"
+  },
   "noFileChosen": {
     "message": "Файл не выбран"
   },
@@ -6305,6 +6353,82 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "bankName": {
+    "message": "Название банка"
+  },
+  "nameOnAccount": {
+    "message": "Имя держателя счета"
+  },
+  "bankAccountType": {
+    "message": "Тип счета"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Компания (бизнес)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Индивидуальный (личный)"
+  },
+  "accountNumber": {
+    "message": "Номер счета"
+  },
+  "bankRoutingNumber": {
+    "message": "Номер маршрута",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Номер филиала/учреждения"
+  },
+  "swiftCode": {
+    "message": "SWIFT код"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Контактный телефон банка"
+  },
+  "searchBankAccount": {
+    "message": "Поиск банковского счета"
+  },
+  "copyAccountNumber": {
+    "message": "Скопировать номер счета"
+  },
+  "copyRoutingNumber": {
+    "message": "Скопировать номер маршрута"
+  },
+  "copyPin": {
+    "message": "Скопировать PIN"
+  },
+  "copyIban": {
+    "message": "Скопировать IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Проверка"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Сбережения"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Справка о пополнении"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Кредитная линия"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Инвестиции/брокерство"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Денежный рынок"
+  },
+  "bankAccountTypeOther": {
+    "message": "Прочее"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Надежно храните свои банковские реквизиты"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Сохраните данные своего банковского счета, чтобы иметь к ним удобный и безопасный доступ со всех своих устройств."
+  },
   "downloadFailed": {
     "message": "Не удалось загрузить."
   },
@@ -6321,5 +6445,12 @@
   "progressBar": {
     "message": "Индикатор прогресса",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Сохранить изменения Send не удалось",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Вашей организации необходим доступ к email. Снимите флажок \"Скрыть адрес email\", чтобы сохранить настройки."
   }
 }

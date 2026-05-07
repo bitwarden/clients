@@ -2132,8 +2132,14 @@
   "typeSshKey": {
     "message": "Kľúč SSH"
   },
+  "bankAccount": {
+    "message": "Bankový účet"
+  },
   "typeNote": {
     "message": "Poznámka"
+  },
+  "typeBankAccount": {
+    "message": "Bankový účet"
   },
   "typeLoginSubtitle": {
     "message": "Webová stránka alebo aplikácia"
@@ -2156,6 +2162,9 @@
   "collectionSubtitle": {
     "message": "Usporiadajte zdieľané položky"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Bankové údaje"
+  },
   "newItemHeaderLogin": {
     "message": "Nové prihlásenie",
     "description": "Header for new login item type"
@@ -2175,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "Nový kľúč SSH",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Nový bankový účet",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nový vodičský preukaz",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nový pas",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Nový textový Send",
@@ -2204,6 +2225,18 @@
     "message": "Upraviť kľúč SSH",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Upraviť bankový účet",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Nový vodičský preukaz",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Upraviť pas",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Upraviť textový Send",
     "description": "Header for edit text send"
@@ -2231,6 +2264,18 @@
   "viewItemHeaderSshKey": {
     "message": "Zobraziť kľúč SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Zobraziť bankový účet",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Zobraziť vodičský preukaz",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Zobraziť pas",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Vyberte položku, ktorú chcete pridať"
@@ -4498,6 +4543,9 @@
   "chooseFile": {
     "message": "Vybrať súbor"
   },
+  "chooseFileSentenceCase": {
+    "message": "Vybrať súbor"
+  },
   "noFileChosen": {
     "message": "Nebol vybratý žiadny súbor"
   },
@@ -6305,6 +6353,82 @@
   "userVerificationFailed": {
     "message": "Overenie používateľa zlyhalo."
   },
+  "bankName": {
+    "message": "Názov banky"
+  },
+  "nameOnAccount": {
+    "message": "Meno na účte"
+  },
+  "bankAccountType": {
+    "message": "Typ účtu"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Spoločnosť (firma)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individuálny (osobný)"
+  },
+  "accountNumber": {
+    "message": "Číslo účtu"
+  },
+  "bankRoutingNumber": {
+    "message": "Smerové číslo",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Číslo pobočky/inštitúcie"
+  },
+  "swiftCode": {
+    "message": "SWIFT kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Kontaktný telefón banky"
+  },
+  "searchBankAccount": {
+    "message": "Vyhľadať bankový účet"
+  },
+  "copyAccountNumber": {
+    "message": "Kopírovať číslo účtu"
+  },
+  "copyRoutingNumber": {
+    "message": "Kopírovať smerové číslo"
+  },
+  "copyPin": {
+    "message": "Kopírovať PIN"
+  },
+  "copyIban": {
+    "message": "Kopírovať IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Kontroluje sa"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ukladá sa"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Depozitný certifikát"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Úverový rámec"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investičný/brokerský"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Peňažný trh"
+  },
+  "bankAccountTypeOther": {
+    "message": "Ostatné"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bankové údaje uchovávajte na bezpečnom mieste"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Uložte si údaje o bankovom účte, aby ste k nim mali jednoduchý a bezpečný prístup na všetkých svojich zariadeniach."
+  },
   "downloadFailed": {
     "message": "Sťahovanie zlyhalo."
   },
@@ -6321,5 +6445,12 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Uloženie úprav Sendu zlyhalo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Vaša organizácia vyžaduje, aby bola e-mailová adresa viditeľná. Odčiarknite pole \"Skryť e-mailovú adresu\" a uložte zmeny."
   }
 }
