@@ -62,6 +62,7 @@ describe("LockComponent", () => {
   let fixture: ComponentFixture<LockComponent>;
 
   const userId = "test-user-id" as UserId;
+  const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
   // Mock services
   const mockAccountService = mockAccountServiceWith(userId);
@@ -757,5 +758,75 @@ describe("LockComponent", () => {
 
       expect(setDefaultSpy).not.toHaveBeenCalled();
     }));
+  });
+
+  describe("desktop biometric auto-prompt", () => {
+    const desktopUnlockOptions: UnlockOptions = {
+      masterPassword: { enabled: false },
+      pin: { enabled: false },
+      biometrics: { enabled: true, biometricsStatus: BiometricsStatus.Available },
+      prf: { enabled: false },
+    };
+
+    beforeEach(() => {
+      mockPlatformUtilsService.getClientType.mockReturnValue(ClientType.Desktop);
+      mockBiometricStateService.promptAutomatically$ = of(true);
+      mockBiometricStateService.promptCancelled$ = of(false);
+      mockBiometricService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+      mockBiometricService.getShouldAutopromptNow.mockResolvedValue(true);
+      mockLockComponentService.getAvailableUnlockOptions$.mockReturnValue(of(desktopUnlockOptions));
+      mockLockComponentService.isWindowVisible.mockResolvedValue(true);
+    });
+
+    it("sets the client type before active account handling can auto-prompt", async () => {
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.ngOnInit();
+      await flushPromises();
+      component.ngOnDestroy();
+
+      expect(unlockViaBiometricsSpy).toHaveBeenCalled();
+    });
+
+    it("tries auto-prompting again when the desktop window gains focus", async () => {
+      let broadcasterCallback: ((message: any) => void) | undefined;
+      mockBroadcasterService.subscribe.mockImplementation((_, callback) => {
+        broadcasterCallback = callback;
+      });
+
+      component.clientType = ClientType.Desktop;
+      component.unlockOptions = desktopUnlockOptions;
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.desktopOnInit();
+      broadcasterCallback?.({ command: "windowIsFocused", windowIsFocused: true });
+      await flushPromises();
+
+      expect(unlockViaBiometricsSpy).toHaveBeenCalled();
+    });
+
+    it("does not auto-prompt on focus when automatic prompting is disabled", async () => {
+      let broadcasterCallback: ((message: any) => void) | undefined;
+      mockBroadcasterService.subscribe.mockImplementation((_, callback) => {
+        broadcasterCallback = callback;
+      });
+      mockBiometricStateService.promptAutomatically$ = of(false);
+
+      component.clientType = ClientType.Desktop;
+      component.unlockOptions = desktopUnlockOptions;
+      const unlockViaBiometricsSpy = jest
+        .spyOn(component, "unlockViaBiometrics")
+        .mockResolvedValue();
+
+      await component.desktopOnInit();
+      broadcasterCallback?.({ command: "windowIsFocused", windowIsFocused: true });
+      await flushPromises();
+
+      expect(unlockViaBiometricsSpy).not.toHaveBeenCalled();
+    });
   });
 });
