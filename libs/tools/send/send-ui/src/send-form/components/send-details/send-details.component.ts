@@ -11,13 +11,11 @@ import {
   ValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
-import { firstValueFrom, combineLatest, map, switchMap, tap } from "rxjs";
+import { firstValueFrom, map, switchMap, tap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -138,7 +136,6 @@ export class SendDetailsComponent implements OnInit {
   datePresetOptions: DatePresetSelectOption[] = [];
   passwordRemoved = false;
 
-  emailVerificationFeatureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.SendEmailOTP);
   hasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
@@ -151,9 +148,9 @@ export class SendDetailsComponent implements OnInit {
     { name: this.i18nService.t("anyOneWithPassword"), value: AuthType.Password },
   ];
 
-  availableAuthTypes$ = combineLatest([this.emailVerificationFeatureFlag$, this.hasPremium$]).pipe(
-    map(([enabled, hasPremium]) => {
-      if (!enabled || !hasPremium) {
+  availableAuthTypes$ = this.hasPremium$.pipe(
+    map((hasPremium) => {
+      if (!hasPremium) {
         return this.authTypes.filter((t) => t.value !== AuthType.Email);
       }
       return this.authTypes;
@@ -177,7 +174,6 @@ export class SendDetailsComponent implements OnInit {
     protected i18nService: I18nService,
     protected datePipe: DatePipe,
     protected environmentService: EnvironmentService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private generatorService: CredentialGeneratorService,

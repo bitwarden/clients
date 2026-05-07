@@ -62,7 +62,6 @@ export enum FeatureFlag {
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
-  SendEmailOTP = "pm-19051-send-email-verification",
   SendControls = "pm-31885-send-controls",
 
   /* DIRT */
@@ -138,7 +137,6 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
-  [FeatureFlag.SendEmailOTP]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
 
   /* DIRT */

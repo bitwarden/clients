@@ -5,11 +5,8 @@ import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SendTokenService, SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
@@ -33,7 +30,6 @@ describe("SendReceiveCommand", () => {
   const sendApiService = mock<SendApiService>();
   const apiService = mock<ApiService>();
   const sendTokenService = mock<SendTokenService>();
-  const configService = mock<ConfigService>();
 
   const testUrl = "https://send.bitwarden.com/#/send/abc123/key456";
   const testSendId = "abc123";
@@ -63,7 +59,6 @@ describe("SendReceiveCommand", () => {
       sendApiService,
       apiService,
       sendTokenService,
-      configService,
     );
   });
 
@@ -76,7 +71,9 @@ describe("SendReceiveCommand", () => {
     });
 
     it("should return error when URL is missing send ID or key", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
 
       const response = await command.run("https://send.bitwarden.com/#/send/", {});
 
@@ -85,123 +82,7 @@ describe("SendReceiveCommand", () => {
     });
   });
 
-  describe("V1 Flow (Feature Flag Off)", () => {
-    beforeEach(() => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-    });
-
-    it("should successfully access unprotected Send", async () => {
-      const mockSendAccess = {
-        id: testSendId,
-        type: SendType.Text,
-        text: { text: "secret message" },
-      };
-
-      sendApiService.postSendAccess.mockResolvedValue({} as any);
-
-      jest.spyOn(command as any, "sendRequest").mockResolvedValue(mockSendAccess);
-
-      const response = await command.run(testUrl, {});
-
-      expect(response.success).toBe(true);
-    });
-
-    it("should successfully access password-protected Send with --password option", async () => {
-      const mockSendAccess = {
-        id: testSendId,
-        type: SendType.Text,
-        text: { text: "secret message" },
-      };
-
-      sendApiService.postSendAccess.mockResolvedValue({} as any);
-      jest.spyOn(command as any, "sendRequest").mockResolvedValue(mockSendAccess);
-
-      const response = await command.run(testUrl, { password: "test-password" });
-
-      expect(response.success).toBe(true);
-      expect(cryptoFunctionService.pbkdf2).toHaveBeenCalledWith(
-        "test-password",
-        expect.any(Uint8Array),
-        "sha256",
-        100000,
-      );
-    });
-
-    it("should return error for incorrect password in non-interactive mode", async () => {
-      process.env.BW_NOINTERACTION = "true";
-
-      const error = new ErrorResponse(
-        {
-          statusCode: 401,
-          message: "Unauthorized",
-        },
-        401,
-      );
-
-      sendApiService.postSendAccess.mockRejectedValue(error);
-
-      const response = await command.run(testUrl, { password: "wrong-password" });
-
-      expect(response.success).toBe(false);
-      expect(response.message).toContain("Incorrect or missing password");
-
-      delete process.env.BW_NOINTERACTION;
-    });
-
-    it("should return 404 for non-existent Send", async () => {
-      const error = new ErrorResponse(
-        {
-          statusCode: 404,
-          message: "Not found",
-        },
-        404,
-      );
-
-      sendApiService.postSendAccess.mockRejectedValue(error);
-
-      const response = await command.run(testUrl, {});
-
-      expect(response.success).toBe(false);
-    });
-
-    it("should remove leading directory components of File Send filename to prevent path traversal", async () => {
-      const fileName = "test.pdf";
-      const mockSendResponse = {
-        id: testSendId,
-        type: SendType.File,
-        file: {
-          id: "file-123",
-          fileName: `../../${fileName}`,
-          size: 1024,
-        },
-      };
-      sendApiService.postSendAccess.mockResolvedValue({} as any);
-      jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
-      const fileDownloadUrl = "https://example.com/download";
-      sendApiService.getSendFileDownloadData.mockResolvedValue({
-        url: fileDownloadUrl,
-      } as any);
-
-      const saveAttachmentToFileSpy = jest
-        .spyOn(command as any, "saveAttachmentToFile")
-        .mockResolvedValue(Response.success());
-
-      await command.run(testUrl, {});
-
-      expect(saveAttachmentToFileSpy).toHaveBeenCalledWith(
-        fileDownloadUrl,
-        fileName,
-        expect.any(Function),
-        undefined,
-      );
-    });
-  });
-
-  describe("V2 Flow (Feature Flag On)", () => {
-    beforeEach(() => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-    });
-
+  describe("V2 Flow", () => {
     describe("Unprotected Sends", () => {
       it("should successfully access Send with cached token", async () => {
         const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
@@ -565,15 +446,11 @@ describe("SendReceiveCommand", () => {
 
   describe("API URL Resolution", () => {
     it("should resolve send.bitwarden.com to api.bitwarden.com", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
 
       const sendUrl = "https://send.bitwarden.com/#/send/abc123/key456";
-      sendApiService.postSendAccess.mockResolvedValue({} as any);
-      jest.spyOn(command as any, "sendRequest").mockResolvedValue({
-        type: SendType.Text,
-        text: { text: "test" },
-      });
-
       await command.run(sendUrl, {});
 
       const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
@@ -581,52 +458,15 @@ describe("SendReceiveCommand", () => {
     });
 
     it("should handle custom domain URLs", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
 
       const customUrl = "https://custom.example.com/#/send/abc123/key456";
-      sendApiService.postSendAccess.mockResolvedValue({} as any);
-      jest.spyOn(command as any, "sendRequest").mockResolvedValue({
-        type: SendType.Text,
-        text: { text: "test" },
-      });
-
       await command.run(customUrl, {});
 
       const apiUrl = await (command as any).getApiUrl(new URL(customUrl));
       expect(apiUrl).toBe("https://custom.example.com/api");
-    });
-  });
-
-  describe("Feature Flag Routing", () => {
-    it("should route to V1 flow when feature flag is off", async () => {
-      configService.getFeatureFlag.mockResolvedValue(false);
-
-      sendApiService.postSendAccess.mockResolvedValue({} as any);
-      const v1Spy = jest.spyOn(command as any, "attemptV1Access");
-      jest.spyOn(command as any, "sendRequest").mockResolvedValue({
-        type: SendType.Text,
-        text: { text: "test" },
-      });
-
-      await command.run(testUrl, {});
-
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SendEmailOTP);
-      expect(v1Spy).toHaveBeenCalled();
-    });
-
-    it("should route to V2 flow when feature flag is on", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-
-      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
-      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
-
-      const v2Spy = jest.spyOn(command as any, "attemptV2Access");
-      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
-
-      await command.run(testUrl, {});
-
-      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.SendEmailOTP);
-      expect(v2Spy).toHaveBeenCalled();
     });
   });
 });
