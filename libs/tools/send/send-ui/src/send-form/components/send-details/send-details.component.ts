@@ -11,12 +11,11 @@ import {
   ValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
-import { combineLatest, map, switchMap, tap } from "rxjs";
+import { map, switchMap, tap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
@@ -147,22 +146,22 @@ export class SendDetailsComponent implements OnInit {
   datePresetOptions: DatePresetSelectOption[] = [];
   passwordRemoved = false;
 
-  private emailVerificationFeatureFlag$ = this.configService.getFeatureFlag$(
-    FeatureFlag.SendEmailOTP,
-  );
-  private hasPremium$ = this.accountService.activeAccount$.pipe(
+  hasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     ),
   );
 
-  protected availableAuthTypes$ = combineLatest([
-    this.emailVerificationFeatureFlag$,
-    this.hasPremium$,
-  ]).pipe(
-    map(([enabled, hasPremium]) => {
-      if (!enabled || !hasPremium) {
-        return sendAuthTypes.filter((t) => t.value !== AuthType.Email);
+  authTypes: { name: string; value: AuthType; disabled?: boolean }[] = [
+    { name: this.i18nService.t("noAuth"), value: AuthType.None },
+    { name: this.i18nService.t("specificPeople"), value: AuthType.Email },
+    { name: this.i18nService.t("anyOneWithPassword"), value: AuthType.Password },
+  ];
+
+  availableAuthTypes$ = this.hasPremium$.pipe(
+    map((hasPremium) => {
+      if (!hasPremium) {
+        return this.authTypes.filter((t) => t.value !== AuthType.Email);
       }
       return sendAuthTypes;
     }),
@@ -184,7 +183,7 @@ export class SendDetailsComponent implements OnInit {
     protected formBuilder: FormBuilder,
     protected i18nService: I18nService,
     protected datePipe: DatePipe,
-    private configService: ConfigService,
+    protected environmentService: EnvironmentService,
     private accountService: AccountService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     protected sendFormService: SendFormService,
