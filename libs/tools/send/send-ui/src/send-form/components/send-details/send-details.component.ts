@@ -152,16 +152,10 @@ export class SendDetailsComponent implements OnInit {
     ),
   );
 
-  authTypes: { name: string; value: AuthType; disabled?: boolean }[] = [
-    { name: this.i18nService.t("noAuth"), value: AuthType.None },
-    { name: this.i18nService.t("specificPeople"), value: AuthType.Email },
-    { name: this.i18nService.t("anyOneWithPassword"), value: AuthType.Password },
-  ];
-
   availableAuthTypes$ = this.hasPremium$.pipe(
     map((hasPremium) => {
       if (!hasPremium) {
-        return this.authTypes.filter((t) => t.value !== AuthType.Email);
+        return sendAuthTypes.filter((t) => t.value !== AuthType.Email);
       }
       return sendAuthTypes;
     }),
