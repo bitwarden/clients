@@ -57,6 +57,8 @@ export type ChartConfig = {
   xAxisType: "datetime" | "default";
   timeUnit?: "day" | "month" | "year";
   timeDisplayFormat?: string;
+  timeStepSize?: number;
+  autoSkip?: boolean;
   xMin?: Date | number;
   xMax?: Date | number;
 };
@@ -183,10 +185,46 @@ export class LineChartComponent implements OnDestroy {
         },
         tooltipFormat: "MMM d yyyy",
       };
-      // Pin first/last ticks to xMin/xMax so the boundary-label rule holds.
-      // Gated on timeUnit to leave other LineChartComponent consumers unaffected.
+      // Boundary-label rule (gated on timeUnit so other LineChartComponent
+      // consumers are unaffected): pin first/last ticks to xMin/xMax, and
+      // replace rather than append when the boundary lands within 60% of the
+      // natural tick spacing — prevents cramped pairs like "May 7  May 8".
       if (configuration.timeUnit !== undefined) {
         options.scales.x.bounds = "ticks";
+        options.scales.x.afterBuildTicks = (axis) => {
+          const ticks = axis.ticks;
+          if (ticks.length === 0) {
+            return;
+          }
+          const avgInterval =
+            ticks.length > 1
+              ? (ticks[ticks.length - 1].value - ticks[0].value) / (ticks.length - 1)
+              : 0;
+          const mergeThreshold = avgInterval * 0.6;
+          if (axis.min !== undefined && ticks[0].value > axis.min) {
+            if (ticks[0].value - axis.min < mergeThreshold) {
+              ticks[0] = { value: axis.min, major: false };
+            } else {
+              ticks.unshift({ value: axis.min, major: false });
+            }
+          }
+          if (axis.max !== undefined && ticks[ticks.length - 1].value < axis.max) {
+            const lastIdx = ticks.length - 1;
+            if (axis.max - ticks[lastIdx].value < mergeThreshold) {
+              ticks[lastIdx] = { value: axis.max, major: false };
+            } else {
+              ticks.push({ value: axis.max, major: false });
+            }
+          }
+        };
+      }
+      if (configuration.timeStepSize !== undefined || configuration.autoSkip !== undefined) {
+        options.scales.x.ticks = {
+          ...(configuration.timeStepSize !== undefined && {
+            stepSize: configuration.timeStepSize,
+          }),
+          ...(configuration.autoSkip !== undefined && { autoSkip: configuration.autoSkip }),
+        };
       }
     }
 
