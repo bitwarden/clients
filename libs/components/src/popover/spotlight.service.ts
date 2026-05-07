@@ -182,8 +182,6 @@ export class SpotlightService {
   private disposeBorderOverlay(): void {
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
-    this.sentinelElement?.remove();
-    this.sentinelElement = null;
     this.borderOverlayRef?.dispose(); // CDK moves borderElement back to document.body
     this.borderOverlayRef = null;
     this.borderElement.style.display = "none";
