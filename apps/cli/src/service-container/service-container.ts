@@ -761,11 +761,10 @@ export class ServiceContainer {
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.keyService,
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.authRequestApiService = new DefaultAuthRequestApiService(this.apiService, this.logService);
@@ -1007,7 +1006,11 @@ export class ServiceContainer {
 
     this.importMetadataService = new DefaultImportMetadataService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),

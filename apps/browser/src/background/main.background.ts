@@ -972,11 +972,10 @@ export default class MainBackground {
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.keyService,
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
@@ -1239,7 +1238,11 @@ export default class MainBackground {
 
     this.importMetadataService = new DefaultImportMetadataService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -1583,7 +1586,7 @@ export default class MainBackground {
       this.apiService,
       this.i18nService,
       this.keyService,
-      this.encryptService,
+      this.sdkService,
       this.policyService,
       this.accountService,
       this.stateProvider,
@@ -2138,7 +2141,11 @@ export default class MainBackground {
 
     this.credentialGeneratorService = await createCredentialGeneratorService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -2147,7 +2154,7 @@ export default class MainBackground {
         this.configService,
       ),
       createRandomizer(),
-      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService, this.sdkService),
       this.stateProvider,
       this.i18nService,
       this.apiService,
@@ -2157,9 +2164,8 @@ export default class MainBackground {
     // browser extension background — there is no feature-flag branching here unlike
     // createCredentialGeneratorService.
     this.generatorHistoryService = new LocalGeneratorHistoryService(
-      this.encryptService,
-      this.keyService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.overlayBackground = new OverlayBackground(
