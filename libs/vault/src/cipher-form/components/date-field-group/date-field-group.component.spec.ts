@@ -77,9 +77,10 @@ describe("DateFieldGroupComponent", () => {
       const dayCtrl = component.internalForm.get("day")!;
       const yearCtrl = component.internalForm.get("year")!;
 
-      monthCtrl.markAsTouched();
       monthCtrl.setValue("4");
       tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
 
       expect(dayCtrl.hasError("crossFieldRequired")).toBe(true);
       expect(yearCtrl.hasError("crossFieldRequired")).toBe(true);
@@ -90,9 +91,10 @@ describe("DateFieldGroupComponent", () => {
       const dayCtrl = component.internalForm.get("day")!;
       const yearCtrl = component.internalForm.get("year")!;
 
-      dayCtrl.markAsTouched();
       dayCtrl.setValue("15");
       tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
 
       expect(monthCtrl.hasError("crossFieldRequired")).toBe(true);
       expect(yearCtrl.hasError("crossFieldRequired")).toBe(true);
@@ -103,9 +105,10 @@ describe("DateFieldGroupComponent", () => {
       const dayCtrl = component.internalForm.get("day")!;
       const yearCtrl = component.internalForm.get("year")!;
 
-      yearCtrl.markAsTouched();
       yearCtrl.setValue("2025");
       tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
 
       expect(monthCtrl.hasError("crossFieldRequired")).toBe(true);
       expect(dayCtrl.hasError("crossFieldRequired")).toBe(true);
@@ -286,10 +289,10 @@ describe("DateFieldGroupComponent", () => {
   });
   describe("validate", () => {
     it("returns errors when day is missing", fakeAsync(() => {
-      const monthCtrl = component.internalForm.get("month")!;
-      monthCtrl.markAsTouched();
       component.internalForm.patchValue({ month: "4", day: "", year: "2025" });
       tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
 
       const dayCtrl = component.internalForm.get("day")!;
       expect(dayCtrl.hasError("crossFieldRequired")).toBe(true);
