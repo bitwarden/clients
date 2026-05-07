@@ -1004,6 +1004,57 @@ describe("DefaultTokenStorageSyncService", () => {
         });
       });
 
+      describe("refresh token null transition", () => {
+        it("removes the refresh token entry from OS secure storage when memory transitions to null while access token remains set", async () => {
+          // Without this, a future code path that nulls only the refresh-token state
+          // (without going through clearTokensFromDisk) would leave a stale entry in
+          // OS secure storage and resurrect it on the next hydration.
+          sut = createService(true);
+
+          const mockKey = {} as SymmetricCryptoKey;
+          secureStorageService.get.mockImplementation(async (key: string) => {
+            if (key === `${userId}_accessTokenKey`) {
+              return { keyB64: "someKeyB64" };
+            }
+            if (key === `${userId}_refreshToken`) {
+              return "rt-v1"; // verify-after-save read
+            }
+            return null;
+          });
+          jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+          encryptService.encryptString.mockResolvedValue({
+            encryptedString: "2.encrypted==|data==|iv==",
+          } as EncString);
+          secureStorageService.save.mockResolvedValue();
+          secureStorageService.remove.mockResolvedValue();
+
+          vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+          vaultTimeout$.next(VaultTimeoutStringType.Never);
+
+          await sut.init();
+
+          // Establish a non-null refresh token in secure storage first.
+          refreshToken$.next("rt-v1");
+          await new Promise((r) => setTimeout(r, 30));
+          accessToken$.next("at-v1");
+          await new Promise((r) => setTimeout(r, 30));
+
+          // Reset the remove mock so we only see calls produced by the null transition,
+          // not the orphan-cleanup remove() calls that ran during init().
+          secureStorageService.remove.mockClear();
+
+          // Transition refresh token to null while access token remains set —
+          // syncTokenStorage proceeds via writeTokensToDisk (not clearTokensFromDisk).
+          refreshToken$.next(null);
+          await new Promise((r) => setTimeout(r, 30));
+
+          expect(secureStorageService.remove).toHaveBeenCalledWith(
+            `${userId}_refreshToken`,
+            expect.objectContaining({ useSecureStorage: true, userId }),
+          );
+        });
+      });
+
       describe("encrypt failure → plaintext fallback", () => {
         it("logs error and writes plaintext access token to disk when encryption fails", async () => {
           sut = createService(true);

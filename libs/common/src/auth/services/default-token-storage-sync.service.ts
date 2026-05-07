@@ -457,6 +457,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    * `shouldUpdate: prev !== new` guard can't catch the no-op on its own.
    */
   private async writeAccessTokenToDisk(userId: UserId, accessToken: string): Promise<void> {
+    // Skip when the plaintext is unchanged — random IVs on re-encrypt would defeat the disk-state shouldUpdate guard.
     if (this.lastWrittenAccessTokenByUser.get(userId) === accessToken) {
       return;
     }
@@ -516,12 +517,22 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       return;
     }
 
+    // Skip when the plaintext is unchanged — avoids a redundant secure-storage save + read-back-verify on every combineLatest emission.
     if (this.lastWrittenRefreshTokenByUser.get(userId) === refreshToken) {
       return;
     }
 
     try {
-      await this.saveRefreshTokenToSecureStorage(userId, refreshToken);
+      if (refreshToken != null) {
+        await this.saveRefreshTokenToSecureStorage(userId, refreshToken);
+      } else {
+        // Memory transitioned non-null → null without going through clearTokensFromDisk.
+        // Clear the secure-storage entry so it isn't resurrected on next hydration.
+        await this.secureStorageService.remove(
+          `${userId}${this.refreshTokenSecureStorageKey}`,
+          this.getSecureStorageOptions(userId),
+        );
+      }
       // On secure-storage platforms the refresh token lives in OS secure storage only —
       // clear the JSON disk slot so only one location holds the value at a time.
       await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
@@ -548,11 +559,8 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    */
   private async saveRefreshTokenToSecureStorage(
     userId: UserId,
-    refreshToken: string | null,
+    refreshToken: string,
   ): Promise<void> {
-    if (refreshToken == null) {
-      return;
-    }
     await this.secureStorageService.save<string>(
       `${userId}${this.refreshTokenSecureStorageKey}`,
       refreshToken,
