@@ -65,7 +65,6 @@ serde_json = "=1.0.127"
 serde_with = "=3.14.1"
 serial_test = "=3.4.0"
 sha2 = "=0.10.9"
-signature = "=2.2.0"
 ssh-encoding = "=0.2.0"
 ssh-key = { version = "=0.6.7", default-features = false }
 sysinfo = "=0.38.2"
