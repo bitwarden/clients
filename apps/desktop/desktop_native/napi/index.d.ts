@@ -288,14 +288,10 @@ export declare namespace sshagent_v2 {
      * * `unlock_callback` - Allows agent to vault unlock
      * * `sign_callback` - Allows agent to get approval for sign requests
      */
-    static serve(unlockCallback: () => Promise<boolean>,
-    signCallback: (data: SignRequestData) => Promise<boolean>): Promise<SshAgentState>
+    static serve(signCallback: (data: SignRequestData) => Promise<boolean>): Promise<SshAgentState>
     stop(): void
     isRunning(): boolean
-    setKeys(newKeys: Array<SshKeyData>): void
-    clearKeys(): void
-    lock(): void
-    unlock(): void
+    replace(newKeys: Array<SshKeyData>): void
   }
   export type SSHAgentState = SshAgentState
   /** SSH public key data */
@@ -305,9 +301,9 @@ export declare namespace sshagent_v2 {
   }
   /** A sign request's SIG namespace */
   export const enum SIGNamespace {
-    Git = 'Git',
-    File = 'File',
-    Unsupported = 'Unsupported'
+    Git = 'git',
+    File = 'file',
+    Unsupported = 'unsupported'
   }
   /** SSH sign request fields. */
   export interface SignRequest {

@@ -3,27 +3,29 @@
     <h2 bitTypography="h6">{{ "attachments" | i18n }}</h2>
   </bit-section-header>
   <bit-item-group>
-    <bit-item *ngFor="let attachment of cipher.attachments">
-      <bit-item-content>
-        <bit-truncated-filename
-          data-testid="file-name"
-          [filename]="getAttachmentFileName(attachment)"
-        />
-        @if (!attachment.hasDecryptionError) {
-          <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
-        }
-      </bit-item-content>
-      <ng-container slot="end">
-        <bit-item-action class="tw-pr-4 [@media(min-width:650px)]:tw-pr-6">
-          <app-download-attachment
-            [admin]="admin"
-            [cipher]="cipher"
-            [attachment]="attachment"
-            [checkPwReprompt]="true"
-            [emergencyAccessId]="emergencyAccessId"
-          ></app-download-attachment>
-        </bit-item-action>
-      </ng-container>
-    </bit-item>
+    @for (attachment of cipher.attachments; track attachment.id) {
+      <bit-item>
+        <bit-item-content>
+          <bit-truncated-filename
+            data-testid="file-name"
+            [filename]="getAttachmentFileName(attachment)"
+          />
+          @if (!attachment.hasDecryptionError) {
+            <span slot="secondary" data-testid="file-size">{{ attachment.sizeName }}</span>
+          }
+        </bit-item-content>
+        <ng-container slot="end">
+          <bit-item-action class="tw-pr-4 [@media(min-width:650px)]:tw-pr-6">
+            <app-download-attachment
+              [admin]="admin"
+              [cipher]="cipher"
+              [attachment]="attachment"
+              [checkPwReprompt]="true"
+              [emergencyAccessId]="emergencyAccessId"
+            ></app-download-attachment>
+          </bit-item-action>
+        </ng-container>
+      </bit-item>
+    }
   </bit-item-group>
 </section>
