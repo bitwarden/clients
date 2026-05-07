@@ -152,8 +152,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       : "trashCleanupWarning",
   );
 
-  readonly activeFilter!: Signal<VaultFilter>;
-  protected readonly showAddAccessToggle!: Signal<boolean>;
+  readonly activeFilter: Signal<VaultFilter>;
+  protected readonly showAddAccessToggle: Signal<boolean>;
 
   protected readonly noItemIcon = NoResults;
   protected readonly loading$: Observable<boolean>;
@@ -179,10 +179,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly isRefreshing$ = new BehaviorSubject<boolean>(true);
   private readonly destroy$ = new Subject<void>();
 
-  protected readonly allCollections$!: Observable<CollectionAdminView[]>;
-  protected readonly collections$!: Observable<CollectionAdminView[]>;
-  protected readonly selectedCollection$!: Observable<TreeNode<CollectionAdminView> | undefined>;
-  protected readonly showCollectionAccessRestricted$!: Observable<boolean>;
+  protected readonly allCollections$: Observable<CollectionAdminView[]>;
+  protected readonly collections$: Observable<CollectionAdminView[]>;
+  protected readonly selectedCollection$: Observable<TreeNode<CollectionAdminView> | undefined>;
+  protected readonly showCollectionAccessRestricted$: Observable<boolean>;
 
   protected readonly vaultItemsComponent = viewChild<VaultItemsComponent<CipherView>>("vaultItems");
 
