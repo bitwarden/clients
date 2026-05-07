@@ -251,11 +251,6 @@ export class TrendWidgetComponent {
     };
   }
 
-  // Past Month: day unit, day-aligned bounds.
-  // Past 3/6/12 Months: month unit, start-of-month-aligned bounds (current
-  // month included plus the next-month boundary on the right).
-  // AllTime returns existing fallback values; AllTime with data routes
-  // through getAllTimeRange instead.
   private getXMaxForTimespan(timespan: TimePeriod): Date | undefined {
     const now = new Date();
     switch (timespan) {
@@ -266,6 +261,7 @@ export class TrendWidgetComponent {
       case TimePeriod.PastYear:
         return new Date(now.getFullYear(), now.getMonth() + 1, 1);
       case TimePeriod.AllTime:
+        // Empty-data fallback only; AllTime with data uses getAllTimeRange.
         return now;
     }
   }

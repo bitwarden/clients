@@ -162,9 +162,6 @@ export class LineChartComponent implements OnDestroy {
           grid: {
             display: false,
           },
-          ticks: {
-            // maxTicksLimit: 6, // TEMP: dropped for testing month/year boundary visibility
-          },
         },
         y: {
           beginAtZero: true,

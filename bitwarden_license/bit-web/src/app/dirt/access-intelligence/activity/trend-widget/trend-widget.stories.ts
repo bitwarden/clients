@@ -253,7 +253,6 @@ export const TwentyFourDataPoints: Story = {
   },
 };
 
-/** Drives the period selector to "All time". */
 async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
   const canvas = within(canvasElement);
   // The trigger button's accessible name comes from aria-label="Time period";
@@ -268,9 +267,8 @@ async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
 }
 
 /**
- * Starts in Past month and clicks the period selector to "All time", covering
- * the PM-35323 narrow-span repro (two data points one day apart).
- * Excluded from autodocs and Chromatic.
+ * Starts in Past month and clicks the period selector to "All time" with a
+ * narrow two-point span. Excluded from autodocs and Chromatic.
  */
 export const AllTimeFullFlow: Story = {
   tags: ["!autodocs"],
