@@ -47,12 +47,11 @@ function requiredCustomMessage(customMessage: string): ValidatorFn {
   };
 }
 
-// Policy Definition Class
 export class OrganizationUserNotificationPolicy extends BasePolicyEditDefinition {
-  name = "organizationUserNotificationPolicyTitle"; // i18n key for title
-  description = "organizationUserNotificationPolicyDesc"; // i18n key for description
-  type = PolicyType.OrganizationUserNotification; // Reference to enum
-  component = OrganizationUserNotificationPolicyComponent; // Reference to component
+  name = "organizationUserNotificationPolicyTitle";
+  description = "organizationUserNotificationPolicyDesc";
+  type = PolicyType.OrganizationUserNotification;
+  component = OrganizationUserNotificationPolicyComponent;
   category = PolicyCategory.VaultManagement;
   priority = 70;
 
