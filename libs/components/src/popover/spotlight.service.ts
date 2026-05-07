@@ -178,27 +178,7 @@ export class SpotlightService {
     };
 
     this.resizeObserver = new ResizeObserver(resizeCallback);
-
-    if (computedTargetStyle.position !== "static") {
-      // Target is already a containing block — attach a sentinel that fills its bounding box.
-      // Absolutely-positioned elements are always block-level, so ResizeObserver fires on them.
-      const sentinel = document.createElement("div");
-      sentinel.style.cssText = "position:absolute;inset:0;pointer-events:none;visibility:hidden;";
-      target.appendChild(sentinel);
-      this.sentinelElement = sentinel;
-      this.resizeObserver.observe(sentinel);
-    } else {
-      // Target is position:static — walk up to the nearest non-inline ancestor.
-      // ResizeObserver is spec-excluded from display:inline elements.
-      let observeTarget: Element = target;
-      while (window.getComputedStyle(observeTarget).display === "inline") {
-        if (!observeTarget.parentElement) {
-          break;
-        }
-        observeTarget = observeTarget.parentElement;
-      }
-      this.resizeObserver.observe(observeTarget);
-    }
+    this.resizeObserver.observe(target);
   }
 
   private disposeBorderOverlay(): void {
