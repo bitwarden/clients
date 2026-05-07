@@ -59,9 +59,11 @@
               <span [attr.aria-label]="'nextChargeDate' | i18n">
                 {{ sub.subscription.periodEndDate | date: "MMM d, y" }}
               </span>
-              <billing-discount-badge
-                [discount]="getDiscount(sub?.customerDiscount)"
-              ></billing-discount-badge>
+              @for (customerDiscount of sub?.customerDiscounts; track $index) {
+                <billing-discount-badge
+                  [discount]="getDiscount(customerDiscount)"
+                ></billing-discount-badge>
+              }
             </div>
           </ng-container>
           <span

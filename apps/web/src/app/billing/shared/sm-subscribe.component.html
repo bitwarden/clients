@@ -41,7 +41,7 @@
     <bit-form-control>
       <input type="checkbox" bitCheckbox formControlName="enabled" />
       <bit-label>{{ "subscribeToSecretsManager" | i18n }}</bit-label>
-      <bit-hint *ngIf="upgradeOrganization">{{ "addSecretsManagerUpgradeDesc" | i18n }}</bit-hint>
+      <bit-hint *ngIf="upgradeOrganization()">{{ "addSecretsManagerUpgradeDesc" | i18n }}</bit-hint>
     </bit-form-control>
 
     <ng-container *ngIf="formGroup.value.enabled">
@@ -65,7 +65,7 @@
         </bit-form-field>
       </div>
 
-      <button *ngIf="showSubmitButton" type="submit" bitButton buttonType="primary" bitFormButton>
+      <button *ngIf="showSubmitButton()" type="submit" bitButton buttonType="primary" bitFormButton>
         {{ "save" | i18n }}
       </button>
     </ng-container>

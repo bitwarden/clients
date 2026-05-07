@@ -34,6 +34,7 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { isSecretsManagerTrial } from "@bitwarden/pricing";
 import {
   SubscriberBillingClient,
   PreviewInvoiceClient,
@@ -317,11 +318,7 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
   };
 
   isSecretsManagerTrial(): boolean {
-    return (
-      this.sub?.subscription?.items?.some((item) =>
-        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
-      ) ?? false
-    );
+    return isSecretsManagerTrial(this.sub?.customerDiscounts, this.sub?.subscription?.items);
   }
 
   async onSubscribe(): Promise<void> {

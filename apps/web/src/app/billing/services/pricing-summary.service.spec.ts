@@ -58,7 +58,7 @@ describe("PricingSummaryService", () => {
         smSeats: 5,
         smServiceAccounts: 5,
         maxStorageGb: 2,
-        customerDiscount: null,
+        customerDiscounts: [],
       } as OrganizationSubscriptionResponse;
 
       // Create mock organization
@@ -94,6 +94,8 @@ describe("PricingSummaryService", () => {
         selectedPlan: mockPlan,
         selectedInterval: PlanInterval.Monthly,
         discountPercentageFromSub: 0,
+        displayableDiscounts: [],
+        activeDiscounts: [],
         discountPercentage: 20,
         acceptingSponsorship: false,
         additionalServiceAccount: 0, // 50 - 5 = 45, which is > 0, so return 0
@@ -130,6 +132,8 @@ describe("PricingSummaryService", () => {
 
       expect(result.passwordManagerSeatTotal).toBe(0); // Should be 0 during trial
       expect(result.discountPercentageFromSub).toBe(0); // Should be 0 during trial
+      expect(result.displayableDiscounts).toEqual([]); // Should be empty during trial
+      expect(result.activeDiscounts).toEqual([]); // Should be empty during trial
     });
 
     it("should handle premium access option", async () => {
@@ -149,12 +153,14 @@ describe("PricingSummaryService", () => {
     });
 
     it("should handle customer discount", async () => {
-      mockSub.customerDiscount = {
-        id: "discount1",
-        active: true,
-        percentOff: 10,
-        appliesTo: ["subscription"],
-      } as BillingCustomerDiscount;
+      mockSub.customerDiscounts = [
+        {
+          id: "discount1",
+          active: true,
+          percentOff: 10,
+          appliesTo: ["subscription"],
+        } as BillingCustomerDiscount,
+      ];
 
       const result = await service.getPricingSummaryData(
         mockPlan,
@@ -166,6 +172,49 @@ describe("PricingSummaryService", () => {
       );
 
       expect(result.discountPercentageFromSub).toBe(10);
+      expect(result.displayableDiscounts).toEqual([{ type: "percent-off", value: 10 }]);
+      expect(result.activeDiscounts).toEqual(mockSub.customerDiscounts);
+    });
+
+    it("should handle multiple customer discounts", async () => {
+      mockSub.customerDiscounts = [
+        {
+          id: "discount1",
+          active: true,
+          percentOff: 10,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+        {
+          id: "discount2",
+          active: true,
+          percentOff: 20,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+        {
+          id: "discount3",
+          active: true,
+          percentOff: 40,
+          appliesTo: [],
+        } as BillingCustomerDiscount,
+      ];
+
+      const result = await service.getPricingSummaryData(
+        mockPlan,
+        mockSub,
+        mockOrganization,
+        PlanInterval.Monthly,
+        false,
+        50,
+      );
+
+      // Compounded: 1 - (0.9 * 0.8 * 0.6) = 1 - 0.432 = 0.568 = 57%
+      expect(result.discountPercentageFromSub).toBe(57);
+      expect(result.displayableDiscounts).toEqual([
+        { type: "percent-off", value: 10 },
+        { type: "percent-off", value: 20 },
+        { type: "percent-off", value: 40 },
+      ]);
+      expect(result.activeDiscounts).toHaveLength(3);
     });
 
     it("should handle zero storage calculation", async () => {

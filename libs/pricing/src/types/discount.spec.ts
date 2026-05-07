@@ -1,4 +1,11 @@
-import { Discount, DiscountTypes, getAmount } from "./discount";
+import {
+  Discount,
+  DiscountTypes,
+  applyDiscountsSequentially,
+  getAmount,
+  isSecretsManagerTrial,
+  toDisplayableDiscounts,
+} from "./discount";
 
 describe("getAmount", () => {
   describe("PercentOff", () => {
@@ -76,5 +83,172 @@ describe("getAmount", () => {
       const discount: Discount = { type: DiscountTypes.AmountOff, value: 0 };
       expect(getAmount(discount, 200)).toBe(0);
     });
+  });
+});
+
+describe("toDisplayableDiscounts", () => {
+  it("should return empty array for empty input", () => {
+    expect(toDisplayableDiscounts([])).toEqual([]);
+  });
+
+  it("should filter out inactive discounts", () => {
+    const discounts = [{ id: "d1", active: false, percentOff: 10, amountOff: 0 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([]);
+  });
+
+  it("should filter out discounts with zero values", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 0, amountOff: 0 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([]);
+  });
+
+  it("should map percentOff discounts to PercentOff type", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 25, amountOff: 0 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.PercentOff, value: 25 },
+    ]);
+  });
+
+  it("should map amountOff discounts to AmountOff type", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 0, amountOff: 5 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.AmountOff, value: 5 },
+    ]);
+  });
+
+  it("should prefer amountOff when both are set", () => {
+    const discounts = [{ id: "d1", active: true, percentOff: 10, amountOff: 5 }];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.AmountOff, value: 5 },
+    ]);
+  });
+
+  it("should exclude discounts matching excludeIds", () => {
+    const discounts = [
+      { id: "sm-standalone", active: true, percentOff: 100, amountOff: 0 },
+      { id: "org-discount", active: true, percentOff: 10, amountOff: 0 },
+    ];
+    const result = toDisplayableDiscounts(discounts, new Set(["sm-standalone"]));
+    expect(result).toEqual([{ type: DiscountTypes.PercentOff, value: 10 }]);
+  });
+
+  it("should not exclude any when excludeIds is omitted", () => {
+    const discounts = [
+      { id: "sm-standalone", active: true, percentOff: 100, amountOff: 0 },
+      { id: "org-discount", active: true, percentOff: 10, amountOff: 0 },
+    ];
+    expect(toDisplayableDiscounts(discounts)).toEqual([
+      { type: DiscountTypes.PercentOff, value: 100 },
+      { type: DiscountTypes.PercentOff, value: 10 },
+    ]);
+  });
+});
+
+describe("applyDiscountsSequentially", () => {
+  it("should return the original price when there are no discounts", () => {
+    expect(applyDiscountsSequentially(100, [])).toBe(100);
+  });
+
+  it("should skip inactive discounts", () => {
+    const discounts = [{ active: false, percentOff: 50 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(100);
+  });
+
+  it("should apply a single percent-off discount", () => {
+    const discounts = [{ active: true, percentOff: 10 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(90);
+  });
+
+  it("should apply a single amount-off discount", () => {
+    const discounts = [{ active: true, amountOff: 15 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(85);
+  });
+
+  it("should compound multiple percent-off discounts sequentially", () => {
+    const discounts = [
+      { active: true, percentOff: 10 },
+      { active: true, percentOff: 20 },
+    ];
+    // 100 -> 90 -> 72
+    expect(applyDiscountsSequentially(100, discounts)).toBe(72);
+  });
+
+  it("should apply mixed percent-off and amount-off discounts sequentially", () => {
+    const discounts = [
+      { active: true, percentOff: 10 },
+      { active: true, amountOff: 5 },
+    ];
+    // 100 -> 90 -> 85
+    expect(applyDiscountsSequentially(100, discounts)).toBe(85);
+  });
+
+  it("should floor the result at zero", () => {
+    const discounts = [{ active: true, amountOff: 200 }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(0);
+  });
+
+  it("should skip product-scoped discounts when no productId is provided", () => {
+    const discounts = [{ active: true, percentOff: 50, appliesTo: ["prod_1"] }];
+    expect(applyDiscountsSequentially(100, discounts)).toBe(100);
+  });
+
+  it("should skip product-scoped discounts when productId does not match", () => {
+    const discounts = [{ active: true, percentOff: 50, appliesTo: ["prod_1"] }];
+    expect(applyDiscountsSequentially(100, discounts, "prod_2")).toBe(100);
+  });
+
+  it("should apply product-scoped discounts when productId matches", () => {
+    const discounts = [{ active: true, percentOff: 50, appliesTo: ["prod_1"] }];
+    expect(applyDiscountsSequentially(100, discounts, "prod_1")).toBe(50);
+  });
+
+  it("should apply non-scoped discounts regardless of productId", () => {
+    const discounts = [{ active: true, percentOff: 10, appliesTo: [] as string[] }];
+    expect(applyDiscountsSequentially(100, discounts, "prod_1")).toBe(90);
+  });
+});
+
+describe("isSecretsManagerTrial", () => {
+  it("should return false when customerDiscounts is undefined", () => {
+    expect(isSecretsManagerTrial(undefined, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when subscriptionItems is undefined", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, undefined)).toBe(false);
+  });
+
+  it("should return false when there are no discounts", () => {
+    expect(isSecretsManagerTrial([], [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when discount id is not sm-standalone", () => {
+    const discounts = [{ active: true, id: "other-coupon", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when sm-standalone discount is inactive", () => {
+    const discounts = [{ active: false, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return false when appliesTo does not include any subscription item productId", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_2"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(false);
+  });
+
+  it("should return true when active sm-standalone discount appliesTo matches a subscription item", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{ productId: "prod_1" }])).toBe(true);
+  });
+
+  it("should return true when one of multiple subscription items matches", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_2"] }];
+    const items = [{ productId: "prod_1" }, { productId: "prod_2" }];
+    expect(isSecretsManagerTrial(discounts, items)).toBe(true);
+  });
+
+  it("should return false when subscription item has no productId", () => {
+    const discounts = [{ active: true, id: "sm-standalone", appliesTo: ["prod_1"] }];
+    expect(isSecretsManagerTrial(discounts, [{}])).toBe(false);
   });
 });

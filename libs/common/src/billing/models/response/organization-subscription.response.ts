@@ -13,7 +13,7 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
   storageGb: number;
   subscription: BillingSubscriptionResponse;
   upcomingInvoice: BillingSubscriptionUpcomingInvoiceResponse;
-  customerDiscount: BillingCustomerDiscount;
+  customerDiscounts: BillingCustomerDiscount[];
   expiration: string;
   expirationWithoutGracePeriod: string;
 
@@ -28,9 +28,9 @@ export class OrganizationSubscriptionResponse extends OrganizationResponse {
       upcomingInvoice == null
         ? null
         : new BillingSubscriptionUpcomingInvoiceResponse(upcomingInvoice);
-    const customerDiscount = this.getResponseProperty("CustomerDiscount");
-    this.customerDiscount =
-      customerDiscount == null ? null : new BillingCustomerDiscount(customerDiscount);
+    const customerDiscounts = this.getResponseProperty("CustomerDiscounts");
+    this.customerDiscounts =
+      customerDiscounts?.map((d: any) => new BillingCustomerDiscount(d)) ?? [];
     this.expiration = this.getResponseProperty("Expiration");
     this.expirationWithoutGracePeriod = this.getResponseProperty("ExpirationWithoutGracePeriod");
   }

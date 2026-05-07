@@ -29,7 +29,10 @@ import { OrganizationUpgradeRequest } from "@bitwarden/common/admin-console/mode
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlanInterval, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import {
+  BillingCustomerDiscount,
+  OrganizationSubscriptionResponse,
+} from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -45,6 +48,13 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import {
+  Discount,
+  getCompoundedPercentOff,
+  getLabel,
+  isSecretsManagerTrial,
+  toDisplayableDiscounts,
+} from "@bitwarden/pricing";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
@@ -177,6 +187,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   @Output() onTrialBillingSuccess = new EventEmitter();
 
   protected discountPercentageFromSub: number;
+  protected activeDiscounts: BillingCustomerDiscount[] = [];
+  protected displayableDiscounts: Discount[] = [];
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -333,9 +345,13 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         selected: false,
       },
     ];
-    this.discountPercentageFromSub = this.isSecretsManagerTrial()
-      ? 0
-      : (this.sub?.customerDiscount?.percentOff ?? 0);
+    this.activeDiscounts = this.isSecretsManagerTrial()
+      ? []
+      : (this.sub?.customerDiscounts ?? []).filter(
+          (d) => d.active && (d.percentOff > 0 || d.amountOff > 0),
+        );
+    this.discountPercentageFromSub = getCompoundedPercentOff(this.activeDiscounts);
+    this.displayableDiscounts = toDisplayableDiscounts(this.activeDiscounts);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
@@ -386,11 +402,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
-    return (
-      this.sub?.subscription?.items?.some((item) =>
-        this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
-      ) ?? false
-    );
+    return isSecretsManagerTrial(this.sub?.customerDiscounts, this.sub?.subscription?.items);
   }
 
   async planTypeChanged() {
@@ -975,6 +987,34 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
   calculateTotalAppliedDiscount(total: number) {
     return total * (this.discountPercentageFromSub / 100);
+  }
+
+  getDiscountLabel(discount: Discount): string {
+    return getLabel(this.i18nService, discount);
+  }
+
+  /**
+   * Calculates the dollar amount each individual discount saves when applied sequentially (compounding).
+   * For example, with discounts [10%, 20%, 40%] on a $100 base:
+   *   - 10% saves $10 (applied to $100)
+   *   - 20% saves $18 (applied to $90)
+   *   - 40% saves $28.80 (applied to $72)
+   */
+  calculateIndividualDiscountAmounts(baseAmount: number): number[] {
+    const amounts: number[] = [];
+    let running = baseAmount;
+    for (const d of this.activeDiscounts) {
+      if (d.percentOff) {
+        const saved = running * (d.percentOff / 100);
+        amounts.push(Math.round(saved * 100) / 100);
+        running -= saved;
+      } else if (d.amountOff) {
+        const saved = Math.min(d.amountOff, running);
+        amounts.push(Math.round(saved * 100) / 100);
+        running -= saved;
+      }
+    }
+    return amounts;
   }
 
   resolvePlanName(productTier: ProductTierType) {

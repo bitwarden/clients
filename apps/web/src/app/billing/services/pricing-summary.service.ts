@@ -2,8 +2,12 @@ import { Injectable } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PlanInterval, ProductTierType } from "@bitwarden/common/billing/enums";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import {
+  BillingCustomerDiscount,
+  OrganizationSubscriptionResponse,
+} from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { getCompoundedPercentOff, toDisplayableDiscounts } from "@bitwarden/pricing";
 
 import { PricingSummaryData } from "../shared/pricing-summary/pricing-summary.component";
 
@@ -62,9 +66,9 @@ export class PricingSummaryService {
       : 0;
 
     const totalAppliedDiscount = 0;
-    const discountPercentageFromSub = isSecretsManagerTrial
-      ? 0
-      : (sub?.customerDiscount?.percentOff ?? 0);
+    const activeDiscounts = isSecretsManagerTrial ? [] : this.getActiveDiscounts(sub);
+    const discountPercentageFromSub = isSecretsManagerTrial ? 0 : this.getCompoundedPercentOff(sub);
+    const displayableDiscounts = toDisplayableDiscounts(activeDiscounts);
     const discountPercentage = 20;
     const acceptingSponsorship = false;
 
@@ -90,6 +94,8 @@ export class PricingSummaryService {
       selectedPlan: plan,
       selectedInterval,
       discountPercentageFromSub,
+      displayableDiscounts,
+      activeDiscounts,
       discountPercentage,
       acceptingSponsorship,
       additionalServiceAccount,
@@ -97,6 +103,16 @@ export class PricingSummaryService {
       isSecretsManagerTrial,
       estimatedTax,
     };
+  }
+
+  private getActiveDiscounts(sub: OrganizationSubscriptionResponse): BillingCustomerDiscount[] {
+    return (sub?.customerDiscounts ?? []).filter(
+      (d) => d.active && ((d.percentOff ?? 0) > 0 || (d.amountOff ?? 0) > 0),
+    );
+  }
+
+  private getCompoundedPercentOff(sub: OrganizationSubscriptionResponse): number {
+    return getCompoundedPercentOff(sub?.customerDiscounts ?? []);
   }
 
   getAdditionalServiceAccount(plan: PlanResponse, sub: OrganizationSubscriptionResponse): number {

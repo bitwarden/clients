@@ -34,6 +34,109 @@ export const getAmount = (discount: Discount, baseAmount: number): number => {
   }
 };
 
+/**
+ * Calculates the total compounded percent-off from multiple active discounts.
+ * For example, a 10% discount stacked with a 20% discount yields 28% (not 30%).
+ *
+ * Returns a **rounded** integer in the range [0, 100]. The rounding is intentional —
+ * this value is used for display badges and visibility gating, not for dollar-amount
+ * calculations. Actual dollar amounts should be computed from the raw `percentOff`
+ * values (e.g., via `calculateIndividualDiscounts`).
+ *
+ * Only considers `percentOff` discounts. Amount-off discounts cannot be meaningfully
+ * represented as a percentage without knowing the base amount, so they are handled
+ * separately in per-line-item calculations (e.g., `calculateIndividualDiscounts`).
+ */
+export const getCompoundedPercentOff = (
+  discounts: { active: boolean; percentOff?: number }[],
+): number => {
+  let multiplier = 1;
+  for (const d of discounts) {
+    if (d.active && d.percentOff) {
+      multiplier *= 1 - d.percentOff / 100;
+    }
+  }
+  return Math.round((1 - multiplier) * 100);
+};
+
+/**
+ * Converts an array of billing customer discounts into displayable {@link Discount} objects.
+ *
+ * Filters to only active discounts with a non-zero percentOff or amountOff value.
+ * Optionally excludes discounts whose id is in the provided `excludeIds` set
+ * (e.g., "sm-standalone" coupons that shouldn't display as discount badges).
+ */
+export const toDisplayableDiscounts = (
+  customerDiscounts: { id?: string; active: boolean; percentOff?: number; amountOff?: number }[],
+  excludeIds?: Set<string>,
+): Discount[] => {
+  return customerDiscounts
+    .filter(
+      (d) =>
+        d.active &&
+        ((d.percentOff ?? 0) > 0 || (d.amountOff ?? 0) > 0) &&
+        (!excludeIds || !d.id || !excludeIds.has(d.id)),
+    )
+    .map(
+      (d): Discount =>
+        d.amountOff
+          ? { type: DiscountTypes.AmountOff, value: d.amountOff }
+          : { type: DiscountTypes.PercentOff, value: d.percentOff ?? 0 },
+    );
+};
+
+/**
+ * Applies an array of active discounts sequentially to a base price.
+ *
+ * Percent-off discounts compound on the running remainder (e.g., 10% then 20%
+ * reduces $100 → $90 → $72, not $100 → $70).
+ * Amount-off discounts are subtracted as flat reductions.
+ *
+ * The result is floored at zero — a price can never go negative.
+ */
+export const applyDiscountsSequentially = (
+  price: number,
+  discounts: { active: boolean; percentOff?: number; amountOff?: number; appliesTo?: string[] }[],
+  productId?: string | null,
+): number => {
+  let discounted = price;
+  for (const d of discounts) {
+    if (!d.active) {
+      continue;
+    }
+    if (d.appliesTo?.length && (!productId || !d.appliesTo.includes(productId))) {
+      continue;
+    }
+    if (d.percentOff) {
+      discounted -= discounted * (d.percentOff / 100);
+    } else if (d.amountOff) {
+      discounted -= d.amountOff;
+    }
+  }
+  return Math.max(0, discounted);
+};
+
+/**
+ * Determines whether the organization is on a Secrets Manager standalone trial.
+ *
+ * Checks if any active customer discount has the `"sm-standalone"` coupon ID
+ * and its `appliesTo` list includes the product ID of at least one current
+ * subscription item.
+ */
+export const isSecretsManagerTrial = (
+  customerDiscounts: { active: boolean; id?: string; appliesTo?: string[] }[] | undefined,
+  subscriptionItems: { productId?: string }[] | undefined,
+): boolean => {
+  return (
+    customerDiscounts?.some(
+      (d) =>
+        d.active &&
+        d.id === "sm-standalone" &&
+        subscriptionItems?.some((item) => item.productId && d.appliesTo?.includes(item.productId)),
+    ) ?? false
+  );
+};
+
 export const getLabel = (i18nService: I18nService, discount: Discount): string => {
   switch (discount.type) {
     case DiscountTypes.AmountOff: {

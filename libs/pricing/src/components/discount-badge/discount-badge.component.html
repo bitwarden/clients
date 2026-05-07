@@ -1,5 +1,12 @@
 @if (display()) {
-  <span bitBadge variant="success" class="tw-w-fit" role="status" [attr.aria-label]="label()">
+  <span
+    bitBadge
+    variant="success"
+    [startIcon]="null"
+    class="tw-w-fit"
+    role="status"
+    [attr.aria-label]="label()"
+  >
     {{ label() }}
   </span>
 }

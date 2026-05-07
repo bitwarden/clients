@@ -36,7 +36,7 @@ export class SecretsManagerSubscribeStandaloneComponent {
   @Input() organization: Organization;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() customerDiscount: BillingCustomerDiscount;
+  @Input() customerDiscounts: BillingCustomerDiscount[] = [];
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onSubscribe = new EventEmitter<void>();

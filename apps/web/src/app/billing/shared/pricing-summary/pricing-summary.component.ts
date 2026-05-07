@@ -1,9 +1,14 @@
-import { Component, Input } from "@angular/core";
+import { Component, inject, Input } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PlanInterval } from "@bitwarden/common/billing/enums";
-import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
+import {
+  BillingCustomerDiscount,
+  OrganizationSubscriptionResponse,
+} from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { Discount, getLabel } from "@bitwarden/pricing";
 
 export interface PricingSummaryData {
   selectedPlanInterval: string;
@@ -29,6 +34,8 @@ export interface PricingSummaryData {
   storageGb?: number;
   isSecretsManagerTrial?: boolean;
   estimatedTax?: number;
+  displayableDiscounts?: Discount[];
+  activeDiscounts?: BillingCustomerDiscount[];
 }
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -44,9 +51,32 @@ export class PricingSummaryComponent {
   @Input() summaryData!: PricingSummaryData;
   planIntervals = PlanInterval;
 
+  private i18nService = inject(I18nService);
+
   toggleTotalOpened(): void {
     if (this.summaryData) {
       this.summaryData.totalOpened = !this.summaryData.totalOpened;
     }
+  }
+
+  getDiscountLabel(discount: Discount): string {
+    return getLabel(this.i18nService, discount);
+  }
+
+  calculateIndividualDiscountAmounts(baseAmount: number): number[] {
+    const amounts: number[] = [];
+    let running = baseAmount;
+    for (const d of this.summaryData.activeDiscounts ?? []) {
+      if (d.percentOff) {
+        const saved = running * (d.percentOff / 100);
+        amounts.push(Math.round(saved * 100) / 100);
+        running -= saved;
+      } else if (d.amountOff) {
+        const saved = Math.min(d.amountOff, running);
+        amounts.push(Math.round(saved * 100) / 100);
+        running -= saved;
+      }
+    }
+    return amounts;
   }
 }
