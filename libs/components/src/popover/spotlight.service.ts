@@ -68,17 +68,16 @@ export class SpotlightService {
       return;
     }
 
-    const isNewTarget = this.currentTarget !== resolvedTarget;
     this.currentTarget = resolvedTarget;
 
     // Scroll the new target into view
-    if (isNewTarget && typeof resolvedTarget.scrollIntoView === "function") {
+    if (typeof resolvedTarget.scrollIntoView === "function") {
       resolvedTarget.scrollIntoView({ block: "center", inline: "nearest" });
     }
 
     this.backdropElement.style.display = "block";
 
-    // Recreate the CDK border overlay for the new target/padding
+    // Recreate the CDK border overlay for the new target
     this.disposeBorderOverlay();
     this.createBorderOverlay(resolvedTarget);
   }
