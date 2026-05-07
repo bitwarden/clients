@@ -35,6 +35,7 @@ export type AutofillExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   collectPageDetails: ({ message }: AutofillExtensionMessageParam) => void;
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
+  collectAutofillTriage: () => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
   applyTargetedFields: ({ message }: AutofillExtensionMessageParam) => void;
 };
