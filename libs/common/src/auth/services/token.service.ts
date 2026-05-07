@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, filter, firstValueFrom, map, switchMap, take } from "rxjs";
 import { Opaque } from "type-fest";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
@@ -27,6 +27,7 @@ import {
   EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL,
   REFRESH_TOKEN_MEMORY,
   SECURITY_STAMP_MEMORY,
+  TOKEN_STORAGE_HYDRATED,
 } from "./token.state";
 
 /**
@@ -105,6 +106,21 @@ export class TokenService implements TokenServiceAbstraction {
 
   private activeUserIdGlobalState: GlobalState<UserId>;
 
+  /**
+   * Gate that suspends every token-read until `TokenStorageSyncService` has finished
+   * hydrating disk → memory. Without this, a subscriber that fires before `init()` resolves
+   * gets a transient `null` / `false` even when disk has a token (e.g. a quick auth-status
+   * check could redirect the user to login mid-bootstrap).
+   *
+   * `take(1)` collapses the gate after the first `true` — `switchMap`/`firstValueFrom` then
+   * forward the inner memory observable normally for the rest of the session. The flag is
+   * memory-backed (resets on app restart), so the next session re-suspends until init runs
+   * again.
+   *
+   * `TokenService` only *reads* this flag; it's published by `TokenStorageSyncService.init()`.
+   */
+  private readonly hydrated$: Observable<true>;
+
   constructor(
     // Note: we cannot use ActiveStateProvider because if we ever want to inject
     // this service into the AccountService, we will make a circular dependency
@@ -112,28 +128,43 @@ export class TokenService implements TokenServiceAbstraction {
     private globalStateProvider: GlobalStateProvider,
   ) {
     this.initializeState();
+    this.hydrated$ = this.globalStateProvider.get(TOKEN_STORAGE_HYDRATED).state$.pipe(
+      filter((v): v is true => v === true),
+      take(1),
+    );
   }
 
   hasAccessToken$(userId: UserId): Observable<boolean> {
-    return this.singleUserStateProvider
-      .get(userId, ACCESS_TOKEN_MEMORY)
-      .state$.pipe(map((token) => Boolean(token)));
+    return this.hydrated$.pipe(
+      switchMap(() => this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).state$),
+      map((token) => Boolean(token)),
+    );
   }
 
   accessToken$(userId: UserId): Observable<string | null> {
-    return this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).state$;
+    return this.hydrated$.pipe(
+      switchMap(() => this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).state$),
+    );
   }
 
   refreshToken$(userId: UserId): Observable<string | null> {
-    return this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).state$;
+    return this.hydrated$.pipe(
+      switchMap(() => this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).state$),
+    );
   }
 
   clientId$(userId: UserId): Observable<string | null> {
-    return this.singleUserStateProvider.get(userId, API_KEY_CLIENT_ID_MEMORY).state$;
+    return this.hydrated$.pipe(
+      switchMap(() => this.singleUserStateProvider.get(userId, API_KEY_CLIENT_ID_MEMORY).state$),
+    );
   }
 
   clientSecret$(userId: UserId): Observable<string | null> {
-    return this.singleUserStateProvider.get(userId, API_KEY_CLIENT_SECRET_MEMORY).state$;
+    return this.hydrated$.pipe(
+      switchMap(
+        () => this.singleUserStateProvider.get(userId, API_KEY_CLIENT_SECRET_MEMORY).state$,
+      ),
+    );
   }
 
   private initializeState(): void {
@@ -205,6 +236,7 @@ export class TokenService implements TokenServiceAbstraction {
       return null;
     }
 
+    await firstValueFrom(this.hydrated$);
     return await this.getStateValueByUserIdAndKeyDef(userId, ACCESS_TOKEN_MEMORY);
   }
 
@@ -227,6 +259,7 @@ export class TokenService implements TokenServiceAbstraction {
       return null;
     }
 
+    await firstValueFrom(this.hydrated$);
     return await this.getStateValueByUserIdAndKeyDef(userId, REFRESH_TOKEN_MEMORY);
   }
 
@@ -247,6 +280,7 @@ export class TokenService implements TokenServiceAbstraction {
       return undefined;
     }
 
+    await firstValueFrom(this.hydrated$);
     return await this.getStateValueByUserIdAndKeyDef(userId, API_KEY_CLIENT_ID_MEMORY);
   }
 
@@ -267,6 +301,7 @@ export class TokenService implements TokenServiceAbstraction {
       return undefined;
     }
 
+    await firstValueFrom(this.hydrated$);
     return await this.getStateValueByUserIdAndKeyDef(userId, API_KEY_CLIENT_SECRET_MEMORY);
   }
 

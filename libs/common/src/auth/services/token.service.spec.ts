@@ -15,6 +15,7 @@ import {
   EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL,
   REFRESH_TOKEN_MEMORY,
   SECURITY_STAMP_MEMORY,
+  TOKEN_STORAGE_HYDRATED,
 } from "./token.state";
 
 describe("TokenService", () => {
@@ -60,11 +61,292 @@ describe("TokenService", () => {
     singleUserStateProvider = new FakeSingleUserStateProvider();
     globalStateProvider = new FakeGlobalStateProvider();
 
+    // Default to hydrated for the bulk of the suite — `TokenService`'s public reads suspend
+    // until `TOKEN_STORAGE_HYDRATED` becomes true. Tests that exercise the gate explicitly
+    // override this in their own setup.
+    globalStateProvider.getFake(TOKEN_STORAGE_HYDRATED).nextState(true);
+
     tokenService = createTokenService();
   });
 
   it("instantiates", () => {
     expect(tokenService).not.toBeFalsy();
+  });
+
+  describe("hydration gating (TOKEN_STORAGE_HYDRATED)", () => {
+    // Pre-hydration setup: undo the suite-level default that flips hydrated → true.
+    // These tests need to observe what happens *before* TokenStorageSyncService.init()
+    // publishes the sentinel, then drive it true mid-test.
+    let preHydrationTokenService: TokenService;
+    let preHydrationProvider: FakeSingleUserStateProvider;
+    let preHydrationGlobal: FakeGlobalStateProvider;
+
+    beforeEach(() => {
+      preHydrationProvider = new FakeSingleUserStateProvider();
+      preHydrationGlobal = new FakeGlobalStateProvider();
+      // Initialize the hydration flag to null/false to simulate pre-init state.
+      preHydrationGlobal.getFake(TOKEN_STORAGE_HYDRATED).nextState(null);
+      preHydrationTokenService = new TokenService(preHydrationProvider, preHydrationGlobal);
+    });
+
+    function flipHydrated() {
+      preHydrationGlobal.getFake(TOKEN_STORAGE_HYDRATED).nextState(true);
+    }
+
+    describe("observable reads", () => {
+      it("accessToken$ does not emit until TOKEN_STORAGE_HYDRATED becomes true", async () => {
+        // Seed memory with a value that *would* be visible if the gate weren't blocking.
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+          .nextState(accessTokenJwt);
+
+        const emitted: (string | null)[] = [];
+        const subscription = preHydrationTokenService
+          .accessToken$(userIdFromAccessToken)
+          .subscribe((v) => emitted.push(v));
+
+        // Yield a microtask so any synchronous emissions land before we assert.
+        await Promise.resolve();
+        expect(emitted).toEqual([]);
+
+        flipHydrated();
+        await Promise.resolve();
+
+        expect(emitted).toEqual([accessTokenJwt]);
+        subscription.unsubscribe();
+      });
+
+      it("hasAccessToken$ does not emit until hydrated, then reflects memory state", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+          .nextState(accessTokenJwt);
+
+        const emitted: boolean[] = [];
+        const subscription = preHydrationTokenService
+          .hasAccessToken$(userIdFromAccessToken)
+          .subscribe((v) => emitted.push(v));
+
+        await Promise.resolve();
+        expect(emitted).toEqual([]);
+
+        flipHydrated();
+        await Promise.resolve();
+
+        expect(emitted).toEqual([true]);
+        subscription.unsubscribe();
+      });
+
+      it("refreshToken$ does not emit until hydrated", async () => {
+        preHydrationProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextState("rt");
+
+        const emitted: (string | null)[] = [];
+        const subscription = preHydrationTokenService
+          .refreshToken$(userIdFromAccessToken)
+          .subscribe((v) => emitted.push(v));
+
+        await Promise.resolve();
+        expect(emitted).toEqual([]);
+
+        flipHydrated();
+        await Promise.resolve();
+
+        expect(emitted).toEqual(["rt"]);
+        subscription.unsubscribe();
+      });
+
+      it("clientId$ does not emit until hydrated", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
+          .nextState("cid");
+
+        const emitted: (string | null)[] = [];
+        const subscription = preHydrationTokenService
+          .clientId$(userIdFromAccessToken)
+          .subscribe((v) => emitted.push(v));
+
+        await Promise.resolve();
+        expect(emitted).toEqual([]);
+
+        flipHydrated();
+        await Promise.resolve();
+
+        expect(emitted).toEqual(["cid"]);
+        subscription.unsubscribe();
+      });
+
+      it("clientSecret$ does not emit until hydrated", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
+          .nextState("csec");
+
+        const emitted: (string | null)[] = [];
+        const subscription = preHydrationTokenService
+          .clientSecret$(userIdFromAccessToken)
+          .subscribe((v) => emitted.push(v));
+
+        await Promise.resolve();
+        expect(emitted).toEqual([]);
+
+        flipHydrated();
+        await Promise.resolve();
+
+        expect(emitted).toEqual(["csec"]);
+        subscription.unsubscribe();
+      });
+
+      it("continues to track memory updates after the gate has flipped", async () => {
+        preHydrationProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextState("first");
+
+        const emitted: (string | null)[] = [];
+        const subscription = preHydrationTokenService
+          .accessToken$(userIdFromAccessToken)
+          .subscribe((v) => emitted.push(v));
+
+        flipHydrated();
+        await Promise.resolve();
+
+        // Subsequent memory updates should propagate without re-gating.
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+          .nextState("second");
+        await Promise.resolve();
+
+        preHydrationProvider.getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY).nextState(null);
+        await Promise.resolve();
+
+        expect(emitted).toEqual(["first", "second", null]);
+        subscription.unsubscribe();
+      });
+
+      it("subscribers added after hydration get the current memory value immediately", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+          .nextState("hydratedValue");
+
+        flipHydrated();
+
+        const result = await firstValueFrom(
+          preHydrationTokenService.accessToken$(userIdFromAccessToken),
+        );
+        expect(result).toEqual("hydratedValue");
+      });
+    });
+
+    describe("promise reads", () => {
+      it("getAccessToken stays pending until TOKEN_STORAGE_HYDRATED becomes true", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+          .nextState(accessTokenJwt);
+
+        let settled = false;
+        const promise = preHydrationTokenService.getAccessToken(userIdFromAccessToken).then((v) => {
+          settled = true;
+          return v;
+        });
+
+        // Drain the microtask queue — promise should still be pending.
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(settled).toBe(false);
+
+        flipHydrated();
+
+        await expect(promise).resolves.toEqual(accessTokenJwt);
+      });
+
+      it("getRefreshToken stays pending until hydrated", async () => {
+        preHydrationProvider.getFake(userIdFromAccessToken, REFRESH_TOKEN_MEMORY).nextState("rt");
+
+        let settled = false;
+        const promise = preHydrationTokenService
+          .getRefreshToken(userIdFromAccessToken)
+          .then((v) => {
+            settled = true;
+            return v;
+          });
+
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(settled).toBe(false);
+
+        flipHydrated();
+
+        await expect(promise).resolves.toEqual("rt");
+      });
+
+      it("getClientId stays pending until hydrated", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_ID_MEMORY)
+          .nextState("cid");
+
+        let settled = false;
+        const promise = preHydrationTokenService.getClientId(userIdFromAccessToken).then((v) => {
+          settled = true;
+          return v;
+        });
+
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(settled).toBe(false);
+
+        flipHydrated();
+
+        await expect(promise).resolves.toEqual("cid");
+      });
+
+      it("getClientSecret stays pending until hydrated", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, API_KEY_CLIENT_SECRET_MEMORY)
+          .nextState("csec");
+
+        let settled = false;
+        const promise = preHydrationTokenService
+          .getClientSecret(userIdFromAccessToken)
+          .then((v) => {
+            settled = true;
+            return v;
+          });
+
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(settled).toBe(false);
+
+        flipHydrated();
+
+        await expect(promise).resolves.toEqual("csec");
+      });
+
+      it("getAccessToken short-circuits to null without awaiting hydration when userId is null", async () => {
+        // The userId guard executes before the gate, so callers passing null get a fast null
+        // response even pre-hydration. Documents that the guard is the first check.
+        const result = await preHydrationTokenService.getAccessToken(null);
+        expect(result).toBeNull();
+      });
+    });
+
+    describe("transitive gating via JWT helpers", () => {
+      it("decodeAccessToken stays pending until hydrated (gates through getAccessToken)", async () => {
+        preHydrationProvider
+          .getFake(userIdFromAccessToken, ACCESS_TOKEN_MEMORY)
+          .nextState(accessTokenJwt);
+
+        let settled = false;
+        const promise = preHydrationTokenService
+          .decodeAccessToken(userIdFromAccessToken)
+          .then((v) => {
+            settled = true;
+            return v;
+          });
+
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(settled).toBe(false);
+
+        flipHydrated();
+
+        await expect(promise).resolves.toEqual(accessTokenDecoded);
+      });
+    });
   });
 
   describe("Token observables", () => {

@@ -20,6 +20,14 @@ import { DecodedAccessToken } from "../services/token.service";
  * `tokenStorageSyncService.clearTokensFromDisk(userId)` to wipe disk and OS secure storage
  * synchronously.
  *
+ * **Hydration gating.** Every public read on this service (observables and `getXxx` promises)
+ * suspends until `TokenStorageSyncService.init()` has finished hydrating disk → memory and
+ * published `TOKEN_STORAGE_HYDRATED`. Pre-hydration subscribers do not receive a transient
+ * `null`/`false`; they wait until the hydrated state is the source of truth, then receive the
+ * current memory value and continue tracking updates normally. The init services already
+ * await `tokenStorageSyncService.init()` at bootstrap, so consumers don't typically observe
+ * the suspension.
+ *
  * The two-factor token methods (`setTwoFactorToken`, `getTwoFactorToken`, `clearTwoFactorToken`)
  * are an exception — they read/write a global disk-backed state key and are unrelated to the
  * memory-first authentication-token model.
