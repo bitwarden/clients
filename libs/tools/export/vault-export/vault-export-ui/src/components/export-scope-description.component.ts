@@ -1,26 +1,24 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { CommonModule } from "@angular/common";
 import { Component, effect, input } from "@angular/core";
-import { firstValueFrom, map } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { CalloutModule } from "@bitwarden/components";
+import { TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { ExportFormat } from "@bitwarden/vault-export-core";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
-  selector: "tools-export-scope-callout",
-  templateUrl: "export-scope-callout.component.html",
-  imports: [CommonModule, I18nPipe, CalloutModule],
+  selector: "tools-export-scope-description",
+  templateUrl: "export-scope-description.component.html",
+  imports: [I18nPipe, TypographyModule],
 })
-export class ExportScopeCalloutComponent {
+export class ExportScopeDescriptionComponent {
   show = false;
   scopeConfig: {
     title: string;
@@ -30,8 +28,6 @@ export class ExportScopeCalloutComponent {
 
   /* Optional OrganizationId, if not provided, it will display individual vault export message */
   readonly organizationId = input<OrganizationId>();
-  /* Optional export format, determines which individual export description to display */
-  readonly exportFormat = input<ExportFormat>();
   /* The description key to use for organizational exports */
   readonly orgExportDescription = input<string>();
 
@@ -41,18 +37,13 @@ export class ExportScopeCalloutComponent {
   ) {
     effect(async () => {
       this.show = false;
-      await this.getScopeMessage(
-        this.organizationId(),
-        this.exportFormat(),
-        this.orgExportDescription(),
-      );
+      await this.getScopeMessage(this.organizationId(), this.orgExportDescription());
       this.show = true;
     });
   }
 
   private async getScopeMessage(
     organizationId: OrganizationId | undefined,
-    exportFormat: ExportFormat | undefined,
     orgExportDescription: string,
   ): Promise<void> {
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
@@ -75,12 +66,8 @@ export class ExportScopeCalloutComponent {
     // exporting from individual vault
     this.scopeConfig = {
       title: "exportingPersonalVaultTitle",
-      description:
-        exportFormat === "zip"
-          ? "exportingIndividualVaultWithAttachmentsDescription"
-          : "exportingIndividualVaultDescription",
-      scopeIdentifier:
-        (await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.email)))) ?? "",
+      description: "exportingIndividualVaultScopeDescription",
+      scopeIdentifier: "",
     };
   }
 }

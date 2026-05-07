@@ -342,6 +342,7 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
+import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
@@ -524,6 +525,7 @@ export default class MainBackground {
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  autofillTriageService: AutofillTriageService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
   collectionEncryptionService: CollectionEncryptionService;
@@ -849,11 +851,6 @@ export default class MainBackground {
       this.apiService,
       this.configService,
     );
-    this.cipherFileUploadService = new CipherFileUploadService(
-      this.apiService,
-      this.fileUploadService,
-      this.configService,
-    );
     this.searchService = new SearchService(this.logService, this.i18nService);
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
@@ -975,11 +972,10 @@ export default class MainBackground {
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.keyService,
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
@@ -1082,6 +1078,13 @@ export default class MainBackground {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
+    this.cipherFileUploadService = new CipherFileUploadService(
+      this.apiService,
+      this.fileUploadService,
+      this.configService,
+      this.cipherSdkService,
+    );
 
     this.cipherService = new CipherService(
       this.keyService,
@@ -1235,7 +1238,11 @@ export default class MainBackground {
 
     this.importMetadataService = new DefaultImportMetadataService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -1268,6 +1275,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.apiService,
       this.restrictedItemTypesService,
+      this.logService,
     );
 
     this.exportApiService = new DefaultVaultExportApiService(this.apiService);
@@ -1531,6 +1539,11 @@ export default class MainBackground {
       this.accountService,
     );
 
+    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    this.autofillTriageService = new AutofillTriageService(
+      this.inlineMenuFieldQualificationService,
+    );
+
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
       (options) => this.platformUtilsService.copyToClipboard(options.text),
       async (_tab) => {
@@ -1556,6 +1569,7 @@ export default class MainBackground {
       this.eventCollectionService,
       this.userVerificationService,
       this.accountService,
+      this.autofillTriageService,
     );
 
     this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
@@ -1573,7 +1587,7 @@ export default class MainBackground {
       this.apiService,
       this.i18nService,
       this.keyService,
-      this.encryptService,
+      this.sdkService,
       this.policyService,
       this.accountService,
       this.stateProvider,
@@ -1587,6 +1601,7 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
@@ -1613,8 +1628,6 @@ export default class MainBackground {
       this.organizationService,
       this.accountService,
     );
-
-    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
 
     this.phishingDataService = new PhishingDataService(
       this.apiService,
@@ -1717,6 +1730,12 @@ export default class MainBackground {
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
+    // Disable the side panel globally on startup so Bitwarden does not appear in
+    // Chrome's side panel picker. It is enabled per-tab on demand when the user
+    // triggers autofill triage via the context menu.
+    if (BrowserApi.isSidePanelApiSupported) {
+      await BrowserApi.setSidePanelOptions({ enabled: false });
+    }
     this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
@@ -2123,7 +2142,11 @@ export default class MainBackground {
 
     this.credentialGeneratorService = await createCredentialGeneratorService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -2132,7 +2155,7 @@ export default class MainBackground {
         this.configService,
       ),
       createRandomizer(),
-      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService, this.sdkService),
       this.stateProvider,
       this.i18nService,
       this.apiService,
@@ -2142,9 +2165,8 @@ export default class MainBackground {
     // browser extension background — there is no feature-flag branching here unlike
     // createCredentialGeneratorService.
     this.generatorHistoryService = new LocalGeneratorHistoryService(
-      this.encryptService,
-      this.keyService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.overlayBackground = new OverlayBackground(

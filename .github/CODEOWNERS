@@ -4,6 +4,9 @@
 #
 # https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
+# CODEOWNERS owners
+.github/CODEOWNERS @bitwarden/tech-leads
+
 ## Global styles are owned by UIF
 *.scss @bitwarden/team-ui-foundation
 *.css @bitwarden/team-ui-foundation
@@ -36,6 +39,7 @@ apps/browser/src/tools @bitwarden/team-tools-dev
 apps/cli/src/tools @bitwarden/team-tools-dev
 apps/desktop/desktop_native/bitwarden_chromium_import_helper @bitwarden/team-tools-dev
 apps/desktop/desktop_native/chromium_importer @bitwarden/team-tools-dev
+apps/desktop/desktop_native/objc/src/native/chromium_importer @bitwarden/team-tools-dev
 apps/desktop/src/app/tools @bitwarden/team-tools-dev
 apps/web/src/app/tools @bitwarden/team-tools-dev
 libs/angular/src/tools @bitwarden/team-tools-dev
@@ -72,7 +76,6 @@ libs/vault @bitwarden/team-vault-dev
 ## Admin Console team files ##
 apps/browser/src/admin-console @bitwarden/team-admin-console-dev
 apps/cli/src/admin-console @bitwarden/team-admin-console-dev
-apps/desktop/src/admin-console @bitwarden/team-admin-console-dev
 apps/web/src/app/admin-console @bitwarden/team-admin-console-dev
 bitwarden_license/bit-web/src/app/admin-console @bitwarden/team-admin-console-dev
 bitwarden_license/bit-cli/src/admin-console @bitwarden/team-admin-console-dev
@@ -231,18 +234,8 @@ apps/desktop/src/locales/en/messages.json
 apps/web/src/locales/en/messages.json
 
 ## BRE team owns these workflows ##
-.github/workflows/brew-bump-desktop.yml @bitwarden/dept-bre
-.github/workflows/deploy-web.yml @bitwarden/dept-bre
-.github/workflows/publish-cli.yml @bitwarden/dept-bre
-.github/workflows/publish-desktop.yml @bitwarden/dept-bre
-.github/workflows/publish-web.yml @bitwarden/dept-bre
 .github/workflows/retrieve-current-desktop-rollout.yml @bitwarden/dept-bre
 .github/workflows/staged-rollout-desktop.yml @bitwarden/dept-bre
-.github/workflows/release-browser.yml @bitwarden/dept-bre
-.github/workflows/release-cli.yml @bitwarden/dept-bre
-.github/workflows/release-desktop-beta.yml @bitwarden/dept-bre
-.github/workflows/release-desktop.yml @bitwarden/dept-bre
-.github/workflows/release-web.yml @bitwarden/dept-bre
 
 ## Docker-related files
 **/Dockerfile @bitwarden/team-appsec @bitwarden/dept-bre
