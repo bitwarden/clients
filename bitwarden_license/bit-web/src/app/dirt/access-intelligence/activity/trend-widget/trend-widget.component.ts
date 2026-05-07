@@ -188,17 +188,16 @@ export class TrendWidgetComponent {
     const dataPoints = this.data().dataPoints;
 
     if (timespan === TimePeriod.AllTime && dataPoints.length > 0) {
-      const { xMin, xMax, timeUnit, timeDisplayFormat } = this.getAllTimeRange(dataPoints);
-      return { xAxisType: "datetime", xMin, xMax, timeUnit, timeDisplayFormat };
+      const range = this.getAllTimeRange(dataPoints);
+      return { xAxisType: "datetime", autoSkip: false, ...range };
     }
 
-    const { timeUnit, timeDisplayFormat } = this.getTimeUnitAndFormat(timespan);
+    const tickConfig = this.getTimeUnitAndFormat(timespan);
     return {
       xAxisType: "datetime",
       xMin: this.getXMinForTimespan(timespan),
       xMax: this.getXMaxForTimespan(timespan),
-      timeUnit,
-      timeDisplayFormat,
+      ...tickConfig,
     };
   });
 
@@ -207,6 +206,7 @@ export class TrendWidgetComponent {
     xMax: Date;
     timeUnit: "day" | "month" | "year";
     timeDisplayFormat: string;
+    timeStepSize?: number;
   } {
     // Linear scan rather than `Math.min(...arr)` / `Math.max(...arr)`: argument
     // spread has an engine-specific hard cap (~120k in V8) and the server no
@@ -228,11 +228,15 @@ export class TrendWidgetComponent {
       (newest.getFullYear() - oldest.getFullYear()) * 12 + (newest.getMonth() - oldest.getMonth());
 
     if (monthsSpan < 3) {
+      const xMin = new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate() - 1);
+      const xMax = new Date(newest.getFullYear(), newest.getMonth(), newest.getDate() + 1);
+      const spanDays = Math.ceil((xMax.getTime() - xMin.getTime()) / 86_400_000);
       return {
-        xMin: new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate() - 1),
-        xMax: new Date(newest.getFullYear(), newest.getMonth(), newest.getDate() + 1),
+        xMin,
+        xMax,
         timeUnit: "day",
         timeDisplayFormat: "MMM d yyyy",
+        timeStepSize: Math.max(1, Math.ceil(spanDays / 6)),
       };
     }
     if (monthsSpan < 12) {
@@ -285,14 +289,22 @@ export class TrendWidgetComponent {
   private getTimeUnitAndFormat(timespan: TimePeriod): {
     timeUnit: "day" | "month" | "year";
     timeDisplayFormat: string;
+    timeStepSize?: number;
+    autoSkip?: boolean;
   } {
     switch (timespan) {
       case TimePeriod.PastMonth:
-        return { timeUnit: "day", timeDisplayFormat: "MMM d" };
+        return { timeUnit: "day", timeDisplayFormat: "MMM d", timeStepSize: 6 };
       case TimePeriod.Past3Months:
       case TimePeriod.Past6Months:
+        return { timeUnit: "month", timeDisplayFormat: "MMM yyyy", autoSkip: false };
       case TimePeriod.PastYear:
-        return { timeUnit: "month", timeDisplayFormat: "MMM yyyy" };
+        return {
+          timeUnit: "month",
+          timeDisplayFormat: "MMM yyyy",
+          timeStepSize: 2,
+          autoSkip: false,
+        };
       case TimePeriod.AllTime:
         // Empty-data fallback only; AllTime with data uses getAllTimeRange.
         return { timeUnit: "day", timeDisplayFormat: "MMM d yyyy" };
