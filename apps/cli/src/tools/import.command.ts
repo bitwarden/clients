@@ -63,6 +63,13 @@ export class ImportCommand {
     if (filepath == null || filepath === "") {
       return Response.badRequest("`filepath` was not provided.");
     }
+
+    // Lazy-load jsdom and polyfill DOMParser only when actually running an import.
+    // jsdom is heavy and only needed by the XML/HTML importers; loading it eagerly
+    // slows CLI startup for every other command.
+    const { JSDOM } = await import("jsdom");
+    global.DOMParser = new JSDOM().window.DOMParser;
+
     const promptForPassword_callback = async () => {
       return await this.promptPassword();
     };
