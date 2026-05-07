@@ -61,6 +61,7 @@ import {
   convertToSelectionView,
   PermissionMode,
 } from "../../../shared/components/access-selector";
+import { MemberActionsService } from "../../services";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 
 import { commaSeparatedEmails } from "./validators/comma-separated-emails.validator";
@@ -209,6 +210,7 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
+    private memberActionsService: MemberActionsService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
@@ -587,7 +589,7 @@ export class MemberDialogComponent implements OnDestroy {
       accessSecretsManager: userView.accessSecretsManager,
     });
 
-    await this.userService.invite(this.params.organizationId as OrganizationId, request);
+    await this.memberActionsService.invite(organization.id, request);
 
     this.toastService.showToast({
       variant: "success",

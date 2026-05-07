@@ -40,7 +40,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { GroupApiService, GroupDetailsView, UserAdminService } from "../../../core";
+import { GroupApiService, GroupDetailsView } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import {
   AccessItemType,
@@ -60,6 +60,7 @@ import {
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
 import { ByLinkTabComponent } from "./by-link-tab.component";
+import { MemberActionsService } from "../../services";
 
 export interface InviteMembersDialogParams {
   organizationId: string;
@@ -102,10 +103,10 @@ export class InviteMembersDialogComponent {
   private readonly formBuilder = inject(FormBuilder);
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly groupService = inject(GroupApiService);
-  private readonly userService = inject(UserAdminService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
+  private readonly memberActionsService = inject(MemberActionsService);
 
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
@@ -276,12 +277,13 @@ export class InviteMembersDialogComponent {
       collections,
     });
 
-    await this.userService.invite(organizationId, request);
+    const result = await this.memberActionsService.invite(organizationId, request);
 
     this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("invitedUsers"),
+      variant: result.success ? "success" : "error",
+      message: result.success ? this.i18nService.t("invitedUsers") : result.error!,
     });
+
     this.close(MemberDialogResult.Saved);
   }
 

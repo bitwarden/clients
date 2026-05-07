@@ -4,6 +4,7 @@ import { lastValueFrom, firstValueFrom, take } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -19,6 +20,7 @@ import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billin
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
@@ -72,24 +74,13 @@ export class MemberActionsService {
 
   private readonly progressCount: WritableSignal<number> = signal(0);
 
-  async inviteUser(
-    organization: Organization,
-    email: string,
-    type: OrganizationUserType,
-    permissions?: any,
-    collections?: any[],
-    groups?: string[],
+  async invite(
+    organizationId: OrganizationId,
+    request: OrganizationUserInviteRequest,
   ): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.organizationUserApiService.postOrganizationUserInvite(organization.id, {
-        emails: [email],
-        type,
-        accessSecretsManager: false,
-        collections: collections ?? [],
-        groups: groups ?? [],
-        permissions,
-      });
+      await this.organizationUserApiService.postOrganizationUserInvite(organizationId, request);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };

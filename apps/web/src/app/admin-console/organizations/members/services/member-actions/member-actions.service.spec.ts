@@ -5,6 +5,7 @@ import { of, throwError } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
@@ -90,30 +91,25 @@ describe("MemberActionsService", () => {
     service = TestBed.inject(MemberActionsService);
   });
 
-  describe("inviteUser", () => {
+  describe("invite", () => {
     it("should successfully invite a user", async () => {
       organizationUserApiService.postOrganizationUserInvite.mockResolvedValue(undefined);
 
-      const result = await service.inviteUser(
-        mockOrganization,
-        "test@example.com",
-        OrganizationUserType.User,
-        {},
-        [],
-        [],
-      );
+      const request = new OrganizationUserInviteRequest({
+        emails: ["test@example.com"],
+        type: OrganizationUserType.User,
+        accessSecretsManager: false,
+        collections: [],
+        groups: [],
+        permissions: {} as any,
+      });
+
+      const result = await service.invite(organizationId, request);
 
       expect(result).toEqual({ success: true });
       expect(organizationUserApiService.postOrganizationUserInvite).toHaveBeenCalledWith(
         organizationId,
-        {
-          emails: ["test@example.com"],
-          type: OrganizationUserType.User,
-          accessSecretsManager: false,
-          collections: [],
-          groups: [],
-          permissions: {},
-        },
+        request,
       );
     });
 
@@ -123,11 +119,16 @@ describe("MemberActionsService", () => {
         new Error(errorMessage),
       );
 
-      const result = await service.inviteUser(
-        mockOrganization,
-        "test@example.com",
-        OrganizationUserType.User,
-      );
+      const request = new OrganizationUserInviteRequest({
+        emails: ["test@example.com"],
+        type: OrganizationUserType.User,
+        accessSecretsManager: false,
+        collections: [],
+        groups: [],
+        permissions: {} as any,
+      });
+
+      const result = await service.invite(organizationId, request);
 
       expect(result).toEqual({ success: false, error: errorMessage });
     });
