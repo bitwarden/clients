@@ -75,12 +75,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
 
-  /** Padding around the spotlight cutout in pixels */
-  readonly spotlightPadding = input<number>(0);
-
-  /** Show accent border around the spotlight cutout. Defaults to false. */
-  readonly spotlightBorder = input<boolean>(false);
-
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
   private readonly hasInitialized = signal(false);
