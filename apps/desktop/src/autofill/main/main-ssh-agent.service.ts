@@ -26,8 +26,8 @@ export class MainSshAgentService {
   private request_id = 0;
   private agentState: sshagent.SshAgentState;
 
-  // The napi callbacks (requestUnlock, requestSign) are awaited directly by the Rust agent,
-  // so they must return a Promise that resolves with the user's decision.
+  // The napi callback requestSign() is awaited directly by the Rust agent,
+  // so it must return a Promise that resolves with the user's decision.
   // The approval dialog lives in the renderer (a separate process), so bridging a callback
   // to a user decision requires a round-trip: main fires a message to the renderer, the
   // renderer responds via a separate IPC call. Because multiple SSH clients can connect
@@ -38,6 +38,7 @@ export class MainSshAgentService {
   private pendingRequests = new Map<number, (accepted: boolean) => void>();
   private requestId = 0;
   private agentStateV2: sshagent_v2.SshAgentState;
+  private v2HandlersRegistered = false;
 
   constructor(
     private logService: LogService,
@@ -51,8 +52,11 @@ export class MainSshAgentService {
       SSH_AGENT_IPC_CHANNELS.INIT,
       async (_event: any, { useV2 }: { useV2: boolean }) => {
         if (useV2) {
-          this.registerV2IpcHandlers();
-          this.initV2();
+          if (!this.v2HandlersRegistered) {
+            this.registerV2IpcHandlers();
+            this.v2HandlersRegistered = true;
+          }
+          await this.initV2();
         } else {
           this.registerV1IpcHandlers();
           this.init();
@@ -61,7 +65,10 @@ export class MainSshAgentService {
     );
 
     ipcMain.handle(SSH_AGENT_IPC_CHANNELS.IS_LOADED, async (_event: any) => {
-      return this.agentState != null || this.agentStateV2 != null;
+      if (this.agentStateV2 != null) {
+        return this.agentStateV2.isRunning();
+      }
+      return this.agentState != null;
     });
   }
 
@@ -126,7 +133,7 @@ export class MainSshAgentService {
   // V1, delete with PM-30758
   private registerV1IpcHandlers() {
     ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.SET_KEYS,
+      SSH_AGENT_IPC_CHANNELS.REPLACE,
       async (event: any, keys: { name: string; privateKey: string; cipherId: string }[]) => {
         if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
           sshagent.setKeys(this.agentState, keys);
@@ -141,13 +148,13 @@ export class MainSshAgentService {
       },
     );
 
-    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.LOCK, async (event: any) => {
+    ipcMain.handle("sshagent.lock", async (event: any) => {
       if (this.agentState != null && (await sshagent.isRunning(this.agentState))) {
         sshagent.lock(this.agentState);
       }
     });
 
-    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.CLEAR_KEYS, async (event: any) => {
+    ipcMain.handle("sshagent.clearkeys", async (event: any) => {
       if (this.agentState != null) {
         sshagent.clearKeys(this.agentState);
       }
@@ -156,10 +163,10 @@ export class MainSshAgentService {
 
   private registerV2IpcHandlers() {
     ipcMain.handle(
-      SSH_AGENT_IPC_CHANNELS.SET_KEYS,
+      SSH_AGENT_IPC_CHANNELS.REPLACE,
       async (_, keys: { name: string; privateKey: string; cipherId: string }[]) => {
         if (this.agentStateV2 != null && this.agentStateV2.isRunning()) {
-          this.agentStateV2.setKeys(keys);
+          this.agentStateV2.replace(keys);
         }
       },
     );
@@ -172,39 +179,24 @@ export class MainSshAgentService {
       },
     );
 
-    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.LOCK, async () => {
-      if (this.agentStateV2 != null && this.agentStateV2.isRunning()) {
-        this.agentStateV2.lock();
-      }
-    });
-
-    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.CLEAR_KEYS, async () => {
+    ipcMain.handle(SSH_AGENT_IPC_CHANNELS.STOP, async () => {
       if (this.agentStateV2 != null) {
-        this.agentStateV2.clearKeys();
+        this.agentStateV2.stop();
+        this.agentStateV2 = null;
       }
     });
   }
 
-  private initV2() {
-    const unlockCb = () => this.requestUnlock();
+  // Starts the Agent.
+  // @pre: The agent must not be running. The caller may utilize `is_running()` and `stop()`.
+  private async initV2() {
     const signCb = (data: sshagent_v2.SignRequestData) => this.requestSign(data);
-
-    sshagent_v2.SshAgentState.serve(unlockCb, signCb)
-      .then((agentState: sshagent_v2.SshAgentState) => {
-        this.agentStateV2 = agentState;
-        this.logService.info("SSH agent v2 started");
-      })
-      .catch((e: unknown) => {
-        this.logService.error("SSH agent v2 encountered an error: ", e);
-      });
-  }
-
-  private requestUnlock(): Promise<boolean> {
-    const id = ++this.requestId;
-    return new Promise((resolve) => {
-      this.pendingRequests.set(id, resolve);
-      this.messagingService.send(SSH_AGENT_IPC_CHANNELS.UNLOCK_REQUEST, { requestId: id });
-    });
+    try {
+      this.agentStateV2 = await sshagent_v2.SshAgentState.serve(signCb);
+      this.logService.info("SSH agent v2 started");
+    } catch (e: unknown) {
+      this.logService.error("SSH agent v2 encountered an error: ", e);
+    }
   }
 
   private requestSign(data: sshagent_v2.SignRequestData): Promise<boolean> {

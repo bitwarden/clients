@@ -14,20 +14,23 @@ const sshAgent = {
   init: async (useV2: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.INIT, { useV2 });
   },
-  setKeys: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
-    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SET_KEYS, keys),
+  replace: (keys: { name: string; privateKey: string; cipherId: string }[]): Promise<void> =>
+    ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.REPLACE, keys),
   signRequestResponse: async (requestId: number, accepted: boolean) => {
     await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.SIGN_REQUEST_RESPONSE, { requestId, accepted });
   },
+  // V1, delete with PM-30758
   lock: async () => {
-    return await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.LOCK);
+    return await ipcRenderer.invoke("sshagent.lock");
   },
+  // V1, delete with PM-30758
   clearKeys: async () => {
-    return await ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.CLEAR_KEYS);
+    return await ipcRenderer.invoke("sshagent.clearkeys");
   },
   isLoaded(): Promise<boolean> {
     return ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.IS_LOADED);
   },
+  stop: async () => ipcRenderer.invoke(SSH_AGENT_IPC_CHANNELS.STOP),
 };
 
 export default {
