@@ -38,6 +38,7 @@ describe("DefaultCipherSdkService", () => {
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
       list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
+      delete_attachment: jest.fn().mockResolvedValue(undefined),
     };
     mockCiphersSdk = {
       create: jest.fn(),
@@ -53,6 +54,7 @@ describe("DefaultCipherSdkService", () => {
       decrypt_fido2_credentials: jest.fn(),
       decrypt_fido2_private_key: jest.fn(),
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
+      delete_attachment: jest.fn(),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
     };
     mockVaultSdk = {
@@ -827,6 +829,101 @@ describe("DefaultCipherSdkService", () => {
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to share multiple ciphers"),
+      );
+    });
+  });
+
+  describe("deleteAttachmentWithServer()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+    const testAttachmentId = "uf7bkexzag04d3cw04jsbqqkbpbwhxs0";
+
+    const createMockSdkCipher = (id: string): any => ({
+      id,
+      name: "2.encryptedName|iv|data",
+      type: CipherType.Login,
+      organizationId: null,
+      folderId: null,
+      favorite: false,
+      edit: true,
+      viewPassword: true,
+      organizationUseTotp: false,
+      revisionDate: "2026-04-23T12:00:00.000Z",
+      creationDate: "2022-01-01T12:00:00.000Z",
+      collectionIds: [],
+      deletedDate: null,
+      reprompt: 0,
+      key: null,
+      localData: null,
+      attachments: null,
+      fields: null,
+      passwordHistory: null,
+      notes: null,
+      login: null,
+      secureNote: null,
+      card: null,
+      identity: null,
+      sshKey: null,
+      permissions: null,
+    });
+
+    it("should delete attachment using SDK and return mapped cipher when asAdmin is false", async () => {
+      const mockSdkCipher = createMockSdkCipher(testCipherId);
+      mockCiphersSdk.delete_attachment.mockResolvedValue(mockSdkCipher);
+
+      const result = await cipherSdkService.deleteAttachmentWithServer(
+        testCipherId,
+        testAttachmentId,
+        userId,
+        false,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.delete_attachment).toHaveBeenCalledWith(testCipherId, testAttachmentId);
+      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(Cipher);
+      expect(result?.id).toBe(testCipherId);
+    });
+
+    it("should delete attachment using SDK admin API and return mapped cipher when asAdmin is true", async () => {
+      const mockSdkCipher = createMockSdkCipher(testCipherId);
+      mockAdminSdk.delete_attachment.mockResolvedValue(mockSdkCipher);
+
+      const result = await cipherSdkService.deleteAttachmentWithServer(
+        testCipherId,
+        testAttachmentId,
+        userId,
+        true,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
+      expect(mockCiphersSdk.admin).toHaveBeenCalled();
+      expect(mockAdminSdk.delete_attachment).toHaveBeenCalledWith(testCipherId, testAttachmentId);
+      expect(mockCiphersSdk.delete_attachment).not.toHaveBeenCalled();
+      expect(result).toBeInstanceOf(Cipher);
+      expect(result?.id).toBe(testCipherId);
+    });
+
+    it("should throw error and log when SDK throws an error on user path", async () => {
+      mockCiphersSdk.delete_attachment.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.deleteAttachmentWithServer(testCipherId, testAttachmentId, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to delete cipher attachment"),
+      );
+    });
+
+    it("should throw error and log when SDK throws an error on admin path", async () => {
+      mockAdminSdk.delete_attachment.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.deleteAttachmentWithServer(testCipherId, testAttachmentId, userId, true),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to delete cipher attachment"),
       );
     });
   });
