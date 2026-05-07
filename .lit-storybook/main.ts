@@ -11,7 +11,12 @@ const getAbsolutePath = (value: string): string =>
   dirname(require.resolve(join(value, "package.json")));
 
 const config: StorybookConfig = {
-  stories: ["../lit-stories/**/*.lit-stories.@(js|jsx|ts|tsx)", "../lit-stories/**/*.mdx"],
+  stories: [
+    "../apps/browser/src/autofill/content/components/lit-stories/**/*.lit-stories.@(js|jsx|ts|tsx)",
+    "../apps/browser/src/autofill/content/components/lit-stories/**/*.mdx",
+    "../libs/ui/byte/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../libs/ui/byte/src/**/*.mdx",
+  ],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
     getAbsolutePath("@storybook/addon-a11y"),
@@ -34,16 +39,10 @@ const config: StorybookConfig = {
   core: {
     disableTelemetry: true,
   },
-  env: (existingConfig) => ({
-    ...existingConfig,
-    FLAGS: JSON.stringify({}),
+  viteFinal: async (config) => ({
+    ...config,
+    plugins: [...(config.plugins ?? []), tsconfigPaths()],
   }),
-  viteFinal: async (config) => {
-    return {
-      ...config,
-      plugins: [...(config.plugins ?? []), tsconfigPaths()],
-    };
-  },
 };
 
 export default config;
