@@ -33,7 +33,6 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         [bitPopoverAnchorFor]="tourStep2"
         [popoverOpen]="tourService.tourStep() === 2"
         [spotlight]="true"
-        [spotlightPadding]="12"
         [position]="'below-start'"
       >
         Open Dialog
@@ -57,7 +56,6 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
       [bitPopoverAnchorFor]="tourStep3"
       [popoverOpen]="tourService.tourStep() === 3"
       [spotlight]="true"
-      [spotlightPadding]="12"
       [position]="'right-center'"
     >
       <h2 bitTypography="h2" class="tw-mb-6">Survey Form</h2>

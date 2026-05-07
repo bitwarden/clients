@@ -675,7 +675,6 @@ export const SpotlightWithBorder: Story = {
             [(popoverOpen)]="open"
             [spotlight]="true"
             [spotlightBorder]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
           >
             <bit-icon name="bwi-star" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
@@ -738,7 +737,6 @@ export const MultipleSpotlights: Story = {
             [bitPopoverAnchorFor]="popover1"
             [(popoverOpen)]="popover1Open"
             [spotlight]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
           >
             <i class="bwi bwi-star tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
@@ -752,7 +750,6 @@ export const MultipleSpotlights: Story = {
             [bitPopoverAnchorFor]="popover2"
             [(popoverOpen)]="popover2Open"
             [spotlight]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
           >
             <i class="bwi bwi-heart tw-text-4xl tw-text-primary-600 tw-mb-3"></i>

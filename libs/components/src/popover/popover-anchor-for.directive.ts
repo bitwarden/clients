@@ -39,8 +39,7 @@ import { SpotlightService } from "./spotlight.service";
  * <div [bitPopoverAnchorFor]="tourStep"
  *      [(popoverOpen)]="showTour"
  *      [spotlight]="true"
- *      [spotlightPadding]="12">
- *   Element to highlight
+ *   Anchor element
  * </div>
  * ```
  *
@@ -50,8 +49,7 @@ import { SpotlightService } from "./spotlight.service";
  * <div [bitPopoverAnchorFor]="tourStep"
  *      [(popoverOpen)]="showTour"
  *      [spotlight]="true"
- *      [spotlightBorder]="true"
- *      [spotlightPadding]="12">
+ * >
  *   Element to highlight
  * </div>
  * ```
@@ -160,11 +158,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
       this.spotlightService.register(this);
-      this.spotlightService.showSpotlight(
-        this.elementRef.nativeElement,
-        this.spotlightPadding(),
-        this.spotlightBorder(),
-      );
+      this.spotlightService.showSpotlight(this.elementRef.nativeElement);
     }
 
     this.popoverOpen.set(true);
