@@ -155,6 +155,14 @@
           [toggled]="revealNationalIdentificationNumber()"
           (toggledChange)="toggleNationalIdentificationNumberVisible($event)"
         ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyNationalIdentificationNumber' | i18n"
+          appCopyField="nationalIdentificationNumber"
+          [cipher]="cipher()"
+        ></button>
       </bit-form-field>
     }
 

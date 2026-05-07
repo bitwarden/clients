@@ -294,6 +294,8 @@ export class CipherViewLikeUtils {
         return !!cipher.bankAccount?.iban;
       case "passportNumber":
         return !!cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return !!cipher.passport?.nationalIdentificationNumber;
       default:
         return false;
     }

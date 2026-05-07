@@ -698,7 +698,7 @@
     "message": "Passport type"
   },
   "nationalIdentificationNumber": {
-    "message": "National Identification number"
+    "message": "National identification number"
   },
   "issuingAuthority": {
     "message": "Issuing authority / office"
@@ -1385,6 +1385,9 @@
   },
   "copyPassportNumber": {
     "message": "Copy passport number"
+  },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
   },
   "copyPassportType": {
     "message": "Copy passport type"

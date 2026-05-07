@@ -418,8 +418,11 @@
   "copyPassportType": {
     "message": "Copy passport type"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Copy national identification number"
+  },
   "nationalIdentificationNumber": {
-    "message": "National Identification number"
+    "message": "National identification number"
   },
   "issuingAuthority": {
     "message": "Issuing authority / office"

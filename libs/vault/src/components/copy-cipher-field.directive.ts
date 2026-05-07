@@ -150,6 +150,8 @@ export class CopyCipherFieldDirective implements OnChanges {
         return _cipher.bankAccount?.iban;
       case "passportNumber":
         return _cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return _cipher.passport?.nationalIdentificationNumber;
       default:
         return null;
     }
