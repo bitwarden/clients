@@ -21,6 +21,7 @@ import {
   LoginSuccessHandlerService,
   PasswordLoginCredentials,
 } from "@bitwarden/auth/common";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
@@ -140,6 +141,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private policyService: InternalPolicyService,
+    private newPolicyService: InternalNewPolicyService,
     private router: Router,
     private toastService: ToastService,
     private logService: LogService,
@@ -504,6 +506,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     const policiesData: { [id: string]: PolicyData } = {};
     policies.map((p) => (policiesData[p.id] = PolicyData.fromPolicy(p)));
     await this.policyService.replace(policiesData, userId);
+    await this.newPolicyService.replace(policiesData, userId);
   }
 
   protected async startAuthRequestLogin(): Promise<void> {

@@ -136,7 +136,7 @@ export class PoliciesComponent {
     private readonly destroyRef: DestroyRef,
   ) {
     this.handleLaunchEvent();
-    this.destroyRef.onDestroy(() => this.drawerRef()?.close());
+    this.destroyRef.onDestroy(() => void this.drawerRef()?.close());
   }
 
   // Handle policies component launch from Event message
@@ -190,5 +190,17 @@ export class PoliciesComponent {
         },
       });
     }
+  }
+
+  /**
+   * Called by the `PoliciesDeactivateGuard` before navigating away from this page.
+   * Returns `true` if navigation may proceed, `false` if the user chose to stay.
+   */
+  async canDeactivate(): Promise<boolean> {
+    if (!this.drawerRef()) {
+      return true;
+    }
+    const result = await this.drawerRef()!.close();
+    return result.closed;
   }
 }
