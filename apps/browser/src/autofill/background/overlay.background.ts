@@ -1,19 +1,19 @@
 import {
-  BehaviorSubject,
-  concatMap,
-  debounceTime,
-  filter,
-  firstValueFrom,
-  map,
-  merge,
-  Observable,
-  ReplaySubject,
-  skip,
-  Subject,
-  Subscription,
-  switchMap,
-  throttleTime,
-  timeout,
+    BehaviorSubject,
+    concatMap,
+    debounceTime,
+    filter,
+    firstValueFrom,
+    map,
+    merge,
+    Observable,
+    ReplaySubject,
+    skip,
+    Subject,
+    Subscription,
+    switchMap,
+    throttleTime,
+    timeout,
 } from "rxjs";
 import { parse } from "tldts";
 
@@ -22,8 +22,8 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
-  AutofillOverlayVisibility,
-  SHOW_AUTOFILL_BUTTON,
+    AutofillOverlayVisibility,
+    SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
@@ -32,8 +32,8 @@ import { parseYearMonthExpiry } from "@bitwarden/common/autofill/utils";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
-  Fido2ActiveRequestEvents,
-  Fido2ActiveRequestManager,
+    Fido2ActiveRequestEvents,
+    Fido2ActiveRequestManager,
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-active-request-manager.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -62,56 +62,56 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import {
-  openAddEditVaultItemPopout,
-  openViewVaultItemPopout,
+    openAddEditVaultItemPopout,
+    openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import {
-  AutofillOverlayElement,
-  AutofillOverlayPort,
-  InlineMenuAccountCreationFieldType,
-  InlineMenuAccountCreationFieldTypes,
-  InlineMenuFillType,
-  InlineMenuFillTypes,
-  MAX_SUB_FRAME_DEPTH,
+    AutofillOverlayElement,
+    AutofillOverlayPort,
+    InlineMenuAccountCreationFieldType,
+    InlineMenuAccountCreationFieldTypes,
+    InlineMenuFillType,
+    InlineMenuFillTypes,
+    MAX_SUB_FRAME_DEPTH,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { InlineMenuFieldQualificationService } from "../services/abstractions/inline-menu-field-qualifications.service";
 import {
-  areKeyValuesNull,
-  generateDomainMatchPatterns,
-  generateRandomChars,
-  isInvalidResponseStatusCode,
-  rectHasSize,
-  specialCharacterToKeyMap,
+    areKeyValuesNull,
+    generateDomainMatchPatterns,
+    generateRandomChars,
+    isInvalidResponseStatusCode,
+    rectHasSize,
+    specialCharacterToKeyMap,
 } from "../utils";
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
 
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
-  BuildCipherDataParams,
-  CloseInlineMenuMessage,
-  CurrentAddNewItemData,
-  FocusedFieldData,
-  InlineMenuButtonPortMessageHandlers,
-  InlineMenuCipherData,
-  InlineMenuListPortMessageHandlers,
-  InlineMenuPosition,
-  NewCardCipherData,
-  NewIdentityCipherData,
-  NewLoginCipherData,
-  OverlayAddNewItemMessage,
-  OverlayBackground as OverlayBackgroundInterface,
-  OverlayBackgroundExtensionMessage,
-  OverlayBackgroundExtensionMessageHandlers,
-  OverlayPortMessage,
-  PageDetailsForTab,
-  SubFrameOffsetData,
-  SubFrameOffsetsForTab,
-  ToggleInlineMenuHiddenMessage,
-  UpdateInlineMenuVisibilityMessage,
-  UpdateOverlayCiphersParams,
-  PasswordGenerateRequestSource,
+    BuildCipherDataParams,
+    CloseInlineMenuMessage,
+    CurrentAddNewItemData,
+    FocusedFieldData,
+    InlineMenuButtonPortMessageHandlers,
+    InlineMenuCipherData,
+    InlineMenuListPortMessageHandlers,
+    InlineMenuPosition,
+    NewCardCipherData,
+    NewIdentityCipherData,
+    NewLoginCipherData,
+    OverlayAddNewItemMessage,
+    OverlayBackgroundExtensionMessage,
+    OverlayBackgroundExtensionMessageHandlers,
+    OverlayBackground as OverlayBackgroundInterface,
+    OverlayPortMessage,
+    PageDetailsForTab,
+    PasswordGenerateRequestSource,
+    SubFrameOffsetData,
+    SubFrameOffsetsForTab,
+    ToggleInlineMenuHiddenMessage,
+    UpdateInlineMenuVisibilityMessage,
+    UpdateOverlayCiphersParams,
 } from "./abstractions/overlay.background";
 
 const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
@@ -183,8 +183,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
     openAutofillInlineMenu: ({ message, sender }) =>
       this.withSenderTab(sender, () =>
-        this.openInlineMenu(sender, message.isOpeningFullInlineMenu),
+        this.openInlineMenu(sender, message.isOpeningFullInlineMenu, message.filterValue),
       ),
+    filterInlineMenuCiphers: ({
+      message,
+      sender,
+    }: {
+      message: OverlayBackgroundExtensionMessage;
+      sender: chrome.runtime.MessageSender;
+    }) => this.withSenderTab(sender, () => this.filterInlineMenuCiphers(sender, message.filterValue)),
     getInlineMenuCardsVisibility: () => this.getInlineMenuCardsVisibility(),
     getInlineMenuIdentitiesVisibility: () => this.getInlineMenuIdentitiesVisibility(),
     closeAutofillInlineMenu: ({ message, sender }) =>
@@ -465,9 +472,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Updates the inline menu list's ciphers and sends the updated list to the inline menu list iframe.
    *
    * @param tab - The current tab
+   * @param filterValue - Optional filter value to filter ciphers by name/username
    */
-  private async updateInlineMenuListCiphers(tab: chrome.tabs.Tab) {
-    const ciphers = await this.getInlineMenuCipherData();
+  private async updateInlineMenuListCiphers(tab: chrome.tabs.Tab, filterValue?: string) {
+    const ciphers = await this.getInlineMenuCipherData(filterValue);
     this.postMessageToPort(this.inlineMenuListPort, {
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
@@ -553,10 +561,25 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Strips out unnecessary data from the ciphers and returns an array of
    * objects that contain the cipher data needed for the inline menu list.
+   *
+   * @param filterValue - Optional filter value to filter ciphers by name/username
    */
-  private async getInlineMenuCipherData(): Promise<InlineMenuCipherData[]> {
+  private async getInlineMenuCipherData(filterValue?: string): Promise<InlineMenuCipherData[]> {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
-    const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
+    let inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
+    
+    // Apply filter if filterValue is provided
+    if (filterValue && filterValue.length > 0) {
+      const lowerFilter = filterValue.toLowerCase();
+      inlineMenuCiphersArray = inlineMenuCiphersArray.filter(([id, cipher]) => {
+        const nameMatch = cipher.name?.toLowerCase().includes(lowerFilter);
+        const usernameMatch = cipher.login?.username?.toLowerCase().includes(lowerFilter);
+        const cardMatch = cipher.card?.number?.toLowerCase().includes(lowerFilter);
+        const identityMatch = cipher.identity?.fullName?.toLowerCase().includes(lowerFilter);
+        return nameMatch || usernameMatch || cardMatch || identityMatch;
+      });
+    }
+
     let inlineMenuCipherData: InlineMenuCipherData[];
     this.showPasskeysLabelsWithinInlineMenu = false;
 
@@ -2264,10 +2287,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the port message
    * @param isOpeningFullInlineMenu - Identifies whether the full inline menu should be forced open regardless of other states
+   * @param filterValue - Optional filter value to filter ciphers by name/username
    */
   private async openInlineMenu(
     sender: chrome.runtime.MessageSender,
     isOpeningFullInlineMenu = false,
+    filterValue?: string,
   ) {
     if (!sender?.tab) {
       return;
@@ -2277,6 +2302,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (isOpeningFullInlineMenu) {
       await this.updateInlineMenuPosition(sender, AutofillOverlayElement.Button);
       await this.updateInlineMenuPosition(sender, AutofillOverlayElement.List);
+      return;
+    }
+
+    // If filterValue is provided, always show the list with filtered results
+    if (filterValue !== undefined && filterValue !== null) {
+      await this.openInlineMenuWithFilter(sender, filterValue);
       return;
     }
 
@@ -2329,6 +2360,56 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       });
     }
     await this.updateInlineMenuPosition(sender, AutofillOverlayElement.Button);
+  }
+
+  /**
+   * Opens the inline menu with filtered ciphers based on the provided filter value.
+   * This enables "type to filter" functionality in the inline autofill menu.
+   *
+   * @param sender - The sender of the port message
+   * @param filterValue - The value to filter ciphers by (searches name and username)
+   */
+  private async openInlineMenuWithFilter(
+    sender: chrome.runtime.MessageSender,
+    filterValue: string,
+  ) {
+    // Only reposition the menu if it is not already visible, to avoid flickering on each keystroke
+    if (!this.isInlineMenuListVisible) {
+      await this.updateInlineMenuPosition(sender, AutofillOverlayElement.Button);
+      await this.updateInlineMenuPosition(sender, AutofillOverlayElement.List);
+    }
+
+    // Update the list with filtered ciphers
+    await this.updateInlineMenuListCiphers(sender.tab, filterValue);
+  }
+
+  /**
+  * Filters the inline menu ciphers based on the provided filter value.
+  * This provides smooth filtering as the user types without closing/reopening the list.
+  *
+  * @param sender - The sender of the port message
+  * @param filterValue - The value to filter ciphers by (searches name and username)
+  */
+  private async filterInlineMenuCiphers(
+    sender: chrome.runtime.MessageSender,
+    filterValue?: string,
+  ) {
+    // If the list is not visible, open it with filter instead
+    if (!this.isInlineMenuListVisible) {
+      await this.openInlineMenu(sender, false, filterValue);
+      return;
+    }
+
+    // Update ciphers in-place without closing/reopening for smooth filtering
+    await this.updateInlineMenuListCiphers(sender.tab, filterValue);
+
+    // Close the list if the filter yields no results, so the UI doesn't show an empty dropdown
+    if (this.currentInlineMenuCiphersCount === 0 && filterValue?.length) {
+      this.closeInlineMenu(sender, {
+        forceCloseInlineMenu: true,
+        overlayElement: AutofillOverlayElement.List,
+      });
+    }
   }
 
   /**

@@ -3,63 +3,62 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import {
-  AUTOFILL_OVERLAY_HANDLE_REPOSITION,
-  AUTOFILL_OVERLAY_HANDLE_SCROLL,
-  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
-  EVENTS,
+    AUTOFILL_OVERLAY_HANDLE_REPOSITION,
+    AUTOFILL_OVERLAY_HANDLE_SCROLL,
+    AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
+    EVENTS,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import {
-  FocusedFieldData,
-  NewCardCipherData,
-  NewIdentityCipherData,
-  NewLoginCipherData,
-  SubFrameOffsetData,
+    FocusedFieldData,
+    NewCardCipherData,
+    NewIdentityCipherData,
+    NewLoginCipherData,
+    SubFrameOffsetData,
 } from "../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
 import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
-  AutofillOverlayElement,
-  InlineMenuAccountCreationFieldType,
-  InlineMenuFillTypes,
-  MAX_SUB_FRAME_DEPTH,
-  RedirectFocusDirection,
+    InlineMenuAccountCreationFieldType,
+    InlineMenuFillTypes,
+    MAX_SUB_FRAME_DEPTH,
+    RedirectFocusDirection
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
-  currentlyInSandboxedIframe,
-  debounce,
-  elementIsFillableFormField,
-  elementIsSelectElement,
-  getAttributeBoolean,
-  isReadonlyOrDisabledFormFieldElement,
-  nodeIsAnchorElement,
-  nodeIsButtonElement,
-  nodeIsTypeSubmitElement,
-  sendExtensionMessage,
-  throttle,
+    currentlyInSandboxedIframe,
+    debounce,
+    elementIsFillableFormField,
+    elementIsSelectElement,
+    getAttributeBoolean,
+    isReadonlyOrDisabledFormFieldElement,
+    nodeIsAnchorElement,
+    nodeIsButtonElement,
+    nodeIsTypeSubmitElement,
+    sendExtensionMessage,
+    throttle,
 } from "../utils";
 import { EventSecurity } from "../utils/event-security";
 
 import {
-  AutofillOverlayContentExtensionMessageHandlers,
-  AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  SubFrameDataFromWindowMessage,
+    AutofillOverlayContentExtensionMessageHandlers,
+    AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
+    SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import {
-  AutoFillConstants,
-  loginQualifiers,
-  cardQualifiers,
-  identityQualifiers,
+    AutoFillConstants,
+    cardQualifiers,
+    identityQualifiers,
+    loginQualifiers,
 } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
@@ -796,7 +795,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers when the form field element receives an input event. This method will
    * store the modified form element data for use when the user attempts to add a new
-   * vault item. It also acts to remove the inline menu list while the user is typing.
+   * vault item. It also acts to filter the inline menu list while the user is typing.
    *
    * @param formFieldElement - The form field element that triggered the input event.
    */
@@ -813,14 +812,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.sendExtensionMessage("closeAutofillInlineMenu", {
-      overlayElement: AutofillOverlayElement.List,
-      forceCloseInlineMenu: true,
-    });
+    const currentValue = (formFieldElement as HTMLInputElement).value ?? "";
 
-    if (!formFieldElement?.value) {
-      await this.sendExtensionMessage("openAutofillInlineMenu");
-    }
+    // Filter ciphers without closing/reopening the list - this provides smooth filtering
+    await this.sendExtensionMessage("filterInlineMenuCiphers", {
+      filterValue: currentValue,
+    });
   }
 
   /**
