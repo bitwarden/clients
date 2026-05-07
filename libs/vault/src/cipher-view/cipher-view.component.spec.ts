@@ -129,6 +129,15 @@ describe("CipherViewComponent", () => {
         set: {
           template: "<div>{{ passwordIsAtRisk() }}</div>",
           imports: [],
+          providers: [
+            {
+              provide: AtRiskPasswordCalloutService,
+              useValue: {
+                isDismissed$: jest.fn().mockReturnValue(of(false)),
+                dismiss: jest.fn().mockResolvedValue(undefined),
+              },
+            },
+          ],
         },
       })
       .compileComponents();
