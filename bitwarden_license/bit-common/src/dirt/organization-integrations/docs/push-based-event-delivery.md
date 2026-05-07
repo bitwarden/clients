@@ -34,7 +34,7 @@ HEC stands for HTTP Event Collector. A HEC configuration includes:
 
 - `Uri`: Destination endpoint, for example `http://splunk-hec-endpoint:8088/services/collector`
 - `Token`: Authentication credential
-- `Schema`: Authentication scheme metadata, for example `Bearer` or `Splunk`
+- `Scheme`: Authentication scheme metadata, for example `Bearer` or `Splunk`
 
 These values are stored in organization integration records, and the HEC listener uses them to construct authenticated HTTP requests.
 
@@ -53,7 +53,7 @@ After save/update/delete operations, the server cache is invalidated normally, b
 
 Current client capabilities include:
 
-- Collecting HEC parameters (`Uri`, `Token`, `Schema`)
+- Collecting HEC parameters (`Uri`, `Token`, `Scheme`)
 - Rendering integration cards with branding
 - Opening setup dialogs for connection parameters
 - Persisting configuration and template data for server-side delivery
@@ -63,7 +63,7 @@ To introduce a new integration card, add an entry in `organization-integrations.
 - Service identity (`OrganizationIntegrationServiceName`)
 - Integration category (`type`, for example `IntegrationType.EVENT`)
 - Backend implementation type (`integrationType`, for example `OrganizationIntegrationType.Hec`)
-- Branding assets (`image`, `darkModeImage`)
+- Branding assets (`image`, `imageDarkMode`)
 - Setup behavior (`canSetupConnection`)
 - Docs link (`linkURL`) and helper text (`urlHelperLinkText`)
 
@@ -143,9 +143,9 @@ In `organization-integrations.resolver.ts`, add a record modeled after an existi
 - Set `type` to `IntegrationType.EVENT`
 - Set `integrationType` to `OrganizationIntegrationType.Hec` for HEC-based providers
 - Set `canSetupConnection` to `true` when a setup dialog is required
-- Provide `linkURL`, `urlHelperLinkText`, `image`, and `darkModeImage`
+- Provide `linkURL`, `urlHelperLinkText`, `image`, and `imageDarkMode` values
 
-After this is in place, admins can connect the integration in Event Delivery and save `Uri`, `Token`, and `Schema` through the UI.
+After this is in place, admins can connect the integration in Event Delivery and save `Uri`, `Token`, and `Scheme` through the UI.
 
 ## Infrastructure clarification
 
