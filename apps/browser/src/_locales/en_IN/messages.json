@@ -2228,10 +2228,9 @@
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
   },
-<<<<<<< HEAD
   "editItemHeaderTextSendV2": {
     "message": "Edit text",
-=======
+  },
   "editItemHeaderBankAccount": {
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
@@ -2246,7 +2245,6 @@
   },
   "editItemHeaderTextSend": {
     "message": "Edit Text Send",
->>>>>>> main
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
