@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { BannerComponent, ButtonModule } from "@bitwarden/components";
@@ -26,9 +26,7 @@ export class VaultOrganizationUserNotificationsComponent {
     { initialValue: false },
   );
 
-  protected readonly showClose = computed(() => !this.notificationData()?.buttonText);
-
-  async close() {
+  protected async close() {
     await this.vaultOrganizationUserNotificationsService.saveDismissalToState();
   }
 }
