@@ -1072,6 +1072,12 @@
   "typePassport": {
     "message": "Passport"
   },
+  "passportDetails": {
+    "message": "Passport details"
+  },
+  "passportAdded": {
+    "message": "Passport added"
+  },
   "typePassportSubtitle": {
     "message": "Travel document"
   },
