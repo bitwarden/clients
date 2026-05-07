@@ -164,7 +164,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected readonly allCiphers$: Observable<CipherView[]>;
 
   protected readonly isEmpty$: Observable<boolean>;
-  private readonly prevCipherId = signal<string | null>(null);
+  private readonly prevCipherId = signal<string | undefined>(undefined);
   protected readonly userId$: Observable<UserId> =
     this.accountService.activeAccount$.pipe(getUserId);
 
@@ -405,7 +405,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           const cipherId = getCipherIdFromParams(qParams);
 
           if (!cipherId) {
-            this.prevCipherId.set(null);
+            this.prevCipherId.set(undefined);
             return;
           }
 

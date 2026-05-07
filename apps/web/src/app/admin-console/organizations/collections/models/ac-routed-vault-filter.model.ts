@@ -15,12 +15,12 @@ export interface ACRoutedVaultFilterModel {
 
 /**
  * Maps a generic `RoutedVaultFilterModel` to an `ACRoutedVaultFilterModel`, or returns
- * `null` if the filter does not represent a valid Admin Console state (i.e. the
+ * `undefined` if the filter does not represent a valid Admin Console state (i.e. the
  * organization ID is absent or set to `Unassigned`).
  */
-export function toACFilter(f: RoutedVaultFilterModel): ACRoutedVaultFilterModel | null {
+export function toACFilter(f: RoutedVaultFilterModel): ACRoutedVaultFilterModel | undefined {
   if (f.organizationId == null || f.organizationId === Unassigned) {
-    return null;
+    return undefined;
   }
   return { organizationId: f.organizationId, collectionId: f.collectionId, type: f.type };
 }
