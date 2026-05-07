@@ -9,6 +9,14 @@
       matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
       datasourceTemplate: "crate",
     },
+    {
+      // Keep electronVersion in electron-builder.json in sync with the electron package.
+      customType: "regex",
+      fileMatch: ["apps/desktop/electron-builder\\.json$"],
+      matchStrings: ['"electronVersion":\\s*"(?<currentValue>[\\d.]+)"'],
+      depNameTemplate: "electron",
+      datasourceTemplate: "npm",
+    },
   ],
   packageRules: [
     // ==================== Repo-Wide Update Behavior Rules ====================

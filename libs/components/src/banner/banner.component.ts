@@ -1,89 +1,106 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, computed, input, signal } from "@angular/core";
+import { outputFromObservable } from "@angular/core/rxjs-interop";
+import { Subject } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile/icon-tile.component";
+import { BitwardenIcon } from "../shared/icon";
+import { TypographyDirective } from "../typography/typography.directive";
 
-type BannerType = "premium" | "info" | "warning" | "danger";
+export type BannerVariant = "primary" | "success" | "warning" | "danger";
 
-const defaultIcon: Record<BannerType, string> = {
-  premium: "bwi-star",
-  info: "bwi-info-circle",
+const defaultIcon: Record<BannerVariant, BitwardenIcon> = {
+  primary: "bwi-info-circle",
+  success: "bwi-star",
   warning: "bwi-exclamation-triangle",
   danger: "bwi-error",
 };
 
+const bannerColors: Record<BannerVariant, string> = {
+  primary: "tw-bg-bg-brand-softer tw-border-b-border-brand-soft",
+  success: "tw-bg-bg-success-soft tw-border-b-border-success-soft",
+  warning: "tw-bg-bg-warning-soft tw-border-b-border-warning-soft",
+  danger: "tw-bg-bg-danger-soft tw-border-b-border-danger-soft",
+};
+
 /**
- * Banners are used for important communication with the user that needs to be seen right away, but has
- * little effect on the experience. Banners appear at the top of the user's screen on page load and
- * persist across all pages a user navigates to.
+ * The banner component is used to communicate prominent messages or important system states to users.
+ * It draws the user's attention to information that requires awareness or action without interrupting their primary task.
  *
- * - They should always be dismissible and never use a timeout. If a user dismisses a banner, it should not reappear during that same active session.
- * - Use banners sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
+ * - Always be dismissible and never use a timeout. If a user dismisses a banner, it should not reappear during that same active session.
+ * - Use sparingly, as they can feel intrusive to the user if they appear unexpectedly. Their effectiveness may decrease if too many are used.
  * - Avoid stacking multiple banners.
- * - Banners can contain a button or anchor that uses the `bitLink` directive with `linkType="secondary"`.
+ * - Avoid overloading banners with information. Keep text short and focused.
  */
 @Component({
   selector: "bit-banner",
   templateUrl: "./banner.component.html",
-  imports: [IconButtonModule, I18nPipe],
+  imports: [IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
   host: {
     // Account for bit-layout's padding
     class:
-      "tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
+      "tw-@container tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BannerComponent {
+export class BannerComponent implements OnInit {
   /**
-   * The type of banner, which determines its color scheme.
+   * The variant of banner, which determines its color scheme.
    */
-  readonly bannerType = input<BannerType>("info");
+  readonly variant = input<BannerVariant>("primary");
 
   /**
-   * The icon to display. If not provided, a default icon based on bannerType will be used. Explicitly passing null will remove the icon.
+   * The title to display above the body text. When provided, the actions slot becomes visible
+   * and the layout shifts to its expanded form.
    */
-  readonly icon = input<string | null>();
+  readonly title = input<string | null>();
+
+  /**
+   * The icon to display. If not provided, a default icon based on variant will be used.
+   * Explicitly passing null will remove the icon.
+   */
+  readonly icon = input<BitwardenIcon | null>();
 
   /**
    * Whether to use ARIA alert role for screen readers.
    */
   readonly useAlertRole = input(true);
 
-  /**
-   * Whether to show the close button.
-   */
-  readonly showClose = input(true);
+  private readonly dismiss$ = new Subject<void>();
+  readonly dismiss = outputFromObservable(this.dismiss$);
+  protected readonly isDismissible = signal(false);
+
+  ngOnInit() {
+    this.isDismissible.set(this.dismiss$.observed);
+  }
+
+  protected onDismiss(): void {
+    this.dismiss$.next();
+  }
 
   /**
-   * Emitted when the banner is closed via the close button.
+   * Actions slot only renders when a title is present.
    */
-  readonly onClose = output();
+  protected readonly showActions = computed(() => !!this.title());
 
   /**
-   * The computed icon to display, falling back to the default icon for the banner type.
-   * Returns null if icon is explicitly set to null (to hide the icon).
+   * The computed icon to display, falling back to the default icon for the variant.
+   * Pass `null` to `[icon]` to suppress the icon entirely.
    */
   protected readonly displayIcon = computed(() => {
-    // If icon is explicitly null, don't show any icon
     if (this.icon() === null) {
       return null;
     }
-
-    // If icon is undefined, fall back to default icon
-    return this.icon() ?? defaultIcon[this.bannerType()];
+    return this.icon() ?? defaultIcon[this.variant()];
   });
 
-  protected readonly bannerClass = computed(() => {
-    switch (this.bannerType()) {
-      case "danger":
-        return "tw-bg-danger-100 tw-border-b-danger-700";
-      case "info":
-        return "tw-bg-info-100 tw-border-b-info-700";
-      case "premium":
-        return "tw-bg-success-100 tw-border-b-success-700";
-      case "warning":
-        return "tw-bg-warning-100 tw-border-b-warning-700";
-    }
-  });
+  protected readonly alignClass = computed(() =>
+    this.showActions() ? "tw-items-start" : "tw-items-center @3xl:tw-justify-center",
+  );
+
+  protected readonly bannerClass = computed(
+    () => `${this.alignClass()} ${bannerColors[this.variant()]}`,
+  );
 }
