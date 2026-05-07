@@ -39,18 +39,8 @@ import { SpotlightService } from "./spotlight.service";
  * <div [bitPopoverAnchorFor]="tourStep"
  *      [(popoverOpen)]="showTour"
  *      [spotlight]="true"
- *   Anchor element
- * </div>
- * ```
- *
- * @example
- * With spotlight and accent border around the cutout:
- * ```html
- * <div [bitPopoverAnchorFor]="tourStep"
- *      [(popoverOpen)]="showTour"
- *      [spotlight]="true"
  * >
- *   Element to highlight
+ *   Anchor element
  * </div>
  * ```
  *

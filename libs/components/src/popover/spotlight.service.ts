@@ -15,11 +15,8 @@ export class SpotlightService {
   private readonly backdropElement: HTMLElement;
   private readonly borderElement: HTMLElement;
   private currentTarget: HTMLElement | null = null;
-  private currentPadding = 0;
-  private currentShowBorder = false;
   private borderOverlayRef: OverlayRef | null = null;
   private resizeObserver: ResizeObserver | null = null;
-  private sentinelElement: HTMLElement | null = null;
   private hideTimeout: number | null = null;
   private activePopover: PopoverAnchorForDirective | null = null;
 
