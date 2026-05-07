@@ -1,4 +1,4 @@
-import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherListView } from "@bitwarden/sdk-internal";
@@ -154,6 +154,22 @@ export abstract class CipherSdkService {
     collectionIds: CollectionId[],
     userId: UserId,
   ): Promise<CipherView[]>;
+
+  /**
+   * Deletes an attachment from a cipher on the server using the SDK.
+   *
+   * @param cipherId The cipher that owns the attachment
+   * @param attachmentId The attachment to delete
+   * @param userId The user ID to use for SDK client
+   * @param asAdmin Whether this is an organization admin operation
+   * @returns A promise that resolves to the updated cipher
+   */
+  abstract deleteAttachmentWithServer(
+    cipherId: CipherId,
+    attachmentId: string,
+    userId: UserId,
+    asAdmin?: boolean,
+  ): Promise<Cipher | undefined>;
 
   /**
    * Lists and decrypts all ciphers from state using the SDK.
