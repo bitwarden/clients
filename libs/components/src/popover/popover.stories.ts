@@ -650,51 +650,6 @@ export const SpotlightTour: Story = {
   }),
 };
 
-export const SpotlightWithBorder: Story = {
-  render: () => ({
-    props: {
-      open: true,
-    },
-    template: /*html*/ `
-      <div class="tw-h-[100vh]">
-        <div class="tw-mb-6">
-          <button
-            type="button"
-            bitButton
-            buttonType="primary"
-            (click)="open = true"
-          >
-            Show Spotlight
-          </button>
-        </div>
-
-        <div class="tw-flex tw-justify-center">
-          <div
-            class="tw-p-8 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
-            [bitPopoverAnchorFor]="borderPopover"
-            [(popoverOpen)]="open"
-            [spotlight]="true"
-            [spotlightBorder]="true"
-            [position]="'below-center'"
-          >
-            <bit-icon name="bwi-star" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
-            <h3 class="tw-text-base tw-font-semibold tw-mb-2">Highlighted Feature</h3>
-            <p class="tw-text-sm tw-text-muted tw-mb-0">Notice the accent border around the cutout</p>
-          </div>
-        </div>
-      </div>
-
-      <bit-popover [title]="'Spotlight with Border'" #borderPopover>
-        <div>This spotlight uses <code>[spotlightBorder]="true"</code> to render an accent border around the highlighted area.</div>
-        <p class="tw-mt-2 tw-mb-0">Omit the input (or set it to <code>false</code>) to show only the dimming overlay without a border.</p>
-        <div class="tw-mt-4">
-          <button type="button" bitButton buttonType="secondary" (click)="open = false">Close</button>
-        </div>
-      </bit-popover>
-      `,
-  }),
-};
-
 export const MultipleSpotlights: Story = {
   render: () => ({
     props: {
