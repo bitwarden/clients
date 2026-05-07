@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "description": "Lit component library for the Bitwarden design system",
   "private": true,
-  "type": "module",
   "exports": {
     ".": {
       "import": "./src/index.ts"
