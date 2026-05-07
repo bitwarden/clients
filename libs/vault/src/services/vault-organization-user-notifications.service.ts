@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, firstValueFrom, map, switchMap } from "rxjs";
+import { combineLatest, distinctUntilChanged, firstValueFrom, map, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -80,6 +80,18 @@ export class VaultOrganizationUserNotificationsService {
         showAfterEveryLogin: (policy.data?.showAfterEveryLogin as boolean) ?? false,
         revisionDate: policy.revisionDate,
       } satisfies OrganizationUserNotificationBannerData;
+    }),
+    distinctUntilChanged((a, b) => {
+      if (a === b) {return true;}
+      if (a == null || b == null) {return false;}
+      return (
+        a.organizationId === b.organizationId &&
+        a.header === b.header &&
+        a.description === b.description &&
+        a.buttonText === b.buttonText &&
+        a.showAfterEveryLogin === b.showAfterEveryLogin &&
+        a.revisionDate.getTime() === b.revisionDate.getTime()
+      );
     }),
   );
 
