@@ -63,7 +63,7 @@ describe("AccessIntelligencePageComponent", () => {
     paramMap: BehaviorSubject<any>;
     queryParams: BehaviorSubject<any>;
   };
-  let doesUserHaveCiphersSubject: BehaviorSubject<boolean>;
+  let hasCiphersSubject: BehaviorSubject<boolean>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -88,7 +88,7 @@ describe("AccessIntelligencePageComponent", () => {
   });
 
   beforeEach(async () => {
-    doesUserHaveCiphersSubject = new BehaviorSubject<boolean>(false);
+    hasCiphersSubject = new BehaviorSubject<boolean>(false);
 
     // Create mock services
     mockAccessIntelligenceService = {
@@ -99,7 +99,7 @@ describe("AccessIntelligencePageComponent", () => {
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
       ciphers$: new BehaviorSubject<CipherView[]>([]),
-      hasCiphers$: doesUserHaveCiphersSubject.asObservable(),
+      hasCiphers$: hasCiphersSubject.asObservable(),
     };
 
     mockDrawerStateService = {
@@ -425,7 +425,7 @@ describe("AccessIntelligencePageComponent", () => {
     });
 
     it("should report ciphers present when vault has items", async () => {
-      doesUserHaveCiphersSubject.next(true);
+      hasCiphersSubject.next(true);
 
       await component.ngOnInit();
       fixture.detectChanges();
