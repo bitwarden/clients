@@ -153,6 +153,29 @@ export const BannerSimpleLargeText: Story = {
   },
 };
 
+export const NotDismissible: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-flex tw-flex-col tw-gap-4">
+        <bit-banner [variant]="variant">
+          Bitwarden is the most trusted password manager. The close button is hidden because no <code>(dismiss)</code> handler is bound.
+        </bit-banner>
+        <bit-banner [variant]="variant" title="Integration is the key">
+          Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
+          <ng-container slot="actions">
+            <button bitButton type="button" [buttonType]="variant + 'Outline'" size="small">Cancel</button>
+            <button bitButton type="button" [buttonType]="variant" size="small">Continue</button>
+          </ng-container>
+        </bit-banner>
+      </div>
+    `,
+  }),
+  args: {
+    variant: "primary",
+  },
+};
+
 export const AllVariantsNoTitle: Story = {
   render: () => ({
     template: /*html*/ `

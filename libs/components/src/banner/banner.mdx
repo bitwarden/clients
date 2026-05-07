@@ -52,6 +52,13 @@ input. Pass `[icon]="null"` to suppress the icon entirely.
 
 <Canvas of={stories.AllVariantsCustomIcon} />
 
+## Dismissibility
+
+The close (X) button is only rendered when the consumer binds the `(dismiss)` output. If no listener
+is attached, the banner has no dismiss control. This applies to both simple and titled banners.
+
+<Canvas of={stories.NotDismissible} />
+
 ## Accessibility
 
 Banners set the `role="status"` and `aria-live="polite"` attributes to ensure screen readers
