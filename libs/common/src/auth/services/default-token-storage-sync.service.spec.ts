@@ -1109,6 +1109,283 @@ describe("DefaultTokenStorageSyncService", () => {
     });
   });
 
+  describe("writeTokensToDisk — dedup of redundant disk + secure-storage writes", () => {
+    // Background: the combineLatest fan-out fires writeTokensToDisk on every emission of
+    // any of the 6 source observables. Without per-user "last written" caches, an access
+    // token rotation triggers a redundant refresh-token save+verify (and a fresh-IV
+    // re-encrypt of the same plaintext access token) on every emission. Caches dedupe
+    // those writes when the underlying plaintext hasn't changed.
+    const mockKey = {} as SymmetricCryptoKey;
+    const mockEncString = { encryptedString: "2.encrypted==|data==|iv==" } as EncString;
+
+    function setupSecureStorageMocks() {
+      secureStorageService.get.mockImplementation(async (key: string) => {
+        if (key === `${userId}_accessTokenKey`) {
+          return { keyB64: "someKeyB64" };
+        }
+        if (key === `${userId}_refreshToken`) {
+          // Default verify-after-save read returns the value just saved.
+          return "stub-rt-readback";
+        }
+        return null;
+      });
+      jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+      encryptService.encryptString.mockResolvedValue(mockEncString);
+      secureStorageService.save.mockResolvedValue();
+      vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+      vaultTimeout$.next(VaultTimeoutStringType.Never);
+    }
+
+    describe("access token", () => {
+      it("does not re-encrypt when the same access token is emitted twice in a row", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+
+        await sut.init();
+
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        accessToken$.next("at-v1"); // identical re-emit
+        await new Promise((r) => setTimeout(r, 30));
+
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
+      });
+
+      it("re-encrypts when the access token plaintext changes", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+
+        await sut.init();
+
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        accessToken$.next("at-v2");
+        await new Promise((r) => setTimeout(r, 30));
+
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(2);
+        expect(encryptService.encryptString).toHaveBeenNthCalledWith(1, "at-v1", mockKey);
+        expect(encryptService.encryptString).toHaveBeenNthCalledWith(2, "at-v2", mockKey);
+      });
+
+      it("re-encrypts after clearTokensFromDisk invalidates the cache", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+        secureStorageService.remove.mockResolvedValue();
+
+        await sut.init();
+
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
+
+        await sut.clearTokensFromDisk(userId);
+
+        // Same plaintext, but cache is invalidated — re-encrypt should happen.
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(2);
+      });
+
+      it("retries the encrypt on the next emission when the previous attempt threw", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+
+        // First call throws, second call succeeds.
+        encryptService.encryptString
+          .mockRejectedValueOnce(new Error("Encryption failed"))
+          .mockResolvedValueOnce(mockEncString);
+
+        await sut.init();
+
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        // First attempt threw → cache should have been invalidated (not populated).
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
+
+        accessToken$.next("at-v1"); // identical re-emit; cache should be missed → retry.
+        await new Promise((r) => setTimeout(r, 30));
+
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(2);
+      });
+
+      it("does not re-encrypt when only the refresh token changes", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+
+        await sut.init();
+
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
+
+        // RT change should not trigger AT re-encrypt.
+        refreshToken$.next("rt-v2");
+        await new Promise((r) => setTimeout(r, 30));
+
+        expect(encryptService.encryptString).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe("refresh token", () => {
+      it("does not re-save to secure storage when the same refresh token is emitted twice", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}_accessTokenKey`) {
+            return { keyB64: "someKeyB64" };
+          }
+          if (key === `${userId}_refreshToken`) {
+            return "rt-v1"; // verify-after-save reads this back
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        refreshToken$.next("rt-v1");
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        // Now re-emit the same RT (alone or paired) — should NOT call save again.
+        refreshToken$.next("rt-v1");
+        await new Promise((r) => setTimeout(r, 30));
+
+        const rtSaveCalls = secureStorageService.save.mock.calls.filter(
+          (call) => call[0] === `${userId}_refreshToken`,
+        );
+        expect(rtSaveCalls).toHaveLength(1);
+      });
+
+      it("re-saves when the refresh token value changes", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+        secureStorageService.get.mockImplementation(async (key: string, _opts?: unknown) => {
+          if (key === `${userId}_accessTokenKey`) {
+            return { keyB64: "someKeyB64" };
+          }
+          if (key === `${userId}_refreshToken`) {
+            return "anything-truthy"; // verify-after-save just needs to be non-empty
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        refreshToken$.next("rt-v1");
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        refreshToken$.next("rt-v2");
+        await new Promise((r) => setTimeout(r, 30));
+
+        const rtSaveCalls = secureStorageService.save.mock.calls.filter(
+          (call) => call[0] === `${userId}_refreshToken`,
+        );
+        expect(rtSaveCalls).toHaveLength(2);
+        expect(rtSaveCalls[0][1]).toEqual("rt-v1");
+        expect(rtSaveCalls[1][1]).toEqual("rt-v2");
+      });
+
+      it("does not re-save the unchanged refresh token when only the access token changes", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}_accessTokenKey`) {
+            return { keyB64: "someKeyB64" };
+          }
+          if (key === `${userId}_refreshToken`) {
+            return "rt-v1";
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        refreshToken$.next("rt-v1");
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        // RT unchanged; only AT changes.
+        accessToken$.next("at-v2");
+        await new Promise((r) => setTimeout(r, 30));
+
+        const rtSaveCalls = secureStorageService.save.mock.calls.filter(
+          (call) => call[0] === `${userId}_refreshToken`,
+        );
+        expect(rtSaveCalls).toHaveLength(1);
+      });
+
+      it("re-saves after clearTokensFromDisk invalidates the cache", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+        secureStorageService.remove.mockResolvedValue();
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}_accessTokenKey`) {
+            return { keyB64: "someKeyB64" };
+          }
+          if (key === `${userId}_refreshToken`) {
+            return "rt-v1";
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        // Await between each .next so writeTokensToDisk fully completes (including cache.set)
+        // before the next emission can cancel it via switchMap.
+        refreshToken$.next("rt-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+
+        await sut.clearTokensFromDisk(userId);
+
+        // Same RT plaintext but cache invalidated — should re-save.
+        refreshToken$.next("rt-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+
+        const rtSaveCalls = secureStorageService.save.mock.calls.filter(
+          (call) => call[0] === `${userId}_refreshToken`,
+        );
+        expect(rtSaveCalls).toHaveLength(2);
+      });
+
+      it("retries the save on the next emission when the previous attempt threw (verify-after-save failed)", async () => {
+        sut = createService(true);
+        setupSecureStorageMocks();
+
+        // verify-after-save returns null on first call (silent-save-failure mode), then truthy.
+        let verifyAttempt = 0;
+        secureStorageService.get.mockImplementation(async (key: string) => {
+          if (key === `${userId}_accessTokenKey`) {
+            return { keyB64: "someKeyB64" };
+          }
+          if (key === `${userId}_refreshToken`) {
+            verifyAttempt++;
+            return verifyAttempt === 1 ? null : "rt-v1";
+          }
+          return null;
+        });
+
+        await sut.init();
+
+        refreshToken$.next("rt-v1");
+        accessToken$.next("at-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        // First attempt: save called, verify returns null → throws → catch invalidates cache.
+
+        refreshToken$.next("rt-v1");
+        await new Promise((r) => setTimeout(r, 30));
+        // Cache was invalidated → retry the save.
+
+        const rtSaveCalls = secureStorageService.save.mock.calls.filter(
+          (call) => call[0] === `${userId}_refreshToken`,
+        );
+        expect(rtSaveCalls).toHaveLength(2);
+      });
+    });
+  });
+
   describe("clearTokensFromDisk", () => {
     it("clears all four token disk state keys for the given user", async () => {
       sut = createService(false);

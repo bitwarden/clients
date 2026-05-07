@@ -48,6 +48,25 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    */
   private readonly perUserSubscriptions = new Map<UserId, Subscription>();
 
+  /**
+   * Per-user "last successfully written to disk" plaintext access token. The combineLatest
+   * fan-out fires {@link writeTokensToDisk} on every emission of any source observable;
+   * without this cache an access-token rotation would re-encrypt the unchanged plaintext
+   * under a fresh IV and re-write `ACCESS_TOKEN_DISK` on every emission.
+   *
+   * Cleared on encrypt/save failure (so the next attempt retries) and on
+   * {@link clearTokensFromDisk} (logout, vault-timeout-driven wipe).
+   */
+  private readonly lastWrittenAccessTokenByUser = new Map<UserId, string>();
+
+  /**
+   * Per-user "last successfully written to OS secure storage" plaintext refresh token.
+   * Mirrors {@link lastWrittenAccessTokenByUser} for the secure-storage refresh-token
+   * path so we don't re-save and verify-after-save the same value on every combineLatest
+   * emission.
+   */
+  private readonly lastWrittenRefreshTokenByUser = new Map<UserId, string | null>();
+
   private readonly hydratedState: GlobalState<boolean>;
 
   constructor(
@@ -410,14 +429,8 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
   }
 
   /**
-   * Persists all tokens for the given user to the appropriate storage tier.
-   *
-   * - Access token: encrypted via {@link getOrCreateAccessTokenKey} on secure storage
-   *   platforms; stored as plaintext JSON otherwise. Falls back to plaintext on encrypt failure.
-   * - Refresh token: saved to OS secure storage on secure storage platforms (JSON disk
-   *   location is cleared); stored as plaintext JSON otherwise. Falls back to plaintext
-   *   JSON on secure storage save failure.
-   * - Client ID / secret: plaintext JSON on all platforms.
+   * Persists all tokens for the given user to the appropriate storage tier. Per-token
+   * details (encrypt path, fallback paths, dedup caches) live in the helpers below.
    */
   private async writeTokensToDisk(
     userId: UserId,
@@ -426,88 +439,139 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     clientId: string | null,
     clientSecret: string | null,
   ): Promise<void> {
-    // Access token
-    if (this.platformSupportsSecureStorage) {
-      try {
-        // Secure storage implementations have variable length limitations (Windows), so we cannot
-        // store the access token directly. Instead, we encrypt with accessTokenKey and store that
-        // in secure storage.
+    await this.writeAccessTokenToDisk(userId, accessToken);
+    await this.writeRefreshTokenToDisk(userId, refreshToken);
+    await this.writeClientCredentialsToDisk(userId, clientId, clientSecret);
+  }
 
-        const accessTokenKey = await this.getOrCreateAccessTokenKey(userId);
-        const encryptedAccessToken = await this.encryptService.encryptString(
-          accessToken,
-          accessTokenKey,
-        );
+  /**
+   * Writes the access token to its persistent location. On secure-storage platforms it's
+   * encrypted with a per-user `AccessTokenKey` and the ciphertext is written to
+   * {@link ACCESS_TOKEN_DISK}; on encrypt failure (e.g. Linux without a configured
+   * secure-storage provider) we fall back to plaintext on the same key. Non-secure-storage
+   * platforms always write plaintext. Hydration uses {@link EncString.isSerializedEncString}
+   * on the read side to distinguish the two formats.
+   *
+   * Skips the entire write when the plaintext matches the last successfully persisted
+   * value — EncString re-encryption produces a fresh IV every call, so the state framework's
+   * `shouldUpdate: prev !== new` guard can't catch the no-op on its own.
+   */
+  private async writeAccessTokenToDisk(userId: UserId, accessToken: string): Promise<void> {
+    if (this.lastWrittenAccessTokenByUser.get(userId) === accessToken) {
+      return;
+    }
 
-        // TODO: IN SCOPE: this should error if `encryptedAccessToken.encryptedString` is undefined
-        const typeSafeEncryptedAccessToken = encryptedAccessToken.encryptedString ?? null;
-
-        // TODO: randomized EncString IVs defeat this `prev !== new` guard, so the first emission
-        // post-hydration always re-writes the same plaintext under a new IV — costly on platforms
-        // like desktop where disk writes load a large data.json. Out of scope to fix here as guard was
-        // pre-existing.
-        await this.singleUserStateProvider
-          .get(userId, ACCESS_TOKEN_DISK)
-          .update((_) => typeSafeEncryptedAccessToken, {
-            shouldUpdate: (prev) => prev !== typeSafeEncryptedAccessToken,
-          });
-      } catch (e) {
-        this.logService.error(
-          "[TokenStorageSyncService] Failed to encrypt access token for disk. Falling back to plaintext.",
-          e,
-        );
-        await this.singleUserStateProvider
-          .get(userId, ACCESS_TOKEN_DISK)
-          .update((_) => accessToken, { shouldUpdate: (prev) => prev !== accessToken });
-      }
-    } else {
+    if (!this.platformSupportsSecureStorage) {
       await this.singleUserStateProvider
         .get(userId, ACCESS_TOKEN_DISK)
         .update((_) => accessToken, { shouldUpdate: (prev) => prev !== accessToken });
+      this.lastWrittenAccessTokenByUser.set(userId, accessToken);
+      return;
     }
 
-    // Refresh token
-    if (this.platformSupportsSecureStorage) {
-      try {
-        if (refreshToken != null) {
-          await this.secureStorageService.save<string>(
-            `${userId}${this.refreshTokenSecureStorageKey}`,
-            refreshToken,
-            this.getSecureStorageOptions(userId),
-          );
-
-          // Verify the save persisted by reading it back. Intermittent silent failures
-          // have been observed on Windows 10/11 where save() resolves without error but
-          // the value never actually lands in secure storage. Throw to trigger the disk
-          // fallback below if the read-back returns nothing.
-          const persistedRefreshToken = await this.secureStorageService.get<string>(
-            `${userId}${this.refreshTokenSecureStorageKey}`,
-            this.getSecureStorageOptions(userId),
-          );
-          if (!persistedRefreshToken) {
-            throw new Error("Refresh token unable to be retrieved from secure storage after save.");
-          }
-        }
-        // Clear disk location — on secure storage platforms the refresh token lives in OS secure storage only
-        await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
-          shouldUpdate: (prev) => prev !== null,
+    try {
+      const accessTokenKey = await this.getOrCreateAccessTokenKey(userId);
+      const encrypted = await this.encryptService.encryptString(accessToken, accessTokenKey);
+      // TODO: IN SCOPE: this should error if `encrypted.encryptedString` is undefined
+      const typeSafeEncrypted = encrypted.encryptedString ?? null;
+      await this.singleUserStateProvider
+        .get(userId, ACCESS_TOKEN_DISK)
+        .update((_) => typeSafeEncrypted, {
+          shouldUpdate: (prev) => prev !== typeSafeEncrypted,
         });
-      } catch (e) {
-        this.logService.error(
-          "[TokenStorageSyncService] Failed to save refresh token to secure storage. Falling back to disk.",
-          e,
-        );
-        await this.singleUserStateProvider
-          .get(userId, REFRESH_TOKEN_DISK)
-          .update((_) => refreshToken, { shouldUpdate: (prev) => prev !== refreshToken });
-      }
-    } else {
+      this.lastWrittenAccessTokenByUser.set(userId, accessToken);
+    } catch (e) {
+      this.logService.error(
+        "[TokenStorageSyncService] Failed to encrypt access token for disk. Falling back to plaintext.",
+        e,
+      );
+      await this.singleUserStateProvider
+        .get(userId, ACCESS_TOKEN_DISK)
+        .update((_) => accessToken, { shouldUpdate: (prev) => prev !== accessToken });
+      // Invalidate the cache so the next emission re-attempts the encrypt path
+      // (e.g. once secure storage / key generation recovers).
+      this.lastWrittenAccessTokenByUser.delete(userId);
+    }
+  }
+
+  /**
+   * Writes the refresh token to its persistent location. On secure-storage platforms it's
+   * saved to OS secure storage with a verify-after-save read-back (Windows 10/11 silent-
+   * failure mitigation) and the disk JSON copy is cleared. On any failure — or on non-
+   * secure-storage platforms — we write plaintext to {@link REFRESH_TOKEN_DISK}.
+   *
+   * Skips the secure-storage save+verify when the value matches the last successfully
+   * persisted refresh token. Without this guard every combineLatest emission would
+   * round-trip OS secure storage. The state-framework `shouldUpdate` guard already
+   * handles dedup on the JSON-disk path, so no JS cache is needed there.
+   */
+  private async writeRefreshTokenToDisk(
+    userId: UserId,
+    refreshToken: string | null,
+  ): Promise<void> {
+    if (!this.platformSupportsSecureStorage) {
       await this.singleUserStateProvider
         .get(userId, REFRESH_TOKEN_DISK)
         .update((_) => refreshToken, { shouldUpdate: (prev) => prev !== refreshToken });
+      return;
     }
 
-    // Client ID and client secret: plaintext on all platforms
+    if (this.lastWrittenRefreshTokenByUser.get(userId) === refreshToken) {
+      return;
+    }
+
+    try {
+      await this.saveRefreshTokenToSecureStorage(userId, refreshToken);
+      // On secure-storage platforms the refresh token lives in OS secure storage only —
+      // clear the JSON disk slot so only one location holds the value at a time.
+      await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
+        shouldUpdate: (prev) => prev !== null,
+      });
+      this.lastWrittenRefreshTokenByUser.set(userId, refreshToken);
+    } catch (e) {
+      this.logService.error(
+        "[TokenStorageSyncService] Failed to save refresh token to secure storage. Falling back to disk.",
+        e,
+      );
+      await this.singleUserStateProvider
+        .get(userId, REFRESH_TOKEN_DISK)
+        .update((_) => refreshToken, { shouldUpdate: (prev) => prev !== refreshToken });
+      this.lastWrittenRefreshTokenByUser.delete(userId);
+    }
+  }
+
+  /**
+   * Saves the refresh token to OS secure storage and verifies it persisted via a read-back.
+   * Throws if the read-back returns nothing — we've observed `save()` resolving without
+   * error on Windows 10/11 while the value never actually lands in secure storage. The
+   * throw lets the caller fall back to the JSON disk location.
+   */
+  private async saveRefreshTokenToSecureStorage(
+    userId: UserId,
+    refreshToken: string | null,
+  ): Promise<void> {
+    if (refreshToken == null) {
+      return;
+    }
+    await this.secureStorageService.save<string>(
+      `${userId}${this.refreshTokenSecureStorageKey}`,
+      refreshToken,
+      this.getSecureStorageOptions(userId),
+    );
+    const persisted = await this.secureStorageService.get<string>(
+      `${userId}${this.refreshTokenSecureStorageKey}`,
+      this.getSecureStorageOptions(userId),
+    );
+    if (!persisted) {
+      throw new Error("Refresh token unable to be retrieved from secure storage after save.");
+    }
+  }
+
+  private async writeClientCredentialsToDisk(
+    userId: UserId,
+    clientId: string | null,
+    clientSecret: string | null,
+  ): Promise<void> {
     await this.singleUserStateProvider
       .get(userId, API_KEY_CLIENT_ID_DISK)
       .update((_) => clientId ?? null, { shouldUpdate: (prev) => prev !== (clientId ?? null) });
@@ -559,6 +623,10 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
           ),
         );
     }
+
+    // Invalidate the dedup caches so the next emission re-writes from scratch.
+    this.lastWrittenAccessTokenByUser.delete(userId);
+    this.lastWrittenRefreshTokenByUser.delete(userId);
   }
 
   /**
