@@ -10,6 +10,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -48,6 +49,7 @@ describe("PolicyEditDialogComponent", () => {
       providers: [
         { provide: DIALOG_DATA, useValue: dialogData },
         { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: AuthService, useValue: mock<AuthService>() },
         { provide: PolicyApiServiceAbstraction, useValue: policyApiService },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: DialogRef, useValue: mock<DialogRef>() },
