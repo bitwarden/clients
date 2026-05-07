@@ -138,6 +138,26 @@ describe("ApplicationHealthView", () => {
     });
   });
 
+  describe("getAtRiskPasswordCountForMember", () => {
+    it("should return the at-risk cipher count when the member is at-risk", () => {
+      const report = createReportWithCounts({ u1: true }, { c1: true, c2: true, c3: true }, 3);
+
+      expect(report.getAtRiskPasswordCountForMember("u1")).toBe(3);
+    });
+
+    it("should return 0 when the member is not at-risk in this application", () => {
+      const report = createReportWithCounts({ u1: false }, { c1: true, c2: true }, 2);
+
+      expect(report.getAtRiskPasswordCountForMember("u1")).toBe(0);
+    });
+
+    it("should return 0 when the member is not in the application's memberRefs", () => {
+      const report = createReportWithCounts({}, { c1: true }, 1);
+
+      expect(report.getAtRiskPasswordCountForMember("u1")).toBe(0);
+    });
+  });
+
   // ==================== Cipher Methods ====================
 
   describe("getAllCipherIds", () => {

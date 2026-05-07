@@ -435,6 +435,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       secureNote: undefined,
       sshKey: undefined,
       bankAccount: undefined,
+      driversLicense: undefined,
+      passport: undefined,
       data: undefined,
     };
 
