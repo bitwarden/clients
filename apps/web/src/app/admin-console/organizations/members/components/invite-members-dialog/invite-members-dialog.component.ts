@@ -4,7 +4,10 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
-import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import {
+  CollectionAdminService,
+  OrganizationUserInviteRequest,
+} from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
@@ -14,6 +17,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   A11yTitleDirective,
   AsyncActionsModule,
@@ -36,12 +40,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  GroupApiService,
-  GroupDetailsView,
-  OrganizationUserAdminView,
-  UserAdminService,
-} from "../../../core";
+import { GroupApiService, GroupDetailsView, UserAdminService } from "../../../core";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import {
   AccessItemType,
@@ -258,29 +257,26 @@ export class InviteMembersDialogComponent {
     });
   }
 
-  private async getUserView(): Promise<OrganizationUserAdminView> {
-    const userView = new OrganizationUserAdminView();
-    userView.organizationId = this.params.organizationId;
-    userView.type = this.formGroup.value.type ?? OrganizationUserType.User;
-
-    userView.permissions = this.setRequestPermissions(
-      userView.type !== OrganizationUserType.Custom,
-    );
-
-    userView.collections = (this.formGroup.value.access ?? [])
+  private async handleInviteUsers(organizationId: OrganizationId) {
+    const emails = [...new Set((this.formGroup.value.emails ?? "").trim().split(/\s*,\s*/))];
+    const type = this.formGroup.value.type ?? OrganizationUserType.User;
+    const groups = (this.formGroup.value.groups ?? []).map((m) => m.id);
+    const accessSecretsManager = this.formGroup.value.accessSecretsManager ?? false;
+    const permissions = this.setRequestPermissions(type !== OrganizationUserType.Custom);
+    const collections = (this.formGroup.value.access ?? [])
       .filter((v) => v.type === AccessItemType.Collection)
       .map(convertToSelectionView);
 
-    userView.groups = (this.formGroup.value.groups ?? []).map((m) => m.id);
+    const request: OrganizationUserInviteRequest = new OrganizationUserInviteRequest({
+      emails,
+      type,
+      groups,
+      accessSecretsManager,
+      permissions,
+      collections,
+    });
 
-    userView.accessSecretsManager = this.formGroup.value.accessSecretsManager ?? false;
-
-    return userView;
-  }
-
-  private async handleInviteUsers(userView: OrganizationUserAdminView) {
-    const emails = [...new Set((this.formGroup.value.emails ?? "").trim().split(/\s*,\s*/))];
-    await this.userService.invite(emails, userView);
+    await this.userService.invite(organizationId, request);
 
     this.toastService.showToast({
       variant: "success",
@@ -306,8 +302,7 @@ export class InviteMembersDialogComponent {
       return;
     }
 
-    const userView = await this.getUserView();
-    await this.handleInviteUsers(userView);
+    await this.handleInviteUsers(organization.id);
   };
 
   protected cancel() {
