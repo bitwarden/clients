@@ -15,35 +15,42 @@ pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Chrome",
         data_dir: &["Library/Application Support/Google/Chrome"],
+        bundle_id: Some("com.google.Chrome"),
     },
     BrowserConfig {
         name: "Chromium",
         data_dir: &["Library/Application Support/Chromium"],
+        bundle_id: Some("org.chromium.Chromium"),
     },
     BrowserConfig {
         name: "Microsoft Edge",
         data_dir: &["Library/Application Support/Microsoft Edge"],
+        bundle_id: Some("com.microsoft.edgemac"),
     },
     BrowserConfig {
         name: "Brave",
         data_dir: &["Library/Application Support/BraveSoftware/Brave-Browser"],
+        bundle_id: Some("com.brave.Browser"),
     },
     BrowserConfig {
         name: "Arc",
         data_dir: &["Library/Application Support/Arc/User Data"],
+        bundle_id: Some("company.thebrowser.Browser"),
     },
     BrowserConfig {
         name: "Opera",
         data_dir: &["Library/Application Support/com.operasoftware.Opera"],
+        bundle_id: Some("com.operasoftware.Opera"),
     },
     BrowserConfig {
         name: "Vivaldi",
         data_dir: &["Library/Application Support/Vivaldi"],
+        bundle_id: Some("com.vivaldi.Vivaldi"),
     },
 ];
 
 pub(crate) fn get_crypto_service(
-    browser_name: &String,
+    browser_name: &str,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
     let config = KEYCHAIN_CONFIG

@@ -568,6 +568,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     return null;
   }
 
+  protected handleChromeImportError(error: string) {
+    this.toastService.showToast({
+      variant: "error",
+      title: this.i18nService.t("errorOccurred"),
+      message: error,
+    });
+  }
+
   protected setImportOptions() {
     this.featuredImportOptions = [...this.importService.featuredImportOptions];
 
