@@ -19,6 +19,7 @@ export class SpotlightService {
   private currentShowBorder = false;
   private borderOverlayRef: OverlayRef | null = null;
   private resizeObserver: ResizeObserver | null = null;
+  private sentinelElement: HTMLElement | null = null;
   private hideTimeout: number | null = null;
   private activePopover: PopoverAnchorForDirective | null = null;
 
@@ -132,8 +133,8 @@ export class SpotlightService {
    * frame during scroll — including smooth-scroll animations triggered by scrollIntoView.
    */
   private createBorderOverlay(target: HTMLElement, padding: number): void {
-    const computedStyle = window.getComputedStyle(target);
-    this.borderElement.style.borderRadius = computedStyle.borderRadius;
+    const computedTargetStyle = window.getComputedStyle(target);
+    this.borderElement.style.borderRadius = computedTargetStyle.borderRadius;
     this.borderElement.style.border = this.currentShowBorder
       ? "2px solid var(--color-border-accent-primary)"
       : "none";
@@ -165,14 +166,7 @@ export class SpotlightService {
     this.borderElement.style.display = "block";
     this.borderOverlayRef.attach(new DomPortal(this.borderElement));
 
-    // ResizeObserver doesn't fire for display:inline elements (the default for custom elements
-    // with no explicit host display). Observe the nearest block ancestor instead so layout
-    // changes that affect the target's visual size (e.g. sidenav collapsing) are captured.
-    // The callback always reads offsetWidth/offsetHeight from the actual target.
-    const observeTarget =
-      computedStyle.display === "inline" ? (target.parentElement ?? target) : target;
-
-    this.resizeObserver = new ResizeObserver(() => {
+    const resizeCallback = () => {
       if (!this.currentTarget || !this.borderOverlayRef) {
         return;
       }
@@ -181,13 +175,37 @@ export class SpotlightService {
         height: this.currentTarget.offsetHeight + padding * 2,
       });
       this.borderOverlayRef.updatePosition();
-    });
-    this.resizeObserver.observe(observeTarget);
+    };
+
+    this.resizeObserver = new ResizeObserver(resizeCallback);
+
+    if (computedTargetStyle.position !== "static") {
+      // Target is already a containing block — attach a sentinel that fills its bounding box.
+      // Absolutely-positioned elements are always block-level, so ResizeObserver fires on them.
+      const sentinel = document.createElement("div");
+      sentinel.style.cssText = "position:absolute;inset:0;pointer-events:none;visibility:hidden;";
+      target.appendChild(sentinel);
+      this.sentinelElement = sentinel;
+      this.resizeObserver.observe(sentinel);
+    } else {
+      // Target is position:static — walk up to the nearest non-inline ancestor.
+      // ResizeObserver is spec-excluded from display:inline elements.
+      let observeTarget: Element = target;
+      while (window.getComputedStyle(observeTarget).display === "inline") {
+        if (!observeTarget.parentElement) {
+          break;
+        }
+        observeTarget = observeTarget.parentElement;
+      }
+      this.resizeObserver.observe(observeTarget);
+    }
   }
 
   private disposeBorderOverlay(): void {
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
+    this.sentinelElement?.remove();
+    this.sentinelElement = null;
     this.borderOverlayRef?.dispose(); // CDK moves borderElement back to document.body
     this.borderOverlayRef = null;
     this.borderElement.style.display = "none";
