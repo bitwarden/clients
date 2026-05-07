@@ -6,7 +6,9 @@ import {
   StateProvider,
   UserKeyDefinition,
   VAULT_AT_RISK_PASSWORDS_MEMORY,
+  VAULT_AT_RISK_VIEW_DISK_LOCAL,
 } from "@bitwarden/common/platform/state";
+import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SecurityTask, SecurityTaskType, TaskService } from "@bitwarden/common/vault/tasks";
 import { UserId } from "@bitwarden/user-core";
@@ -22,6 +24,18 @@ export const AT_RISK_PASSWORD_CALLOUT_KEY = new UserKeyDefinition<AtRiskPassword
   {
     deserializer: (jsonData) => jsonData,
     clearOn: ["lock", "logout"],
+  },
+);
+
+/** Maps cipher ID → passwordRevisionDate ISO string at time of dismissal (null = no revision date). */
+export type DismissedAtRiskCipherRecord = Record<string, string | null>;
+
+export const DISMISSED_AT_RISK_CIPHERS_KEY = new UserKeyDefinition<DismissedAtRiskCipherRecord>(
+  VAULT_AT_RISK_VIEW_DISK_LOCAL,
+  "dismissedAtRiskCiphers",
+  {
+    deserializer: (obj) => obj ?? {},
+    clearOn: ["logout"],
   },
 );
 
@@ -91,5 +105,39 @@ export class AtRiskPasswordCalloutService {
 
   updateAtRiskPasswordState(userId: UserId, updatedState: AtRiskPasswordCalloutData): void {
     void this.atRiskPasswordState(userId).update(() => updatedState);
+  }
+
+  /**
+   * Returns an observable that emits whether the at-risk callout has been dismissed for the given
+   * cipher. The callout is considered dismissed when the stored revision date matches the current
+   * password revision date of the cipher, ensuring it reappears if the password changes.
+   */
+  isDismissed$(
+    cipherId: CipherId,
+    passwordRevisionDate: Date | null | undefined,
+    userId: UserId,
+  ): Observable<boolean> {
+    const currentRevDate = passwordRevisionDate?.toISOString() ?? null;
+    return this.stateProvider.getUser(userId, DISMISSED_AT_RISK_CIPHERS_KEY).state$.pipe(
+      map((dismissed) => {
+        if (!dismissed || !(cipherId in dismissed)) {
+          return false;
+        }
+        return dismissed[cipherId] === currentRevDate;
+      }),
+    );
+  }
+
+  /** Records the dismissal of the at-risk callout for the given cipher. */
+  async dismiss(
+    cipherId: CipherId,
+    passwordRevisionDate: Date | null | undefined,
+    userId: UserId,
+  ): Promise<void> {
+    const revDate = passwordRevisionDate?.toISOString() ?? null;
+    await this.stateProvider.getUser(userId, DISMISSED_AT_RISK_CIPHERS_KEY).update((state) => ({
+      ...(state ?? {}),
+      [cipherId]: revDate,
+    }));
   }
 }

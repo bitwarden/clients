@@ -1,6 +1,8 @@
 export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
+  DismissedAtRiskCipherRecord,
+  DISMISSED_AT_RISK_CIPHERS_KEY,
 } from "./services/at-risk-password-callout.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export {

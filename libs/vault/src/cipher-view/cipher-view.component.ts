@@ -26,11 +26,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
-import {
-  StateProvider,
-  UserKeyDefinition,
-  VAULT_AT_RISK_VIEW_DISK_LOCAL,
-} from "@bitwarden/common/platform/state";
 import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import {
@@ -50,6 +45,8 @@ import {
   LinkComponent,
 } from "@bitwarden/components";
 
+import { AtRiskPasswordCalloutService } from "../services/at-risk-password-callout.service";
+
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
@@ -61,18 +58,6 @@ import { ItemHistoryV2Component } from "./item-history/item-history-v2.component
 import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
-
-/** Maps cipher ID → passwordRevisionDate ISO string at time of dismissal (null = no revision date). */
-export type DismissedAtRiskCipherRecord = Record<string, string | null>;
-
-export const DISMISSED_AT_RISK_CIPHERS_KEY = new UserKeyDefinition<DismissedAtRiskCipherRecord>(
-  VAULT_AT_RISK_VIEW_DISK_LOCAL,
-  "dismissedAtRiskCiphers",
-  {
-    deserializer: (obj) => obj ?? {},
-    clearOn: ["logout"],
-  },
-);
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -98,6 +83,7 @@ export const DISMISSED_AT_RISK_CIPHERS_KEY = new UserKeyDefinition<DismissedAtRi
     LinkComponent,
     TypographyModule,
   ],
+  providers: [AtRiskPasswordCalloutService],
 })
 export class CipherViewComponent {
   /**
@@ -147,7 +133,7 @@ export class CipherViewComponent {
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
     private vaultSettingsService: VaultSettingsService,
-    private stateProvider: StateProvider,
+    private atRiskPasswordCalloutService: AtRiskPasswordCalloutService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -322,15 +308,10 @@ export class CipherViewComponent {
   protected readonly atRiskBannerDismissed = toSignal(
     combineLatest([this.activeUserId$, this.cipher$]).pipe(
       switchMap(([userId, cipher]) =>
-        this.stateProvider.getUser(userId, DISMISSED_AT_RISK_CIPHERS_KEY).state$.pipe(
-          map((dismissed) => {
-            if (!dismissed || !(cipher.id in dismissed)) {
-              return false;
-            }
-            const storedRevDate = dismissed[cipher.id];
-            const currentRevDate = cipher.login?.passwordRevisionDate?.toISOString() ?? null;
-            return storedRevDate === currentRevDate;
-          }),
+        this.atRiskPasswordCalloutService.isDismissed$(
+          cipher.id as CipherId,
+          cipher.login?.passwordRevisionDate,
+          userId,
         ),
       ),
     ),
@@ -347,11 +328,11 @@ export class CipherViewComponent {
     if (!cipher || !userId) {
       return;
     }
-    const revDate = cipher.login?.passwordRevisionDate?.toISOString() ?? null;
-    await this.stateProvider.getUser(userId, DISMISSED_AT_RISK_CIPHERS_KEY).update((state) => ({
-      ...(state ?? {}),
-      [cipher.id]: revDate,
-    }));
+    await this.atRiskPasswordCalloutService.dismiss(
+      cipher.id as CipherId,
+      cipher.login?.passwordRevisionDate,
+      userId,
+    );
   };
 
   readonly showAtRiskPasswordNotifications = toSignal(

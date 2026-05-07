@@ -11,11 +11,7 @@
     {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
   </bit-callout>
 
-  <bit-callout
-    *ngIf="showChangePasswordLink() && !allowDismissAtRiskCallout()"
-    type="warning"
-    [title]="''"
-  >
+  <ng-template #atRiskCalloutBody>
     @if (changePasswordLink()) {
       <a
         bitLink
@@ -30,29 +26,19 @@
     } @else {
       {{ "changeAtRiskPassword" | i18n }}
     }
-  </bit-callout>
+  </ng-template>
 
-  <bit-callout
-    *ngIf="showAtRiskCallout() && allowDismissAtRiskCallout()"
-    type="warning"
-    [title]="''"
-    (dismiss)="dismissAtRiskCallout()"
-  >
-    @if (changePasswordLink()) {
-      <a
-        bitLink
-        [href]="changePasswordLink()"
-        appStopClick
-        (click)="launchChangePassword()"
-        linkType="secondary"
-        endIcon="bwi-external-link"
-      >
-        {{ "changeAtRiskPassword" | i18n }}
-      </a>
+  @if (showAtRiskCallout()) {
+    @if (allowDismissAtRiskCallout()) {
+      <bit-callout type="warning" [title]="''" (dismiss)="dismissAtRiskCallout()">
+        <ng-container *ngTemplateOutlet="atRiskCalloutBody"></ng-container>
+      </bit-callout>
     } @else {
-      {{ "changeAtRiskPassword" | i18n }}
+      <bit-callout type="warning" [title]="''">
+        <ng-container *ngTemplateOutlet="atRiskCalloutBody"></ng-container>
+      </bit-callout>
     }
-  </bit-callout>
+  }
 
   <!-- HELPER TEXT -->
   <p class="tw-text-muted" bitTypography="helper" *ngIf="cipher()?.isDeleted && !cipher()?.edit">

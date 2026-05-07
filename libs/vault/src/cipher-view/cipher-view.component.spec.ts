@@ -11,7 +11,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateProvider } from "@bitwarden/common/platform/state";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -21,6 +20,8 @@ import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
+
+import { AtRiskPasswordCalloutService } from "../services/at-risk-password-callout.service";
 
 import { CipherViewComponent } from "./cipher-view.component";
 
@@ -112,8 +113,11 @@ describe("CipherViewComponent", () => {
         },
         { provide: VaultSettingsService, useValue: mockVaultSettingsService },
         {
-          provide: StateProvider,
-          useValue: { getUser: jest.fn().mockReturnValue({ state$: of(null), update: jest.fn() }) },
+          provide: AtRiskPasswordCalloutService,
+          useValue: {
+            isDismissed$: jest.fn().mockReturnValue(of(false)),
+            dismiss: jest.fn().mockResolvedValue(undefined),
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
