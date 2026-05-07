@@ -65,7 +65,6 @@ export class ByLinkTabComponent {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
         this.form.controls.domains.setValue(inviteLink.allowedDomains.join(", "));
-        this.form.markAsPristine();
       }
     });
   }
@@ -86,6 +85,11 @@ export class ByLinkTabComponent {
       .split(",")
       .map((domain) => domain.trim())
       .filter((domain) => domain.length > 0);
+
+    if (domains.length === 0) {
+      this.form.controls.domains.setErrors({ required: true });
+      return;
+    }
 
     const inviteLink = await firstValueFrom(this.inviteLink$);
     if (inviteLink) {

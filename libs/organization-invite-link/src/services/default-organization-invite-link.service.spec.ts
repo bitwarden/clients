@@ -118,7 +118,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("delete", () => {
-    it("calls API delete without modifying local state", async () => {
+    it("calls API delete and clears local state", async () => {
       const inviteLink = makeInviteLink();
       await sut.upsert(mockUserId, inviteLink);
       apiService.delete.mockResolvedValue();
@@ -127,11 +127,11 @@ describe("DefaultOrganizationInviteLinkService", () => {
 
       expect(apiService.delete).toHaveBeenCalledWith(mockOrgId);
 
-      // State should remain untouched after delete
+      // State should be cleared after delete
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(inviteLink);
+      expect(stored).toBeNull();
     });
   });
 
@@ -209,11 +209,11 @@ describe("DefaultOrganizationInviteLinkService", () => {
       );
     });
 
-    it("falls back to empty domains when no cache, propagating the domain validation error", async () => {
+    it("throws when no invite link exists", async () => {
       apiService.get.mockRejectedValue(new ErrorResponse(null, 404));
 
       await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
-        "At least one allowed domain is required.",
+        "No invite link exists to refresh",
       );
     });
   });

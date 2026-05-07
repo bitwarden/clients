@@ -63,8 +63,10 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
 
   async refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void> {
     const inviteLink = await firstValueFrom(this.inviteLink$(userId, orgId));
-    const domains = inviteLink?.allowedDomains ?? [];
-    await this.updateInviteLink(userId, orgId, domains);
+    if (inviteLink == null) {
+      throw new Error("No invite link exists to refresh");
+    }
+    await this.updateInviteLink(userId, orgId, inviteLink.allowedDomains);
   }
 
   async reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string> {
@@ -91,6 +93,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
 
   async delete(userId: UserId, orgId: OrganizationId): Promise<void> {
     await this.apiService.delete(orgId);
+    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => null);
   }
 
   private buildInviteUrl(code: string, keyB64: string): string {
