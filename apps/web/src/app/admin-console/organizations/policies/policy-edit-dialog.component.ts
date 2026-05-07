@@ -144,8 +144,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         .subscribe(() => void this.cancel());
     } else {
       this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
-        // A defined result means an intentional close (e.g. after a successful save) — always allow.
-        if (result !== undefined || !this.isFormDirty()) {
+        // A truthy result means an intentional close (e.g. after a successful save) — always allow.
+        if (result || !this.isFormDirty()) {
           return true;
         }
         const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);

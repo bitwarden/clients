@@ -6,13 +6,7 @@ import { DialogRef } from "../dialog.service";
   selector: "[bitDialogClose]",
 })
 export class DialogCloseDirective {
-  // When used as a bare attribute (`bitDialogClose` with no value), Angular binds the empty
-  // string "". Normalize that to undefined so close() callers can't accidentally distinguish
-  // bare-attribute use from an explicit undefined binding.
-  readonly dialogResult = input<any, any>(undefined, {
-    alias: "bitDialogClose",
-    transform: (v: any) => (v === "" ? undefined : v),
-  });
+  readonly dialogResult = input<any>(undefined, { alias: "bitDialogClose" });
 
   constructor(@Optional() public dialogRef: DialogRef) {}
 
