@@ -791,6 +791,33 @@ describe("MemberActionsService", () => {
       expect(result).toBe(false);
     });
 
+    it("should allow reset password when user status is accepted and AdminResetTwoFactor is enabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Accepted,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(user, mockOrganization, resetPasswordEnabled, true);
+
+      expect(result).toBe(true);
+    });
+
+    it("should not allow reset password when user status is accepted and AdminResetTwoFactor is disabled", () => {
+      const user = {
+        ...mockOrgUser,
+        status: OrganizationUserStatusType.Accepted,
+      } as OrganizationUserView;
+
+      const result = service.allowResetPassword(
+        user,
+        mockOrganization,
+        resetPasswordEnabled,
+        false,
+      );
+
+      expect(result).toBe(false);
+    });
+
     it("should not allow reset password when user status is invited", () => {
       const user = {
         ...mockOrgUser,
