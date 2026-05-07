@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { ReportProgress } from "../../../reports/risk-insights/models/report-models";
@@ -56,6 +56,14 @@ export abstract class AccessIntelligenceDataService {
    * Null when no generation is in progress.
    */
   abstract readonly reportProgress$: Observable<ReportProgress | null>;
+
+  /**
+   * Whether the organization has any ciphers
+   *
+   * Emits true once ciphers are loaded during initialization.
+   * Emits false before initialization or when the org has no ciphers.
+   */
+  abstract readonly hasCiphers$: Observable<boolean>;
 
   /**
    * Initialize service for a specific organization
@@ -180,18 +188,4 @@ export abstract class AccessIntelligenceDataService {
    * ```
    */
   abstract markApplicationsAsReviewed$(appNames: string[], date?: Date): Observable<void>;
-
-  /** ------------------------- Utility Methods -------------------------
-   * Access Intelligence only loads ciphers when generating a new report,
-   * which is excellent for performance.
-   *
-   * This method determines if there are ciphers in access-intelligence
-   * or in the cipher cache for the user, which is necessary for conditional UI rendering.
-   *
-   * Returns true if ciphers are found in either place, false otherwise.
-   *
-   * @param userId - User ID to check for ciphers
-   * @returns Observable that emits true if ciphers exist, false if not
-   */
-  abstract doesUserHaveCiphers(userId: UserId): Observable<boolean>;
 }

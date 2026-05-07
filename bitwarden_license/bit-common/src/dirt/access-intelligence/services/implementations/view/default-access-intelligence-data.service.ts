@@ -1,7 +1,6 @@
 import {
   BehaviorSubject,
   catchError,
-  filter,
   forkJoin,
   from,
   map,
@@ -18,7 +17,7 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import type { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LogService } from "@bitwarden/logging";
@@ -52,6 +51,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   readonly loading$ = this._loading.asObservable();
   readonly error$ = this._error.asObservable();
   readonly reportProgress$ = this._reportProgress.asObservable();
+  readonly hasCiphers$ = this.ciphers$.pipe(map((ciphers) => ciphers.length > 0));
 
   constructor(
     private cipherService: CipherService,
@@ -79,13 +79,18 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
     this._loading.next(true);
     this._error.next(null);
 
-    return this.reportPersistenceService.loadLastReport$(orgId).pipe(
-      switchMap((result) => {
-        if (!result) {
+    return forkJoin({
+      reportResult: this.reportPersistenceService.loadLastReport$(orgId),
+      ciphers: this.loadCiphersOnly$(orgId),
+    }).pipe(
+      switchMap(({ reportResult, ciphers }) => {
+        this._ciphers.next(ciphers);
+
+        if (!reportResult) {
           return of(null);
         }
 
-        const { report, hadLegacyBlobs } = result;
+        const { report, hadLegacyBlobs } = reportResult;
 
         if (hadLegacyBlobs) {
           this.logService.info(
@@ -125,26 +130,6 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         this._report.next(null);
         return of(undefined as void);
       }),
-    );
-  }
-
-  doesUserHaveCiphers(userId: UserId): Observable<boolean> {
-    this.logService.debug(
-      "[DefaultAccessIntelligenceDataService] Checking if user has ciphers",
-      userId,
-    );
-
-    if (this._ciphers.value.length > 0) {
-      return of(true);
-    }
-
-    // check if there are ciphers in cache
-    return this.cipherService.cipherViews$(userId).pipe(
-      filter(
-        (ciphers) =>
-          ciphers.filter((c) => c.organizationId === this._currentOrgId.value).length > 0,
-      ),
-      map((ciphers) => ciphers.length > 0),
     );
   }
 
@@ -448,6 +433,10 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
         return throwError(() => error);
       }),
     );
+  }
+
+  private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
+    return from(this.cipherService.getAllFromApiForOrganization(orgId));
   }
 
   /**

@@ -16,12 +16,10 @@ import {
   createReport,
   createRiskInsights,
 } from "@bitwarden/bit-common/dirt/reports/risk-insights/testing/test-helpers";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
 
@@ -46,12 +44,10 @@ type MockAccessIntelligenceDataService = {
   error$: BehaviorSubject<string | null>;
   reportProgress$: BehaviorSubject<ReportProgress | null>;
   ciphers$: BehaviorSubject<CipherView[]>;
+  hasCiphers$: Observable<boolean>;
   initializeForOrganization$: jest.Mock;
   generateNewReport$: jest.Mock;
-  doesUserHaveCiphers: (userId: UserId) => Observable<boolean>;
 };
-
-const USER_ID = "user-1" as unknown as UserId;
 
 describe("AccessIntelligencePageComponent", () => {
   let component: AccessIntelligencePageComponent;
@@ -68,8 +64,6 @@ describe("AccessIntelligencePageComponent", () => {
     queryParams: BehaviorSubject<any>;
   };
   let doesUserHaveCiphersSubject: BehaviorSubject<boolean>;
-
-  const mockAccountService = mockAccountServiceWith(USER_ID);
 
   /**
    * Helper to access protected/private members for testing.
@@ -105,7 +99,7 @@ describe("AccessIntelligencePageComponent", () => {
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
       ciphers$: new BehaviorSubject<CipherView[]>([]),
-      doesUserHaveCiphers: (_userId: UserId) => doesUserHaveCiphersSubject.asObservable(),
+      hasCiphers$: doesUserHaveCiphersSubject.asObservable(),
     };
 
     mockDrawerStateService = {
@@ -152,7 +146,6 @@ describe("AccessIntelligencePageComponent", () => {
         { provide: ConfigService, useValue: mockConfigService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
-        { provide: AccountService, useValue: mockAccountService },
       ],
       schemas: [NO_ERRORS_SCHEMA], // Ignore child component errors for unit testing
     })
