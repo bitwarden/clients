@@ -606,94 +606,62 @@ describe("SendService", () => {
       encryptService.encryptString.mockResolvedValue({ encryptedString: "encrypted" } as any);
     });
 
-    describe("when SendEmailOTP feature flag is ON", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag.mockResolvedValue(true);
+    describe("email processing", () => {
+      it("should create a comma separated string when an email list is provided", async () => {
+        sendView.emails = ["test@example.com", "user@test.com"];
+        const [send] = await sendService.encrypt(sendView, null, null);
+        expect(send.emails).toEqual("test@example.com,user@test.com");
+        expect(send.password).toBeNull();
       });
 
-      describe("email processing", () => {
-        it("should create a comma separated string when an email list is provided", async () => {
-          sendView.emails = ["test@example.com", "user@test.com"];
-          const [send] = await sendService.encrypt(sendView, null, null);
-          expect(send.emails).toEqual("test@example.com,user@test.com");
-          expect(send.password).toBeNull();
-        });
-
-        it("should set emails to null when email list is empty", async () => {
-          sendView.emails = [];
-          const [send] = await sendService.encrypt(sendView, null, null);
-          expect(send.emails).toBeNull();
-        });
-
-        it("should set emails to null when email list is null", async () => {
-          sendView.emails = null;
-          const [send] = await sendService.encrypt(sendView, null, null);
-          expect(send.emails).toBeNull();
-        });
-
-        it("should set emails to null when email list is undefined", async () => {
-          sendView.emails = undefined;
-          const [send] = await sendService.encrypt(sendView, null, null);
-          expect(send.emails).toBeNull();
-        });
-
-        it("should process multiple emails and return comma-separated string", async () => {
-          sendView.emails = ["test@example.com", "user@test.com"];
-          const [send] = await sendService.encrypt(sendView, null, null);
-          expect(send.emails).toBe("test@example.com,user@test.com");
-        });
-
-        it("should trim and lowercase emails", async () => {
-          sendView.emails = ["  Test@Example.COM  ", "USER@test.com"];
-          const [send] = await sendService.encrypt(sendView, null, null);
-          expect(send.emails).toBe("test@example.com,user@test.com");
-        });
-
-        it("should handle single email correctly", async () => {
-          sendView.emails = ["single@test.com"];
-          const [send] = await sendService.encrypt(sendView, null, null);
-          expect(send.emails).toBe("single@test.com");
-        });
+      it("should set emails to null when email list is empty", async () => {
+        sendView.emails = [];
+        const [send] = await sendService.encrypt(sendView, null, null);
+        expect(send.emails).toBeNull();
       });
 
-      describe("emails and password mutual exclusivity", () => {
-        it("should set password to null when emails are provided", async () => {
-          sendView.emails = ["test@example.com"];
+      it("should set emails to null when email list is null", async () => {
+        sendView.emails = null;
+        const [send] = await sendService.encrypt(sendView, null, null);
+        expect(send.emails).toBeNull();
+      });
 
-          const [send] = await sendService.encrypt(sendView, null, "password123");
+      it("should set emails to null when email list is undefined", async () => {
+        sendView.emails = undefined;
+        const [send] = await sendService.encrypt(sendView, null, null);
+        expect(send.emails).toBeNull();
+      });
 
-          expect(send.emails).toBeDefined();
-          expect(send.password).toBeNull();
-        });
+      it("should process multiple emails and return comma-separated string", async () => {
+        sendView.emails = ["test@example.com", "user@test.com"];
+        const [send] = await sendService.encrypt(sendView, null, null);
+        expect(send.emails).toBe("test@example.com,user@test.com");
+      });
 
-        it("should set password when no emails are provided", async () => {
-          sendView.emails = [];
-          keyGenerationService.deriveKeyFromPassword.mockResolvedValue({
-            keyB64: "hashedPassword",
-          } as any);
+      it("should trim and lowercase emails", async () => {
+        sendView.emails = ["  Test@Example.COM  ", "USER@test.com"];
+        const [send] = await sendService.encrypt(sendView, null, null);
+        expect(send.emails).toBe("test@example.com,user@test.com");
+      });
 
-          const [send] = await sendService.encrypt(sendView, null, "password123");
-
-          expect(send.emails).toBeNull();
-          expect(send.password).toBe("hashedPassword");
-        });
+      it("should handle single email correctly", async () => {
+        sendView.emails = ["single@test.com"];
+        const [send] = await sendService.encrypt(sendView, null, null);
+        expect(send.emails).toBe("single@test.com");
       });
     });
 
-    describe("when SendEmailOTP feature flag is OFF", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag.mockResolvedValue(false);
-      });
-
-      it("should NOT encrypt emails even when provided", async () => {
+    describe("emails and password mutual exclusivity", () => {
+      it("should set password to null when emails are provided", async () => {
         sendView.emails = ["test@example.com"];
 
-        const [send] = await sendService.encrypt(sendView, null, null);
+        const [send] = await sendService.encrypt(sendView, null, "password123");
 
-        expect(send.emails).toBeNull();
+        expect(send.emails).toBeDefined();
+        expect(send.password).toBeNull();
       });
 
-      it("should use password when provided and flag is OFF", async () => {
+      it("should set password when no emails are provided", async () => {
         sendView.emails = [];
         keyGenerationService.deriveKeyFromPassword.mockResolvedValue({
           keyB64: "hashedPassword",
@@ -703,27 +671,6 @@ describe("SendService", () => {
 
         expect(send.emails).toBeNull();
         expect(send.password).toBe("hashedPassword");
-      });
-
-      it("should ignore emails and use password when both provided", async () => {
-        sendView.emails = ["test@example.com"];
-        keyGenerationService.deriveKeyFromPassword.mockResolvedValue({
-          keyB64: "hashedPassword",
-        } as any);
-
-        const [send] = await sendService.encrypt(sendView, null, "password123");
-
-        expect(send.emails).toBeNull();
-        expect(send.password).toBe("hashedPassword");
-      });
-
-      it("should set emails and password to null when neither provided", async () => {
-        sendView.emails = [];
-
-        const [send] = await sendService.encrypt(sendView, null, null);
-
-        expect(send.emails).toBeNull();
-        expect(send.password).toBeUndefined();
       });
     });
 
