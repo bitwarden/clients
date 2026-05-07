@@ -2,7 +2,14 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { userEvent, getAllByRole, getByRole, fireEvent, getAllByLabelText } from "storybook/test";
+import {
+  userEvent,
+  getAllByRole,
+  getByRole,
+  fireEvent,
+  getAllByLabelText,
+  waitFor,
+} from "storybook/test";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -258,6 +265,11 @@ export const GuidedTour: Story = {
 
     // workaround for userEvent not firing in FF https://github.com/testing-library/user-event/issues/1075
     await fireEvent.click(tourButton);
+
+    // Advance from the search popover to the nav-item popover so the story lands on
+    // the navigation tour stop.
+    await waitFor(() => getByRole(canvas.ownerDocument.body, "button", { name: "Next" }));
+    await fireEvent.click(getByRole(canvas.ownerDocument.body, "button", { name: "Next" }));
   },
   parameters: {
     chromatic: { disableSnapshot: true },

@@ -9,6 +9,9 @@ import { SideNavService } from "./side-nav.service";
   selector: "bit-nav-divider",
   templateUrl: "./nav-divider.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-block",
+  },
 })
 export class NavDividerComponent {
   protected readonly sideNavService = inject(SideNavService);

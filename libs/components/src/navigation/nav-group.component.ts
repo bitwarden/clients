@@ -28,6 +28,9 @@ import { SideNavService } from "./side-nav.service";
   ],
   imports: [NavItemComponent, IconButtonModule, I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-block",
+  },
 })
 export class NavGroupComponent extends NavBaseComponent {
   protected readonly sideNavService = inject(SideNavService);

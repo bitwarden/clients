@@ -29,6 +29,7 @@ export abstract class NavGroupAbstraction {
   imports: [NgTemplateOutlet, IconButtonModule, RouterModule, IconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    class: "tw-block",
     "(focusin)": "onFocusIn($event.target)",
     "(focusout)": "onFocusOut()",
   },

@@ -30,8 +30,8 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         type="button"
         bitButton
         (click)="openDialog()"
-        [bitPopoverAnchorFor]="tourStep2"
-        [popoverOpen]="tourService.tourStep() === 2"
+        [bitPopoverAnchorFor]="tourStep3"
+        [popoverOpen]="tourService.tourStep() === 3"
         [spotlight]="true"
         [spotlightPadding]="12"
         [position]="'below-start'"
@@ -54,8 +54,8 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
       <bit-kitchen-sink-toggle-list></bit-kitchen-sink-toggle-list>
     </bit-section>
     <bit-section
-      [bitPopoverAnchorFor]="tourStep3"
-      [popoverOpen]="tourService.tourStep() === 3"
+      [bitPopoverAnchorFor]="tourStep4"
+      [popoverOpen]="tourService.tourStep() === 4"
       [spotlight]="true"
       [spotlightPadding]="12"
       [position]="'right-center'"
@@ -65,7 +65,7 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
     </bit-section>
 
     <!-- Tour Popovers -->
-    <bit-popover [title]="'Step 2: Dialogs'" (closed)="tourService.endTour()" #tourStep2>
+    <bit-popover [title]="'Step 3: Dialogs'" (closed)="tourService.endTour()" #tourStep3>
       <div>Click buttons to <strong>open dialogs</strong> for important actions and forms.</div>
       <p class="tw-mt-2 tw-mb-0">
         Dialogs help focus user attention and collect input for critical operations.
@@ -80,7 +80,7 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
       </div>
     </bit-popover>
 
-    <bit-popover [title]="'Step 3: Forms'" (closed)="tourService.endTour()" #tourStep3>
+    <bit-popover [title]="'Step 4: Forms'" (closed)="tourService.endTour()" #tourStep4>
       <div>Fill out <strong>forms</strong> to collect and manage user information.</div>
       <p class="tw-mt-2 tw-mb-0">
         Our form components provide consistent styling and validation patterns.
