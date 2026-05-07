@@ -88,8 +88,29 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
   private async hydrateAllAccounts(): Promise<void> {
     const accounts = await firstValueFrom(this.accountService.accounts$);
     for (const userId of Object.keys(accounts ?? {})) {
-      await this.hydrateMemoryFromPersistentStorage(userId as UserId);
+      await this.hydrateOrClear(userId as UserId);
     }
+  }
+
+  /**
+   * Decides whether a known account's persistent storage should be hydrated into memory
+   * or cleared via {@link clearTokensFromDisk}.
+   *
+   * If the disk access token is missing for an account that's still in `accounts$`,
+   * a previous logout left orphan state (refresh token in OS secure storage, client ID /
+   * secret in JSON disk, AT key in OS secure storage) — `clearOn: ["logout"]` cleared
+   * memory but `clearTokensFromDisk` did not finish. Without this clear pass, the next
+   * session would hydrate those orphans as live credentials.
+   */
+  private async hydrateOrClear(userId: UserId): Promise<void> {
+    const diskAccessToken = await firstValueFrom(
+      this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
+    );
+    if (!diskAccessToken) {
+      await this.clearTokensFromDisk(userId);
+      return;
+    }
+    await this.hydrateMemoryFromPersistentStorage(userId);
   }
 
   /**

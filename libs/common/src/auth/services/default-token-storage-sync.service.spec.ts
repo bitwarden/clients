@@ -68,6 +68,10 @@ describe("DefaultTokenStorageSyncService", () => {
     vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
     accountService = mock<AccountService>();
     secureStorageService = mock<AbstractStorageService>();
+    // The orphan-cleanup path in hydrateOrClear calls secureStorageService.remove(...).catch(...).
+    // Default to resolved so tests that don't pre-seed an access token on disk (and therefore
+    // hit the orphan-cleanup branch on init) don't trip on `undefined.catch(...)`.
+    secureStorageService.remove.mockResolvedValue(undefined);
     encryptService = mock<EncryptService>();
     keyGenerationService = mock<KeyGenerationService>();
     logService = mock<LogService>();
@@ -126,6 +130,8 @@ describe("DefaultTokenStorageSyncService", () => {
       });
 
       it("copies plaintext refresh token from disk to memory", async () => {
+        // Seed the access token so hydrateOrClear takes the hydrate path (not orphan-clear).
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("accessTokenValue");
         singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("refreshTokenValue");
 
         await sut.init();
@@ -146,6 +152,8 @@ describe("DefaultTokenStorageSyncService", () => {
       });
 
       it("copies client id from disk to memory", async () => {
+        // Seed the access token so hydrateOrClear takes the hydrate path (not orphan-clear).
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("accessTokenValue");
         singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).nextState("myClientId");
 
         await sut.init();
@@ -157,6 +165,8 @@ describe("DefaultTokenStorageSyncService", () => {
       });
 
       it("copies client secret from disk to memory", async () => {
+        // Seed the access token so hydrateOrClear takes the hydrate path (not orphan-clear).
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("accessTokenValue");
         singleUserStateProvider
           .getFake(userId, API_KEY_CLIENT_SECRET_DISK)
           .nextState("myClientSecret");
@@ -219,6 +229,7 @@ describe("DefaultTokenStorageSyncService", () => {
       });
 
       it("does not write to memory when disk access token is null on secure storage platform", async () => {
+        // Intentionally no AT on disk — orphan-cleanup path. Memory should remain null.
         await sut.init();
 
         const memoryValue = await firstValueFrom(
@@ -228,6 +239,10 @@ describe("DefaultTokenStorageSyncService", () => {
       });
 
       it("reads refresh token from OS secure storage and writes to memory", async () => {
+        // Seed plaintext AT on disk so hydrateOrClear takes the hydrate path.
+        // Plaintext on a secure-storage platform is the encrypt-failure-fallback state and
+        // is hydrated as-is without a decrypt step.
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plaintextAT");
         secureStorageService.get.mockImplementation(async (key: string) => {
           if (key === `${userId}_refreshToken`) {
             return "secureRefreshToken";
@@ -244,6 +259,7 @@ describe("DefaultTokenStorageSyncService", () => {
       });
 
       it("does not write refresh token to memory when OS secure storage returns null", async () => {
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plaintextAT");
         secureStorageService.get.mockResolvedValue(null);
 
         await sut.init();
@@ -255,11 +271,185 @@ describe("DefaultTokenStorageSyncService", () => {
       });
 
       it("logs error when secure storage retrieval fails for refresh token", async () => {
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plaintextAT");
         secureStorageService.get.mockRejectedValue(new Error("Secure storage error"));
 
         await sut.init();
 
         expect(logService.error).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("orphan-cleanup on init (hydrateOrClear)", () => {
+    describe("No secure storage", () => {
+      beforeEach(() => {
+        sut = createService(false);
+      });
+
+      it("wipes disk JSON state for an account in accounts$ with no disk access token but stale refresh / client artifacts", async () => {
+        // No access token on disk — orphan condition (previous logout cleared memory
+        // but didn't finish wiping disk).
+        singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("staleRefreshToken");
+        singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).nextState("staleClientId");
+        singleUserStateProvider
+          .getFake(userId, API_KEY_CLIENT_SECRET_DISK)
+          .nextState("staleClientSecret");
+
+        await sut.init();
+
+        expect(
+          await firstValueFrom(singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).state$),
+        ).toBeNull();
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).state$,
+          ),
+        ).toBeNull();
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, API_KEY_CLIENT_SECRET_DISK).state$,
+          ),
+        ).toBeNull();
+      });
+
+      it("does not hydrate stale refresh / client artifacts into memory when access token is missing on disk", async () => {
+        singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("staleRefreshToken");
+        singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).nextState("staleClientId");
+        singleUserStateProvider
+          .getFake(userId, API_KEY_CLIENT_SECRET_DISK)
+          .nextState("staleClientSecret");
+
+        await sut.init();
+
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, REFRESH_TOKEN_MEMORY).state$,
+          ),
+        ).toBeNull();
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_MEMORY).state$,
+          ),
+        ).toBeNull();
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, API_KEY_CLIENT_SECRET_MEMORY).state$,
+          ),
+        ).toBeNull();
+      });
+
+      it("hydrates normally when an access token is present on disk", async () => {
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("liveAccessToken");
+        singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("liveRefreshToken");
+        singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_DISK).nextState("liveClientId");
+
+        await sut.init();
+
+        expect(
+          await firstValueFrom(singleUserStateProvider.getFake(userId, ACCESS_TOKEN_MEMORY).state$),
+        ).toEqual("liveAccessToken");
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, REFRESH_TOKEN_MEMORY).state$,
+          ),
+        ).toEqual("liveRefreshToken");
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, API_KEY_CLIENT_ID_MEMORY).state$,
+          ),
+        ).toEqual("liveClientId");
+      });
+
+      it("clears only the orphan account when one user has tokens and another does not", async () => {
+        const orphanUserId = "orphan-user" as UserId;
+
+        accounts$.next({
+          [userId]: accountInfo,
+          [orphanUserId]: {
+            email: "orphan@bitwarden.com",
+            emailVerified: true,
+            name: "Orphan",
+            creationDate: undefined,
+          },
+        });
+
+        // Live account: full token set on disk
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("liveAccessToken");
+        singleUserStateProvider.getFake(userId, REFRESH_TOKEN_DISK).nextState("liveRefreshToken");
+        // Orphan account: no access token, but stale refresh / client artifacts
+        singleUserStateProvider
+          .getFake(orphanUserId, REFRESH_TOKEN_DISK)
+          .nextState("orphanRefreshToken");
+        singleUserStateProvider
+          .getFake(orphanUserId, API_KEY_CLIENT_ID_DISK)
+          .nextState("orphanClientId");
+
+        await sut.init();
+
+        // Live account hydrated to memory
+        expect(
+          await firstValueFrom(singleUserStateProvider.getFake(userId, ACCESS_TOKEN_MEMORY).state$),
+        ).toEqual("liveAccessToken");
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(userId, REFRESH_TOKEN_MEMORY).state$,
+          ),
+        ).toEqual("liveRefreshToken");
+
+        // Orphan account cleared — disk + memory both empty (no hydration)
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(orphanUserId, REFRESH_TOKEN_DISK).state$,
+          ),
+        ).toBeNull();
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(orphanUserId, API_KEY_CLIENT_ID_DISK).state$,
+          ),
+        ).toBeNull();
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(orphanUserId, REFRESH_TOKEN_MEMORY).state$,
+          ),
+        ).toBeNull();
+        expect(
+          await firstValueFrom(
+            singleUserStateProvider.getFake(orphanUserId, API_KEY_CLIENT_ID_MEMORY).state$,
+          ),
+        ).toBeNull();
+      });
+    });
+
+    describe("Secure storage platform", () => {
+      beforeEach(() => {
+        sut = createService(true);
+      });
+
+      it("removes orphan refresh token and access token key from OS secure storage when access token is missing on disk", async () => {
+        // No access token on disk — orphan condition.
+        secureStorageService.remove.mockResolvedValue();
+
+        await sut.init();
+
+        expect(secureStorageService.remove).toHaveBeenCalledWith(
+          `${userId}_accessTokenKey`,
+          expect.objectContaining({ useSecureStorage: true, userId }),
+        );
+        expect(secureStorageService.remove).toHaveBeenCalledWith(
+          `${userId}_refreshToken`,
+          expect.objectContaining({ useSecureStorage: true, userId }),
+        );
+      });
+
+      it("does not read refresh token from secure storage when access token is missing on disk", async () => {
+        secureStorageService.remove.mockResolvedValue();
+
+        await sut.init();
+
+        // hydrateRefreshToken (which reads from secure storage) should be skipped entirely
+        // — the orphan path goes straight to clearTokensFromDisk, which only calls remove().
+        expect(secureStorageService.get).not.toHaveBeenCalled();
       });
     });
   });
@@ -1152,6 +1342,11 @@ describe("DefaultTokenStorageSyncService", () => {
       it("fires logoutCallback('refreshTokenSecureStorageRetrievalFailure') when secure storage read throws", async () => {
         sut = createService(true);
 
+        // Seed plaintext AT on disk so hydrateOrClear takes the hydrate path. Plaintext on a
+        // secure-storage platform is the encrypt-failure-fallback state and is hydrated as-is
+        // — keeps this test focused on the refresh-token branch.
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plaintextAT");
+
         // Access token key + access token absent so the access token branch doesn't fire its
         // own logout signal — we want to assert the refresh token path independently.
         secureStorageService.get.mockImplementation(async (key: string) => {
@@ -1217,6 +1412,9 @@ describe("DefaultTokenStorageSyncService", () => {
     describe("hydrateMemoryFromPersistentStorage — refresh token disk fallback on secure-storage platforms", () => {
       it("hydrates refresh token from REFRESH_TOKEN_DISK when secure storage returns null on a secure-storage platform", async () => {
         sut = createService(true);
+
+        // Seed plaintext AT on disk so hydrateOrClear takes the hydrate path.
+        singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).nextState("plaintextAT");
 
         // Simulates the runtime fallback state created by writeTokensToDisk when secure
         // storage save throws: refresh token sits in REFRESH_TOKEN_DISK rather than secure
