@@ -1,11 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Signal,
-  TemplateRef,
-  inject,
-  viewChild,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, Signal, TemplateRef, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import {
   combineLatest,
@@ -26,7 +19,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { DialogRef } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -63,10 +55,6 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
-  // Injected so custom footer templates can call close() and go through closePredicate,
-  // which shows the discard-edits dialog when there are unsaved changes.
-  private readonly dialogRef = inject(DialogRef, { optional: true });
-
   constructor(
     private readonly organizationService: OrganizationService,
     private readonly policyService: PolicyService,
@@ -77,10 +65,6 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
   }
 
   protected readonly autoConfirmSvg = AutoConfirmSvg;
-
-  protected close(): void {
-    void this.dialogRef?.close();
-  }
 
   protected get autoConfirmPolicy(): AutoConfirmPolicy | undefined {
     return this.policy() as AutoConfirmPolicy | undefined;
