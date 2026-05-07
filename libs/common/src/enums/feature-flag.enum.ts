@@ -34,6 +34,7 @@ export enum FeatureFlag {
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
+  EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
 
   /* Billing */
@@ -80,6 +81,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
+  PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
   PM29438_WelcomeDialogWithExtensionPrompt = "pm-29438-welcome-dialog-with-extension-prompt",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
@@ -130,6 +132,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Tools */
@@ -153,6 +156,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
+  [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
   [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
