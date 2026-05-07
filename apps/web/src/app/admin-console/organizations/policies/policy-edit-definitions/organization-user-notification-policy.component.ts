@@ -145,7 +145,13 @@ export class OrganizationUserNotificationPolicyComponent extends BasePolicyEditC
     if (!this.enabled.value) {
       return null;
     }
-    return this.data.value;
+    const { header, description, buttonText, showAfterEveryLogin } = this.data.value;
+    return {
+      header: header?.trim() || null,
+      description: description?.trim() || null,
+      buttonText: buttonText?.trim() || null,
+      showAfterEveryLogin,
+    };
   }
 
   constructor() {
