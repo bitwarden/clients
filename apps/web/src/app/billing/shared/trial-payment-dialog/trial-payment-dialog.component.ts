@@ -375,6 +375,17 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
     }
   }
 
+  get trialLength(): number {
+    const { trialStartDate, trialEndDate } = this.sub?.subscription ?? {};
+    if (!trialStartDate || !trialEndDate) {
+      return DEFAULT_TRIAL_LENGTH_DAYS;
+    }
+    const msPerDay = 1000 * 60 * 60 * 24;
+    return Math.round(
+      (new Date(trialEndDate).getTime() - new Date(trialStartDate).getTime()) / msPerDay,
+    );
+  }
+
   resolvePlanName(productTier: ProductTierType): string {
     switch (productTier) {
       case ProductTierType.Enterprise:
