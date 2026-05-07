@@ -53,6 +53,7 @@ export interface Trial {
   product: Product;
   tier: Tier;
   length: number;
+  trialInitiationId?: string;
 }
 
 @Injectable({ providedIn: "root" })
@@ -203,6 +204,8 @@ export class TrialBillingStepService {
           taxId: billingAddress.taxId ?? undefined,
         },
         skipTrial: trial.length === 0,
+        trialLength: trial.length,
+        trialInitiationId: trial.trialInitiationId,
       },
       ...(coupons?.length ? { coupons } : {}),
     };

@@ -26,6 +26,8 @@ export class OrganizationNoPaymentMethodCreateRequest {
   additionalServiceAccounts: number = 0;
   isFromSecretsManagerTrial: boolean = false;
   initiationPath!: InitiationPath;
+  trialLength?: number;
+  trialInitiationId?: string;
 
   constructor(key: string, keys: OrganizationKeysRequest, collectionName: string) {
     if (!key) {
