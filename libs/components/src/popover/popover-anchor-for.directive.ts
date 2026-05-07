@@ -44,6 +44,18 @@ import { SpotlightService } from "./spotlight.service";
  * </div>
  * ```
  *
+ * @example
+ * With spotlight and accent border around the cutout:
+ * ```html
+ * <div [bitPopoverAnchorFor]="tourStep"
+ *      [(popoverOpen)]="showTour"
+ *      [spotlight]="true"
+ *      [spotlightBorder]="true"
+ *      [spotlightPadding]="12">
+ *   Element to highlight
+ * </div>
+ * ```
+ *
  * Use `PopoverTriggerForDirective` instead if the popover is meant to be manually opened by the user clicking a button.
  */
 @Directive({
@@ -67,6 +79,9 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /** Padding around the spotlight cutout in pixels */
   readonly spotlightPadding = input<number>(0);
+
+  /** Show accent border around the spotlight cutout. Defaults to false. */
+  readonly spotlightBorder = input<boolean>(false);
 
   private overlayRef: OverlayRef | null = null;
   private closedEventsSub: Subscription | null = null;
@@ -145,7 +160,11 @@ export class PopoverAnchorForDirective implements OnDestroy {
     // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
       this.spotlightService.register(this);
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
+      this.spotlightService.showSpotlight(
+        this.elementRef.nativeElement,
+        this.spotlightPadding(),
+        this.spotlightBorder(),
+      );
     }
 
     this.popoverOpen.set(true);

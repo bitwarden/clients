@@ -16,6 +16,7 @@ export class SpotlightService {
   private readonly borderElement: HTMLElement;
   private currentTarget: HTMLElement | null = null;
   private currentPadding = 0;
+  private currentShowBorder = false;
   private borderOverlayRef: OverlayRef | null = null;
   private resizeObserver: ResizeObserver | null = null;
   private hideTimeout: number | null = null;
@@ -55,7 +56,7 @@ export class SpotlightService {
    * @param target - The element to highlight
    * @param padding - Padding around the element in pixels
    */
-  showSpotlight(target: HTMLElement, padding: number): void {
+  showSpotlight(target: HTMLElement, padding: number, showBorder = false): void {
     if (this.hideTimeout !== null) {
       clearTimeout(this.hideTimeout);
       this.hideTimeout = null;
@@ -68,6 +69,7 @@ export class SpotlightService {
     const isNewTarget = this.currentTarget !== target;
     this.currentTarget = target;
     this.currentPadding = padding;
+    this.currentShowBorder = showBorder;
 
     // Scroll the new target into view
     if (isNewTarget && typeof target.scrollIntoView === "function") {
@@ -132,6 +134,9 @@ export class SpotlightService {
   private createBorderOverlay(target: HTMLElement, padding: number): void {
     const computedStyle = window.getComputedStyle(target);
     this.borderElement.style.borderRadius = computedStyle.borderRadius;
+    this.borderElement.style.border = this.currentShowBorder
+      ? "2px solid var(--color-border-accent-primary)"
+      : "none";
 
     const positionStrategy = this.overlay
       .position()

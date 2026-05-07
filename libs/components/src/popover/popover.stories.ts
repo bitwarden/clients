@@ -5,6 +5,7 @@ import { getByRole, userEvent } from "storybook/test";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
+import { IconComponent } from "../icon/icon.component";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -16,7 +17,7 @@ export default {
   title: "Component Library/Popover",
   decorators: [
     moduleMetadata({
-      imports: [PopoverModule, ButtonModule, IconButtonModule, LinkModule],
+      imports: [PopoverModule, ButtonModule, IconButtonModule, IconComponent, LinkModule],
       providers: [
         {
           provide: I18nService,
@@ -643,6 +644,52 @@ export const SpotlightTour: Story = {
         <div class="tw-flex tw-gap-2 tw-mt-4">
           <button type="button" bitButton buttonType="primary" (click)="nextTourStep()">Finish Tour</button>
           <button type="button" bitButton buttonType="secondary" (click)="skipTour()">Skip Tour</button>
+        </div>
+      </bit-popover>
+      `,
+  }),
+};
+
+export const SpotlightWithBorder: Story = {
+  render: () => ({
+    props: {
+      open: true,
+    },
+    template: /*html*/ `
+      <div class="tw-h-[100vh]">
+        <div class="tw-mb-6">
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            (click)="open = true"
+          >
+            Show Spotlight
+          </button>
+        </div>
+
+        <div class="tw-flex tw-justify-center">
+          <div
+            class="tw-p-8 tw-border tw-border-solid tw-border-secondary-300 tw-rounded-lg tw-bg-background tw-text-center"
+            [bitPopoverAnchorFor]="borderPopover"
+            [(popoverOpen)]="open"
+            [spotlight]="true"
+            [spotlightBorder]="true"
+            [spotlightPadding]="12"
+            [position]="'below-center'"
+          >
+            <bit-icon name="bwi-star" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
+            <h3 class="tw-text-base tw-font-semibold tw-mb-2">Highlighted Feature</h3>
+            <p class="tw-text-sm tw-text-muted tw-mb-0">Notice the accent border around the cutout</p>
+          </div>
+        </div>
+      </div>
+
+      <bit-popover [title]="'Spotlight with Border'" #borderPopover>
+        <div>This spotlight uses <code>[spotlightBorder]="true"</code> to render an accent border around the highlighted area.</div>
+        <p class="tw-mt-2 tw-mb-0">Omit the input (or set it to <code>false</code>) to show only the dimming overlay without a border.</p>
+        <div class="tw-mt-4">
+          <button type="button" bitButton buttonType="secondary" (click)="open = false">Close</button>
         </div>
       </bit-popover>
       `,
