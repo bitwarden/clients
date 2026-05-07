@@ -1196,6 +1196,66 @@ describe("DefaultTokenStorageSyncService", () => {
           );
           expect(diskValue).toEqual("plaintextToken");
         });
+
+        it("logs error and writes plaintext access token to disk when encryption resolves with a falsy ciphertext", async () => {
+          sut = createService(true);
+
+          const mockKey = {} as SymmetricCryptoKey;
+          secureStorageService.get.mockResolvedValue({ keyB64: "someKeyB64" });
+          jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+          // Resolves without throwing, but encryptedString is undefined — defends
+          // against EncString.encryptedString being typed optional.
+          encryptService.encryptString.mockResolvedValue({
+            encryptedString: undefined,
+          } as EncString);
+
+          tokenService.getRefreshToken.mockResolvedValue("refreshVal");
+          tokenService.getClientId.mockResolvedValue(undefined);
+          tokenService.getClientSecret.mockResolvedValue(undefined);
+
+          vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+          vaultTimeout$.next(VaultTimeoutStringType.Never);
+
+          await sut.init();
+          accessToken$.next("plaintextToken");
+          await new Promise((r) => setTimeout(r, 50));
+
+          expect(logService.error).toHaveBeenCalledWith(
+            expect.stringContaining("Failed to encrypt access token"),
+            expect.any(Error),
+          );
+
+          const diskValue = await firstValueFrom(
+            singleUserStateProvider.getFake(userId, ACCESS_TOKEN_DISK).state$,
+          );
+          expect(diskValue).toEqual("plaintextToken");
+        });
+
+        it("invalidates the dedup cache on falsy ciphertext so the next emission retries encryption", async () => {
+          sut = createService(true);
+
+          const mockKey = {} as SymmetricCryptoKey;
+          secureStorageService.get.mockResolvedValue({ keyB64: "someKeyB64" });
+          jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+          encryptService.encryptString
+            .mockResolvedValueOnce({ encryptedString: undefined } as EncString)
+            .mockResolvedValueOnce({
+              encryptedString: "2.enc==|data==|iv==",
+            } as EncString);
+
+          vaultTimeoutAction$.next(VaultTimeoutAction.Lock);
+          vaultTimeout$.next(VaultTimeoutStringType.Never);
+
+          await sut.init();
+          accessToken$.next("plaintextToken");
+          await new Promise((r) => setTimeout(r, 50));
+          // Same plaintext on a follow-up emission — should re-attempt encrypt
+          // because the dedup cache was invalidated by the falsy-ciphertext catch.
+          accessToken$.next("plaintextToken");
+          await new Promise((r) => setTimeout(r, 50));
+
+          expect(encryptService.encryptString).toHaveBeenCalledTimes(2);
+        });
       });
 
       describe("secure storage save failure → disk fallback", () => {

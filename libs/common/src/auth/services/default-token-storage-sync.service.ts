@@ -508,8 +508,14 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
     try {
       const accessTokenKey = await this.getOrCreateAccessTokenKey(userId);
       const encrypted = await this.encryptService.encryptString(accessToken, accessTokenKey);
-      // TODO: IN SCOPE: this should error if `encrypted.encryptedString` is undefined
-      const typeSafeEncrypted = encrypted.encryptedString ?? null;
+
+      // Throw on falsy ciphertext so the catch routes into the plaintext fallback —
+      // otherwise null lands on disk and hydration silently logs the user out.
+      if (!encrypted.encryptedString) {
+        throw new Error("Access token encryption produced a falsy ciphertext.");
+      }
+
+      const typeSafeEncrypted = encrypted.encryptedString;
       await this.singleUserStateProvider
         .get(userId, ACCESS_TOKEN_DISK)
         .update((_) => typeSafeEncrypted, {
