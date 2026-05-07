@@ -663,6 +663,78 @@ describe("DefaultTokenStorageSyncService", () => {
           );
         });
       });
+
+      describe("logoutCallback de-duplication (first-wins short-circuit)", () => {
+        // logoutCallback dispatches via messagingService.send (fire-and-forget). Two awaited
+        // callback fires in a single hydration pass would queue two "logout" messages on the
+        // messaging Subject, producing concurrent logout flows in the consumer apps — see
+        // jslib-services.module.ts:502-512. Hydration must short-circuit on the first signal
+        // so the at-most-once invariant holds.
+        const encryptedAccessToken =
+          "2.abc==|def==|ghi==" as `${number}.${string}|${string}|${string}`;
+
+        it("fires logoutCallback exactly once with 'accessTokenUnableToBeDecrypted' when AT decrypt throws AND refresh-token secure storage also throws", async () => {
+          // Without the short-circuit, AT path fires logoutCallback("accessTokenUnableToBeDecrypted")
+          // and then RT path falls through (post-Gap-2) to an empty disk and fires
+          // logoutCallback("refreshTokenSecureStorageRetrievalFailure") — two concurrent logouts.
+          singleUserStateProvider
+            .getFake(userId, ACCESS_TOKEN_DISK)
+            .nextState(encryptedAccessToken);
+
+          const mockKey = {} as SymmetricCryptoKey;
+          secureStorageService.get.mockImplementation(async (key: string) => {
+            if (key === `${userId}_accessTokenKey`) {
+              return { keyB64: "someKeyB64" };
+            }
+            if (key === `${userId}_refreshToken`) {
+              throw new Error("Secure storage unavailable");
+            }
+            return null;
+          });
+          jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+          encryptService.decryptString.mockRejectedValue(new Error("Decryption failed"));
+
+          await sut.init();
+
+          expect(logoutCallback).toHaveBeenCalledTimes(1);
+          expect(logoutCallback).toHaveBeenCalledWith("accessTokenUnableToBeDecrypted", userId);
+          expect(logoutCallback).not.toHaveBeenCalledWith(
+            "refreshTokenSecureStorageRetrievalFailure",
+            userId,
+          );
+        });
+
+        it("fires logoutCallback exactly once with 'refreshTokenSecureStorageRetrievalFailure' when AT hydrates cleanly but refresh-token secure storage throws and disk is empty", async () => {
+          // AT path hydrates successfully → returns false → RT path runs → RT fires its own
+          // logout once. Regression-prevention test: ensures the short-circuit doesn't
+          // suppress legitimate single-signal logouts.
+          singleUserStateProvider
+            .getFake(userId, ACCESS_TOKEN_DISK)
+            .nextState(encryptedAccessToken);
+
+          const mockKey = {} as SymmetricCryptoKey;
+          secureStorageService.get.mockImplementation(async (key: string) => {
+            if (key === `${userId}_accessTokenKey`) {
+              return { keyB64: "someKeyB64" };
+            }
+            if (key === `${userId}_refreshToken`) {
+              throw new Error("Secure storage unavailable");
+            }
+            return null;
+          });
+          jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+          encryptService.decryptString.mockResolvedValue("decryptedAT");
+
+          await sut.init();
+
+          expect(logoutCallback).toHaveBeenCalledTimes(1);
+          expect(logoutCallback).toHaveBeenCalledWith(
+            "refreshTokenSecureStorageRetrievalFailure",
+            userId,
+          );
+          expect(logoutCallback).not.toHaveBeenCalledWith("accessTokenUnableToBeDecrypted", userId);
+        });
+      });
     });
   });
 

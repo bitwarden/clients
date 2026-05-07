@@ -180,8 +180,12 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    * users typically have a disk-resident RT from a prior session and recovery from disk
    * keeps them signed in. The logout callback only fires when both locations miss *and*
    * secure storage threw.
+   *
+   * @returns `true` if the logout callback was fired — caller should short-circuit any
+   *   remaining hydration steps to keep at-most-once logout-fire semantics. `false` on
+   *   every other path (success, clean miss, plaintext fallback).
    */
-  private async hydrateRefreshToken(userId: UserId): Promise<void> {
+  private async hydrateRefreshToken(userId: UserId): Promise<boolean> {
     let secureStorageReadError: unknown = null;
 
     if (this.platformSupportsSecureStorage) {
@@ -194,7 +198,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
           await this.singleUserStateProvider
             .get(userId, REFRESH_TOKEN_MEMORY)
             .update((_) => secureRefreshToken);
-          return;
+          return false;
         }
       } catch (e) {
         this.logService.error(
@@ -216,7 +220,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       await this.singleUserStateProvider
         .get(userId, REFRESH_TOKEN_MEMORY)
         .update((_) => diskRefreshToken);
-      return;
+      return false;
     }
 
     // Both locations miss. Only signal logout when secure storage threw — a clean miss
@@ -226,7 +230,10 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
         "[TokenStorageSyncService] Disk fallback also empty after secure-storage read failure. Logging user out.",
       );
       await this.logoutCallback("refreshTokenSecureStorageRetrievalFailure", userId);
+      return true;
     }
+
+    return false;
   }
 
   /**
@@ -238,13 +245,17 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    * callback so the owning context can drive the user-facing "you've been logged out"
    * UX. A plaintext token on disk — produced by the encrypt-failure fallback in
    * `writeTokensToDisk` — is hydrated as-is and never triggers logout.
+   *
+   * @returns `true` if the logout callback was fired — caller should short-circuit any
+   *   remaining hydration steps to keep at-most-once logout-fire semantics. `false` on
+   *   every other path (success, no-AT-on-disk, plaintext fallback).
    */
-  private async hydrateAccessTokenOnSecureStoragePlatform(userId: UserId): Promise<void> {
+  private async hydrateAccessTokenOnSecureStoragePlatform(userId: UserId): Promise<boolean> {
     const diskAccessToken = await firstValueFrom(
       this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
     );
     if (!diskAccessToken) {
-      return;
+      return false;
     }
 
     const diskAccessTokenIsEncrypted = EncString.isSerializedEncString(diskAccessToken);
@@ -259,14 +270,14 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
           e,
         );
         await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
-        return;
+        return true;
       }
       // Token on disk is plaintext and key retrieval threw — typically Linux distros
       // without a configured secure storage provider.
       await this.singleUserStateProvider
         .get(userId, ACCESS_TOKEN_MEMORY)
         .update((_) => diskAccessToken);
-      return;
+      return false;
     }
 
     if (!diskAccessTokenIsEncrypted) {
@@ -275,7 +286,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       await this.singleUserStateProvider
         .get(userId, ACCESS_TOKEN_MEMORY)
         .update((_) => diskAccessToken);
-      return;
+      return false;
     }
 
     if (!accessTokenKey) {
@@ -283,7 +294,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
         "[TokenStorageSyncService] Access token key not found in secure storage; cannot decrypt encrypted access token. Logging user out.",
       );
       await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
-      return;
+      return true;
     }
 
     try {
@@ -306,12 +317,14 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
       await this.singleUserStateProvider
         .get(userId, ACCESS_TOKEN_MEMORY)
         .update((_) => decryptedAccessToken);
+      return false;
     } catch (e) {
       this.logService.error(
         "[TokenStorageSyncService] Failed to decrypt access token. Logging user out.",
         e,
       );
       await this.logoutCallback("accessTokenUnableToBeDecrypted", userId);
+      return true;
     }
   }
 
@@ -322,11 +335,16 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
    * Direct state writes are used (not `TokenService.setXxx`) to avoid triggering the token
    * observables, which would cause the `combineLatest` sync subscription to fire a disk
    * write immediately after hydration.
+   *
+   * If a sub-helper fires {@link logoutCallback}, hydration short-circuits and remaining
+   * steps are skipped — keeps the at-most-once invariant so the consumer apps' message
+   * handlers don't see two concurrent `"logout"` messages for the same user.
    */
   private async hydrateMemoryFromPersistentStorage(userId: UserId): Promise<void> {
     // Access token
+    let loggedOut = false;
     if (this.platformSupportsSecureStorage) {
-      await this.hydrateAccessTokenOnSecureStoragePlatform(userId);
+      loggedOut = await this.hydrateAccessTokenOnSecureStoragePlatform(userId);
     } else {
       const accessToken = await firstValueFrom(
         this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
@@ -337,9 +355,15 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
           .update((_) => accessToken);
       }
     }
+    if (loggedOut) {
+      return;
+    }
 
     // Refresh token
-    await this.hydrateRefreshToken(userId);
+    loggedOut = await this.hydrateRefreshToken(userId);
+    if (loggedOut) {
+      return;
+    }
 
     // Client ID and client secret: plaintext in JSON disk state on all platforms.
     const clientId = await firstValueFrom(
