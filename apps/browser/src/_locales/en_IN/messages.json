@@ -2231,6 +2231,7 @@
   },
   "editItemHeaderTextSendV2": {
     "message": "Edit text",
+    "description": "Header for edit text send"
   },
   "editItemHeaderBankAccount": {
     "message": "Edit bank account",
