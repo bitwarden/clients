@@ -35,9 +35,10 @@ export abstract class OrganizationInviteLinkService {
   abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void>;
 
   /**
-   * Reconstruct and returns an Observable containing the shareable URL from provided OrganizationInviteLink
+   * Reconstruct and returns a Promise containing the shareable URL for the organization's invite link.
+   * Fetches the invite link from state (or API if not cached).
    */
-  abstract reconstructUrl(inviteLink: OrganizationInviteLink, userId: UserId): Observable<string>;
+  abstract reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string>;
 
   /** Persist an invite link to local state */
   abstract upsert(userId: UserId, data: OrganizationInviteLink): Promise<void>;

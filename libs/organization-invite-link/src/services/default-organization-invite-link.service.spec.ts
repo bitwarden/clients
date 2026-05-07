@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -33,19 +33,23 @@ function makeKey(keyB64 = "dGVzdGtleWJ5dGVzZm9ydGVzdGluZw=="): SymmetricCryptoKe
   return key;
 }
 
-function makeResponse(
+function makeResponseModel(
   overrides: Partial<OrganizationInviteLinkResponseModel> = {},
 ): OrganizationInviteLinkResponseModel {
   const resp = mock<OrganizationInviteLinkResponseModel>();
+  resp.id = "link-id";
   resp.code = "abc123";
   resp.allowedDomains = ["example.com"];
   resp.encryptedInviteKey = "2.enc=|iv=|mac=";
+  resp.encryptedOrgKey = undefined;
   resp.organizationId = mockOrgId;
+  resp.creationDate = "2024-01-01T00:00:00Z";
   return Object.assign(resp, overrides);
 }
 
 function makeInviteLink(overrides: Partial<OrganizationInviteLink> = {}): OrganizationInviteLink {
-  return Object.assign(new OrganizationInviteLink(makeResponse()), overrides);
+  const link = new OrganizationInviteLink(makeResponseModel());
+  return Object.assign(link, overrides);
 }
 
 describe("DefaultOrganizationInviteLinkService", () => {
@@ -65,7 +69,11 @@ describe("DefaultOrganizationInviteLinkService", () => {
     environmentService = mock<EnvironmentService>();
     const mockEnvironment = mock<Environment>();
     mockEnvironment.getWebVaultUrl.mockReturnValue("https://vault.bitwarden.com");
-    environmentService.environment$ = of(mockEnvironment);
+    const environmentSubject = new BehaviorSubject<Environment>(mockEnvironment);
+    Object.defineProperty(environmentService, "environment$", {
+      get: () => environmentSubject.asObservable(),
+      configurable: true,
+    });
 
     const accessor = new FakeActiveUserAccessor(mockUserId);
     stateProvider = new FakeStateProvider(accessor);
@@ -81,22 +89,33 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("inviteLink$", () => {
-    it("fetches from API and emits when no state is cached", async () => {
-      const response = makeResponse();
+    it("fetches from API when cache is empty", async () => {
+      const response = makeResponseModel();
       apiService.get.mockResolvedValue(response);
 
       const value = await firstValueFrom(sut.inviteLink$(mockUserId, mockOrgId));
 
+      expect(apiService.get).toHaveBeenCalledWith(mockOrgId);
       expect(value).toEqual(new OrganizationInviteLink(response));
     });
 
-    it("emits undefined when API returns 404", async () => {
-      const notFound = Object.assign(new ErrorResponse({}, 404), { statusCode: 404 });
+    it("returns undefined when API returns 404", async () => {
+      const notFound = new ErrorResponse(null, 404);
       apiService.get.mockRejectedValue(notFound);
 
       const value = await firstValueFrom(sut.inviteLink$(mockUserId, mockOrgId));
 
       expect(value).toBeUndefined();
+    });
+
+    it("emits cached value without calling API again", async () => {
+      const inviteLink = makeInviteLink();
+      await sut.upsert(mockUserId, inviteLink);
+
+      const value = await firstValueFrom(sut.inviteLink$(mockUserId, mockOrgId));
+
+      expect(apiService.get).not.toHaveBeenCalled();
+      expect(value).toEqual(inviteLink);
     });
 
     it("propagates non-404 API errors", async () => {
@@ -120,38 +139,41 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("upsert", () => {
-    it("persists the invite link to state", async () => {
-      const link = makeInviteLink();
-      await sut.upsert(mockUserId, link);
+    it("writes OrganizationInviteLink to state", async () => {
+      const inviteLink = makeInviteLink();
+      await sut.upsert(mockUserId, inviteLink);
 
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(link);
+      expect(stored).toEqual(inviteLink);
     });
   });
 
   describe("delete", () => {
-    it("clears state and calls API delete", async () => {
+    it("calls API delete and clears local state", async () => {
+      const inviteLink = makeInviteLink();
+      await sut.upsert(mockUserId, inviteLink);
       apiService.delete.mockResolvedValue();
-      await sut.upsert(mockUserId, makeInviteLink());
 
       await sut.delete(mockUserId, mockOrgId);
 
       expect(apiService.delete).toHaveBeenCalledWith(mockOrgId);
+
+      // State should be cleared after delete
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toBeFalsy();
+      expect(stored).toBeNull();
     });
   });
 
   describe("createInviteLink", () => {
-    it("calls API create with the provided domains and caches the result", async () => {
-      const orgKey = makeKey();
+    it("generates key, wraps with orgKey, calls API, and caches result", async () => {
+      const orgKey = makeKey("orgkeyB64==");
       const encryptedKey = mock<EncString>();
       (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
-      const response = makeResponse({ allowedDomains: ["bitwarden.com"] });
+      const response = makeResponseModel({ code: "code1", allowedDomains: ["bitwarden.com"] });
 
       keyGenerationService.createKey.mockResolvedValue(makeKey());
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
@@ -164,6 +186,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
         mockOrgId,
         expect.objectContaining({ allowedDomains: ["bitwarden.com"] }),
       );
+
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
@@ -191,8 +214,8 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("updateInviteLink", () => {
-    it("calls API update with the provided domains and caches the result", async () => {
-      const response = makeResponse({ allowedDomains: ["updated.com"] });
+    it("calls API update with new domains and caches result", async () => {
+      const response = makeResponseModel({ allowedDomains: ["updated.com"] });
       apiService.update.mockResolvedValue(response);
 
       await sut.updateInviteLink(mockUserId, mockOrgId, ["updated.com"]);
@@ -201,6 +224,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
         mockOrgId,
         expect.objectContaining({ allowedDomains: ["updated.com"] }),
       );
+
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
@@ -213,9 +237,11 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("refreshInviteLink", () => {
-    it("calls updateInviteLink using cached allowed domains", async () => {
-      await sut.upsert(mockUserId, makeInviteLink({ allowedDomains: ["cached.com"] }));
-      const response = makeResponse({ allowedDomains: ["cached.com"] });
+    it("re-uses cached domains and calls updateInviteLink", async () => {
+      const cached = makeInviteLink({ allowedDomains: ["cached.com"] });
+      await sut.upsert(mockUserId, cached);
+
+      const response = makeResponseModel({ code: "refreshed", allowedDomains: ["cached.com"] });
       apiService.update.mockResolvedValue(response);
 
       await sut.refreshInviteLink(mockUserId, mockOrgId);
@@ -226,11 +252,60 @@ describe("DefaultOrganizationInviteLinkService", () => {
       );
     });
 
-    it("throws when there is no cached link and no existing invite link", async () => {
-      const notFound = Object.assign(new ErrorResponse({}, 404), { statusCode: 404 });
-      apiService.get.mockRejectedValue(notFound);
+    it("throws when no invite link exists", async () => {
+      apiService.get.mockRejectedValue(new ErrorResponse(null, 404));
 
-      await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow();
+      await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
+        "No invite link exists to refresh",
+      );
+    });
+  });
+
+  describe("reconstructUrl", () => {
+    it("uses cached invite link to unwrap key and build URL", async () => {
+      const inviteLink = makeInviteLink({
+        code: "reconstruct",
+        encryptedInviteKey: "2.enc=|iv=|mac=",
+      });
+      await sut.upsert(mockUserId, inviteLink);
+
+      const orgKey = makeKey();
+      const rawKey = makeKey("unwrapped==");
+
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(rawKey);
+
+      const url = await sut.reconstructUrl(mockUserId, mockOrgId);
+
+      expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(expect.any(EncString), orgKey);
+      expect(url).toBe("https://vault.bitwarden.com/#/join/reconstruct?key=unwrapped==");
+    });
+
+    it("fetches from API when cache is empty, then builds URL", async () => {
+      const response = makeResponseModel({
+        code: "reconstruct",
+        encryptedInviteKey: "2.enc=|iv=|mac=",
+      });
+      apiService.get.mockResolvedValue(response);
+
+      const orgKey = makeKey();
+      const rawKey = makeKey("unwrapped==");
+
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
+      encryptService.unwrapSymmetricKey.mockResolvedValue(rawKey);
+
+      const url = await sut.reconstructUrl(mockUserId, mockOrgId);
+
+      expect(apiService.get).toHaveBeenCalledWith(mockOrgId);
+      expect(url).toBe("https://vault.bitwarden.com/#/join/reconstruct?key=unwrapped==");
+    });
+
+    it("throws when no invite link exists", async () => {
+      apiService.get.mockRejectedValue(new ErrorResponse(null, 404));
+
+      await expect(sut.reconstructUrl(mockUserId, mockOrgId)).rejects.toThrow(
+        "Organization does not have an invite link to reconstruct",
+      );
     });
   });
 });

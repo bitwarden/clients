@@ -6,6 +6,7 @@ import {
   combineLatest,
   filter,
   firstValueFrom,
+  from,
   Observable,
   of,
   shareReplay,
@@ -73,9 +74,10 @@ export class ByLinkTabComponent {
 
   protected readonly inviteLinkUrl$: Observable<string> = combineLatest([
     this.userId$,
+    toObservable(this.organizationId),
     this.inviteLink$.pipe(filter((link) => link != null)),
   ]).pipe(
-    switchMap(([userId, inviteLink]) => this.inviteLinkService.reconstructUrl(inviteLink, userId)),
+    switchMap(([userId, orgId]) => from(this.inviteLinkService.reconstructUrl(userId, orgId))),
   );
 
   readonly hasInviteLinkUrl$: Observable<boolean> = of(false);
@@ -88,7 +90,6 @@ export class ByLinkTabComponent {
     this.inviteLink$.pipe(takeUntilDestroyed()).subscribe((inviteLink) => {
       if (inviteLink && !this.form.dirty) {
         this.form.controls.domains.setValue(inviteLink.allowedDomains.join(", "));
-        this.form.markAsPristine();
       }
     });
   }
@@ -109,6 +110,11 @@ export class ByLinkTabComponent {
       .split(",")
       .map((domain) => domain.trim())
       .filter((domain) => domain.length > 0);
+
+    if (domains.length === 0) {
+      this.form.controls.domains.setErrors({ required: true });
+      return;
+    }
 
     const inviteLink = await firstValueFrom(this.inviteLink$);
     if (inviteLink) {

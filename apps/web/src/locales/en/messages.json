@@ -5466,7 +5466,7 @@
     "message": "If entering multiple domains, separate with commas"
   },
   "enterAllowedDomainsToGenerateInviteLink": {
-    "message": "Enter Allowed domains to generate an invite link"
+    "message": "Enter allowed domains to generate an invite link"
   },
   "domainsEdited": {
     "message": "Domains edited"

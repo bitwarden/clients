@@ -44,14 +44,15 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     );
   }
 
-  reconstructUrl(inviteLink: OrganizationInviteLink, userId: UserId): Observable<string> {
-    return this.getOrgKey(userId, inviteLink.organizationId as OrganizationId).pipe(
-      switchMap((orgKey) => {
-        const encKey = new EncString(inviteLink.encryptedInviteKey);
-        return this.encryptService.unwrapSymmetricKey(encKey, orgKey);
-      }),
-      switchMap((rawInviteKey) => this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64)),
-    );
+  async reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string> {
+    const inviteLink = await firstValueFrom(this.inviteLink$(userId, orgId));
+    if (inviteLink == null) {
+      throw new Error("Organization does not have an invite link to reconstruct");
+    }
+    const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
+    const encKey = new EncString(inviteLink.encryptedInviteKey);
+    const rawInviteKey = await this.encryptService.unwrapSymmetricKey(encKey, orgKey);
+    return firstValueFrom(this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64));
   }
 
   async createInviteLink(userId: UserId, orgId: OrganizationId, domains: string[]): Promise<void> {
@@ -75,8 +76,10 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
 
   async refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void> {
     const inviteLink = await firstValueFrom(this.inviteLink$(userId, orgId));
-    const domains = inviteLink?.allowedDomains ?? [];
-    await this.updateInviteLink(userId, orgId, domains);
+    if (inviteLink == null) {
+      throw new Error("No invite link exists to refresh");
+    }
+    await this.updateInviteLink(userId, orgId, inviteLink.allowedDomains);
   }
 
   async upsert(userId: UserId, data: OrganizationInviteLink): Promise<void> {
@@ -88,6 +91,7 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   async delete(userId: UserId, orgId: OrganizationId): Promise<void> {
     await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => undefined);
     await this.apiService.delete(orgId);
+    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => null);
   }
 
   private buildInviteUrl(code: string, keyB64: string): Observable<string> {
