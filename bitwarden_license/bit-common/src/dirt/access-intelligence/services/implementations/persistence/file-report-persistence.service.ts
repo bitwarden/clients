@@ -128,7 +128,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
       switchMap((userId) => {
         // Encrypt view to domain model
         return from(
-          AccessReport.fromView(view, this.riskInsightsEncryptionService, {
+          AccessReport.fromView$(view, this.riskInsightsEncryptionService, {
             organizationId: view.organizationId,
             userId,
           }),
@@ -157,7 +157,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
     );
   }
 
-  loadReport$(
+  loadLastReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
     this.logService.debug("[FileReportPersistenceService] Loading report", { organizationId });
@@ -235,7 +235,7 @@ export class FileReportPersistenceService extends ReportPersistenceService {
             data.reports = apiResponse.reports;
             const domain = new AccessReport(data);
             return from(
-              domain.decrypt(this.riskInsightsEncryptionService, { organizationId, userId }),
+              domain.decrypt$(this.riskInsightsEncryptionService, { organizationId, userId }),
             ).pipe(map(({ view, hadLegacyBlobs }) => ({ report: view, hadLegacyBlobs })));
           }),
         );

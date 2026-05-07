@@ -285,7 +285,7 @@ describe("FileReportPersistenceService", () => {
         totalAtRiskMemberCount: 3,
       });
       jest.spyOn(view, "toMetrics").mockReturnValue(mockMetrics);
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
+      jest.spyOn(AccessReport, "fromView$").mockReturnValue(of(makeMockDomain()));
 
       mockApiService.updateReportSettings$.mockReturnValue(of({} as AccessReportApi));
 
@@ -314,7 +314,7 @@ describe("FileReportPersistenceService", () => {
     it("should propagate encryption errors", async () => {
       const view = createRiskInsights({ id: reportId, organizationId });
       jest
-        .spyOn(AccessReport, "fromView")
+        .spyOn(AccessReport, "fromView$")
         .mockReturnValue(throwError(() => new Error("Encryption failed")));
 
       await expect(firstValueFrom(service.saveApplicationMetadata$(view))).rejects.toThrow(
@@ -324,7 +324,7 @@ describe("FileReportPersistenceService", () => {
 
     it("should propagate API update errors", async () => {
       const view = createRiskInsights({ id: reportId, organizationId });
-      jest.spyOn(AccessReport, "fromView").mockReturnValue(of(makeMockDomain()));
+      jest.spyOn(AccessReport, "fromView$").mockReturnValue(of(makeMockDomain()));
       jest.spyOn(view, "toMetrics").mockReturnValue(createAccessReportMetrics({}));
 
       mockApiService.updateReportSettings$.mockReturnValue(
@@ -337,7 +337,7 @@ describe("FileReportPersistenceService", () => {
     });
   });
 
-  describe("loadReport$", () => {
+  describe("loadLastReport$", () => {
     function makeApiResponse(overrides: Partial<AccessReportApi> = {}): AccessReportApi {
       const response = new AccessReportApi();
       response.id = reportId;
@@ -353,7 +353,7 @@ describe("FileReportPersistenceService", () => {
     function mockDecrypt(view?: AccessReportView) {
       const decryptedView = view ?? createRiskInsights({ id: reportId, organizationId });
       jest
-        .spyOn(AccessReport.prototype, "decrypt")
+        .spyOn(AccessReport.prototype, "decrypt$")
         .mockReturnValue(of({ view: decryptedView, hadLegacyBlobs: false }));
       return decryptedView;
     }
@@ -368,7 +368,7 @@ describe("FileReportPersistenceService", () => {
         throwError(() => new ErrorResponse({ Message: "Not found" }, 404)),
       );
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result).toBeNull();
     });
@@ -378,7 +378,7 @@ describe("FileReportPersistenceService", () => {
         throwError(() => new ErrorResponse({ Message: "Server error" }, 500)),
       );
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toBeInstanceOf(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toBeInstanceOf(
         ErrorResponse,
       );
     });
@@ -388,7 +388,7 @@ describe("FileReportPersistenceService", () => {
         of(makeApiResponse({ contentEncryptionKey: "" })),
       );
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Report encryption key not found",
       );
     });
@@ -398,7 +398,7 @@ describe("FileReportPersistenceService", () => {
       mockApiService.getLatestReport$.mockReturnValue(of(apiResponse));
       mockDecrypt();
 
-      await firstValueFrom(service.loadReport$(organizationId));
+      await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(mockApiService.downloadReportFile$).not.toHaveBeenCalled();
       expect(mockApiService.downloadReportFileAzure$).not.toHaveBeenCalled();
@@ -416,7 +416,7 @@ describe("FileReportPersistenceService", () => {
       );
       mockFileDecrypt();
 
-      await firstValueFrom(service.loadReport$(organizationId));
+      await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(mockApiService.downloadReportFileAzure$).toHaveBeenCalledWith(azureUrl);
       expect(mockApiService.downloadReportFile$).not.toHaveBeenCalled();
@@ -434,7 +434,7 @@ describe("FileReportPersistenceService", () => {
       );
       mockFileDecrypt();
 
-      await firstValueFrom(service.loadReport$(organizationId));
+      await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(mockApiService.downloadReportFile$).toHaveBeenCalledWith(organizationId, reportId);
       expect(mockApiService.downloadReportFileAzure$).not.toHaveBeenCalled();
@@ -453,7 +453,7 @@ describe("FileReportPersistenceService", () => {
       jest.spyOn(EncArrayBuffer, "fromResponse").mockResolvedValue(encBuf);
       mockEncryptionService.decryptReportFile$.mockReturnValue(of(mockDecryptedData));
 
-      await firstValueFrom(service.loadReport$(organizationId));
+      await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(mockEncryptionService.decryptReportFile$).toHaveBeenCalledWith(
         { organizationId, userId },
@@ -468,7 +468,7 @@ describe("FileReportPersistenceService", () => {
       mockApiService.getLatestReport$.mockReturnValue(of(makeApiResponse()));
       const expectedView = mockDecrypt();
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result).not.toBeNull();
       expect(result!.report).toBe(expectedView);
@@ -486,7 +486,7 @@ describe("FileReportPersistenceService", () => {
       );
       mockFileDecrypt();
 
-      const result = await firstValueFrom(service.loadReport$(organizationId));
+      const result = await firstValueFrom(service.loadLastReport$(organizationId));
 
       expect(result).not.toBeNull();
       expect(result!.report.id).toBe(reportId);
@@ -497,10 +497,10 @@ describe("FileReportPersistenceService", () => {
     it("should propagate decryption errors (V1 fallback)", async () => {
       mockApiService.getLatestReport$.mockReturnValue(of(makeApiResponse()));
       jest
-        .spyOn(AccessReport.prototype, "decrypt")
+        .spyOn(AccessReport.prototype, "decrypt$")
         .mockReturnValue(throwError(() => new Error("Decryption failed")));
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Decryption failed",
       );
     });
@@ -519,7 +519,7 @@ describe("FileReportPersistenceService", () => {
         throwError(() => new Error("File decryption failed")),
       );
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "File decryption failed",
       );
     });
@@ -527,7 +527,7 @@ describe("FileReportPersistenceService", () => {
     it("should throw if user ID is not found", async () => {
       mockAccountService.activeAccount$ = of(null as any);
 
-      await expect(firstValueFrom(service.loadReport$(organizationId))).rejects.toThrow(
+      await expect(firstValueFrom(service.loadLastReport$(organizationId))).rejects.toThrow(
         "Null or undefined account",
       );
     });
