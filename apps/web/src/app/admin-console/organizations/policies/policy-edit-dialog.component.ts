@@ -150,18 +150,15 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         }
         const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
         if (confirmed) {
-          // Disarm the beforeunload handler immediately. Angular won't destroy this component
-          // until its next change-detection cycle, but a lock/logout can trigger
-          // window.location.reload() before that cycle runs. Clearing the flag here ensures
-          // the handler doesn't block the reload after the user has already confirmed discard.
+          // Disarm the guard so closePredicate won't prompt again when close() is called
+          // after this predicate resolves true.
           this.discardGuardEnabled.set(false);
         }
         return confirmed;
       };
 
-      // When the vault is locked or the user is logged out, disarm both guards immediately
-      // so the browser's beforeunload dialog cannot block the lock/logout reload, and so
-      // the closePredicate won't show the discard dialog during the subsequent router teardown.
+      // When the vault is locked or the user is logged out, disarm the guard so the
+      // closePredicate won't show the discard dialog during the subsequent router teardown.
       // If the active account becomes null (switchAccount(null) during logout), treat that
       // as a non-Unlocked state and disarm as well.
       this.accountService.activeAccount$
