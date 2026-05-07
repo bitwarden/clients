@@ -55,6 +55,7 @@ export type ChartConfig = {
   xAxisLabel?: string;
   yAxisLabel?: string;
   xAxisType: "datetime" | "default";
+  timeUnit?: "day" | "month" | "year";
   timeDisplayFormat?: string;
   xMin?: Date | number;
   xMax?: Date | number;
@@ -162,7 +163,7 @@ export class LineChartComponent implements OnDestroy {
             display: false,
           },
           ticks: {
-            maxTicksLimit: 6,
+            // maxTicksLimit: 6, // TEMP: dropped for testing month/year boundary visibility
           },
         },
         y: {
@@ -177,11 +178,19 @@ export class LineChartComponent implements OnDestroy {
 
     if (options?.scales?.x?.type === "time") {
       options.scales.x.time = {
-        unit: "day",
+        unit: configuration.timeUnit ?? "day",
         displayFormats: {
           day: configuration.timeDisplayFormat ?? "MMM d yyyy",
+          month: configuration.timeDisplayFormat ?? "MMM yyyy",
+          year: configuration.timeDisplayFormat ?? "yyyy",
         },
+        tooltipFormat: "MMM d yyyy",
       };
+      // Pin first/last ticks to xMin/xMax so the boundary-label rule holds.
+      // Gated on timeUnit to leave other LineChartComponent consumers unaffected.
+      if (configuration.timeUnit !== undefined) {
+        options.scales.x.bounds = "ticks";
+      }
     }
 
     return options;

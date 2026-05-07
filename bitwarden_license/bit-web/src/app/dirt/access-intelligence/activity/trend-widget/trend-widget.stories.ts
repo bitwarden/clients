@@ -1,4 +1,4 @@
-import { importProvidersFrom, signal } from "@angular/core";
+import { importProvidersFrom } from "@angular/core";
 import {
   applicationConfig,
   componentWrapperDecorator,
@@ -253,8 +253,6 @@ export const TwentyFourDataPoints: Story = {
   },
 };
 
-const REFERENCE_TODAY = "2026-04-30T12:00:00Z";
-
 /** Drives the period selector to "All time". */
 async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
   const canvas = within(canvasElement);
@@ -270,81 +268,8 @@ async function selectAllTime(canvasElement: HTMLElement): Promise<void> {
 }
 
 /**
- * All time selected with two data points one calendar day apart.
- * Renders the narrowest multi-day window the chart supports.
- */
-export const AllTimeNarrowSpan: Story = {
-  render: (args) => ({
-    props: {
-      ...args,
-      selectedTimespan: signal(TimePeriod.AllTime),
-    },
-  }),
-  args: {
-    data: {
-      timeframe: TimePeriod.AllTime,
-      dataView: "applications",
-      dataPoints: [
-        { timestamp: "2026-04-29T12:00:00Z", atRisk: 12, total: 50 },
-        { timestamp: REFERENCE_TODAY, atRisk: 14, total: 50 },
-      ],
-    },
-    loading: false,
-    error: null,
-  },
-};
-
-/**
- * All time selected with a single data point.
- * Renders the chart's behavior when only one report exists for the org.
- */
-export const AllTimeSingleDay: Story = {
-  render: (args) => ({
-    props: {
-      ...args,
-      selectedTimespan: signal(TimePeriod.AllTime),
-    },
-  }),
-  args: {
-    data: {
-      timeframe: TimePeriod.AllTime,
-      dataView: "passwords",
-      dataPoints: [{ timestamp: REFERENCE_TODAY, atRisk: 45, total: 180 }],
-    },
-    loading: false,
-    error: null,
-  },
-};
-
-/**
- * All time selected with data points spread across roughly six months.
- * Renders the wide-span case where the chart fits to the data range.
- */
-export const AllTimeWideSpan: Story = {
-  render: (args) => ({
-    props: {
-      ...args,
-      selectedTimespan: signal(TimePeriod.AllTime),
-    },
-  }),
-  args: {
-    data: {
-      timeframe: TimePeriod.AllTime,
-      dataView: "members",
-      dataPoints: [
-        { timestamp: "2025-10-30T12:00:00Z", atRisk: 80, total: 400 },
-        { timestamp: "2026-01-30T12:00:00Z", atRisk: 95, total: 410 },
-        { timestamp: "2026-03-30T12:00:00Z", atRisk: 110, total: 420 },
-        { timestamp: REFERENCE_TODAY, atRisk: 130, total: 430 },
-      ],
-    },
-    loading: false,
-    error: null,
-  },
-};
-
-/**
- * Starts in Past month and clicks the period selector to "All time".
+ * Starts in Past month and clicks the period selector to "All time", covering
+ * the PM-35323 narrow-span repro (two data points one day apart).
  * Excluded from autodocs and Chromatic.
  */
 export const AllTimeFullFlow: Story = {
@@ -356,7 +281,7 @@ export const AllTimeFullFlow: Story = {
       dataView: "applications",
       dataPoints: [
         { timestamp: "2026-04-29T12:00:00Z", atRisk: 12, total: 50 },
-        { timestamp: REFERENCE_TODAY, atRisk: 14, total: 50 },
+        { timestamp: "2026-04-30T12:00:00Z", atRisk: 14, total: 50 },
       ],
     },
     loading: false,

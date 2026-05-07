@@ -188,18 +188,26 @@ export class TrendWidgetComponent {
     const dataPoints = this.data().dataPoints;
 
     if (timespan === TimePeriod.AllTime && dataPoints.length > 0) {
-      const { xMin, xMax } = this.getAllTimeRange(dataPoints);
-      return { xAxisType: "datetime", xMin, xMax };
+      const { xMin, xMax, timeUnit, timeDisplayFormat } = this.getAllTimeRange(dataPoints);
+      return { xAxisType: "datetime", xMin, xMax, timeUnit, timeDisplayFormat };
     }
 
+    const { timeUnit, timeDisplayFormat } = this.getTimeUnitAndFormat(timespan);
     return {
       xAxisType: "datetime",
       xMin: this.getXMinForTimespan(timespan),
       xMax: this.getXMaxForTimespan(timespan),
+      timeUnit,
+      timeDisplayFormat,
     };
   });
 
-  private getAllTimeRange(dataPoints: TrendWidgetData["dataPoints"]): { xMin: Date; xMax: Date } {
+  private getAllTimeRange(dataPoints: TrendWidgetData["dataPoints"]): {
+    xMin: Date;
+    xMax: Date;
+    timeUnit: "day" | "month" | "year";
+    timeDisplayFormat: string;
+  } {
     // Linear scan rather than `Math.min(...arr)` / `Math.max(...arr)`: argument
     // spread has an engine-specific hard cap (~120k in V8) and the server no
     // longer caps the number of data points returned for "All time".
@@ -216,26 +224,47 @@ export class TrendWidgetComponent {
     }
     const oldest = new Date(oldestMs);
     const newest = new Date(newestMs);
+    const monthsSpan =
+      (newest.getFullYear() - oldest.getFullYear()) * 12 + (newest.getMonth() - oldest.getMonth());
 
-    // Pad one day on each side so the data points have breathing room on the
-    // axis, matching the existing same-date pad pattern.
-    const xMin = new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate() - 1);
-    const xMax = new Date(newest.getFullYear(), newest.getMonth(), newest.getDate() + 1);
-
-    return { xMin, xMax };
+    if (monthsSpan < 3) {
+      return {
+        xMin: new Date(oldest.getFullYear(), oldest.getMonth(), oldest.getDate() - 1),
+        xMax: new Date(newest.getFullYear(), newest.getMonth(), newest.getDate() + 1),
+        timeUnit: "day",
+        timeDisplayFormat: "MMM d yyyy",
+      };
+    }
+    if (monthsSpan < 12) {
+      return {
+        xMin: new Date(oldest.getFullYear(), oldest.getMonth(), 1),
+        xMax: new Date(newest.getFullYear(), newest.getMonth() + 1, 1),
+        timeUnit: "month",
+        timeDisplayFormat: "MMM yyyy",
+      };
+    }
+    return {
+      xMin: new Date(oldest.getFullYear(), 0, 1),
+      xMax: new Date(newest.getFullYear() + 1, 0, 1),
+      timeUnit: "year",
+      timeDisplayFormat: "yyyy",
+    };
   }
 
+  // Past Month: day unit, day-aligned bounds.
+  // Past 3/6/12 Months: month unit, start-of-month-aligned bounds (current
+  // month included plus the next-month boundary on the right).
+  // AllTime returns existing fallback values; AllTime with data routes
+  // through getAllTimeRange instead.
   private getXMaxForTimespan(timespan: TimePeriod): Date | undefined {
     const now = new Date();
     switch (timespan) {
       case TimePeriod.PastMonth:
         return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
       case TimePeriod.Past3Months:
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 2);
       case TimePeriod.Past6Months:
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3);
       case TimePeriod.PastYear:
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 4);
+        return new Date(now.getFullYear(), now.getMonth() + 1, 1);
       case TimePeriod.AllTime:
         return now;
     }
@@ -245,15 +274,32 @@ export class TrendWidgetComponent {
     const now = new Date();
     switch (timespan) {
       case TimePeriod.PastMonth:
-        return new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
       case TimePeriod.Past3Months:
-        return new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+        return new Date(now.getFullYear(), now.getMonth() - 3, 1);
       case TimePeriod.Past6Months:
-        return new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+        return new Date(now.getFullYear(), now.getMonth() - 6, 1);
       case TimePeriod.PastYear:
-        return new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        return new Date(now.getFullYear(), now.getMonth() - 12, 1);
       case TimePeriod.AllTime:
         return undefined;
+    }
+  }
+
+  private getTimeUnitAndFormat(timespan: TimePeriod): {
+    timeUnit: "day" | "month" | "year";
+    timeDisplayFormat: string;
+  } {
+    switch (timespan) {
+      case TimePeriod.PastMonth:
+        return { timeUnit: "day", timeDisplayFormat: "MMM d" };
+      case TimePeriod.Past3Months:
+      case TimePeriod.Past6Months:
+      case TimePeriod.PastYear:
+        return { timeUnit: "month", timeDisplayFormat: "MMM yyyy" };
+      case TimePeriod.AllTime:
+        // Empty-data fallback only; AllTime with data uses getAllTimeRange.
+        return { timeUnit: "day", timeDisplayFormat: "MMM d yyyy" };
     }
   }
 
