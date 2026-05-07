@@ -212,7 +212,7 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
         component.data.controls.header.setValue("a".repeat(41));
 
         expect(component.data.controls.header.valid).toBe(false);
-        expect(component.data.controls.header.errors).toHaveProperty("headerMaxLength");
+        expect(component.data.controls.header.errors).toHaveProperty("maxLength");
       });
     });
 
@@ -247,7 +247,7 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
         component.data.controls.description.setValue("a".repeat(251));
 
         expect(component.data.controls.description.valid).toBe(false);
-        expect(component.data.controls.description.errors).toHaveProperty("headerMaxLength");
+        expect(component.data.controls.description.errors).toHaveProperty("maxLength");
       });
     });
 
@@ -272,7 +272,7 @@ describe("OrganizationUserNotificationPolicyComponent", () => {
         component.data.controls.buttonText.setValue("a".repeat(21));
 
         expect(component.data.controls.buttonText.valid).toBe(false);
-        expect(component.data.controls.buttonText.errors).toHaveProperty("headerMaxLength");
+        expect(component.data.controls.buttonText.errors).toHaveProperty("maxLength");
       });
     });
   });

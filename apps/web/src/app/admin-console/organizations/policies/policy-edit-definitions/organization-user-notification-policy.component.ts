@@ -35,7 +35,7 @@ import { PolicyCategory } from "../pipes/policy-category";
 function lengthValidCustomMessage(customMessage: string, max: number): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (control.value && control.value.length > max) {
-      return { headerMaxLength: { message: customMessage } };
+      return { maxLength: { message: customMessage } };
     }
     return null;
   };
