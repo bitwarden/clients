@@ -242,6 +242,9 @@
    "hideTextByDefault": {
      "message": "Hide text by default"
    },
+   "hideYourEmail": {
+     "message": "Hide your email address from viewers."
+   },
    "limitSendViews": {
      "message": "Limit views"
    },
@@ -2777,7 +2780,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Awaiting security key interaction..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {

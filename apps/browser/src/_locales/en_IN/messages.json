@@ -2185,10 +2185,6 @@
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSendV2": {
-    "message": "New text",
-    "description": "Header for new text send"
-  },
   "newItemHeaderBankAccount": {
     "message": "New bank account",
     "description": "Header for new bank account item type"
@@ -2205,8 +2201,8 @@
     "message": "New Text Send",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSendV2": {
-    "message": "New file",
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2229,10 +2225,6 @@
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSendV2": {
-    "message": "Edit text",
-    "description": "Header for edit text send"
-  },
   "editItemHeaderBankAccount": {
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
@@ -2249,8 +2241,8 @@
     "message": "Edit Text Send",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -3278,6 +3270,9 @@
   },
   "dateParsingError": {
     "message": "There was an error saving your deletion and expiration dates."
+  },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
   },
   "passwordPrompt": {
     "message": "Master password re-prompt"

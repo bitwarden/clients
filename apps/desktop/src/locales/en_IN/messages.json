@@ -200,6 +200,9 @@
   "hideTextByDefault": {
     "message": "Hide text by default"
   },
+  "hideYourEmail": {
+    "message": "Hide your email address from viewers."
+  },
   "limitSendViews": {
     "message": "Limit views"
   },
@@ -227,20 +230,20 @@
   "sendTypeTextToShare": {
     "message": "Text to share"
   },
-  "newItemHeaderTextSendV2": {
-    "message": "New text",
+  "newItemHeaderTextSend": {
+    "message": "New Text Send",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSendV2": {
-    "message": "New file",
+  "newItemHeaderFileSend": {
+    "message": "New File Send",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+  "editItemHeaderTextSend": {
+    "message": "Edit Text Send",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+  "editItemHeaderFileSend": {
+    "message": "Edit File Send",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
