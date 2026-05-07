@@ -17,7 +17,7 @@ import { AccessReportSettingsView } from "../view/access-report-settings.view";
 export class AccessReportSettingsApi extends BaseResponse {
   applicationName: string = "";
   isCritical: boolean = false;
-  reviewedDate: string | undefined;
+  reviewedDate?: string;
 
   constructor(data: any) {
     super(data);
@@ -25,8 +25,8 @@ export class AccessReportSettingsApi extends BaseResponse {
       return;
     }
 
-    this.applicationName = this.getResponseProperty("applicationName");
+    this.applicationName = this.getResponseProperty("applicationName") ?? "";
     this.isCritical = this.getResponseProperty("isCritical") ?? false;
-    this.reviewedDate = this.getResponseProperty("reviewedDate");
+    this.reviewedDate = this.getResponseProperty("reviewedDate") ?? undefined;
   }
 }
