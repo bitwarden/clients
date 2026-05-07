@@ -24,6 +24,8 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 #[cfg(target_os = "windows")]
 pub use types::UserVerificationRequirement;
 #[cfg(target_os = "windows")]
+use win_webauthn::plugin::Clsid;
+#[cfg(target_os = "windows")]
 use windows::Win32::{
     System::Threading::GetCurrentThreadId,
     UI::WindowsAndMessaging::{DispatchMessageA, GetMessageA},
@@ -107,7 +109,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Some("serve") => {
             let thread_id = unsafe { GetCurrentThreadId() };
             tracing::info!(%thread_id, "Starting plugin authenticator...");
-            let mut plugin = process::run_server()?;
+            let clsid = {
+                let com_id = windows_plugin_authenticator::read_config_file()?.clsid;
+                Clsid::try_from(format!("{{{}}}", com_id).as_str()).map_err(|err| {
+                    format!("Could not read plugin authenticator CLSID from config file: {err}")
+                })?
+            };
+            let mut plugin = process::run_server(clsid)?;
             tracing::info!(%thread_id, "Listening for passkey requests...");
             loop {
                 let mut msg = MaybeUninit::uninit();

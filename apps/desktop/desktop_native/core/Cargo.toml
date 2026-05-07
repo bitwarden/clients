@@ -73,9 +73,11 @@ serde_json = { workspace = true }
 widestring = { workspace = true, optional = true }
 win_webauthn = { path = "../win_webauthn" }
 windows = { workspace = true, features = [
+    "ApplicationModel",
     "Foundation",
     "Security_Credentials_UI",
     "Security_Cryptography",
+    "Storage_Search",
     "Storage_Streams",
     "Win32_Foundation",
     "Win32_Security_Credentials",

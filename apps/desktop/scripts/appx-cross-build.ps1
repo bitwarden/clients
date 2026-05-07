@@ -107,9 +107,11 @@ cd $PSScriptRoot/..
 
 if ($Beta) {
   $electronConfigFile =  Get-Item "./electron-builder.beta.json"
+  $env:BITWARDEN_RELEASE_CHANNEL = "beta"
 }
 else {
   $electronConfigFile = Get-Item "./electron-builder.json"
+  $env:BITWARDEN_RELEASE_CHANNEL = "stable"
 }
 
 $builderConfig = Get-Content $electronConfigFile | ConvertFrom-Json
@@ -171,6 +173,15 @@ Write-Host "Copying Assets"
 New-Item -Type Directory (Join-Path $outDir appx/assets)
 Copy-Item $srcDir/resources/appx/* $outDir/appx/assets/
 
+if ($Beta) {
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.beta.json $outDir/appx/app/resources/plugin_authenticator_config.json
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.beta.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+}
+else {
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_config.stable.json $outDir/appx/app/resources/plugin_authenticator_config.json
+    Copy-Item $srcDir/resources/windows_plugin_authenticator_logo.stable.svg $outDir/appx/app/resources/plugin_authenticator_logo.svg
+}
+
 Write-Host "Building Appx manifest"
 $translationMap = @{
     'arch' = $arch
@@ -187,6 +198,19 @@ $manifest = $manifestTemplate
 $translationMap.Keys | ForEach-Object {
     $manifest = $manifest.Replace("`${$_}", $translationMap[$_])
 }
+
+# Manual Fixups for Beta
+# electron-builder can't template these variables, so we substitute known values with the ones we want:
+if ($Beta) {
+    # Update color
+    $manifest = $manifest.Replace("#175DDC", "#FDC700")
+
+    $PluginStableConfig = Get-Content $srcDir/resources/windows_plugin_authenticator_config.stable.json | ConvertFrom-Json
+    $PluginBetaConfig = Get-Content $srcDir/resources/windows_plugin_authenticator_config.beta.json | ConvertFrom-Json
+    # Update COM ID
+    $manifest = $manifest.Replace($PluginStableConfig.clsid, $PluginBetaConfig.clsid)
+}
+
 $manifest | Out-File appx/AppxManifest.xml
 $unsignedArtifactpath = [System.IO.Path]::GetFileNameWithoutExtension($artifactName) + "-unsigned.$ext"
 Write-Host "Creating unsigned Appx"

@@ -1,3 +1,5 @@
+use std::{path::PathBuf, sync::OnceLock};
+
 use anyhow::{anyhow, Result};
 use base64::engine::{general_purpose::URL_SAFE_NO_PAD, Engine};
 use serde::{de::Visitor, Deserialize, Deserializer, Serialize};
@@ -8,7 +10,7 @@ use win_webauthn::{
 };
 use windows::{core::GUID, Win32::Foundation::HWND};
 
-const PLUGIN_CLSID: &str = "{0f7dc5d9-69ce-4652-8572-6877fd695062}";
+static PLUGIN_ID: OnceLock<Clsid> = OnceLock::new();
 
 #[allow(clippy::unused_async)]
 pub async fn run_command(value: String) -> Result<String> {
@@ -42,7 +44,7 @@ fn handle_sync_request(params: SyncParameters) -> Result<SyncResponse> {
         .filter_map(|c| c.try_into().ok())
         .collect();
     let num_creds = credentials.len().try_into().unwrap_or(u32::MAX);
-    sync_credentials_to_windows(credentials, PLUGIN_CLSID)
+    sync_credentials_to_windows(credentials, get_clsid()?)
         .map_err(|e| anyhow!("Failed to sync credentials to Windows: {e}"))?;
     Ok(SyncResponse { added: num_creds })
 }
@@ -89,8 +91,7 @@ fn handle_user_verification_request(
         user_name: request.username,
         display_hint: Some(request.display_hint),
     };
-    let clsid = Clsid::try_from(PLUGIN_CLSID)
-        .map_err(|err| anyhow!("Failed to parse CLSID from string {PLUGIN_CLSID}: {err}"))?;
+    let clsid = get_clsid()?;
     let plugin = WebAuthnPlugin::new(clsid);
     let _response = plugin
         .perform_user_verification(uv_request, operation_request_hash)
@@ -130,7 +131,7 @@ impl TryFrom<SyncCredential> for SyncedCredential {
 /// credentials to Windows
 fn sync_credentials_to_windows(
     credentials: Vec<SyncedCredential>,
-    plugin_clsid: &str,
+    plugin_clsid: Clsid,
 ) -> Result<(), String> {
     tracing::debug!(
         "[SYNC_TO_WIN] sync_credentials_to_windows called with {} credentials for plugin CLSID: {}",
@@ -356,4 +357,41 @@ struct SyncedCredential {
     pub rp_id: String,
     pub user_name: String,
     pub user_handle: Vec<u8>,
+}
+
+fn get_clsid() -> Result<Clsid> {
+    let clsid = PLUGIN_ID.get_or_init(|| {
+        let clsid = read_config_file()
+            .expect("file to exist at package bundle-time")
+            .clsid;
+        Clsid::try_from(format!("{{{}}}", clsid).as_str())
+            .expect(&format!("valid CLSID, received: {clsid}"))
+    });
+    Ok(*clsid)
+}
+
+fn read_config_file() -> Result<ConfigFile> {
+    let config_path = {
+        let path = windows::ApplicationModel::Package::Current()
+            .and_then(|package| package.InstalledLocation())
+            .and_then(|folder| folder.Path())
+            .map(|path| path.to_os_string())?;
+        let mut path = PathBuf::from(path);
+        path.push("app\\resources\\plugin_authenticator_config.json");
+        path
+    };
+    tracing::debug!("Reading config file from {config_path:?}");
+    let config_file = std::fs::File::options()
+        .read(true)
+        .open(config_path)
+        .map_err(|err| anyhow!("Could not open authenticator config file: {err}"))?;
+    let config: ConfigFile = serde_json::from_reader(config_file)
+        .map_err(|err| anyhow!("Could not read authenticator config file: {err}"))?;
+    tracing::debug!("Found config file: {config:?}");
+    Ok(config)
+}
+
+#[derive(Debug, Deserialize)]
+struct ConfigFile {
+    clsid: String,
 }

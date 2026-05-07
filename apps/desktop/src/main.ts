@@ -133,6 +133,8 @@ export class Main {
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
 
+    this.logService.debug("Release channel:", BIT_RELEASE_CHANNEL);
+
     const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
     const cachedBackend = new CachedBackend(electronStoreBackend);
 

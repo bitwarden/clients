@@ -116,6 +116,16 @@
         "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.pdb",
         "to": "bitwarden_plugin_authenticator.pdb"
       }
+    ],
+    "extraResources": [
+      {
+        "from": "resources/windows_plugin_authenticator_config.stable.json",
+        "to": "plugin_authenticator_config.json"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo.stable.svg",
+        "to": "plugin_authenticator_logo.json"
+      }
     ]
   },
   "linux": {

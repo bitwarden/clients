@@ -15,7 +15,7 @@ use autofill_provider::{
 use base64::engine::{general_purpose::STANDARD, Engine as _};
 use win_webauthn::{
     plugin::{
-        PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
+        Clsid, PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
         PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
     },
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
@@ -73,11 +73,11 @@ pub(super) fn add_authenticator() -> Result<(), String> {
     */
 }
 
-pub(super) fn run_server() -> Result<WebAuthnPlugin, String> {
+pub(super) fn run_server(clsid: Clsid) -> Result<WebAuthnPlugin, String> {
     tracing::debug!("Setting up COM server");
 
     // TODO: write config to local file, or bake into binary
-    let clsid = CLSID.try_into().expect("valid GUID string");
+    // let clsid = CLSID.try_into().expect("valid GUID string");
     let authenticator_handler = BitwardenPluginAuthenticator {
         client: Mutex::new(None),
         callbacks: Arc::new(Mutex::new(HashMap::new())),

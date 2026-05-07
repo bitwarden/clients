@@ -1,39 +1,33 @@
 #![cfg(target_os = "windows")]
-use std::collections::HashSet;
+use std::{collections::HashSet, io::Read, path::PathBuf};
+
+use serde::Deserialize;
 
 use win_webauthn::{
-    plugin::{PluginAddAuthenticatorOptions, WebAuthnPlugin},
+    plugin::{Clsid, PluginAddAuthenticatorOptions, WebAuthnPlugin},
     AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
 };
 
-// const RELEASE_CHANNEL: Option<&str> = option_env!("BITWARDEN_RELEASE_CHANNEL");
-// pub const AUTHENTICATOR_NAME: &str = "Bitwarden";
-// pub const BETA_AUTHENTICATOR_NAME: &str = "Bitwarden Beta";
-pub const RPID: &str = "bitwarden.com";
-// pub const CLSID: &str = "{0f7dc5d9-69ce-4652-8572-6877fd695062}";
-// pub const BETA_CLSID: &str = "{355a5108-bcd1-4563-9b57-8d8e1adaf053}";
 pub const AAGUID: &str = "d548826e-79b4-db40-a3d8-11116f7e8349";
-// pub const LOGO_SVG: &str = r##"<svg version="1.1" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><path fill="#175ddc" d="M300 253.125C300 279.023 279.023 300 253.125 300H46.875C20.9766 300 0 279.023 0 253.125V46.875C0 20.9766 20.9766 0 46.875 0H253.125C279.023 0 300 20.9766 300 46.875V253.125Z"/><path fill="#fff" d="M243.105 37.6758C241.201 35.7715 238.945 34.834 236.367 34.834H63.6328C61.0254 34.834 58.7988 35.7715 56.8945 37.6758C54.9902 39.5801 54.0527 41.8359 54.0527 44.4141V159.58C54.0527 168.164 55.7227 176.689 59.0625 185.156C62.4023 193.594 66.5625 201.094 71.5137 207.656C76.4648 214.189 82.3535 220.576 89.209 226.787C96.0645 232.998 102.393 238.125 108.164 242.227C113.965 246.328 120 250.195 126.299 253.857C132.598 257.52 137.08 259.98 139.717 261.27C142.354 262.559 144.492 263.584 146.074 264.258C147.275 264.844 148.564 265.166 149.971 265.166C151.377 265.166 152.666 264.873 153.867 264.258C155.479 263.555 157.588 262.559 160.254 261.27C162.891 259.98 167.373 257.49 173.672 253.857C179.971 250.195 186.006 246.328 191.807 242.227C197.607 238.125 203.936 232.969 210.791 226.787C217.646 220.576 223.535 214.219 228.486 207.656C233.438 201.094 237.568 193.623 240.938 185.156C244.277 176.719 245.947 168.193 245.947 159.58V44.4434C245.977 41.8359 245.01 39.5801 243.105 37.6758ZM220.84 160.664C220.84 202.354 150 238.271 150 238.271V59.502H220.84C220.84 59.502 220.84 118.975 220.84 160.664Z"/></svg>"##;
-// pub const BETA_LOGO_SVG: &str = r##"<svg version="1.1" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg"><path fill="#FDC700" d="M300 253.125C300 279.023 279.023 300 253.125 300H46.875C20.9766 300 0 279.023 0 253.125V46.875C0 20.9766 20.9766 0 46.875 0H253.125C279.023 0 300 20.9766 300 46.875V253.125Z"/><path fill="#fff" d="M243.105 37.6758C241.201 35.7715 238.945 34.834 236.367 34.834H63.6328C61.0254 34.834 58.7988 35.7715 56.8945 37.6758C54.9902 39.5801 54.0527 41.8359 54.0527 44.4141V159.58C54.0527 168.164 55.7227 176.689 59.0625 185.156C62.4023 193.594 66.5625 201.094 71.5137 207.656C76.4648 214.189 82.3535 220.576 89.209 226.787C96.0645 232.998 102.393 238.125 108.164 242.227C113.965 246.328 120 250.195 126.299 253.857C132.598 257.52 137.08 259.98 139.717 261.27C142.354 262.559 144.492 263.584 146.074 264.258C147.275 264.844 148.564 265.166 149.971 265.166C151.377 265.166 152.666 264.873 153.867 264.258C155.479 263.555 157.588 262.559 160.254 261.27C162.891 259.98 167.373 257.49 173.672 253.857C179.971 250.195 186.006 246.328 191.807 242.227C197.607 238.125 203.936 232.969 210.791 226.787C217.646 220.576 223.535 214.219 228.486 207.656C233.438 201.094 237.568 193.623 240.938 185.156C244.277 176.719 245.947 168.193 245.947 159.58V44.4434C245.977 41.8359 245.01 39.5801 243.105 37.6758ZM220.84 160.664C220.84 202.354 150 238.271 150 238.271V59.502H220.84C220.84 59.502 220.84 118.975 220.84 160.664Z"/></svg>"##;
+pub const RPID: &str = "bitwarden.com";
 
-pub fn register(authenticator_name: String, clsid: &str, logo_svg: String) -> Result<(), String> {
+pub fn register() -> Result<(), String> {
     tracing::debug!("register() called...");
+    let config = read_config_file()?;
+    let logo = read_logo()?;
+
     let aaguid = AAGUID
         .try_into()
         .map_err(|err| format!("Invalid AAGUID `{AAGUID}`: {err}"))?;
-    // let (authenticator_name, clsid) = match RELEASE_CHANNEL.as_deref() {
-    //     Some("BETA") => (BETA_AUTHENTICATOR_NAME, BETA_CLSID),
-    //     _ => (AUTHENTICATOR_NAME, CLSID),
-    // };
-    let clsid = clsid
-        .try_into()
-        .map_err(|_| format!("invalid CLSID string: {clsid}"))?;
+    let clsid = Clsid::try_from(format!("{{{}}}", config.clsid).as_ref())
+        .map_err(|_| format!("invalid CLSID string: {}", config.clsid))?;
+
     let options = PluginAddAuthenticatorOptions {
-        authenticator_name: authenticator_name.to_string(),
+        authenticator_name: config.name.clone(),
         clsid,
         rp_id: Some(RPID.to_string()),
-        light_theme_logo_svg: Some(logo_svg.clone()),
-        dark_theme_logo_svg: Some(logo_svg),
+        light_theme_logo_svg: Some(logo.to_string()),
+        dark_theme_logo_svg: Some(logo.to_string()),
         authenticator_info: AuthenticatorInfo {
             versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
             aaguid: aaguid,
@@ -56,4 +50,44 @@ pub fn register(authenticator_name: String, clsid: &str, logo_svg: String) -> Re
     let response = WebAuthnPlugin::add_authenticator(&options);
     tracing::debug!("Added the authenticator: {response:?}");
     Ok(())
+}
+
+fn get_resource_path(resource: &str) -> Result<PathBuf, windows::core::Error> {
+    let mut path = windows::ApplicationModel::Package::Current()
+        .and_then(|package| package.InstalledLocation())
+        .and_then(|folder| folder.Path())
+        .map(|path| PathBuf::from(path.to_os_string()))?;
+    path.push("app\\resources");
+    path.push(resource);
+    Ok(path)
+}
+
+pub fn read_config_file() -> Result<ConfigFile, String> {
+    let config_path = get_resource_path("plugin_authenticator_config.json")
+        .map_err(|err| format!("Failed to find configuration file path: {err}"))?;
+
+    let config_file = std::fs::File::open(config_path)
+        .map_err(|err| format!("Could not open authenticator config file: {err}"))?;
+    let config: ConfigFile = serde_json::from_reader(config_file)
+        .map_err(|err| format!("Could not read authenticator config file: {err}"))?;
+    tracing::debug!("Found config file: {config:?}");
+    Ok(config)
+}
+
+fn read_logo() -> Result<String, String> {
+    let logo_path = get_resource_path("plugin_authenticator_logo.svg")
+        .map_err(|err| format!("Failed to find logo path: {err}"))?;
+
+    let mut logo = String::new();
+    std::fs::File::open(logo_path)
+        .map_err(|err| format!("Could not open authenticator logo file: {err}"))?
+        .read_to_string(&mut logo)
+        .map_err(|err| format!("Could not read logo file: {err}"))?;
+    Ok(logo)
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ConfigFile {
+    pub clsid: String,
+    pub name: String,
 }
