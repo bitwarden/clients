@@ -2187,6 +2187,7 @@
   },
   "newItemHeaderTextSendV2": {
     "message": "New text",
+    "description": "Header for new text send"
   },
   "newItemHeaderBankAccount": {
     "message": "New bank account",
