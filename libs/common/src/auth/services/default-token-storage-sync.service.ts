@@ -241,6 +241,7 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
         encString,
         accessTokenKey,
       );
+
       // Decryption can resolve to a falsy value (null/empty string) without throwing —
       // typically when the access token key is mismatched against the ciphertext (e.g.
       // master-password change on another device invalidated the disk-stored encrypted
