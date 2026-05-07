@@ -142,6 +142,11 @@ describe("RiskInsightsDrawerDialogComponent", () => {
         blobData: expect.any(String),
         blobOptions: { type: "text/plain" },
       });
+
+      const downloadCall = mockFileDownloadService.download.mock.calls[0]?.[0];
+      expect(downloadCall?.blobData).toBeDefined();
+      const firstLine = (downloadCall!.blobData as string).split("\n")[0].trim();
+      expect(firstLine).toBe("email,atRiskApplications");
     });
 
     it("should not download when drawer is closed", async () => {
