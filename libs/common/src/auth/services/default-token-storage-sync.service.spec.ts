@@ -1093,6 +1093,37 @@ describe("DefaultTokenStorageSyncService", () => {
         expect(logoutCallback).toHaveBeenCalledWith("accessTokenUnableToBeDecrypted", userId);
       });
 
+      // Repro for the gap reported in https://github.com/bitwarden/clients/pull/15111 (issue
+      // #15110). EncryptService.decryptString can resolve to a falsy value (null/empty string)
+      // without throwing — typically when the access token key is mismatched against the
+      // ciphertext (e.g. master-password change on another device invalidates the disk-stored
+      // encrypted token). Without an explicit falsy check, that falsy value is written to
+      // memory state and the logout signal is skipped, leaving the user in a wedged
+      // unknown-error state on Windows Hello.
+      it.each([null, "", undefined])(
+        "fires logoutCallback('accessTokenUnableToBeDecrypted') when decryptString resolves to falsy value (%p) without throwing",
+        async (falsyResult: string | null | undefined) => {
+          sut = createService(true);
+
+          singleUserStateProvider
+            .getFake(userId, ACCESS_TOKEN_DISK)
+            .nextState(encryptedAccessToken);
+
+          const mockKey = {} as SymmetricCryptoKey;
+          secureStorageService.get.mockResolvedValue({ keyB64: "someKeyB64" });
+          jest.spyOn(SymmetricCryptoKey, "fromJSON").mockReturnValue(mockKey);
+          encryptService.decryptString.mockResolvedValue(falsyResult as string);
+
+          await sut.init();
+
+          expect(logoutCallback).toHaveBeenCalledWith("accessTokenUnableToBeDecrypted", userId);
+          const memoryValue = await firstValueFrom(
+            singleUserStateProvider.getFake(userId, ACCESS_TOKEN_MEMORY).state$,
+          );
+          expect(memoryValue).toBeNull();
+        },
+      );
+
       it("does not fire logoutCallback when disk holds an unencrypted access token (encrypt-failure fallback) even if key retrieval throws", async () => {
         sut = createService(true);
 

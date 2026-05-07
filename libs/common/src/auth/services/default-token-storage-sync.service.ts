@@ -237,8 +237,23 @@ export class DefaultTokenStorageSyncService implements TokenStorageSyncServiceAb
 
     try {
       const encString = new EncString(diskAccessToken as EncryptedString);
-      const plaintext = await this.encryptService.decryptString(encString, accessTokenKey);
-      await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => plaintext);
+      const decryptedAccessToken = await this.encryptService.decryptString(
+        encString,
+        accessTokenKey,
+      );
+      // Decryption can resolve to a falsy value (null/empty string) without throwing —
+      // typically when the access token key is mismatched against the ciphertext (e.g.
+      // master-password change on another device invalidated the disk-stored encrypted
+      // token). Throw so the catch below fires the logout signal rather than letting a
+      // falsy value flow into memory unchecked.
+      if (!decryptedAccessToken) {
+        throw new Error(
+          "Access token decryption produced a falsy value. The access token key may be invalid or expired.",
+        );
+      }
+      await this.singleUserStateProvider
+        .get(userId, ACCESS_TOKEN_MEMORY)
+        .update((_) => decryptedAccessToken);
     } catch (e) {
       this.logService.error(
         "[TokenStorageSyncService] Failed to decrypt access token. Logging user out.",
