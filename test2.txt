@@ -1,0 +1,231 @@
+PASS apps/browser/src/autofill/background/overlay.background.spec.ts (7.409 s)
+  OverlayBackground
+    storing pageDetails
+      √ stores the page details for the tab (19 ms)
+      building sub frame offsets
+        √ triggers a destruction of the inline menu listeners if the max frame depth is exceeded  (9 ms)
+        √ builds the offset values for a sub frame within the tab (4 ms)
+        √ skips building offset values for a previously calculated sub frame (6 ms)
+        √ will attempt to build the sub frame offsets by posting window messages if a set of offsets is not returned (4 ms)
+        √ updates sub frame data that has been calculated using window messages (4 ms)
+    removing pageDetails
+      √ removes the page details and port key for a specific tab from the pageDetailsForTab object (10 ms)
+    re-positioning the inline menu within sub frames
+      triggerAutofillOverlayReposition
+        checkShouldRepositionInlineMenu
+          blocking a reposition of the overlay
+            √ blocks repositioning when the focused field data is not set (6 ms)
+            √ blocks repositioning when the sender is from a different tab than the focused field (15 ms)
+            √ blocks repositioning when the sender frame is not a parent frame of the focused field (21 ms)
+          allowing a reposition of the overlay
+            √ allows repositioning when the sender frame is for the focused field and the inline menu is visible,  (18 ms)
+        repositionInlineMenu
+          √ closes the inline menu if the field is not focused (28 ms)
+          √ closes the inline menu if the focused field is not within the viewport (15 ms)
+          √ rebuilds the sub frame offsets when the focused field's frame id indicates that it is within a sub frame (16 ms)
+          updating the inline menu position
+            √ skips updating the position of either inline menu element if a field is not currently focused (64 ms)
+            √ sets the inline menu invisible and updates its position (64 ms)
+            √ skips updating the inline menu list if the user has the inline menu set to open on button click (47 ms)
+            √ skips updating the inline menu list if the focused field has a value and the user status is not unlocked (48 ms)
+        triggerSubFrameFocusInRebuild
+          √ triggers a rebuild of the sub frame and updates the inline menu position (13 ms)
+        toggleInlineMenuHidden
+          √ skips adjusting the hidden status of the inline menu if the sender tab does not contain the focused field (5 ms)
+    updating the overlay ciphers
+      √ skips updating the overlay ciphers if the user's auth status is not unlocked (12 ms)
+      √ skips updating the inline menu ciphers if the current tab url has non-http protocol (3 ms)
+      √ closes the inline menu on the focused field's tab if current tab is different (16 ms)
+      √ queries all cipher types, sorts them by last used, and formats them for usage in the overlay (12 ms)
+      √ queries only login ciphers when not updating all cipher types (17 ms)
+      √ queries all cipher types when the card and identity ciphers set is not built when only updating login ciphers (48 ms)
+      √ posts an `updateAutofillInlineMenuListCiphers` message to the overlay list port, and send a `updateAutofillInlineMenuListCiphers` message to the tab indicating that the list of ciphers is populated (17 ms)
+      √ updates the inline menu list with card ciphers (4 ms)
+      √ adds available passkey ciphers to the inline menu (20 ms)
+      √ does not add a passkey to the inline menu when its rpId is part of the neverDomains exclusion list (43 ms)
+      √ does not add passkeys to the inline menu if the passkey setting is disabled (20 ms)
+      √ updates the inline menu list with login ciphers when the field fill type is for updating the current password (5 ms)
+      updating ciphers for an account creation inline menu
+        √ updates the ciphers with a list of identity ciphers that contain a username (4 ms)
+        √ appends any found login ciphers to the list of identity ciphers (22 ms)
+        √ skips any identity ciphers that do not contain a username or an email address (4 ms)
+        √ does not add the identity ciphers if the field is for a password field (10 ms)
+    extension message handlers
+      autofillOverlayElementClosed message handler
+        √ disconnects any expired ports if the sender is not from the same page as the most recently focused field (8 ms)
+        √ disconnects the button element port (12 ms)
+        √ disconnects the list element port (19 ms)
+      autofillOverlayAddNewVaultItem message handler
+        √ will not open the add edit popout window if the message does not have a login cipher provided (2 ms)
+        √ resets the currentAddNewItemData to null when a cipher view is not successfully created (13 ms)
+        √ will open the add edit popout window after creating a new cipher (15 ms)
+        √ creates a new card cipher (16 ms)
+        creating a new identity cipher
+          √ populates an identity cipher view and creates it (15 ms)
+          √ saves the first name based on the full name value (15 ms)
+          √ saves the first and middle names based on the full name value (16 ms)
+          √ saves the first, middle, and last names based on the full name value (16 ms)
+        pulling cipher data from multiple frames of a tab
+          √ combines the login cipher data from all frames (16 ms)
+          √ sets the uri to the subframe of a tab if the login data is complete (16 ms)
+          √ combines the card cipher data from all frames (16 ms)
+          √ combines the identity cipher data from all frames (16 ms)
+      checkIsInlineMenuCiphersPopulated message handler
+        √ returns false if the sender's tab id is not equal to the focused field's tab id (16 ms)
+        √ returns false if the overlay login cipher are not populated (2 ms)
+        √ returns true if the overlay login ciphers are populated (14 ms)
+      updateFocusedFieldData message handler
+        √ sends a message to the sender frame to unset the most recently focused field data when the currently focused field does not belong to the sender (32 ms)
+        √ triggers an update of the identity ciphers present on a login field (32 ms)
+        √ triggers an update of the inline menu ciphers when the new focused field's cipher type does not equal the previous focused field's cipher type (37 ms)
+        displaying the password generation menu
+          √ displays the password generator when the focused field is for password generation (43 ms)
+          √ displays the password generator when the focused field is for login and the field has an account creation type of password (32 ms)
+        displaying the save login menu
+          √ shows the save login menu when the focused field type is for password generation and the field is filled (32 ms)
+          √ shows the save login menu when the focused field type is for a login cipher and the field is filled (47 ms)
+      updateIsFieldCurrentlyFocused message handler
+        √ skips updating the isFiledCurrentlyFocused value when the focused field data is populated and the sender frame id does not equal the focused field's frame id (15 ms)
+        √ skips updating the isFiledCurrentlyFocused value when the focused field data is populated and the sender frame id does not equal the focused field's frame id (17 ms)
+      checkIsFieldCurrentlyFocused message handler
+        √ returns true when a form field is currently focused (16 ms)
+      checkIsFieldCurrentlyFilling message handler
+        √ returns true if autofill is currently running (15 ms)
+      getAutofillInlineMenuVisibility message handler
+        √ returns the current inline menu visibility setting (15 ms)
+      openAutofillInlineMenu message handler
+        √ updates the inline menu position of both button and list elements if the inline menu is being forced open (17 ms)
+        when the focused field does not have a value
+          √ updates the position of the both button and list elements if the user has the inline menu set to show on field focus (16 ms)
+          √ closes the list if the user has the inline menu set to show on button click and the list is open (15 ms)
+          √ updates the position of the button if the user has the inline menu set to show on button click (2 ms)
+        when the focused field has a value
+          √ updates the position of both button and list elements if the inline menu is showing the save login view (14 ms)
+          √ closes the inline menu list if it is visible (17 ms)
+          √ updates the position of the inline menu button (15 ms)
+      closeAutofillInlineMenu
+        √ sends a message to close the inline menu without checking field focus state if forcing the closure (31 ms)
+        √ skips sending a message to close the inline menu if a form field is currently focused (32 ms)
+        √ sends a message to close the inline menu list only if the field is currently filling (16 ms)
+        √ sends a message to close the inline menu if the form field is not focused and not filling (16 ms)
+        √ sets a property indicating that the inline menu button is not visible (15 ms)
+        √ sets a property indicating that the inline menu list is not visible (17 ms)
+      checkAutofillInlineMenuFocused message handler
+        √ skips checking if the inline menu is focused if the sender does not contain the focused field (16 ms)
+        √ will check if the inline menu list is focused if the list port is open (16 ms)
+        √ will check if the overlay button is focused if the list port is not open (16 ms)
+      focusAutofillInlineMenuList message handler
+        √ will send a `focusInlineMenuList` message to the overlay list port (15 ms)
+      getAutofillInlineMenuPosition
+        √ returns the current inline menu positio (15 ms)
+      updateAutofillInlineMenuElementIsVisibleStatus message handler
+        √ skips updating the inline menu visibility status if the sender tab does not contain the focused field (1 ms)
+        √ updates the visibility status of the inline menu button (1 ms)
+        √ updates the visibility status of the inline menu list (2 ms)
+      checkIsAutofillInlineMenuButtonVisible message handler
+        √ returns true when the inline menu button is visible (11 ms)
+      checkIsAutofillInlineMenuListVisible message handler
+        √ returns true when the inline menu list is visible (16 ms)
+      getCurrentTabFrameId message handler
+        √ returns the sender's frame id (15 ms)
+      destroyAutofillInlineMenuListeners
+        √ sends a message to the passed frameId that triggers a destruction of the inline menu listeners on that frame (2 ms)
+      unlockCompleted
+        √ updates the inline menu button auth status (30 ms)
+        √ updates the overlay ciphers (31 ms)
+        √ focuses the most recently focused field if a retry command is present in the message (18 ms)
+      extension messages that trigger an update of the inline menu ciphers
+        √ triggers an update of the overlay ciphers when the doFullSync message is received (1 ms)
+        √ triggers an update of the overlay ciphers when the addedCipher message is received (1 ms)
+        √ triggers an update of the overlay ciphers when the addEditCipherSubmitted message is received (1 ms)
+        √ triggers an update of the overlay ciphers when the editedCipher message is received (1 ms)
+        √ triggers an update of the overlay ciphers when the deletedCipher message is received (1 ms)
+      fido2AbortRequest
+        √ removes an active request associated with the sender tab (1 ms)
+        √ updates the overlay ciphers after removing the active request (2 ms)
+    handle extension onMessage
+      √ will return early if the message command is not present within the extensionMessageHandlers (1 ms)
+    inline menu button message handlers
+      autofillInlineMenuButtonClicked message handler
+        √ opens the unlock vault popout if the user auth status is not unlocked (6 ms)
+        √ opens the inline menu if the user auth status is unlocked (16 ms)
+      handles menu position when input is focused
+        √ sets button and menu width and position when non-multi-input totp field is focused (15 ms)
+        √ sets button and menu width and position when multi-input totp field is focused (31 ms)
+      triggerDelayedAutofillInlineMenuClosure message handler
+        √ skips triggering the delayed closure of the inline menu if a field is currently focused (63 ms)
+        √ sends a message to the button and list ports that triggers a delayed closure of the inline menu (31 ms)
+        √ triggers a single delayed closure if called again within a 100ms threshold (48 ms)
+      autofillInlineMenuBlurred message handler
+        √ sends a message to the inline menu list to check if the element is focused (31 ms)
+      redirectAutofillInlineMenuFocusOut message handler
+        √ ignores the redirect message if the direction is not provided (16 ms)
+        √ sends the redirect message if the direction is provided (16 ms)
+      updateAutofillInlineMenuColorScheme message handler
+        √ sends a message to the button port to update the inline menu color scheme (30 ms)
+    inline menu list message handlers
+      checkAutofillInlineMenuButtonFocused message handler
+        √ sends a message to the inline menu button to check if the element is focused (15 ms)
+      autofillInlineMenuBlurred message handler
+        √ sends a message to the inline menu button to check if the element is focused (16 ms)
+      unlockVault message handler
+        √ opens the unlock vault popout (46 ms)
+      fillAutofillInlineMenuCipher message handler
+        √ ignores the fill request if the overlay cipher id is not provided (48 ms)
+        √ ignores the fill request if the tab does not contain any identified page details (31 ms)
+        √ ignores the fill request if a master password reprompt is required (33 ms)
+        √ autofills the selected cipher and moves it to the top of the front of the ciphers map (49 ms)
+        √ copies the cipher's totp code to the clipboard after filling (46 ms)
+        √ fills the current password fields exclusively when filling for a current password update (17 ms)
+        triggering passkey authentication
+          √ logs an error if the authentication could not complete due to a missing FIDO2 request (32 ms)
+          when the FIDO2 request is present
+            √ aborts all active FIDO2 requests if the subsequent request after the authentication is invalid (31 ms)
+            √ triggers a closure of the inline menu if the subsequent request after the authentication is valid (49 ms)
+      addNewVaultItem message handler
+        √ skips sending the `addNewVaultItemFromOverlay` message if the sender tab does not contain the focused field (45 ms)
+        √ sends a message to the tab to add a new vault item (32 ms)
+      viewSelectedCipher message handler
+        √ returns early if the passed cipher ID does not match one of the inline menu ciphers (32 ms)
+        √ will open the view vault item popout with the selected cipher (48 ms)
+      redirectAutofillInlineMenuFocusOut message handler
+        √ redirects focus out of the inline menu list (32 ms)
+      updateAutofillInlineMenuListHeight message handler
+        √ sends a message to the list port to update the menu iframe position (16 ms)
+        √ updates the inline menu position property's list height value (32 ms)
+      refreshGeneratedPassword
+        √ refreshes the generated password (17 ms)
+        √ sends a message to the list port indicating that the generated password should be updated (30 ms)
+        √ adds the refreshed password to generator history (31 ms)
+      fillGeneratedPassword
+        √ sends a message to the tab to store modify login change when a password is generated (32 ms)
+        √ filters the page details to only include the new password fields before filling (33 ms)
+        skipping filling the generated password
+          √ skips filling when the password has not been created (32 ms)
+          √ skips filling when the page details for the tab are not set (16 ms)
+          √ skips filling when the page details for the tab does not contain a value (16 ms)
+    handle web navigation on committed events
+      navigation event occurs in the top frame of the tab
+        √ removes the collected page details (15 ms)
+        √ clears the sub frames associated with the tab (1 ms)
+      navigation event occurs within sub frame
+        √ clears the sub frame offsets for the current frame (1 ms)
+    handle port onConnect
+      √ skips setting up the overlay port if the port connection is not for an overlay element (14 ms)
+      √ generates a random 12 character string used to validate port messages from the tab (16 ms)
+      √ stores an existing overlay port so that it can be disconnected at a later time (15 ms)
+      √ generates a password for the password generator view (16 ms)
+    credential pipeline history tracking
+      √ tracks history for InlineMenuInit-sourced credentials (31 ms)
+      √ tracks history for InlineMenu-sourced credentials (32 ms)
+    handle overlay element port onMessage
+      √ ignores messages that do not contain a valid portKey (48 ms)
+      √ ignores messages from ports that are not listened to (16 ms)
+    handle port onDisconnect
+      √ sets the disconnected port to a `null` value (48 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       152 passed, 152 total
+Snapshots:   0 total
+Time:        8.299 s
+Ran all test suites matching overlay.background.spec.

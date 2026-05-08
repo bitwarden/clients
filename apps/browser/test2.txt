@@ -1,0 +1,9 @@
+● Validation Error:
+
+  Test environment jest-environment-jsdom cannot be found. Make sure the testEnvironment configuration option points to an existing node module.
+
+  Configuration Documentation:
+  https://jestjs.io/docs/configuration
+
+
+As of Jest 28 "jest-environment-jsdom" is no longer shipped by default, make sure to install it separately.

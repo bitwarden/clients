@@ -3,62 +3,62 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import {
-    AUTOFILL_OVERLAY_HANDLE_REPOSITION,
-    AUTOFILL_OVERLAY_HANDLE_SCROLL,
-    AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
-    EVENTS,
+  AUTOFILL_OVERLAY_HANDLE_REPOSITION,
+  AUTOFILL_OVERLAY_HANDLE_SCROLL,
+  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
+  EVENTS,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import {
-    FocusedFieldData,
-    NewCardCipherData,
-    NewIdentityCipherData,
-    NewLoginCipherData,
-    SubFrameOffsetData,
+  FocusedFieldData,
+  NewCardCipherData,
+  NewIdentityCipherData,
+  NewLoginCipherData,
+  SubFrameOffsetData,
 } from "../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
 import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
-    InlineMenuAccountCreationFieldType,
-    InlineMenuFillTypes,
-    MAX_SUB_FRAME_DEPTH,
-    RedirectFocusDirection
+  InlineMenuAccountCreationFieldType,
+  InlineMenuFillTypes,
+  MAX_SUB_FRAME_DEPTH,
+  RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
-    currentlyInSandboxedIframe,
-    debounce,
-    elementIsFillableFormField,
-    elementIsSelectElement,
-    getAttributeBoolean,
-    isReadonlyOrDisabledFormFieldElement,
-    nodeIsAnchorElement,
-    nodeIsButtonElement,
-    nodeIsTypeSubmitElement,
-    sendExtensionMessage,
-    throttle,
+  currentlyInSandboxedIframe,
+  debounce,
+  elementIsFillableFormField,
+  elementIsSelectElement,
+  getAttributeBoolean,
+  isReadonlyOrDisabledFormFieldElement,
+  nodeIsAnchorElement,
+  nodeIsButtonElement,
+  nodeIsTypeSubmitElement,
+  sendExtensionMessage,
+  throttle,
 } from "../utils";
 import { EventSecurity } from "../utils/event-security";
 
 import {
-    AutofillOverlayContentExtensionMessageHandlers,
-    AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-    SubFrameDataFromWindowMessage,
+  AutofillOverlayContentExtensionMessageHandlers,
+  AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
+  SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import {
-    AutoFillConstants,
-    cardQualifiers,
-    identityQualifiers,
-    loginQualifiers,
+  AutoFillConstants,
+  cardQualifiers,
+  identityQualifiers,
+  loginQualifiers,
 } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
