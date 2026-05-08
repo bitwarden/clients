@@ -26,14 +26,15 @@
       {{ "cancel" | i18n }}
     </button>
 
-    <button
-      *ngIf="variant === 'edit'"
-      type="button"
-      buttonType="dangerGhost"
-      class="tw-ml-auto"
-      bitIconButton="bwi-trash"
-      [label]="'deleteFolder' | i18n"
-      [bitAction]="deleteFolder"
-    ></button>
+    @if (variant === "edit") {
+      <button
+        type="button"
+        buttonType="dangerGhost"
+        class="tw-ml-auto"
+        bitIconButton="bwi-trash"
+        [label]="'deleteFolder' | i18n"
+        [bitAction]="deleteFolder"
+      ></button>
+    }
   </ng-container>
 </form>

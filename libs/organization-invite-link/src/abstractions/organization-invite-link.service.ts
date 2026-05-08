@@ -19,7 +19,7 @@ export abstract class OrganizationInviteLinkService {
   ): Promise<string>;
 
   /**
-   * Refresh the invite link using cached allowed domains.
+   * Refresh the invite link via the server endpoint.
    * Emits the shareable URL once, then completes.
    */
   abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<string>;
