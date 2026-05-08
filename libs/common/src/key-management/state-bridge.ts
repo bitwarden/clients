@@ -1,4 +1,4 @@
-import { filter, firstValueFrom } from "rxjs";
+import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 import {
   EncString,
@@ -45,9 +45,12 @@ async function waitForStateValue<T>(
   expectedValue: T | null,
 ): Promise<T | null> {
   return firstValueFrom(
-    stateProvider
-      .getUserState$(keyDefinition, userId)
-      .pipe(filter((value) => compareValues(value, expectedValue))),
+    race(
+      stateProvider
+        .getUserState$(keyDefinition, userId)
+        .pipe(filter((value) => compareValues(value, expectedValue))),
+    timer(1000).pipe(map(() => null)),
+    ),
   );
 }
 
