@@ -17,8 +17,10 @@ import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domai
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
 
 import { DefaultPolicyService, getFirstPolicy } from "./default-policy.service";
 import { POLICIES } from "./policy-state";
@@ -27,6 +29,8 @@ describe("PolicyService", () => {
   const userId = newGuid() as UserId;
   let stateProvider: FakeStateProvider;
   let organizationService: MockProxy<OrganizationService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
+  let configService: MockProxy<ConfigService>;
   let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
   const accountService = mockAccountServiceWith(userId);
 
@@ -35,6 +39,8 @@ describe("PolicyService", () => {
   beforeEach(() => {
     stateProvider = new FakeStateProvider(accountService);
     organizationService = mock<OrganizationService>();
+    newPolicyService = mock<InternalNewPolicyService>();
+    configService = mock<ConfigService>();
     singleUserState = stateProvider.singleUser.getFake(userId, POLICIES);
 
     const organizations$ = of([
@@ -70,7 +76,13 @@ describe("PolicyService", () => {
 
     organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
 
-    policyService = new DefaultPolicyService(stateProvider, organizationService, accountService);
+    policyService = new DefaultPolicyService(
+      stateProvider,
+      organizationService,
+      accountService,
+      newPolicyService,
+      () => configService,
+    );
   });
 
   it("upsert", async () => {
@@ -726,7 +738,13 @@ describe("PolicyService", () => {
     beforeEach(() => {
       stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
       organizationService = mock<OrganizationService>();
-      policyService = new DefaultPolicyService(stateProvider, organizationService, accountService);
+      policyService = new DefaultPolicyService(
+        stateProvider,
+        organizationService,
+        accountService,
+        mock<InternalNewPolicyService>(),
+        () => mock<ConfigService>(),
+      );
     });
 
     it("returns undefined when there are no policies", () => {

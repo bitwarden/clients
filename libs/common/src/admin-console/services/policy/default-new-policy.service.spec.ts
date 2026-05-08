@@ -1,3 +1,4 @@
+import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
 import { newGuid } from "@bitwarden/guid";
@@ -6,7 +7,9 @@ import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
 import { PolicyType } from "../../../admin-console/enums";
 import { PolicyData } from "../../../admin-console/models/data/policy.data";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { PolicyId, UserId } from "../../../types/guid";
+import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 
 import { DefaultNewPolicyService } from "./default-new-policy.service";
 import { POLICIES_NEW } from "./policy-state";
@@ -17,13 +20,18 @@ describe("DefaultNewPolicyService", () => {
   let singleUserState: FakeSingleUserState<Record<PolicyId, PolicyData>>;
   const accountService = mockAccountServiceWith(userId);
 
+  let organizationService: MockProxy<OrganizationService>;
+  let sdkService: MockProxy<SdkService>;
+
   let service: DefaultNewPolicyService;
 
   beforeEach(() => {
     stateProvider = new FakeStateProvider(accountService);
     singleUserState = stateProvider.singleUser.getFake(userId, POLICIES_NEW);
+    organizationService = mock();
+    sdkService = mock();
 
-    service = new DefaultNewPolicyService(stateProvider);
+    service = new DefaultNewPolicyService(stateProvider, () => sdkService, organizationService);
   });
 
   it("upsert adds a policy to the existing state", async () => {

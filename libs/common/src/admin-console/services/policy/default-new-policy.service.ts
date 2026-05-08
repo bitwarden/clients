@@ -1,12 +1,56 @@
+import { combineLatest, map, Observable } from "rxjs";
+
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
+import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
+import { PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
+import { Policy } from "../../models/domain/policy";
 
 import { POLICIES_NEW } from "./policy-state";
 
 export class DefaultNewPolicyService implements InternalNewPolicyService {
-  constructor(private stateProvider: StateProvider) {}
+  constructor(
+    private stateProvider: StateProvider,
+    private sdkService: () => SdkService,
+    private organizationService: OrganizationService,
+  ) {}
+
+  policiesByType$(policyType: PolicyType, userId: UserId): Observable<Policy[]> {
+    // I was using userClient$(userId), but it was never emitting.
+    // I suspect this is because it's called during login flow when the userClient
+    // may not be fully initialized. More work required to identify what exactly
+    // this problem is and to make sure it's not a bug. However, this is stateless for now
+    // so we can use client$.
+
+    return combineLatest([
+      this.organizationService.organizations$(userId),
+      this.policies$(userId),
+      this.sdkService().client$,
+    ]).pipe(
+      map(([organizations, policies, sdkClient]) => {
+        if (!sdkClient) {
+          throw new Error("SDK not available");
+        }
+
+        const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
+        const sdkOrgs = organizations.map((o) => o.toSdkProfileOrganization());
+        const filteredViews = sdkClient.policies().filter_by_type(sdkPolicies, sdkOrgs, policyType);
+
+        const result = filteredViews.map((v) => Policy.fromSdkPolicyView(v));
+
+        return result;
+      }),
+    );
+  }
+
+  private policies$(userId: UserId) {
+    return this.policyState(userId).state$.pipe(
+      map((policiesMap) => Object.values(policiesMap || {}).map((f) => new Policy(f))),
+    );
+  }
 
   private policyState(userId: UserId) {
     return this.stateProvider.getUser(userId, POLICIES_NEW);

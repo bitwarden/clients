@@ -17,6 +17,7 @@ export enum FeatureFlag {
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
   PM36859RefactorOrgCollectionsVaultComponent = "pm-36859-refactor-org-collections-vault-component",
+  PoliciesInAcceptedState = "pm-34145-policies-in-accepted-state",
 
   /* Auth */
   SafariAccountSwitching = "pm-5594-safari-account-switching",
@@ -123,6 +124,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
+  [FeatureFlag.PoliciesInAcceptedState]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,

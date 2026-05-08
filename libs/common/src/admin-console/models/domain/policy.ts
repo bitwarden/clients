@@ -51,7 +51,7 @@ export class Policy extends Domain {
     policy.id = uuidAsString(obj.id) as PolicyId;
     policy.organizationId = uuidAsString(obj.organization_id) as OrganizationId;
     policy.type = obj.type as PolicyType;
-    policy.data = obj.data;
+    policy.data = JSON.parse(obj.data);
     policy.enabled = obj.enabled;
     return policy;
   }
@@ -61,7 +61,7 @@ export class Policy extends Domain {
       id: asUuid(this.id),
       organization_id: asUuid(this.organizationId),
       type: this.type as number,
-      data: (this.data as Record<string, unknown>) ?? {},
+      data: JSON.stringify(this.data),
       enabled: this.enabled,
     };
   }

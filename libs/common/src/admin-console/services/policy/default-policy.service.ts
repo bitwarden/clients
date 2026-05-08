@@ -3,10 +3,12 @@ import { combineLatest, firstValueFrom, map, Observable, of, switchMap } from "r
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 
-import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
 import { PolicyService } from "../../abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, PolicyType } from "../../enums";
 import { PolicyData } from "../../models/data/policy.data";
@@ -30,45 +32,9 @@ export class DefaultPolicyService implements PolicyService {
     private stateProvider: StateProvider,
     private organizationService: OrganizationService,
     private accountService: AccountService,
-    private sdkService: () => SdkService,
+    private newPolicyService: InternalNewPolicyService,
+    private configService: () => ConfigService,
   ) {}
-
-  // TODO: this will probably be in the newPolicyService assuming that's what we end up doing
-  private filterWithSdk$(
-    policyType: PolicyType,
-    organizations: Organization[],
-    policies: Policy[],
-  ): Observable<Policy[]> {
-    // I was using userClient$(userId), but it was never emitting.
-    // I suspect this is because it's called during login flow when the userClient
-    // may not be fully initialized. More work required to identify what exactly
-    // this problem is and to make sure it's not a bug. However, this is stateless for now
-    // so we can use client$.
-    return this.sdkService().client$.pipe(
-      map((sdk) => {
-        console.log("foo");
-        if (!sdk) {
-          throw new Error("SDK not available");
-        }
-
-        const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
-        const sdkOrgs = organizations.map((o) => o.toSdkProfileOrganization());
-        const filteredViews = sdk
-          .policies()
-          .filter_by_type(sdkPolicies, sdkOrgs, policyType as number);
-
-        const result = filteredViews.map((v) => Policy.fromSdkPolicyView(v));
-
-        console.log("In:");
-        console.log(policies);
-
-        console.log("Out:");
-        console.log(result);
-
-        return result;
-      }),
-    );
-  }
 
   private policyState(userId: UserId) {
     return this.stateProvider.getUser(userId, POLICIES);
@@ -87,13 +53,23 @@ export class DefaultPolicyService implements PolicyService {
       throw new Error("No userId provided");
     }
 
-    const allPolicies$ = this.policies$(userId);
-    const organizations$ = this.organizationService.organizations$(userId);
+    return this.configService()
+      .getFeatureFlag$(FeatureFlag.PoliciesInAcceptedState)
+      .pipe(
+        switchMap((useSdk) => {
+          if (useSdk) {
+            return this.newPolicyService.policiesByType$(policyType, userId);
+          }
 
-    // TODO: feature flag me!
-    return combineLatest([allPolicies$, organizations$]).pipe(
-      switchMap(([policies, orgs]) => this.filterWithSdk$(policyType, orgs, policies)),
-    );
+          const allPolicies$ = this.policies$(userId);
+          const organizations$ = this.organizationService.organizations$(userId);
+
+          return combineLatest([allPolicies$, organizations$]).pipe(
+            map(([policies, organizations]) => this.enforcedPolicyFilter(policies, organizations)),
+            map((policies) => policies.filter((p) => p.type === policyType)),
+          );
+        }),
+      );
   }
 
   policyAppliesToUser$(policyType: PolicyType, userId: UserId) {
