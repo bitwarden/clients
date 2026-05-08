@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -154,7 +152,7 @@ describe("OrganizationUserResetPasswordService", () => {
     const mockNewMP = "new-password";
     const mockEmail = "test@example.com";
     const mockOrgUserId = "test-org-user-id";
-    const mockOrgId = "test-org-id";
+    const mockOrgId = "test-org-id" as OrganizationId;
 
     beforeEach(() => {
       configService.getFeatureFlag.mockResolvedValue(
@@ -176,9 +174,6 @@ describe("OrganizationUserResetPasswordService", () => {
         of({ [mockOrgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
       );
 
-      encryptService.decryptToBytes.mockResolvedValue(mockRandomBytes);
-
-      encryptService.rsaDecrypt.mockResolvedValue(mockRandomBytes);
       const mockMasterKey = new SymmetricCryptoKey(mockRandomBytes) as MasterKey;
       keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
       keyService.hashMasterKey.mockResolvedValue("test-master-key-hash");
@@ -692,7 +687,7 @@ describe("OrganizationUserResetPasswordService", () => {
 
 function createOrganization(id: string, name: string, resetPasswordEnrolled = true): Organization {
   const org = new Organization();
-  org.id = id;
+  org.id = id as OrganizationId;
   org.name = name;
   org.identifier = name;
   org.isMember = true;

@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Injectable } from "@angular/core";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
@@ -77,7 +75,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     orgId: string,
     userKey: UserKey,
     trustedPublicKeys: Uint8Array[],
-  ): Promise<EncryptedString> {
+  ): Promise<EncryptedString | undefined> {
     if (userKey == null) {
       throw new Error("User key is required for recovery.");
     }
@@ -113,6 +111,16 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     let key: string | undefined;
 
     if (request.resetMasterPassword) {
+      const newMasterPassword = request.newMasterPassword;
+      if (Utils.isNullOrWhitespace(newMasterPassword) || newMasterPassword == undefined) {
+        throw new Error(this.i18nService.t("resetPasswordNewPasswordRequired"));
+      }
+
+      const email = request.email;
+      if (Utils.isNullOrWhitespace(email) || email == undefined) {
+        throw new Error(this.i18nService.t("emailRequired"));
+      }
+
       const resetPasswordDetails =
         await this.organizationUserApiService.getOrganizationUserResetPasswordDetails(
           request.organizationId,
@@ -133,7 +141,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       // that don't yet return MasterPasswordSalt in the account-recovery details response.
       const salt: MasterPasswordSalt =
         (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt | undefined) ??
-        this.masterPasswordService.emailToSalt(request.email);
+        this.masterPasswordService.emailToSalt(email);
 
       const newApisEnabled = await this.configService.getFeatureFlag(
         FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
@@ -141,14 +149,14 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
 
       ({ newMasterPasswordHash, key } = newApisEnabled
         ? await this.buildResetPasswordRequestV2(
-            request.newMasterPassword,
+            newMasterPassword,
             salt,
             kdfConfig,
             existingUserKey,
           )
         : await this.buildMasterPasswordRequest(
-            request.newMasterPassword,
-            request.email,
+            newMasterPassword,
+            email,
             kdfConfig,
             existingUserKey,
           ));
@@ -236,8 +244,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       const encryptedKey = await this.buildRecoveryKey(org.id, newUserKey, trustedPublicKeys);
 
       // Create/Execute request
-      const request = new OrganizationUserResetPasswordWithIdRequest();
-      request.organizationId = org.id;
+      const request = new OrganizationUserResetPasswordWithIdRequest(org.id);
       request.resetPasswordKey = encryptedKey;
       request.masterPasswordHash = "ignored";
 
@@ -253,9 +260,21 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     kdfMemory?: number;
     kdfParallelism?: number;
   }): KdfConfig {
-    return response.kdf === KdfType.PBKDF2_SHA256
-      ? new PBKDF2KdfConfig(response.kdfIterations)
-      : new Argon2KdfConfig(response.kdfIterations, response.kdfMemory, response.kdfParallelism);
+    switch (response.kdf) {
+      case KdfType.PBKDF2_SHA256:
+        return new PBKDF2KdfConfig(response.kdfIterations);
+      case KdfType.Argon2id:
+        if (response.kdfMemory == null || response.kdfParallelism == null) {
+          throw new Error("Invalid KDF configuration");
+        }
+        return new Argon2KdfConfig(
+          response.kdfIterations,
+          response.kdfMemory,
+          response.kdfParallelism,
+        );
+      default:
+        throw new Error("Unsupported KDF type");
+    }
   }
 
   /** Decrypts the user's UserKey using the organization's private key and the stored reset password key. */
@@ -267,7 +286,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       this.accountService.activeAccount$.pipe(
         getUserId,
         switchMap((userId) => this.keyService.orgKeys$(userId)),
-        map((orgKeys) => orgKeys[orgId as OrganizationId] ?? null),
+        map((orgKeys) => orgKeys?.[orgId as OrganizationId] ?? null),
       ),
     );
 
