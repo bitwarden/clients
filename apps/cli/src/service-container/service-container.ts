@@ -554,13 +554,13 @@ export class ServiceContainer {
     );
     this.ssoUrlService = new SsoUrlService();
 
+    this.organizationService = new DefaultOrganizationService(this.stateProvider);
+
     this.newPolicyService = new DefaultNewPolicyService(
       this.stateProvider,
       () => this.sdkService,
       this.organizationService,
     );
-
-    this.organizationService = new DefaultOrganizationService(this.stateProvider);
     this.policyService = new DefaultPolicyService(
       this.stateProvider,
       this.organizationService,

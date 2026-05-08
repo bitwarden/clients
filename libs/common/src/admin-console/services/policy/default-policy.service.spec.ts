@@ -75,6 +75,7 @@ describe("PolicyService", () => {
     ]);
 
     organizationService.organizations$.calledWith(userId).mockReturnValue(organizations$);
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     policyService = new DefaultPolicyService(
       stateProvider,
