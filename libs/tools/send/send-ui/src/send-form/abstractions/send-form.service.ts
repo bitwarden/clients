@@ -1,4 +1,4 @@
-import { Signal } from "@angular/core";
+import { signal, Signal } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { Observable } from "rxjs";
 
@@ -13,6 +13,9 @@ import { SendFormConfig } from "./send-form-config.service";
  * Service to save the send using the correct endpoint(s) and encapsulating the logic for decrypting the send.
  */
 export abstract class SendFormService {
+  constructor() {
+    this.originalSendView = signal(null);
+  }
   /**
    * Helper to decrypt a send and avoid the need to call the send service directly.
    * (useful for mocking tests/storybook).
@@ -30,7 +33,7 @@ export abstract class SendFormService {
   sendFormConfig?: SendFormConfig;
 
   /** The original SendView of the Send the form displays */
-  originalSendView?: SendView;
+  readonly originalSendView: Signal<SendView | null>;
 
   /**
    * Registers a child form group with the parent form group. Used by child components to add their form groups to
@@ -71,4 +74,10 @@ export abstract class SendFormService {
    * not want to save the edits or there are no edits to save.
    */
   abstract promptForUnsavedEdits(): Promise<boolean>;
+
+  /** A function that removes the password from a Send, or returns immediately if
+   * the Send is not protected by password. Returns a boolean indicating whether
+   * the password was removed successfully or not
+   */
+  abstract removeSendPassword(): Promise<boolean>;
 }

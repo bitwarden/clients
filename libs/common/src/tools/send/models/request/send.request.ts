@@ -22,7 +22,7 @@ export class SendRequest {
   emails: string;
   disabled: boolean;
   hideEmail: boolean;
-  authTYpe: AuthType;
+  authType: AuthType;
 
   constructor(send: Send, fileLength?: number) {
     this.type = send.type;
@@ -37,7 +37,7 @@ export class SendRequest {
     this.emails = send.emails;
     this.disabled = send.disabled;
     this.hideEmail = send.hideEmail;
-    this.authTYpe = send.authType;
+    this.authType = send.authType;
 
     switch (this.type) {
       case SendType.Text:

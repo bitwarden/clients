@@ -5,54 +5,77 @@
 
   <bit-card>
     <bit-form-field>
-      <bit-label>{{ "name" | i18n }}</bit-label>
-      <input bitInput type="text" formControlName="name" />
+      <bit-label>Send {{ "name" | i18n | lowercase }}</bit-label>
+      <input bitInput type="text" formControlName="name" [readonly]="!editing()" />
     </bit-form-field>
 
     @if (sendFormService.sendFormConfig.sendType === SendType.Text) {
-      <tools-send-text-details></tools-send-text-details>
+      <tools-send-text-details [editing]="editing()"></tools-send-text-details>
     }
     @if (sendFormService.sendFormConfig.sendType === SendType.File) {
-      <tools-send-file-details></tools-send-file-details>
+      <tools-send-file-details [editing]="editing()"></tools-send-file-details>
     }
 
     <bit-form-field>
       <bit-label>{{ "deletionDate" | i18n }}</bit-label>
-      <bit-select
-        id="deletionDate"
-        name="SelectedDeletionDatePreset"
-        formControlName="selectedDeletionDatePreset"
-      >
-        <bit-option
-          *ngFor="let o of datePresetOptions"
-          [value]="o.value"
-          [label]="o.name"
-        ></bit-option>
-      </bit-select>
-      <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
+      @if (!editing()) {
+        <input
+          bitInput
+          type="text"
+          [value]="sendFormService.originalSendView()?.deletionDate | date: 'short'"
+          readonly
+        />
+      } @else {
+        <bit-select
+          id="deletionDate"
+          name="SelectedDeletionDatePreset"
+          formControlName="selectedDeletionDatePreset"
+        >
+          @for (o of datePresetOptions; track o.name) {
+            <bit-option [value]="o.value" [label]="o.name"></bit-option>
+          }
+        </bit-select>
+      }
+      <!-- To be projected correctly into the bit-hint slot <bit-hint> must be the only element in its block -->
+      @if (editing()) {
+        <bit-hint>{{ "deletionDateDescV2" | i18n }}</bit-hint>
+      }
     </bit-form-field>
 
-    <bit-form-field [disableMargin]="!sendDetailsForm.get('authType').value">
+    <bit-form-field [disableMargin]="sendDetailsForm.get('authType').value === AuthType.None">
       <bit-label>{{ "whoCanView" | i18n }}</bit-label>
-      <bit-select formControlName="authType">
-        @for (option of availableAuthTypes$ | async; track option.value) {
-          <bit-option [value]="option.value" [label]="option.name"></bit-option>
-        }
-      </bit-select>
-      @if (sendDetailsForm.get("authType").value === AuthType.Email) {
-        <bit-hint class="tw-mt-2">{{ "emailVerificationDesc" | i18n }}</bit-hint>
+      @if (!editing()) {
+        <input
+          bitInput
+          type="text"
+          [value]="sendFormService.originalSendView()?.authType | AuthTypeName"
+          readonly
+        />
+      } @else {
+        <bit-select formControlName="authType">
+          @for (option of availableAuthTypes$ | async; track option.value) {
+            <bit-option [value]="option.value" [label]="option.nameKey | i18n"></bit-option>
+          }
+        </bit-select>
       }
-      @if (sendDetailsForm.get("authType").value === AuthType.Password) {
-        <bit-hint class="tw-mt-2">{{ "sendPasswordHelperText" | i18n }}</bit-hint>
+      <!-- To be projected correctly into the bit-hint slot <bit-hint> must be the only element in its block -->
+      @let hintKey =
+        sendDetailsForm.controls.authType.value === AuthType.Password
+          ? "sendPasswordHelperText"
+          : sendDetailsForm.controls.authType.value === AuthType.Email
+            ? "emailVerificationDesc"
+            : "";
+      @if (editing() && hintKey !== "") {
+        <bit-hint class="tw-mt-2">{{ hintKey | i18n }}</bit-hint>
       }
     </bit-form-field>
 
     @if (sendDetailsForm.get("authType").value === AuthType.Password) {
       <bit-form-field disableMargin>
         <bit-label>{{ (passwordRemoved ? "newPassword" : "password") | i18n }}</bit-label>
-        <input bitInput type="password" formControlName="password" />
+        <input bitInput type="password" formControlName="password" [readonly]="!editing()" />
         <div bitSuffix ngProjectAs="[bitSuffix]" class="tw-flex tw-items-center">
-          @if (!hasPassword) {
+          @if (!originalHadPassword) {
             <button
               data-testid="toggle-visibility-for-password"
               type="button"
@@ -83,16 +106,19 @@
               showToast
             ></button>
           } @else {
-            <button
-              class="tw-border-l-0 last:tw-rounded-r focus-visible:tw-border-l focus-visible:tw-ml-[-1px]"
-              type="button"
-              buttonType="dangerGhost"
-              bitIconButton="bwi-minus-circle"
-              size="small"
-              [label]="'removePassword' | i18n"
-              [bitAction]="removePassword"
-              showToast
-            ></button>
+            @if (editing()) {
+              <button
+                class="tw-border-l-0 last:tw-rounded-r focus-visible:tw-border-l focus-visible:tw-ml-[-1px]"
+                type="button"
+                buttonType="dangerGhost"
+                bitIconButton="bwi-minus-circle"
+                size="small"
+                [label]="'removePassword' | i18n"
+                [bitAction]="removePassword"
+                showToast
+                [disabled]="!sendFormService.sendFormConfig.areSendsAllowed"
+              ></button>
+            }
           }
         </div>
       </bit-form-field>
@@ -106,24 +132,13 @@
           formControlName="emails"
           rows="3"
           [placeholder]="'emailPlaceholderMultiple' | i18n"
+          [readonly]="!editing()"
         ></textarea>
-        <bit-hint>{{ "enterMultipleEmailsSeparatedByComma" | i18n }}</bit-hint>
+        @if (editing()) {
+          <bit-hint>{{ "enterMultipleEmailsSeparatedByComma" | i18n }}</bit-hint>
+        }
       </bit-form-field>
     }
-
-    <bit-form-field *ngIf="sendLink" class="tw-mt-4">
-      <bit-label>{{ "sendLink" | i18n }}</bit-label>
-      <input data-testid="send-link" bitInput type="text" [value]="sendLink" disabled />
-      <button
-        type="button"
-        bitSuffix
-        showToast
-        bitIconButton="bwi-clone"
-        [appCopyClick]="sendLink"
-        [valueLabel]="'sendLink' | i18n"
-        [label]="'copySendLink' | i18n"
-      ></button>
-    </bit-form-field>
   </bit-card>
-  <tools-send-options></tools-send-options>
+  <tools-send-options [editing]="editing()"></tools-send-options>
 </bit-section>

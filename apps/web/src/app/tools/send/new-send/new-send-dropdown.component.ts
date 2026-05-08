@@ -85,7 +85,7 @@ export class NewSendDropdownComponent {
       if (sendFormDialogRef) {
         this.sendFormDialogRef = sendFormDialogRef;
         const result = await lastValueFrom(this.sendFormDialogRef.closed);
-        if (result?.result === SendItemDialogResult.Saved && result?.send) {
+        if (result?.result === SendItemDialogResult.Created && result?.send) {
           await this.dialogService.openDrawer(SendSuccessDrawerDialogComponent, {
             data: result.send,
           });

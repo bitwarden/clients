@@ -140,13 +140,6 @@ describe("SendCreatedComponent", () => {
     expect(component["hoursAvailable"]).toBe(168);
   });
 
-  it("should navigate back to the edit send form on close", async () => {
-    await component.goToEditSend();
-    expect(router.navigate).toHaveBeenCalledWith(["/edit-send"], {
-      queryParams: { sendId: "test-send-id", type: SendType.Text },
-    });
-  });
-
   describe("getHoursAvailable", () => {
     it("returns the correct number of hours", () => {
       sendViewsSubject.next([sendView]);

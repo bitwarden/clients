@@ -1,5 +1,32 @@
 <form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
   @if (!loading) {
-    <tools-send-details></tools-send-details>
+    @if (!editing()) {
+      <bit-card>
+        <div bitTypography="h4">{{ "sendLink" | i18n }}</div>
+        <div
+          class="tw-text-muted tw-mt-2 tw-mb-4 tw-truncate"
+          bitTypography="body2"
+          aria-hidden="true"
+        >
+          {{ sendLink() }}
+        </div>
+        <button
+          class="tw-w-full"
+          bitButton
+          type="button"
+          showToast
+          buttonType="primary"
+          startIcon="bwi-clone"
+          [appCopyClick]="sendLink()"
+          [valueLabel]="'sendLink' | i18n"
+        >
+          {{ "copy" | i18n }}
+        </button>
+      </bit-card>
+    }
+    <tools-send-details
+      [editing]="editing()"
+      (openPasswordGenerator)="openPasswordGenerator.emit()"
+    ></tools-send-details>
   }
 </form>

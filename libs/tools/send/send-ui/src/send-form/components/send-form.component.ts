@@ -3,17 +3,17 @@
 import {
   AfterViewInit,
   Component,
+  computed,
   DestroyRef,
+  effect,
   input,
-  OnChanges,
-  OnInit,
   output,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule } from "@angular/forms";
-import { combineLatest } from "rxjs";
 
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -21,12 +21,16 @@ import {
   AsyncActionsModule,
   BitSubmitDirective,
   ButtonComponent,
+  ButtonModule,
+  CardComponent,
+  CopyClickDirective,
   FormFieldModule,
   ItemModule,
   SelectModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
@@ -47,20 +51,36 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
     ReactiveFormsModule,
     SelectModule,
     SendDetailsComponent,
+    I18nPipe,
+    CopyClickDirective,
+    ButtonModule,
+    CardComponent,
   ],
 })
-export class SendFormComponent implements AfterViewInit, OnInit, OnChanges {
+export class SendFormComponent implements AfterViewInit {
   private readonly bitSubmit = viewChild.required(BitSubmitDirective);
-  private _firstInitialized = false;
 
   /** The form ID to use for the form. Used to connect it to a submit button. */
   readonly formId = input.required<string>();
 
-  /** The configuration for the add/edit form. Used to determine which controls are shown and what values are available. */
+  /**
+   * The configuration for the add/edit form. Used to determine which controls are shown and what values are available.
+   */
   readonly config = input.required<SendFormConfig>();
 
   /** Optional submit button that will be disabled or marked as loading when the form is submitting. */
   readonly submitBtn = input<ButtonComponent>();
+
+  protected readonly editing = input<boolean>();
+  private readonly environment = toSignal(this.envService.environment$);
+  protected readonly sendLink = computed(() => {
+    return (
+      this.environment().getSendUrl() +
+      this.sendFormService.originalSendView()?.accessId +
+      "/" +
+      this.sendFormService.originalSendView()?.urlB64Key
+    );
+  });
 
   /** Event emitted when the send is created successfully. */
   readonly onSendCreated = output<SendView>();
@@ -68,24 +88,11 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges {
   /** Event emitted when the send is updated successfully. */
   readonly onSendUpdated = output<SendView>();
 
-  /**
-   * Event emitted when the user requests to open the password generator.
-   */
+  /** Event emitted when the user requests to open the password generator. */
   readonly openPasswordGenerator = output<void>();
 
   readonly sendDetailsComponent = viewChild(SendDetailsComponent);
 
-  /**
-   * The original send being edited or cloned. Null for add mode.
-   */
-  originalSendView: SendView | null;
-
-  /**
-   * The value of the updated send. Starts as a new send and is updated
-   * by child components via the `patchSend` method.
-   * @protected
-   */
-  protected updatedSendView: SendView | null;
   protected loading: boolean = true;
 
   SendType = SendType;
@@ -95,44 +102,32 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges {
     private toastService: ToastService,
     private i18nService: I18nService,
     private destroyRef: DestroyRef,
-  ) {}
+    private envService: EnvironmentService,
+  ) {
+    // We need to reinitialize the form any time the config input changes
+    effect(() => {
+      const config = this.config();
+      if (config) {
+        void this.init();
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
-    if (this.submitBtn()) {
-      combineLatest([this.bitSubmit().loading$, this.sendFormService.submitting])
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(([submitDirectiveDisabled, formServiceLoading]) => {
-          this.submitBtn().loading.set(submitDirectiveDisabled || formServiceLoading);
-        });
-
-      combineLatest([this.bitSubmit().disabled$, this.sendFormService.submitting])
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(([submitDirectiveDisabled, formServiceLoading]) => {
-          this.submitBtn().disabled.set(submitDirectiveDisabled || formServiceLoading);
-        });
-    }
-  }
-
-  /**
-   * We need to re-initialize the form when the config is updated.
-   */
-  async ngOnChanges() {
-    // Avoid re-initializing the form on the first change detection cycle.
-    if (this._firstInitialized) {
-      await this.init();
-    }
-  }
-
-  async ngOnInit() {
-    await this.init();
-    this._firstInitialized = true;
+    this.bitSubmit()
+      .loading$.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((loading) => {
+        this.submitBtn()?.loading.set(loading);
+      });
+    this.bitSubmit()
+      .disabled$.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((disabled) => {
+        this.submitBtn()?.disabled.set(disabled);
+      });
   }
 
   async init() {
     this.loading = true;
-    if (this.config() == null) {
-      return;
-    }
     await this.sendFormService.initializeSendForm(this.config());
     this.loading = false;
   }
@@ -155,6 +150,6 @@ export class SendFormComponent implements AfterViewInit, OnInit, OnChanges {
       title: null,
       message: this.i18nService.t("editedItem"),
     });
-    this.onSendUpdated.emit(this.updatedSendView);
+    this.onSendUpdated.emit(sendView);
   };
 }
