@@ -1,7 +1,7 @@
 import { AfterViewInit, Directive, ElementRef, computed, effect, inject } from "@angular/core";
 import { NgControl } from "@angular/forms";
 
-import { BitFormFieldControl } from "../form-field/form-field-control";
+import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 
 export function inputBorderClasses(error: boolean) {
@@ -17,7 +17,7 @@ export function inputBorderClasses(error: boolean) {
   selector: "input[bitInput], select[bitInput], textarea[bitInput]",
   hostDirectives: [
     {
-      directive: BitFormFieldControl,
+      directive: BitFormFieldControlDirective,
       inputs: ["required", "showErrorsWhenDisabled", "type", "spellcheck", "id"],
     },
   ],
@@ -35,7 +35,7 @@ export class BitInputDirective implements AfterViewInit {
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
   private readonly parentFormField = inject(BitFormFieldComponent, { optional: true });
-  readonly formFieldControl = inject(BitFormFieldControl);
+  readonly formFieldControl = inject(BitFormFieldControlDirective);
 
   constructor() {
     effect(() => this.formFieldControl.readOnly.set(this.elementRef.nativeElement.readOnly));

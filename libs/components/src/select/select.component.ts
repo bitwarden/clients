@@ -22,7 +22,7 @@ import { NgSelectComponent, NgSelectModule } from "@ng-select/ng-select";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { BitFormFieldControl } from "../form-field";
+import { BitFormFieldControlDirective } from "../form-field";
 
 import { Option } from "./option";
 import { OptionComponent } from "./option.component";
@@ -34,7 +34,7 @@ import { OptionComponent } from "./option.component";
   templateUrl: "select.component.html",
   hostDirectives: [
     {
-      directive: BitFormFieldControl,
+      directive: BitFormFieldControlDirective,
       inputs: ["required"],
     },
   ],
@@ -47,7 +47,7 @@ import { OptionComponent } from "./option.component";
 export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
   private readonly i18nService = inject(I18nService);
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
-  readonly formFieldControl = inject(BitFormFieldControl);
+  readonly formFieldControl = inject(BitFormFieldControlDirective);
 
   readonly select = viewChild.required(NgSelectComponent);
 
@@ -84,7 +84,7 @@ export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
   }
 
   ngAfterViewInit() {
-    // intentionally empty — shared reactive logic is in BitFormFieldControl host directive
+    // intentionally empty — shared reactive logic is in BitFormFieldControlDirective host directive
   }
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals

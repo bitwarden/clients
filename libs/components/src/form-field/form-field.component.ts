@@ -18,7 +18,7 @@ import { BitLabelComponent } from "../form-control/label.component";
 
 import { BitErrorComponent } from "./error.component";
 import { BitFieldContainerDirective, FieldContainerSize } from "./field-container.directive";
-import { BitFormFieldControl } from "./form-field-control";
+import { BitFormFieldControlDirective } from "./form-field-control.directive";
 import { BitPrefixDirective } from "./prefix.directive";
 import { BitSuffixDirective } from "./suffix.directive";
 
@@ -32,7 +32,7 @@ import { BitSuffixDirective } from "./suffix.directive";
   },
 })
 export class BitFormFieldComponent implements AfterContentChecked {
-  readonly input = contentChild.required(BitFormFieldControl);
+  readonly input = contentChild.required(BitFormFieldControlDirective);
   readonly hint = contentChild(BitHintDirective);
   readonly label = contentChild(BitLabelComponent);
 

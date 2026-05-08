@@ -36,7 +36,7 @@ let nextId = 0;
     "[attr.aria-describedby]": "ariaDescribedBy()",
   },
 })
-export class BitFormFieldControl implements AfterViewInit {
+export class BitFormFieldControlDirective implements AfterViewInit {
   protected readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly destroyRef = inject(DestroyRef);
   // Bridges NgControl's RxJS events into the signal graph so `required` and `hasError` computed

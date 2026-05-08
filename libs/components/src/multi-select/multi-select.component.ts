@@ -22,7 +22,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ChipComponent } from "../chips";
-import { BitFormFieldControl } from "../form-field/form-field-control";
+import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { IconComponent } from "../icon";
 import { SpinnerComponent } from "../spinner";
 
@@ -34,7 +34,7 @@ import { SelectItemView } from "./models/select-item-view";
   templateUrl: "./multi-select.component.html",
   hostDirectives: [
     {
-      directive: BitFormFieldControl,
+      directive: BitFormFieldControlDirective,
       inputs: ["required"],
     },
   ],
@@ -57,7 +57,7 @@ import { SelectItemView } from "./models/select-item-view";
  */
 export class MultiSelectComponent implements AfterViewInit, OnInit, ControlValueAccessor {
   readonly select = viewChild.required(NgSelectComponent);
-  readonly formFieldControl = inject(BitFormFieldControl);
+  readonly formFieldControl = inject(BitFormFieldControlDirective);
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
 
   // Parent component should only pass selectable items (complete list - selected items = baseItems)
@@ -107,7 +107,7 @@ export class MultiSelectComponent implements AfterViewInit, OnInit, ControlValue
   }
 
   ngAfterViewInit() {
-    // intentionally empty — shared reactive logic is in BitFormFieldControl host directive
+    // intentionally empty — shared reactive logic is in BitFormFieldControlDirective host directive
   }
 
   ngOnInit(): void {

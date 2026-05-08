@@ -4,7 +4,7 @@ import { By } from "@angular/platform-browser";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { BitFormFieldControl } from "../form-field/form-field-control";
+import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
 import { FormFieldModule } from "../form-field/form-field.module";
 import { I18nMockService } from "../utils/i18n-mock.service";
@@ -38,7 +38,7 @@ class TestCustomIdInputComponent {}
 describe("BitInputDirective — default id generation", () => {
   let fixture: ComponentFixture<TestInputComponent>;
   let inputEl: HTMLInputElement;
-  let formFieldControl: BitFormFieldControl;
+  let formFieldControl: BitFormFieldControlDirective;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -74,7 +74,7 @@ describe("BitInputDirective — default id generation", () => {
 
 describe("BitInputDirective — custom id", () => {
   let inputEl: HTMLInputElement;
-  let formFieldControl: BitFormFieldControl;
+  let formFieldControl: BitFormFieldControlDirective;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
