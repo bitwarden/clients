@@ -29,8 +29,8 @@
         linkType="primary"
         [class.tw-mb-6]="autofillOnPageLoadEnabled$ | async"
         (click)="addUri({ uri: null, matchDetection: null }, true)"
+        startIcon="bwi-plus"
       >
-        <i class="bwi bwi-plus tw-font-medium" aria-hidden="true"></i>
         {{ "addWebsite" | i18n }}
       </button>
     }

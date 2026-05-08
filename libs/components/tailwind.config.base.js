@@ -355,6 +355,7 @@ module.exports = {
         xxs: [".5rem", "150%"],
       },
       container: {
+        "@3xl": "769px",
         "@5xl": "1100px",
       },
       keyframes: {

@@ -36,9 +36,8 @@ describe("MainSshAgentService", () => {
   let ipcHandlers: Map<string, Function>;
   let mockAgentStateV2: {
     isRunning: jest.Mock;
-    setKeys: jest.Mock;
-    lock: jest.Mock;
-    clearKeys: jest.Mock;
+    replace: jest.Mock;
+    stop: jest.Mock;
   };
 
   beforeEach(() => {
@@ -57,9 +56,8 @@ describe("MainSshAgentService", () => {
 
     mockAgentStateV2 = {
       isRunning: jest.fn().mockReturnValue(true),
-      setKeys: jest.fn(),
-      lock: jest.fn(),
-      clearKeys: jest.fn(),
+      replace: jest.fn(),
+      stop: jest.fn(),
     };
 
     (ipcMain.handle as jest.Mock).mockImplementation((channel: string, handler: Function) => {
@@ -68,17 +66,13 @@ describe("MainSshAgentService", () => {
   });
 
   describe("v2 (useV2 = true)", () => {
-    let capturedUnlockCb: () => Promise<boolean>;
     let capturedSignCb: (data: sshagent_v2.SignRequestData) => Promise<boolean>;
 
     beforeEach(async () => {
-      (sshagent_v2.SshAgentState.serve as jest.Mock).mockImplementation(
-        (unlock: Function, sign: Function) => {
-          capturedUnlockCb = unlock as any;
-          capturedSignCb = sign as any;
-          return Promise.resolve(mockAgentStateV2);
-        },
-      );
+      (sshagent_v2.SshAgentState.serve as jest.Mock).mockImplementation((sign: Function) => {
+        capturedSignCb = sign as any;
+        return Promise.resolve(mockAgentStateV2);
+      });
 
       new MainSshAgentService(mockLogService, mockMessagingService);
       await ipcHandlers.get("sshagent.init")!({}, { useV2: true });
@@ -96,20 +90,20 @@ describe("MainSshAgentService", () => {
     });
 
     describe("sshagent.init IPC handler (registration)", () => {
-      it("should register sshagent.setkeys IPC handler", () => {
-        expect(ipcHandlers.has("sshagent.setkeys")).toBe(true);
+      it("should register sshagent.replace IPC handler", () => {
+        expect(ipcHandlers.has("sshagent.replace")).toBe(true);
       });
 
       it("should register sshagent.signrequestresponse IPC handler", () => {
         expect(ipcHandlers.has("sshagent.signrequestresponse")).toBe(true);
       });
 
-      it("should register sshagent.lock IPC handler", () => {
-        expect(ipcHandlers.has("sshagent.lock")).toBe(true);
+      it("should register sshagent.stop IPC handler", () => {
+        expect(ipcHandlers.has("sshagent.stop")).toBe(true);
       });
 
-      it("should register sshagent.clearkeys IPC handler", () => {
-        expect(ipcHandlers.has("sshagent.clearkeys")).toBe(true);
+      it("should not register sshagent.lock IPC handler", () => {
+        expect(ipcHandlers.has("sshagent.lock")).toBe(false);
       });
     });
 
@@ -121,18 +115,21 @@ describe("MainSshAgentService", () => {
         expect(await handler({})).toBe(false);
       });
 
-      it("should return true after sshagent.init IPC resolves", async () => {
+      it("should return agentStateV2.isRunning() after sshagent.init IPC resolves", async () => {
         const handler = ipcHandlers.get("sshagent.isloaded")!;
         expect(await handler({})).toBe(true);
+      });
+
+      it("should return false after sshagent.stop is called", async () => {
+        await ipcHandlers.get("sshagent.stop")!({});
+        const handler = ipcHandlers.get("sshagent.isloaded")!;
+        expect(await handler({})).toBe(false);
       });
     });
 
     describe("sshagent.init IPC handler", () => {
-      it("should call sshagent_v2.SshAgentState.serve with unlock and sign callbacks", () => {
-        expect(sshagent_v2.SshAgentState.serve).toHaveBeenCalledWith(
-          expect.any(Function),
-          expect.any(Function),
-        );
+      it("should call sshagent_v2.SshAgentState.serve with sign callback only", () => {
+        expect(sshagent_v2.SshAgentState.serve).toHaveBeenCalledWith(expect.any(Function));
       });
 
       it("should log success after serve resolves", async () => {
@@ -154,57 +151,13 @@ describe("MainSshAgentService", () => {
           error,
         );
       });
-    });
 
-    describe("requestUnlock (via unlock callback)", () => {
-      it("should send sshagent.unlockrequest with a request ID", () => {
-        void capturedUnlockCb();
+      it("should not re-register V2 IPC handlers on a second INIT call", async () => {
+        const handleCallCount = (ipcMain.handle as jest.Mock).mock.calls.length;
 
-        expect(mockMessagingService.send).toHaveBeenCalledWith("sshagent.unlockrequest", {
-          requestId: 1,
-        });
-      });
+        await ipcHandlers.get("sshagent.init")!({}, { useV2: true });
 
-      it("should resolve with true when the renderer accepts", async () => {
-        const unlockPromise = capturedUnlockCb();
-
-        const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
-        await responseHandler({}, { requestId: 1, accepted: true });
-
-        expect(await unlockPromise).toBe(true);
-      });
-
-      it("should resolve with false when the renderer rejects", async () => {
-        const unlockPromise = capturedUnlockCb();
-
-        const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
-        await responseHandler({}, { requestId: 1, accepted: false });
-
-        expect(await unlockPromise).toBe(false);
-      });
-
-      it("should handle multiple concurrent requests independently", async () => {
-        const promise1 = capturedUnlockCb(); // requestId: 1
-        const promise2 = capturedUnlockCb(); // requestId: 2
-
-        const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
-        // Respond out of order: deny 2, accept 1
-        await responseHandler({}, { requestId: 2, accepted: false });
-        await responseHandler({}, { requestId: 1, accepted: true });
-
-        expect(await promise1).toBe(true);
-        expect(await promise2).toBe(false);
-      });
-
-      it("should remove the pending request after it is resolved", async () => {
-        const responseHandler = ipcHandlers.get("sshagent.signrequestresponse")!;
-
-        const unlockPromise = capturedUnlockCb();
-        await responseHandler({}, { requestId: 1, accepted: true });
-        await unlockPromise;
-
-        // Responding again with the same requestId should be a no-op (no error thrown)
-        await expect(responseHandler({}, { requestId: 1, accepted: false })).resolves.not.toThrow();
+        expect((ipcMain.handle as jest.Mock).mock.calls.length).toBe(handleCallCount);
       });
     });
 
@@ -251,59 +204,54 @@ describe("MainSshAgentService", () => {
       });
     });
 
-    describe("sshagent.setkeys IPC handler", () => {
+    describe("sshagent.replace IPC handler", () => {
       const keys = [{ name: "My Key", privateKey: "key-data", cipherId: "cipher-1" }];
 
-      it("should call setKeys with the provided keys", async () => {
-        const handler = ipcHandlers.get("sshagent.setkeys")!;
+      it("should call replace with the provided keys", async () => {
+        const handler = ipcHandlers.get("sshagent.replace")!;
         await handler({}, keys);
 
-        expect(mockAgentStateV2.setKeys).toHaveBeenCalledWith(keys);
+        expect(mockAgentStateV2.replace).toHaveBeenCalledWith(keys);
       });
 
-      it("should not call setKeys when agent is not running", async () => {
+      it("should not call replace when agent is not running", async () => {
         mockAgentStateV2.isRunning.mockReturnValue(false);
 
-        const handler = ipcHandlers.get("sshagent.setkeys")!;
+        const handler = ipcHandlers.get("sshagent.replace")!;
         await handler({}, keys);
 
-        expect(mockAgentStateV2.setKeys).not.toHaveBeenCalled();
+        expect(mockAgentStateV2.replace).not.toHaveBeenCalled();
       });
     });
 
-    describe("sshagent.lock IPC handler", () => {
-      it("should call lock on the agent state", async () => {
-        const handler = ipcHandlers.get("sshagent.lock")!;
+    describe("sshagent.stop IPC handler", () => {
+      it("should call stop on the agent state", async () => {
+        const handler = ipcHandlers.get("sshagent.stop")!;
         await handler({});
 
-        expect(mockAgentStateV2.lock).toHaveBeenCalled();
+        expect(mockAgentStateV2.stop).toHaveBeenCalled();
       });
 
-      it("should not call lock when agent is not running", async () => {
-        mockAgentStateV2.isRunning.mockReturnValue(false);
-
-        const handler = ipcHandlers.get("sshagent.lock")!;
+      it("should be a no-op when called a second time after the agent is cleared", async () => {
+        const handler = ipcHandlers.get("sshagent.stop")!;
         await handler({});
+        mockAgentStateV2.stop.mockClear();
 
-        expect(mockAgentStateV2.lock).not.toHaveBeenCalled();
-      });
-    });
-
-    describe("sshagent.clearkeys IPC handler", () => {
-      it("should call clearKeys on the agent state", async () => {
-        const handler = ipcHandlers.get("sshagent.clearkeys")!;
-        await handler({});
-
-        expect(mockAgentStateV2.clearKeys).toHaveBeenCalled();
+        // agentStateV2 is now null; second call should not throw or call stop again
+        await expect(handler({})).resolves.not.toThrow();
+        expect(mockAgentStateV2.stop).not.toHaveBeenCalled();
       });
 
-      it("should call clearKeys even when agent is not running", async () => {
-        mockAgentStateV2.isRunning.mockReturnValue(false);
+      it("should allow the server to restart via INIT after a stop", async () => {
+        (sshagent_v2.SshAgentState.serve as jest.Mock).mockClear();
 
-        const handler = ipcHandlers.get("sshagent.clearkeys")!;
-        await handler({});
+        const stopHandler = ipcHandlers.get("sshagent.stop")!;
+        await stopHandler({});
 
-        expect(mockAgentStateV2.clearKeys).toHaveBeenCalled();
+        await ipcHandlers.get("sshagent.init")!({}, { useV2: true });
+        await Promise.resolve();
+
+        expect(sshagent_v2.SshAgentState.serve).toHaveBeenCalledTimes(1);
       });
     });
   });
