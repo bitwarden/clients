@@ -20,19 +20,19 @@ export const CollectionTypes = {
 export type CollectionType = (typeof CollectionTypes)[keyof typeof CollectionTypes];
 
 /**
- * Exhaustive bidirectional maps between our numeric CollectionType and the SDK's string variant.
- * Typed with `satisfies Record<...>` so TypeScript will fail to compile if either side gains a
+ * Exhaustive bidirectional maps between our numeric CollectionType and the SDK's numeric variant.
+ * Typed as Record<...> so TypeScript will fail to compile if either side gains a
  * new member without a corresponding entry being added here.
  */
-export const sdkTypeToCollectionType = {
-  SharedCollection: CollectionTypes.SharedCollection,
-  DefaultUserCollection: CollectionTypes.DefaultUserCollection,
-} satisfies Record<SdkCollectionType, CollectionType>;
+export const sdkTypeToCollectionType: Record<SdkCollectionType, CollectionType> = {
+  0: CollectionTypes.SharedCollection,
+  1: CollectionTypes.DefaultUserCollection,
+};
 
-export const collectionTypeToSdkType = {
-  [CollectionTypes.SharedCollection]: "SharedCollection",
-  [CollectionTypes.DefaultUserCollection]: "DefaultUserCollection",
-} satisfies Record<CollectionType, SdkCollectionType>;
+export const collectionTypeToSdkType: Record<CollectionType, SdkCollectionType> = {
+  [CollectionTypes.SharedCollection]: 0,
+  [CollectionTypes.DefaultUserCollection]: 1,
+};
 
 export class Collection extends Domain {
   id: CollectionId;
