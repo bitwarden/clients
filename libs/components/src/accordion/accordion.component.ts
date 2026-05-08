@@ -143,14 +143,12 @@ export class AccordionComponent {
     [
       "tw-px-4",
       "tw-rounded-b-xl",
-      "tw-transition-[max-height]",
-      "tw-transition-[padding]",
-      "tw-transition-[opacity]",
+      "tw-transition-[max-height,padding,opacity]",
       this.resolvedVariant() === "subtle"
         ? "tw-border-t tw-border-solid tw-border-border-base"
         : "",
       this.open()
-        ? "tw-max-h-80 tw-overflow-scroll tw-py-4 tw-opacity-100"
+        ? "tw-max-h-80 tw-overflow-y-auto tw-py-4 tw-opacity-100"
         : "tw-py-0 tw-max-h-0 tw-overflow-hidden tw-opacity-0",
     ].join(" "),
   );
