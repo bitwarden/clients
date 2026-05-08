@@ -1786,6 +1786,206 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
+  describe("getContainerRectForCursorFollowerInput", () => {
+    it("returns null when input is a direct child of body", () => {
+      document.body.innerHTML = `<input id="input" />`;
+      const input = document.getElementById("input") as HTMLElement;
+
+      const result = (autofillOverlayContentService as any).getContainerRectForCursorFollowerInput(
+        input,
+        52,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("returns null when no ancestor is wider than twice the input height", () => {
+      document.body.innerHTML = `<div id="narrow"><input id="input" /></div>`;
+      const input = document.getElementById("input") as HTMLElement;
+      const narrow = document.getElementById("narrow") as HTMLElement;
+      jest
+        .spyOn(narrow, "getBoundingClientRect")
+        .mockReturnValue(mockRect({ left: 0, top: 0, width: 60, height: 52 }));
+
+      const result = (autofillOverlayContentService as any).getContainerRectForCursorFollowerInput(
+        input,
+        52,
+      );
+
+      expect(result).toBeNull();
+    });
+
+    it("returns the immediate parent rect when it is wide enough", () => {
+      document.body.innerHTML = `<div id="wide"><input id="input" /></div>`;
+      const input = document.getElementById("input") as HTMLElement;
+      const wide = document.getElementById("wide") as HTMLElement;
+      const wideRect = mockRect({ left: 0, top: 0, width: 200, height: 60 });
+      jest.spyOn(wide, "getBoundingClientRect").mockReturnValue(wideRect);
+
+      const result = (autofillOverlayContentService as any).getContainerRectForCursorFollowerInput(
+        input,
+        52,
+      );
+
+      expect(result).toEqual(wideRect);
+    });
+
+    it("walks up to find the first ancestor wider than twice the input height", () => {
+      document.body.innerHTML = `
+        <div id="container">
+          <div id="narrow">
+            <input id="input" />
+          </div>
+        </div>
+      `;
+      const input = document.getElementById("input") as HTMLElement;
+      const narrow = document.getElementById("narrow") as HTMLElement;
+      const container = document.getElementById("container") as HTMLElement;
+      const containerRect = mockRect({ left: 50, top: 20, width: 284, height: 80 });
+      jest
+        .spyOn(narrow, "getBoundingClientRect")
+        .mockReturnValue(mockRect({ left: 50, top: 20, width: 40, height: 52 }));
+      jest.spyOn(container, "getBoundingClientRect").mockReturnValue(containerRect);
+
+      const result = (autofillOverlayContentService as any).getContainerRectForCursorFollowerInput(
+        input,
+        52,
+      );
+
+      expect(result).toEqual(containerRect);
+    });
+  });
+
+  describe("updateMostRecentlyFocusedField", () => {
+    let totpFieldElement: ElementWithOpId<HTMLInputElement>;
+    let totpFieldData: AutofillField;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+        <div id="container">
+          <div id="digit-wrapper">
+            <input type="tel" id="totp-input" autocomplete="one-time-code" />
+          </div>
+        </div>
+      `;
+      totpFieldElement = document.getElementById("totp-input") as ElementWithOpId<HTMLInputElement>;
+      totpFieldElement.opid = "totp-field";
+      totpFieldData = createAutofillFieldMock({
+        opid: "totp-field",
+        autoCompleteType: "one-time-code",
+        type: "tel",
+        htmlName: "totp",
+        htmlID: "totp",
+        placeholder: "totp",
+      });
+      autofillOverlayContentService["formFieldElements"].set(totpFieldElement, totpFieldData);
+    });
+
+    afterEach(() => {
+      autofillOverlayContentService["formFieldElements"].clear();
+    });
+
+    it("uses container left and width when the TOTP field rect is narrower than it is tall", async () => {
+      const fieldRect = mockRect({ left: 100, top: 50, width: 40, height: 52 });
+      const containerRect = mockRect({ left: 80, top: 40, width: 284, height: 80 });
+      jest
+        .spyOn(autofillOverlayContentService as any, "getMostRecentlyFocusedFieldRects")
+        .mockResolvedValue(fieldRect);
+      const container = document.getElementById("container") as HTMLElement;
+      const wrapper = document.getElementById("digit-wrapper") as HTMLElement;
+      jest
+        .spyOn(wrapper, "getBoundingClientRect")
+        .mockReturnValue(mockRect({ left: 100, top: 50, width: 40, height: 52 }));
+      jest.spyOn(container, "getBoundingClientRect").mockReturnValue(containerRect);
+
+      await (autofillOverlayContentService as any).updateMostRecentlyFocusedField(totpFieldElement);
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+        "updateFocusedFieldData",
+        expect.objectContaining({
+          focusedFieldData: expect.objectContaining({
+            focusedFieldRects: {
+              left: containerRect.left,
+              width: containerRect.width,
+              height: fieldRect.height,
+              top: fieldRect.top,
+            },
+          }),
+        }),
+      );
+    });
+
+    it("uses original field rect when the TOTP field rect width is greater than its height", async () => {
+      const fieldRect = mockRect({ left: 100, top: 50, width: 200, height: 52 });
+      jest
+        .spyOn(autofillOverlayContentService as any, "getMostRecentlyFocusedFieldRects")
+        .mockResolvedValue(fieldRect);
+
+      await (autofillOverlayContentService as any).updateMostRecentlyFocusedField(totpFieldElement);
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+        "updateFocusedFieldData",
+        expect.objectContaining({
+          focusedFieldData: expect.objectContaining({
+            focusedFieldRects: expect.objectContaining({
+              left: fieldRect.left,
+              width: fieldRect.width,
+            }),
+          }),
+        }),
+      );
+    });
+
+    it("uses original field rect when width <= height but the field is not a TOTP field", async () => {
+      const nonTotpFieldData = createAutofillFieldMock({ opid: "text-field", type: "text" });
+      const nonTotpElement = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+      nonTotpElement.opid = "text-field";
+      autofillOverlayContentService["formFieldElements"].set(nonTotpElement, nonTotpFieldData);
+      const fieldRect = mockRect({ left: 100, top: 50, width: 40, height: 52 });
+      jest
+        .spyOn(autofillOverlayContentService as any, "getMostRecentlyFocusedFieldRects")
+        .mockResolvedValue(fieldRect);
+
+      await (autofillOverlayContentService as any).updateMostRecentlyFocusedField(nonTotpElement);
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+        "updateFocusedFieldData",
+        expect.objectContaining({
+          focusedFieldData: expect.objectContaining({
+            focusedFieldRects: expect.objectContaining({
+              left: fieldRect.left,
+              width: fieldRect.width,
+            }),
+          }),
+        }),
+      );
+    });
+
+    it("falls back to the original field rect when no suitable container ancestor is found", async () => {
+      const fieldRect = mockRect({ left: 100, top: 50, width: 40, height: 52 });
+      jest
+        .spyOn(autofillOverlayContentService as any, "getMostRecentlyFocusedFieldRects")
+        .mockResolvedValue(fieldRect);
+      jest
+        .spyOn(autofillOverlayContentService as any, "getContainerRectForCursorFollowerInput")
+        .mockReturnValue(null);
+
+      await (autofillOverlayContentService as any).updateMostRecentlyFocusedField(totpFieldElement);
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+        "updateFocusedFieldData",
+        expect.objectContaining({
+          focusedFieldData: expect.objectContaining({
+            focusedFieldRects: expect.objectContaining({
+              left: fieldRect.left,
+              width: fieldRect.width,
+            }),
+          }),
+        }),
+      );
+    });
+  });
+
   describe("refreshMenuLayerPosition", () => {
     it("calls refreshTopLayerPosition on the inline menu content service", () => {
       autofillOverlayContentService.refreshMenuLayerPosition();
