@@ -76,7 +76,6 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     subscription: SubscriptionInformation,
     activeUserId: UserId,
     trialLength?: number,
-    trialInitiationId?: string,
   ): Promise<OrganizationResponse> {
     const organizationKeys = await this.makeOrganizationKeys(activeUserId);
     const { key, keysRequest, collectionName } = this.makeOrganizationKeysRequest(organizationKeys);
@@ -88,7 +87,6 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     this.setPlanInformation(request, subscription.plan);
 
     request.trialLength = trialLength;
-    request.trialInitiationId = trialInitiationId;
 
     const response = await this.organizationApiService.createWithoutPayment(request);
 
@@ -184,7 +182,6 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
     request.paymentMethodType = paymentMethodType;
     request.skipTrial = information.skipTrial;
     request.trialLength = information.trialLength;
-    request.trialInitiationId = information.trialInitiationId;
 
     const billingInformation = information.billing;
     request.billingAddressPostalCode = billingInformation.postalCode;

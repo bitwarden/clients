@@ -84,8 +84,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   email = "";
   /** Token from the backend associated with the email verification */
   emailVerificationToken?: string;
-  /** Identifier from the trial-initiation email redirect, sent to the org-creation endpoints */
-  trialInitiationId?: string;
   loading = false;
   productTierValue?: ProductTierType;
 
@@ -138,10 +136,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
       if (qParams.token != null) {
         this.emailVerificationToken = qParams.token;
-      }
-
-      if (qParams.trialInitiationId != null) {
-        this.trialInitiationId = qParams.trialInitiationId;
       }
 
       const product = parseInt(qParams.product);
@@ -288,7 +282,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       },
       activeUserId,
       this.trialLength,
-      this.trialInitiationId,
     );
 
     this.orgId = response?.id;
@@ -450,7 +443,6 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
       product,
       tier,
       length: this.trialLength,
-      trialInitiationId: this.trialInitiationId,
     };
   }
 }

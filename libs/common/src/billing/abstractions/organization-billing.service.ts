@@ -36,7 +36,6 @@ export type PaymentInformation = {
   billing: BillingInformation;
   skipTrial?: boolean;
   trialLength?: number;
-  trialInitiationId?: string;
 };
 
 export type SubscriptionInformation = {
@@ -56,7 +55,6 @@ export abstract class OrganizationBillingServiceAbstraction {
     subscription: SubscriptionInformation,
     activeUserId: UserId,
     trialLength?: number,
-    trialInitiationId?: string,
   ): Promise<OrganizationResponse>;
 
   abstract startFree(
