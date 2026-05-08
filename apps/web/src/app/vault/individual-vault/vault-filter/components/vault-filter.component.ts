@@ -18,8 +18,6 @@ import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -79,57 +77,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   protected organizationWarningsService = inject(OrganizationWarningsService);
-
-  allTypeFilters: CipherTypeFilter[] = [
-    {
-      id: "favorites",
-      name: this.i18nService.t("favorites"),
-      type: "favorites",
-      icon: "bwi-star",
-    },
-    {
-      id: "login",
-      name: this.i18nService.t("typeLogin"),
-      type: CipherType.Login,
-      icon: "bwi-globe",
-    },
-    {
-      id: "card",
-      name: this.i18nService.t("typeCard"),
-      type: CipherType.Card,
-      icon: "bwi-credit-card",
-    },
-    {
-      id: "passport",
-      name: this.i18nService.t("typePassport"),
-      type: CipherType.Passport,
-      icon: "bwi-globe",
-    },
-    {
-      id: "identity",
-      name: this.i18nService.t("typeIdentity"),
-      type: CipherType.Identity,
-      icon: "bwi-id-card",
-    },
-    {
-      id: "note",
-      name: this.i18nService.t("note"),
-      type: CipherType.SecureNote,
-      icon: "bwi-sticky-note",
-    },
-    {
-      id: "sshKey",
-      name: this.i18nService.t("typeSshKey"),
-      type: CipherType.SshKey,
-      icon: "bwi-key",
-    },
-    {
-      id: "bankAccount",
-      name: this.i18nService.t("bankAccount"),
-      type: CipherType.BankAccount,
-      icon: "bwi-bank",
-    },
-  ];
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -193,7 +140,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected cipherService: CipherService,
     protected cipherArchiveService: CipherArchiveService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
-    protected configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -277,22 +223,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const [userId, newItemTypesEnabled] = await firstValueFrom(
-      combineLatest([
-        this.accountService.activeAccount$.pipe(getUserId),
-        this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
-      ]),
-    );
-
-    const excludeTypes: CipherStatus[] = [];
-    if (!newItemTypesEnabled) {
-      excludeTypes.push(CipherType.BankAccount);
-      excludeTypes.push(CipherType.Passport);
-    }
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
-    builderFilter.typeFilter = await this.addTypeFilter(excludeTypes);
+    builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.archiveFilter = await this.addArchiveFilter(userId);
@@ -351,8 +286,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
       this.cipherService.cipherListViews$(userId),
+      this.vaultFilterService.cipherTypeFilters$,
     ]).pipe(
-      map(([restrictedTypes, ciphers]) => {
+      map(([restrictedTypes, ciphers, cipherTypeFilters]) => {
         const restrictedForUser = restrictedTypes
           .filter((r) => {
             // - All orgs restrict the type
@@ -378,7 +314,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
           .map((r) => r.cipherType);
 
         const toExclude = [...excludeTypes, ...restrictedForUser];
-        return this.allTypeFilters.filter((f) => !toExclude.includes(f.type));
+        return cipherTypeFilters.filter((f) => !toExclude.includes(f.type));
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
       distinctUntilChanged(),

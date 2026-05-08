@@ -1012,6 +1012,9 @@
   "typeSshKeySubtitle": {
     "message": "Server-Anmeldetoken"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdaten"
+  },
   "folderSubtitle": {
     "message": "Organisiere deine Einträge"
   },
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Sichere Notizen"
+  },
+  "typeBankAccount": {
+    "message": "Bankkonto"
   },
   "folders": {
     "message": "Ordner"
@@ -1116,6 +1122,18 @@
     "message": "Neuer SSH-Schlüssel",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Neues Bankkonto",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Neuer Führerschein",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Neuer Reisepass",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderTextSend": {
     "message": "Neues Text-Send",
     "description": "Header for new text send"
@@ -1144,6 +1162,18 @@
     "message": "SSH-Schlüssel bearbeiten",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Bankkonto bearbeiten",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Führerschein bearbeiten",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Reisepass bearbeiten",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Text-Send bearbeiten",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH-Schlüssel anzeigen",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankkonto anzeigen",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Führerschein anzeigen",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Reisepass anzeigen",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Neu",
@@ -1273,7 +1315,7 @@
     "message": "Sozialversicherungsnummer kopieren"
   },
   "copyPassportNumber": {
-    "message": "Passnummer kopieren"
+    "message": "Reisepassnummer kopieren"
   },
   "copyLicenseNumber": {
     "message": "Lizenznummer kopieren"
@@ -1304,6 +1346,38 @@
       "ciphername": {
         "content": "$2",
         "example": "Login Item"
+      }
+    }
+  },
+  "copyInfoTitle": {
+    "message": "Information kopieren - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Notiz kopieren - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Keine Werte zum Kopieren"
+  },
+  "launchWebsiteName": {
+    "message": "Website aufrufen: $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
       }
     }
   },
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "Anhang löschen"
+  },
+  "deleteAttachmentName": {
+    "message": "Anhang $NAME$ löschen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ herunterladen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Soll dieser Eintrag wirklich in den Papierkorb verschoben werden?"
@@ -2538,6 +2630,9 @@
     "message": "Wählen Sie die Import-Datei"
   },
   "chooseFile": {
+    "message": "Datei auswählen"
+  },
+  "chooseFileSentenceCase": {
     "message": "Datei auswählen"
   },
   "noFileChosen": {
@@ -3949,11 +4044,26 @@
       }
     }
   },
+  "invite": {
+    "message": "Einladen"
+  },
   "inviteUserDesc": {
     "message": "Lade einen neuen Benutzer zu deinem Anbieter ein, indem du die E-Mail-Adresse seines Bitwarden-Kontos unten einträgst. Falls dieser noch kein Bitwarden-Konto besitzt, wird er/sie zur Erstellung eines neuen Kontos aufgefordert."
   },
+  "inviteUserDescription": {
+    "message": "Lade neue Benutzer in deine Organisation ein, indem du unten deren E-Mail-Adresse eingibst."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Gib bis zu $COUNT$ E-Mail-Adressen mit Komma getrennt ein.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
   "inviteMultipleEmailsWithSeatLimit": {
-    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
+    "message": "Gib bis zu $BATCHLIMIT$ E-Mail-Adressen auf einmal ein, getrennt durch Kommas. ($REMAININGSEATS$ Benutzerplätze übrig)",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -3972,7 +4082,7 @@
     "message": "Du hast 0 Einladungen übrig."
   },
   "inviteMultipleEmailsNoSeatLimit": {
-    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "message": "Gib bis zu $BATCHLIMIT$ E-Mail-Adressen auf einmal ein, getrennt durch Kommas.",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Kontonummer für Eintrag $ID$ angezeigt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "PIN für Eintrag $ID$ angezeigt.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Kontonummer für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "PIN für Eintrag $ID$ kopiert.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Eintrag $ID$ automatisch ausgefüllt.",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Änderungen verwerfen"
+  },
+  "discardEditsConfirmation": {
+    "message": "Wenn du diese Ansicht schließt, werden deine ungespeicherten Änderungen verworfen."
+  },
+  "discardEdits": {
+    "message": "Änderungen verwerfen"
+  },
+  "keepEditing": {
+    "message": "Mit der Bearbeitung fortfahren"
+  },
+  "backToEditing": {
+    "message": "Zurück zur Bearbeitung"
   },
   "editedPolicyId": {
     "message": "Richtlinie \"$ID$\" bearbeitet.",
@@ -4355,6 +4516,45 @@
   },
   "revokedEmailError": {
     "message": "Eine oder mehrere E-Mail-Adressen gehören zu widerrufenen Mitgliedern. Stelle ihren Zugriff wieder her, um sie erneut einzuladen."
+  },
+  "revocationReasonUnknown": {
+    "message": "Unbekannter Grund"
+  },
+  "revocationReasonManual": {
+    "message": "Von einem Administrator widerrufen"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Entspricht nicht den Richtlinien für die Zwei-Faktor-Authentifizierung"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Entspricht nicht den Richtlinien für einzelne Organisationen"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Der Organisationszugang für $ID$ wurde aufgrund der Nichteinhaltung der Richtlinien zur Zwei-Faktor-Authentifizierung widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Der Organisationszugang für $ID$ wurde aufgrund der Nichteinhaltung der Richtlinie für einzelne Organisationen widerrufen.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Der Zugriff auf die Organisation wurde für $ID$ entzogen, da die Übertragung in das Eigentum der Organisation abgelehnt wurde.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "Zugriff auf die Organisation für $ID$ wiederhergestellt.",
@@ -4731,6 +4931,9 @@
   },
   "reportGenerationDone": {
     "message": "Fertig!"
+  },
+  "reportGenerationFailed": {
+    "message": "Beim Erstellen des Berichts ist ein Fehler aufgetreten. Versuche es erneut."
   },
   "riskInsightsRunReport": {
     "message": "Bericht ausführen"
@@ -8281,9 +8484,19 @@
     "message": "SCIM-Bereitstellung",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Über SCIM-Bereitstellung automatisch Benutzer und Gruppen mit deinem bevorzugten Identitätsanbieter zur Verfügung stellen",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Richte Benutzer und Gruppen automatisch ein, indem du deinen bevorzugten Identitätsanbieter mit der SCIM-URL und dem API-Schlüssel konfigurierst."
+  },
+  "scimLearnMore": {
+    "message": "Mehr über SCIM erfahren"
   },
   "scimIntegrationDescription": {
     "message": "Automatische Bereitstellung von Benutzern und Gruppen mit deinem bevorzugten Identitätsanbieter über SCIM-Bereitstellung. Suche nach unterstützten Integrationen",
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "Mitgliedsrolle"
   },
+  "moreSettings": {
+    "message": "Weitere Einstellungen"
+  },
   "moreFromBitwarden": {
     "message": "Mehr von Bitwarden"
   },
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Benutzerzugriff zum Secrets Manager aktivieren"
+  },
+  "grantSecretsManager": {
+    "message": "Zugriff auf Secrets Manager gewähren"
   },
   "userAccessSecretsManagerGA": {
     "message": "Dieser Benutzer kann auf Secrets Manager zugreifen."
@@ -13329,6 +13548,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Bankname"
+  },
+  "nameOnAccount": {
+    "message": "Name des Kontoinhabers"
+  },
+  "bankRoutingNumber": {
+    "message": "Bankleitzahl",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial-/Institutionsnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-Code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefonnummer der Bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankkonto suchen"
+  },
+  "copyAccountNumber": {
+    "message": "Kontonummer kopieren"
+  },
+  "copyRoutingNumber": {
+    "message": "Bankleitzahl kopieren"
+  },
+  "copyPin": {
+    "message": "PIN kopieren"
+  },
+  "copyIban": {
+    "message": "IBAN kopieren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Wird überprüft"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ersparnisse"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Einlagenzertifikat"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kreditrahmen"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Anlage/Wertpapierhandel"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Finanzmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Sonstige"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Deine Bankdaten sicher speichern"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Speicher deine Bankdaten, um auf allen deinen Geräten einfach und sicher darauf zugreifen zu können."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Keine Suchergebnisse gefunden"
   },
@@ -13396,14 +13679,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Dein Bankkonto muss verifiziert werden, bevor es für dieses Upgrade verwendet werden kann. Bitte verifiziere dein Bankkonto oder wähle eine andere Zahlungsmethode."
   },
-  "discardEdits": {
-    "message": "Änderungen verwerfen"
-  },
   "discardEditsMessage": {
     "message": "Wenn du diese Ansicht schließt, werden deine ungespeicherten Änderungen verworfen"
-  },
-  "backToEditing": {
-    "message": "Zurück zur Bearbeitung"
   },
   "sendHasUnsavedEdits": {
     "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
@@ -13413,18 +13690,21 @@
     "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideEmailPolicyInEffect": {
+    "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
+  },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Seitennavigation"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Link überspringen"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Meldung",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
