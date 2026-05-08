@@ -32,14 +32,11 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     userId: UserId,
     orgId: OrganizationId,
   ): Observable<OrganizationInviteLink | undefined> {
-    return this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).state$.pipe(
-      switchMap((state) => {
-        if (state == null) {
-          return this.getInviteLink(userId, orgId);
-        }
-        return of(state);
-      }),
-    );
+    return this.stateProvider
+      .getUser(userId, ORGANIZATION_INVITE_LINK_KEY)
+      .state$.pipe(
+        switchMap((state) => (state == null ? this.getInviteLink(userId, orgId) : of(state))),
+      );
   }
 
   async createInviteLink(
@@ -55,8 +52,12 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     await this.upsert(userId, inviteLink);
   }
 
-  async updateInviteLink(userId: UserId, orgId: OrganizationId, domains: string[]): Promise<void> {
-    const request = new OrganizationInviteLinkUpdateRequest(domains);
+  async updateInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    allowedDomains: string[],
+  ): Promise<void> {
+    const request = new OrganizationInviteLinkUpdateRequest({ allowedDomains });
     const response = await this.apiService.update(orgId, request);
     const inviteLink = new OrganizationInviteLink(response);
 
