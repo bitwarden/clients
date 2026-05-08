@@ -1,0 +1,45 @@
+<p bitTypography="body1">
+  {{ "inviteByLinkDesc" | i18n }}
+  <a
+    bitLink
+    href="https://bitwarden.com/help/managing-users/#add-new-members"
+    target="_blank"
+    rel="noreferrer"
+    endIcon="bwi-external-link"
+  >
+    {{ "learnMore" | i18n }}
+  </a>
+</p>
+
+<div class="tw-flex tw-items-start tw-gap-2">
+  <bit-form-field class="tw-flex-1">
+    <bit-label
+      >{{ "allowedDomains" | i18n }}
+      <span class="tw-font-normal tw-text-sm">({{ "required" | i18n }})</span></bit-label
+    >
+    <input bitInput type="text" [formControl]="form.controls.domains" />
+    <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
+  </bit-form-field>
+
+  @if (form.dirty) {
+    <button
+      type="button"
+      bitButton
+      bitFormButton
+      buttonType="primary"
+      [bitAction]="save"
+      class="tw-mt-[10px]"
+    >
+      {{ "save" | i18n }}
+    </button>
+  }
+</div>
+
+@let inviteLink = inviteLink$ | async;
+@if (inviteLink == null) {
+  <bit-callout type="info">
+    <strong>
+      {{ "enterAllowedDomainsToGenerateInviteLink" | i18n }}
+    </strong>
+  </bit-callout>
+}

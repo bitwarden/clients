@@ -12,7 +12,7 @@
     "message": "Ulubione"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Usuń z ulubionych"
   },
   "types": {
     "message": "Rodzaje"
@@ -35,20 +35,26 @@
   "typeSshKey": {
     "message": "Klucz SSH"
   },
+  "typeBankAccount": {
+    "message": "Konto bankowe"
+  },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Strona internetowa lub aplikacja"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Karta kredytowa lub debetowa"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Dane osobowe"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Notatka"
   },
   "typeSshKeySubtitle": {
     "message": "Server login token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Dane bankowe"
   },
   "folderSubtitle": {
     "message": "Organizuj elementy"
@@ -60,7 +66,7 @@
     "message": "Wybierz element do dodania"
   },
   "chooseItemToAddDesc": {
-    "message": "Select the item type you want to add to your vault."
+    "message": "Wybierz typ elementu, który chcesz dodać do sejfu."
   },
   "folders": {
     "message": "Foldery"
@@ -100,7 +106,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Nie masz uprawnień do edycji elementu"
   },
   "welcomeBack": {
     "message": "Witaj ponownie"
@@ -134,6 +140,18 @@
     "message": "Pokaż klucz SSH",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Pokaż konto bankowe",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Pokaż dokument",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Pokaż paszport",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nowe dane logowania",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "Nowy klucz SSH",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Nowe konto bankowe",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nowy dokument",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nowy paszport",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Edytuj dane logowania",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "Edytuj klucz SSH",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edytuj konto bankowe",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edytuj dokument",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edytuj paszport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Nazwa"
@@ -207,7 +249,7 @@
     "message": "Maksymalna liczba wyświetleń"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "Pozostało $ACCESSCOUNT$ wyświetleń",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -425,10 +467,10 @@
     "message": "Konto Premium jest wymagane, aby skorzystać z tej funkcji."
   },
   "syncWithBrowser": {
-    "message": "Sync with browser"
+    "message": "Synchronizuj z przeglądarką"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "message": "Aby połączyć się z $VAULTURL$, musisz zsynchronizować swoją domyślną przeglądarkę z aplikacją Bitwarden. Zostaniesz przekierowany z powrotem do tej aplikacji po zsynchronizowaniu przeglądarki.",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -707,6 +749,24 @@
   "deleteAttachment": {
     "message": "Usuń załącznik"
   },
+  "deleteAttachmentName": {
+    "message": "Usuń załącznik $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Pobierz $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Czy na pewno chcesz usunąć?"
   },
@@ -888,10 +948,10 @@
     "message": "Elementy zostały przeniesione"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Napraw szyfrowanie"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "Ten plik używa przestarzałej metody szyfrowania."
   },
   "attachmentUpdated": {
     "message": "Załącznik został zaktualizowany"
@@ -963,7 +1023,7 @@
     "message": "Użyj logowania jednokrotnego"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Twoja organizacja wymaga logowania jednokrotnego."
   },
   "submit": {
     "message": "Wyślij"
@@ -1103,7 +1163,7 @@
     "message": "Nieoczekiwany błąd"
   },
   "closeThisBitwardenWindow": {
-    "message": "Close this Bitwarden window and try again."
+    "message": "Zamknij to okno Bitwarden i spróbuj ponownie."
   },
   "itemInformation": {
     "message": "Informacje o elemencie"
@@ -1139,7 +1199,7 @@
     "message": "Kod weryfikacyjny jest nieprawidłowy"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Nieprawidłowy adres e-mail lub kod weryfikacyjny"
   },
   "continue": {
     "message": "Kontynuuj"
@@ -1239,7 +1299,7 @@
     "message": "Musisz dodać podstawowy adres URL serwera lub co najmniej jedno niestandardowe środowisko."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Adres URL musi używać HTTPS."
   },
   "customEnvironment": {
     "message": "Niestandardowe środowisko"
@@ -1294,37 +1354,37 @@
     "message": "Dowiedz się więcej"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Wystąpił błąd podczas aktualizacji ustawień szyfrowania."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Zaktualizuj ustawienia szyfrowania"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia."
   },
   "rotateAccountEncKey": {
-    "message": "Also rotate my account's encryption key"
+    "message": "Zmień również klucz szyfrowania konta"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Konsekwencje zmiany klucza szyfrowania"
   },
   "oldAttachmentsNeedFixDesc": {
-    "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
+    "message": "W Twoim sejfie istnieją stare załączniki, które muszą zostać naprawione, zanim będziesz mógł zmienić klucz szyfrowania Twojego konta."
   },
   "rotateEncKeyTitle": {
-    "message": "Rotate encryption key"
+    "message": "Zmień klucz szyfrowania"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Are you sure you want to rotate your account's encryption key?"
+    "message": "Czy na pewno chcesz zmienić swój klucz szyfrowania?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "Po zaktualizowaniu klucza szyfrowania, musisz ponownie zalogować się do wszystkich aplikacji Bitwarden, z których obecnie korzystasz (na przykład aplikacje mobilne lub rozszerzenia przeglądarki). Niepowodzenie logowania (podczas którego pobierany jest nowy klucz szyfrowania) może spowodować uszkodzenie danych. Postaramy się wylogować Ciebie automatycznie, jednak może to chwilę potrwać."
   },
   "updateEncryptionKeyAccountExportWarning": {
-    "message": "Any account restricted exports you have saved will become invalid."
+    "message": "Wszystkie zapisane eksporty objęte ograniczeniami konta zostaną unieważnione."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "Potwierdź tożsamość, aby kontynuować"
   },
   "enterYourMasterPassword": {
     "message": "Wpisz hasło główne"
@@ -1474,7 +1534,7 @@
     "message": "Hasło główne jest nieprawidłowe"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Nieprawidłowe hasło główne. Sprawdź, czy Twój adres e-mail jest poprawny i czy Twoje konto zostało utworzone na $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -1588,18 +1648,6 @@
   },
   "enableTrayDesc": {
     "message": "Zawsze pokazuj ikonę w zasobniku systemowym."
-  },
-  "startToTray": {
-    "message": "Uruchom w zasobniku systemowym"
-  },
-  "startToTrayDesc": {
-    "message": "Przy pierwszym uruchomieniu aplikacji, pokaż tylko ikonę w zasobniku systemowym."
-  },
-  "startToMenuBar": {
-    "message": "Uruchom zminimalizowany do paska menu"
-  },
-  "startToMenuBarDesc": {
-    "message": "Przy pierwszym uruchomieniu aplikacji, pokaż tylko ikonę w pasku menu."
   },
   "openAtLogin": {
     "message": "Uruchom automatycznie po zalogowaniu"
@@ -1739,7 +1787,7 @@
     "message": "1 GB miejsca na zaszyfrowane załączniki."
   },
   "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
+    "message": "$SIZE$ miejsca na zaszyfrowane załączniki.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1963,6 +2011,12 @@
     "message": "Domyślne wykrywanie dopasowania",
     "description": "Default URI match detection for auto-fill."
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Pokaż wykrywanie dopasowania"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ukryj wykrywanie dopasowania"
+  },
   "toggleOptions": {
     "message": "Zmień opcje"
   },
@@ -2003,11 +2057,11 @@
     "message": "Eksportuj z"
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Eksport",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Eksport",
     "description": "The verb form of the word Export"
   },
   "importNoun": {
@@ -2249,22 +2303,22 @@
     "message": "Szukaj w koszu"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Szukaj w archiwum"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Szukaj danych logowania"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Szukaj karty"
   },
   "searchIdentity": {
-    "message": "Search identity"
+    "message": "Szukaj tożsamości"
   },
   "searchSecureNote": {
-    "message": "Search secure note"
+    "message": "Szukaj notatki"
   },
   "searchSshKey": {
-    "message": "Search SSH key"
+    "message": "Szukaj klucza SSH"
   },
   "permanentlyDeleteItem": {
     "message": "Usuń trwale element"
@@ -2276,7 +2330,7 @@
     "message": "Element został trwale usunięty"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "Zarchiwizowany element został przywrócony"
   },
   "restoredItem": {
     "message": "Element został przywrócony"
@@ -2424,7 +2478,7 @@
     "message": "Nowe hasło główne nie spełnia wymaganych zasad."
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "Co najmniej jedna zasada organizacji wymaga, aby hasło główne spełniało następujące wymagania:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Otrzymuj porady, ogłoszenia i możliwości badawcze od Bitwarden na swoją skrzynkę odbiorczą."
@@ -2547,7 +2601,7 @@
     "message": "Informacje kontaktowe"
   },
   "send": {
-    "message": "Send",
+    "message": "Wysyłki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allSends": {
@@ -3634,13 +3688,13 @@
     "message": "Urządzenia"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Czym jest urządzenie?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Urządzenie to unikalna instalacja aplikacji Bitwarden, w której się zalogowano. Ponowna instalacja, wyczyszczenie danych aplikacji lub usunięcie plików cookie może spowodować, że urządzenie pojawi się wielokrotnie."
   },
   "deviceListDescriptionTemp": {
-    "message": "Your account was logged in to each of the devices below."
+    "message": "Twoje konto zostało zalogowane na każdym z poniższych urządzeń."
   },
   "loginStatus": {
     "message": "Status logowania"
@@ -3661,7 +3715,7 @@
     "message": "Ostatnie 30 dni"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Ponad 30 dni temu"
   },
   "firstLogin": {
     "message": "Pierwsze logowanie"
@@ -3679,10 +3733,10 @@
     "message": "Brak identyfikatora urządzenia"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "Brak typu urządzenia"
   },
   "deviceCreationDateMissing": {
-    "message": "Device creation date is missing"
+    "message": "Brak daty utworzenia urządzenia"
   },
   "trustOrganization": {
     "message": "Zaufaj organizacji"
@@ -3922,6 +3976,9 @@
   "chooseFile": {
     "message": "Wybierz plik"
   },
+  "chooseFileSentenceCase": {
+    "message": "Wybierz plik"
+  },
   "noFileChosen": {
     "message": "Nie wybrano pliku"
   },
@@ -3951,7 +4008,7 @@
     "message": "Dane sejfu zostały wyeksportowane"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Wystąpił błąd podczas eksportowania danych sejfu"
   },
   "multifactorAuthenticationCancelled": {
     "message": "Logowanie dwustopniowe zostało anulowane"
@@ -4235,22 +4292,22 @@
     "message": "Plik zapisany na urządzeniu. Zarządzaj plikiem na swoim urządzeniu."
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Ważna informacja"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Skonfiguruj dwustopniowe logowanie"
   },
   "newDeviceVerificationNoticeContentPage1": {
-    "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
+    "message": "Bitwarden wyśle kod na Twój adres e-mail w celu zweryfikowania logowania z nowych urządzeń, począwszy od lutego 2025 r."
   },
   "newDeviceVerificationNoticeContentPage2": {
-    "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
+    "message": "Możesz skonfigurować dwustopniowe logowanie jako alternatywny sposób ochrony konta lub zmienić swój adres e-mail, do którego masz dostęp."
   },
   "remindMeLater": {
     "message": "Przypomnij później"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
-    "message": "Do you have reliable access to your email, $EMAIL$?",
+    "message": "Czy masz pewny dostęp do swojego adresu e-mail, $EMAIL$?",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4259,13 +4316,13 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Nie, nie mam"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
-    "message": "Yes, I can reliably access my email"
+    "message": "Tak, mam pewny dostęp do mojego adresu e-mail"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Włącz dwustopniowe dane logowanie"
   },
   "changeAcctEmail": {
     "message": "Zmień adres e-mail konta"
@@ -4328,7 +4385,7 @@
     "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Słabe hasło."
   },
   "changeNow": {
     "message": "Zmień teraz"
@@ -4337,7 +4394,7 @@
     "message": "Brak strony internetowej"
   },
   "missingPermissions": {
-    "message": "You lack the necessary permissions to perform this action."
+    "message": "Nie posiadasz uprawnień do wykonania tej akcji."
   },
   "cannotRemoveViewOnlyCollections": {
     "message": "Nie możesz usunąć następujących kolekcji z uprawnieniami tylko do odczytu: $COLLECTIONS$",
@@ -4468,7 +4525,7 @@
     "message": "Tylko członkowie organizacji z dostępem do tych kolekcji będą mogli zobaczyć te elementy."
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Wybrałeś $TOTAL_COUNT$ elementów. Nie możesz zaktualizować $READONLY_COUNT$ elementów, ponieważ nie masz uprawnień do edycji.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -4483,7 +4540,7 @@
     "message": "Wybierz kolekcje do przypisania"
   },
   "personalItemsTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to the selected organization. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ zostanie trwale przeniesiony do wybranej organizacji. Nie będziesz już posiadać tych elementów.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4492,7 +4549,7 @@
     }
   },
   "personalItemsWithOrgTransferWarning": {
-    "message": "$PERSONAL_ITEMS_COUNT$ will be permanently transferred to $ORG$. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ zostanie trwale przeniesiony do $ORG$. Nie będziesz już właścicielem tych elementów.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -4647,7 +4704,7 @@
     "message": "Item archived"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Element został usunięty z archiwum"
   },
   "archiveItem": {
     "message": "Archiwizuj element"
@@ -4656,7 +4713,7 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Usuń z archiwum i zapisz"
   },
   "restartPremium": {
     "message": "Odnów subskrypcję Premium"
@@ -4668,7 +4725,7 @@
     "message": "Aby odzyskać dostęp do archiwum, odnów subskrypcję Premium. Jeśli przed wznowieniem subskrypcji edytujesz szczegóły archiwizowanego elementu, zostanie on przeniesiony z powrotem do sejfu."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Element został przywrócony"
   },
   "zipPostalCodeLabel": {
     "message": "Kod pocztowy"
@@ -4677,25 +4734,25 @@
     "message": "Numer karty"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Ulepsz teraz"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Wbudowana aplikacja uwierzytelniająca"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Bezpieczne przechowywanie plików"
   },
   "emergencyAccess": {
     "message": "Dostęp awaryjny"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Monitorowanie naruszeń"
   },
   "andMoreFeatures": {
     "message": "And more!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Zaawansowane bezpieczeństwo online"
   },
   "upgradeToPremium": {
     "message": "Kup konto Premium"
@@ -4719,10 +4776,10 @@
     "message": "Verify your organization to log in"
   },
   "organizationVerified": {
-    "message": "Organization verified"
+    "message": "Organizacja została zweryfikowana"
   },
   "domainVerified": {
-    "message": "Domain verified"
+    "message": "Domena została zweryfikowana"
   },
   "leaveOrganizationContent": {
     "message": "If you don't verify your organization, your access to the organization will be revoked."
@@ -4793,7 +4850,7 @@
     "message": "Set an unlock method to change your timeout action"
   },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Ulepsz"
   },
   "leaveConfirmationDialogTitle": {
     "message": "Are you sure you want to leave?"
@@ -4805,7 +4862,7 @@
     "message": "Contact your admin to regain access."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Opuść organizację $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -4814,7 +4871,7 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Jak zarządzać sejfami?"
   },
   "transferItemsToOrganizationTitle": {
     "message": "Przenieś elementy do organizacji $ORGANIZATION$",
@@ -4844,7 +4901,7 @@
     "message": "Akceptuj"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Odrzuć i wyjdź"
   },
   "organizationIsSuspended": {
     "message": "Organizacja została zawieszona"
@@ -4853,7 +4910,7 @@
     "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "Zakończono $PERCENT$%",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -4862,19 +4919,19 @@
     }
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Brak elementów w koszu"
   },
   "noItemsInTrashDesc": {
     "message": "Items you delete will appear here and be permanently deleted after 30 days"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Brak elementów w sejfie"
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
   },
   "emptyFavorites": {
-    "message": "You haven't favorited any items"
+    "message": "Brak ulubionych elementów"
   },
   "emptyFavoritesDesc": {
     "message": "Add frequently used items to favorites for quick access."
@@ -4914,13 +4971,101 @@
     "message": "Enter multiple emails by separating with a comma."
   },
   "emailPlaceholder": {
-    "message": "user@bitwarden.com , user@acme.com"
+    "message": "user@bitwarden.com, user@acme.com"
   },
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Zmień kolejność pola $LABEL$. Użyj klawiszy ze strzałkami, aby przenieść element w górę lub w dół.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
-    "message": "User verification failed."
+    "message": "Weryfikacja użytkownika nie powiodła się."
+  },
+  "bankAccount": {
+    "message": "Konto bankowe"
+  },
+  "bankName": {
+    "message": "Nazwa banku"
+  },
+  "nameOnAccount": {
+    "message": "Nazwa konta"
+  },
+  "bankAccountType": {
+    "message": "Rodzaj konta"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Firmowe"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Osobiste"
+  },
+  "accountNumber": {
+    "message": "Numer konta"
+  },
+  "bankRoutingNumber": {
+    "message": "Numer rozliczeniowy",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Identyfikator banku"
+  },
+  "swiftCode": {
+    "message": "Kod SWIFT"
+  },
+  "iban": {
+    "message": "Numer IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Numer kontaktowy do banku"
+  },
+  "searchBankAccount": {
+    "message": "Szukaj konta bankowego"
+  },
+  "copyAccountNumber": {
+    "message": "Kopiuj numer konta"
+  },
+  "copyRoutingNumber": {
+    "message": "Kopiuj numer rozliczeniowy"
+  },
+  "copyPin": {
+    "message": "Kopiuj kod PIN"
+  },
+  "copyIban": {
+    "message": "Kopiuj numer IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Standardowe"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Oszczędnościowe"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Lokata"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kredytowe"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Maklerskie"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Kapitałowe"
+  },
+  "bankAccountTypeOther": {
+    "message": "Inne"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bezpiecznie przechowuj dane bankowe"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Zapisz dane kont bankowych, aby mieć do nich łatwy i bezpieczny dostęp na wszystkich urządzeniach."
   },
   "discardEdits": {
     "message": "Discard edits"
@@ -4939,18 +5084,21 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideEmailPolicyInEffect": {
+    "message": "Twoja organizacja wymaga widocznego adresu e-mail. Odznacz opcję „Ukryj mój adres e-mail przed odbiorcami”."
+  },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Nawigacja boczna"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Pomiń link"
   },
   "callout": {
     "message": "Callout",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Pasek postępu",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
