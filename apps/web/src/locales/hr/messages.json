@@ -998,25 +998,28 @@
     "message": "SSH ključ"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Mrežna stranica ili aplikacija"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Kreditna ili debitna kartica"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Osobni podaci"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Važni tekst"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Token prijavnog poslužitelja"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organiziraj svoje stavke"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organiziraj dijeljene stavke"
   },
   "typeLoginPlural": {
     "message": "Prijave"
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Sigurne bilješke"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
   },
   "folders": {
     "message": "Mape"
@@ -1088,7 +1094,7 @@
     "message": "Dodaj stavku"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Odaberi stavku za dodavanje"
   },
   "editItem": {
     "message": "Uredi stavku"
@@ -1115,6 +1121,18 @@
   "newItemHeaderSshKey": {
     "message": "Novi SSH ključ",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Novi teksutalni Send",
@@ -1144,6 +1162,18 @@
     "message": "Uredi SSH ključ",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit driver's license",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Uredi tekstualni Send",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "Prikaži SSH ključ",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View driver's license",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Novo",
@@ -1307,6 +1349,38 @@
       }
     }
   },
+  "copyInfoTitle": {
+    "message": "Copy info - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Copy Note - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "No values to copy"
+  },
+  "launchWebsiteName": {
+    "message": "Launch website $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "Ja"
   },
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "Izbriši privitak"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Želiš li zaista poslati u smeće?"
@@ -2539,6 +2631,9 @@
   },
   "chooseFile": {
     "message": "Odaberi datoteku"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
   },
   "noFileChosen": {
     "message": "Nije odabrana datoteka"
@@ -3949,11 +4044,26 @@
       }
     }
   },
+  "invite": {
+    "message": "Invite"
+  },
   "inviteUserDesc": {
     "message": "Pozovi novog korisnika u svoju organizaciju unosom njihove Bitwarden adrese e-pošte. Ako još nemaju Bitwarden račun, biti će pozvani da stvore novi."
   },
+  "inviteUserDescription": {
+    "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Enter up to $COUNT$ emails by separating with a comma.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
   "inviteMultipleEmailsWithSeatLimit": {
-    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
+    "message": "Unesi do $BATCHLIMIT$ adresa e-pošte, odvojenih zarezom. (Preostalo: $REMAININGSEATS$)",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -3972,7 +4082,7 @@
     "message": "Nemaš preostalih pozivnica."
   },
   "inviteMultipleEmailsNoSeatLimit": {
-    "message": "Enter up to $BATCHLIMIT$ emails at a time, separated by commas.",
+    "message": "Unesi do $BATCHLIMIT$ adresa e-pošte odjednom, odvojenih zarezom.",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Viewed account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Viewed PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Copied account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Copied PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Auto-ispuna za stavku $ID$.",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
+  "discardEdits": {
+    "message": "Odbaci promjene"
+  },
+  "keepEditing": {
+    "message": "Keep editing"
+  },
+  "backToEditing": {
+    "message": "Povratak na uređivanje"
   },
   "editedPolicyId": {
     "message": "Uređeno pravilo $ID$.",
@@ -4355,6 +4516,45 @@
   },
   "revokedEmailError": {
     "message": "1 ili više adresa e-pošte pripada opozvanim članovima. Vrati im pristup za ponovni poziv."
+  },
+  "revocationReasonUnknown": {
+    "message": "Unknown reason"
+  },
+  "revocationReasonManual": {
+    "message": "Revoked by an admin"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Not in compliance with two-step login policy"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Not in compliance with single organization policy"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Revoked organization access for $ID$ for declining transfer to organization ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "Obnovljen pristup organizaciji za $ID$.",
@@ -4507,22 +4707,22 @@
     "message": "Status prijave"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Nedavno aktivno"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Danas"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Zadnjih 7 dana"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Zadnjih 14 dana"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Zadnjih 30 dana"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Prije više od 30 dana"
   },
   "firstLogin": {
     "message": "Prva prijava"
@@ -4731,6 +4931,9 @@
   },
   "reportGenerationDone": {
     "message": "Gotovo!"
+  },
+  "reportGenerationFailed": {
+    "message": "An error occurred while generating the report. Try again."
   },
   "riskInsightsRunReport": {
     "message": "Pokreni izvješće"
@@ -7151,7 +7354,7 @@
     "message": "Radnja kod isteka sesije"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
+    "message": "Upravlja se Bitwarden proširenjem. Za uređivanje, otvori web Bitwarden."
   },
   "immediately": {
     "message": "Odmah"
@@ -8281,9 +8484,19 @@
     "message": "SCIM docijeljivanje",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Automatski korisnicima i grupama dodijeli željenog pružatelja identiteta putem SCIM dodjeljivanja",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
+  },
+  "scimLearnMore": {
+    "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
     "message": "Automatski korisnicima i grupama dodijeli željenog pružatelja identiteta putem SCIM dodjeljivanja. Pronađi podržane integracije",
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "Uloga člana"
   },
+  "moreSettings": {
+    "message": "More settings"
+  },
   "moreFromBitwarden": {
     "message": "Više od Bitwardena"
   },
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Uključi korisniku pristup Secrets Manageru."
+  },
+  "grantSecretsManager": {
+    "message": "Grant access to Secrets Manager"
   },
   "userAccessSecretsManagerGA": {
     "message": "Ovaj korisnik može pristupiti Secrets Manageru"
@@ -9583,13 +9802,13 @@
     }
   },
   "phishingBlockerSiteAccessed": {
-    "message": "User attempted to access known phishing site"
+    "message": "Korisnik je pokušao pristupiti poznatoj stranici za krađu identiteta"
   },
   "phishingBlockerSiteExited": {
-    "message": "User exited phishing warning page"
+    "message": "Korisnik je izašao iz upozorenja o krađi identiteta"
   },
   "phishingBlockerBypassed": {
-    "message": "User bypassed phishing warning"
+    "message": "Korisnik je zaobišao upozorenje o krađi identiteta"
   },
   "sdk": {
     "message": "SDK",
@@ -10415,43 +10634,43 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "cancelSurveyMissingFeaturesLabel": {
-    "message": "Missing features or functionality",
+    "message": "Nedostaju značajke ili funkcionalnosti",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHint": {
-    "message": "Something we needed wasn't available",
+    "message": "Nešto što nam treba, nije dostupno",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
-    "message": "Too difficult to set up or manage",
+    "message": "Prekomplicirano za postavljanje ili upravljanje",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "message": "Uvođenje u sustav, administracija ili svakodnevna upotreba bili su previše složeni",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabel": {
-    "message": "We're not getting enough value for the cost",
+    "message": "Ne dobivamo dovoljno vrijednosti za cijenu",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHint": {
-    "message": "The price doesn't match what we're getting out of it",
+    "message": "Cijena ne odgovara onome što dobivamo",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
-    "message": "Not enough usage by our team",
+    "message": "Naš tim ne koristi dovoljno",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHint": {
-    "message": "We couldn't get people to actually use it",
+    "message": "Nismo mogli uvjeriti ljude da zapravo koriste",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
-    "message": "Our needs changed",
+    "message": "Naše potrebe su se promijenile",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHint": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "message": "Reorganizacija, akvizicija, promjena prioriteta ili nam više ne treba upravitelj lozinki",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
@@ -12041,7 +12260,7 @@
     }
   },
   "resellerRenewalWarningMsgV2": {
-    "message": "Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before $RENEWAL_DATE$.",
+    "message": "Tvoja će se pretplata uskoro obnoviti. Za neprekinutu uslugu, kontaktiraj svog davatelja usluga Birwarden za potvrdu obnove prije $RENEWAL_DATE$.",
     "placeholders": {
       "renewal_date": {
         "content": "$1",
@@ -12080,7 +12299,7 @@
     }
   },
   "resellerPastDueWarningMsgV2": {
-    "message": "The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before $GRACE_PERIOD_END$.",
+    "message": "Faktura za tvoju pretplatu nije plaćena. Za neprekinutu uslugu, kontaktiraj svog davatelja usluga Bitwarden za potvrdu obnovu prije $GRACE_PERIOD_END$.",
     "placeholders": {
       "grace_period_end": {
         "content": "$1",
@@ -13220,7 +13439,7 @@
     "message": "korisnik@bitwarden.com , korisnik@primjer.hr"
   },
   "emailPlaceholderMultiple": {
-    "message": "user@bitwarden.com, user@acme.com"
+    "message": "korisnik@bitwarden.com, korisnik@primjer.hr"
   },
   "whenYouRemoveStorage": {
     "message": "Kada ukloniš prostor za pohranu, proporcionalna razlika će se automatski koristiti za umanjennje tvog sljedećeg računa."
@@ -13329,6 +13548,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Nema rezultata pretrage"
   },
@@ -13396,35 +13679,32 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Tvoj bankovni račun mora biti potvrđen prije no što se može koristiti za ovu nadogradnju. Molimo, potvrdi svoj bankovni račun ili odaberi drugi način plaćanja."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
+    "message": "Zatvaranjem ovog pregleda, tvoje će izmjene biti odbačene"
   },
   "sendHasUnsavedEdits": {
-    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "message": "Send ima nespremljenih promjena. Sigurno želiš napustiti?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
+    "message": "Spremanje promjena Send-a nije uspjelo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Bočna navigacija"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Preskoči poveznicu"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Oblačić",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Traka napretka",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
