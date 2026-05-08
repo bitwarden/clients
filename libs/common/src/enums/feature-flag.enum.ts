@@ -42,7 +42,6 @@ export enum FeatureFlag {
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
 
-  PM29594_UpdateIndividualSubscriptionPage = "pm-29594-update-individual-subscription-page",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
   /* Key Management */
@@ -62,7 +61,6 @@ export enum FeatureFlag {
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
-  SendEmailOTP = "pm-19051-send-email-verification",
   SendControls = "pm-31885-send-controls",
 
   /* DIRT */
@@ -138,7 +136,6 @@ export const DefaultFeatureFlagValue = {
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
-  [FeatureFlag.SendEmailOTP]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
 
   /* DIRT */
@@ -182,7 +179,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
 
-  [FeatureFlag.PM29594_UpdateIndividualSubscriptionPage]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
   /* Key Management */

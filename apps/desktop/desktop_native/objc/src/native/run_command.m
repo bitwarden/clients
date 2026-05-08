@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import "autofill/run_autofill_command.h"
+#import "chromium_importer/run_chromium_command.h"
 #import "interop.h"
 #import "utils.h"
 
@@ -8,6 +9,8 @@ void pickAndRunCommand(void* context, NSDictionary *input) {
 
   if ([namespace isEqual:@"autofill"]) {
     return runAutofillCommand(context, input);
+  } else if ([namespace isEqual:@"chromium_importer"]) {
+    return runChromiumCommand(context, input);
   }
 
   _return(context, _error([NSString stringWithFormat:@"Unknown namespace: %@", namespace]));
