@@ -36,6 +36,12 @@ export class AccordionComponent {
 
   constructor() {
     effect(() => {
+      if (this.open()) {
+        this.group?.notifyOpened(this._baseId);
+      }
+    });
+
+    effect(() => {
       const activeId = this.group?.activeAccordionId();
       if (activeId != null && activeId !== this._baseId) {
         untracked(() => this.open.set(false));
@@ -60,9 +66,6 @@ export class AccordionComponent {
   protected toggle() {
     if (!this.disabled()) {
       this.open.update((o) => !o);
-      if (this.open()) {
-        this.group?.notifyOpened(this._baseId);
-      }
     }
   }
 
@@ -138,11 +141,17 @@ export class AccordionComponent {
 
   protected readonly contentClassList = computed(() =>
     [
-      "tw-p-4",
+      "tw-px-4",
       "tw-rounded-b-xl",
+      "tw-transition-[max-height]",
+      "tw-transition-[padding]",
+      "tw-transition-[opacity]",
       this.resolvedVariant() === "subtle"
         ? "tw-border-t tw-border-solid tw-border-border-base"
         : "",
+      this.open()
+        ? "tw-max-h-80 tw-overflow-scroll tw-py-4 tw-opacity-100"
+        : "tw-py-0 tw-max-h-0 tw-overflow-hidden tw-opacity-0",
     ].join(" "),
   );
 }

@@ -138,6 +138,26 @@ export const DefaultExpanded: Story = {
   }),
 };
 
+export const Overflow: Story = {
+  render: () => ({
+    template: /*html*/ `
+      <bit-accordion
+        title="This content overflows the panel"
+        subtitle="Bunch of stuff in here. Watch it scroll"
+        [open]="true"
+      >
+        <p>Series merger iterate round conversion deploy pivot SDK exit merger blockchain learning pivot investor. Merger series SDK growth launch round growth pivot. Round KPI marketplace cloud SDK unicorn iterate merger iterate funding investor optimize ecosystem strategy churn.</p>
+
+        <p>Optimize startup acquisition blockchain metrics growth ROI bootstrap deploy acquisition. Iterate disrupt revenue exit revenue exit hacking exit disrupt streamline lean investor growth. Unicorn optimize innovate cloud MVP investor revenue round pivot innovate synergy. ROI deploy framework equity SDK API KPI unicorn. Launch acquisition ecosystem blockchain streamline unicorn streamline launch optimize iterate machine AI. Valuation capital equity hacking KPI prototype SDK. SDK API startup machine leverage strategy AI cloud capital automate revenue integrate SaaS strategy.</p>
+
+        <p>Acquisition agile merger framework funding learning. KPI launch valuation integrate AI automate valuation. Acquisition valuation angel strategy innovate integrate churn growth API cloud AI equity.</p>
+
+        <p>Exit MVP innovate bootstrap funding stack disrupt SaaS stack. Disrupt hacking conversion streamline launch conversion valuation. Angel MVP funding conversion growth synergy churn SDK cloud capital deploy churn angel blockchain. Unicorn cloud revenue revenue ecosystem AI angel churn. Strategy revenue venture exit prototype innovate series startup angel lean AI synergy scale hacking.</p>
+      </bit-accordion>
+    `,
+  }),
+};
+
 export const SubtleExpanded: Story = {
   render: () => ({
     template: /*html*/ `

@@ -23,14 +23,13 @@
     [class]="chevronClasses()"
   ></bit-icon>
 </button>
-@if (open()) {
-  <div
-    data-accordion-content
-    [id]="contentId"
-    role="region"
-    [attr.aria-labelledby]="triggerId"
-    [class]="contentClassList()"
-  >
-    <ng-content></ng-content>
-  </div>
-}
+<div
+  data-accordion-content
+  [id]="contentId"
+  role="region"
+  [attr.aria-labelledby]="triggerId"
+  [class]="contentClassList()"
+  [attr.aria-hidden]="!open()"
+>
+  <ng-content></ng-content>
+</div>

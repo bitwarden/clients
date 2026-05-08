@@ -1,5 +1,8 @@
+import { ChangeDetectionStrategy, Component, signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 
+import { AccordionGroupComponent } from "./accordion-group.component";
 import { AccordionComponent } from "./accordion.component";
 
 describe("AccordionComponent", () => {
@@ -144,3 +147,98 @@ describe("AccordionComponent", () => {
     });
   });
 });
+
+describe("AccordionComponent in singleSelect group", () => {
+  let fixture: ComponentFixture<TestHostComponent>;
+  let host: TestHostComponent;
+  let accordions: AccordionComponent[];
+  let triggers: HTMLButtonElement[];
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({ imports: [TestHostComponent] }).compileComponents();
+    fixture = TestBed.createComponent(TestHostComponent);
+    host = fixture.componentInstance;
+    fixture.detectChanges();
+    accordions = fixture.debugElement
+      .queryAll(By.css("bit-accordion"))
+      .map((e) => e.componentInstance);
+    triggers = fixture.debugElement
+      .queryAll(By.css("button"))
+      .map((e) => e.nativeElement as HTMLButtonElement);
+  });
+
+  it("closes the previously open row when another is opened via two-way binding", () => {
+    host.firstOpen.set(true);
+    fixture.detectChanges();
+    expect(accordions[0].open()).toBe(true);
+
+    host.secondOpen.set(true);
+    fixture.detectChanges();
+
+    expect(accordions[1].open()).toBe(true);
+    expect(accordions[0].open()).toBe(false);
+    expect(host.firstOpen()).toBe(false);
+  });
+
+  it("closes the previously open row when another is opened by click", () => {
+    triggers[0].click();
+    fixture.detectChanges();
+    expect(accordions[0].open()).toBe(true);
+
+    triggers[1].click();
+    fixture.detectChanges();
+
+    expect(accordions[1].open()).toBe(true);
+    expect(accordions[0].open()).toBe(false);
+  });
+});
+
+describe("AccordionComponent in non-singleSelect group", () => {
+  it("allows multiple rows to remain open when bound externally", () => {
+    TestBed.configureTestingModule({ imports: [MultiSelectHostComponent] });
+    const fixture = TestBed.createComponent(MultiSelectHostComponent);
+    fixture.detectChanges();
+    const accordions = fixture.debugElement
+      .queryAll(By.css("bit-accordion"))
+      .map((e) => e.componentInstance as AccordionComponent);
+
+    fixture.componentInstance.firstOpen.set(true);
+    fixture.componentInstance.secondOpen.set(true);
+    fixture.detectChanges();
+
+    expect(accordions[0].open()).toBe(true);
+    expect(accordions[1].open()).toBe(true);
+  });
+});
+
+@Component({
+  selector: "test-host",
+  template: `
+    <bit-accordion-group singleSelect>
+      <bit-accordion title="First" [(open)]="firstOpen">First content</bit-accordion>
+      <bit-accordion title="Second" [(open)]="secondOpen">Second content</bit-accordion>
+    </bit-accordion-group>
+  `,
+  imports: [AccordionComponent, AccordionGroupComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class TestHostComponent {
+  readonly firstOpen: WritableSignal<boolean> = signal(false);
+  readonly secondOpen: WritableSignal<boolean> = signal(false);
+}
+
+@Component({
+  selector: "multi-select-host",
+  template: `
+    <bit-accordion-group>
+      <bit-accordion title="First" [(open)]="firstOpen">First content</bit-accordion>
+      <bit-accordion title="Second" [(open)]="secondOpen">Second content</bit-accordion>
+    </bit-accordion-group>
+  `,
+  imports: [AccordionComponent, AccordionGroupComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MultiSelectHostComponent {
+  readonly firstOpen: WritableSignal<boolean> = signal(false);
+  readonly secondOpen: WritableSignal<boolean> = signal(false);
+}
