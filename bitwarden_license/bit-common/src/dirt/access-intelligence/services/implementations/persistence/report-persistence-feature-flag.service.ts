@@ -20,7 +20,7 @@ export class ReportPersistenceFeatureFlagService extends ReportPersistenceServic
     super();
   }
 
-  loadReport$(
+  loadLastReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
     return this.configService
@@ -28,8 +28,8 @@ export class ReportPersistenceFeatureFlagService extends ReportPersistenceServic
       .pipe(
         switchMap((useFileStorage) =>
           useFileStorage
-            ? this.filePersistenceService.loadReport$(organizationId)
-            : this.defaultPersistenceService.loadReport$(organizationId),
+            ? this.filePersistenceService.loadLastReport$(organizationId)
+            : this.defaultPersistenceService.loadLastReport$(organizationId),
         ),
       );
   }

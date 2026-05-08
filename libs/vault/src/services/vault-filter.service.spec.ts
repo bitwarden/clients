@@ -25,6 +25,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { COLLAPSED_GROUPINGS } from "@bitwarden/common/vault/services/key-state/collapsed-groupings.state";
@@ -102,6 +103,7 @@ describe("vault filter service", () => {
       stateProvider,
       collectionService,
       accountService,
+      configService,
     );
     collapsedGroupingsState = stateProvider.singleUser.getFake(mockUserId, COLLAPSED_GROUPINGS);
     organizations.next([]);
@@ -362,6 +364,78 @@ describe("vault filter service", () => {
           storedOrgs,
           i18nService.collator,
         );
+      });
+    });
+  });
+
+  describe("cipherTypeFilters$", () => {
+    describe("when PM32009NewItemTypes flag is disabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
+        vaultFilterService = new VaultFilterService(
+          organizationService,
+          folderService,
+          cipherService,
+          policyService,
+          i18nService,
+          stateProvider,
+          collectionService,
+          accountService,
+          configService,
+        );
+      });
+
+      it("omits bankAccount", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.map((f) => f.id)).not.toContain("bankAccount");
+      });
+
+      it("uses bwi-globe for login", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Login)?.icon).toBe("bwi-globe");
+      });
+
+      it("uses bwi-id-card for identity", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Identity)?.icon).toBe("bwi-id-card");
+      });
+    });
+
+    describe("when PM32009NewItemTypes flag is enabled", () => {
+      it("emits filters in the correct order", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.map((f) => f.id)).toEqual([
+          "favorites",
+          "login",
+          "card",
+          "bankAccount",
+          "identity",
+          "note",
+          "sshKey",
+        ]);
+      });
+
+      it("includes bankAccount as the 4th filter", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters[3].id).toBe("bankAccount");
+        expect(filters[3].type).toBe(CipherType.BankAccount);
+      });
+
+      it("uses bwi-lock for login", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Login)?.icon).toBe("bwi-lock");
+      });
+
+      it("uses bwi-user for identity", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters.find((f) => f.type === CipherType.Identity)?.icon).toBe("bwi-user");
       });
     });
   });

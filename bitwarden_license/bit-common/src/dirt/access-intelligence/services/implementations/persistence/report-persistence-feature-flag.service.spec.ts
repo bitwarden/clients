@@ -29,34 +29,34 @@ describe("ReportPersistenceFeatureFlagService", () => {
     service = new ReportPersistenceFeatureFlagService(fileService, defaultService, configService);
   });
 
-  describe("loadReport$", () => {
+  describe("loadLastReport$", () => {
     it("delegates to fileService when flag is enabled", async () => {
       const expected = { report: view, hadLegacyBlobs: false };
       configService.getFeatureFlag$.mockReturnValue(of(true));
-      fileService.loadReport$.mockReturnValue(of(expected));
+      fileService.loadLastReport$.mockReturnValue(of(expected));
 
-      const result = await firstValueFrom(service.loadReport$(orgId));
+      const result = await firstValueFrom(service.loadLastReport$(orgId));
 
       expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.AccessIntelligenceReportFileStorage,
       );
-      expect(fileService.loadReport$).toHaveBeenCalledWith(orgId);
-      expect(defaultService.loadReport$).not.toHaveBeenCalled();
+      expect(fileService.loadLastReport$).toHaveBeenCalledWith(orgId);
+      expect(defaultService.loadLastReport$).not.toHaveBeenCalled();
       expect(result).toBe(expected);
     });
 
     it("delegates to defaultService when flag is disabled", async () => {
       const expected = { report: view, hadLegacyBlobs: false };
       configService.getFeatureFlag$.mockReturnValue(of(false));
-      defaultService.loadReport$.mockReturnValue(of(expected));
+      defaultService.loadLastReport$.mockReturnValue(of(expected));
 
-      const result = await firstValueFrom(service.loadReport$(orgId));
+      const result = await firstValueFrom(service.loadLastReport$(orgId));
 
       expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
         FeatureFlag.AccessIntelligenceReportFileStorage,
       );
-      expect(defaultService.loadReport$).toHaveBeenCalledWith(orgId);
-      expect(fileService.loadReport$).not.toHaveBeenCalled();
+      expect(defaultService.loadLastReport$).toHaveBeenCalledWith(orgId);
+      expect(fileService.loadLastReport$).not.toHaveBeenCalled();
       expect(result).toBe(expected);
     });
   });

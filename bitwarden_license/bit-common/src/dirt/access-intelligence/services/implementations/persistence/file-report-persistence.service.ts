@@ -1,7 +1,6 @@
 import {
   catchError,
   firstValueFrom,
-  forkJoin,
   from,
   map,
   Observable,
@@ -30,10 +29,14 @@ import {
   AccessReportData,
   AccessReportMetricsApi,
   AccessReportFileApi,
+  ApplicationHealthView,
+  AccessReportSettingsView,
+  MemberRegistryEntryView,
 } from "../../../models";
 import {
   AccessIntelligenceApiService,
   AccessReportCreateRequest,
+  AccessReportSettingsUpdateRequest,
 } from "../../abstractions/access-intelligence-api.service";
 import { AccessReportEncryptionService } from "../../abstractions/access-report-encryption.service";
 import { ReportPersistenceService } from "../../abstractions/report-persistence.service";
@@ -59,72 +62,57 @@ export class FileReportPersistenceService extends ReportPersistenceService {
 
     return from(firstValueFrom(getUserId(this.accountService.activeAccount$))).pipe(
       switchMap((userId) => {
-        // Encrypt view to domain model
-        return from(
-          AccessReport.fromView(view, this.riskInsightsEncryptionService, {
-            organizationId,
-            userId,
-          }),
-        ).pipe(
-          switchMap((domain) => {
-            if (!domain.contentEncryptionKey) {
-              return throwError(() => new Error("Report encryption key not found"));
-            }
+        const payload = view.toEncryptionPayload();
 
-            // Extract encrypted data from domain model
-            const data = domain.toData();
-            const metrics = view.toMetrics();
+        return this.riskInsightsEncryptionService
+          .encryptReportFile$({ organizationId, userId }, payload, view.contentEncryptionKey)
+          .pipe(
+            switchMap((encryptedData) => {
+              const metrics = view.toMetrics();
 
-            const reportFile = new File([data.reports], "report-data.json", {
-              type: "application/json",
-            });
+              const request: AccessReportCreateRequest = {
+                applicationData: encryptedData.encryptedApplicationData.encryptedString!,
+                summaryData: encryptedData.encryptedSummaryData.encryptedString!,
+                contentEncryptionKey: encryptedData.contentEncryptionKey.encryptedString!,
+                metrics: new AccessReportMetricsApi(metrics.toAccessReportMetricsData()),
+                fileSize: encryptedData.encryptedReportData.buffer.byteLength,
+              };
 
-            const request = {
-              applicationData: data.applications,
-              summaryData: data.summary,
-              contentEncryptionKey: data.contentEncryptionKey,
-              metrics: metrics.toAccessReportMetricsData(),
-              fileSize: reportFile.size,
-            } as AccessReportCreateRequest;
+              return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
+                tap((createReportResponse) => {
+                  const reportFileId = createReportResponse.reportResponse.reportFile?.id;
+                  if (!reportFileId) {
+                    throw new Error(
+                      "Report file ID was not found in create report response. Unable to upload report as file",
+                    );
+                  }
+                }),
+                map((createReportResponse) => ({ createReportResponse, encryptedData })),
+              );
+            }),
+            switchMap(({ createReportResponse, encryptedData }) => {
+              const reportId = createReportResponse.reportResponse.id as OrganizationReportId;
 
-            return this.accessIntelligenceApiService.createReport$(organizationId, request).pipe(
-              tap((createReportResponse) => {
-                const reportFileId = createReportResponse.reportResponse.reportFile?.id;
-                if (!reportFileId) {
-                  throw new Error(
-                    "Report file ID was not found in create report response. Unable to upload report as file",
-                  );
-                }
-              }),
-              map((createReportResponse) => ({
-                createReportResponse,
-                reportFile,
-                contentEncryptionKey: domain.contentEncryptionKey!,
-              })),
-            );
-          }),
-          switchMap(({ createReportResponse, reportFile, contentEncryptionKey }) => {
-            const reportId = createReportResponse.reportResponse.id as OrganizationReportId;
-
-            const upload$ = from(reportFile.bytes()).pipe(
-              switchMap((buffer) =>
-                from(
-                  this.fileUploadService.upload(
-                    {
-                      url: createReportResponse.reportFileUploadUrl,
-                      fileUploadType: createReportResponse.fileUploadType,
-                    },
-                    reportFile.name as unknown as EncString,
-                    { buffer } as unknown as EncArrayBuffer,
-                    this.generateFileUploadCallbacks(organizationId, createReportResponse),
-                  ),
+              const upload$ = from(
+                this.fileUploadService.upload(
+                  {
+                    url: createReportResponse.reportFileUploadUrl,
+                    fileUploadType: createReportResponse.fileUploadType,
+                  },
+                  encryptedData.encryptedFileName,
+                  encryptedData.encryptedReportData,
+                  this.generateFileUploadCallbacks(organizationId, createReportResponse),
                 ),
-              ),
-            );
+              );
 
-            return upload$.pipe(map(() => ({ id: reportId, contentEncryptionKey })));
-          }),
-        );
+              return upload$.pipe(
+                map(() => ({
+                  id: reportId,
+                  contentEncryptionKey: encryptedData.contentEncryptionKey,
+                })),
+              );
+            }),
+          );
       }),
     );
   }
@@ -140,39 +128,36 @@ export class FileReportPersistenceService extends ReportPersistenceService {
       switchMap((userId) => {
         // Encrypt view to domain model
         return from(
-          AccessReport.fromView(view, this.riskInsightsEncryptionService, {
+          AccessReport.fromView$(view, this.riskInsightsEncryptionService, {
             organizationId: view.organizationId,
             userId,
           }),
         ).pipe(
           switchMap((domain) => {
             const data = domain.toData();
-
-            const updateApplicationsCall = this.accessIntelligenceApiService.updateApplicationData$(
-              view.organizationId,
-              view.id,
-              data.applications,
+            const metrics = new AccessReportMetricsApi(
+              view.toMetrics().toAccessReportMetricsData(),
             );
 
-            const metrics = view.toMetrics().toAccessReportMetricsData();
+            const request: AccessReportSettingsUpdateRequest = {
+              applicationData: data.applications,
+              summaryData: data.summary,
+              metrics: metrics,
+            };
 
-            const updateSummaryCall = this.accessIntelligenceApiService.updateSummaryData$(
+            return this.accessIntelligenceApiService.updateReportSettings$(
               view.organizationId,
               view.id,
-              data.summary,
-              metrics as AccessReportMetricsApi,
-            );
-
-            return forkJoin([updateApplicationsCall, updateSummaryCall]).pipe(
-              map(() => undefined as void),
+              request,
             );
           }),
+          map((_) => undefined as void),
         );
       }),
     );
   }
 
-  loadReport$(
+  loadLastReport$(
     organizationId: OrganizationId,
   ): Observable<{ report: AccessReportView; hadLegacyBlobs: boolean } | null> {
     this.logService.debug("[FileReportPersistenceService] Loading report", { organizationId });
@@ -195,13 +180,12 @@ export class FileReportPersistenceService extends ReportPersistenceService {
               throw new Error("Report encryption key not found");
             }
 
-            // V2: reportData lives in a file.
+            // V2: reportData lives in a file as an EncArrayBuffer.
             //   - Azure blob URL → unauthenticated GET (SAS token in URL handles auth)
             //   - Server URL → authenticated API call
-            // V1 fallback: reportData is inline in the response.
-            let reportData$: Observable<string>;
+            // V1 fallback: reportData is inline in the response as an EncString.
             if (apiResponse.fileUploadType !== undefined && apiResponse.reportFileDownloadUrl) {
-              reportData$ = (
+              const download$ =
                 apiResponse.fileUploadType === FileUploadType.Azure
                   ? this.accessIntelligenceApiService.downloadReportFileAzure$(
                       apiResponse.reportFileDownloadUrl,
@@ -209,26 +193,50 @@ export class FileReportPersistenceService extends ReportPersistenceService {
                   : this.accessIntelligenceApiService.downloadReportFile$(
                       organizationId,
                       apiResponse.id as OrganizationReportId,
-                    )
-              ).pipe(switchMap(({ blob }) => from(blob.text())));
-            } else {
-              reportData$ = of(apiResponse.reports);
+                    );
+
+              return download$.pipe(
+                switchMap(({ blob }) => from(EncArrayBuffer.fromResponse(blob))),
+                switchMap((encArrayBuffer) =>
+                  this.riskInsightsEncryptionService.decryptReportFile$(
+                    { organizationId, userId },
+                    encArrayBuffer,
+                    new EncString(apiResponse.summary),
+                    new EncString(apiResponse.applications),
+                    new EncString(apiResponse.contentEncryptionKey),
+                  ),
+                ),
+                map((decryptedData) => {
+                  const view = new AccessReportView();
+                  view.id = apiResponse.id as OrganizationReportId;
+                  view.organizationId = organizationId;
+                  view.creationDate = new Date(apiResponse.creationDate);
+                  view.contentEncryptionKey = new EncString(apiResponse.contentEncryptionKey);
+                  view.reports = decryptedData.reportData.reports.map(
+                    ApplicationHealthView.fromData,
+                  );
+                  view.memberRegistry = Object.fromEntries(
+                    Object.entries(decryptedData.reportData.memberRegistry).map(([id, data]) => [
+                      id,
+                      MemberRegistryEntryView.fromData(data),
+                    ]),
+                  );
+                  view.applications = decryptedData.applicationData.map(
+                    AccessReportSettingsView.fromData,
+                  );
+                  view.summary = decryptedData.summaryData;
+                  return { report: view, hadLegacyBlobs: false };
+                }),
+              );
             }
 
-            return reportData$.pipe(
-              switchMap((reportData) => {
-                // Convert API → Data → Domain → View (following 4-layer architecture)
-                const data = new AccessReportData(apiResponse);
-                data.reports = reportData;
-
-                const domain = new AccessReport(data);
-
-                // Domain handles its own decryption
-                return from(
-                  domain.decrypt(this.riskInsightsEncryptionService, { organizationId, userId }),
-                ).pipe(map(({ view, hadLegacyBlobs }) => ({ report: view, hadLegacyBlobs })));
-              }),
-            );
+            // V1 fallback: inline EncString report data via domain model
+            const data = new AccessReportData(apiResponse);
+            data.reports = apiResponse.reports;
+            const domain = new AccessReport(data);
+            return from(
+              domain.decrypt$(this.riskInsightsEncryptionService, { organizationId, userId }),
+            ).pipe(map(({ view, hadLegacyBlobs }) => ({ report: view, hadLegacyBlobs })));
           }),
         );
       }),
