@@ -7,7 +7,6 @@ import { SymmetricKey } from "@bitwarden/sdk-internal";
 import { Utils } from "../../../platform/misc/utils";
 import { EncryptionType } from "../../enums";
 
-
 export type Aes256CbcHmacKey = {
   type: EncryptionType.AesCbc256_HmacSha256_B64;
   encryptionKey: Uint8Array;
