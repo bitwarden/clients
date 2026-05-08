@@ -1012,6 +1012,9 @@
   "typeSshKeySubtitle": {
     "message": "Идентификатор за вписване в сървъра"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Банкови данни"
+  },
   "folderSubtitle": {
     "message": "Организирайте данните си"
   },
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Защитени бележки"
+  },
+  "typeBankAccount": {
+    "message": "Банкова сметка"
   },
   "folders": {
     "message": "Папки"
@@ -1116,6 +1122,18 @@
     "message": "Нов SSH ключ",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Нова банкова сметка",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Нов лиценз",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Нов паспорт",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderTextSend": {
     "message": "Ново текстово Изпращане",
     "description": "Header for new text send"
@@ -1144,6 +1162,18 @@
     "message": "Редактиране на SSH ключа",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Редактиране на банковата сметка",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Редактиране на шофьорската книжка",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Редактиране на паспорта",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Редактиране на текстовото Изпращане",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "Преглед на SSH ключа",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Преглед на банковата сметка",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Преглед на шофьорската книжка",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Преглед на паспорта",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Ново",
@@ -1307,6 +1349,38 @@
       }
     }
   },
+  "copyInfoTitle": {
+    "message": "Копиране на информацията – $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Копиране на бележката – $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Няма стойности за копиране"
+  },
+  "launchWebsiteName": {
+    "message": "Отваряне на уеб сайта $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "Аз"
   },
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "Изтриване на прикачения файл"
+  },
+  "deleteAttachmentName": {
+    "message": "Изтриване на прикачения файл $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Сваляне на $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете елемента?"
@@ -2538,6 +2630,9 @@
     "message": "Изберете файла за внасяне"
   },
   "chooseFile": {
+    "message": "Изберете файл"
+  },
+  "chooseFileSentenceCase": {
     "message": "Изберете файл"
   },
   "noFileChosen": {
@@ -3949,8 +4044,23 @@
       }
     }
   },
+  "invite": {
+    "message": "Покана"
+  },
   "inviteUserDesc": {
     "message": "Може да поканите потребител да стане член на организацията като попълните адреса му за електронна поща, с който е регистриран в Битуорден, по-долу. В случай, че потребителят не е регистриран, той автоматично ще получи покана и да се регистрира."
+  },
+  "inviteUserDescription": {
+    "message": "Поканете нови потребители в организацията си като въведете е-пощите им по-долу."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Можете да въведете до $COUNT$ е-пощи, като ги разделите със запетая.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Въведете не повече от $BATCHLIMIT$ е-пощи, разделени със запетаи. (оставащи места: $REMAININGSEATS$)",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Номерът на банкова сметка от запис $ID$ е прегледан.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "ПИН на запис $ID$ е прегледан.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Номерът на банкова сметка от запис $ID$ е копиран.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "ПИН на запис $ID$ е копиран.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Запис № $ID$ е ползван за автоматично дописване.",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Отхвърляне на промените"
+  },
+  "discardEditsConfirmation": {
+    "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани."
+  },
+  "discardEdits": {
+    "message": "Отхвърляне на промените"
+  },
+  "keepEditing": {
+    "message": "Продължаване на редактирането"
+  },
+  "backToEditing": {
+    "message": "Назад към редактирането"
   },
   "editedPolicyId": {
     "message": "Редактирана политика № $ID$.",
@@ -4355,6 +4516,45 @@
   },
   "revokedEmailError": {
     "message": "1 или повече е-пощи принадлежат на членове с преустановен достъп. Възстановете достъпа им, за да ги поканите отново."
+  },
+  "revocationReasonUnknown": {
+    "message": "Неизвестна причина"
+  },
+  "revocationReasonManual": {
+    "message": "Отнето от администратор"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Несъответствие с политиката за двустепенно удостоверяване"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Несъответствие с политиката за единствена организация"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Достъпът до организацията е отнет от $ID$, поради несъответствие с политиката за двустепенно удостоверяване на организацията.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Достъпът до организацията е отнет от $ID$, поради несъответствие с политиката за единствена организация.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Достъпът до организацията е отнет от $ID$, поради отказ от прехвърляне на собствеността към организацията.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "Достъпът на $ID$ до организацията е възстановен.",
@@ -4731,6 +4931,9 @@
   },
   "reportGenerationDone": {
     "message": "Готово!"
+  },
+  "reportGenerationFailed": {
+    "message": "Възникна грешка при създаването на доклада. Опитайте отново."
   },
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
@@ -8281,9 +8484,19 @@
     "message": "Удостоверяване чрез SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Предоставете на потребителите и групите си автоматично удостоверяване със своя предпочитан доставчик на удостоверителни данни като използвате удостоверяване чрез SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Дайте автоматичен достъп на потребителите и групите, като настроите предпочитан доставчик на самоличност посредством адрес за SCIM и ключ за ППИ."
+  },
+  "scimLearnMore": {
+    "message": "Научете повече относно SCIM"
   },
   "scimIntegrationDescription": {
     "message": "Предоставете на потребителите и групите си автоматично удостоверяване със своя предпочитан доставчик на удостоверителни данни като използвате удостоверяване чрез SCIM. Разгледайте поддържаните такива.",
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "Роля на члена"
   },
+  "moreSettings": {
+    "message": "Още настройки"
+  },
   "moreFromBitwarden": {
     "message": "Още от Битуорден"
   },
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Включване на достъпа на потребителите до Управлението на тайни."
+  },
+  "grantSecretsManager": {
+    "message": "Дайте достъп до Управлението на тайни"
   },
   "userAccessSecretsManagerGA": {
     "message": "Този потребител има достъп до Управлението на тайни"
@@ -13329,6 +13548,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Име на банката"
+  },
+  "nameOnAccount": {
+    "message": "Име на титуляра"
+  },
+  "bankRoutingNumber": {
+    "message": "Банков идентификационен номер за САЩ",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Номер на клон/институция"
+  },
+  "swiftCode": {
+    "message": "Код SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Телефон за връзка с банката"
+  },
+  "searchBankAccount": {
+    "message": "Търсене на банкова сметка"
+  },
+  "copyAccountNumber": {
+    "message": "Копиране на номера на сметката"
+  },
+  "copyRoutingNumber": {
+    "message": "Копиране на банковия идентификационен номер за САЩ"
+  },
+  "copyPin": {
+    "message": "Копиране на ПИН"
+  },
+  "copyIban": {
+    "message": "Копиране на IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Разплащателна"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Спестовна"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Депозит"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Кредитна"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Инвестиционна/брокерска"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Паричен пазар"
+  },
+  "bankAccountTypeOther": {
+    "message": "Друга"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Съхранявайте сигурно банковите си данни"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Запазете данните за банковата си сметка, за да можете да ги преглеждате лесно и сигурно на различните си устройства."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Няма резултати от търсенето"
   },
@@ -13396,14 +13679,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Банковата Ви сметка трябва да бъде потвърдена, преди да може да се използва за това надграждане. Моля, потвърдете банковата си сметка или изберете друг начин за разплащане."
   },
-  "discardEdits": {
-    "message": "Отхвърляне на промените"
-  },
   "discardEditsMessage": {
     "message": "Ако затворите този изглед, незапазените промени ще бъдат анулирани"
-  },
-  "backToEditing": {
-    "message": "Назад към редактирането"
   },
   "sendHasUnsavedEdits": {
     "message": "Изпращането има незапазени промени. Наистина ли искате да напуснете?",
@@ -13412,6 +13689,9 @@
   "saveSendEditsFailed": {
     "message": "Запазването на промените по Изпращането беше неуспешно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
   },
   "sideNavigation": {
     "message": "Странична навигация"
