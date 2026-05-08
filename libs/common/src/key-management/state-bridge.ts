@@ -119,7 +119,9 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async set_user_key(userKey: SymmetricKey): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, USER_KEY, {"": SymmetricCryptoKey.fromSdk(userKey) as UserKey});
+    await writeAtomic(this.stateProvider, this.userId, USER_KEY, {
+      "": SymmetricCryptoKey.fromSdk(userKey) as UserKey,
+    });
   }
 
   async get_user_key(): Promise<SymmetricKey | null> {
@@ -136,11 +138,17 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async set_ephemeral_pin_envelope(pinEnvelope: PasswordProtectedKeyEnvelope): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, { "": { pin_envelope: pinEnvelope } });
+    await writeAtomic(this.stateProvider, this.userId, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, {
+      "": { pin_envelope: pinEnvelope },
+    });
   }
 
   async get_ephemeral_pin_envelope(): Promise<PasswordProtectedKeyEnvelope | null> {
-    const result = await readAtomic(this.stateProvider, this.userId, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL);
+    const result = await readAtomic(
+      this.stateProvider,
+      this.userId,
+      PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+    );
     if (result != null) {
       return result[""]?.pin_envelope ?? null;
     } else {
@@ -182,11 +190,7 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async get_encrypted_pin(): Promise<EncString | null> {
-    return await readAtomic(
-      this.stateProvider,
-      this.userId,
-      USER_KEY_ENCRYPTED_PIN,
-    );
+    return await readAtomic(this.stateProvider, this.userId, USER_KEY_ENCRYPTED_PIN);
   }
 
   async clear_encrypted_pin(): Promise<void> {
