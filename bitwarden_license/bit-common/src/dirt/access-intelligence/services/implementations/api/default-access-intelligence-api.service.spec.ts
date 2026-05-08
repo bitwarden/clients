@@ -1,3 +1,6 @@
+/**
+ * @jest-environment ../../libs/shared/test.environment.ts
+ */
 import { mock, MockProxy } from "jest-mock-extended";
 import { firstValueFrom } from "rxjs";
 
@@ -375,8 +378,10 @@ describe("DefaultAccessIntelligenceApiService", () => {
       mockApiService.send.mockResolvedValue(undefined);
 
       const file = new File(["file content"], "report.bin", { type: "application/octet-stream" });
+      const formData = new FormData();
+      formData.append("file", file);
 
-      await firstValueFrom(service.uploadReportFile$(orgId, reportId, file, reportFileId));
+      await firstValueFrom(service.uploadReportFile$(orgId, reportId, reportFileId, formData));
 
       expect(mockApiService.send).toHaveBeenCalledWith(
         "POST",
@@ -394,10 +399,10 @@ describe("DefaultAccessIntelligenceApiService", () => {
     it("should propagate API errors", async () => {
       mockApiService.send.mockRejectedValue(new Error("Upload failed"));
 
-      const file = new File(["content"], "report.bin");
+      const formData = new FormData();
 
       await expect(
-        firstValueFrom(service.uploadReportFile$(orgId, reportId, file, reportFileId)),
+        firstValueFrom(service.uploadReportFile$(orgId, reportId, reportFileId, formData)),
       ).rejects.toThrow("Upload failed");
     });
   });
@@ -426,6 +431,79 @@ describe("DefaultAccessIntelligenceApiService", () => {
 
       await expect(firstValueFrom(service.downloadReportFile$(orgId, reportId))).rejects.toThrow(
         "Download failed",
+      );
+    });
+  });
+
+  describe("downloadReportFileAzure$", () => {
+    const azureUrl = "https://storage.azure.com/container/path/to/report.bin?sig=abc123";
+
+    function makeFetchResponse(
+      status: number,
+      blobContent: string,
+      contentDisposition?: string,
+    ): Response {
+      const headers = new Headers();
+      if (contentDisposition) {
+        headers.set("Content-Disposition", contentDisposition);
+      }
+      const blob = new Blob([blobContent], { type: "application/octet-stream" });
+      return {
+        status,
+        headers,
+        blob: () => Promise.resolve(blob),
+      } as unknown as Response;
+    }
+
+    it("should use filename from Content-Disposition header when present", async () => {
+      const fakeResponse = makeFetchResponse(200, "data", 'attachment; filename="report.bin"');
+      mockApiService.nativeFetch.mockResolvedValue(fakeResponse);
+
+      const result = await firstValueFrom(service.downloadReportFileAzure$(azureUrl));
+
+      expect(mockApiService.nativeFetch).toHaveBeenCalledWith(
+        expect.objectContaining({ cache: "no-store" }),
+      );
+      expect(result.fileName).toBe("report.bin");
+      expect(result.blob).toBeInstanceOf(Blob);
+    });
+
+    it("should use filename from Content-Disposition header without quotes", async () => {
+      const fakeResponse = makeFetchResponse(
+        200,
+        "data",
+        "attachment; filename=report-unquoted.bin",
+      );
+      mockApiService.nativeFetch.mockResolvedValue(fakeResponse);
+
+      const result = await firstValueFrom(service.downloadReportFileAzure$(azureUrl));
+
+      expect(result.fileName).toBe("report-unquoted.bin");
+    });
+
+    it("should fall back to last URL path segment when Content-Disposition is absent", async () => {
+      const fakeResponse = makeFetchResponse(200, "data");
+      mockApiService.nativeFetch.mockResolvedValue(fakeResponse);
+
+      const result = await firstValueFrom(service.downloadReportFileAzure$(azureUrl));
+
+      expect(result.fileName).toBe("report.bin");
+    });
+
+    it("should throw when response status is not 200", async () => {
+      const fakeResponse = makeFetchResponse(403, "");
+      mockApiService.nativeFetch.mockResolvedValue(fakeResponse);
+
+      await expect(firstValueFrom(service.downloadReportFileAzure$(azureUrl))).rejects.toThrow(
+        "Failed to download report file: 403",
+      );
+    });
+
+    it("should propagate nativeFetch errors", async () => {
+      mockApiService.nativeFetch.mockRejectedValue(new Error("Network error"));
+
+      await expect(firstValueFrom(service.downloadReportFileAzure$(azureUrl))).rejects.toThrow(
+        "Network error",
       );
     });
   });

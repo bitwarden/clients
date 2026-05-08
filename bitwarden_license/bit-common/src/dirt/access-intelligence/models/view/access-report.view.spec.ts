@@ -721,6 +721,80 @@ describe("AccessReportView", () => {
     });
   });
 
+  // ==================== Encryption Payload ====================
+
+  describe("toEncryptionPayload", () => {
+    it("should map reports to ApplicationHealthData with all fields", () => {
+      const view = new AccessReportView();
+      view.reports = [createReport("github.com", { u1: true, u2: false }, { c1: true, c2: false })];
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+        { id: "u2", name: "Bob", email: "bob@example.com" },
+      ]);
+      view.applications = [createApplication("github.com", true)];
+
+      const payload = view.toEncryptionPayload();
+      const report = payload.reportData.reports[0];
+
+      expect(report.applicationName).toBe("github.com");
+      expect(report.memberRefs).toEqual({ u1: true, u2: false });
+      expect(report.cipherRefs).toEqual({ c1: true, c2: false });
+    });
+
+    it("should map memberRegistry entries to MemberRegistryEntryData", () => {
+      const view = new AccessReportView();
+      view.reports = [];
+      view.memberRegistry = createMemberRegistry([
+        { id: "u1", name: "Alice", email: "alice@example.com" },
+      ]);
+      view.applications = [];
+
+      const payload = view.toEncryptionPayload();
+
+      expect(payload.reportData.memberRegistry["u1"]).toEqual(
+        expect.objectContaining({ id: "u1", userName: "Alice", email: "alice@example.com" }),
+      );
+    });
+
+    it("should pass summary directly as summaryData", () => {
+      const view = new AccessReportView();
+      view.reports = [];
+      view.memberRegistry = {};
+      view.applications = [];
+      view.summary.totalApplicationCount = 5;
+      view.summary.totalMemberCount = 10;
+
+      const payload = view.toEncryptionPayload();
+
+      expect(payload.summaryData).toBe(view.summary);
+    });
+
+    it("should map applications to AccessReportSettingsData with all fields", () => {
+      const reviewedDate = new Date("2024-06-01T12:00:00.000Z");
+      const view = new AccessReportView();
+      view.reports = [];
+      view.memberRegistry = {};
+      view.applications = [createApplication("github.com", true, reviewedDate)];
+
+      const payload = view.toEncryptionPayload();
+      const appData = payload.applicationData[0];
+
+      expect(appData.applicationName).toBe("github.com");
+      expect(appData.isCritical).toBe(true);
+      expect(appData.reviewedDate).toBe(reviewedDate.toISOString());
+    });
+
+    it("should return empty arrays when view has no reports or applications", () => {
+      const view = new AccessReportView();
+
+      const payload = view.toEncryptionPayload();
+
+      expect(payload.reportData.reports).toEqual([]);
+      expect(payload.reportData.memberRegistry).toEqual({});
+      expect(payload.applicationData).toEqual([]);
+    });
+  });
+
   // ==================== Serialization ====================
 
   describe("fromJSON", () => {
