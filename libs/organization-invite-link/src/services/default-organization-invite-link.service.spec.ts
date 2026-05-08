@@ -113,7 +113,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(inviteLink);
+      expect(stored).toEqual({ [mockOrgId]: inviteLink });
     });
   });
 
@@ -131,7 +131,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toBeNull();
+      expect(stored?.[mockOrgId]).toBeUndefined();
     });
   });
 
@@ -160,7 +160,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(new OrganizationInviteLink(response));
+      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
     });
 
     it("errors when orgKey is null", async () => {
@@ -189,7 +189,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(new OrganizationInviteLink(response));
+      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
     });
   });
 
@@ -218,7 +218,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(new OrganizationInviteLink(response));
+      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
     });
 
     it("errors when orgKey is null", async () => {

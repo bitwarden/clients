@@ -32,11 +32,10 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     userId: UserId,
     orgId: OrganizationId,
   ): Observable<OrganizationInviteLink | undefined> {
-    return this.stateProvider
-      .getUser(userId, ORGANIZATION_INVITE_LINK_KEY)
-      .state$.pipe(
-        switchMap((state) => (state == null ? this.getInviteLink(userId, orgId) : of(state))),
-      );
+    return this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).state$.pipe(
+      map((record) => record?.[orgId]),
+      switchMap((cached) => (cached == null ? this.getInviteLink(userId, orgId) : of(cached))),
+    );
   }
 
   async createInviteLink(
@@ -92,12 +91,17 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   }
 
   async upsert(userId: UserId, data: OrganizationInviteLink): Promise<void> {
-    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => data);
+    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update((state) => {
+      const record = state ?? ({} as Record<OrganizationId, OrganizationInviteLink>);
+      return { ...record, [data.organizationId]: data };
+    });
   }
 
   async delete(userId: UserId, orgId: OrganizationId): Promise<void> {
     await this.apiService.delete(orgId);
-    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => null);
+    await this.stateProvider
+      .getUser(userId, ORGANIZATION_INVITE_LINK_KEY)
+      .update((state) => (state == null ? state : { ...state, [orgId]: undefined }));
   }
 
   private buildInviteUrl(code: string, keyB64: string): string {
