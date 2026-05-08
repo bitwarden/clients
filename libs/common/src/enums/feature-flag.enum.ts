@@ -16,6 +16,7 @@ export enum FeatureFlag {
   GenerateInviteLink = "pm-32497-generate-invite-link",
   PM35153CollectionSdkDecryption = "pm-35153-collection-sdk-decryption",
   PolicyDrawers = "pm-34804-policy-drawers",
+  PM36859RefactorOrgCollectionsVaultComponent = "pm-36859-refactor-org-collections-vault-component",
 
   /* Auth */
   PM27086_UpdateAuthenticationApisForInputPassword = "pm-27086-update-authentication-apis-for-input-password",
@@ -122,6 +123,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
+  [FeatureFlag.PM36859RefactorOrgCollectionsVaultComponent]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
