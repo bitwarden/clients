@@ -20,6 +20,10 @@ jest.mock("@bitwarden/sdk-internal", () => ({
   },
 }));
 
+jest.mock("@bitwarden/common/platform/abstractions/sdk/sdk-load.service", () => ({
+  SdkLoadService: { Ready: Promise.resolve() },
+}));
+
 describe("BiometricPersistentMigration", () => {
   const mockKeyService = mock<KeyService>();
   const mockBiometricsService = mock<BiometricsService>();
