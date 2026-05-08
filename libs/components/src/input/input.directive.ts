@@ -1,19 +1,8 @@
-import {
-  AfterViewInit,
-  Directive,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  input,
-} from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, computed, effect, inject } from "@angular/core";
 import { NgControl } from "@angular/forms";
 
 import { BitFormFieldControl } from "../form-field/form-field-control";
 import { BitFormFieldComponent } from "../form-field/form-field.component";
-
-// Increments for each instance of this component
-let nextId = 0;
 
 export function inputBorderClasses(error: boolean) {
   return [
@@ -29,12 +18,12 @@ export function inputBorderClasses(error: boolean) {
   hostDirectives: [
     {
       directive: BitFormFieldControl,
-      inputs: ["required", "showErrorsWhenDisabled", "type", "spellcheck"],
+      inputs: ["required", "showErrorsWhenDisabled", "type", "spellcheck", "id"],
     },
   ],
   host: {
     "[class]": "classList()",
-    "[id]": "id()",
+    "[id]": "formFieldControl.id()",
     "[attr.type]": "formFieldControl.type()",
     "[attr.spellcheck]": "formFieldControl.spellcheck()",
     "(input)": "onInput()",
@@ -48,10 +37,7 @@ export class BitInputDirective implements AfterViewInit {
   private readonly parentFormField = inject(BitFormFieldComponent, { optional: true });
   readonly formFieldControl = inject(BitFormFieldControl);
 
-  readonly id = input(`bit-input-${nextId++}`);
-
   constructor() {
-    effect(() => this.formFieldControl.labelForId.set(this.id()));
     effect(() => this.formFieldControl.readOnly.set(this.elementRef.nativeElement.readOnly));
   }
 

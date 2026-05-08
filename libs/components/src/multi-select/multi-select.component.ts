@@ -6,6 +6,7 @@ import {
   Input,
   OnInit,
   booleanAttribute,
+  computed,
   effect,
   inject,
   input,
@@ -27,9 +28,6 @@ import { SpinnerComponent } from "../spinner";
 
 import { SelectItemView } from "./models/select-item-view";
 
-// Increments for each instance of this component
-let nextId = 0;
-
 @Component({
   selector: "bit-multi-select",
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,7 +48,7 @@ let nextId = 0;
     SpinnerComponent,
   ],
   host: {
-    "[id]": "this.id()",
+    "[id]": "formFieldControl.id()",
     "[attr.required]": "formFieldControl.required() || null",
   },
 })
@@ -80,8 +78,7 @@ export class MultiSelectComponent implements AfterViewInit, OnInit, ControlValue
   // Default values for our implementation
   protected readonly loadingText = signal<string | undefined>(undefined);
 
-  readonly id = input(`bit-multi-select-${nextId++}`);
-  protected readonly searchInputId = `search-input-${nextId}`;
+  protected readonly searchInputId = computed(() => `${this.formFieldControl.id()}-search`);
 
   /**Implemented as part of NG_VALUE_ACCESSOR */
   private readonly notifyOnChange = signal<((value: SelectItemView[]) => void) | undefined>(
@@ -98,7 +95,7 @@ export class MultiSelectComponent implements AfterViewInit, OnInit, ControlValue
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
-    this.formFieldControl.labelForId.set(this.searchInputId);
+    effect(() => this.formFieldControl.labelForId.set(this.searchInputId()));
     effect(() => {
       this.select()
         ?.searchInput()

@@ -6,6 +6,7 @@ import {
   WritableSignal,
   booleanAttribute,
   computed,
+  effect,
   inject,
   input,
   model,
@@ -27,6 +28,8 @@ export type InputTypes =
   | "date"
   | "time";
 
+let nextId = 0;
+
 @Directive({
   standalone: true,
   host: {
@@ -36,10 +39,19 @@ export type InputTypes =
 export class BitFormFieldControl implements AfterViewInit {
   protected readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly destroyRef = inject(DestroyRef);
+  // Bridges NgControl's RxJS events into the signal graph so `required` and `hasError` computed
+  // signals re-evaluate on StatusChangeEvent / TouchedChangeEvent.
   private readonly controlEvent = signal<unknown>(null);
+
+  readonly id = input(`bit-form-field-${nextId++}`);
 
   readonly ariaDescribedBy: WritableSignal<string | undefined> = signal(undefined);
   readonly labelForId: WritableSignal<string> = signal("");
+
+  constructor() {
+    effect(() => this.labelForId.set(this.id()));
+  }
+
   readonly readOnly: WritableSignal<boolean | undefined> = signal(undefined);
   readonly type = model<InputTypes | undefined>(undefined);
   readonly spellcheck = model<boolean | undefined>(undefined);

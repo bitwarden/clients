@@ -27,8 +27,6 @@ import { BitFormFieldControl } from "../form-field";
 import { Option } from "./option";
 import { OptionComponent } from "./option.component";
 
-let nextId = 0;
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -42,7 +40,7 @@ let nextId = 0;
   ],
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
   host: {
-    "[id]": "id()",
+    "[id]": "formFieldControl.id()",
     "[attr.required]": "formFieldControl.required() || null",
   },
 })
@@ -65,8 +63,7 @@ export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
   readonly selectedOption: Signal<Option<T> | null | undefined> = computed(() =>
     this.findSelectedOption(this.items(), this.selectedValue()),
   );
-  protected searchInputId = `bit-select-search-input-${nextId++}`;
-  readonly id = input(`bit-select-${nextId}`);
+  protected readonly searchInputId = computed(() => `${this.formFieldControl.id()}-search`);
 
   private notifyOnChange?: (value?: T | null) => void;
   private notifyOnTouched?: () => void;
@@ -75,7 +72,7 @@ export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
     if (this.ngControl != null) {
       this.ngControl.valueAccessor = this;
     }
-    this.formFieldControl.labelForId.set(this.searchInputId);
+    effect(() => this.formFieldControl.labelForId.set(this.searchInputId()));
     effect(() => {
       this.select()
         ?.searchInput()
