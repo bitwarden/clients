@@ -107,6 +107,10 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
     mustBeOrganizationOwnerAdmin:
       "You must be an organization owner or admin to perform this action",
 
+    // --- Applications table row menu ---
+    options: "Options",
+    unmarkAsCritical: "Unmark as critical",
+
     // --- New applications dialog ---
     prioritizeCriticalApplications: "Prioritize Critical Applications",
     assignSecurityTasksToMembers: "Assign Security Tasks to Members",

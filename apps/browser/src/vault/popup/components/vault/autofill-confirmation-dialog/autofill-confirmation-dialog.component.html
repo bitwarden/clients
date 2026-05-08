@@ -8,8 +8,11 @@
       <bit-callout [title]="null" type="success" icon="bwi-globe">
         <div
           class="tw-font-mono tw-line-clamp-1 tw-break-all"
+          tabindex="0"
+          [attr.aria-label]="savedUrls()[0].uri"
           [bitTooltip]="savedUrls()[0].uri"
           [addTooltipToDescribedby]="true"
+          data-testid="saved-uri"
         >
           {{ formattedSavedUrls()[0] }}
         </div>
@@ -36,8 +39,11 @@
             <bit-callout [title]="null" type="success" icon="bwi-globe">
               <div
                 class="tw-font-mono tw-line-clamp-1 tw-break-all"
+                tabindex="0"
+                [attr.aria-label]="savedUrls()[i].uri"
                 [bitTooltip]="savedUrls()[i].uri"
                 [addTooltipToDescribedby]="true"
+                data-testid="saved-uri"
               >
                 {{ url }}
               </div>
@@ -51,9 +57,12 @@
     </p>
     <bit-callout [title]="null" type="warning" icon="bwi-globe">
       <div
+        tabindex="0"
+        [attr.aria-label]="currentUrl()"
         [bitTooltip]="currentUrl()"
         [addTooltipToDescribedby]="true"
         class="tw-font-mono tw-line-clamp-1 tw-break-all"
+        data-testid="current-uri"
       >
         {{ formattedCurrentUrl() }}
       </div>

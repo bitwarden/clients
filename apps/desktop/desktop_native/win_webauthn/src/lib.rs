@@ -10,8 +10,15 @@
 
 #[allow(unsafe_code)]
 pub(crate) mod api;
+#[forbid(unsafe_code)]
+pub mod plugin;
 
 use std::{error::Error, fmt::Display};
+
+pub use api::webauthn::{
+    AuthenticatorInfo, CredentialId, CtapTransport, CtapVersion, PublicKeyCredentialParameters,
+    UserId, Uuid,
+};
 
 /// Errors that may be returned when interacting with this library.
 #[derive(Debug)]

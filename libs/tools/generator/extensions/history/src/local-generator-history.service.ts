@@ -1,16 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { filter, map } from "rxjs";
+import { map, of } from "rxjs";
 
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
 import { UserKeyEncryptor } from "@bitwarden/common/tools/cryptography/user-key-encryptor";
 import { BufferedState } from "@bitwarden/common/tools/state/buffered-state";
+import { DataPacker } from "@bitwarden/common/tools/state/data-packer.abstraction";
 import { PaddedDataPacker } from "@bitwarden/common/tools/state/padded-data-packer";
 import { SecretState } from "@bitwarden/common/tools/state/secret-state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CredentialType } from "@bitwarden/generator-core";
-import { KeyService } from "@bitwarden/key-management";
 
 import { GeneratedCredential } from "./generated-credential";
 import { GeneratorHistoryService } from "./generator-history.abstraction";
@@ -25,10 +25,10 @@ const OPTIONS_FRAME_SIZE = 2048;
  */
 export class LocalGeneratorHistoryService extends GeneratorHistoryService {
   constructor(
-    private readonly encryptService: EncryptService,
-    private readonly keyService: KeyService,
     private readonly stateProvider: StateProvider,
+    private readonly sdkService: SdkService,
     private readonly options: HistoryServiceOptions = { maxTotal: 200 },
+    private readonly dataPacker: DataPacker = new PaddedDataPacker(OPTIONS_FRAME_SIZE),
   ) {
     super();
   }
@@ -112,11 +112,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
 
   private createSecretState(userId: UserId): SingleUserState<GeneratedCredential[]> {
     // construct the encryptor
-    const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
-    const encryptor$ = this.keyService.userKey$(userId).pipe(
-      map((key) => (key ? new UserKeyEncryptor(userId, this.encryptService, key, packer) : null)),
-      filter((encryptor) => !!encryptor),
-    );
+    const encryptor$ = of(new UserKeyEncryptor(userId, this.sdkService, this.dataPacker));
 
     // construct the durable state
     const state = SecretState.from<
@@ -127,14 +123,10 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
       GeneratedCredential
     >(userId, GENERATOR_HISTORY, this.stateProvider, encryptor$);
 
-    // decryptor is just an algorithm, but it can't run until the key is available;
+    // decryptor is just an algorithm, but it can't run until the SDK is available;
     // providing it via an observable makes running it early impossible
-    const decryptor = new LegacyPasswordHistoryDecryptor(
-      userId,
-      this.keyService,
-      this.encryptService,
-    );
-    const decryptor$ = this.keyService.userKey$(userId).pipe(map((key) => key && decryptor));
+    const decryptor = new LegacyPasswordHistoryDecryptor(userId, this.sdkService);
+    const decryptor$ = this.sdkService.userClient$(userId).pipe(map((sdk) => sdk && decryptor));
 
     // move data from the old password history once decryptor is available
     const buffer = new BufferedState(
