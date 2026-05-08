@@ -112,8 +112,8 @@ export class OrganizationWarningsService {
 
   getResellerRenewalWarning$ = (
     organization: Organization,
-  ): Observable<OrganizationResellerRenewalWarning | null> => {
-    return this.getWarning$(organization, (response) => response.resellerRenewal).pipe(
+  ): Observable<OrganizationResellerRenewalWarning | null> =>
+    this.getWarning$(organization, (response) => response.resellerRenewal).pipe(
       map((warning) => {
         if (!warning) {
           return null;
@@ -143,7 +143,6 @@ export class OrganizationWarningsService {
         }
       }),
     );
-  };
 
   getTaxIdWarning$ = (organization: Organization): Observable<TaxIdWarningType | null> =>
     merge(

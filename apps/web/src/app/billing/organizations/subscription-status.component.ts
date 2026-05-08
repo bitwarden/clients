@@ -78,26 +78,6 @@ export class SubscriptionStatusComponent {
     const subscriptionExpiredDateLabel = this.i18nService.t("subscriptionExpired");
     const cancellationDateLabel = this.i18nService.t("cancellationDate");
 
-    const result = this.getStatusData(
-      defaultStatusLabel,
-      nextChargeDateLabel,
-      subscriptionExpiredDateLabel,
-      cancellationDateLabel,
-    );
-
-    if (result?.callout) {
-      return { ...result, callout: undefined };
-    }
-
-    return result;
-  }
-
-  private getStatusData(
-    defaultStatusLabel: string,
-    nextChargeDateLabel: string,
-    subscriptionExpiredDateLabel: string,
-    cancellationDateLabel: string,
-  ): ComponentData {
     switch (this.status) {
       case "free": {
         return {};
