@@ -52,7 +52,7 @@ export class BitFormFieldControlDirective implements AfterViewInit {
     effect(() => this.labelForId.set(this.id()));
   }
 
-  readonly readOnly: WritableSignal<boolean | undefined> = signal(undefined);
+  readonly readOnly = input(false, { transform: booleanAttribute, alias: "readonly" });
   readonly type = model<InputTypes | undefined>(undefined);
   readonly spellcheck = model<boolean | undefined>(undefined);
 

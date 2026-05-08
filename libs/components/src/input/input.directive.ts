@@ -1,4 +1,4 @@
-import { AfterViewInit, Directive, ElementRef, computed, effect, inject } from "@angular/core";
+import { AfterViewInit, Directive, ElementRef, computed, inject } from "@angular/core";
 import { NgControl } from "@angular/forms";
 
 import { BitFormFieldControlDirective } from "../form-field/form-field-control.directive";
@@ -18,7 +18,7 @@ export function inputBorderClasses(error: boolean) {
   hostDirectives: [
     {
       directive: BitFormFieldControlDirective,
-      inputs: ["required", "showErrorsWhenDisabled", "type", "spellcheck", "id"],
+      inputs: ["required", "showErrorsWhenDisabled", "type", "spellcheck", "id", "readonly"],
     },
   ],
   host: {
@@ -36,10 +36,6 @@ export class BitInputDirective implements AfterViewInit {
   private readonly elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
   private readonly parentFormField = inject(BitFormFieldComponent, { optional: true });
   readonly formFieldControl = inject(BitFormFieldControlDirective);
-
-  constructor() {
-    effect(() => this.formFieldControl.readOnly.set(this.elementRef.nativeElement.readOnly));
-  }
 
   protected readonly classList = computed(() => {
     const isReadonlyTextarea =
