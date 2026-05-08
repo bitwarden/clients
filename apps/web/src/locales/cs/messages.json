@@ -1012,6 +1012,9 @@
   "typeSshKeySubtitle": {
     "message": "Přihlašovací token serveru"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Údaje o bance"
+  },
   "folderSubtitle": {
     "message": "Uspořádat položky"
   },
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Zabezpečené poznámky"
+  },
+  "typeBankAccount": {
+    "message": "Bankovní účet"
   },
   "folders": {
     "message": "Složky"
@@ -1116,6 +1122,18 @@
     "message": "Nový SSH klíč",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Nový bankovní účet",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nová licence",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nový pas",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderTextSend": {
     "message": "Nový textový Send",
     "description": "Header for new text send"
@@ -1144,6 +1162,18 @@
     "message": "Upravit SSH klíč",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Upravit bankovní účet",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Upravit řidičský průkaz",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Upravit pas",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Upravit textový Send",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "Zobrazit SSH klíč",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Zobrazit bankovní účet",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Zobrazit řidičský průkaz",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Zobrazit pas",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Nová",
@@ -1307,6 +1349,38 @@
       }
     }
   },
+  "copyInfoTitle": {
+    "message": "Kopírovat informace - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Kopírovat poznámku - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Žádné hodnoty ke zkopírování"
+  },
+  "launchWebsiteName": {
+    "message": "Spustit web $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "Já"
   },
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "Smazat přílohu"
+  },
+  "deleteAttachmentName": {
+    "message": "Smazat přílohu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Stáhnout $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Opravdu chcete položku přesunout do koše?"
@@ -2538,6 +2630,9 @@
     "message": "Vyberte soubor pro import"
   },
   "chooseFile": {
+    "message": "Vybrat soubor"
+  },
+  "chooseFileSentenceCase": {
     "message": "Vybrat soubor"
   },
   "noFileChosen": {
@@ -3949,8 +4044,23 @@
       }
     }
   },
+  "invite": {
+    "message": "Pozvat"
+  },
   "inviteUserDesc": {
     "message": "Pozvěte nového uživatele do Vaší organizace zadáním e-mailové adresy jeho účtu na Bitwardenu. Pokud ještě nemá účet na Bitwardenu, bude vyzván k vytvoření nového účtu."
+  },
+  "inviteUserDescription": {
+    "message": "Pozvěte nové uživatele do Vaší organizace zadáním jejich e-mailové adresy níže."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Zadejte až $COUNT$ e-mailů oddělených čárkou.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Zadejte až $BATCHLIMIT$ e-mailů oddělených čárkou (zbývá $REMAININGSEATS$ uživatelů).",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Bylo zobrazeno číslo účtu pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Byl zobrazen PIN pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Bylo ukopírováno číslo účtu pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Byl zkopírován PIN pro položku $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Automaticky byla vyplněna položka $ID$.",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Zahodit úpravy"
+  },
+  "discardEditsConfirmation": {
+    "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny."
+  },
+  "discardEdits": {
+    "message": "Zahodit úpravy"
+  },
+  "keepEditing": {
+    "message": "Pokračovat v úpravách"
+  },
+  "backToEditing": {
+    "message": "Zpět k úpravám"
   },
   "editedPolicyId": {
     "message": "Byla upravena zásada $ID$.",
@@ -4355,6 +4516,45 @@
   },
   "revokedEmailError": {
     "message": "1 nebo více e-mailů patří odvolaným členům. Pro opětovné pozvání obnovte jejich přístup."
+  },
+  "revocationReasonUnknown": {
+    "message": "Neznámý důvod"
+  },
+  "revocationReasonManual": {
+    "message": "Zrušeno administrátorem"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Není v souladu s pravidly dvoufázového přihlášení"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Nesoulad s jednotnými pravidly organizace"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Zrušený přístup organizace pro $ID$ za nedodržení dvoufaktorových zásad.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Zrušený přístup organizace pro $ID$ za nedodržení jednofaktorové zásady.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Zrušený přístup organizace pro $ID$ za klesající transfer do vlastnictví organizace.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "Byl obnoven přístup do organizace uživateli $ID$.",
@@ -4731,6 +4931,9 @@
   },
   "reportGenerationDone": {
     "message": "Hotovo!"
+  },
+  "reportGenerationFailed": {
+    "message": "Při generování hlášení došlo k chybě. Zkuste to znovu."
   },
   "riskInsightsRunReport": {
     "message": "Spustit hlášení"
@@ -8281,9 +8484,19 @@
     "message": "Poskytování SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Automatické zajišťování uživatelů a skupin u preferovaného poskytovatele identit prostřednictvím zajišťování SCIM.",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Automaticky nastavujte uživatele a skupiny tak, že nastavíte svého preferovaného poskytovatele identit pomocí adresy URL protokolu SCIM a klíče API."
+  },
+  "scimLearnMore": {
+    "message": "Více informací o SCIM"
   },
   "scimIntegrationDescription": {
     "message": "Automatické zajišťování uživatelů a skupin u preferovaného poskytovatele identit prostřednictvím zajišťování SCIM. Najde podporované integrace.",
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "Role člena"
   },
+  "moreSettings": {
+    "message": "Další nastavení"
+  },
   "moreFromBitwarden": {
     "message": "Více od Bitwardenu"
   },
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Aktivuje přístup uživatele ke Správci tajných klíčů."
+  },
+  "grantSecretsManager": {
+    "message": "Udělit přístup ke Správci tajných klíčů"
   },
   "userAccessSecretsManagerGA": {
     "message": "Tento uživatel může přistupovat ke Správci tajných klíčů"
@@ -13329,6 +13548,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Názov banky"
+  },
+  "nameOnAccount": {
+    "message": "Jméno na účtu"
+  },
+  "bankRoutingNumber": {
+    "message": "Variabilní symbol",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Číslo pobočky/Instituce"
+  },
+  "swiftCode": {
+    "message": "SWIFT kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Kontaktní telefon banky"
+  },
+  "searchBankAccount": {
+    "message": "Hledat bankovní účet"
+  },
+  "copyAccountNumber": {
+    "message": "Kopírovat číslo účtu"
+  },
+  "copyRoutingNumber": {
+    "message": "Kopírovat variabilní symbol"
+  },
+  "copyPin": {
+    "message": "Kopírovat PIN"
+  },
+  "copyIban": {
+    "message": "Kopírovat IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Kontrolování"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Úspory"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Vkladový list"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Úvěrový rámec"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investice/Zprostředkování"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Peněžní trh"
+  },
+  "bankAccountTypeOther": {
+    "message": "Ostatní"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bezpečně uložte Vaše bankovní údaje"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Uložte informace o Vašem bankovním účtu pro snadný a bezpečný přístup ve všech Vašich zařízeních."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Nebyly vráceny žádné výsledky hledání"
   },
@@ -13396,14 +13679,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Váš bankovní účet musí být pro ověření tohoto upgradu ověřen. Ověřte svůj bankovní účet nebo vyberte jiný způsob platby."
   },
-  "discardEdits": {
-    "message": "Zahodit úpravy"
-  },
   "discardEditsMessage": {
     "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny"
-  },
-  "backToEditing": {
-    "message": "Zpět k úpravám"
   },
   "sendHasUnsavedEdits": {
     "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
@@ -13412,6 +13689,9 @@
   "saveSendEditsFailed": {
     "message": "Ukládání úprav Send selhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Vaše organizace vyžaduje viditelnost e-mailu. Zrušte zaškrtnutí \"Skrýt Vaši e-mailovou adresu\" pro uložení."
   },
   "sideNavigation": {
     "message": "Boční navigace"

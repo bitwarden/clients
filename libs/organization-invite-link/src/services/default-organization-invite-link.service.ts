@@ -5,12 +5,14 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 import { StateProvider } from "@bitwarden/state";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkService } from "../abstractions/organization-invite-link.service";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
 import { ORGANIZATION_INVITE_LINK_KEY } from "../state/organization-invite-link-state";
 
@@ -34,22 +36,10 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     orgId: OrganizationId,
     domains: string[],
   ): Promise<string> {
-    const rawInviteKey = await this.generateCryptoBundle();
-
-    const orgKey = await firstValueFrom(
-      this.keyService.orgKeys$(userId).pipe(
-        map((orgKeys) => {
-          const orgKey = orgKeys?.[orgId as OrganizationId] ?? undefined;
-          if (orgKey == null) {
-            throw new Error(`Organization key not found for org ${orgId}`);
-          }
-
-          return orgKey;
-        }),
-      ),
+    const { rawInviteKey, encryptedInviteKey } = await this.generateEncryptedKeyBundle(
+      userId,
+      orgId,
     );
-
-    const encryptedInviteKey = await this.encryptService.wrapSymmetricKey(rawInviteKey, orgKey);
 
     const request = new OrganizationInviteLinkCreateRequest({
       allowedDomains: domains,
@@ -63,9 +53,17 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   }
 
   async refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<string> {
-    const cached = await firstValueFrom(this.inviteLink$(userId));
-    const domains = cached?.allowedDomains ?? [];
-    return this.createInviteLink(userId, orgId, domains);
+    const { rawInviteKey, encryptedInviteKey } = await this.generateEncryptedKeyBundle(
+      userId,
+      orgId,
+    );
+
+    const request = new OrganizationInviteLinkRefreshRequest({ encryptedInviteKey });
+
+    const response = await this.apiService.refresh(orgId, request);
+    await this.upsert(userId, response);
+
+    return this.buildInviteUrl(response.code, rawInviteKey.keyB64);
   }
 
   async reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string | undefined> {
@@ -113,11 +111,29 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   }
 
   /**
-   * Generates a raw symmetric key for the invite link.
+   * Generates a raw symmetric key and wraps it with the organization key.
    *
    * TODO: Replace with `generateOrganizationInviteCryptoBundle` from the SDK once available.
    */
-  private async generateCryptoBundle(): Promise<SymmetricCryptoKey> {
-    return this.keyGenerationService.createKey(256);
+  private async generateEncryptedKeyBundle(
+    userId: UserId,
+    orgId: OrganizationId,
+  ): Promise<{ rawInviteKey: SymmetricCryptoKey; encryptedInviteKey: EncString }> {
+    const rawInviteKey = await this.keyGenerationService.createKey(256);
+
+    const orgKey = await firstValueFrom(
+      this.keyService.orgKeys$(userId).pipe(
+        map((orgKeys) => {
+          const key: OrgKey | undefined = orgKeys?.[orgId as OrganizationId] ?? undefined;
+          if (key == null) {
+            throw new Error(`Organization key not found for org ${orgId}`);
+          }
+          return key;
+        }),
+      ),
+    );
+
+    const encryptedInviteKey = await this.encryptService.wrapSymmetricKey(rawInviteKey, orgKey);
+    return { rawInviteKey, encryptedInviteKey };
   }
 }
