@@ -5,7 +5,6 @@ import { BehaviorSubject, firstValueFrom, Observable, of } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -61,6 +60,20 @@ describe("OrganizationVaultFilterComponent", () => {
       return of(headNode);
     });
     vaultFilterService.collapsedFilterNodes$ = of(new Set<string>());
+    vaultFilterService.cipherTypeFilters$ = of([
+      {
+        id: "favorites",
+        name: "favorites",
+        type: "favorites" as CipherTypeFilter["type"],
+        icon: "bwi-star",
+      },
+      { id: "login", name: "typeLogin", type: CipherType.Login, icon: "bwi-globe" },
+      { id: "card", name: "typeCard", type: CipherType.Card, icon: "bwi-credit-card" },
+      { id: "bankAccount", name: "bankAccount", type: CipherType.BankAccount, icon: "bwi-bank" },
+      { id: "identity", name: "typeIdentity", type: CipherType.Identity, icon: "bwi-id-card" },
+      { id: "note", name: "typeSecureNote", type: CipherType.SecureNote, icon: "bwi-sticky-note" },
+      { id: "sshKey", name: "typeSshKey", type: CipherType.SshKey, icon: "bwi-key" },
+    ]);
     vaultFilterService.setCollapsedFilterNodes = jest.fn().mockResolvedValue(undefined);
     vaultFilterService.setOrganizationFilter = jest.fn();
 
@@ -81,10 +94,6 @@ describe("OrganizationVaultFilterComponent", () => {
         {
           provide: RestrictedItemTypesService,
           useValue: { restricted$: restrictedSubject.asObservable() },
-        },
-        {
-          provide: ConfigService,
-          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(true)) },
         },
       ],
     }).compileComponents();

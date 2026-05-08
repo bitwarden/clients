@@ -571,6 +571,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       CollectionService,
       AccountServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({
