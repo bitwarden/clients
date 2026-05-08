@@ -41,6 +41,8 @@ import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
 import {
   ArchiveCipherUtilitiesService,
+  AtRiskPasswordCalloutService,
+  CipherViewComponent,
   CopyCipherFieldService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
@@ -259,6 +261,19 @@ describe("ViewComponent", () => {
       .overrideProvider(DialogService, {
         useValue: {
           openSimpleDialog,
+        },
+      })
+      .overrideComponent(CipherViewComponent, {
+        set: {
+          providers: [
+            {
+              provide: AtRiskPasswordCalloutService,
+              useValue: {
+                isDismissed$: jest.fn().mockReturnValue(of(false)),
+                dismiss: jest.fn().mockResolvedValue(undefined),
+              },
+            },
+          ],
         },
       })
       .compileComponents();
