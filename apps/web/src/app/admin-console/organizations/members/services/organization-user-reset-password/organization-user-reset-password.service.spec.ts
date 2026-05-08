@@ -369,14 +369,22 @@ describe("OrganizationUserResetPasswordService", () => {
     const email = "user@example.com";
     const orgUserId = "org-user-id";
     const orgId = "org-id" as OrganizationId;
+    const SERVER_SIDE_SALT = "server-side-salt" as MasterPasswordSalt;
 
     let kdfConfig: KdfConfig;
     let salt: MasterPasswordSalt;
     let authenticationData: MasterPasswordAuthenticationData;
     let unlockData: MasterPasswordUnlockData;
 
-    /** Sets up mocks needed when resetMasterPassword is true */
-    function setupPasswordResetMocks(flagEnabled: boolean) {
+    /**
+     * Sets up mocks needed when resetMasterPassword is true.
+     *
+     * @param flagEnabled whether the V2 authentication APIs flag is on
+     * @param useServerSalt when true (default), the response includes a server-provided
+     *   `masterPasswordSalt`; when false, the response omits it so the email-fallback
+     *   path is exercised
+     */
+    function setupPasswordResetMocks(flagEnabled: boolean, useServerSalt: boolean = true) {
       configService.getFeatureFlag.mockResolvedValue(flagEnabled);
 
       kdfConfig = DEFAULT_KDF_CONFIG;
@@ -388,6 +396,7 @@ describe("OrganizationUserResetPasswordService", () => {
           kdfIterations: kdfConfig.iterations,
           resetPasswordKey: "test-reset-password-key",
           encryptedPrivateKey: "test-encrypted-private-key",
+          ...(useServerSalt ? { masterPasswordSalt: SERVER_SIDE_SALT } : {}),
         }),
       );
 
@@ -402,8 +411,12 @@ describe("OrganizationUserResetPasswordService", () => {
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(mockDecryptedUserKey);
 
       if (flagEnabled) {
-        salt = email as MasterPasswordSalt;
-        masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
+        if (useServerSalt) {
+          salt = SERVER_SIDE_SALT;
+        } else {
+          salt = email as MasterPasswordSalt;
+          masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
+        }
 
         authenticationData = {
           salt,
@@ -535,7 +548,7 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
 
-    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED, server provides salt]", () => {
       beforeEach(() => {
         setupPasswordResetMocks(true);
       });
@@ -560,6 +573,28 @@ describe("OrganizationUserResetPasswordService", () => {
             key: unlockData.masterKeyWrappedUserKey,
           }),
         );
+      });
+
+      it("should pass the server-provided salt (not the email) to the master password helpers", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData,
+        ).toHaveBeenCalledWith(newMasterPassword, kdfConfig, SERVER_SIDE_SALT);
+        expect(masterPasswordService.mock.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          newMasterPassword,
+          kdfConfig,
+          SERVER_SIDE_SALT,
+          expect.anything(),
+        );
+        expect(masterPasswordService.mock.emailToSalt).not.toHaveBeenCalled();
       });
 
       it("should throw if reset password details are null", async () => {
@@ -593,7 +628,57 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
 
-    describe("reset both master password and 2FA [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED, server omits salt → email fallback]", () => {
+      beforeEach(() => {
+        setupPasswordResetMocks(true, /* useServerSalt */ false);
+      });
+
+      it("should derive the salt from the email and pass it to the master password helpers", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(masterPasswordService.mock.emailToSalt).toHaveBeenCalledWith(email);
+        expect(
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData,
+        ).toHaveBeenCalledWith(newMasterPassword, kdfConfig, salt);
+        expect(masterPasswordService.mock.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          newMasterPassword,
+          kdfConfig,
+          salt,
+          expect.anything(),
+        );
+      });
+
+      it("should still complete the recover-account API call with the fallback-derived data", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+            key: unlockData.masterKeyWrappedUserKey,
+          }),
+        );
+      });
+    });
+
+    describe("reset both master password and 2FA [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED, server provides salt]", () => {
       beforeEach(() => {
         setupPasswordResetMocks(true);
       });
