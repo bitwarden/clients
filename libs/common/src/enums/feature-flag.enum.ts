@@ -34,6 +34,7 @@ export enum FeatureFlag {
   WindowsDesktopAutotype = "windows-desktop-autotype",
   WindowsDesktopAutotypeGA = "windows-desktop-autotype-ga",
   SSHAgentV2 = "ssh-agent-v2",
+  EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
 
   /* Billing */
@@ -41,7 +42,6 @@ export enum FeatureFlag {
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
   PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
 
-  PM29594_UpdateIndividualSubscriptionPage = "pm-29594-update-individual-subscription-page",
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
   /* Key Management */
@@ -61,7 +61,6 @@ export enum FeatureFlag {
   /* Tools */
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
-  SendEmailOTP = "pm-19051-send-email-verification",
   SendControls = "pm-31885-send-controls",
 
   /* DIRT */
@@ -80,6 +79,7 @@ export enum FeatureFlag {
   CipherKeyEncryption = "cipher-key-encryption",
   MigrateMyVaultToMyItems = "pm-20558-migrate-myvault-to-myitems",
   PM27632_SdkCipherCrudOperations = "pm-27632-cipher-crud-operations-to-sdk",
+  PM28192_CipherAttachmentOpsToSdk = "pm-28192-cipher-attachment-ops-to-sdk",
   PM30521_AutofillButtonViewLoginScreen = "pm-30521-autofill-button-view-login-screen",
   PM29438_WelcomeDialogWithExtensionPrompt = "pm-29438-welcome-dialog-with-extension-prompt",
   PM29438_DialogWithExtensionPromptAccountAge = "pm-29438-dialog-with-extension-prompt-account-age",
@@ -130,12 +130,12 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WindowsDesktopAutotype]: FALSE,
   [FeatureFlag.WindowsDesktopAutotypeGA]: FALSE,
   [FeatureFlag.SSHAgentV2]: FALSE,
+  [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
 
   /* Tools */
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
-  [FeatureFlag.SendEmailOTP]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
 
   /* DIRT */
@@ -153,6 +153,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM22134SdkCipherListView]: FALSE,
   [FeatureFlag.PM27632_SdkCipherCrudOperations]: FALSE,
   [FeatureFlag.PM28190CipherSharingOpsToSdk]: FALSE,
+  [FeatureFlag.PM28192_CipherAttachmentOpsToSdk]: FALSE,
   [FeatureFlag.MigrateMyVaultToMyItems]: FALSE,
   [FeatureFlag.PM30521_AutofillButtonViewLoginScreen]: FALSE,
   [FeatureFlag.PM29438_WelcomeDialogWithExtensionPrompt]: FALSE,
@@ -178,7 +179,6 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
   [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
 
-  [FeatureFlag.PM29594_UpdateIndividualSubscriptionPage]: FALSE,
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
   /* Key Management */

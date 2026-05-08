@@ -297,10 +297,10 @@
     "message": "Alterar palavra-passe mestra"
   },
   "continueToWebApp": {
-    "message": "Continuar para a aplicação Web?"
+    "message": "Continuar para a aplicação web?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore mais funcionalidades da sua conta Bitwarden na aplicação Web."
+    "message": "Explore mais funcionalidades da sua conta Bitwarden na aplicação web."
   },
   "continueToHelpCenter": {
     "message": "Continuar para o Centro de ajuda?"
@@ -315,7 +315,7 @@
     "message": "Ajude outras pessoas a descobrir se o Bitwarden lhes é adequado. Visite a loja de extensões do seu navegador e deixe uma classificação agora."
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "Pode alterar a sua palavra-passe mestra na aplicação Web Bitwarden."
+    "message": "Pode alterar a sua palavra-passe mestra na aplicação web Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase de impressão digital",
@@ -368,7 +368,7 @@
     "message": "Plano Familiar gratuito Bitwarden"
   },
   "freeBitwardenFamiliesPageDesc": {
-    "message": "É elegível para o Plano Familiar gratuito Bitwarden. Resgate esta oferta hoje na aplicação Web."
+    "message": "É elegível para o Plano Familiar gratuito Bitwarden. Resgate esta oferta hoje na aplicação web."
   },
   "version": {
     "message": "Versão"
@@ -907,13 +907,13 @@
     "message": "Não é possível preencher automaticamente o item selecionado nesta página. Em vez disso, copie e cole as informações."
   },
   "totpCaptureError": {
-    "message": "Não é possível digitalizar o código QR a partir da página Web atual"
+    "message": "Não é possível digitalizar o código QR a partir da página web atual"
   },
   "totpCaptureSuccess": {
     "message": "Chave de autenticação adicionada"
   },
   "totpCapture": {
-    "message": "Digitalize o código QR do autenticador a partir da página Web atual"
+    "message": "Digitalize o código QR do autenticador a partir da página web atual"
   },
   "totpHelperTitle": {
     "message": "Torne a verificação de dois passos simples"
@@ -1006,7 +1006,7 @@
     "message": "A verificação de dois passos torna a sua conta mais segura, exigindo que verifique o seu início de sessão com outro dispositivo, como uma chave de segurança, aplicação de autenticação, SMS, chamada telefónica ou e-mail. A verificação de dois passos pode ser configurada em bitwarden.com. Pretende visitar o site agora?"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "Torne a sua conta mais segura configurando a verificação de dois passos na aplicação Web Bitwarden."
+    "message": "Torne a sua conta mais segura configurando a verificação de dois passos na aplicação web Bitwarden."
   },
   "twoStepLoginConfirmationTitle": {
     "message": "Continuar para a aplicação web?"
@@ -1585,7 +1585,7 @@
     "message": "Adquirir Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web Bitwarden."
+    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação web Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "É um membro Premium!"
@@ -1658,7 +1658,7 @@
     "message": "Abrir num novo separador"
   },
   "webAuthnAuthenticate": {
-    "message": "Autenticar o WebAuthn"
+    "message": "Autenticar com WebAuthn"
   },
   "readSecurityKey": {
     "message": "Ler chave de segurança"
@@ -1679,10 +1679,10 @@
     "message": "Início de sessão indisponível"
   },
   "noTwoStepProviders": {
-    "message": "Esta conta tem a verificação de dois passos configurada, no entanto, nenhum dos fornecedores da verificação de dois passos configurada é suportado por este navegador Web."
+    "message": "Esta conta tem a verificação de dois passos configurada, no entanto, nenhum dos fornecedores da verificação de dois passos configurada é suportado por este navegador web."
   },
   "noTwoStepProviders2": {
-    "message": "Por favor, utilize um navegador Web suportado (como o Chrome) e/ou adicione fornecedores adicionais que sejam mais bem suportados nos navegadores web (como uma aplicação de autenticação)."
+    "message": "Por favor, utilize um navegador web suportado (como o Chrome) e/ou adicione fornecedores adicionais que sejam mais bem suportados nos navegadores web (como uma aplicação de autenticação)."
   },
   "twoStepOptions": {
     "message": "Opções de verificação de dois passos"
@@ -1718,7 +1718,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Utilize qualquer chave de segurança compatível com o WebAuthn para aceder à sua conta."
+    "message": "Utilize qualquer chave de segurança compatível com WebAuthn para aceder à sua conta."
   },
   "emailTitle": {
     "message": "E-mail"
@@ -1876,7 +1876,7 @@
     "message": "Preencher automaticamente ao carregar a página"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Se for detetado um formulário de início de sessão, o preenchimento automático é efetuado quando a página Web é carregada."
+    "message": "Se for detetado um formulário de início de sessão, o preenchimento automático é efetuado quando a página web é carregada."
   },
   "experimentalFeature": {
     "message": "Os sites comprometidos ou não confiáveis podem explorar o preenchimento automático ao carregar a página."
@@ -2132,8 +2132,14 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "bankAccount": {
+    "message": "Conta bancária"
+  },
   "typeNote": {
     "message": "Nota"
+  },
+  "typeBankAccount": {
+    "message": "Conta bancária"
   },
   "typeLoginSubtitle": {
     "message": "Site ou app"
@@ -2156,6 +2162,9 @@
   "collectionSubtitle": {
     "message": "Organize itens partilhados"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Dados bancários"
+  },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
     "description": "Header for new login item type"
@@ -2175,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "Nova chave SSH",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Nova conta bancária",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nova licença",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Novo passaporte",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Novo Send de texto",
@@ -2204,6 +2225,18 @@
     "message": "Editar chave SSH",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Editar conta bancária",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Editar licença",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Editar passaporte",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Editar Send de texto",
     "description": "Header for edit text send"
@@ -2231,6 +2264,18 @@
   "viewItemHeaderSshKey": {
     "message": "Ver chave SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Ver conta bancária",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Ver licença",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Ver passaporte",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Escolher item a adicionar"
@@ -2306,7 +2351,7 @@
     "message": "Esta palavra-passe não foi encontrada em nenhuma violação de dados conhecida. A sua utilização deve ser segura."
   },
   "baseDomain": {
-    "message": "Domínio de base",
+    "message": "Domínio base",
     "description": "Domain name. Ex. website.com"
   },
   "baseDomainOptionRecommended": {
@@ -3245,7 +3290,7 @@
     "message": "E-mail verificado"
   },
   "emailVerificationRequiredDesc": {
-    "message": "Tem de verificar o seu e-mail para utilizar esta funcionalidade. Pode verificar o seu e-mail no cofre Web."
+    "message": "Tem de verificar o seu e-mail para utilizar esta funcionalidade. Pode verificar o seu e-mail no cofre web."
   },
   "masterPasswordSuccessfullySet": {
     "message": "Palavra-passe mestra definida com sucesso"
@@ -4498,6 +4543,9 @@
   "chooseFile": {
     "message": "Escolher ficheiro"
   },
+  "chooseFileSentenceCase": {
+    "message": "Escolher ficheiro"
+  },
   "noFileChosen": {
     "message": "Nenhum ficheiro escolhido"
   },
@@ -4944,7 +4992,7 @@
     }
   },
   "noValuesToCopy": {
-    "message": "Não há valores a copiar"
+    "message": "Não existem valores para copiar"
   },
   "assignToCollections": {
     "message": "Atribuir às coleções"
@@ -5963,7 +6011,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "site",
+    "message": "Site",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -6284,7 +6332,7 @@
     "message": "Após partilhar este Send através do link, os indivíduos terão de verificar o e-mail com um código para poderem ver este Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Introduza vários e-mails, separados por vírgula."
+    "message": "Introduza vários e-mails, separados por vírgulas."
   },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
@@ -6305,6 +6353,82 @@
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
   },
+  "bankName": {
+    "message": "Nome do banco"
+  },
+  "nameOnAccount": {
+    "message": "Nome do titular da conta"
+  },
+  "bankAccountType": {
+    "message": "Tipo de conta"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Empresa (empresarial)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual (pessoal)"
+  },
+  "accountNumber": {
+    "message": "Número da conta"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Número da agência/instituição"
+  },
+  "swiftCode": {
+    "message": "Código SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefone de contacto do banco"
+  },
+  "searchBankAccount": {
+    "message": "Pesquisar conta bancária"
+  },
+  "copyAccountNumber": {
+    "message": "Copiar número da conta"
+  },
+  "copyRoutingNumber": {
+    "message": "Copiar routing number"
+  },
+  "copyPin": {
+    "message": "Copiar PIN"
+  },
+  "copyIban": {
+    "message": "Copiar IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Conta à ordem"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Poupança"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Depósito a prazo"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Linha de crédito"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investimento/corretora"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Mercado monetário"
+  },
+  "bankAccountTypeOther": {
+    "message": "Outro"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Guarde os seus dados bancários em segurança"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Guarde as informações da sua conta bancária para as poder aceder de forma fácil e segura em todos os seus dispositivos."
+  },
   "downloadFailed": {
     "message": "Falha na transferência."
   },
@@ -6321,5 +6445,12 @@
   "progressBar": {
     "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Falha ao guardar as alterações do Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "A sua organização requer a visibilidade do e-mail. Desmarque “Ocultar o seu e-mail dos utilizadores” para guardar."
   }
 }

@@ -2132,8 +2132,14 @@
   "typeSshKey": {
     "message": "SSH 鍵"
   },
+  "bankAccount": {
+    "message": "銀行口座"
+  },
   "typeNote": {
     "message": "メモ"
+  },
+  "typeBankAccount": {
+    "message": "銀行口座"
   },
   "typeLoginSubtitle": {
     "message": "ウェブサイトまたはアプリ"
@@ -2156,6 +2162,9 @@
   "collectionSubtitle": {
     "message": "共有アイテムを整理する"
   },
+  "typeBankAccountSubtitle": {
+    "message": "銀行の詳細"
+  },
   "newItemHeaderLogin": {
     "message": "新規ログイン",
     "description": "Header for new login item type"
@@ -2175,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "新しい SSH キー",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "新しい銀行口座",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "新しいライセンス",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "新しいパスポート",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "新しい Send テキスト",
@@ -2204,6 +2225,18 @@
     "message": "SSH キーを編集",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "銀行口座を編集",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "ライセンスを編集",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "パスポートを編集",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Send テキストを編集",
     "description": "Header for edit text send"
@@ -2231,6 +2264,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH キーを表示",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "銀行口座を表示",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "ライセンスを表示",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "パスポートを表示",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "追加するアイテムを選択"
@@ -4498,6 +4543,9 @@
   "chooseFile": {
     "message": "ファイルを選択"
   },
+  "chooseFileSentenceCase": {
+    "message": "ファイルを選択"
+  },
   "noFileChosen": {
     "message": "ファイルが選択されていません"
   },
@@ -6305,6 +6353,82 @@
   "userVerificationFailed": {
     "message": "ユーザー認証に失敗しました。"
   },
+  "bankName": {
+    "message": "銀行名"
+  },
+  "nameOnAccount": {
+    "message": "口座名義"
+  },
+  "bankAccountType": {
+    "message": "口座種別"
+  },
+  "bankAccountTypeCompany": {
+    "message": "ビジネス"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "個人"
+  },
+  "accountNumber": {
+    "message": "口座番号"
+  },
+  "bankRoutingNumber": {
+    "message": "ルーティングナンバー",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "支店/機関番号"
+  },
+  "swiftCode": {
+    "message": "SWIFT コード"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "銀行の連絡先"
+  },
+  "searchBankAccount": {
+    "message": "銀行口座を検索"
+  },
+  "copyAccountNumber": {
+    "message": "口座番号をコピー"
+  },
+  "copyRoutingNumber": {
+    "message": "ルーティングナンバーをコピー"
+  },
+  "copyPin": {
+    "message": "暗証番号をコピー"
+  },
+  "copyIban": {
+    "message": "IBAN をコピー"
+  },
+  "bankAccountTypeChecking": {
+    "message": "当座"
+  },
+  "bankAccountTypeSavings": {
+    "message": "普通"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "入金証明書"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "限度額"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "投資/証券取引"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "短期市場"
+  },
+  "bankAccountTypeOther": {
+    "message": "その他"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "銀行口座情報を安全に保管します"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "銀行口座情報を保存すると、デバイス間で簡単かつ安全にアクセスできます。"
+  },
   "downloadFailed": {
     "message": "ダウンロードできませんでした。"
   },
@@ -6321,5 +6445,12 @@
   "progressBar": {
     "message": "プログレスバー",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Send の編集を保存できませんでした",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "あなたの組織はメールの可視性を必要とします。保存するには、「閲覧者にメールアドレスを見せないようにする」のチェックを外してください。"
   }
 }
