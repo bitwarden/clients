@@ -1,9 +1,11 @@
 import { firstValueFrom } from "rxjs";
 
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line
 import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
+import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
@@ -38,9 +40,8 @@ export class BiometricPersistentMigration implements EncryptedMigration {
       return "noMigrationNeeded";
     }
 
-    const currentKeyId = (await firstValueFrom(this.sdkService.client$))
-      .crypto()
-      .get_key_id_for_symmetric_key(userKey.toEncoded());
+    await SdkLoadService.Ready;
+    const currentKeyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
     const enrolledKeyId = await this.biometricStateService.getBiometricEnrolledKeyId(userId);
     const isV1ToV2Migration = enrolledKeyId == null && currentKeyId != null;
     const isV2ToV2Migration =
@@ -67,9 +68,8 @@ export class BiometricPersistentMigration implements EncryptedMigration {
     await this.biometricsService.enrollPersistent(userId, userKey);
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
 
-    const keyId = (await firstValueFrom(this.sdkService.client$))
-      .crypto()
-      .get_key_id_for_symmetric_key(userKey.toEncoded());
+    await SdkLoadService.Ready;
+    const keyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
     if (keyId != null) {
       await this.biometricStateService.setBiometricEnrolledKeyId(
         userId,
