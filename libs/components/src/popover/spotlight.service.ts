@@ -17,6 +17,7 @@ export class SpotlightService {
   private currentTarget: HTMLElement | null = null;
   private borderOverlayRef: OverlayRef | null = null;
   private resizeObserver: ResizeObserver | null = null;
+  private windowResizeListener: (() => void) | null = null;
   private hideTimeout: number | null = null;
   private activePopover: PopoverAnchorForDirective | null = null;
 
@@ -176,11 +177,21 @@ export class SpotlightService {
 
     this.resizeObserver = new ResizeObserver(resizeCallback);
     this.resizeObserver.observe(target);
+
+    // Reposition on window resize — CDK's reposition scroll strategy only covers scroll events
+    this.windowResizeListener = () => {
+      this.borderOverlayRef?.updatePosition();
+    };
+    window.addEventListener("resize", this.windowResizeListener);
   }
 
   private disposeBorderOverlay(): void {
     this.resizeObserver?.disconnect();
     this.resizeObserver = null;
+    if (this.windowResizeListener) {
+      window.removeEventListener("resize", this.windowResizeListener);
+      this.windowResizeListener = null;
+    }
     this.borderOverlayRef?.dispose(); // CDK moves borderElement back to document.body
     this.borderOverlayRef = null;
     this.borderElement.style.display = "none";
