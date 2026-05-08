@@ -2161,12 +2161,6 @@
   "deleteAccountWarning": {
     "message": "Deleting your account is permanent. It cannot be undone."
   },
-  "deleteAccountOrganizationOwnerWarning": {
-    "message": "You are the owner of at least one organisation. Deleting your account will also delete any organisations you are the sole owner of."
-  },
-  "cannotDeleteAccountOrganizationOwnerDesc": {
-    "message": "You cannot delete your account while you are the owner of an organisation. Transfer ownership or delete the organisation first."
-  },
   "cannotDeleteAccount": {
     "message": "Cannot delete account"
   },
