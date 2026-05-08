@@ -49,7 +49,7 @@ async function waitForStateValue<T>(
       stateProvider
         .getUserState$(keyDefinition, userId)
         .pipe(filter((value) => compareValues(value, expectedValue))),
-    timer(1000).pipe(map(() => null)),
+    timer(1000).pipe(map((): T | null => null)),
     ),
   );
 }
