@@ -2381,7 +2381,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     // Update the list with filtered ciphers
-    await this.updateInlineMenuListCiphers(sender.tab, filterValue);
+    if (sender.tab) {
+      await this.updateInlineMenuListCiphers(sender.tab, filterValue);
+    }
   }
 
   /**
@@ -2402,7 +2404,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     // Update ciphers in-place without closing/reopening for smooth filtering
-    await this.updateInlineMenuListCiphers(sender.tab, filterValue);
+    if (sender.tab) {
+      await this.updateInlineMenuListCiphers(sender.tab, filterValue);
+    }
 
     // Close the list if the filter yields no results, so the UI doesn't show an empty dropdown
     if (this.currentInlineMenuCiphersCount === 0 && filterValue?.length) {
