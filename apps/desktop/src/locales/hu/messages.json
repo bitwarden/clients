@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "typeBankAccount": {
+    "message": "Bankszámla"
+  },
   "typeLoginSubtitle": {
     "message": "Webhely vagy alkalmazás"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Szerver bejelentkezési token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banki adatok"
   },
   "folderSubtitle": {
     "message": "Elemek szervezése"
@@ -134,6 +140,18 @@
     "message": "SSH kulcs megtekintése",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankszámla megtekintése",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Licensz megtekintése",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Útlevél megtekintése",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Új bejelentkezés",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "Új SSH kulcs",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Új bankszámla",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Új licensz",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Új útlevél",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Bejelentkezés szerkesztése",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "SSH kulcs szerkesztése",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Bankszámla szerkesztése",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Licensz szerkesztése",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Útlevél szerkesztése",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Név"
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "Melléklet törlése"
+  },
+  "deleteAttachmentName": {
+    "message": "$NAME$ melléklet törlése",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ letöltése",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Biztosan törlésre kerüljön ez az elem?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "Ikon folyamatos megjelenítése a rendszertálcán."
   },
-  "startToTray": {
-    "message": "Indítás tálcaikonra"
-  },
-  "startToTrayDesc": {
-    "message": "Az alkalmazás első indításakor csak egy ikon jelenjen meg a rendszertálcán."
-  },
-  "startToMenuBar": {
-    "message": "Indítás a menüsávon"
-  },
-  "startToMenuBarDesc": {
-    "message": "Az alkalmazás első indításakor csak egy ikon jelenjen meg a menüsávon."
-  },
   "openAtLogin": {
     "message": "Automatikus indítás bejelentkezéskor"
   },
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "Alapértelmezett találat érzékelés",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés megjelenítése"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Egyezés felismerés elrejtése"
   },
   "toggleOptions": {
     "message": "Opciók váltása"
@@ -3922,6 +3976,9 @@
   "chooseFile": {
     "message": "Fájl kiválasztása"
   },
+  "chooseFileSentenceCase": {
+    "message": "Fájl kiválasztása"
+  },
   "noFileChosen": {
     "message": "Nincs kiválasztott fájl."
   },
@@ -4919,8 +4976,96 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "$LABEL$ átrendezése. A nyílbillentyűkkel mozgassuk az elemet felfelé vagy lefelé.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
+  },
+  "bankAccount": {
+    "message": "Bankszámla"
+  },
+  "bankName": {
+    "message": "Bank neve"
+  },
+  "nameOnAccount": {
+    "message": "Számlatulajdonos neve"
+  },
+  "bankAccountType": {
+    "message": "Számlatípus"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Cég"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Magánszemély"
+  },
+  "accountNumber": {
+    "message": "Számlaszám"
+  },
+  "bankRoutingNumber": {
+    "message": "Banki azonosító",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Fióktelep/intézmény szám"
+  },
+  "swiftCode": {
+    "message": "SWIFT-kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Banki kapcsolati telefon"
+  },
+  "searchBankAccount": {
+    "message": "Bankfiók keresése"
+  },
+  "copyAccountNumber": {
+    "message": "Számlaszám másolása"
+  },
+  "copyRoutingNumber": {
+    "message": "Banki azonosító másolása"
+  },
+  "copyPin": {
+    "message": "PIN kód másolása"
+  },
+  "copyIban": {
+    "message": "IBAN másolása"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Ellenőrzés"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Megtakarítások"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Áthelyezési igazolás"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Hitelkeret"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Befektetés/brókerügylet"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Pénzpiac"
+  },
+  "bankAccountTypeOther": {
+    "message": "Egyéb"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Banki adatok biztonságos tárolása"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Mentsük el a bankszámla adatokat, hogy könnyen és biztonságosan hozzáférhessünk az eszközökhöz."
   },
   "discardEdits": {
     "message": "Szerkesztések elvetése"
@@ -4938,6 +5083,9 @@
   "saveSendEditsFailed": {
     "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
   },
   "sideNavigation": {
     "message": "Oldal navigáció"

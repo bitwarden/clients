@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeBankAccount": {
+    "message": "Conta bancária"
+  },
   "typeLoginSubtitle": {
     "message": "Site ou app"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Token de início de sessão no servidor"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Dados bancários"
   },
   "folderSubtitle": {
     "message": "Organize os seus itens"
@@ -134,6 +140,18 @@
     "message": "Ver chave SSH",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Ver conta bancária",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Ver licença",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Ver passaporte",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nova credencial",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "Nova chave SSH",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Nova conta bancária",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nova licença",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Novo passaporte",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Editar credencial",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "Editar chave SSH",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Editar conta bancária",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Editar licença",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Editar passaporte",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Nome"
@@ -707,6 +749,24 @@
   "deleteAttachment": {
     "message": "Eliminar anexo"
   },
+  "deleteAttachmentName": {
+    "message": "Eliminar o anexo $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Transferir $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Pretende realmente mover este item para o lixo?"
   },
@@ -1203,7 +1263,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Utilize qualquer chave de segurança compatível com o WebAuthn para aceder à sua conta."
+    "message": "Utilize qualquer chave de segurança compatível com WebAuthn para aceder à sua conta."
   },
   "emailTitle": {
     "message": "E-mail"
@@ -1261,7 +1321,7 @@
     "message": "URL do servidor da API"
   },
   "webVaultUrl": {
-    "message": "URL do servidor do cofre Web"
+    "message": "URL do servidor do cofre web"
   },
   "identityUrl": {
     "message": "URL do servidor de identidade"
@@ -1411,10 +1471,10 @@
     "message": "Alterar palavra-passe mestra"
   },
   "continueToWebApp": {
-    "message": "Continuar para a aplicação Web?"
+    "message": "Continuar para a aplicação web?"
   },
   "changeMasterPasswordOnWebConfirmation": {
-    "message": "Pode alterar a sua palavra-passe mestra na aplicação Web Bitwarden."
+    "message": "Pode alterar a sua palavra-passe mestra na aplicação web Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase de impressão digital",
@@ -1425,7 +1485,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "goToWebVault": {
-    "message": "Ir para o cofre Web"
+    "message": "Ir para o cofre web"
   },
   "getMobileApp": {
     "message": "Obter a aplicação móvel"
@@ -1588,18 +1648,6 @@
   },
   "enableTrayDesc": {
     "message": "Mostrar sempre um ícone na bandeja do sistema."
-  },
-  "startToTray": {
-    "message": "Iniciar para o ícone de bandeja"
-  },
-  "startToTrayDesc": {
-    "message": "Quando a aplicação é iniciada pela primeira vez, mostrar apenas um ícone na bandeja do sistema."
-  },
-  "startToMenuBar": {
-    "message": "Iniciar na barra de menus"
-  },
-  "startToMenuBarDesc": {
-    "message": "Quando a aplicação é iniciada pela primeira vez, mostrar apenas um ícone na barra de menu."
   },
   "openAtLogin": {
     "message": "Iniciar automaticamente ao iniciar sessão"
@@ -1766,7 +1814,7 @@
     "message": "Adquirir Premium"
   },
   "premiumPurchaseAlertV2": {
-    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação Web do Bitwarden."
+    "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação web do Bitwarden."
   },
   "premiumCurrentMember": {
     "message": "É um membro Premium!"
@@ -1934,7 +1982,7 @@
     "message": "Esta palavra-passe não foi encontrada em nenhuma violação de dados conhecida. A sua utilização deve ser segura."
   },
   "baseDomain": {
-    "message": "Domínio de base",
+    "message": "Domínio base",
     "description": "Domain name. Ex. website.com"
   },
   "domainName": {
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "Deteção de correspondência predefinida",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar deteção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar deteção de correspondência"
   },
   "toggleOptions": {
     "message": "Alternar opções"
@@ -2718,7 +2772,7 @@
     "message": "Eliminação pendente"
   },
   "webAuthnAuthenticate": {
-    "message": "Autenticar o WebAuthn"
+    "message": "Autenticar com WebAuthn"
   },
   "readSecurityKey": {
     "message": "Ler chave de segurança"
@@ -3922,6 +3976,9 @@
   "chooseFile": {
     "message": "Escolher ficheiro"
   },
+  "chooseFileSentenceCase": {
+    "message": "Escolher ficheiro"
+  },
   "noFileChosen": {
     "message": "Nenhum ficheiro escolhido"
   },
@@ -4400,7 +4457,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyBold": {
-    "message": "site",
+    "message": "Site",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -4911,7 +4968,7 @@
     "message": "Após partilhar este Send através do link, os indivíduos terão de verificar o e-mail com um código para poderem ver este Send."
   },
   "enterMultipleEmailsSeparatedByComma": {
-    "message": "Introduza vários e-mails, separados por vírgula."
+    "message": "Introduza vários e-mails, separados por vírgulas."
   },
   "emailPlaceholder": {
     "message": "utilizador@bitwarden.com , utilizador@acme.com"
@@ -4919,8 +4976,96 @@
   "emailPlaceholderMultiple": {
     "message": "utilizador@bitwarden.com, utilizador@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Reordenar $LABEL$. Utilize a tecla de seta para mover o item para cima ou para baixo.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Falha na verificação do utilizador."
+  },
+  "bankAccount": {
+    "message": "Conta bancária"
+  },
+  "bankName": {
+    "message": "Nome do banco"
+  },
+  "nameOnAccount": {
+    "message": "Nome do titular da conta"
+  },
+  "bankAccountType": {
+    "message": "Tipo de conta"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Empresa"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Número da conta"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Número da agência/instituição"
+  },
+  "swiftCode": {
+    "message": "Código SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefone de contacto do banco"
+  },
+  "searchBankAccount": {
+    "message": "Pesquisar conta bancária"
+  },
+  "copyAccountNumber": {
+    "message": "Copiar número da conta"
+  },
+  "copyRoutingNumber": {
+    "message": "Copiar routing number"
+  },
+  "copyPin": {
+    "message": "Copiar PIN"
+  },
+  "copyIban": {
+    "message": "Copiar IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Conta à ordem"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Poupança"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Depósito a prazo"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Linha de crédito"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investimento/corretora"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Mercado monetário"
+  },
+  "bankAccountTypeOther": {
+    "message": "Outro"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Guarde os seus dados bancários em segurança"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Guarde as informações da sua conta bancária para as poder aceder de forma fácil e segura em todos os seus dispositivos."
   },
   "discardEdits": {
     "message": "Descartar alterações"
@@ -4938,6 +5083,9 @@
   "saveSendEditsFailed": {
     "message": "Falha ao guardar as alterações do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "A sua organização requer a visibilidade do e-mail. Desmarque “Ocultar o seu e-mail dos utilizadores” para guardar."
   },
   "sideNavigation": {
     "message": "Navegação lateral"

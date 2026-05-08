@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "typeBankAccount": {
+    "message": "Bankkonto"
+  },
   "typeLoginSubtitle": {
     "message": "Website oder App"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Server-Anmeldetoken"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdaten"
   },
   "folderSubtitle": {
     "message": "Organisiere deine Einträge"
@@ -134,6 +140,18 @@
     "message": "SSH-Schlüssel anzeigen",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Neue Zugangsdaten",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "Neuer SSH-Schlüssel",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Zugangsdaten bearbeiten",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "SSH-Schlüssel bearbeiten",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Name"
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "Anhang löschen"
+  },
+  "deleteAttachmentName": {
+    "message": "Anhang $NAME$ löschen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ herunterladen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Soll dieser Eintrag wirklich in den Papierkorb verschoben werden?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "Dauerhaft ein Symbol in der Taskleiste anzeigen."
   },
-  "startToTray": {
-    "message": "Minimiert im Infobereich starten"
-  },
-  "startToTrayDesc": {
-    "message": "Beim ersten Start der Anwendung nur minimiert in der Taskleiste anzeigen."
-  },
-  "startToMenuBar": {
-    "message": "In der Menüleiste starten"
-  },
-  "startToMenuBarDesc": {
-    "message": "Beim ersten Start der Anwendung nur ein Symbol in der Menüleiste anzeigen."
-  },
   "openAtLogin": {
     "message": "Automatisch bei der Anmeldung starten"
   },
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "Standard-Übereinstimmungserkennung",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
   },
   "toggleOptions": {
     "message": "Optionen umschalten"
@@ -3922,6 +3976,9 @@
   "chooseFile": {
     "message": "Datei auswählen"
   },
+  "chooseFileSentenceCase": {
+    "message": "Datei auswählen"
+  },
   "noFileChosen": {
     "message": "Keine Datei ausgewählt"
   },
@@ -4919,8 +4976,96 @@
   "emailPlaceholderMultiple": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "$LABEL$ umsortieren. Verwende die Pfeiltasten, um den Eintrag nach oben oder unten zu verschieben.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
+  },
+  "bankAccount": {
+    "message": "Bankkonto"
+  },
+  "bankName": {
+    "message": "Bankname"
+  },
+  "nameOnAccount": {
+    "message": "Name des Kontoinhabers"
+  },
+  "bankAccountType": {
+    "message": "Kontoart"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Firma"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Einzelperson"
+  },
+  "accountNumber": {
+    "message": "Kontonummer"
+  },
+  "bankRoutingNumber": {
+    "message": "Bankleitzahl",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial-/Institutionsnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-Code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefonnummer der Bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankkonto suchen"
+  },
+  "copyAccountNumber": {
+    "message": "Kontonummer kopieren"
+  },
+  "copyRoutingNumber": {
+    "message": "Bankleitzahl kopieren"
+  },
+  "copyPin": {
+    "message": "PIN kopieren"
+  },
+  "copyIban": {
+    "message": "IBAN kopieren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Wird überprüft"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ersparnisse"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Einlagenzertifikat"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kreditrahmen"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Anlage/Wertpapierhandel"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Finanzmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Sonstige"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Deine Bankdaten sicher speichern"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Speicher deine Bankdaten, um auf allen deinen Geräten einfach und sicher darauf zugreifen zu können."
   },
   "discardEdits": {
     "message": "Änderungen verwerfen"
@@ -4939,18 +5084,21 @@
     "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideEmailPolicyInEffect": {
+    "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
+  },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Seitennavigation"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Link überspringen"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Meldung",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Fortschrittsanzeige",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH klíč"
   },
+  "typeBankAccount": {
+    "message": "Bankovní účet"
+  },
   "typeLoginSubtitle": {
     "message": "Webová stránka nebo aplikace"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Přihlašovací token serveru"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Údaje o bance"
   },
   "folderSubtitle": {
     "message": "Uspořádat položky"
@@ -134,6 +140,18 @@
     "message": "Zobrazit SSH klíč",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Zobrazit bankovní účet",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Zobrazit licenci",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Zobrazit pas",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nové přihlášení",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "Nový SSH klíč",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Nový bankovní účet",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nová licence",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nový pas",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Upravit přihlášení",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "Upravit SSH klíč",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Upravit bankovní účet",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Upravit licenci",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Upravit pas",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Název"
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "Smazat přílohu"
+  },
+  "deleteAttachmentName": {
+    "message": "Smazat přílohu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Stáhnout $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Opravdu chcete položku přesunout do koše?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "Vždy bude zobrazovat ikonu v systémové liště."
   },
-  "startToTray": {
-    "message": "Spustit do systémové lišty"
-  },
-  "startToTrayDesc": {
-    "message": "Při prvním spuštění aplikace zobrazí jen ikonu v systémové liště."
-  },
-  "startToMenuBar": {
-    "message": "Spustit minimalizované v panelu nabídek"
-  },
-  "startToMenuBarDesc": {
-    "message": "Při prvním spuštění aplikace zobrazí jen ikonu v panelu nabídek."
-  },
   "openAtLogin": {
     "message": "Spustit automaticky při přihlášení"
   },
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "Výchozí zjišťování shody",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Zobrazit detekci shody"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Skrýt detekci shody"
   },
   "toggleOptions": {
     "message": "Přepnout volby"
@@ -3922,6 +3976,9 @@
   "chooseFile": {
     "message": "Vybrat soubor"
   },
+  "chooseFileSentenceCase": {
+    "message": "Vybrat soubor"
+  },
   "noFileChosen": {
     "message": "Není vybrán žádný soubor"
   },
@@ -4919,8 +4976,96 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Změnit pořadí $LABEL$. Použijte šipky pro posunutí položky nahoru nebo dolů.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
+  },
+  "bankAccount": {
+    "message": "Bankovní účet"
+  },
+  "bankName": {
+    "message": "Názov banky"
+  },
+  "nameOnAccount": {
+    "message": "Jméno na účtu"
+  },
+  "bankAccountType": {
+    "message": "Typ účtu"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Firma"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Jednotlivec"
+  },
+  "accountNumber": {
+    "message": "Číslo účtu"
+  },
+  "bankRoutingNumber": {
+    "message": "Variabilní symbol",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Číslo pobočky/Instituce"
+  },
+  "swiftCode": {
+    "message": "SWIFT kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Kontaktní telefon banky"
+  },
+  "searchBankAccount": {
+    "message": "Hledat bankovní účet"
+  },
+  "copyAccountNumber": {
+    "message": "Kopírovat číslo účtu"
+  },
+  "copyRoutingNumber": {
+    "message": "Kopírovat variabilní symbol"
+  },
+  "copyPin": {
+    "message": "Kopírovat PIN"
+  },
+  "copyIban": {
+    "message": "Kopírovat IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Kontrolování"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Úspory"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Vkladový list"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Úvěrový rámec"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investice/Zprostředkování"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Peněžní trh"
+  },
+  "bankAccountTypeOther": {
+    "message": "Ostatní"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bezpečně uložte Vaše bankovní údaje"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Uložte informace o Vašem bankovním účtu pro snadný a bezpečný přístup ve všech Vašich zařízeních."
   },
   "discardEdits": {
     "message": "Zahodit úpravy"
@@ -4938,6 +5083,9 @@
   "saveSendEditsFailed": {
     "message": "Ukládání úprav Send selhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Vaše organizace vyžaduje viditelnost e-mailu. Zrušte zaškrtnutí \"Skrýt Vaši e-mailovou adresu\" pro uložení."
   },
   "sideNavigation": {
     "message": "Boční navigace"
