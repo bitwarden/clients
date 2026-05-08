@@ -260,6 +260,9 @@ describe("CipherViewLikeUtils", () => {
 
         cipherListView.type = "bankAccount";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
+
+        cipherListView.type = "driversLicense";
+        expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.DriversLicense);
       });
     });
   });

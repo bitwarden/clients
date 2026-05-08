@@ -138,6 +138,8 @@ export class CipherViewLikeUtils {
         return CipherType.Card;
       case typeof cipher.type === "object" && "login" in cipher.type:
         return CipherType.Login;
+      case cipher.type === "driversLicense":
+        return CipherType.DriversLicense;
       default:
         throw new Error(`Unknown cipher type: ${cipher.type}`);
     }
@@ -405,6 +407,7 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   routingNumber: "BankAccountRoutingNumber",
   pin: "BankAccountPin",
   iban: "BankAccountIban",
+  licenseNumber: "DriversLicenseLicenseNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

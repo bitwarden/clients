@@ -406,7 +406,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get hasVisibleDriversLicenseOptions(): boolean {
     return (
-      this.isDriversLicenseCipher &&
+      (this.isDriversLicenseCipher &&
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "firstName")) ||
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "middleName") ||
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "lastName") ||
       CipherViewLikeUtils.hasCopyableValue(this.cipher, "licenseNumber")
     );
   }
