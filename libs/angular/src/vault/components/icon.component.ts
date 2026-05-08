@@ -66,7 +66,7 @@ export class IconComponent {
     private readonly domainSettingsService: DomainSettingsService,
   ) {
     const iconSettings$ = combineLatest([
-      this.environmentService.environment$.pipe(map((e) => e.getIconsUrl()?.replace(/\/+$/, ""))),
+      this.environmentService.environment$.pipe(map((e) => e.getIconsUrl())),
       this.domainSettingsService.showFavicons$.pipe(distinctUntilChanged()),
     ]).pipe(
       map(([iconsUrl, showFavicon]) => ({ iconsUrl, showFavicon })),

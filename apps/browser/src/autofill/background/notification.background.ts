@@ -247,7 +247,7 @@ export default class NotificationBackground {
       firstValueFrom(this.organizationService.organizations$(activeUserId)),
     ]);
 
-    const iconsServerUrl: string | null = env.getIconsUrl()?.replace(/\/+$/, "") ?? null;
+    const iconsServerUrl: string | null = env.getIconsUrl() ?? null;
 
     const getOrganizationType = (orgId?: string) =>
       organizations.find((org) => org.id === orgId)?.productTierType;
