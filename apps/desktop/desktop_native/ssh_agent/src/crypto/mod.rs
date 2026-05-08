@@ -23,6 +23,12 @@ use ssh_key::{
 pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 
 /// Represents an SSH private key.
+///
+/// # Hardware-backed keys
+///
+/// Hardware-backed keys are not supported. The variants of this enum hold concrete key material in
+/// memory, which is incompatible with hardware-backed key workflows. If hardware-backed key support
+/// is ever added, the [`PrivateKey::sign`] function must be updated accordingly.
 #[derive(Clone, PartialEq, Debug)]
 pub enum PrivateKey {
     Ed25519(Ed25519Keypair),
@@ -36,15 +42,17 @@ impl PrivateKey {
     ///
     /// A [`Signature`] containing the algorithm identifier and raw signature bytes.
     ///
-    /// # Errors
+    /// # Hardware-backed keys
     ///
-    /// Returns an error if the underlying signing operation fails.
-    pub fn sign(&self, data: &[u8]) -> anyhow::Result<Signature> {
+    /// Hardware-backed keys are not supported. This function signs directly using key material
+    /// held in memory and does not delegate to any hardware device. If hardware-backed key support
+    /// is ever added, this function must be updated. Consult the [`ssh_key`] crate documentation
+    /// before making any changes.
+    pub fn sign(&self, data: &[u8]) -> Signature {
         match self {
-            Self::Ed25519(kp) => kp.try_sign(data),
-            Self::Rsa(kp) => kp.try_sign(data),
+            Self::Ed25519(kp) => kp.sign(data),
+            Self::Rsa(kp) => kp.sign(data),
         }
-        .map_err(|e| anyhow!("Signing failed: {}", e))
     }
 }
 
@@ -152,7 +160,7 @@ mod tests {
         let private_key = PrivateKey::Ed25519(keypair);
         const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA).unwrap();
+        let sig = private_key.sign(TEST_DATA);
 
         assert_eq!(sig.algorithm(), ssh_key::Algorithm::Ed25519);
     }
@@ -163,7 +171,7 @@ mod tests {
         let private_key = PrivateKey::Rsa(keypair);
         const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA).unwrap();
+        let sig = private_key.sign(TEST_DATA);
 
         assert_eq!(
             sig.algorithm(),
@@ -180,7 +188,7 @@ mod tests {
         let private_key = PrivateKey::Ed25519(keypair);
         const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA).unwrap();
+        let sig = private_key.sign(TEST_DATA);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
     }
@@ -192,7 +200,7 @@ mod tests {
         let private_key = PrivateKey::Rsa(keypair);
         const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA).unwrap();
+        let sig = private_key.sign(TEST_DATA);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
     }
