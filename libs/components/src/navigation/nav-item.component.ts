@@ -31,6 +31,7 @@ export abstract class NavGroupAbstraction {
   host: {
     "(focusin)": "onFocusIn($event.target)",
     "(focusout)": "onFocusOut()",
+    class: "tw-block",
   },
 })
 export class NavItemComponent extends NavBaseComponent {
