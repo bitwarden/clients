@@ -3,6 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import * as jsdom from "jsdom";
 import { firstValueFrom } from "rxjs";
 
 import {
@@ -243,6 +244,9 @@ import { LowdbStorageService } from "../platform/services/lowdb-storage.service"
 import { NodeApiService } from "../platform/services/node-api.service";
 import { NodeEnvSecureStorageService } from "../platform/services/node-env-secure-storage.service";
 import { CliRestrictedItemTypesService } from "../vault/services/cli-restricted-item-types.service";
+
+// Polyfills
+global.DOMParser = new jsdom.JSDOM().window.DOMParser;
 
 // eslint-disable-next-line
 const packageJson = require("../../package.json");
