@@ -17,7 +17,7 @@ export abstract class OrganizationInviteLinkService {
   abstract createInviteLink(
     userId: UserId,
     orgId: OrganizationId,
-    domains: string[],
+    allowedDomains: string[],
   ): Promise<void>;
 
   /**
@@ -26,19 +26,23 @@ export abstract class OrganizationInviteLinkService {
   abstract updateInviteLink(
     userId: UserId,
     orgId: OrganizationId,
-    domains: string[],
+    allowedDomain: string[],
   ): Promise<void>;
 
   /**
-   * Updates the Organization invite link without modifying allowed domains (generates a new link)
+   * Refresh the invite link via the server endpoint.
    */
   abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void>;
 
   /**
-   * Reconstruct and returns a Promise containing the shareable URL for the organization's invite link.
-   * Fetches the invite link from state (or API if not cached).
+   * Reconstruct and returns an Observable containing the shareable URL for the provided
+   * organization's invite link.
    */
-  abstract reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string>;
+  abstract reconstructUrl(
+    userId: UserId,
+    orgId: OrganizationId,
+    inviteLink: OrganizationInviteLink,
+  ): Observable<string>;
 
   /** Persist an invite link to local state */
   abstract upsert(userId: UserId, data: OrganizationInviteLink): Promise<void>;

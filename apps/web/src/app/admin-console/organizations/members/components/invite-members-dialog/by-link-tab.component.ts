@@ -6,7 +6,6 @@ import {
   combineLatest,
   filter,
   firstValueFrom,
-  from,
   Observable,
   of,
   shareReplay,
@@ -77,7 +76,9 @@ export class ByLinkTabComponent {
     toObservable(this.organizationId),
     this.inviteLink$.pipe(filter((link) => link != null)),
   ]).pipe(
-    switchMap(([userId, orgId]) => from(this.inviteLinkService.reconstructUrl(userId, orgId))),
+    switchMap(([userId, orgId, inviteLink]) =>
+      this.inviteLinkService.reconstructUrl(userId, orgId, inviteLink),
+    ),
   );
 
   readonly hasInviteLinkUrl$: Observable<boolean> = of(false);

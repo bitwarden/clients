@@ -3,22 +3,22 @@ import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-st
 export class OrganizationInviteLinkCreateRequest {
   allowedDomains: string[];
   encryptedInviteKey: string;
-  encryptedOrgKey: string | null;
+  encryptedOrgKey: string | undefined;
 
-  constructor(
-    allowedDomains: string[],
-    encryptedInviteKey: EncString,
-    encryptedOrgKey?: EncString | null,
-  ) {
-    if (!allowedDomains || allowedDomains.length === 0) {
+  constructor(c: {
+    allowedDomains: string[];
+    encryptedInviteKey: EncString;
+    encryptedOrgKey?: EncString | undefined;
+  }) {
+    if (!c.allowedDomains || c.allowedDomains.length === 0) {
       throw new Error("At least one allowed domain is required.");
     }
-    if (!encryptedInviteKey?.encryptedString) {
+    if (!c.encryptedInviteKey?.encryptedString) {
       throw new Error("EncryptedInviteKey is required.");
     }
 
-    this.allowedDomains = allowedDomains;
-    this.encryptedInviteKey = encryptedInviteKey.encryptedString;
-    this.encryptedOrgKey = encryptedOrgKey?.encryptedString ?? null;
+    this.allowedDomains = c.allowedDomains;
+    this.encryptedInviteKey = c.encryptedInviteKey.encryptedString;
+    this.encryptedOrgKey = c.encryptedOrgKey?.encryptedString ?? undefined;
   }
 }

@@ -146,7 +146,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(inviteLink);
+      expect(stored).toEqual({ [mockOrgId]: inviteLink });
     });
   });
 
@@ -164,7 +164,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toBeNull();
+      expect(stored?.[mockOrgId]).toBeUndefined();
     });
   });
 
@@ -190,7 +190,7 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(new OrganizationInviteLink(response));
+      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
     });
 
     it("throws when no domains are provided", async () => {
@@ -228,46 +228,62 @@ describe("DefaultOrganizationInviteLinkService", () => {
       const stored = await firstValueFrom(
         stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
       );
-      expect(stored).toEqual(new OrganizationInviteLink(response));
+      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
     });
 
     it("throws when no domains are provided", async () => {
-      await expect(sut.updateInviteLink(mockUserId, mockOrgId, [])).rejects.toThrow();
+      // The throw happens in OrganizationInviteLinkUpdateRequest constructor before the API call
+      await expect(sut.updateInviteLink(mockUserId, mockOrgId, [])).rejects.toThrow(
+        "At least one allowed domain is required.",
+      );
     });
   });
 
   describe("refreshInviteLink", () => {
-    it("re-uses cached domains and calls updateInviteLink", async () => {
-      const cached = makeInviteLink({ allowedDomains: ["cached.com"] });
-      await sut.upsert(mockUserId, cached);
+    it("generates new key, calls apiService.refresh, and caches state", async () => {
+      const rawKey = makeKey("refreshed==");
+      const orgKey = makeKey();
+      const encryptedKey = mock<EncString>();
+      (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
+      const response = makeResponseModel({ code: "refreshed", allowedDomains: ["example.com"] });
 
-      const response = makeResponseModel({ code: "refreshed", allowedDomains: ["cached.com"] });
-      apiService.update.mockResolvedValue(response);
+      keyGenerationService.createKey.mockResolvedValue(rawKey);
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
+      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
+      apiService.refresh.mockResolvedValue(response);
 
       await sut.refreshInviteLink(mockUserId, mockOrgId);
 
-      expect(apiService.update).toHaveBeenCalledWith(
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(256);
+      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(rawKey, orgKey);
+      expect(apiService.refresh).toHaveBeenCalledWith(
         mockOrgId,
-        expect.objectContaining({ allowedDomains: ["cached.com"] }),
+        expect.objectContaining({ encryptedInviteKey: "2.enc=|iv=|mac=" }),
       );
+
+      const stored = await firstValueFrom(
+        stateProvider.getUser(mockUserId, ORGANIZATION_INVITE_LINK_KEY).state$,
+      );
+      expect(stored).toEqual({ [mockOrgId]: new OrganizationInviteLink(response) });
     });
 
-    it("throws when no invite link exists", async () => {
-      apiService.get.mockRejectedValue(new ErrorResponse(null, 404));
+    it("errors when orgKey is null", async () => {
+      const rawKey = makeKey();
+      keyGenerationService.createKey.mockResolvedValue(rawKey);
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
 
       await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
-        "No invite link exists to refresh",
+        `Organization key not found for org ${mockOrgId}`,
       );
     });
   });
 
   describe("reconstructUrl", () => {
-    it("uses cached invite link to unwrap key and build URL", async () => {
+    it("unwraps key and builds URL from the provided invite link", async () => {
       const inviteLink = makeInviteLink({
         code: "reconstruct",
         encryptedInviteKey: "2.enc=|iv=|mac=",
       });
-      await sut.upsert(mockUserId, inviteLink);
 
       const orgKey = makeKey();
       const rawKey = makeKey("unwrapped==");
@@ -275,37 +291,10 @@ describe("DefaultOrganizationInviteLinkService", () => {
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.unwrapSymmetricKey.mockResolvedValue(rawKey);
 
-      const url = await sut.reconstructUrl(mockUserId, mockOrgId);
+      const url = await firstValueFrom(sut.reconstructUrl(mockUserId, mockOrgId, inviteLink));
 
       expect(encryptService.unwrapSymmetricKey).toHaveBeenCalledWith(expect.any(EncString), orgKey);
       expect(url).toBe("https://vault.bitwarden.com/#/join/reconstruct?key=unwrapped==");
-    });
-
-    it("fetches from API when cache is empty, then builds URL", async () => {
-      const response = makeResponseModel({
-        code: "reconstruct",
-        encryptedInviteKey: "2.enc=|iv=|mac=",
-      });
-      apiService.get.mockResolvedValue(response);
-
-      const orgKey = makeKey();
-      const rawKey = makeKey("unwrapped==");
-
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
-      encryptService.unwrapSymmetricKey.mockResolvedValue(rawKey);
-
-      const url = await sut.reconstructUrl(mockUserId, mockOrgId);
-
-      expect(apiService.get).toHaveBeenCalledWith(mockOrgId);
-      expect(url).toBe("https://vault.bitwarden.com/#/join/reconstruct?key=unwrapped==");
-    });
-
-    it("throws when no invite link exists", async () => {
-      apiService.get.mockRejectedValue(new ErrorResponse(null, 404));
-
-      await expect(sut.reconstructUrl(mockUserId, mockOrgId)).rejects.toThrow(
-        "Organization does not have an invite link to reconstruct",
-      );
     });
   });
 });

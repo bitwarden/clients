@@ -5,7 +5,6 @@ import { EncryptService } from "@bitwarden/common/key-management/crypto/abstract
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 import { StateProvider } from "@bitwarden/state";
@@ -13,6 +12,7 @@ import { StateProvider } from "@bitwarden/state";
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkService } from "../abstractions/organization-invite-link.service";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import {
   OrganizationInviteLink,
@@ -35,63 +35,71 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
     orgId: OrganizationId,
   ): Observable<OrganizationInviteLink | undefined> {
     return this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).state$.pipe(
-      switchMap((state) => {
-        if (state == null) {
-          return this.getInviteLink(userId, orgId);
-        }
-        return of(state);
-      }),
+      map((record) => record?.[orgId]),
+      switchMap((cached) => (cached == null ? this.getInviteLink(userId, orgId) : of(cached))),
     );
   }
 
-  async reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string> {
-    const inviteLink = await firstValueFrom(this.inviteLink$(userId, orgId));
-    if (inviteLink == null) {
-      throw new Error("Organization does not have an invite link to reconstruct");
-    }
-    const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
-    const encKey = new EncString(inviteLink.encryptedInviteKey);
-    const rawInviteKey = await this.encryptService.unwrapSymmetricKey(encKey, orgKey);
-    return firstValueFrom(this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64));
-  }
-
-  async createInviteLink(userId: UserId, orgId: OrganizationId, domains: string[]): Promise<void> {
-    const rawInviteKey = await this.generateCryptoBundle();
-    const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
-    const encryptedInviteKey = await this.encryptService.wrapSymmetricKey(rawInviteKey, orgKey);
-    const request = new OrganizationInviteLinkCreateRequest(domains, encryptedInviteKey);
+  async createInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    allowedDomains: string[],
+  ): Promise<void> {
+    const encryptedInviteKey = await this.generateEncryptedKey(userId, orgId);
+    const request = new OrganizationInviteLinkCreateRequest({ allowedDomains, encryptedInviteKey });
     const response = await this.apiService.create(orgId, request);
     const inviteLink = new OrganizationInviteLink(response);
 
     await this.upsert(userId, inviteLink);
   }
 
-  async updateInviteLink(userId: UserId, orgId: OrganizationId, domains: string[]): Promise<void> {
-    const request = new OrganizationInviteLinkUpdateRequest(domains);
+  async updateInviteLink(
+    userId: UserId,
+    orgId: OrganizationId,
+    allowedDomains: string[],
+  ): Promise<void> {
+    const request = new OrganizationInviteLinkUpdateRequest({ allowedDomains });
     const response = await this.apiService.update(orgId, request);
     const inviteLink = new OrganizationInviteLink(response);
 
     await this.upsert(userId, inviteLink);
   }
 
-  async refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void> {
-    const inviteLink = await firstValueFrom(this.inviteLink$(userId, orgId));
-    if (inviteLink == null) {
-      throw new Error("No invite link exists to refresh");
-    }
-    await this.updateInviteLink(userId, orgId, inviteLink.allowedDomains);
+  async refreshInviteLink(userId: UserId, orgId: OrganizationId) {
+    const encryptedInviteKey = await this.generateEncryptedKey(userId, orgId);
+    const request = new OrganizationInviteLinkRefreshRequest({ encryptedInviteKey });
+    const response = await this.apiService.refresh(orgId, request);
+    const inviteLink = new OrganizationInviteLink(response);
+
+    await this.upsert(userId, inviteLink);
+  }
+
+  reconstructUrl(
+    userId: UserId,
+    orgId: OrganizationId,
+    inviteLink: OrganizationInviteLink,
+  ): Observable<string> {
+    return this.getOrgKey(userId, orgId).pipe(
+      switchMap((orgKey) => {
+        const encKey = new EncString(inviteLink.encryptedInviteKey);
+        return this.encryptService.unwrapSymmetricKey(encKey, orgKey);
+      }),
+      switchMap((rawInviteKey) => this.buildInviteUrl(inviteLink.code, rawInviteKey.keyB64)),
+    );
   }
 
   async upsert(userId: UserId, data: OrganizationInviteLink): Promise<void> {
-    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => {
-      return data;
+    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update((state) => {
+      const record = state ?? ({} as Record<OrganizationId, OrganizationInviteLink>);
+      return { ...record, [data.organizationId]: data };
     });
   }
 
   async delete(userId: UserId, orgId: OrganizationId): Promise<void> {
-    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => undefined);
     await this.apiService.delete(orgId);
-    await this.stateProvider.getUser(userId, ORGANIZATION_INVITE_LINK_KEY).update(() => null);
+    await this.stateProvider
+      .getUser(userId, ORGANIZATION_INVITE_LINK_KEY)
+      .update((state) => (state == null ? state : { ...state, [orgId]: undefined }));
   }
 
   private buildInviteUrl(code: string, keyB64: string): Observable<string> {
@@ -133,11 +141,15 @@ export class DefaultOrganizationInviteLinkService implements OrganizationInviteL
   }
 
   /**
-   * Generates a raw symmetric key for the invite link.
+   * Generates and returns an encrypted invite key.
    *
    * TODO: Replace with `generateOrganizationInviteCryptoBundle` from the SDK once available.
    */
-  private async generateCryptoBundle(): Promise<SymmetricCryptoKey> {
-    return this.keyGenerationService.createKey(256);
+  private async generateEncryptedKey(userId: UserId, orgId: OrganizationId): Promise<EncString> {
+    // Important: this rawInviteKey must never be sent to the server!
+    const rawInviteKey = await this.keyGenerationService.createKey(256);
+    const orgKey = await firstValueFrom(this.getOrgKey(userId, orgId));
+    const encryptedInviteKey = await this.encryptService.wrapSymmetricKey(rawInviteKey, orgKey);
+    return encryptedInviteKey;
   }
 }
