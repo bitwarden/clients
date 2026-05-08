@@ -39,7 +39,7 @@ import { SpotlightService } from "./spotlight.service";
  * <div [bitPopoverAnchorFor]="myPopover"
  *      [(popoverOpen)]="isOpen"
  *      [spotlight]="true"
- *      [spotlightPadding]="12">
+ * >
  *   Anchor element
  * </div>
  * ```
@@ -65,9 +65,6 @@ export class PopoverAnchorForDirective implements OnDestroy {
 
   /** Enable spotlight effect that dims everything except the anchor element */
   readonly spotlight = input<boolean>(false);
-
-  /** Padding around the spotlight cutout in pixels */
-  readonly spotlightPadding = input<number>(0);
 
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly viewContainerRef = inject(ViewContainerRef);
@@ -146,7 +143,7 @@ export class PopoverAnchorForDirective implements OnDestroy {
     // Create the spotlight border overlay first so the popover overlay sits above it in DOM order
     if (this.spotlight()) {
       this.spotlightService.register(this);
-      this.spotlightService.showSpotlight(this.elementRef.nativeElement, this.spotlightPadding());
+      this.spotlightService.showSpotlight(this.elementRef.nativeElement);
     }
 
     this.popoverOpen.set(true);

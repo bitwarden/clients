@@ -5,7 +5,8 @@ import { getByRole, userEvent } from "storybook/test";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
-import { IconModule } from "../icon";
+import { IconComponent } from "../icon/icon.component";
+import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -18,7 +19,7 @@ export default {
   component: PopoverComponent,
   decorators: [
     moduleMetadata({
-      imports: [PopoverModule, ButtonModule, IconModule, LinkModule],
+      imports: [PopoverModule, ButtonModule, IconButtonModule, IconComponent, LinkModule],
       providers: [
         {
           provide: I18nService,
@@ -764,7 +765,6 @@ export const MultipleSpotlights: Story = {
             [bitPopoverAnchorFor]="popover1"
             [(popoverOpen)]="popover1Open"
             [spotlight]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
           >
             <bit-icon name="bwi-star" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
@@ -778,7 +778,6 @@ export const MultipleSpotlights: Story = {
             [bitPopoverAnchorFor]="popover2"
             [(popoverOpen)]="popover2Open"
             [spotlight]="true"
-            [spotlightPadding]="12"
             [position]="'below-center'"
           >
             <bit-icon name="bwi-heart" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
