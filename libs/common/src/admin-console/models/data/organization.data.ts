@@ -70,7 +70,6 @@ export class OrganizationData {
   ssoMemberDecryptionType?: MemberDecryptionType;
   usePhishingBlocker: boolean;
   useMyItems: boolean;
-  exemptFromBillingAutomation: boolean;
   useInviteLinks: boolean;
 
   constructor(
@@ -143,7 +142,6 @@ export class OrganizationData {
     this.ssoMemberDecryptionType = response.ssoMemberDecryptionType;
     this.usePhishingBlocker = response.usePhishingBlocker;
     this.useMyItems = response.useMyItems;
-    this.exemptFromBillingAutomation = response.exemptFromBillingAutomation ?? false;
     this.useInviteLinks = response.useInviteLinks;
 
     this.isMember = options.isMember;

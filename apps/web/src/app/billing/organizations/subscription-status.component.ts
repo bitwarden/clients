@@ -35,9 +35,6 @@ export class SubscriptionStatusComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) organizationSubscriptionResponse: OrganizationSubscriptionResponse;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() exempt = false;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() reinstatementRequested = new EventEmitter<void>();
 
@@ -88,7 +85,7 @@ export class SubscriptionStatusComponent {
       cancellationDateLabel,
     );
 
-    if (this.exempt && result?.callout) {
+    if (result?.callout) {
       return { ...result, callout: undefined };
     }
 

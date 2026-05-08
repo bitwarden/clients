@@ -65,7 +65,6 @@ export class ProfileOrganizationResponse extends BaseResponse {
   ssoMemberDecryptionType?: MemberDecryptionType;
   usePhishingBlocker: boolean;
   useMyItems: boolean;
-  exemptFromBillingAutomation: boolean;
   useInviteLinks: boolean;
 
   constructor(response: any) {
@@ -143,8 +142,6 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.ssoMemberDecryptionType = this.getResponseProperty("SsoMemberDecryptionType");
     this.usePhishingBlocker = this.getResponseProperty("UsePhishingBlocker") ?? false;
     this.useMyItems = this.getResponseProperty("UseMyItems") ?? false;
-    this.exemptFromBillingAutomation =
-      this.getResponseProperty("ExemptFromBillingAutomation") ?? false;
     this.useInviteLinks = this.getResponseProperty("UseInviteLinks") ?? false;
   }
 }

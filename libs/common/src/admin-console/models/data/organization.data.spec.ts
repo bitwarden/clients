@@ -67,7 +67,6 @@ describe("ORGANIZATIONS state", () => {
         useDisableSMAdsForUsers: false,
         usePhishingBlocker: false,
         useMyItems: false,
-        exemptFromBillingAutomation: false,
         useInviteLinks: false,
       },
     };

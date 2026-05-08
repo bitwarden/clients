@@ -11,7 +11,7 @@
       [organizationSubscriptionResponse]="sub"
       [exempt]="userOrg.exemptFromBillingAutomation"
       (reinstatementRequested)="reinstate()"
-      *ngIf="!userOrg.isFreeOrg"
+      *ngIf="!userOrg.isFreeOrg && !isResellerOrganizationOwnerExempt"
     ></app-subscription-status>
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-flex-col">

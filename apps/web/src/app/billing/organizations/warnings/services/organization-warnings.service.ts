@@ -113,9 +113,6 @@ export class OrganizationWarningsService {
   getResellerRenewalWarning$ = (
     organization: Organization,
   ): Observable<OrganizationResellerRenewalWarning | null> => {
-    if (organization.exemptFromBillingAutomation) {
-      return of(null);
-    }
     return this.getWarning$(organization, (response) => response.resellerRenewal).pipe(
       map((warning) => {
         if (!warning) {
