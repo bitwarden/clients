@@ -5,18 +5,20 @@ import { getByRole, userEvent } from "storybook/test";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { ButtonModule } from "../button";
-import { IconButtonModule } from "../icon-button";
+import { IconModule } from "../icon";
 import { LinkModule } from "../link";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { PopoverAnchorForDirective } from "./popover-anchor-for.directive";
+import { PopoverComponent } from "./popover.component";
 import { PopoverModule } from "./popover.module";
 
 export default {
   title: "Component Library/Popover",
+  component: PopoverComponent,
   decorators: [
     moduleMetadata({
-      imports: [PopoverModule, ButtonModule, IconButtonModule, LinkModule],
+      imports: [PopoverModule, ButtonModule, IconModule, LinkModule],
       providers: [
         {
           provide: I18nService,
@@ -66,15 +68,26 @@ export default {
 
 type Story = StoryObj<PopoverAnchorForDirective>;
 
-const popoverContent = /*html*/ `
-  <bit-popover [title]="'Example Title'" #myPopover>
-    <div>Lorem ipsum dolor <a href="#" bitLink>adipisicing elit</a>.</div>
-    <ul class="tw-mt-2 tw-mb-0 tw-ps-4">
-      <li>Dolor sit amet consectetur</li>
-      <li>Esse labore veniam tempora</li>
-      <li>Adipisicing elit ipsum <a href="#" bitLink>iustolaborum</a></li>
-    </ul>
-    <button type="button" bitButton class="tw-mt-4" (click)="triggerRef.closePopover()">Close</button>
+const defaultContent = /*html*/ `
+  <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
+    A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
+  </bit-popover>
+`;
+
+const withMediaAndFooterContent = /*html*/ `
+  <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
+    <bit-popover-header>
+      <div slot="media" class="tw-h-[200px] tw-bg-bg-gray tw-flex tw-items-center tw-justify-center">
+        <h1>Media Slot</h1>
+      </div>
+    </bit-popover-header>
+    A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
+    <bit-popover-footer>
+      <div class="tw-flex tw-gap-2">
+        <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="secondary">Read more</button>
+        <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="primary">Confirm</button>
+      </div>
+    </bit-popover-footer>
   </bit-popover>
 `;
 
@@ -85,461 +98,521 @@ export const Default: Story = {
       <div class="tw-mt-44 tw-h-[400px]">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600 tw-p-0"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
-export const OpenLongTitle: Story = {
+export const WithFooter: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-mt-44 tw-h-[400px]">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
-
-      <bit-popover [title]="'Example Title that is really long it wraps 2 lines'" #myPopover>
-        <div>Lorem ipsum dolor <a href="#" bitLink>adipisicing elit</a>.</div>
-        <ul class="tw-mt-2 tw-ps-4">
-          <li>Dolor sit amet consectetur</li>
-          <li>Esse labore veniam tempora</li>
-          <li>Adipisicing elit ipsum <a href="#" bitLink>iustolaborum</a></li>
-        </ul>
-        <p class="tw-mb-0">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+      <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
+        A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
+        <bit-popover-footer>
+          <div class="tw-flex tw-gap-2">
+            <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="secondary">Read more</button>
+            <button type="button" bitButton endIcon="bwi-arrow-right" buttonType="primary">Confirm</button>
+          </div>
+        </bit-popover-footer>
       </bit-popover>
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
+    await userEvent.click(button);
+  },
+};
 
+export const WithMedia: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-mt-44 tw-h-[400px]">
+        <button
+          type="button"
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          aria-label="Open popover"
+          title="Open popover"
+          bitLink
+          startIcon="bwi-question-circle"
+        ></button>
+      </div>
+      <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
+        <bit-popover-header>
+          <div slot="media" class="tw-h-[200px] tw-bg-bg-gray tw-flex tw-items-center tw-justify-center">
+            <h1>Media Slot</h1>
+          </div>
+        </bit-popover-header>
+        A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.
+      </bit-popover>
+      `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const button = getByRole(canvasEl, "button");
+    await userEvent.click(button);
+  },
+};
+
+export const WithMediaAndFooter: Story = {
+  render: (args) => ({
+    props: args,
+    template: /*html*/ `
+      <div class="tw-mt-44 tw-h-[500px]">
+        <button
+          type="button"
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          aria-label="Open popover"
+          title="Open popover"
+          bitLink
+          startIcon="bwi-question-circle"
+        ></button>
+      </div>
+      ${withMediaAndFooterContent}
+      `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const button = getByRole(canvasEl, "button");
+    await userEvent.click(button);
+  },
+};
+
+export const Stepper: Story = {
+  render: () => ({
+    props: {
+      step: signal(1),
+      nextStep() {
+        this.step.update((s: number) => s + 1);
+      },
+      prevStep() {
+        this.step.update((s: number) => s - 1);
+      },
+    },
+    template: /*html*/ `
+      <div class="tw-mt-44 tw-h-[500px]">
+        <button
+          type="button"
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          aria-label="Open popover"
+          title="Open popover"
+          bitLink
+          startIcon="bwi-question-circle"
+        ></button>
+      </div>
+      <bit-popover [title]="'We\\'ve just released a new dashboard'" #myPopover>
+        <bit-popover-header>
+          <div class="tw-h-[200px] tw-bg-bg-gray tw-flex tw-items-center tw-justify-center">
+            <h1>Media Slot</h1>
+          </div>
+        </bit-popover-header>
+        <p class="tw-mb-2 tw-mt-0">A new and improved dashboard is now live! Enjoy a smoother, more intuitive experience.</p>
+        <ul class="tw-list-none tw-ps-0 tw-mb-2 tw-mt-0">
+          <li class="tw-flex tw-items-center tw-gap-2 tw-mb-1">
+            <bit-icon name="bwi-check" class="tw-text-success-600"></bit-icon>
+            Upper &amp; lower case letters
+          </li>
+          <li class="tw-flex tw-items-center tw-gap-2 tw-mb-1">
+            <bit-icon name="bwi-close" class="tw-text-danger-600"></bit-icon>
+            A symbol (#$&amp;)
+          </li>
+          <li class="tw-flex tw-items-center tw-gap-2">
+            <bit-icon name="bwi-close" class="tw-text-danger-600"></bit-icon>
+            A longer password
+          </li>
+        </ul>
+        <a href="#" bitLink>Learn more <bit-icon name="bwi-arrow-right"></bit-icon></a>
+        <bit-popover-footer>
+          <div class="tw-flex tw-items-center tw-justify-between tw-w-full">
+            <span class="tw-text-sm">{{ step() }} of 5</span>
+            <div class="tw-flex tw-items-center tw-gap-2">
+              <button type="button" bitButton buttonType="secondary" [disabled]="step() === 1" (click)="prevStep()">Back</button>
+              <button
+                type="button"
+                bitButton
+                buttonType="primary"
+                (click)="step() < 5 ? nextStep() : triggerRef.closePopover()"
+              >{{ step() === 5 ? 'Finish' : 'Next' }}</button>
+            </div>
+          </div>
+        </bit-popover-footer>
+      </bit-popover>
+      `,
+  }),
+  play: async (context) => {
+    const canvasEl = context.canvasElement;
+    const button = getByRole(canvasEl, "button");
     await userEvent.click(button);
   },
 };
 
 export const RightStart: Story = {
-  args: {
-    position: "right-start",
-  },
+  args: { position: "right-start" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const RightCenter: Story = {
-  args: {
-    position: "right-center",
-  },
+  args: { position: "right-center" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const RightEnd: Story = {
-  args: {
-    position: "right-end",
-  },
+  args: { position: "right-end" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <button
           type="button"
-          class="tw-border-none tw-bg-transparent tw-text-primary-600"
           [bitPopoverTriggerFor]="myPopover"
           #triggerRef="popoverTrigger"
           [position]="'${args.position}'"
           aria-label="Open popover"
           title="Open popover"
           bitLink
-        >
-          <i class="bwi bwi-question-circle"></i>
-        </button>
+          startIcon="bwi-question-circle"
+        ></button>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const LeftStart: Story = {
-  args: {
-    position: "left-start",
-  },
+  args: { position: "left-start" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-end">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const LeftCenter: Story = {
-  args: {
-    position: "left-center",
-  },
+  args: { position: "left-center" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-end">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
+
 export const LeftEnd: Story = {
-  args: {
-    position: "left-end",
-  },
+  args: { position: "left-end" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-end">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const BelowStart: Story = {
-  args: {
-    position: "below-start",
-  },
+  args: { position: "below-start" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const BelowCenter: Story = {
-  args: {
-    position: "below-center",
-  },
+  args: { position: "below-center" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const BelowEnd: Story = {
-  args: {
-    position: "below-end",
-  },
+  args: { position: "below-end" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const AboveStart: Story = {
-  args: {
-    position: "above-start",
-  },
+  args: { position: "above-start" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const AboveCenter: Story = {
-  args: {
-    position: "above-center",
-  },
+  args: { position: "above-center" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
 
 export const AboveEnd: Story = {
-  args: {
-    position: "above-end",
-  },
+  args: { position: "above-end" },
   render: (args) => ({
     props: args,
     template: /*html*/ `
-      <div class="tw-h-[400px] tw-mt-44">
+      <div class="tw-h-[500px] tw-mt-44">
         <div class="tw-flex tw-justify-center">
           <button
             type="button"
-            class="tw-border-none tw-bg-transparent tw-text-primary-600"
             [bitPopoverTriggerFor]="myPopover"
             #triggerRef="popoverTrigger"
             [position]="'${args.position}'"
             aria-label="Open popover"
             title="Open popover"
             bitLink
-          >
-            <i class="bwi bwi-question-circle"></i>
-          </button>
+            startIcon="bwi-question-circle"
+          ></button>
         </div>
       </div>
-      ${popoverContent}
+      ${defaultContent}
       `,
   }),
   play: async (context) => {
     const canvasEl = context.canvasElement;
     const button = getByRole(canvasEl, "button");
-
     await userEvent.click(button);
   },
 };
@@ -581,7 +654,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step1Ref="popoverAnchor"
           >
-            <i class="bwi bwi-plus-circle tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-plus-circle" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Create</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Add new items</p>
           </div>
@@ -595,7 +668,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step2Ref="popoverAnchor"
           >
-            <i class="bwi bwi-search tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-search" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Search</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Find anything</p>
           </div>
@@ -609,7 +682,7 @@ export const SpotlightTour: Story = {
             [position]="'below-center'"
             #step3Ref="popoverAnchor"
           >
-            <i class="bwi bwi-cog tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-cog" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Settings</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Configure options</p>
           </div>
@@ -694,7 +767,7 @@ export const MultipleSpotlights: Story = {
             [spotlightPadding]="12"
             [position]="'below-center'"
           >
-            <i class="bwi bwi-star tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-star" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Feature 1</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">First feature card</p>
           </div>
@@ -708,7 +781,7 @@ export const MultipleSpotlights: Story = {
             [spotlightPadding]="12"
             [position]="'below-center'"
           >
-            <i class="bwi bwi-heart tw-text-4xl tw-text-primary-600 tw-mb-3"></i>
+            <bit-icon name="bwi-heart" class="tw-text-4xl tw-text-primary-600 tw-mb-3"></bit-icon>
             <h3 class="tw-text-base tw-font-semibold tw-mb-2">Feature 2</h3>
             <p class="tw-text-sm tw-text-muted tw-mb-0">Second feature card</p>
           </div>
