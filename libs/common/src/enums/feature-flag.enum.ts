@@ -119,7 +119,7 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.AdminResetTwoFactor]: FALSE,
   [FeatureFlag.BulkAutoConfirmOnLogin]: FALSE,
-  [FeatureFlag.GenerateInviteLink]: true,
+  [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.PM35153CollectionSdkDecryption]: FALSE,
   [FeatureFlag.PolicyDrawers]: FALSE,
 
