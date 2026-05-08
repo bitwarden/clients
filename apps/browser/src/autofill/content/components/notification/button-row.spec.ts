@@ -74,4 +74,15 @@ describe("NotificationButtonRow", () => {
       expect(alphaOption.value).toBe("folder-uuid");
     });
   });
+
+  describe("vault options", () => {
+    it("does not render the vault dropdown when organizations are empty", () => {
+      NotificationButtonRow({ ...defaultProps, organizations: [] });
+
+      const { selectButtons } = (ButtonRow as jest.Mock).mock.calls[0][0];
+      expect(
+        selectButtons.find((dropdown: { id: string }) => dropdown.id === "organization"),
+      ).toBeUndefined();
+    });
+  });
 });
