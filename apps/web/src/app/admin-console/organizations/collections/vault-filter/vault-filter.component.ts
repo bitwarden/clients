@@ -84,6 +84,9 @@ export class VaultFilterComponent {
     if (filter.cipherType === CipherType.Card) {
       return "searchCard";
     }
+    if (filter.cipherType === CipherType.BankAccount) {
+      return "searchBankAccount";
+    }
     if (filter.cipherType === CipherType.Identity) {
       return "searchIdentity";
     }
