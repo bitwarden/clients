@@ -80,7 +80,6 @@ import { VaultTimeoutAction } from "../key-management/vault-timeout/enums/vault-
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
@@ -310,16 +309,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   async postPremium(data: FormData): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/premium", data, true, true);
-    return new PaymentResponse(r);
-  }
-
-  // TODO: Remove with deletion of pm-29594-update-individual-subscription-page
-  postReinstatePremium(): Promise<any> {
-    return this.send("POST", "/accounts/reinstate-premium", null, true, false);
-  }
-
-  async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
-    const r = await this.send("POST", "/accounts/storage", request, true, true);
     return new PaymentResponse(r);
   }
 
