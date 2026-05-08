@@ -1012,6 +1012,9 @@
   "typeSshKeySubtitle": {
     "message": "服务器登录令牌"
   },
+  "typeBankAccountSubtitle": {
+    "message": "银行详细信息"
+  },
   "folderSubtitle": {
     "message": "组织您的项目"
   },
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "安全笔记"
+  },
+  "typeBankAccount": {
+    "message": "银行账户"
   },
   "folders": {
     "message": "文件夹"
@@ -1116,6 +1122,18 @@
     "message": "新增 SSH 密钥",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "新增银行账户",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "新增许可证",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "新增护照",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderTextSend": {
     "message": "新增文本 Send",
     "description": "Header for new text send"
@@ -1144,6 +1162,18 @@
     "message": "编辑 SSH 密钥",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "编辑银行账户",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "编辑驾驶员许可证",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "编辑护照",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "编辑文本 Send",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "查看 SSH 密钥",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "查看银行账户",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "查看驾驶员许可证",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "查看护照",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "新增",
@@ -1307,6 +1349,38 @@
       }
     }
   },
+  "copyInfoTitle": {
+    "message": "复制信息 - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "复制备注 - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "没有可复制的值"
+  },
+  "launchWebsiteName": {
+    "message": "前往 $ITEMNAME$ 的网站",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "我"
   },
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "删除附件"
+  },
+  "deleteAttachmentName": {
+    "message": "删除附件 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "下载 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "确定要将其发送到回收站吗？"
@@ -2538,6 +2630,9 @@
     "message": "选择要导入的文件"
   },
   "chooseFile": {
+    "message": "选择文件"
+  },
+  "chooseFileSentenceCase": {
     "message": "选择文件"
   },
   "noFileChosen": {
@@ -3740,7 +3835,7 @@
     "message": "本地托管（可选）"
   },
   "usersGetPremium": {
-    "message": "用户拥有高级版功能访问权限"
+    "message": "用户获得高级版功能访问权限"
   },
   "controlAccessWithGroups": {
     "message": "使用群组控制用户访问权限"
@@ -3797,7 +3892,7 @@
     "message": "我们已经发送了一封确认电子邮件到您团队的计费电子邮箱 "
   },
   "monthly": {
-    "message": "月"
+    "message": "按月"
   },
   "annually": {
     "message": "按年"
@@ -3949,8 +4044,23 @@
       }
     }
   },
+  "invite": {
+    "message": "邀请"
+  },
   "inviteUserDesc": {
     "message": "在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的组织。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。"
+  },
+  "inviteUserDescription": {
+    "message": "在下面输入他们的电子邮箱地址，以邀请新用户加入您的组织。"
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "使用逗号分隔输入最多 $COUNT$ 个电子邮箱。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "使用逗号分隔输入最多 $BATCHLIMIT$ 个电子邮箱。（还剩余 $REMAININGSEATS$ 个席位）",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "查看了项目 $ID$ 的账户号码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "查看了项目 $ID$ 的 PIN 码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "复制了项目 $ID$ 的账户号码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "复制了项目 $ID$ 的 PIN 码。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "自动填充了项目 $ID$。",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "放弃编辑"
+  },
+  "discardEditsConfirmation": {
+    "message": "如果您关闭此视图，未保存的编辑内容将被丢弃。"
+  },
+  "discardEdits": {
+    "message": "放弃编辑"
+  },
+  "keepEditing": {
+    "message": "继续编辑"
+  },
+  "backToEditing": {
+    "message": "返回继续编辑"
   },
   "editedPolicyId": {
     "message": "编辑了策略 $ID$。",
@@ -4355,6 +4516,45 @@
   },
   "revokedEmailError": {
     "message": "一个或多个电子邮箱属于已被撤销的成员。恢复其访问权限以便重新邀请。"
+  },
+  "revocationReasonUnknown": {
+    "message": "未知原因"
+  },
+  "revocationReasonManual": {
+    "message": "被管理员撤销了"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Not in compliance with two-step login policy"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Not in compliance with single organization policy"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Revoked organization access for $ID$ for declining transfer to organization ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "恢复了 $ID$ 的组织访问权限。",
@@ -4732,6 +4932,9 @@
   "reportGenerationDone": {
     "message": "完成！"
   },
+  "reportGenerationFailed": {
+    "message": "生成报告时发生错误。请重试。"
+  },
   "riskInsightsRunReport": {
     "message": "运行报告"
   },
@@ -4985,7 +5188,7 @@
     }
   },
   "routingNumber": {
-    "message": "汇款路线号码",
+    "message": "路由号码",
     "description": "Bank account routing number"
   },
   "accountNumber": {
@@ -5001,7 +5204,7 @@
     "message": "公司（企业）"
   },
   "bankAccountTypeIndividual": {
-    "message": "个体（个人）"
+    "message": "个人（私人）"
   },
   "enterInstallationId": {
     "message": "输入您的安装 ID"
@@ -5344,7 +5547,7 @@
     "message": "无法在已暂停的组织中创建服务账户。请联系您的组织所有者寻求帮助。"
   },
   "licenseIsExpired": {
-    "message": "授权已过期"
+    "message": "许可证已过期。"
   },
   "updatedUsers": {
     "message": "更新了用户"
@@ -6197,7 +6400,7 @@
     "message": "创建新项目时不会自动选择"
   },
   "organizationDataOwnershipWarning3": {
-    "message": "在用户离开之前，无法从管理控制台进行管理"
+    "message": "在用户离职之前，无法从 Admin Console 进行管理"
   },
   "organizationDataOwnershipWarningContentTop": {
     "message": "停用此策略后，默认的集合将："
@@ -6231,7 +6434,7 @@
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtensionOpened": {
-    "message": "成功打开 Bitwarden 浏览器扩展。您现在可以激活自动用户确认设置。"
+    "message": "成功打开 Bitwarden 浏览器扩展。您现在可以激活自动用户确认设置了。"
   },
   "autoConfirmPolicyEditDescription": {
     "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。启用此策略前，请审查并同意：",
@@ -7353,10 +7556,10 @@
     "message": "验证证书"
   },
   "spUniqueEntityId": {
-    "message": "设置专属的 SP 实体 ID"
+    "message": "设置唯一的 SP 实体 ID"
   },
   "spUniqueEntityIdDesc": {
-    "message": "为您的组织生成专属的标识符"
+    "message": "为您的组织生成唯一的标识符"
   },
   "idpEntityId": {
     "message": "实体 ID"
@@ -7656,7 +7859,7 @@
     "message": "赞助邀请已过期，您可以删除您创建的组织，以避免 7 天试用期结束时收取费用。您也可以关闭这个提示，以保留此组织并承担计费责任。"
   },
   "newFamiliesOrganization": {
-    "message": "新建家庭版组织"
+    "message": "新增家庭版组织"
   },
   "acceptOffer": {
     "message": "接受邀请"
@@ -7761,7 +7964,7 @@
     "message": "计费同步令牌"
   },
   "automaticBillingSyncDesc": {
-    "message": "自动同步将解锁家庭版赞助功能，并允许您同步许可证而无需上传文件。在 Bitwarden 云服务器中进行更新后，选择「同步许可证」以应用更改。"
+    "message": "自动同步将解锁家庭版赞助，并允许您同步许可证而无需上传文件。在 Bitwarden 云服务器中进行更新后，选择「同步许可证」以应用更改。"
   },
   "active": {
     "message": "已激活"
@@ -8281,9 +8484,19 @@
     "message": "SCIM 配置",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "通过 SCIM 配置，使用您首选的身份提供程序自动配置用户和群组",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "通过使用 SCIM URL 和 API 密钥配置您首选的身份提供程序，以自动配置用户和群组。"
+  },
+  "scimLearnMore": {
+    "message": "进一步了解 SCIM"
   },
   "scimIntegrationDescription": {
     "message": "通过 SCIM 配置，使用您首选的身份提供程序自动配置用户和群组。查找支持的集成",
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "成员角色"
   },
+  "moreSettings": {
+    "message": "更多设置"
+  },
   "moreFromBitwarden": {
     "message": "更多来自 Bitwarden 的产品"
   },
@@ -9281,7 +9497,7 @@
     "message": "手动上传"
   },
   "manualBillingTokenUploadDesc": {
-    "message": "如果您不想选择使用计费同步，请在此手动上传您的许可证。这将不会自动解锁家庭赞助功能。"
+    "message": "如果您不想选择使用计费同步，请在此手动上传您的许可证。这将不会自动解锁家庭版赞助。"
   },
   "syncLicense": {
     "message": "同步许可证"
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "激活用户对 Secrets Manager 的访问权限。"
+  },
+  "grantSecretsManager": {
+    "message": "授予对 Secrets Manager 的访问权限"
   },
   "userAccessSecretsManagerGA": {
     "message": "此用户可以访问 Secrets Manager"
@@ -9688,7 +9907,7 @@
     "message": "主密码弱且曾经暴露"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强且唯一的密码以保护您的账户。确定要使用这个密码吗？"
+    "message": "识别到弱密码且其出现在数据泄露中。请使用一个强大且唯一的密码以保护您的账户。确定要使用这个密码吗？"
   },
   "characterMinimum": {
     "message": "至少 $LENGTH$ 个字符",
@@ -10110,7 +10329,7 @@
     "message": "配置组织的集合行为"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "允许所有者和管理员从管理控制台管理所有集合和项目"
+    "message": "允许所有者和管理员从 Admin Console 管理所有集合和项目"
   },
   "restrictCollectionCreationDescription": {
     "message": "限制为仅所有者和管理员可以创建集合"
@@ -10407,11 +10626,11 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreePlan": {
-    "message": "准备切换到免费方案",
+    "message": "准备切换到免费版方案",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreeOrg": {
-    "message": "准备切换到免费组织",
+    "message": "准备切换到免费版组织",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "cancelSurveyMissingFeaturesLabel": {
@@ -10464,7 +10683,7 @@
     "message": "阅读发行博客"
   },
   "adminConsole": {
-    "message": "管理控制台"
+    "message": "Admin Console"
   },
   "providerPortal": {
     "message": "提供商门户"
@@ -11045,7 +11264,7 @@
     "message": "无访问权限"
   },
   "collectionAdminConsoleManaged": {
-    "message": "此集合只能从管理控制台访问"
+    "message": "此集合只能从 Admin Console 访问"
   },
   "organizationOptionsMenu": {
     "message": "切换组织菜单"
@@ -12010,7 +12229,7 @@
     "message": "出错了..."
   },
   "openingExtensionError": {
-    "message": "我们无法打开 Bitwarden 浏览器扩展。请点击按钮立即打开。"
+    "message": "打开 Bitwarden 浏览器扩展时出现问题。点击按钮立即将其打开。"
   },
   "openExtension": {
     "message": "打开扩展"
@@ -12335,7 +12554,7 @@
     "message": "使用身份，快速自动填充冗长的注册或联系表单。"
   },
   "newNoteNudgeTitle": {
-    "message": "保护您的敏感数据的安全"
+    "message": "确保您的敏感数据的安全"
   },
   "newNoteNudgeBody": {
     "message": "使用笔记，安全地存储敏感数据，例如银行或保险详细信息。"
@@ -12792,7 +13011,7 @@
     "message": "立即升级"
   },
   "formWillCreateNewFamiliesOrgMessage": {
-    "message": "完成此表单将创建一个新的家庭版组织。您可以从管理控制台升级您的免费版组织。"
+    "message": "完成此表单将创建一个新的家庭版组织。您可以从 Admin Console 升级您的免费版组织。"
   },
   "upgradeErrorMessage": {
     "message": "我们在处理您的升级时遇到错误。请重试。"
@@ -13329,6 +13548,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "银行名称"
+  },
+  "nameOnAccount": {
+    "message": "账户名称"
+  },
+  "bankRoutingNumber": {
+    "message": "路由号码",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "分行/机构号码"
+  },
+  "swiftCode": {
+    "message": "SWIFT 代码"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "银行联系电话"
+  },
+  "searchBankAccount": {
+    "message": "搜索银行账户"
+  },
+  "copyAccountNumber": {
+    "message": "复制账户号码"
+  },
+  "copyRoutingNumber": {
+    "message": "复制路由号码"
+  },
+  "copyPin": {
+    "message": "复制 PIN 码"
+  },
+  "copyIban": {
+    "message": "复制 IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "活期"
+  },
+  "bankAccountTypeSavings": {
+    "message": "储蓄"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "定期存单"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "循环信用额度"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "投资/证券"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "货币市场"
+  },
+  "bankAccountTypeOther": {
+    "message": "其他"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "安全地存储您的银行详细信息"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "保存您的银行账户信息，以跨您的设备轻松且安全地访问它。"
+  },
   "sendsTitleNoSearchResults": {
     "message": "未返回搜索结果"
   },
@@ -13396,14 +13679,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "您的银行账户需要验证才能用于此升级。请验证您的银行账户或选择其他付款方式。"
   },
-  "discardEdits": {
-    "message": "放弃编辑"
-  },
   "discardEditsMessage": {
     "message": "如果您关闭此视图，未保存的编辑内容将被丢弃"
-  },
-  "backToEditing": {
-    "message": "返回继续编辑"
   },
   "sendHasUnsavedEdits": {
     "message": "Send 有未保存的编辑内容。确定要离开吗？",
@@ -13412,6 +13689,9 @@
   "saveSendEditsFailed": {
     "message": "保存 Send 的编辑内容失败",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "您的组织要求电子邮箱可见。请取消勾选「对查看者隐藏您的电子邮箱地址」再保存。"
   },
   "sideNavigation": {
     "message": "侧边导航"

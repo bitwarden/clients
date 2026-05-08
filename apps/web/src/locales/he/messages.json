@@ -3,19 +3,19 @@
     "message": "כל היישומים"
   },
   "allMembers": {
-    "message": "All members"
+    "message": "כל המנויים"
   },
   "allPasswords": {
-    "message": "All passwords"
+    "message": "כל הסיסמאות"
   },
   "activity": {
     "message": "פעילות"
   },
   "criticalAppsAtRisk": {
-    "message": "Critical apps at risk"
+    "message": "יישומים הכרחיים בסיכון"
   },
   "allCriticalApps": {
-    "message": "All critical apps"
+    "message": "כל היישומים ההכרחיים"
   },
   "appLogoLabel": {
     "message": "הלוגו של Bitwarden"
@@ -27,7 +27,7 @@
     "message": "אין יישומים קריטיים בסיכון"
   },
   "critical": {
-    "message": "Critical ($COUNT$)",
+    "message": "הכרחיים ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -36,7 +36,7 @@
     }
   },
   "notCritical": {
-    "message": "Not critical ($COUNT$)",
+    "message": "לא-הכרחיים ($COUNT$)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -45,7 +45,7 @@
     }
   },
   "criticalBadge": {
-    "message": "Critical"
+    "message": "הכרחי"
   },
   "accessIntelligence": {
     "message": "מודיעין גישות"
@@ -57,19 +57,19 @@
     "message": "סיכון סיסמה"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "סיסמאות"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "סיכון לאורך זמן"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "סיסמאות בסיכון"
   },
   "noEditPermissions": {
     "message": "אין לך הרשאות לערוך את הפריט הזה"
   },
   "reviewAccessIntelligence": {
-    "message": "Review security reports to find and fix credential risks before they escalate."
+    "message": "סקירת דו\"חות אבטחה לאיתור ולתיקון סיכוני פרטי הזדהות לפני שהם מחריפים."
   },
   "reviewAtRiskLoginsPrompt": {
     "message": "סקור כניסות בסיכון"
@@ -329,7 +329,7 @@
     "message": "סימון יישומים כקריטיים נכשל"
   },
   "applicationsUnmarkedAsCriticalFail": {
-    "message": "Failed to unmark applications as critical"
+    "message": "נכשל ביטול סימון היישומים כהכרחיים"
   },
   "application": {
     "message": "יישום"
@@ -452,10 +452,10 @@
     "message": "הכל טופל!"
   },
   "noNewApplicationsToReviewAtThisTime": {
-    "message": "No new applications to review at this time"
+    "message": "אין יישומים חדשים לסקירה במועד הנוכחי"
   },
   "organizationHasItemsSavedForApplications": {
-    "message": "Your organization has items saved for $COUNT$ applications",
+    "message": "לארגון שלך יש פריטים שמורים עבור $COUNT$ יישומים",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -464,7 +464,7 @@
     }
   },
   "reviewApplicationsToSecureItems": {
-    "message": "Review applications to secure the items most critical to your organization's security"
+    "message": "סקירת היישומים לאבטחת הפריטים ההכרחיים ביותר לבטחון הארגון שלך"
   },
   "reviewApplications": {
     "message": "סקור יישומים"
@@ -473,16 +473,16 @@
     "message": "תעדוף יישומים קריטיים"
   },
   "selectCriticalAppsDescription": {
-    "message": "Select which applications are most critical to your organization. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "בחירה אילו יישומים הם ההכרחיים ביותר לארגון שלך. לאחר הבחירה, באפשרותך להקצות משימות אבטחה למנויים להסרת הסיכונים."
   },
   "reviewNewApplications": {
     "message": "סקור יישומים חדשים"
   },
   "reviewNewAppsDescription": {
-    "message": "Review new applications with vulnerable items and mark those you’d like to monitor closely as critical. Then, you’ll be able to assign security tasks to members to remove risks."
+    "message": "סקירת יישומים חדשים עם פריטים רגישים וסימון אלה שברצונך לנטר בקפידה כהכרחיים. לאחר מכן, יהיה באפשרותך להקצות משימות אבטחה למנויים להסרת סיכונים."
   },
   "clickIconToMarkAppAsCritical": {
-    "message": "Click the star icon to mark an app as critical"
+    "message": "לחיצה על סמל הכוכב לסימון יישום כהכרחי"
   },
   "markAsCriticalPlaceholder": {
     "message": "שימושיות 'סמן כקריטי' תיושם בעדכון עתידי"
@@ -638,10 +638,10 @@
     }
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "הצגת זיהוי התאמה"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "הסתרת זיהוי התאמה"
   },
   "autoFillOnPageLoad": {
     "message": "למלא אוטומטית בעת טעינת עמוד?"
@@ -680,7 +680,7 @@
     "message": "אימייל"
   },
   "emails": {
-    "message": "Emails"
+    "message": "כתובות דוא\"ל"
   },
   "phone": {
     "message": "טלפון"
@@ -764,7 +764,7 @@
     "message": "Bitwarden יכול לאחסן ולמלא קודים של אימות דו־שלבי. בחר את סמל המצלמה כדי לצלם את הקוד QR המאמת של אתר זה, או העתק והדבק את המפתח לתוך שדה זה."
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "סריקת קוד QR ליישום אימות מהאתר הנוכחי"
   },
   "learnMoreAboutAuthenticators": {
     "message": "למד עוד על מאמתים"
@@ -998,25 +998,28 @@
     "message": "מפתח SSH"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "אתר או יישום"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "כרטיס אשראי או חיוב"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "מידע אישי"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "מלל חשוב"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "אסימון גישה של כניסה לשרת"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "פרטים בנקאיים"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "ארגון הפריטים שלך"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "ארגון הפריטים המשותפים"
   },
   "typeLoginPlural": {
     "message": "כניסות"
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "הערות מאובטחות"
+  },
+  "typeBankAccount": {
+    "message": "חשבון בנק"
   },
   "folders": {
     "message": "תיקיות"
@@ -1088,7 +1094,7 @@
     "message": "הוסף פריט"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "בחירת פריט להוספה"
   },
   "editItem": {
     "message": "ערוך פריט"
@@ -1115,6 +1121,18 @@
   "newItemHeaderSshKey": {
     "message": "מפתח SSH חדש",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "חשבון בנק חדש",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "רישיון חדש",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "דרכון חדש",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "סֵנְד של טקסט חדש",
@@ -1144,6 +1162,18 @@
     "message": "ערוך מפתח SSH",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "עריכת חשבון בנק",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "עריכת רישיון נהיגה",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "עריכת דרכון",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "ערוך סֵנְד של טקסט",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "הצג מפתח SSH",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "הצגת חשבון בנק",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "הצגת רישיון נהיגה",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "הצגת דרכון",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "חדש",
@@ -1307,6 +1349,38 @@
       }
     }
   },
+  "copyInfoTitle": {
+    "message": "העתקת מידע - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "העתקת הערה - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "אין ערכים להעתקה"
+  },
+  "launchWebsiteName": {
+    "message": "פתיחת אתר $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "אני"
   },
@@ -1341,7 +1415,7 @@
     "message": "בחר הכל"
   },
   "deselectAll": {
-    "message": "Deselect all"
+    "message": "ביטול בחירה של הכל"
   },
   "unselectAll": {
     "message": "נקה הכל"
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "מחק צרופה"
+  },
+  "deleteAttachmentName": {
+    "message": "מחיקת צרופה $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "הורדת $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "האם אתה בטוח שברצונך למחוק פריט זה?"
@@ -1492,10 +1584,10 @@
     "message": "לא"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "כל מי שיש לו את הקישור"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "כל מי שיש לו סיסמה שמוגדרת על-ידך"
   },
   "location": {
     "message": "מיקום"
@@ -2539,6 +2631,9 @@
   },
   "chooseFile": {
     "message": "בחר קובץ"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
   },
   "noFileChosen": {
     "message": "לא נבחר קובץ"
@@ -3949,8 +4044,23 @@
       }
     }
   },
+  "invite": {
+    "message": "Invite"
+  },
   "inviteUserDesc": {
     "message": "הזמן משתמש חדש לארגון שלך על ידי הזנת כתובת האימייל שלהם שמשמשת אותם בחשבון Bitwarden. אם אין להם חשבון Bitwarden, הם יתבקשו ליצור חשבון."
+  },
+  "inviteUserDescription": {
+    "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Enter up to $COUNT$ emails by separating with a comma.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Viewed account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Viewed PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Copied account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Copied PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "פריט שבוצע עבורו מילוי אוטומטי $ID$.",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Discard edits"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "keepEditing": {
+    "message": "Keep editing"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
   },
   "editedPolicyId": {
     "message": "מדיניות שנערכה $ID$.",
@@ -4356,6 +4517,45 @@
   "revokedEmailError": {
     "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
   },
+  "revocationReasonUnknown": {
+    "message": "Unknown reason"
+  },
+  "revocationReasonManual": {
+    "message": "Revoked by an admin"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Not in compliance with two-step login policy"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Not in compliance with single organization policy"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Revoked organization access for $ID$ for declining transfer to organization ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "הגישה לארגון שוחזרה עבור $ID$.",
     "placeholders": {
@@ -4405,7 +4605,7 @@
     "message": "Accepted transfer to organization ownership."
   },
   "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
+    "message": "מבוטל בשל סירוב להעביר לבעלות הארגון."
   },
   "invitedUserId": {
     "message": "משתמש שהוזמן $ID$.",
@@ -4426,7 +4626,7 @@
     }
   },
   "automaticallyConfirmedUserId": {
-    "message": "Automatically confirmed user $ID$.",
+    "message": "$ID$ משתמש המאושרים אוטומטית.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4507,22 +4707,22 @@
     "message": "מצב כניסה"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "הפעילים לאחרונה"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "היום"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "ב-7 הימים האחרונים"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "ב-14 הימים האחרונים"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "ב-30 הימים האחרונים"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "לפני יותר מ-30 ימים"
   },
   "firstLogin": {
     "message": "כניסה ראשונה"
@@ -4709,28 +4909,31 @@
     "message": "עדכן דפדפן"
   },
   "generatingYourAccessIntelligence": {
-    "message": "Generating your Access Intelligence..."
+    "message": "יצירת ה-Access Intelligence שלך..."
   },
   "loadingProgress": {
-    "message": "Loading progress"
+    "message": "התקדמות הטעינה"
   },
   "reviewingMemberData": {
-    "message": "Reviewing member data..."
+    "message": "סקירת נתוני המנוי..."
   },
   "analyzingPasswords": {
-    "message": "Analyzing passwords..."
+    "message": "ניתוח סיסמאות..."
   },
   "calculatingRisks": {
-    "message": "Calculating risks..."
+    "message": "חישוב סיכונים..."
   },
   "generatingReports": {
-    "message": "Generating reports..."
+    "message": "יצירת דו\"חות..."
   },
   "compilingInsightsProgress": {
-    "message": "Compiling insights..."
+    "message": "עיבוד תובנות..."
   },
   "reportGenerationDone": {
-    "message": "Done!"
+    "message": "בוצע!"
+  },
+  "reportGenerationFailed": {
+    "message": "אירעה שגיאה ביצירת הדו\"ח. נא לנסות שוב."
   },
   "riskInsightsRunReport": {
     "message": "הרץ דוח"
@@ -4854,19 +5057,19 @@
     "message": "למידע נוסף"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "אירעה שגיאה בעת עדכון הגדרות ההצפנה."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "עדכון הגדרות ההצפנה שלך"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "הגדרות ההצפנה החדשות המומלצות ישפרו את אבטחת החשבון שלך. יש להזין את הסיסמה הראשית שלך כדי לעדכן כעת."
   },
   "confirmIdentityToContinue": {
-    "message": "Confirm your identity to continue"
+    "message": "יש לאשר את זהותך כדי להמשיך"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "נא להזין את הסיסמה הראשית שלך"
   },
   "updateSettings": {
     "message": "עדכן הגדרות"
@@ -5251,10 +5454,10 @@
     "message": "בכל זמן."
   },
   "byEmail": {
-    "message": "By email"
+    "message": "באמצעות דוא\"ל"
   },
   "byLink": {
-    "message": "By link"
+    "message": "באמצעות קישור"
   },
   "byContinuingYouAgreeToThe": {
     "message": "על ידי המשך, אתה מסכים ל"
@@ -5403,19 +5606,19 @@
     "description": "This is a verb. ex. 'Fix The Car'"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "תיקון ההצפנה"
   },
   "fixEncryptionTooltip": {
-    "message": "This file is using an outdated encryption method."
+    "message": "הקובץ מוגדר בשיטת הצפנה שאינה עדכנית."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "הצרופה עודכנה"
   },
   "oldAttachmentsNeedFixDesc": {
     "message": "בכספת שלך קיים קובץ מצורף ישן שצריך לעבור תיקון לפני שתוכל להחליף את מפתחות ההצפנה של החשבון שלך."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "פריטים הועברו"
   },
   "yourAccountsFingerprint": {
     "message": "הסיסמה של טביעת האצבעות בחשבון שלך",
@@ -5558,7 +5761,7 @@
     "message": "מספר מינימלי של מילים"
   },
   "overridePasswordTypePolicy": {
-    "message": "Password Type",
+    "message": "סוג הסיסמה",
     "description": "Name of the password generator policy that overrides the user's password/passphrase selection."
   },
   "userPreference": {
@@ -5627,10 +5830,10 @@
     "message": "שחזר את מה שנבחר"
   },
   "archivedItemRestored": {
-    "message": "Archived item restored"
+    "message": "פריט שוחזר מהארכיב"
   },
   "archivedItemsRestored": {
-    "message": "Archived items restored"
+    "message": "פריטים שוחזרו מהארכיב"
   },
   "restoredItem": {
     "message": "הפריט שוחזר"
@@ -5827,11 +6030,11 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedSuccessfully": {
-    "message": "Send created successfully!",
+    "message": "שליחה נוצרה בהצלחה!",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendCreatedDescriptionV2": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link for the next $TIME$.",
+    "message": "העתקה ושיתוף של הקישור לשליחה. השליחה תהיה זמינה לכל מי שיש לו את הקישור במשך $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -5841,7 +6044,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Copy and share this Send link. The Send will be available to anyone with the link and password you set for the next $TIME$.",
+    "message": "העתקה ושיתוף של קישור השליחה הזה. השליחה תהיה זמינה לכל מי שיש לו את הקישור ואת הסיסמה שהגדרת למשך $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -5851,7 +6054,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Copy and share this Send link. It can be viewed by the people you specified for the next $TIME$.",
+    "message": "העתקה ושיתוף של קישור השליחה הזה. השליחה תהיה זמינה לאנשים שהגדרת למשך $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -5861,7 +6064,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ שעות",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -5870,11 +6073,11 @@
     }
   },
   "newTextSend": {
-    "message": "New Text Send",
+    "message": "שליחה חדשה של מלל",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newFileSend": {
-    "message": "New File Send",
+    "message": "שליחה חדשה של קובץ",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
@@ -5917,7 +6120,7 @@
     "message": "מבוטל"
   },
   "accepted": {
-    "message": "Accepted"
+    "message": "התקבל"
   },
   "sendLink": {
     "message": "קישור סֵנְד",
@@ -6136,38 +6339,38 @@
     }
   },
   "centralizeDataOwnership": {
-    "message": "Centralize organization ownership"
+    "message": "ריכוזיות הבעלות על הארגון"
   },
   "centralizeDataOwnershipDesc": {
-    "message": "All member items will be owned and managed by the organization. Admins and owners are exempt. "
+    "message": "כל פריטי המנויים יהיו בבעלות הארגון ובניהולו. מנהלים ובעלים אינם נכללים בהגדרה "
   },
   "centralizeDataOwnershipContentAnchor": {
-    "message": "Learn more about centralized ownership",
+    "message": "הרחבת הידע אודות בעלות ריכוזית",
     "description": "This will be used as a hyperlink"
   },
   "benefits": {
-    "message": "Benefits"
+    "message": "יתרונות"
   },
   "centralizeDataOwnershipBenefit1": {
-    "message": "Gain full visibility into credential health, including shared and unshared items."
+    "message": "שקיפות מלאה של מצב הבריאות של פרטי הזדהות, כולל פריטים משותפים ובלתי משותפים."
   },
   "centralizeDataOwnershipBenefit2": {
-    "message": "Easily transfer items during member offboarding and succession, ensuring there are no access gaps."
+    "message": "העברה בקלות שלל פריטים במהלך נטישת מנויים והורשה של מנויים, המבטיחה רצף גישה ללא פערים."
   },
   "centralizeDataOwnershipBenefit3": {
-    "message": "Give all users a dedicated \"My Items\" space for managing their own logins."
+    "message": "מאפשר לכל המשתמשים מרחב ייחודי אישי \"הפריטים שלי\" לניהול הכניסות שלהם."
   },
   "centralizeDataOwnershipWarningTitle": {
-    "message": "Prompt members to transfer their items"
+    "message": "פנייה למנויים להעברת הפריטים שלהם"
   },
   "centralizeDataOwnershipWarningDesc": {
-    "message": "If members have items in their individual vault, they will be prompted to either transfer them to the organization or leave. If they leave, their access is revoked but can be restored anytime."
+    "message": "אם למנויים יש פריטים בכספות האישיות, תוצג להם אפשרות בחירה בין העברת הפריטים לארגון לבין עזיבה. אם יעזבו, הגישה תישלל מהם, אך ניתן להשיבה בכל זמן."
   },
   "centralizeDataOwnershipWarningLink": {
-    "message": "Learn more about the transfer"
+    "message": "הרחבת הידע אודות ההעברה"
   },
   "promptUsersToMoveItems": {
-    "message": "Prompt users to move individual vault items to the organization"
+    "message": "פנייה למשתמשים להעביר פריטי כספת אישיים לארגון"
   },
   "promptUsersToMoveItemsCallout": {
     "message": "Members will be prompted to either transfer their items to the organization or leave. If they leave, their access is revoked but can be restored anytime."
@@ -8281,9 +8484,19 @@
     "message": "הקצאת SCIM",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "הקצה באופן אוטומטי משתמשים וקבוצות עם ספקי הזהות המועדפים עליך באמצעות הקצאת SCIM",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
+  },
+  "scimLearnMore": {
+    "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
     "message": "הקצה באופן אוטומטי משתמשים וקבוצות עם ספקי הזהות המועדפים עליך באמצעות הקצאת SCIM. מצא שילובים נתמכים",
@@ -8530,7 +8743,7 @@
     "message": "Purple"
   },
   "blue": {
-    "message": "Blue"
+    "message": "כחול"
   },
   "customColor": {
     "message": "צבע מותאם אישית"
@@ -8762,11 +8975,11 @@
     "description": "Title for creating a new project."
   },
   "clickToRenameProject": {
-    "message": "Click to rename this project",
+    "message": "לחיצה לשיום מחדש של פרויקט זה",
     "description": "Tooltip text for corrupted project names that can be clicked to rename."
   },
   "cannotDecryptProjectName": {
-    "message": "Cannot decrypt project name - click project to rename",
+    "message": "לא ניתן לפענח את הצפנת שם הפרוייקט - לחיצה על הפרוייקט לשיומו מחדש",
     "description": "Tooltip text for project badges when the project name cannot be decrypted."
   },
   "softDeleteSecretWarning": {
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "תפקיד חבר"
   },
+  "moreSettings": {
+    "message": "הגדרות נוספות"
+  },
   "moreFromBitwarden": {
     "message": "עוד מאת Bitwarden"
   },
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "הפעל גישת משתמש אל מנהל הסודות."
+  },
+  "grantSecretsManager": {
+    "message": "התרת הגישה אל מנהל הסודות"
   },
   "userAccessSecretsManagerGA": {
     "message": "משתמש זה יכול לגשת למנהל הסודות"
@@ -9583,13 +9802,13 @@
     }
   },
   "phishingBlockerSiteAccessed": {
-    "message": "User attempted to access known phishing site"
+    "message": "המשתמש ניסה לגשת לאתר הונאה (פישינג) מוכר"
   },
   "phishingBlockerSiteExited": {
-    "message": "User exited phishing warning page"
+    "message": "המשתמש יצא מדף האזהרה מפני הונאה (פישינג)"
   },
   "phishingBlockerBypassed": {
-    "message": "User bypassed phishing warning"
+    "message": "המשתמש פסח על האזהרה מפני הונאה (פישינג)"
   },
   "sdk": {
     "message": "SDK",
@@ -9784,7 +10003,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescPart2": {
-    "message": "policy,",
+    "message": "מדיניות,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescLink2": {
@@ -9837,28 +10056,28 @@
     "message": "שחזר חשבון"
   },
   "recoverAccountWarning": {
-    "message": "When you reset the password or two-step login for this member, they'll be notified of the change and logged out."
+    "message": "כאשר תאפסו את הסיסמה או הכניסה הד-שלבית של משתמש זה, המשתמש יקבל הודעה אודות השינוי ויוּצָא מהחשבון."
   },
   "accountRecoveryPolicyDescV2": {
-    "message": "Recover accounts when master password, two-step login, or trusted devices are forgotten or lost."
+    "message": "שחזור חשבונות כאשר הסיסמה הראשית, הכניסה הדו-שלבית, או ההתקנים המהימנים נשכחו או אבדו."
   },
   "accountRecoveryPolicyWarningV2": {
-    "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts."
+    "message": "חשבונות קיימים עם סיסמאות ראשיות ידרשו שהמנויים ימנו את עצמם כדי שהמנהלים יוכלו לשחזר את החשבונות שלהם."
   },
   "resetPasswordPolicyAutoEnrollCheckboxV2": {
-    "message": "Automatically enroll new members in account recovery"
+    "message": "התמנות אוטומטית של מנויים חדשים בשחזור חשבון"
   },
   "resetMasterPassword": {
-    "message": "Reset master password"
+    "message": "הגדרת הסיסמה הראשית"
   },
   "resetTwoStepLogin": {
-    "message": "Reset two-step login"
+    "message": "הגדרת כניסה דו־שלבית"
   },
   "resetTwoStepLoginDesc": {
-    "message": "The member's access will be revoked until they set up two-step login"
+    "message": "גישת המנוי תישלל עד שהמשתמש יגדיר כניסה דו-שלבית"
   },
   "recoverAccountSuccess": {
-    "message": "Account recovery success!"
+    "message": "החשבון שוחזר בהצלחה!"
   },
   "updatedTempPassword": {
     "message": "משתמש עדכן סיסמה שהונפקה באמצעות שחזור חשבון."
@@ -9996,7 +10215,7 @@
     "message": "נדרשת כניסת SSO"
   },
   "emailRequiredForSsoLogin": {
-    "message": "Email is required for SSO"
+    "message": "דרושה כתובת דוא\"ל לשימוש בכניסה יחידה (SSO)"
   },
   "selectedRegionFlag": {
     "message": "דגל האזור שנבחר"
@@ -10407,51 +10626,51 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreePlan": {
-    "message": "Switching to free plan",
+    "message": "מעבר למסלול החינמי",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "switchToFreeOrg": {
-    "message": "Switching to free organization",
+    "message": "מעבר למסלול הארגוני החינמי",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "cancelSurveyMissingFeaturesLabel": {
-    "message": "Missing features or functionality",
+    "message": "תכולות או פונקציונליות חסרות",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHint": {
-    "message": "Something we needed wasn't available",
+    "message": "משהו שדרוש לא היה זמין",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
-    "message": "Too difficult to set up or manage",
+    "message": "קשה מדי להגדרה או לניהול",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHint": {
-    "message": "Onboarding, admin, or day-to-day use was too complex",
+    "message": "תהליך ההתמנות, הניהול, או השימוש היומיומי היה מורכב מדי",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabel": {
-    "message": "We're not getting enough value for the cost",
+    "message": "איננו מקבלים ערך מספק בתמורה לעלות",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHint": {
-    "message": "The price doesn't match what we're getting out of it",
+    "message": "העלות איננה תואמת לתמורה שאנו מפיקים מזה",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
-    "message": "Not enough usage by our team",
+    "message": "לא נעשה מספיק שימוש ע\"י הצוות שלנו",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHint": {
-    "message": "We couldn't get people to actually use it",
+    "message": "לא הצלחנו לרתום אנשים להשתמש בזה בפועל",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
-    "message": "Our needs changed",
+    "message": "הצרכים שלנו השתנו",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHint": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager",
+    "message": "ארגון מחדש, השתלטות/רכישה, שינוי סדר העדיפות, או שאנו לא זקוקים יותר למנהל סיסמאות",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "freeForOneYear": {
@@ -10485,10 +10704,10 @@
     "message": "הקצה משימות"
   },
   "allTasksAssigned": {
-    "message": "All tasks have been assigned"
+    "message": "כל המשימות הוקצו"
   },
   "assignSecurityTasksToMembers": {
-    "message": "Send notifications to change passwords"
+    "message": "שליחת התראה לשינוי סיסמאות"
   },
   "assignToCollections": {
     "message": "הקצה לאוספים"
@@ -10889,10 +11108,10 @@
     "message": "שלח נתוני אירועי כספת אל מופע ה־Datadog שלך"
   },
   "huntressEventIntegrationDesc": {
-    "message": "Send event data to your Huntress SIEM instance"
+    "message": "שליחת נתוני אירוע למופע Huntress SIEM שלך"
   },
   "integrationConnectedSuccessfully": {
-    "message": "$INTEGRATION$ connected successfully.",
+    "message": "$INTEGRATION$ התחברו בהצלחה.",
     "placeholders": {
       "integration": {
         "content": "$1",
@@ -10904,7 +11123,7 @@
     "message": "שמירת האינטגרציה נכשלה. נא לנסות שוב מאוחר יותר."
   },
   "mustBeOrganizationOwnerAdmin": {
-    "message": "You must be an Organization Owner or Admin to perform this action."
+    "message": "עליך להיות בעל ארגון או מנהל לביצוע פעולה זו."
   },
   "mustBeOrgOwnerToPerformAction": {
     "message": "אתה מוכרח להיות מנהל הארגון כדי לבצע פעולה זו."
@@ -11015,10 +11234,10 @@
     "message": "אינדקס"
   },
   "httpEventCollectorUrl": {
-    "message": "HTTP Event Collector URL"
+    "message": "כתובת URL של צובר אירועי HTTP"
   },
   "httpEventCollectorToken": {
-    "message": "HTTP Event Collector Token"
+    "message": "אסימון גישה של צובר אירועי HTTP"
   },
   "selectAPlan": {
     "message": "בחר תוכנית"
@@ -13329,6 +13548,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "sendsTitleNoSearchResults": {
     "message": "No search results returned"
   },
@@ -13396,14 +13679,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   },
-  "discardEdits": {
-    "message": "Discard edits"
-  },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Back to editing"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -13412,6 +13689,9 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
   "sideNavigation": {
     "message": "Side navigation"

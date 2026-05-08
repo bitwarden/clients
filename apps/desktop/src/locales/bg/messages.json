@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH ключ"
   },
+  "typeBankAccount": {
+    "message": "Банкова сметка"
+  },
   "typeLoginSubtitle": {
     "message": "Уеб сайт или приложение"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Идентификатор за вписване в сървъра"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Банкови данни"
   },
   "folderSubtitle": {
     "message": "Организирайте данните си"
@@ -134,6 +140,18 @@
     "message": "Преглед на SSH ключа",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Преглед на банковата сметка",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Преглед на лиценза",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Преглед на паспорта",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Нов елемент за вписване",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "Нов SSH ключ",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Нова банкова сметка",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Нов лиценз",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Нов паспорт",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Редактиране на елемента за вписване",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "Редактиране на SSH ключа",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Редактиране на банковата сметка",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Редактиране на лиценза",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Редактиране на паспорта",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Наименование"
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "Изтриване на прикачения файл"
+  },
+  "deleteAttachmentName": {
+    "message": "Изтриване на прикачения файл $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Сваляне на $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Сигурни ли сте, че искате да изтриете елемента?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "Постоянно показване на иконка в областта за уведомяване."
   },
-  "startToTray": {
-    "message": "Пускане с иконка в областта за уведомяване"
-  },
-  "startToTrayDesc": {
-    "message": "При пускането на програмата да се показва само иконка в областта за уведомяване."
-  },
-  "startToMenuBar": {
-    "message": "Стартиране в лентата за меню"
-  },
-  "startToMenuBarDesc": {
-    "message": "При пускането на програмата да се показва само иконка в лентата за меню."
-  },
   "openAtLogin": {
     "message": "Автоматично стартиране със системата"
   },
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "Стандартно откриване на съвпадения",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Показване на откриването на съвпадения"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Скриване на откриването на съвпадения"
   },
   "toggleOptions": {
     "message": "Настройки на превключване"
@@ -3922,6 +3976,9 @@
   "chooseFile": {
     "message": "Изберете файл"
   },
+  "chooseFileSentenceCase": {
+    "message": "Изберете файл"
+  },
   "noFileChosen": {
     "message": "Не е избран файл"
   },
@@ -4919,8 +4976,96 @@
   "emailPlaceholderMultiple": {
     "message": "потребител@bitwarden.com, потребител@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Преместване на $LABEL$. Използвайте стрелките, за да преместите елемента нагоре или надолу.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Проверката на потребителя беше неуспешна."
+  },
+  "bankAccount": {
+    "message": "Банкова сметка"
+  },
+  "bankName": {
+    "message": "Име на банката"
+  },
+  "nameOnAccount": {
+    "message": "Име на титуляра"
+  },
+  "bankAccountType": {
+    "message": "Вид на сметката"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Фирмена"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Лична"
+  },
+  "accountNumber": {
+    "message": "Номер на сметката"
+  },
+  "bankRoutingNumber": {
+    "message": "Банков идентификационен номер за САЩ",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Номер на клон/институция"
+  },
+  "swiftCode": {
+    "message": "Код SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Телефон за връзка с банката"
+  },
+  "searchBankAccount": {
+    "message": "Търсене на банкова сметка"
+  },
+  "copyAccountNumber": {
+    "message": "Копиране на номера на сметката"
+  },
+  "copyRoutingNumber": {
+    "message": "Копиране на банковия идентификационен номер за САЩ"
+  },
+  "copyPin": {
+    "message": "Копиране на ПИН"
+  },
+  "copyIban": {
+    "message": "Копиране на IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Разплащателна"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Спестовна"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Депозит"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Кредитна"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Инвестиционна/брокерска"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Паричен пазар"
+  },
+  "bankAccountTypeOther": {
+    "message": "Друга"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Съхранявайте сигурно банковите си данни"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Запазете данните за банковата си сметка, за да можете да ги преглеждате лесно и сигурно на различните си устройства."
   },
   "discardEdits": {
     "message": "Отхвърляне на промените"
@@ -4938,6 +5083,9 @@
   "saveSendEditsFailed": {
     "message": "Запазването на промените по Изпращането беше неуспешно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
   },
   "sideNavigation": {
     "message": "Странична навигация"
