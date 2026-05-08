@@ -63,12 +63,6 @@ export class OrganizationUserAdminView {
       })),
     });
 
-    view.groups = response.groups ?? [];
-    view.resetPasswordEnrolled = response.resetPasswordEnrolled ?? false;
-    view.hasMasterPassword = response.hasMasterPassword ?? false;
-    view.managedByOrganization = response.managedByOrganization ?? false;
-    view.accessSecretsManager = response.accessSecretsManager ?? false;
-
     return view;
   }
 }
