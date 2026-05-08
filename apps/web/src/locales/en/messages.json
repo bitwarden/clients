@@ -4259,6 +4259,24 @@
       }
     }
   },
+  "createdTextSend": {
+    "message": "Created Text Send"
+  },
+  "createdTextSendWithEmailVerification": {
+    "message": "Created Text Send with email verification"
+  },
+  "createdTextSendWithPasswordProtection": {
+    "message": "Created Text Send with password protection"
+  },
+  "createdFileSend": {
+    "message": "Created File Send"
+  },
+  "createdFileSendWithEmailVerification": {
+    "message": "Created File Send with email verification"
+  },
+  "createdFileSendWithPasswordProtection": {
+    "message": "Created File Send with password protection"
+  },
   "movedItemIdToOrg": {
     "message": "Moved item $ID$ to an organization.",
     "placeholders": {
