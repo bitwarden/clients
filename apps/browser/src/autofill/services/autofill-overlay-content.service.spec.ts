@@ -6,7 +6,6 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
 import AutofillInit from "../content/autofill-init";
 import {
-  AutofillOverlayElement,
   InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
@@ -497,7 +496,7 @@ describe("AutofillOverlayContentService", () => {
           );
         });
 
-        it("Closes the inline menu list and does not re-open the inline menu if the field has a value", async () => {
+        it("filters inline menu ciphers with the field value when input changes", async () => {
           (autofillFieldElement as HTMLInputElement).value = "test";
 
           await autofillOverlayContentService.setupOverlayListeners(
@@ -508,14 +507,12 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-            overlayElement: AutofillOverlayElement.List,
-            forceCloseInlineMenu: true,
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("filterInlineMenuCiphers", {
+            filterValue: "test",
           });
-          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("openAutofillInlineMenu");
         });
 
-        it("opens the inline menu if the field does not have a value", async () => {
+        it("filters inline menu ciphers with empty filter value if the field does not have a value", async () => {
           await autofillOverlayContentService.setupOverlayListeners(
             autofillFieldElement,
             autofillFieldData,
@@ -524,7 +521,9 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("filterInlineMenuCiphers", {
+            filterValue: "",
+          });
         });
 
         describe("input changes on a field filled by a card cipher", () => {
