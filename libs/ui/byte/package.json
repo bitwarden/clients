@@ -1,0 +1,16 @@
+{
+  "name": "@bitwarden/byte",
+  "version": "0.0.1",
+  "description": "Lit component library for the Bitwarden design system",
+  "private": true,
+  "exports": {
+    ".": {
+      "import": "./src/index.ts"
+    }
+  },
+  "sideEffects": [
+    "**/*.ts"
+  ],
+  "license": "GPL-3.0",
+  "author": "ui-foundation"
+}

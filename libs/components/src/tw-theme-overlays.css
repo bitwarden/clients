@@ -1,0 +1,24 @@
+/* Compositional alpha-modulated values that depend on tokens at runtime via
+ * CSS var() references. These are NOT design tokens (they're computed from
+ * primitives) and intentionally live outside Style Dictionary. Maintain by
+ * hand alongside the SD-emitted token CSS. */
+
+:root {
+  --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
+  --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
+  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.3);
+  --color-nav-bg-primary-hover: rgba(var(--color-black-rgb), 0.2);
+  --color-nav-bg-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
+  --color-nav-bg-primary-hover-strong: rgba(var(--color-black-rgb), 0.45);
+  --color-nav-bg-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
+}
+
+.theme_dark {
+  --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
+  --color-bg-hover-contrast: rgba(var(--color-gray-950-rgb), 0.05);
+  --color-bg-overlay: rgba(var(--color-gray-950-rgb), 0.85);
+  --color-nav-bg-primary-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-nav-bg-secondary-hover: rgba(var(--color-gray-400-rgb), 0.2);
+  --color-nav-bg-primary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+  --color-nav-bg-secondary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
+}

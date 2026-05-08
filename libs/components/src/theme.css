@@ -14,14 +14,3 @@
   font-display: swap;
   font-weight: 100 900;
 }
-
-/**
- * CSS variables
- */
-:root {
-  --font-sans:
-    Inter, "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-    "Segoe UI Symbol", "Noto Color Emoji";
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
-  --font-mono: Menlo, SFMono-Regular, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}

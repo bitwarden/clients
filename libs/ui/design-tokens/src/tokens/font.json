@@ -1,0 +1,34 @@
+{
+  "font": {
+    "sans": {
+      "$value": [
+        "Inter",
+        "Helvetica Neue",
+        "Helvetica",
+        "Arial",
+        "sans-serif",
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Segoe UI Symbol",
+        "Noto Color Emoji"
+      ],
+      "$type": "fontFamily"
+    },
+    "serif": {
+      "$value": ["ui-serif", "Georgia", "Cambria", "Times New Roman", "Times", "serif"],
+      "$type": "fontFamily"
+    },
+    "mono": {
+      "$value": [
+        "Menlo",
+        "SFMono-Regular",
+        "Monaco",
+        "Consolas",
+        "Liberation Mono",
+        "Courier New",
+        "monospace"
+      ],
+      "$type": "fontFamily"
+    }
+  }
+}
