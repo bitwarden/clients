@@ -150,7 +150,7 @@ export class DefaultRegisterSdkService implements RegisterSdkService {
               client.platform().state(),
               this.stateProvider,
             );
-            client.state_bridge().registerWasmBridgeImpl(new JsWasmStateBridge(this.stateProvider, userId));
+            client.km_state_bridge().register_bridge_impl(new JsWasmStateBridge(this.stateProvider, userId));
 
             await this.loadFeatureFlags(client);
 
