@@ -27,7 +27,7 @@ export function inputBorderClasses(error: boolean) {
     "[attr.type]": "formFieldControl.type()",
     "[attr.spellcheck]": "formFieldControl.spellcheck()",
     "(input)": "onInput()",
-    "[attr.aria-invalid]": "ariaInvalid",
+    "[attr.aria-invalid]": "ariaInvalid()",
     "[required]": "formFieldControl.required()",
   },
 })
@@ -41,10 +41,10 @@ export class BitInputDirective implements AfterViewInit {
     effect(() => this.formFieldControl.readOnly.set(this.elementRef.nativeElement.readOnly));
   }
 
-  protected classList() {
+  protected readonly classList = computed(() => {
     const isReadonlyTextarea =
       this.elementRef.nativeElement.tagName.toLowerCase() === "textarea" &&
-      this.elementRef.nativeElement.readOnly;
+      this.formFieldControl.readOnly();
 
     const classes = [
       "tw-block",
@@ -73,11 +73,11 @@ export class BitInputDirective implements AfterViewInit {
     }
 
     return classes.filter((s) => s != "");
-  }
+  });
 
-  protected get ariaInvalid() {
-    return this.formFieldControl.hasError() ? true : undefined;
-  }
+  protected readonly ariaInvalid = computed(() =>
+    this.formFieldControl.hasError() ? true : undefined,
+  );
 
   ngAfterViewInit() {
     this.adjustTextareaHeight();
