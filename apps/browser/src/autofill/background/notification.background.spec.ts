@@ -21,6 +21,7 @@ import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/defau
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -46,13 +47,6 @@ import {
 } from "./abstractions/notification.background";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import NotificationBackground from "./notification.background";
-
-const mockGetChangePasswordUrl = jest.fn();
-jest.mock("../services/notification-change-login-password.service", () => ({
-  TemporaryNotificationChangeLoginService: jest.fn().mockImplementation(() => ({
-    getChangePasswordUrl: mockGetChangePasswordUrl,
-  })),
-}));
 
 jest.mock("rxjs", () => {
   const rxjs = jest.requireActual("rxjs");
@@ -96,6 +90,7 @@ describe("NotificationBackground", () => {
   const organizationService = mock<OrganizationService>();
   const fido2Background = mock<Fido2Background>();
   fido2Background.isCredentialRequestInProgress.mockReturnValue(false);
+  const changeLoginPasswordService = mock<ChangeLoginPasswordService>();
 
   const userId = "testId" as UserId;
   const activeAccountSubject = new BehaviorSubject({
@@ -129,6 +124,7 @@ describe("NotificationBackground", () => {
       themeStateService,
       userNotificationSettingsService,
       taskService,
+      changeLoginPasswordService,
       messagingService,
       fido2Background,
     );
@@ -480,7 +476,7 @@ describe("NotificationBackground", () => {
       let createNewTabSpy: jest.SpyInstance;
 
       beforeEach(() => {
-        mockGetChangePasswordUrl.mockReset();
+        changeLoginPasswordService.getChangePasswordUrl.mockReset();
         taskService.tasksEnabled$.mockReturnValue(of(true));
         taskService.pendingTasks$.mockReturnValue(of([]));
         createNewTabSpy = jest.spyOn(BrowserApi, "createNewTab").mockResolvedValue(null as any);
@@ -494,7 +490,7 @@ describe("NotificationBackground", () => {
         });
         cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
         taskService.pendingTasks$.mockReturnValue(of([task]));
-        mockGetChangePasswordUrl.mockResolvedValue(
+        changeLoginPasswordService.getChangePasswordUrl.mockResolvedValue(
           "https://jest-testing-website.com/.well-known/change-password",
         );
 
@@ -502,7 +498,7 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(tabUrl, userId);
-        expect(mockGetChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(cipher);
         expect(createNewTabSpy).toHaveBeenCalledWith(
           "https://jest-testing-website.com/.well-known/change-password",
         );
@@ -579,7 +575,7 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(mockGetChangePasswordUrl).not.toHaveBeenCalled();
+        expect(changeLoginPasswordService.getChangePasswordUrl).not.toHaveBeenCalled();
         expect(createNewTabSpy).not.toHaveBeenCalled();
       });
 
@@ -595,7 +591,7 @@ describe("NotificationBackground", () => {
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(mockGetChangePasswordUrl).not.toHaveBeenCalled();
+        expect(changeLoginPasswordService.getChangePasswordUrl).not.toHaveBeenCalled();
         expect(createNewTabSpy).not.toHaveBeenCalled();
       });
 
@@ -607,12 +603,12 @@ describe("NotificationBackground", () => {
         });
         cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher]);
         taskService.pendingTasks$.mockReturnValue(of([task]));
-        mockGetChangePasswordUrl.mockResolvedValue(null);
+        changeLoginPasswordService.getChangePasswordUrl.mockResolvedValue(null);
 
         sendMockExtensionMessage({ command: "bgOpenChangePasswordUrl" }, sender);
         await flushPromises();
 
-        expect(mockGetChangePasswordUrl).toHaveBeenCalledWith(cipher);
+        expect(changeLoginPasswordService.getChangePasswordUrl).toHaveBeenCalledWith(cipher);
         expect(createNewTabSpy).not.toHaveBeenCalled();
       });
 

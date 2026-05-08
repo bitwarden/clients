@@ -128,8 +128,13 @@ export class SendComponent {
       this.activeDrawerRef = activeDrawerRef;
     }
 
-    await lastValueFrom(this.activeDrawerRef.closed);
-    this.activeDrawerRef = null;
+    const result = await lastValueFrom(this.activeDrawerRef.closed);
+    // If we updated a Send, open the drawer back up with the updated Send now set as the original
+    if (result?.result === SendItemDialogResult.Updated && result?.send) {
+      await this.selectSend(result.send.id);
+    } else {
+      this.activeDrawerRef = null;
+    }
   }
 
   protected async onEditSend(send: SendView): Promise<void> {
