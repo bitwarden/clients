@@ -1,4 +1,5 @@
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
 
@@ -13,6 +14,12 @@ export abstract class OrganizationInviteLinkApiService {
   abstract update(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
+  ): Promise<OrganizationInviteLinkResponseModel>;
+
+  /** Refresh the invite link for the given organization, issuing a new code and key */
+  abstract refresh(
+    organizationId: string,
+    request: OrganizationInviteLinkRefreshRequest,
   ): Promise<OrganizationInviteLinkResponseModel>;
 
   /** Retrieve the invite link for the given organization */

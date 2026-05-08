@@ -2,6 +2,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
 import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
+import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkResponseModel } from "../models/responses/organization-invite-link.response";
 
@@ -15,6 +16,20 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     const r = await this.apiService.send(
       "POST",
       `/organizations/${organizationId}/invite-link`,
+      request,
+      true,
+      true,
+    );
+    return new OrganizationInviteLinkResponseModel(r);
+  }
+
+  async refresh(
+    organizationId: string,
+    request: OrganizationInviteLinkRefreshRequest,
+  ): Promise<OrganizationInviteLinkResponseModel> {
+    const r = await this.apiService.send(
+      "POST",
+      `/organizations/${organizationId}/invite-link/refresh`,
       request,
       true,
       true,

@@ -160,42 +160,39 @@ describe("DefaultOrganizationInviteLinkService", () => {
   });
 
   describe("refreshInviteLink", () => {
-    it("re-uses cached domains", async () => {
-      const cached = makeResponse({ allowedDomains: ["cached.com"] });
-      await sut.upsert(mockUserId, cached);
-
+    it("generates new key, calls apiService.refresh, caches state, and returns URL", async () => {
       const rawKey = makeKey("refreshed==");
       const orgKey = makeKey();
       const encryptedKey = mock<EncString>();
       (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
-      const response = makeResponse({ code: "refreshed", allowedDomains: ["cached.com"] });
+      const response = makeResponse({ code: "refreshed", allowedDomains: ["example.com"] });
 
       keyGenerationService.createKey.mockResolvedValue(rawKey);
       keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
       encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
-      apiService.create.mockResolvedValue(response);
+      apiService.refresh.mockResolvedValue(response);
 
       const url = await sut.refreshInviteLink(mockUserId, mockOrgId);
 
-      expect(apiService.create).toHaveBeenCalledWith(
+      expect(keyGenerationService.createKey).toHaveBeenCalledWith(256);
+      expect(encryptService.wrapSymmetricKey).toHaveBeenCalledWith(rawKey, orgKey);
+      expect(apiService.refresh).toHaveBeenCalledWith(
         mockOrgId,
-        expect.objectContaining({ allowedDomains: ["cached.com"] }),
+        expect.objectContaining({ encryptedInviteKey: "2.enc=|iv=|mac=" }),
       );
       expect(url).toBe("/#/join/refreshed?key=refreshed==");
+
+      const stored = await firstValueFrom(sut.inviteLink$(mockUserId));
+      expect(stored).toEqual(response);
     });
 
-    it("falls back to empty domains when no cache, propagating the domain validation error", async () => {
+    it("errors when orgKey is null", async () => {
       const rawKey = makeKey();
-      const orgKey = makeKey();
-      const encryptedKey = mock<EncString>();
-      (encryptedKey as any).encryptedString = "2.enc=|iv=|mac=";
-
       keyGenerationService.createKey.mockResolvedValue(rawKey);
-      keyService.orgKeys$.mockReturnValue(new BehaviorSubject({ [mockOrgId]: orgKey as OrgKey }));
-      encryptService.wrapSymmetricKey.mockResolvedValue(encryptedKey);
+      keyService.orgKeys$.mockReturnValue(new BehaviorSubject(null));
 
       await expect(sut.refreshInviteLink(mockUserId, mockOrgId)).rejects.toThrow(
-        "At least one allowed domain is required.",
+        `Organization key not found for org ${mockOrgId}`,
       );
     });
   });
