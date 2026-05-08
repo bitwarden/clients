@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map, shareReplay } from "rxjs";
+import { combineLatest, Observable, of, switchMap, first, map, shareReplay, take } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -171,6 +171,9 @@ export class PoliciesComponent {
       policy.editDialogComponent ?? PolicyEditDialogComponent;
 
     if (useDrawer && dialogComponent.openDrawer) {
+      const triggerEl =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null;
+
       // openDrawer is async and returns undefined if a currently-open drawer's
       // closePredicate prevented it from closing — only update the ref when it opened.
       const ref = await dialogComponent.openDrawer(this.dialogService, {
@@ -181,6 +184,11 @@ export class PoliciesComponent {
       });
       if (ref !== undefined) {
         this.drawerRef.set(ref);
+        ref.closed.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+          if (triggerEl?.isConnected) {
+            triggerEl.focus();
+          }
+        });
       }
     } else {
       dialogComponent.open(this.dialogService, {
