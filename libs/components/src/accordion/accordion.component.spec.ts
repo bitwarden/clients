@@ -29,8 +29,9 @@ describe("AccordionComponent", () => {
       expect(component.open()).toBe(false);
     });
 
-    it("does not render content panel when collapsed", () => {
-      expect(fixture.nativeElement.querySelector(`#${component.contentId}`)).toBeNull();
+    it("hides content panel when collapsed", () => {
+      const panel = fixture.nativeElement.querySelector(`#${component.contentId}`);
+      expect(panel.getAttribute("aria-hidden")).toBe("true");
     });
 
     it("button has aria-expanded=false when closed", () => {
