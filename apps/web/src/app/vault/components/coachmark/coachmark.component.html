@@ -17,8 +17,7 @@
     </a>
   }
 
-  <!-- Footer with navigation -->
-  <div class="tw-flex tw-items-center tw-justify-between tw-pt-2">
+  <bit-popover-footer class="tw-flex tw-w-full tw-items-center tw-justify-between">
     <span bitTypography="body2" class="tw-text-muted">
       {{ "coachmarkStepIndicator" | i18n: service.currentStepNumber() : service.totalSteps() }}
     </span>
@@ -35,5 +34,5 @@
         }}
       </button>
     </div>
-  </div>
+  </bit-popover-footer>
 </bit-popover>
