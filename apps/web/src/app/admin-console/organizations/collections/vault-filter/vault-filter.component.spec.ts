@@ -69,6 +69,7 @@ describe("OrganizationVaultFilterComponent", () => {
       },
       { id: "login", name: "typeLogin", type: CipherType.Login, icon: "bwi-globe" },
       { id: "card", name: "typeCard", type: CipherType.Card, icon: "bwi-credit-card" },
+      { id: "bankAccount", name: "bankAccount", type: CipherType.BankAccount, icon: "bwi-bank" },
       { id: "identity", name: "typeIdentity", type: CipherType.Identity, icon: "bwi-id-card" },
       { id: "note", name: "typeSecureNote", type: CipherType.SecureNote, icon: "bwi-sticky-note" },
       { id: "sshKey", name: "typeSshKey", type: CipherType.SshKey, icon: "bwi-key" },
