@@ -144,8 +144,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PhishingDetection]: FALSE,
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
-  [FeatureFlag.AccessIntelligenceNewArchitecture]: true,
-  [FeatureFlag.AccessIntelligenceReportFileStorage]: true,
+  [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
+  [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
