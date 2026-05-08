@@ -3,7 +3,7 @@
     "message": "Alle applicaties"
   },
   "allMembers": {
-    "message": "Alle deelnemers"
+    "message": "Alle leden"
   },
   "allPasswords": {
     "message": "Alle wachtwoorden"
@@ -998,25 +998,28 @@
     "message": "SSH-sleutel"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Website of app"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Credit- of debitkaart"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Persoonlijke informatie"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Belangrijke tekst"
   },
   "typeSshKeySubtitle": {
     "message": "Server login token"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdetails"
+  },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Je items organiseren"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Gedeelde items organiseren"
   },
   "typeLoginPlural": {
     "message": "Logins"
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Beveiligde notities"
+  },
+  "typeBankAccount": {
+    "message": "Bankrekening"
   },
   "folders": {
     "message": "Mappen"
@@ -1088,7 +1094,7 @@
     "message": "Item toevoegen"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Kies item om toe te voegen"
   },
   "editItem": {
     "message": "Item bewerken"
@@ -1115,6 +1121,18 @@
   "newItemHeaderSshKey": {
     "message": "Nieuwe SSH-sleutel",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Nieuwe bankrekening",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nieuw rijbewijs",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nieuw paspoort",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Nieuwe Send (tekst)",
@@ -1144,6 +1162,18 @@
     "message": "SSH-sleutel bewerken",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Bankrekening bewerken",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Rijbewijs bewerken",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Paspoort bewerken",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Send (tekst) bewerken",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH-sleutel bekijken",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankrekening weergeven",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Rijbewijs weergeven",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Paspoort weergeven",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Nieuw",
@@ -1307,6 +1349,38 @@
       }
     }
   },
+  "copyInfoTitle": {
+    "message": "Info kopiëren - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Notitie kopiëren - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Geen waarden om te kopiëren"
+  },
+  "launchWebsiteName": {
+    "message": "Start website $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "Ik"
   },
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "Bijlage verwijderen"
+  },
+  "deleteAttachmentName": {
+    "message": "Bijlage $NAME$ verwijderen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ downloaden",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Weet je zeker dat je dit item wilt verwijderen?"
@@ -2538,6 +2630,9 @@
     "message": "Kies het importbestand"
   },
   "chooseFile": {
+    "message": "Bestand kiezen"
+  },
+  "chooseFileSentenceCase": {
     "message": "Bestand kiezen"
   },
   "noFileChosen": {
@@ -3949,8 +4044,23 @@
       }
     }
   },
+  "invite": {
+    "message": "Uitnodigen"
+  },
   "inviteUserDesc": {
     "message": "Nodig een nieuwe gebruiker uit voor je organisatie door het e-mailadres van hun Bitwarden-account hieronder in te vullen. Als ze nog geen Bitwarden-account hebben, kunnen ze een nieuw account aanmaken."
+  },
+  "inviteUserDescription": {
+    "message": "Nodig nieuwe gebruikers uit voor je organisatie door hun e-mailadres hieronder in te vullen."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Je kunt tot $COUNT$ gebruikers per keer uitnodigen door middel van een lijst met komma's gescheiden e-mailadressen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Voer maximaal $BATCHLIMIT$ e-mailadressen in door ze te scheiden met een komma. ($REMAININGSEATS$ zetels over)",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Rekeningnummer bekeken voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "PIN weergegeven voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Rekeningnummer gekopieerd voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "PIN gekopieerd voor item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "Automatisch-invullen voor item $ID$.",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Bewerkingen verwerpen"
+  },
+  "discardEditsConfirmation": {
+    "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt."
+  },
+  "discardEdits": {
+    "message": "Bewerkingen verwerpen"
+  },
+  "keepEditing": {
+    "message": "Doorgaan met bewerken"
+  },
+  "backToEditing": {
+    "message": "Terug naar bewerken"
   },
   "editedPolicyId": {
     "message": "Bewerkt beleid $ID$.",
@@ -4355,6 +4516,45 @@
   },
   "revokedEmailError": {
     "message": "1 of meer e-mails behoren tot ingetrokken leden. Herstel hun toegang voor heruitnodiging."
+  },
+  "revocationReasonUnknown": {
+    "message": "Onbekende reden"
+  },
+  "revocationReasonManual": {
+    "message": "Ingetrokken door een beheerder"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Niet in overeenstemming met het tweestapsaanmeldingsbeleid"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Niet in overeenstemming met één organisatiebeleid"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Toegang tot de organisatie ingetrokken voor $ID$ voor niet-naleving van het tweestapsorganisatiebeleid.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Toegang tot de organisatie ingetrokken voor $ID$ voor niet-naleving van het één organisatiebeleid.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Toegang tot de organisatie ingetrokken voor $ID$ voor het weigeren van overdracht naar organisatieeigendom.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "Toegang tot de organisatie hersteld voor $ID$.",
@@ -4507,22 +4707,22 @@
     "message": "Loginstatus"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Recent actief"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Vandaag"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Afgelopen 7 dagen"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Afgelopen 14 dagen"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Afgelopen 30 dagen"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Meer dan 30 dagen geleden"
   },
   "firstLogin": {
     "message": "Eerst inloggen"
@@ -4731,6 +4931,9 @@
   },
   "reportGenerationDone": {
     "message": "Klaar!"
+  },
+  "reportGenerationFailed": {
+    "message": "Er is een fout opgetreden bij het genereren van het rapport. Probeer het nog eens."
   },
   "riskInsightsRunReport": {
     "message": "Rapport uitvoeren"
@@ -8281,9 +8484,19 @@
     "message": "SCIM-provisioning",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "Automatisch in gebruikers en groepen voorzien via SCIM-provisioning van je voorkeursprovider",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Gebruikers en groepen automatisch uitrillen door je voorkeursprovider te configureren met de SCIM-URL en API-sleutel."
+  },
+  "scimLearnMore": {
+    "message": "Meer informatie over SCIM"
   },
   "scimIntegrationDescription": {
     "message": "Automatisch in gebruikers en groepen voorzien via SCIM-provisioning van je voorkeursprovider. Onderteunde integraties vinden",
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "Rol van lid"
   },
+  "moreSettings": {
+    "message": "Meer instellingen"
+  },
   "moreFromBitwarden": {
     "message": "Meer van Bitwarden"
   },
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Gebruikerstoegang tot Secrets Manager inschakelen."
+  },
+  "grantSecretsManager": {
+    "message": "Toegang geven tot Secrets Manager"
   },
   "userAccessSecretsManagerGA": {
     "message": "Deze gebruiker heeft toegang tot Secrets Manager"
@@ -13329,6 +13548,70 @@
       }
     }
   },
+  "bankName": {
+    "message": "Banknaam"
+  },
+  "nameOnAccount": {
+    "message": "Naam op rekening"
+  },
+  "bankRoutingNumber": {
+    "message": "Routeringsnummer",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Vestiging/instituutnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefoonnummer bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankrekening doorzoeken"
+  },
+  "copyAccountNumber": {
+    "message": "Rekeningnummer kopiëren"
+  },
+  "copyRoutingNumber": {
+    "message": "Routeringsnummer kopiëren"
+  },
+  "copyPin": {
+    "message": "PIN kopiëren"
+  },
+  "copyIban": {
+    "message": "IBAN kopiëren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Controleren"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Spaargeld"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Bewijs van storting"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kredietlijn"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investering/makelaar"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Geldmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Overig"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Veilig je bankgegevens opslaan"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Sla je bankgegevens op om deze gemakkelijk en veilig op al je apparaten te benaderen."
+  },
   "sendsTitleNoSearchResults": {
     "message": "Geen resultaten teruggekregen"
   },
@@ -13396,14 +13679,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Je bankrekening moet worden geverifieerd voordat deze kan worden gebruikt voor deze upgrade. Verifieer je bankrekening of kies een andere betaalmethode."
   },
-  "discardEdits": {
-    "message": "Bewerkingen verwerpen"
-  },
   "discardEditsMessage": {
     "message": "Als je deze weergave sluit, worden je niet-opgeslagen bewerkingen ongedaan gemaakt"
-  },
-  "backToEditing": {
-    "message": "Terug naar bewerken"
   },
   "sendHasUnsavedEdits": {
     "message": "Deze Send heet niet-opgeslagen bewerkingen. Weet je zeker dat je weg wilt?",
@@ -13412,6 +13689,9 @@
   "saveSendEditsFailed": {
     "message": "Bewerkingen Send opslaan mislukt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Je organisatie vereist zichtbaarheid van e-mail. Vink \"Verberg je e-mail van de kijkers\" uit om deze op te slaan."
   },
   "sideNavigation": {
     "message": "Zijnavigatie"
