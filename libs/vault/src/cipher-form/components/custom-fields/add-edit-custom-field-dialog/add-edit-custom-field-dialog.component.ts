@@ -73,11 +73,14 @@ export class AddEditCustomFieldDialogComponent {
       if (this.data.disallowHiddenField && option.value === FieldType.Hidden) {
         return false;
       }
-      // Filter out the Linked field type for Secure Notes and SSH Keys
-      if (
-        this.data.cipherType === CipherType.SecureNote ||
-        this.data.cipherType === CipherType.SshKey
-      ) {
+
+      const omitLinkedFieldForCipherTypes: number[] = [
+        CipherType.SecureNote,
+        CipherType.SshKey,
+        CipherType.Passport,
+      ];
+
+      if (omitLinkedFieldForCipherTypes.includes(this.data.cipherType)) {
         return option.value !== FieldType.Linked;
       }
 
