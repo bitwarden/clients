@@ -1,13 +1,10 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
 import {
-  AfterViewInit,
   Component,
-  ContentChildren,
+  contentChildren,
   HostBinding,
   Input,
-  QueryList,
-  Output,
-  EventEmitter,
+  output,
   computed,
   effect,
   inject,
@@ -40,11 +37,12 @@ import { OptionComponent } from "./option.component";
   ],
   imports: [NgSelectModule, ReactiveFormsModule, FormsModule],
   host: {
+    class: "tw-block tw-w-full tw-h-full",
     "[id]": "formFieldControl.id()",
     "[attr.required]": "formFieldControl.required() || null",
   },
 })
-export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
+export class SelectComponent<T> implements ControlValueAccessor {
   private readonly i18nService = inject(I18nService);
   private readonly ngControl = inject(NgControl, { optional: true, self: true });
   readonly formFieldControl = inject(BitFormFieldControlDirective);
@@ -55,9 +53,7 @@ export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
   readonly items = model<Option<T>[] | undefined>();
 
   readonly placeholder = input(this.i18nService.t("selectPlaceholder"));
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output() closed = new EventEmitter();
+  readonly closed = output();
 
   protected readonly selectedValue = signal<T | undefined | null>(undefined);
   readonly selectedOption: Signal<Option<T> | null | undefined> = computed(() =>
@@ -81,30 +77,23 @@ export class SelectComponent<T> implements AfterViewInit, ControlValueAccessor {
           this.formFieldControl.ariaDescribedBy() ?? "",
         );
     });
+    effect(() => {
+      const opts = this.options();
+      if (opts.length === 0) {
+        return;
+      }
+      this.items.set(
+        opts.map((option) => ({
+          icon: option.icon(),
+          value: option.value(),
+          label: option.label(),
+          disabled: option.disabled(),
+        })),
+      );
+    });
   }
 
-  ngAfterViewInit() {
-    // intentionally empty — shared reactive logic is in BitFormFieldControlDirective host directive
-  }
-
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ContentChildren(OptionComponent)
-  protected set options(value: QueryList<OptionComponent<T>>) {
-    if (value == null || value.length == 0) {
-      return;
-    }
-    this.items.set(
-      value.toArray().map((option) => ({
-        icon: option.icon(),
-        value: option.value(),
-        label: option.label(),
-        disabled: option.disabled(),
-      })),
-    );
-  }
-
-  @HostBinding("class") protected classes = ["tw-block", "tw-w-full", "tw-h-full"];
+  private readonly options = contentChildren(OptionComponent);
 
   // Usings a separate getter for the HostBinding to get around an unexplained angular error
   @HostBinding("attr.disabled")
