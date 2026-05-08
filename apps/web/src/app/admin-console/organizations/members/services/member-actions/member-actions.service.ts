@@ -226,7 +226,8 @@ export class MemberActionsService {
 
     const statusAllowed =
       orgUser.status === OrganizationUserStatusType.Confirmed ||
-      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Revoked);
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Revoked) ||
+      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Accepted);
 
     return (
       organization.canManageUsersPassword &&

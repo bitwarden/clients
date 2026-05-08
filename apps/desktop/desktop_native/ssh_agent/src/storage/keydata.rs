@@ -1,6 +1,8 @@
 //! Contains structures that bridge between raw cryptographic keys and Bitwarden's business logic
 //! data.
 
+use anyhow::{anyhow, Result};
+
 use crate::crypto::{PrivateKey, PublicKey};
 
 /// Represents SSH key that is queryable.
@@ -59,6 +61,41 @@ impl SSHKeyData {
             name,
             cipher_id,
         }
+    }
+
+    /// Parses an OpenSSH PEM private key string and constructs an [`SSHKeyData`] instance.
+    ///
+    /// The public key blob is derived from the private key and stored in SSH wire format
+    /// (the output of `ssh_key::PublicKey::to_bytes()`), ready for use in agent protocol
+    /// responses without further re-encoding.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the PEM string cannot be parsed, the public key blob cannot be
+    /// encoded, or the key algorithm is unsupported.
+    pub fn from_private_key_pem(pem: &str, name: String, cipher_id: String) -> Result<Self> {
+        let ssh_key = ssh_key::PrivateKey::from_openssh(pem)
+            .map_err(|e| anyhow!("Failed to parse private key: {e}"))?;
+
+        let blob = ssh_key
+            .public_key()
+            .to_bytes()
+            .map_err(|e| anyhow!("Failed to encode public key: {e}"))?;
+
+        let private_key = PrivateKey::try_from(ssh_key)?;
+
+        let alg = match &private_key {
+            PrivateKey::Ed25519(_) => "ssh-ed25519",
+            PrivateKey::Rsa(_) => "ssh-rsa",
+        }
+        .to_string();
+
+        Ok(Self::new(
+            private_key,
+            PublicKey { alg, blob },
+            name,
+            cipher_id,
+        ))
     }
 
     /// # Returns
