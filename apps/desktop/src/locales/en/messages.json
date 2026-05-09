@@ -1687,16 +1687,6 @@
     "message": "Light",
     "description": "Light color"
   },
-  "oled": {
-    "message": "OLED dark",
-    "description": "True black dark theme for OLED displays"
-  },
-  "accentColorLabel": {
-    "message": "Accent color"
-  },
-  "accentColorHintDesktop": {
-    "message": "Customize primary buttons and links. Choosing the default Bitwarden blue clears the override."
-  },
   "copy": {
     "message": "Copy",
     "description": "Copy to clipboard"

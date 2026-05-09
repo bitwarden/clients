@@ -443,8 +443,6 @@ export class WindowMain {
         return "#ededed";
       case "dark":
         return "#15181e";
-      case "oled":
-        return "#000000";
     }
   }
 

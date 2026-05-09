@@ -647,47 +647,6 @@
   --color-nav-border-secondary-focus: var(--color-white);
 }
 
-/* OLED: stacked on .theme_dark via AngularThemingService for true blacks */
-.fork-accent-override.theme_light {
-  --color-brand-500: rgb(var(--fork-accent-rgb));
-  --color-brand-600: rgb(var(--fork-accent-rgb));
-  --color-brand-700: rgb(var(--fork-accent-rgb));
-  --color-fg-brand: rgb(var(--fork-accent-rgb));
-}
-
-.theme_dark.theme_oled.fork-accent-override,
-.theme_dark.fork-accent-override {
-  --color-brand-500: rgb(var(--fork-accent-rgb));
-  --color-brand-600: rgb(var(--fork-accent-rgb));
-  --color-brand-700: rgb(var(--fork-accent-rgb));
-  --color-fg-brand: rgb(var(--fork-accent-rgb));
-}
-
-.theme_dark.theme_oled {
-  --color-background: 0 0 0;
-  --color-background-alt: 0 0 0;
-  --color-background-alt2: 10 10 10;
-  --color-background-alt3: 14 14 14;
-  --color-background-alt4: 0 0 0;
-
-  --tw-ring-offset-color: #000000;
-
-  --color-bg-primary: #000000;
-  --color-bg-secondary: #000000;
-  --color-bg-tertiary: #000000;
-  --color-bg-quaternary: #0a0a0a;
-  --color-bg-disabled: #000000;
-
-  --color-border-muted: #0d0d0d;
-  --color-border-light: #161616;
-  --color-border-base: #202020;
-
-  --color-nav-bg-primary: #000000;
-  --color-nav-bg-secondary: #000000;
-  --color-nav-bg-primary-strong: #141414;
-  --color-nav-bg-secondary-strong: #141414;
-}
-
 @layer components {
   /**
   * tw-break-words does not work with table cells:

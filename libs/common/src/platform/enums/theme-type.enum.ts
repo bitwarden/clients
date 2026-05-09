@@ -7,15 +7,12 @@ export enum ThemeType {
   System = "system",
   Light = "light",
   Dark = "dark",
-  /** True black backgrounds for OLED displays (always uses dark palette). */
-  Oled = "oled",
 }
 
 export const ThemeTypes = {
   System: "system",
   Light: "light",
   Dark: "dark",
-  Oled: "oled",
 } as const;
 
 export type Theme = (typeof ThemeTypes)[keyof typeof ThemeTypes];

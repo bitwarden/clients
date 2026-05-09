@@ -7049,17 +7049,8 @@
   "themeDark": {
     "message": "Dark"
   },
-  "themeOled": {
-    "message": "OLED dark"
-  },
   "themeLight": {
     "message": "Light"
-  },
-  "accentColorLabel": {
-    "message": "Accent color"
-  },
-  "accentColorHintWeb": {
-    "message": "Customize primary buttons and links. Choosing the default Bitwarden blue clears the override."
   },
   "confirmSelected": {
     "message": "Confirm selected"
