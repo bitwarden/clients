@@ -1,4 +1,5 @@
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 
@@ -34,6 +35,13 @@ type BaseSendFormConfig = {
    * The original send that is being edited or cloned. This can be undefined when creating a new send.
    */
   originalSend?: Send;
+
+  /**
+   * Pre-fill values for a brand-new send. Only honored when `mode === "add"`. Useful for flows
+   * such as "Share via Send" on a vault item, where the composer should open with the item's
+   * credentials already populated. Ignored in edit / partial-edit modes.
+   */
+  initialView?: SendView;
 };
 
 /**

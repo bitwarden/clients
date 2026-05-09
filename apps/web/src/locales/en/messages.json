@@ -5715,6 +5715,9 @@
   "clone": {
     "message": "Clone"
   },
+  "shareViaSend": {
+    "message": "Share via Send"
+  },
   "masterPassPolicyTitle": {
     "message": "Master password requirements"
   },

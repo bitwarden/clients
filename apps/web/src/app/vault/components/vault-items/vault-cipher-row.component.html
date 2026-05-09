@@ -263,6 +263,12 @@
             {{ "clone" | i18n }}
           </button>
         }
+        @if (showShareViaSend) {
+          <button bitMenuItem type="button" (click)="shareViaSend()">
+            <i class="bwi bwi-fw bwi-send" aria-hidden="true"></i>
+            {{ "shareViaSend" | i18n }}
+          </button>
+        }
         @if (showAssignToCollections) {
           <button bitMenuItem type="button" (click)="assignToCollections()">
             <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>

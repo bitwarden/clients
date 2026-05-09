@@ -12,6 +12,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { cipherToSendTextView } from "@bitwarden/common/tools/send/cipher-to-send-text";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -30,8 +32,10 @@ import {
   MenuModule,
   ToastService,
 } from "@bitwarden/components";
+import { SendFormConfigService } from "@bitwarden/send-ui";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { PendingSendDraftService } from "../../../../../tools/popup/send-v2/services/pending-send-draft.service";
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
@@ -150,6 +154,8 @@ export class ItemMoreOptionsComponent {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private domainSettingsService: DomainSettingsService,
+    private pendingSendDraftService: PendingSendDraftService,
+    private sendFormConfigService: SendFormConfigService,
   ) {}
 
   get canEdit() {
@@ -311,6 +317,60 @@ export class ItemMoreOptionsComponent {
         cipherId: this.cipher.id,
         type: CipherViewLikeUtils.getType(this.cipher).toString(),
       } as AddEditQueryParams,
+    });
+  }
+
+  /**
+   * Returns true when this cipher can be shared via Send: it's a Login with at least a username
+   * or password to share, and is neither archived nor deleted. Send-policy gating happens in the
+   * destination composer.
+   */
+  get canShareViaSend(): boolean {
+    if (CipherViewLikeUtils.isDeleted(this.cipher) || CipherViewLikeUtils.isArchived(this.cipher)) {
+      return false;
+    }
+    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
+      return false;
+    }
+    return (
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")
+    );
+  }
+
+  /**
+   * Stashes a pre-filled SendView built from this cipher and navigates to the Send composer.
+   * Reprompts when required so plaintext credentials are not surfaced past the menu click,
+   * and bails with a toast when org policy disables Sends so the credential never reaches
+   * the (would-be-disabled) composer textarea.
+   */
+  async shareViaSend() {
+    if (
+      this.cipher.reprompt === CipherRepromptType.Password &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      return;
+    }
+
+    const config = await this.sendFormConfigService.buildConfig("add", undefined, SendType.Text);
+    if (!config.areSendsAllowed) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("sendDisabled"),
+      });
+      return;
+    }
+
+    const fullView = await this.cipherService.getFullCipherView(this.cipher);
+    if (fullView == null) {
+      return;
+    }
+
+    const token = crypto.randomUUID();
+    this.pendingSendDraftService.set(token, cipherToSendTextView(fullView));
+
+    await this.router.navigate(["/add-send"], {
+      queryParams: { type: SendType.Text.toString(), prefill: token },
     });
   }
 

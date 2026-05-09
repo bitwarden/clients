@@ -36,6 +36,7 @@ import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-fo
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
 import { BrowserSendFormGenerationService } from "../services/browser-send-form-generation.service";
+import { PendingSendDraftService } from "../services/pending-send-draft.service";
 
 /**
  * Helper class to parse query parameters for the AddEdit route.
@@ -43,6 +44,7 @@ import { BrowserSendFormGenerationService } from "../services/browser-send-form-
 class QueryParams {
   constructor(params: Params) {
     this.sendId = params.sendId;
+    this.prefill = params.prefill;
     const sendTypeValue = parseInt(params.type, 10);
     if (sendTypeValue === SendType.Text || sendTypeValue === SendType.File) {
       this.type = sendTypeValue;
@@ -60,6 +62,12 @@ class QueryParams {
    * The type of send to create.
    */
   type: SendType;
+
+  /**
+   * Token issued by "Share via Send" to claim a pre-filled draft from
+   * `PendingSendDraftService`. Absent for plain "new Send" navigation.
+   */
+  prefill?: string;
 }
 
 export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
@@ -119,6 +127,7 @@ export class SendAddEditComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private router: Router,
+    private pendingSendDraftService: PendingSendDraftService,
   ) {
     this.subscribeToParams();
   }
@@ -204,6 +213,19 @@ export class SendAddEditComponent {
             params.sendId,
             params.type,
           );
+          if (mode === "add" && params.prefill != null) {
+            // Consume the draft stashed by "Share via Send" only when this navigation carries the
+            // matching prefill token. A regular "New Send" click (no token) intentionally does not
+            // consume, and a stale draft from a cancelled share-via-send is cleared on the next
+            // /add-send entry by the consume-on-mismatch behaviour in PendingSendDraftService.
+            const draft = this.pendingSendDraftService.consume(params.prefill);
+            if (draft != null) {
+              config.initialView = draft;
+            }
+          } else if (mode === "add") {
+            // No token: clear any orphan draft so it cannot surface on a later token-bearing entry.
+            this.pendingSendDraftService.clear();
+          }
           return config;
         }),
       )

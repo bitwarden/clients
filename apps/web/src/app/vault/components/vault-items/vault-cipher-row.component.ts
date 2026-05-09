@@ -412,6 +412,23 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     this.onEvent.emit({ type: "clone", item: this.cipher });
   }
 
+  protected get showShareViaSend(): boolean {
+    if (this.isDeleted || CipherViewLikeUtils.isArchived(this.cipher)) {
+      return false;
+    }
+    if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
+      return false;
+    }
+    return (
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "username") ||
+      CipherViewLikeUtils.hasCopyableValue(this.cipher, "password")
+    );
+  }
+
+  protected shareViaSend() {
+    this.onEvent.emit({ type: "shareViaSend", item: this.cipher });
+  }
+
   protected events() {
     this.onEvent.emit({ type: "viewEvents", item: this.cipher });
   }

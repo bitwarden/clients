@@ -78,7 +78,16 @@ export class DefaultSendFormService implements SendFormService {
     this.file = undefined;
     this.updatedSendView = new SendView();
     if (this.sendFormConfig.mode === "add") {
-      this._originalSendView.set(null);
+      // When the caller supplies a pre-filled SendView (e.g. "Share via Send" from a vault item),
+      // route it through `originalSendView` so the existing form components patch their controls
+      // from it on init, just as they do in edit mode. The form still treats this as a brand-new
+      // send: nothing is fetched from the server, and submit will create rather than update.
+      if (this.sendFormConfig.initialView) {
+        this._originalSendView.set(this.sendFormConfig.initialView);
+        this.updatedSendView = Object.assign(this.updatedSendView, this.sendFormConfig.initialView);
+      } else {
+        this._originalSendView.set(null);
+      }
       this.updatedSendView.type = this.sendFormConfig.sendType;
     } else {
       if (!this.sendFormConfig.originalSend) {

@@ -2279,6 +2279,9 @@
   "clone": {
     "message": "Clone"
   },
+  "shareViaSend": {
+    "message": "Share via Send"
+  },
   "passwordGeneratorPolicyInEffect": {
     "message": "One or more organization policies are affecting your generator settings."
   },
