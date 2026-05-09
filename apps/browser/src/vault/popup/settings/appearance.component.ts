@@ -4,7 +4,7 @@ import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
-import { firstValueFrom, switchMap } from "rxjs";
+import { firstValueFrom, skip, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -18,6 +18,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { AccentColorStateService } from "@bitwarden/common/platform/theming/accent-color-state.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import {
@@ -58,6 +59,7 @@ import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-butto
   ],
 })
 export class AppearanceComponent implements OnInit {
+  private readonly accentBrandDefault = "#175ddc";
   private compactModeService = inject(PopupCompactModeService);
   private copyButtonsService = inject(VaultPopupCopyButtonsService);
   private popupSizeService = inject(PopupSizeService);
@@ -65,6 +67,7 @@ export class AppearanceComponent implements OnInit {
   private configService = inject(ConfigService);
   private accountService = inject(AccountService);
   private billingAccountProfileService = inject(BillingAccountProfileStateService);
+  private accentColorStateService = inject(AccentColorStateService);
 
   /** Signal for the feature flag that controls simplified item action behavior */
   protected readonly simplifiedItemActionEnabled = toSignal(
@@ -84,8 +87,9 @@ export class AppearanceComponent implements OnInit {
     enableBadgeCounter: true,
     theme: ThemeTypes.System as Theme,
     enableAnimations: true,
-    enableCompactMode: false,
-    showQuickCopyActions: false,
+    enableCompactMode: true,
+    showQuickCopyActions: true,
+    accentColorHexUi: "#175ddc",
     width: "default" as PopupWidthOption,
     clickItemsToAutofillVaultView: false,
     showAtRiskNotifications: true,
@@ -119,6 +123,7 @@ export class AppearanceComponent implements OnInit {
       { name: i18nService.t("systemDefault"), value: ThemeTypes.System },
       { name: i18nService.t("light"), value: ThemeTypes.Light },
       { name: i18nService.t("dark"), value: ThemeTypes.Dark },
+      { name: i18nService.t("oled"), value: ThemeTypes.Oled },
     ];
   }
 
@@ -141,6 +146,8 @@ export class AppearanceComponent implements OnInit {
       this.vaultSettingsService.showAtRiskPasswordNotifications$,
     );
 
+    const accentPersisted = await firstValueFrom(this.accentColorStateService.accentColorHex$);
+
     // Set initial values for the form
     this.appearanceForm.setValue({
       enableFavicon,
@@ -152,6 +159,7 @@ export class AppearanceComponent implements OnInit {
       width,
       clickItemsToAutofillVaultView,
       showAtRiskNotifications,
+      accentColorHexUi: accentPersisted ?? this.accentBrandDefault,
     });
 
     this.formLoading = false;
@@ -160,6 +168,12 @@ export class AppearanceComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((newTheme) => {
         void this.saveTheme(newTheme);
+      });
+
+    this.appearanceForm.controls.accentColorHexUi.valueChanges
+      .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+      .subscribe((hex) => {
+        void this.updateAccentColor(hex);
       });
 
     this.appearanceForm.controls.enableFavicon.valueChanges
@@ -230,6 +244,18 @@ export class AppearanceComponent implements OnInit {
 
   async saveTheme(newTheme: Theme) {
     await this.themeStateService.setSelectedTheme(newTheme);
+  }
+
+  private async updateAccentColor(hex: string) {
+    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      return;
+    }
+    const normalized = hex.toLowerCase();
+    if (normalized === this.accentBrandDefault.toLowerCase()) {
+      await this.accentColorStateService.setAccentColor(null);
+      return;
+    }
+    await this.accentColorStateService.setAccentColor(normalized);
   }
 
   async updateAnimations(enableAnimations: boolean) {

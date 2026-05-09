@@ -143,6 +143,19 @@
             </a>
           </bit-hint>
         </bit-form-control>
+        <bit-form-control>
+          <input
+            bitCheckbox
+            id="suppressAutofillBrowserNudge"
+            type="checkbox"
+            (change)="updateSuppressAutofillBrowserNudge()"
+            [(ngModel)]="suppressAutofillBrowserNudge"
+          />
+          <bit-label for="suppressAutofillBrowserNudge">{{
+            "disableAutofillSetupNudge" | i18n
+          }}</bit-label>
+          <bit-hint class="tw-text-sm">{{ "disableAutofillSetupNudgeHint" | i18n }}</bit-hint>
+        </bit-form-control>
         <bit-form-control *ngIf="!(restrictedCardType$ | async)">
           <input
             bitCheckbox

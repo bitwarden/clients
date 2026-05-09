@@ -163,6 +163,7 @@ export class AutofillComponent implements OnInit {
   uriMatchOptions: { name: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
   showCardsCurrentTab: boolean = true;
   showIdentitiesCurrentTab: boolean = true;
+  suppressAutofillBrowserNudge = false;
   /** Non-null asserted. */
   autofillKeyboardHelperText!: string;
   accountSwitcherEnabled: boolean = false;
@@ -377,6 +378,10 @@ export class AutofillComponent implements OnInit {
 
     this.showIdentitiesCurrentTab = await firstValueFrom(
       this.vaultSettingsService.showIdentitiesCurrentTab$,
+    );
+
+    this.suppressAutofillBrowserNudge = await firstValueFrom(
+      this.autofillSettingsService.autofillBrowserNudgeDisabled$,
     );
 
     // Show clipboard notification on first visit, mark as dismissed for future visits
@@ -645,6 +650,12 @@ export class AutofillComponent implements OnInit {
 
   async updateShowIdentitiesCurrentTab() {
     await this.vaultSettingsService.setShowIdentitiesCurrentTab(this.showIdentitiesCurrentTab);
+  }
+
+  async updateSuppressAutofillBrowserNudge() {
+    await this.autofillSettingsService.setAutofillBrowserNudgeDisabled(
+      this.suppressAutofillBrowserNudge,
+    );
   }
 
   async updateShowInlineMenuCards() {

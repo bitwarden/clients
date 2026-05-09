@@ -15,6 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { AccentColorStateService } from "@bitwarden/common/platform/theming/accent-color-state.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 
@@ -61,8 +62,10 @@ describe("AppearanceComponent", () => {
   const enableBadgeCounter$ = new BehaviorSubject<boolean>(true);
   const selectedTheme$ = new BehaviorSubject<ThemeType>(ThemeType.Light);
   const enableRoutingAnimation$ = new BehaviorSubject<boolean>(true);
-  const enableCompactMode$ = new BehaviorSubject<boolean>(false);
-  const showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+  const enableCompactMode$ = new BehaviorSubject<boolean>(true);
+  const accentColorHex$ = new BehaviorSubject<string | null>(null);
+  const setAccentColor = jest.fn().mockResolvedValue(undefined);
+  const showQuickCopyActions$ = new BehaviorSubject<boolean>(true);
   const featureFlag$ = new BehaviorSubject<boolean>(false);
   const hasPremiumFromAnySource$ = new BehaviorSubject<boolean>(false);
   const setSelectedTheme = jest.fn().mockResolvedValue(undefined);
@@ -86,6 +89,7 @@ describe("AppearanceComponent", () => {
     setEnableRoutingAnimation.mockClear();
     setClickItemsToAutofillVaultView.mockClear();
     setShowAtRiskPasswordNotifications.mockClear();
+    setAccentColor.mockClear();
 
     const configService = mock<ConfigService>();
     configService.getFeatureFlag$.mockImplementation(
@@ -106,6 +110,10 @@ describe("AppearanceComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DomainSettingsService, useValue: { showFavicons$, setShowFavicons } },
         { provide: ThemeStateService, useValue: { selectedTheme$, setSelectedTheme } },
+        {
+          provide: AccentColorStateService,
+          useValue: { accentColorHex$, setAccentColor },
+        },
         {
           provide: AnimationControlService,
           useValue: { enableRoutingAnimation$, setEnableRoutingAnimation },
@@ -178,11 +186,12 @@ describe("AppearanceComponent", () => {
       enableFavicon: true,
       enableBadgeCounter: true,
       theme: ThemeType.Light,
-      enableCompactMode: false,
-      showQuickCopyActions: false,
+      enableCompactMode: true,
+      showQuickCopyActions: true,
       width: "default",
       clickItemsToAutofillVaultView: false,
       showAtRiskNotifications: true,
+      accentColorHexUi: "#175ddc",
     });
   });
 
@@ -212,9 +221,9 @@ describe("AppearanceComponent", () => {
     });
 
     it("updates the compact mode setting", () => {
-      component.appearanceForm.controls.enableCompactMode.setValue(true);
+      component.appearanceForm.controls.enableCompactMode.setValue(false);
 
-      expect(setEnableCompactMode).toHaveBeenCalledWith(true);
+      expect(setEnableCompactMode).toHaveBeenCalledWith(false);
     });
 
     it("updates the quick copy actions setting", () => {

@@ -118,9 +118,10 @@ const darkTheme = {
   brandLogo: `rgba(255, 255, 255)`,
 };
 
-export const themes = {
+export const themes: Record<Theme, typeof lightTheme> = {
   light: lightTheme,
   dark: darkTheme,
+  oled: darkTheme,
 
   // For compatibility
   system: lightTheme,

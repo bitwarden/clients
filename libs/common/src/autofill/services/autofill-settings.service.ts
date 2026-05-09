@@ -115,6 +115,16 @@ const CLIPBOARD_SETTING_UPDATED_NOTIFICATION_DISMISSED = new UserKeyDefinition(
   },
 );
 
+/** When true, the browser extension never shows spotlight/badge nudges to disable the browser password manager. */
+const AUTOFILL_BROWSER_NUDGE_DISABLED = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK,
+  "autofillBrowserNudgeDisabled",
+  {
+    deserializer: (value: boolean) => value ?? false,
+    clearOn: [],
+  },
+);
+
 export abstract class AutofillSettingsServiceAbstraction {
   autofillOnPageLoad$: Observable<boolean>;
   setAutofillOnPageLoad: (newValue: boolean) => Promise<void>;
@@ -141,6 +151,8 @@ export abstract class AutofillSettingsServiceAbstraction {
   clipboardSettingUpdatedNotificationDismissed$: Observable<boolean>;
   setClipboardSettingUpdatedNotificationDismissed: (newValue: boolean) => Promise<void>;
   showClipboardSettingUpdateNotification$: Observable<boolean>;
+  autofillBrowserNudgeDisabled$: Observable<boolean>;
+  setAutofillBrowserNudgeDisabled: (newValue: boolean) => Promise<void>;
 }
 
 export class AutofillSettingsService implements AutofillSettingsServiceAbstraction {
@@ -183,6 +195,9 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
   readonly clipboardSettingUpdatedNotificationDismissed$: Observable<boolean>;
 
   readonly showClipboardSettingUpdateNotification$: Observable<boolean>;
+
+  private autofillBrowserNudgeDisabledState: ActiveUserState<boolean>;
+  readonly autofillBrowserNudgeDisabled$: Observable<boolean>;
 
   constructor(
     private stateProvider: StateProvider,
@@ -277,6 +292,13 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
         return hadPreMigrationValue && !dismissed;
       }),
     );
+
+    this.autofillBrowserNudgeDisabledState = this.stateProvider.getActive(
+      AUTOFILL_BROWSER_NUDGE_DISABLED,
+    );
+    this.autofillBrowserNudgeDisabled$ = this.autofillBrowserNudgeDisabledState.state$.pipe(
+      map((x) => x ?? false),
+    );
   }
 
   async setAutofillOnPageLoad(newValue: boolean): Promise<void> {
@@ -321,5 +343,9 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setClipboardSettingUpdatedNotificationDismissed(newValue: boolean): Promise<void> {
     await this.clipboardSettingUpdatedNotificationDismissedState.update(() => newValue);
+  }
+
+  async setAutofillBrowserNudgeDisabled(newValue: boolean): Promise<void> {
+    await this.autofillBrowserNudgeDisabledState.update(() => newValue);
   }
 }
