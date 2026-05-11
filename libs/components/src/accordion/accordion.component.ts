@@ -76,7 +76,6 @@ export class AccordionComponent {
       "tw-border-solid",
       "tw-border-border-base",
       "tw-rounded-xl",
-      "tw-overflow-hidden",
       ...(this.group
         ? [
             // Collapse inner radii and borders when stacked inside a group
@@ -103,6 +102,7 @@ export class AccordionComponent {
       "tw-cursor-pointer",
       "[transition:background-color_150ms_ease]",
       "tw-rounded-t-xl",
+      this.open() ? "" : "tw-rounded-b-xl",
       this.resolvedVariant() === "default" ? "tw-bg-bg-secondary" : "tw-bg-bg-primary",
       "enabled:hover:tw-bg-bg-hover",
       "focus-visible:tw-outline-none",
