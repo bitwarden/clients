@@ -650,12 +650,6 @@ export class ServiceContainer {
       this.configService,
     );
 
-    this.cipherFileUploadService = new CipherFileUploadService(
-      this.apiService,
-      this.fileUploadService,
-      this.configService,
-    );
-
     this.sendApiService = this.sendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
@@ -767,11 +761,10 @@ export class ServiceContainer {
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.keyService,
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.authRequestApiService = new DefaultAuthRequestApiService(this.apiService, this.logService);
@@ -885,6 +878,13 @@ export class ServiceContainer {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
+    this.cipherFileUploadService = new CipherFileUploadService(
+      this.apiService,
+      this.fileUploadService,
+      this.configService,
+      this.cipherSdkService,
+    );
 
     this.cipherService = new CipherService(
       this.keyService,
@@ -1006,7 +1006,11 @@ export class ServiceContainer {
 
     this.importMetadataService = new DefaultImportMetadataService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),

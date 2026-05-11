@@ -651,6 +651,38 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Whether the Chrome Side Panel API is available (Chrome 114+).
+   */
+  static get isSidePanelApiSupported(): boolean {
+    return typeof chrome !== "undefined" && typeof chrome.sidePanel !== "undefined";
+  }
+
+  /**
+   * Opens the extension's side panel for a specific tab.
+   * Must be called in response to a user gesture (context menu click qualifies).
+   */
+  static async openSidePanel(options: { tabId: number }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.open({ tabId: options.tabId });
+  }
+
+  /**
+   * Sets the side panel options (path, enabled state), optionally scoped to a tab.
+   */
+  static async setSidePanelOptions(options: {
+    path?: string;
+    enabled?: boolean;
+    tabId?: number;
+  }): Promise<void> {
+    if (!BrowserApi.isSidePanelApiSupported) {
+      return;
+    }
+    await chrome.sidePanel.setOptions(options);
+  }
+
   static sendMessage(subscriber: string, arg: any = {}) {
     const message = Object.assign({}, { command: subscriber }, arg);
     return chrome.runtime.sendMessage(message);

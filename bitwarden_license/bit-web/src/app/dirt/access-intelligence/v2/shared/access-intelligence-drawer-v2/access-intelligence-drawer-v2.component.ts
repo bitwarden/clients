@@ -61,7 +61,7 @@ export class AccessIntelligenceDrawerV2Component {
         fileName: ExportHelper.getFileName("at-risk-members"),
         blobData: exportToCSV(members, {
           email: this.i18nService.t("email"),
-          atRiskPasswordCount: this.i18nService.t("atRiskPasswords"),
+          atRiskPasswordCount: this.i18nService.t("atRiskApplications"),
         }),
         blobOptions: { type: "text/plain" },
       });
