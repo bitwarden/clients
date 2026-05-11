@@ -541,31 +541,4 @@ describe("DefaultAccessIntelligenceDataService", () => {
       );
     });
   });
-
-  describe("hasCiphers$", () => {
-    it("should emit false before initialization", async () => {
-      const hasCiphers = await firstValueFrom(service.hasCiphers$);
-      expect(hasCiphers).toBe(false);
-    });
-
-    it("should emit true after init when org has ciphers", async () => {
-      cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
-      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
-
-      await firstValueFrom(service.initializeForOrganization$(orgId));
-
-      const hasCiphers = await firstValueFrom(service.hasCiphers$);
-      expect(hasCiphers).toBe(true);
-    });
-
-    it("should emit false after init when org has no ciphers", async () => {
-      cipherService.getAllFromApiForOrganization.mockResolvedValue([]);
-      reportPersistenceService.loadLastReport$.mockReturnValue(of(null));
-
-      await firstValueFrom(service.initializeForOrganization$(orgId));
-
-      const hasCiphers = await firstValueFrom(service.hasCiphers$);
-      expect(hasCiphers).toBe(false);
-    });
-  });
 });

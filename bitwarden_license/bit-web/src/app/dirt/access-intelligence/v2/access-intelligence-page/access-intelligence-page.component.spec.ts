@@ -425,7 +425,9 @@ describe("AccessIntelligencePageComponent", () => {
     });
 
     it("should report ciphers present when vault has items", async () => {
-      hasCiphersSubject.next(true);
+      mockAccessIntelligenceService.ciphers$.next([
+        { id: "c1", name: "Test Cipher", type: 1 } as CipherView,
+      ]);
 
       await component.ngOnInit();
       fixture.detectChanges();

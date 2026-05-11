@@ -58,14 +58,6 @@ export abstract class AccessIntelligenceDataService {
   abstract readonly reportProgress$: Observable<ReportProgress | null>;
 
   /**
-   * Whether the organization has any ciphers
-   *
-   * Emits true once ciphers are loaded during initialization.
-   * Emits false before initialization or when the org has no ciphers.
-   */
-  abstract readonly hasCiphers$: Observable<boolean>;
-
-  /**
    * Initialize service for a specific organization
    *
    * Loads organization data and existing report if available.

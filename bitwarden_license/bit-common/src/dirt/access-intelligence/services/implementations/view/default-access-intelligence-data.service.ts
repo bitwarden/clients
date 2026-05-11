@@ -51,7 +51,6 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   readonly loading$ = this._loading.asObservable();
   readonly error$ = this._error.asObservable();
   readonly reportProgress$ = this._reportProgress.asObservable();
-  readonly hasCiphers$ = this.ciphers$.pipe(map((ciphers) => ciphers.length > 0));
 
   constructor(
     private cipherService: CipherService,
@@ -437,7 +436,7 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
 
   private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
     return from(this.cipherService.getAllFromApiForOrganization(orgId)).pipe(
-      catchError((err) => {
+      catchError((err: unknown) => {
         this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
         return of([] as CipherView[]);
       }),
