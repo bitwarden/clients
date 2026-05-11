@@ -32,7 +32,7 @@ function makeSdkCollection(overrides: Partial<SdkCollection> = {}): SdkCollectio
     readOnly: false,
     manage: true,
     defaultUserCollectionEmail: undefined,
-    type: 0, // SdkCollectionType.SharedCollection
+    type: CollectionTypes.SharedCollection,
     ...overrides,
   };
 }
@@ -46,7 +46,7 @@ function makeSdkCollectionView(overrides: Partial<SdkCollectionView> = {}): SdkC
     hidePasswords: false,
     readOnly: false,
     manage: true,
-    type: 0, // SdkCollectionType.SharedCollection
+    type: CollectionTypes.SharedCollection,
     ...overrides,
   };
 }
@@ -69,7 +69,7 @@ describe("Collection SDK mapping", () => {
         readOnly: true,
         manage: false,
         defaultUserCollectionEmail: "user@example.com",
-        type: 1, // SdkCollectionType.DefaultUserCollection
+        type: CollectionTypes.DefaultUserCollection,
       });
 
       const result = Collection.fromSdkCollection(sdkCollection);
@@ -84,7 +84,7 @@ describe("Collection SDK mapping", () => {
     });
 
     it("maps SharedCollection type correctly", () => {
-      const sdkCollection = makeSdkCollection({ type: 0 }); // SdkCollectionType.SharedCollection
+      const sdkCollection = makeSdkCollection({ type: CollectionTypes.SharedCollection });
       const result = Collection.fromSdkCollection(sdkCollection);
       expect(result.type).toBe(CollectionTypes.SharedCollection);
     });
@@ -148,7 +148,7 @@ describe("CollectionView SDK mapping", () => {
         hidePasswords: true,
         readOnly: true,
         manage: false,
-        type: 1, // SdkCollectionType.DefaultUserCollection
+        type: CollectionTypes.DefaultUserCollection,
       });
       const source = makeCollection();
 
@@ -164,7 +164,7 @@ describe("CollectionView SDK mapping", () => {
     });
 
     it("maps SharedCollection type correctly", () => {
-      const sdkView = makeSdkCollectionView({ type: 0 }); // SdkCollectionType.SharedCollection
+      const sdkView = makeSdkCollectionView({ type: CollectionTypes.SharedCollection });
       const source = makeCollection();
       const result = CollectionView.fromSdkCollectionView(sdkView, source);
       expect(result.type).toBe(CollectionTypes.SharedCollection);
@@ -187,7 +187,7 @@ describe("CollectionView SDK mapping", () => {
     describe("defaultUserCollectionEmail preservation (canEditName security invariant)", () => {
       it("copies defaultUserCollectionEmail from the source collection, not the SDK view", () => {
         const email = "offboarded-user@example.com";
-        const sdkView = makeSdkCollectionView({ type: 1 }); // SdkCollectionType.DefaultUserCollection
+        const sdkView = makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection });
         const source = makeCollection({
           defaultUserCollectionEmail: email,
           type: CollectionTypes.DefaultUserCollection,
@@ -199,7 +199,7 @@ describe("CollectionView SDK mapping", () => {
       });
 
       it("leaves defaultUserCollectionEmail undefined for regular collections", () => {
-        const sdkView = makeSdkCollectionView({ type: 0 }); // SdkCollectionType.SharedCollection
+        const sdkView = makeSdkCollectionView({ type: CollectionTypes.SharedCollection });
         const source = makeCollection({ defaultUserCollectionEmail: undefined });
 
         const result = CollectionView.fromSdkCollectionView(sdkView, source);
@@ -208,7 +208,7 @@ describe("CollectionView SDK mapping", () => {
       });
 
       it("canEditName returns false when defaultUserCollectionEmail is present", () => {
-        const sdkView = makeSdkCollectionView({ type: 1 }); // SdkCollectionType.DefaultUserCollection
+        const sdkView = makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection });
         const source = makeCollection({
           defaultUserCollectionEmail: "offboarded@example.com",
           type: CollectionTypes.DefaultUserCollection,
@@ -226,7 +226,7 @@ describe("CollectionView SDK mapping", () => {
         // This test asserts the security invariant stated in the WARNING on canEditName():
         // a DefaultUserCollection with a set defaultUserCollectionEmail must never be editable.
         const email = "ghost@example.com";
-        const sdkView = makeSdkCollectionView({ type: 1 }); // SdkCollectionType.DefaultUserCollection
+        const sdkView = makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection });
         const source = makeCollection({
           defaultUserCollectionEmail: email,
           type: CollectionTypes.DefaultUserCollection,
