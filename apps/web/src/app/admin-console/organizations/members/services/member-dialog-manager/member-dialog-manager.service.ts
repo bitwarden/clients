@@ -35,7 +35,7 @@ import {
   openUserAddEditDialog,
 } from "../../components/member-dialog";
 import { DeleteManagedMemberWarningService } from "../delete-managed-member/delete-managed-member-warning.service";
-import { BulkActionResult } from "../member-actions/member-actions.service";
+import { BulkActionResult } from "../member-actions/member-actions.types";
 
 @Injectable()
 export class MemberDialogManagerService {

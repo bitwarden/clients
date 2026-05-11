@@ -29,17 +29,9 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-export const REQUESTS_PER_BATCH = 500;
+import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
 
-export interface MemberActionResult {
-  success: boolean;
-  error?: string;
-}
-
-export class BulkActionResult {
-  successful: OrganizationUserBulkResponse[] = [];
-  failed: { id: string; error: string }[] = [];
-}
+export { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH };
 
 @Injectable()
 export class MemberActionsService {
