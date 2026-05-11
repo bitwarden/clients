@@ -105,7 +105,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
           this.biometricStateService.biometricUnlockEnabled$(userId),
           combineLatest([
             this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId),
-            this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT),
+            this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT, userId),
           ]).pipe(
             map(
               ([ephemeralEnvelope, persistentEnvelope]) =>
