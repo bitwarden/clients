@@ -24,11 +24,10 @@ pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 
 /// Represents an SSH private key.
 ///
-/// # Hardware-backed keys
+/// # External signers
 ///
-/// Hardware-backed keys are not supported. The variants of this enum hold concrete key material in
-/// memory, which is incompatible with hardware-backed key workflows. If hardware-backed key support
-/// is ever added, the [`PrivateKey::sign`] function must be updated accordingly.
+/// Hardware-backed keys are not supported. If hardware-backed key support is ever added, the
+/// [`PrivateKey::sign`] function must be updated accordingly; see it for more details.
 #[derive(Clone, PartialEq, Debug)]
 pub enum PrivateKey {
     Ed25519(Ed25519Keypair),
@@ -42,7 +41,7 @@ impl PrivateKey {
     ///
     /// A [`Signature`] containing the algorithm identifier and raw signature bytes.
     ///
-    /// # Hardware-backed keys
+    /// # External signers
     ///
     /// Hardware-backed keys are not supported. This function signs directly using key material
     /// held in memory and does not delegate to any hardware device. If hardware-backed key support
