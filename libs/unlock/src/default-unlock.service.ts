@@ -52,9 +52,8 @@ export type KeyConnectorUnlockData = {
 };
 
 export class DefaultUnlockService implements UnlockService {
-  private onUnlockActions: Array<
-    (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>
-  > = [];
+  private onUnlockActions: Array<(userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>> =
+    [];
 
   constructor(
     private registerSdkService: RegisterSdkService,

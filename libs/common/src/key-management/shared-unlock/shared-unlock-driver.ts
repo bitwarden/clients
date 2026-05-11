@@ -32,18 +32,14 @@ export function createSharedUnlockDriver(
 ): SharedUnlockDriver {
   return {
     async lock_user(user_id: UserId): Promise<void> {
-      if (
-        !(await sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))
-      ) {
+      if (!(await sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
         return;
       }
 
       await lockService.lock(fromSdkUserId(user_id));
     },
     async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
-      if (
-        !(await sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))
-      ) {
+      if (!(await sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
         return;
       }
 
@@ -60,12 +56,12 @@ export function createSharedUnlockDriver(
       const accounts = await firstValueFrom(accountService.accounts$);
       return Object.keys(accounts).map(asUuid<UserId>);
     },
-    async suppress_vault_timeout(user_id: UserId, suppression_duration_milliseconds: number): Promise<void> {
+    async suppress_vault_timeout(
+      user_id: UserId,
+      suppression_duration_milliseconds: number,
+    ): Promise<void> {
       const until = Date.now() + suppression_duration_milliseconds;
-      await vaultTimeoutSettingsService.suppressVaultTimeout(
-        until,
-        fromSdkUserId(user_id),
-      );
+      await vaultTimeoutSettingsService.suppressVaultTimeout(until, fromSdkUserId(user_id));
     },
     async get_client_name(): Promise<string> {
       return platformUtilsService.getClientType();

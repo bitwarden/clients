@@ -1,8 +1,10 @@
 import { firstValueFrom } from "rxjs";
 
+// eslint-disable-next-line import/no-cycle
 import { LockService } from "@bitwarden/auth/common";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+// eslint-disable-next-line import/no-cycle
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockLeader } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
@@ -14,9 +16,9 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
+import { createSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockLeaderService } from "./shared-unlock-leader.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
-import { createSharedUnlockDriver } from "./shared-unlock-driver";
 
 export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderService {
   constructor(
@@ -43,13 +45,13 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
     );
 
     const leader = SharedUnlockLeader.try_new(this.ipcService.client, sharedUnlockDriver);
-    leader.start();
+    await leader.start();
     this.lockService.registerOnLockAction(async (userId) => {
       if (!(await this.enabled(userId))) {
         return;
       }
 
-      leader.handle_device_event({
+      await leader.handle_device_event({
         ManualLock: {
           user_id: asUuid(userId),
         },
@@ -63,7 +65,7 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
         return;
       }
 
-      leader.handle_device_event({
+      await leader.handle_device_event({
         ManualUnlock: {
           user_id: asUuid(userId),
           user_key: userKey.toSdk(),

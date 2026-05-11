@@ -1,7 +1,11 @@
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line no-restricted-imports
 import { BiometricsService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
-import { UserId, BiometricsUnlock, BiometricsStatus as SdkBiometricsStatus } from "@bitwarden/sdk-internal";
+import {
+  UserId,
+  BiometricsUnlock,
+  BiometricsStatus as SdkBiometricsStatus,
+} from "@bitwarden/sdk-internal";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
 function toSdkBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
@@ -24,8 +28,8 @@ function fromSdkUserId(userId: UserId): TSUserId {
 }
 
 export function createBiometricsDriver(
-    biometricsService: BiometricsService,
-    keyService: KeyService
+  biometricsService: BiometricsService,
+  keyService: KeyService,
 ): BiometricsUnlock {
   return {
     async get_biometrics_status(user_id: UserId): Promise<SdkBiometricsStatus> {
@@ -38,6 +42,6 @@ export function createBiometricsDriver(
     },
     async authenticate_biometrics() {
       return await biometricsService.authenticateWithBiometrics();
-    }
+    },
   };
 }

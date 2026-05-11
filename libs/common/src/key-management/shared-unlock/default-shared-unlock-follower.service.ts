@@ -1,7 +1,9 @@
 import { firstValueFrom } from "rxjs";
 
+// eslint-disable-next-line import/no-cycle
 import { LockService } from "@bitwarden/auth/common";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+// eslint-disable-next-line import/no-cycle
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockFollower } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
@@ -14,9 +16,9 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
+import { createSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockFollowerService } from "./shared-unlock-follower.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
-import { createSharedUnlockDriver } from "./shared-unlock-driver";
 
 export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerService {
   constructor(
@@ -42,11 +44,8 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
       this.sharedUnlockSettingsService,
     );
 
-    const follower = await SharedUnlockFollower.try_new(
-      this.ipcService.client,
-      sharedUnlockDriver,
-    );
-    follower.start();
+    const follower = SharedUnlockFollower.try_new(this.ipcService.client, sharedUnlockDriver);
+    await follower.start();
 
     this.lockService.registerOnLockAction(async (userId) => {
       if (!(await this.enabled(userId))) {

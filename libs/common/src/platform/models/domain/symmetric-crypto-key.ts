@@ -2,9 +2,10 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+import { SymmetricKey } from "@bitwarden/sdk-internal";
+
 import { Utils } from "../../../platform/misc/utils";
 import { EncryptionType } from "../../enums";
-import { SymmetricKey } from "@bitwarden/sdk-internal";
 
 export type Aes256CbcHmacKey = {
   type: EncryptionType.AesCbc256_HmacSha256_B64;
