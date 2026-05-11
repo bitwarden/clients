@@ -43,10 +43,12 @@ impl PrivateKey {
     ///
     /// # External signers
     ///
-    /// Hardware-backed keys are not supported. This function signs directly using key material
-    /// held in memory and does not delegate to any hardware device. If hardware-backed key support
-    /// is ever added, this function must be updated. Consult the [`ssh_key`] crate documentation
-    /// before making any changes.
+    /// Hardware-backed keys are not supported by the SSH Agent feature. This function signs
+    /// directly using key material held in memory and does not delegate to any hardware device. If
+    /// hardware-backed key support is ever added, this function must be updated. Consult the
+    /// following for more information.
+    ///
+    /// <https://docs.rs/signature/2.2.0/signature/trait.Signer.html>
     pub fn sign(&self, data: &[u8]) -> Signature {
         match self {
             Self::Ed25519(kp) => kp.sign(data),
