@@ -173,15 +173,11 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async get_persistent_pin_envelope(): Promise<PasswordProtectedKeyEnvelope | null> {
-    try {
-      return await readAtomic(
-        this.stateProvider,
-        this.userId,
-        PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
-      );
-    } catch {
-      return null;
-    }
+    return await readAtomic(
+      this.stateProvider,
+      this.userId,
+      PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+    );
   }
 
   async clear_persistent_pin_envelope(): Promise<void> {
