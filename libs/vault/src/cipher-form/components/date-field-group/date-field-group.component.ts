@@ -133,7 +133,7 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
   }
 
   validate(): ValidationErrors | null {
-    return this.internalForm.errors;
+    return this.internalForm.invalid ? { invalidDate: true } : null;
   }
 
   registerOnValidatorChange(fn: () => void): void {
