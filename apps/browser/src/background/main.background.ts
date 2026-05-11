@@ -130,7 +130,6 @@ import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/ma
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/services/default-master-password-unlock.service";
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
-import { PinStateService } from "@bitwarden/common/key-management/pin/pin-state.service.implementation";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
@@ -789,8 +788,6 @@ export default class MainBackground {
       this.logService,
     );
 
-    const pinStateService = new PinStateService(this.stateProvider);
-
     this.appIdService = new AppIdService(this.storageService, this.logService);
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(
@@ -811,7 +808,6 @@ export default class MainBackground {
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
-      pinStateService,
       this.userDecryptionOptionsService,
       this.keyService,
       this.tokenService,
@@ -952,11 +948,8 @@ export default class MainBackground {
     );
 
     this.pinService = new PinService(
-      this.encryptService,
-      this.logService,
-      this.keyService,
       this.sdkService,
-      pinStateService,
+      this.registerSdkService,
     );
 
     this.biometricsService = new BackgroundBrowserBiometricsService(
