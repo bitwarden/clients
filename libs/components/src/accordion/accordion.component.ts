@@ -100,7 +100,7 @@ export class AccordionComponent {
       "tw-border-0",
       "tw-text-start",
       "tw-cursor-pointer",
-      "tw-transition-colors",
+      "[transition:background-color_150ms_ease,border-radius_150ms_150ms_ease]",
       "tw-rounded-t-xl",
       this.open() ? "" : "tw-rounded-b-xl",
       this.resolvedVariant() === "default" ? "tw-bg-bg-secondary" : "tw-bg-bg-primary",
@@ -143,7 +143,7 @@ export class AccordionComponent {
     [
       "tw-px-4",
       "tw-rounded-b-xl",
-      "tw-transition-[max-height,padding,opacity]",
+      "tw-transition-[max-height,padding,opacity] tw-duration-300",
       this.resolvedVariant() === "subtle"
         ? "tw-border-t tw-border-solid tw-border-border-base"
         : "",
