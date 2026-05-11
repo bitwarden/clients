@@ -2042,8 +2042,9 @@ describe("OrganizationPlansComponent", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
       component.changedProduct();
 
-      component.paymentDesc;
+      const paymentDesc = component.paymentDesc;
 
+      expect(paymentDesc).not.toBeNull();
       expect(mockI18nService.t).toHaveBeenCalledWith(
         "paymentChargedWithTrialSpecificLength",
         DEFAULT_TRIAL_LENGTH_DAYS,
@@ -2055,8 +2056,9 @@ describe("OrganizationPlansComponent", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
       component.changedProduct();
 
-      component.paymentDesc;
+      const paymentDesc = component.paymentDesc;
 
+      expect(paymentDesc).not.toBeNull();
       expect(mockI18nService.t).toHaveBeenCalledWith("paymentChargedWithTrialSpecificLength", 14);
     });
 
