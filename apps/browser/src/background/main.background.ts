@@ -395,6 +395,7 @@ import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
 import { NativeMessagingBackground } from "./nativeMessaging.background";
 import RuntimeBackground from "./runtime.background";
+import { DefaultUnlockService } from "@bitwarden/unlock";
 
 export default class MainBackground {
   messagingService: MessageSender;
@@ -951,15 +952,19 @@ export default class MainBackground {
       this.sdkService,
       this.registerSdkService,
     );
+    
 
-    this.biometricsService = new BackgroundBrowserBiometricsService(
+    const browserBiometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
       this.logService,
       this.biometricStateService,
       this.messagingService,
       this.vaultTimeoutSettingsService,
-      this.pinService,
     );
+    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
+    this.biometricsService = browserBiometricsService;
+    const unlockService = new DefaultUnlockService(this.registerSdkService, this.accountCryptographicStateService, this.kdfConfigService, this.accountService, this.masterPasswordService, this.stateProvider, this.logService, this.biometricsService, this.platformUtilsService, this.stateService, this.biometricStateService);
+    browserBiometricsService.setUnlockService(unlockService);
 
     this.passwordStrengthService = new PasswordStrengthService();
 

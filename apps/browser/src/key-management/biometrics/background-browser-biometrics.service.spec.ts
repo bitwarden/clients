@@ -4,11 +4,11 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/va
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 
 import { BackgroundBrowserBiometricsService } from "./background-browser-biometrics.service";
-import { UnlockService } from "@bitwarden/unlock";
 
 describe("background browser biometrics service tests", function () {
   let service: BackgroundBrowserBiometricsService;

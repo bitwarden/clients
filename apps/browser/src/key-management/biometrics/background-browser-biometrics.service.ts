@@ -22,13 +22,18 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
 
+  // Temporary workaround for dep cycle until we merge new biometrics work based on shared unlock.
+  private unlockService: UnlockService;
+  public setUnlockService(unlockService: UnlockService) {
+    this.unlockService = unlockService;
+  }
+
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
     private logService: LogService,
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private unlockService: UnlockService,
   ) {
     super();
     // Always connect to the native messaging background if biometrics are enabled, not just when it is used
