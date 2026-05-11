@@ -6,6 +6,7 @@ import { firstValueFrom, of, throwError } from "rxjs";
 import { ClientType } from "@bitwarden/client-type";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { SubscriptionPricingServiceAbstraction } from "@bitwarden/common/billing/abstractions/subscription-pricing.service.abstraction";
+import { PremiumCheckoutSessionResponse } from "@bitwarden/common/billing/models/response/premium-checkout-session.response";
 import {
   PersonalSubscriptionPricingTier,
   PersonalSubscriptionPricingTierIds,
@@ -293,7 +294,7 @@ describe("PremiumUpgradeDialogComponent", () => {
       });
 
       it("should disable the upgrade button while the checkout API call is in flight", async () => {
-        let resolveCheckout: (value: { checkoutSessionUrl: string }) => void = () => undefined;
+        let resolveCheckout: (value: PremiumCheckoutSessionResponse) => void = () => undefined;
         mockBillingApiService.createPremiumCheckoutSession.mockReturnValue(
           new Promise((resolve) => {
             resolveCheckout = resolve;
@@ -305,14 +306,14 @@ describe("PremiumUpgradeDialogComponent", () => {
 
         expect(component["upgrading"]()).toBe(true);
 
-        resolveCheckout({ checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123" });
+        resolveCheckout({ checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123" } as any);
         await upgradePromise;
 
         expect(component["upgrading"]()).toBe(false);
       });
 
       it("should ignore re-entrant clicks while a checkout call is in flight", async () => {
-        let resolveCheckout: (value: { checkoutSessionUrl: string }) => void = () => undefined;
+        let resolveCheckout: (value: PremiumCheckoutSessionResponse) => void = () => undefined;
         mockBillingApiService.createPremiumCheckoutSession.mockReturnValue(
           new Promise((resolve) => {
             resolveCheckout = resolve;
@@ -322,7 +323,7 @@ describe("PremiumUpgradeDialogComponent", () => {
         const firstCall = component["upgrade"]();
         const secondCall = component["upgrade"]();
 
-        resolveCheckout({ checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123" });
+        resolveCheckout({ checkoutSessionUrl: "https://checkout.stripe.com/c/pay/cs_123" } as any);
         await Promise.all([firstCall, secondCall]);
 
         expect(mockBillingApiService.createPremiumCheckoutSession).toHaveBeenCalledTimes(1);
