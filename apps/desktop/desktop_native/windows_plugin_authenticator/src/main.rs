@@ -136,18 +136,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             tracing::info!("Stopping server");
             plugin.shutdown_server()?;
         }
-        Some("add") => process::add_authenticator()?,
         Some(invalid) => {
-            tracing::error!(
-                "Invalid command argument passed: {invalid}. Specify one of [add, serve]"
-            );
+            tracing::error!("Invalid command argument passed: {invalid}. Specify one of [serve]");
             return Err(format!(
-                "No command argument passed: {invalid}. Specify one of [add, serve]"
+                "No command argument passed: {invalid}. Specify one of [serve]"
             ))?;
         }
         None => {
-            tracing::error!("No command argument passed. Specify one of [add, serve]");
-            return Err("No command argument passed. Specify one of [add, serve]")?;
+            tracing::error!("No command argument passed. Specify one of [serve]");
+            return Err("No command argument passed. Specify one of [serve]")?;
         }
     };
 

@@ -1,5 +1,5 @@
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     sync::{
         mpsc::{self, Sender},
         Arc, Mutex,
@@ -13,12 +13,9 @@ use autofill_provider::{
     WindowHandleQueryResponse,
 };
 use base64::engine::{general_purpose::STANDARD, Engine as _};
-use win_webauthn::{
-    plugin::{
-        Clsid, PluginAddAuthenticatorOptions, PluginAuthenticator, PluginCancelOperationRequest,
-        PluginGetAssertionRequest, PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
-    },
-    AuthenticatorInfo, CtapVersion, PublicKeyCredentialParameters,
+use win_webauthn::plugin::{
+    Clsid, PluginAuthenticator, PluginCancelOperationRequest, PluginGetAssertionRequest,
+    PluginLockStatus, PluginMakeCredentialRequest, WebAuthnPlugin,
 };
 use windows::{
     core::{GUID, HSTRING},
@@ -32,46 +29,6 @@ use windows::{
         },
     },
 };
-// use windows_plugin_authenticator::{AAGUID, AUTHENTICATOR_NAME, CLSID, LOGO_SVG, RPID};
-
-pub(super) fn add_authenticator() -> Result<(), String> {
-    unimplemented!()
-    /*
-        tracing::debug!("register() called...");
-        let clsid = CLSID.try_into().expect("valid GUID string");
-        let aaguid = AAGUID
-            .try_into()
-            .map_err(|err| format!("Invalid AAGUID `{AAGUID}`: {err}"))?;
-        let options = PluginAddAuthenticatorOptions {
-            authenticator_name: AUTHENTICATOR_NAME.to_string(),
-            clsid,
-            rp_id: Some(RPID.to_string()),
-            light_theme_logo_svg: Some(LOGO_SVG.to_string()),
-            dark_theme_logo_svg: Some(LOGO_SVG.to_string()),
-            authenticator_info: AuthenticatorInfo {
-                versions: HashSet::from([CtapVersion::Fido2_0, CtapVersion::Fido2_1]),
-                aaguid: aaguid,
-                options: Some(HashSet::from([
-                    "rk".to_string(),
-                    "up".to_string(),
-                    "uv".to_string(),
-                ])),
-                transports: Some(HashSet::from([
-                    "internal".to_string(),
-                    "hybrid".to_string(),
-                ])),
-                algorithms: Some(vec![PublicKeyCredentialParameters {
-                    alg: -7,
-                    typ: "public-key".to_string(),
-                }]),
-            },
-            supported_rp_ids: None,
-        };
-        let response = WebAuthnPlugin::add_authenticator(&options);
-        tracing::debug!("Added the authenticator: {response:?}");
-        Ok(())
-    */
-}
 
 pub(super) fn run_server(clsid: Clsid) -> Result<WebAuthnPlugin, String> {
     tracing::debug!("Setting up COM server");
