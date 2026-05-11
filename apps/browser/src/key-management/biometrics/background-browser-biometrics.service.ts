@@ -1,7 +1,6 @@
 import { combineLatest, timer } from "rxjs";
 import { filter, concatMap } from "rxjs/operators";
 
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -13,7 +12,6 @@ import {
   BiometricsService,
   BiometricsCommands,
   BiometricsStatus,
-  KeyService,
   BiometricStateService,
 } from "@bitwarden/key-management";
 import { UnlockService } from "@bitwarden/unlock";

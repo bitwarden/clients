@@ -1,4 +1,4 @@
-import { firstValueFrom, map, Observable } from "rxjs";
+import { catchError, firstValueFrom, map, Observable } from "rxjs";
 
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
@@ -35,9 +35,18 @@ export async function withPasswordManagerSdk<TResult>(
           using ref = sdk.take();
           return fn(ref.value);
         }),
+        catchError(() => {
+          throw new Error("SDK client not available");
+        }),
       ),
     );
   } catch (error) {
+    // If the error is not "SDK client not available", we re-throw it. Otherwise, try on the register client,
+    // since the vault appears to be locked.
+    if (!(error instanceof Error && error.message === "SDK client not available")) {
+      throw error;
+    }
+
     return firstValueFrom(
       registerSdkService.registerClient$(userId).pipe(
         map((client) => {
