@@ -10,7 +10,6 @@ import {
   TypographyModule,
   FormFieldModule,
   IconButtonModule,
-  CopyClickDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -28,7 +27,6 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
     TypographyModule,
     FormFieldModule,
     IconButtonModule,
-    CopyClickDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
