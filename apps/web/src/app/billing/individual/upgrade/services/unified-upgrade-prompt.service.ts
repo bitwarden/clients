@@ -10,7 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync/sync.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
-import { BILLING_DISK, StateProvider, UserKeyDefinition } from "@bitwarden/state";
+import { BILLING_DISK_LOCAL, StateProvider, UserKeyDefinition } from "@bitwarden/state";
 
 import {
   UnifiedUpgradeDialogComponent,
@@ -20,7 +20,7 @@ import {
 
 // State key for tracking premium modal dismissal
 export const PREMIUM_MODAL_DISMISSED_KEY = new UserKeyDefinition<boolean>(
-  BILLING_DISK,
+  BILLING_DISK_LOCAL,
   "premiumModalDismissed",
   {
     deserializer: (value: boolean) => value,
