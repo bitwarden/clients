@@ -33,7 +33,6 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         [bitPopoverAnchorFor]="tourStep2"
         [popoverOpen]="tourService.tourStep() === 2"
         [spotlight]="true"
-        [spotlightPadding]="12"
         [position]="'below-start'"
       >
         Open Dialog
@@ -57,7 +56,6 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
       [bitPopoverAnchorFor]="tourStep3"
       [popoverOpen]="tourService.tourStep() === 3"
       [spotlight]="true"
-      [spotlightPadding]="12"
       [position]="'right-center'"
     >
       <h2 bitTypography="h2" class="tw-mb-6">Survey Form</h2>
@@ -86,8 +84,8 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
         Our form components provide consistent styling and validation patterns.
       </p>
       <div class="tw-flex tw-gap-2 tw-mt-4">
-        <button type="button" bitButton buttonType="primary" (click)="tourService.endTour()">
-          Finish Tour
+        <button type="button" bitButton buttonType="primary" (click)="tourService.nextStep()">
+          Next
         </button>
         <button type="button" bitButton buttonType="secondary" (click)="tourService.endTour()">
           Skip Tour
