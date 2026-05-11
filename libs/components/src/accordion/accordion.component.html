@@ -30,6 +30,7 @@
   [attr.aria-labelledby]="triggerId"
   [class]="contentClassList()"
   [attr.aria-hidden]="!open()"
+  [attr.inert]="!open() ? '' : null"
 >
   <div class="tw-min-h-0 tw-max-h-80 tw-overflow-y-auto tw-px-4">
     <ng-content></ng-content>
