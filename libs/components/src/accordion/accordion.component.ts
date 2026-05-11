@@ -145,7 +145,7 @@ export class AccordionComponent {
       "tw-rounded-b-xl",
       "tw-overflow-hidden",
       "tw-transition-[grid-template-rows,padding] tw-duration-150",
-      this.resolvedVariant() === "subtle"
+      this.resolvedVariant() === "subtle" && this.open()
         ? "tw-border-t tw-border-solid tw-border-border-base"
         : "",
       this.open() ? "tw-grid-rows-[1fr] tw-py-4" : "tw-grid-rows-[0fr] tw-py-0",
