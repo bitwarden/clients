@@ -58,6 +58,7 @@ import {
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -125,6 +126,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
    * After initialization, the form control becomes the source of truth.
    */
   readonly initialPlan = input<PlanType>(PlanType.Free);
+
+  /** Custom trial length from the URL, overrides the plan's default trialPeriodDays for display and API calls. */
+  readonly trialLength = input<number | null>(null);
 
   // Derived signals
   readonly hasPremiumPersonally = toSignal(
@@ -659,7 +663,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.acceptingSponsorship()) {
       return this.i18nService.t("paymentSponsored");
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
-      return this.i18nService.t("paymentChargedWithTrial");
+      return this.i18nService.t(
+        "paymentChargedWithTrialSpecificLength",
+        this.trialLength() ?? DEFAULT_TRIAL_LENGTH_DAYS,
+      );
     } else {
       return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval()));
     }
@@ -1071,6 +1078,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
     if (this.eligibleCouponIds().length > 0) {
       request.coupons = this.eligibleCouponIds();
+    }
+
+    if (this.trialLength() != null) {
+      request.trialLength = this.trialLength()!;
     }
 
     if (this.hasProvider()) {
