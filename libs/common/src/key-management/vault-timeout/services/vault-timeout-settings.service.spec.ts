@@ -110,7 +110,7 @@ describe("VaultTimeoutSettingsService", () => {
       });
 
       it("contains Lock when the user has either a persistent or ephemeral PIN configured", async () => {
-        await setPinAvailability(true);
+        await setPinAvailability(true, mockUserId);
 
         const result = await firstValueFrom(
           vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
@@ -132,7 +132,7 @@ describe("VaultTimeoutSettingsService", () => {
 
       it("not contains Lock when the user does not have a master password, PIN, or biometrics", async () => {
         userDecryptionOptionsSubject.next(new UserDecryptionOptions({ hasMasterPassword: false }));
-        await setPinAvailability(false);
+        await setPinAvailability(false, mockUserId);
         biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(false));
 
         const result = await firstValueFrom(
