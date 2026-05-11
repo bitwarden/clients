@@ -15,11 +15,9 @@ describe("background browser biometrics service tests", function () {
 
   const nativeMessagingBackground = mock<NativeMessagingBackground>();
   const logService = mock<LogService>();
-  const keyService = mock<KeyService>();
   const biometricStateService = mock<BiometricStateService>();
   const messagingService = mock<MessagingService>();
   const vaultTimeoutSettingsService = mock<VaultTimeoutSettingsService>();
-  const unlockService = mock<UnlockService>();
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -29,7 +27,6 @@ describe("background browser biometrics service tests", function () {
       biometricStateService,
       messagingService,
       vaultTimeoutSettingsService,
-      unlockService,
     );
   });
 
