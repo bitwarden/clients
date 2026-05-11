@@ -112,13 +112,6 @@ describe("CipherViewComponent", () => {
           useValue: mockBillingAccountProfileStateService,
         },
         { provide: VaultSettingsService, useValue: mockVaultSettingsService },
-        {
-          provide: AtRiskPasswordCalloutService,
-          useValue: {
-            isDismissed$: jest.fn().mockReturnValue(of(false)),
-            dismiss: jest.fn().mockResolvedValue(undefined),
-          },
-        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

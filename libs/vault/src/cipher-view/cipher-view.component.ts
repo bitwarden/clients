@@ -318,7 +318,7 @@ export class CipherViewComponent {
     { initialValue: false },
   );
 
-  readonly showAtRiskCallout = computed(() => {
+  protected readonly showAtRiskCallout = computed(() => {
     return this.showChangePasswordLink() && !this.atRiskBannerDismissed();
   });
 
