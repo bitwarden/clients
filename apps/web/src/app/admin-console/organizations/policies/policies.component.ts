@@ -1,7 +1,16 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { combineLatest, Observable, of, switchMap, first, map, shareReplay, take } from "rxjs";
+import {
+  combineLatest,
+  lastValueFrom,
+  Observable,
+  of,
+  switchMap,
+  first,
+  map,
+  shareReplay,
+} from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -184,11 +193,10 @@ export class PoliciesComponent {
       });
       if (ref !== undefined) {
         this.drawerRef.set(ref);
-        ref.closed.pipe(take(1), takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-          if (triggerEl?.isConnected) {
-            triggerEl.focus();
-          }
-        });
+        await lastValueFrom(ref.closed);
+        if (triggerEl?.isConnected) {
+          triggerEl.focus();
+        }
       }
     } else {
       dialogComponent.open(this.dialogService, {
