@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, Inject, signal, viewChild } from "@angular/core";
+import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -18,12 +18,13 @@ import {
   SearchModule,
   ToastService,
   DialogModule,
+  ButtonComponent,
 } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
-import { SendFormComponent, SendFormConfig, SendFormMode, SendFormModule } from "../send-form";
+import { SendFormComponent, SendFormConfig, SendFormModule, SendFormService } from "../send-form";
 
 export interface SendItemDialogParams {
   /**
@@ -45,9 +46,11 @@ export interface SendItemDialogParams {
 
 /** A result of the Send add/edit dialog. */
 export const SendItemDialogResult = Object.freeze({
-  /** The send item was created or updated. */
-  Saved: "saved",
-  /** The send item was deleted. */
+  /** The Send item was created*/
+  Created: "created",
+  /** The Send item was updated */
+  Updated: "updated",
+  /** The Send item was deleted. */
   Deleted: "deleted",
 } as const);
 
@@ -78,13 +81,42 @@ export type SendItemDialogResult = {
 })
 export class SendAddEditDialogComponent {
   readonly sendFormComponent = viewChild(SendFormComponent);
+  readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
   /**
-   * The header text for the component.
+   * The header text translation key for the component.
    */
-  headerText: string;
+  readonly headerText = computed(() => {
+    if (this.showGenerator()) {
+      return "passwordGenerator";
+    }
+    let sendAction: "view" | "edit" | "add" = "add";
+    if (!this.editing()) {
+      sendAction = "view";
+    } else if (this.config.mode === "edit" || this.config.mode === "partial-edit") {
+      sendAction = "edit";
+    }
+    const translation = {
+      [SendType.Text]: {
+        view: "viewTextSendHeader",
+        edit: "editItemHeaderTextSendV2",
+        add: "newItemHeaderTextSendV2",
+      },
+      [SendType.File]: {
+        view: "viewFileSendHeader",
+        edit: "editItemHeaderFileSendV2",
+        add: "newItemHeaderFileSendV2",
+      },
+    };
+    return translation[this.config.sendType][sendAction];
+  });
 
   /** The configuration for the Send form. */
   config: SendFormConfig;
+
+  /**
+   * Whether the Send is actively being edited
+   */
+  protected readonly editing = signal(false);
 
   /**
    * Whether the inline password generator is currently shown.
@@ -108,9 +140,10 @@ export class SendAddEditDialogComponent {
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private dialogService: DialogService,
+    private sendFormService: SendFormService,
   ) {
     this.config = params.formConfig;
-    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+    this.editing.set(this.config.mode === "add");
   }
 
   /**
@@ -167,14 +200,14 @@ export class SendAddEditDialogComponent {
    */
   async onSendCreated(send: SendView) {
     // FIXME Add dialogService.open send-created dialog
-    await this.dialogRef.close({ result: SendItemDialogResult.Saved, send });
+    await this.dialogRef.close({ result: SendItemDialogResult.Created, send });
   }
 
   /**
    * Handles the event when the send is updated.
    */
   async onSendUpdated(send: SendView) {
-    await this.dialogRef.close({ result: SendItemDialogResult.Saved });
+    await this.dialogRef.close({ result: SendItemDialogResult.Updated, send });
   }
 
   /**
@@ -218,19 +251,20 @@ export class SendAddEditDialogComponent {
     await this.onSendDeleted();
   };
 
-  /**
-   * Gets the header text based on the mode and type.
-   * @param mode The mode of the send form.
-   * @param type The type of the send
-   * @returns The header text.
-   */
-  private getHeaderText(mode: SendFormMode, type: SendType) {
-    const isEditMode = mode === "edit" || mode === "partial-edit";
-    const translation = {
-      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
-    };
-    return this.i18nService.t(translation[type]);
+  protected editSend() {
+    this.editing.set(true);
+  }
+
+  protected async cancelEditSend() {
+    const proceed = await this.sendFormService.promptForUnsavedEdits();
+    if (!proceed) {
+      return;
+    }
+    if (this.config.mode === "add") {
+      void this.dialogRef.close();
+    } else {
+      this.editing.set(false);
+    }
   }
 
   /**
