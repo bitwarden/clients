@@ -1,6 +1,7 @@
 export { ButtonType, ButtonLikeAbstraction } from "./shared/button-like.abstraction";
 export { BitwardenIcon } from "./shared/icon";
 export * from "./a11y";
+export * from "./accordion";
 export * from "./anon-layout";
 export * from "./async-actions";
 export * from "./avatar";

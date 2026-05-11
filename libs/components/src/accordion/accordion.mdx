@@ -1,0 +1,147 @@
+import { Meta, Canvas, Primary, Controls } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./accordion.stories";
+
+<Meta of={stories} />
+
+```ts
+import { AccordionComponent, AccordionGroupComponent } from "@bitwarden/components";
+```
+
+# Accordion
+
+The accordion component is an expandable container used to progressively disclose content. It helps
+reduce cognitive load by allowing users to show and hide sections of related information on demand.
+
+It is well suited for FAQs, settings panels, filters, and any content where users are unlikely to
+need all sections at once. If all sections are likely to be relevant to the user, consider using a
+flat layout instead to avoid hiding important content.
+
+<Primary />
+<Controls />
+
+## Variants
+
+The `default` variant uses a secondary background for its header. Use it when the accordion appears
+on `bg-primary`.
+
+<Canvas of={stories.Default} />
+
+The `subtle` variant uses a primary background for its header, with a border separating the header
+from the content panel. Use it when the accordion appears on `bg-secondary` or `bg-tertiary`.
+
+<Canvas of={stories.Subtle} />
+
+## Sizes
+
+The `default` size is the standard accordion size. Prefer this variant when possible. Subtitles are
+visible in this size.
+
+<Canvas of={stories.DefaultExpanded} />
+
+The `sm` size reduces padding and hides the subtitle. Use it when vertical space is constrained or
+when multiple accordions appear in a dense list. If a heading and subtitle are both needed, use the
+default size.
+
+<Canvas of={stories.SmallSize} />
+
+## Header content
+
+### Start icon
+
+An icon tile can be placed before the heading using the `startIcon` input.
+
+<Canvas of={stories.WithStartIcon} />
+
+### End slot
+
+Additional elements such as badges can be placed at the trailing end of the header row using the
+`slot="end"` content projection attribute.
+
+```html
+<bit-accordion title="Advanced settings">
+  <bit-badge variant="primary" slot="end">1 of 3 complete</bit-badge>
+  <!-- panel content -->
+</bit-accordion>
+```
+
+<Canvas of={stories.WithEndSlot} />
+
+## States
+
+### Disabled
+
+A disabled accordion cannot be opened or closed. The trigger and text render in the inactive color
+to communicate that the row is not interactive.
+
+<Canvas of={stories.Inactive} />
+
+## Grouped accordions
+
+Wrap multiple `bit-accordion` elements in `bit-accordion-group` to form a visual group. The group
+automatically collapses inner border radii and shared borders so the rows read as a single unit.
+
+<Canvas of={stories.Grouped} />
+
+<Canvas of={stories.SmallGrouped} />
+
+### Single-select
+
+Add the `singleSelect` attribute to `bit-accordion-group` to enforce that only one row can be open
+at a time. When a row is opened, any other open row in the group closes automatically.
+
+```html
+<bit-accordion-group singleSelect>
+  <bit-accordion title="First item">...</bit-accordion>
+  <bit-accordion title="Second item">...</bit-accordion>
+</bit-accordion-group>
+```
+
+Never use `singleSelect` on an accordion group that contains forms — users may need to reference
+multiple sections simultaneously to complete a task.
+
+<Canvas of={stories.SingleSelect} />
+
+## Usage guidelines
+
+**Do:**
+
+- Use for FAQs, settings panels, filters, and other content where users are unlikely to need all
+  sections at once.
+- Allow multiple rows to be open simultaneously (the default). Single-select behavior may be applied
+  as needed, but never on accordions that contain forms.
+
+**Do not:**
+
+- Nest an accordion inside another accordion.
+- Leave the content slot empty when a row is open, unless showing an intentional empty state.
+- Mix slot content types inconsistently within the same accordion group.
+
+## Content guidelines
+
+Accordion headings should be concise and descriptive. Aim for 2–5 words. Write them in sentence case
+— for example, "Advanced settings" or "Import your passwords." Avoid vague headings such as "More
+options" or "Other"; the heading should clearly communicate what the user will find when the section
+is expanded.
+
+Subtitles are optional and should add context the heading alone cannot convey. Avoid restating the
+heading.
+
+When stacking multiple accordions in a group, use parallel grammatical structure across all
+headings. For example, do not mix noun phrases ("Advanced settings") with imperative phrases
+("Configure your account").
+
+Expanded content should be self-contained within its panel. Avoid requiring users to open multiple
+accordions simultaneously to complete a task. If accordion content includes its own heading, it
+should describe the panel content rather than repeat the accordion's heading.
+
+## Accessibility
+
+The accordion component automatically manages the relevant ARIA attributes:
+
+- The trigger button receives `aria-expanded` (true when open, false when closed) and
+  `aria-controls` pointing to the content region.
+- The content region receives `aria-labelledby` pointing back to the trigger.
+
+Users can toggle the accordion with <kbd>Enter</kbd> or <kbd>Space</kbd> when the trigger is
+focused. A visible focus ring is applied to the trigger on keyboard navigation.

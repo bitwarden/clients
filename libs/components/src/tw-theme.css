@@ -242,6 +242,7 @@
   --color-fg-body: var(--color-gray-600);
   --color-fg-body-subtle: var(--color-gray-500);
   --color-fg-disabled: var(--color-gray-400);
+  --color-fg-inactive: var(--color-gray-400);
 
   /* Brand Foreground */
   --color-fg-brand-soft: var(--color-brand-200);
@@ -484,6 +485,7 @@
   --color-fg-body: var(--color-gray-200);
   --color-fg-body-subtle: var(--color-gray-400);
   --color-fg-disabled: var(--color-gray-600);
+  --color-fg-inactive: var(--color-gray-600);
 
   /* Brand Foreground */
   --color-fg-brand-soft: var(--color-brand-500);

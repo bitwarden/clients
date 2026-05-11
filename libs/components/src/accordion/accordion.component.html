@@ -1,0 +1,38 @@
+<button
+  type="button"
+  data-accordion-trigger
+  [id]="triggerId"
+  [class]="triggerClassList()"
+  [disabled]="disabled() || null"
+  [attr.aria-expanded]="open()"
+  [attr.aria-controls]="contentId"
+  (click)="toggle()"
+>
+  @if (startIcon()) {
+    <bit-icon-tile [icon]="startIcon()" [size]="iconTileSize()" variant="contrast"></bit-icon-tile>
+  }
+  <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0 tw-gap-1 tw-items-start">
+    <span [class]="headingClassList()">{{ title() }}</span>
+    @if (size() === "default" && subtitle()) {
+      <span [class]="subtitleClassList()">{{ subtitle() }}</span>
+    }
+  </div>
+  <ng-content select="[slot=end]"></ng-content>
+  <bit-icon
+    [name]="open() ? 'bwi-angle-up' : 'bwi-angle-down'"
+    [class]="chevronClasses()"
+  ></bit-icon>
+</button>
+<div
+  data-accordion-content
+  [id]="contentId"
+  role="region"
+  [attr.aria-labelledby]="triggerId"
+  [class]="contentClassList()"
+  [attr.aria-hidden]="!open()"
+  [attr.inert]="!open() ? '' : null"
+>
+  <div class="tw-min-h-0 tw-max-h-80 tw-overflow-y-auto tw-px-4">
+    <ng-content></ng-content>
+  </div>
+</div>
