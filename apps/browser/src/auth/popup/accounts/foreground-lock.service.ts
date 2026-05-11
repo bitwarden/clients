@@ -46,5 +46,9 @@ export class ForegroundLockService implements LockService {
     await finishMessage;
   }
 
-  async runPlatformOnLockActions(): Promise<void> {}
+  async runPlatformOnLockActions(userId: UserId): Promise<void> {
+  }
+
+  async registerOnLockAction(action: (userId: UserId) => Promise<void>): void {
+  }
 }

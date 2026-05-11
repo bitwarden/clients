@@ -13,6 +13,7 @@ import { SearchService } from "@bitwarden/common/vault/abstractions/search.servi
 import { BiometricsService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { StateEventRunnerService } from "@bitwarden/state";
+import { UserId } from "@bitwarden/user-core";
 
 export class ExtensionLockService extends DefaultLockService {
   constructor(
@@ -52,7 +53,8 @@ export class ExtensionLockService extends DefaultLockService {
     );
   }
 
-  async runPlatformOnLockActions(): Promise<void> {
+  async runPlatformOnLockActions(userId: UserId): Promise<void> {
+    super.runPlatformOnLockActions(userId);
     await this.main.refreshMenu(true);
   }
 }

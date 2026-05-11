@@ -52,6 +52,10 @@ export type KeyConnectorUnlockData = {
 };
 
 export class DefaultUnlockService implements UnlockService {
+  private onUnlockActions: Array<
+    (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>
+  > = [];
+
   constructor(
     private registerSdkService: RegisterSdkService,
     private accountCryptographicStateService: AccountCryptographicStateService,
@@ -66,6 +70,12 @@ export class DefaultUnlockService implements UnlockService {
     private stateService: StateService,
     private biometricStateService: BiometricStateService,
   ) {}
+
+  registerOnUnlockAction(
+    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+  ): void {
+    this.onUnlockActions.push(action);
+  }
 
   async unlockWithPin(userId: UserId, pin: string): Promise<void> {
     const startTime = performance.now();
@@ -292,6 +302,10 @@ export class DefaultUnlockService implements UnlockService {
       await this.stateService.setUserKeyAutoUnlock(userKey.toBase64(), { userId: userId });
     }
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
+
+    for (const action of this.onUnlockActions) {
+      await action(userId, userKey);
+    }
   }
 
   private async shouldStoreUserKeyAutoUnlock(userId: UserId): Promise<boolean> {
