@@ -41,6 +41,9 @@ export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationIn
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
+export const BILLING_DISK_LOCAL = new StateDefinition("billingLocal", "disk", {
+  web: "disk-local",
+});
 export const BILLING_MEMORY = new StateDefinition("billing", "memory");
 
 // Auth
