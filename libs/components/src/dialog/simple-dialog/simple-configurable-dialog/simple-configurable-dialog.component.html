@@ -1,4 +1,9 @@
-<form [formGroup]="formGroup" [bitSubmit]="accept" bit-simple-dialog>
+<form
+  [formGroup]="formGroup"
+  [bitSubmit]="accept"
+  bit-simple-dialog
+  [hideIcon]="simpleDialogOpts.hideIcon ?? false"
+>
   <i bitDialogIcon class="bwi tw-text-3xl" [class]="iconClasses" aria-hidden="true"></i>
 
   <span bitDialogTitle>{{ title }}</span>
@@ -6,7 +11,12 @@
   <div bitDialogContent>{{ content }}</div>
 
   <ng-container bitDialogFooter>
-    <button type="submit" bitButton bitFormButton buttonType="primary">
+    <button
+      type="submit"
+      bitButton
+      bitFormButton
+      [buttonType]="simpleDialogOpts.type === 'danger' ? 'danger' : 'primary'"
+    >
       {{ acceptButtonText }}
     </button>
 

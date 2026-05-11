@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH key"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Server login token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -134,6 +140,18 @@
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Edit Login",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "ಹೆಸರು"
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "ಲಗತ್ತನ್ನು ಅಳಿಸಿ"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "ನೀವು ನಿಜವಾಗಿಯೂ ಅನುಪಯುಕ್ತಕ್ಕೆ ಕಳುಹಿಸಲು ಬಯಸುವಿರಾ?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "ಸಿಸ್ಟಮ್ ಟ್ರೇನಲ್ಲಿ ಯಾವಾಗಲೂ ಐಕಾನ್ ತೋರಿಸಿ."
   },
-  "startToTray": {
-    "message": "ಐಕಾನ್ ಟ್ರೇ ಮಾಡಲು ಪ್ರಾರಂಭಿಸಿ"
-  },
-  "startToTrayDesc": {
-    "message": "ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಮೊದಲು ಪ್ರಾರಂಭಿಸಿದಾಗ, ಸಿಸ್ಟಮ್ ಟ್ರೇನಲ್ಲಿ ಐಕಾನ್ ಅನ್ನು ಮಾತ್ರ ತೋರಿಸಿ."
-  },
-  "startToMenuBar": {
-    "message": "ಮೆನು ಬಾರ್‌ಗೆ ಪ್ರಾರಂಭಿಸಿ"
-  },
-  "startToMenuBarDesc": {
-    "message": "ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಮೊದಲು ಪ್ರಾರಂಭಿಸಿದಾಗ, ಮೆನು ಬಾರ್‌ನಲ್ಲಿ ಐಕಾನ್ ಅನ್ನು ಮಾತ್ರ ತೋರಿಸಿ."
-  },
   "openAtLogin": {
     "message": "ಲಾಗಿನ್‌ನಲ್ಲಿ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಪ್ರಾರಂಭಿಸಿ"
   },
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "ಡೀಫಾಲ್ಟ್ ಪಂದ್ಯ ಪತ್ತೆ",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "toggleOptions": {
     "message": "ಟಾಗಲ್ ಆಯ್ಕೆಗಳು"
@@ -3922,6 +3976,9 @@
   "chooseFile": {
     "message": "Choose File"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "No file chosen"
   },
@@ -4919,8 +4976,96 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "discardEdits": {
     "message": "Discard edits"
@@ -4938,6 +5083,9 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
   "sideNavigation": {
     "message": "Side navigation"
