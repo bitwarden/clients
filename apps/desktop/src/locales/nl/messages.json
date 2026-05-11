@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "SSH-sleutel"
   },
+  "typeBankAccount": {
+    "message": "Bankrekening"
+  },
   "typeLoginSubtitle": {
     "message": "Website of app"
   },
@@ -50,8 +53,11 @@
   "typeSshKeySubtitle": {
     "message": "Serverlogintoken"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdetails"
+  },
   "folderSubtitle": {
-    "message": "Organiseer uw items"
+    "message": "Organiseer je items"
   },
   "collectionSubtitle": {
     "message": "Gedeelde items organiseren"
@@ -134,6 +140,18 @@
     "message": "SSH-sleutel weergeven",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankrekening weergeven",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Rijbewijs weergeven",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Paspoort weergeven",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "Nieuwe login",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "Nieuwe SSH-sleutel",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Nieuwe bankrekening",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nieuw rijbewijs",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nieuw paspoort",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Login bewerken",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "SSH-sleutel bewerken",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Bankrekening bewerken",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Rijbewijs bewerken",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Paspoort bewerken",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Naam"
@@ -217,7 +259,7 @@
     }
   },
   "limitSendViewsHint": {
-    "message": "Niemand kan deze Send weergeven als de limiet is bereikt.",
+    "message": "Niemand kan deze Send weergeven als het limiet is bereikt.",
     "description": "Displayed under the limit views field on Send"
   },
   "privateNote": {
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "Verwijder bijlage"
+  },
+  "deleteAttachmentName": {
+    "message": "Bijlage $NAME$ verwijderen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ downloaden",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Weet je zeker dat je dit naar de prullenbak wilt verplaatsen?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "Altijd een pictogram in het systeemvak weergeven."
   },
-  "startToTray": {
-    "message": "Opstarten als systeemvakpictogram"
-  },
-  "startToTrayDesc": {
-    "message": "Wanneer de applicatie voor het eerst wordt gestart, alleen een pictogram in het systeemvak weergeven."
-  },
-  "startToMenuBar": {
-    "message": "Menubalk starten"
-  },
-  "startToMenuBarDesc": {
-    "message": "Wanneer de applicatie voor het eerst is gestart, alleen een pictogram weergeven in de menubalk."
-  },
   "openAtLogin": {
     "message": "Automatisch starten bij inloggen"
   },
@@ -1963,6 +2011,12 @@
     "message": "Standaard overeenkomstdetectie",
     "description": "Default URI match detection for auto-fill."
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie weergeven"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Overeenkomstdetectie verbergen"
+  },
   "toggleOptions": {
     "message": "Opties schakelen"
   },
@@ -2317,7 +2371,7 @@
     "message": "Kaartgegevens"
   },
   "cardBrandDetails": {
-    "message": "$BRAND$-gegevens",
+    "message": "$BRAND$ gegevens",
     "placeholders": {
       "brand": {
         "content": "$1",
@@ -3048,7 +3102,7 @@
     "message": "E-mailadres genereren"
   },
   "usernameGenerator": {
-    "message": "Gebruikersnaamgenerator"
+    "message": "Gebruikersnaam generator"
   },
   "generatePassword": {
     "message": "Genereer wachtwoord"
@@ -3643,7 +3697,7 @@
     "message": "Je account is op elk van de onderstaande apparaten aangemeld."
   },
   "loginStatus": {
-    "message": "Loginstatus"
+    "message": "Login status"
   },
   "recentlyActive": {
     "message": "Recent actief"
@@ -3664,7 +3718,7 @@
     "message": "Meer dan 30 dagen geleden"
   },
   "firstLogin": {
-    "message": "Eerste aanmelding"
+    "message": "Eerste login"
   },
   "trusted": {
     "message": "Vertrouwd"
@@ -3700,7 +3754,7 @@
     "message": "Bevestig, voor de veiligheid van je account, alleen als je noodtoegang hebt verleend aan deze gebruiker en de vingerafdruk voldoet aan wat er in hun account wordt weergegeven"
   },
   "orgTrustWarning": {
-    "message": "Ga, voor de veiligheid van je account, alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
+    "message": "Voor de veiligheid van je account, ga alleen verder als je lid bent van deze organisatie, accountherstel hebt ingeschakeld en de hieronder weergegeven vingerafdruk overeenkomt met de vingerafdruk van de organisatie."
   },
   "orgTrustWarning1": {
     "message": "Deze organisatie heeft een Enterprise-beleid dat je inschrijft voor accountherstel. Inschrijving stelt beheerders van de organisatie in staat om je wachtwoord te wijzigen. Ga alleen verder als je deze organisatie herkent en de vingerafdrukzin die hieronder wordt weergegeven overeenkomt met de vingerafdruk van de organisatie."
@@ -3869,7 +3923,7 @@
     "message": "Jouw account vereist Duo-tweestapsaanmelding."
   },
   "duoTwoFactorRequiredPageSubtitle": {
-    "message": "Jouw account vereist Duo-tweestapsaanmelding. Volg de onderstaande stappen om het inloggen te voltooien."
+    "message": "Jouw account vereist Duo-tweestapslogin. Volg de onderstaande stappen om het inloggen te voltooien."
   },
   "followTheStepsBelowToFinishLoggingIn": {
     "message": "Volg de onderstaande stappen om in te loggen."
@@ -3920,6 +3974,9 @@
     "message": "Importbestand kiezen"
   },
   "chooseFile": {
+    "message": "Bestand kiezen"
+  },
+  "chooseFileSentenceCase": {
     "message": "Bestand kiezen"
   },
   "noFileChosen": {
@@ -4011,7 +4068,7 @@
     "message": "Direct importeren vanuit browser"
   },
   "browserProfile": {
-    "message": "Browserprofiel"
+    "message": "Browser profiel"
   },
   "seeDetailedInstructions": {
     "message": "Zie gedetailleerde instructies op onze helpsite op",
@@ -4037,7 +4094,7 @@
     "description": "Label indicating the most common import formats"
   },
   "uriMatchDefaultStrategyHint": {
-    "message": "URI-matche-detectie is hoe Bitwarden invulsuggesties herkent.",
+    "message": "URI-match detectie is hoe Bitwarden invulsuggesties herkent.",
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
@@ -4166,7 +4223,7 @@
     "message": "Biometrisch ontgrendelen is momenteel niet beschikbaar om een onbekende reden."
   },
   "itemDetails": {
-    "message": "Itemdetails"
+    "message": "Item details"
   },
   "itemName": {
     "message": "Itemnaam"
@@ -4707,7 +4764,7 @@
     "message": "Doorgaan met inloggen"
   },
   "doNotContinue": {
-    "message": "Niet verder gaan"
+    "message": "Niet doorgaan"
   },
   "domain": {
     "message": "Domein"
@@ -4919,8 +4976,96 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "$LABEL$ herschikken. Gebruik de pijltjestoets om het item omhoog of omlaag te verplaatsen.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Gebruikersverificatie is mislukt."
+  },
+  "bankAccount": {
+    "message": "Bankrekening"
+  },
+  "bankName": {
+    "message": "Banknaam"
+  },
+  "nameOnAccount": {
+    "message": "Naam op rekening"
+  },
+  "bankAccountType": {
+    "message": "Soort rekening"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Bedrijf"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individu"
+  },
+  "accountNumber": {
+    "message": "Rekeningnummer"
+  },
+  "bankRoutingNumber": {
+    "message": "Routeringsnummer",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Vestiging/instituutnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefoonnummer bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankrekening doorzoeken"
+  },
+  "copyAccountNumber": {
+    "message": "Rekeningnummer kopiëren"
+  },
+  "copyRoutingNumber": {
+    "message": "Routeringsnummer kopiëren"
+  },
+  "copyPin": {
+    "message": "PIN kopiëren"
+  },
+  "copyIban": {
+    "message": "IBAN kopiëren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Controleren"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Spaargeld"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Bewijs van storting"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kredietlijn"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investering/makelaar"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Geldmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Overig"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Veilig je bankgegevens opslaan"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Sla je bankgegevens op om deze gemakkelijk en veilig op al je apparaten te benaderen."
   },
   "discardEdits": {
     "message": "Bewerkingen verwerpen"
@@ -4938,6 +5083,9 @@
   "saveSendEditsFailed": {
     "message": "Bewerkingen Send opslaan mislukt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Je organisatie vereist zichtbaarheid van e-mail. Vink \"Verberg je e-mail van de kijkers\" uit om deze op te slaan."
   },
   "sideNavigation": {
     "message": "Zijnavigatie"

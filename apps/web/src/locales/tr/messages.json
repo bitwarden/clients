@@ -15,7 +15,7 @@
     "message": "Critical apps at risk"
   },
   "allCriticalApps": {
-    "message": "All critical apps"
+    "message": "Tüm kritik uygulamalar"
   },
   "appLogoLabel": {
     "message": "Bitwarden logosu"
@@ -1012,6 +1012,9 @@
   "typeSshKeySubtitle": {
     "message": "Sunucu giriş token'ı"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banka detayları"
+  },
   "folderSubtitle": {
     "message": "Kayıtlarınızı organize edin"
   },
@@ -1029,6 +1032,9 @@
   },
   "typeSecureNotePlural": {
     "message": "Güvenli notlar"
+  },
+  "typeBankAccount": {
+    "message": "Banka hesabı"
   },
   "folders": {
     "message": "Klasörler"
@@ -1116,6 +1122,18 @@
     "message": "Yeni SSH anahtarı",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Yeni banka hesabı",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Yeni ehliyet",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Yeni pasaport",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderTextSend": {
     "message": "Yeni Send metni",
     "description": "Header for new text send"
@@ -1144,6 +1162,18 @@
     "message": "SSH anahtarını düzenle",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Banka hesabını düzenle",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Ehliyeti düzenle",
+    "description": "Header for edit driver's license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Pasaportu düzenle",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Send metnini düzenle",
     "description": "Header for edit text send"
@@ -1171,6 +1201,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH anahtarını göster",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Banka hesabını görüntüle",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Ehliyeti görüntüle",
+    "description": "Header for view driver's license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Pasaportu görüntüle",
+    "description": "Header for view passport item type"
   },
   "new": {
     "message": "Yeni",
@@ -1307,6 +1349,38 @@
       }
     }
   },
+  "copyInfoTitle": {
+    "message": "Bilgileri kopyala - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "copyNoteTitle": {
+    "message": "Notu kopyala - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Kopyalanacak değer yok"
+  },
+  "launchWebsiteName": {
+    "message": "$ITEMNAME$ sitesini aç",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "me": {
     "message": "Ben"
   },
@@ -1415,6 +1489,24 @@
   },
   "deleteAttachment": {
     "message": "Dosyayı sil"
+  },
+  "deleteAttachmentName": {
+    "message": "$NAME$ dosyasını sil",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ dosyasını indir",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Çöp kutusuna göndermek istediğinizden emin misiniz?"
@@ -2164,7 +2256,7 @@
     "message": "An error occurred while exporting your vault data"
   },
   "passwordGenerator": {
-    "message": "Parola oluşturucu"
+    "message": "Parola üreteci"
   },
   "minComplexityScore": {
     "message": "Minimum karmaşıklık puanı"
@@ -2538,6 +2630,9 @@
     "message": "İçe aktarma dosyasını seçin"
   },
   "chooseFile": {
+    "message": "Dosya seç"
+  },
+  "chooseFileSentenceCase": {
     "message": "Dosya seç"
   },
   "noFileChosen": {
@@ -3260,7 +3355,7 @@
     }
   },
   "bitwardenFamiliesPlan": {
-    "message": "Bitwarden Aile planı."
+    "message": "Bitwarden Families paketi."
   },
   "addons": {
     "message": "Eklentiler"
@@ -3650,7 +3745,7 @@
     }
   },
   "planNameFamilies": {
-    "message": "Aile"
+    "message": "Families"
   },
   "planDescFamilies": {
     "message": "Kişisel kullanım için, aileniz ve arkadaşlarınızla paylaşın."
@@ -3949,8 +4044,23 @@
       }
     }
   },
+  "invite": {
+    "message": "Davet et"
+  },
   "inviteUserDesc": {
     "message": "Aşağıya Bitwarden hesabının e-posta adresini girerek kuruluşunuza yeni bir kullanıcı davet edin. Halihazırda bir Bitwarden hesabı yoksa yeni bir hesap oluşturması istenecektir."
+  },
+  "inviteUserDescription": {
+    "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteMultipleEmailDesc": {
+    "message": "Enter up to $COUNT$ emails by separating with a comma.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
   },
   "inviteMultipleEmailsWithSeatLimit": {
     "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
@@ -4242,6 +4352,42 @@
       }
     }
   },
+  "viewedBankAccountNumberItemId": {
+    "message": "Viewed account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedBankAccountPinItemId": {
+    "message": "Viewed PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountNumberItemId": {
+    "message": "Copied account number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedBankAccountPinItemId": {
+    "message": "Copied PIN for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "$ID$ kaydı otomatik dolduruldu.",
     "placeholders": {
@@ -4280,6 +4426,21 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "discardEditsTitle": {
+    "message": "Düzenlemeleri sil"
+  },
+  "discardEditsConfirmation": {
+    "message": "If you close this view, your unsaved edits will be discarded."
+  },
+  "discardEdits": {
+    "message": "Düzenlemeleri sil"
+  },
+  "keepEditing": {
+    "message": "Düzenlemeye devam et"
+  },
+  "backToEditing": {
+    "message": "Düzenlemeye dön"
   },
   "editedPolicyId": {
     "message": "İlke düzenlendi: $ID$.",
@@ -4355,6 +4516,45 @@
   },
   "revokedEmailError": {
     "message": "1 or more emails belong to revoked members. Restore their access to reinvite."
+  },
+  "revocationReasonUnknown": {
+    "message": "Bilinmeyen sebep"
+  },
+  "revocationReasonManual": {
+    "message": "Revoked by an admin"
+  },
+  "revocationReasonTwoFactorNonCompliance": {
+    "message": "Not in compliance with two-step login policy"
+  },
+  "revocationReasonSingleOrganizationNonCompliance": {
+    "message": "Not in compliance with single organization policy"
+  },
+  "revokedUserIdTwoFactorNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the two-factor organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonCompliance": {
+    "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdDeclinedTransfer": {
+    "message": "Revoked organization access for $ID$ for declining transfer to organization ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
   },
   "restoredUserId": {
     "message": "$ID$ için kuruluş erişimi geri getirildi.",
@@ -4732,6 +4932,9 @@
   "reportGenerationDone": {
     "message": "Done!"
   },
+  "reportGenerationFailed": {
+    "message": "An error occurred while generating the report. Try again."
+  },
   "riskInsightsRunReport": {
     "message": "Raporu çalıştır"
   },
@@ -4933,7 +5136,7 @@
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
   "changeBillingPlan": {
-    "message": "Planı yükselt",
+    "message": "Paketi yükselt",
     "description": "A billing plan/package. For example: Families, Teams, Enterprise, etc."
   },
   "changeBillingPlanUpgrade": {
@@ -6009,7 +6212,7 @@
     "message": "Acil durum kişisi ekle"
   },
   "designatedEmergencyContacts": {
-    "message": "Acil durum kişisi olarak ayarlandı"
+    "message": "Acil durum kişisi olarak ayarlandıklarınız"
   },
   "noGrantedAccess": {
     "message": "Henüz kimse sizi acil durum kişisi olarak ayarlamadı."
@@ -7392,7 +7595,7 @@
     "message": "Ücretsiz Bitwarden Aile"
   },
   "sponsoredBitwardenFamilies": {
-    "message": "Sponsor aileler"
+    "message": "Sponsorlu aileler"
   },
   "noSponsoredFamiliesMessage": {
     "message": "Sponsor aile yok"
@@ -7512,7 +7715,7 @@
     }
   },
   "freeFamiliesPlan": {
-    "message": "Ücretsiz Aile paketi"
+    "message": "Ücretsiz Families paketi"
   },
   "redeemNow": {
     "message": "Şimdi kullan"
@@ -7937,7 +8140,7 @@
     "message": "Hesap ayarları"
   },
   "generator": {
-    "message": "Oluşturucu",
+    "message": "Üreteç",
     "description": "Short for 'credential generator'."
   },
   "generateUsername": {
@@ -8281,9 +8484,19 @@
     "message": "SCIM sağlama",
     "description": "The text, 'SCIM', is an acronym and should not be translated."
   },
+  "scimV2": {
+    "message": "SCIM",
+    "description": "The text, 'SCIM', is an acronym and should not be translated."
+  },
   "scimDescription": {
     "message": "SCIM provizyonu aracılığıyla tercih ettiğiniz kimlik sağlayıcınızla kullanıcıları ve grupları otomatik olarak sağlayın",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
+  },
+  "scimDescriptionV2": {
+    "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
+  },
+  "scimLearnMore": {
+    "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
     "message": "SCIM provizyonu aracılığıyla tercih ettiğiniz kimlik sağlayıcınızla kullanıcıları ve grupları otomatik olarak sağlayın. Desteklenen entegrasyonları bulun",
@@ -9172,6 +9385,9 @@
   "memberRole": {
     "message": "Üye rolü"
   },
+  "moreSettings": {
+    "message": "Diğer ayarlar"
+  },
   "moreFromBitwarden": {
     "message": "Diğer Bitwarden ürünleri"
   },
@@ -9354,6 +9570,9 @@
   },
   "secretsManagerAccessDescription": {
     "message": "Sır Yöneticisi'ne kullanıcı erişimini etkinleştirin."
+  },
+  "grantSecretsManager": {
+    "message": "Secrets Manager'a erişim ver"
   },
   "userAccessSecretsManagerGA": {
     "message": "Bu kullanıcı Sır Yöneticisi'ne erişebilir"
@@ -12642,7 +12861,7 @@
     "message": "Satın alma ayrıntılarını daralt"
   },
   "familiesMembership": {
-    "message": "Aile üyeliği"
+    "message": "Families üyeliği"
   },
   "advancedOnlineSecurity": {
     "message": "Gelişmiş çevrimiçi güvenlik"
@@ -12756,16 +12975,16 @@
     "message": "Sorunsuz entegrasyon"
   },
   "families": {
-    "message": "Aileler"
+    "message": "Families"
   },
   "upgradeToFamilies": {
-    "message": "Aileler planına yükselt"
+    "message": "Families paketine yükselt"
   },
   "upgradeToPremium": {
     "message": "Premium’a yükselt"
   },
   "familiesUpdated": {
-    "message": "Aileler planına yükseltildiniz!"
+    "message": "Families paketine geçtiniz!"
   },
   "taxCalculationError": {
     "message": "Konumunuz için vergi hesaplanırken bir hata oluştu. Lütfen tekrar deneyin."
@@ -12774,7 +12993,7 @@
     "message": "Bitwarden’a Hoş Geldiniz"
   },
   "individualUpgradeDescriptionMessage": {
-    "message": "Premium ile daha fazla güvenlik özelliğinin kilidini açın veya Aileler ile kayıtlarınızı paylaşmaya başlayın"
+    "message": "Premium paketle daha fazla güvenlik özelliğine kavuşun veya Families paketiyle hesaplarınızı paylaşmaya başlayın"
   },
   "individualUpgradeTaxInformationMessage": {
     "message": "Fiyatlara vergi dahil değildir ve yıllık olarak faturalandırılır."
@@ -12792,7 +13011,7 @@
     "message": "Şimdi yükselt"
   },
   "formWillCreateNewFamiliesOrgMessage": {
-    "message": "Bu formu doldurmanız yeni bir Aileler kuruluşu oluşturacaktır. Ücretsiz kuruluşunuzu Yönetici Konsolu’ndan yükseltebilirsiniz."
+    "message": "Bu formu doldurmanız yeni bir Families kuruluşu oluşturacaktır. Ücretsiz kuruluşunuzu Yönetici Konsolu’ndan yükseltebilirsiniz."
   },
   "upgradeErrorMessage": {
     "message": "Yükseltmenizi işlerken bir hata ile karşılaştık. Lütfen tekrar deneyin."
@@ -12837,7 +13056,7 @@
     "message": "Kart numarası"
   },
   "startFreeFamiliesTrial": {
-    "message": "Ücretsiz Aileler denemesini başlat"
+    "message": "Ücretsiz Families denemesini başlat"
   },
   "blockClaimedDomainAccountCreation": {
     "message": "Sahiplenilen etki alanları için hesap oluşturulmasını engelle"
@@ -13300,7 +13519,7 @@
     "message": "Ekip üyeliği"
   },
   "plansUpdated": {
-    "message": "$PLAN$ planına geçtiniz!",
+    "message": "$PLAN$ paketine geçtiniz!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -13328,6 +13547,70 @@
         "example": "Jan 1, 1970"
       }
     }
+  },
+  "bankName": {
+    "message": "Banka adı"
+  },
+  "nameOnAccount": {
+    "message": "Hesaptaki ad"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing numarası",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Şube numarası"
+  },
+  "swiftCode": {
+    "message": "SWIFT kodu"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Banka telefonu"
+  },
+  "searchBankAccount": {
+    "message": "Banka hesabı ara"
+  },
+  "copyAccountNumber": {
+    "message": "Hesap numarasını kopyala"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "sendsTitleNoSearchResults": {
     "message": "Hiçbir sonuç bulunamadı"
@@ -13396,14 +13679,8 @@
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
   },
-  "discardEdits": {
-    "message": "Düzenlemeleri sil"
-  },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
-  },
-  "backToEditing": {
-    "message": "Düzenlemeye dön"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -13412,6 +13689,9 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
   "sideNavigation": {
     "message": "Side navigation"
