@@ -218,6 +218,7 @@ describe("CoachmarkService", () => {
 
       expect(service.isRunning()).toBe(false);
       expect(setUserState).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith(["/vault"]);
     }));
 
     it("should do nothing if tour is not running", fakeAsync(() => {
@@ -289,6 +290,7 @@ describe("CoachmarkService", () => {
 
       expect(service.isRunning()).toBe(true);
 
+      navigate.mockClear();
       void service.completeTour();
       tick(200);
 
@@ -296,6 +298,7 @@ describe("CoachmarkService", () => {
       expect(service.activeStepId()).toBeNull();
       expect(service.totalSteps()).toBe(0);
       expect(setUserState).toHaveBeenCalledWith(expect.anything(), true, mockUserId);
+      expect(navigate).toHaveBeenCalledWith(["/vault"]);
     }));
 
     it("should not persist if no active account", fakeAsync(() => {
