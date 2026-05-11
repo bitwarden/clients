@@ -93,11 +93,7 @@ export class Fido2ClientService<
     const blockedInteractionsUris = await firstValueFrom(
       this.domainSettingsService.blockedInteractionsUris$,
     );
-    const isBlockedDomain =
-      blockedInteractionsUris != null &&
-      Object.keys(blockedInteractionsUris).some((blockedHostname) =>
-        hostname.endsWith(blockedHostname),
-      );
+    const isBlockedDomain = blockedInteractionsUris != null && hostname in blockedInteractionsUris;
     if (isBlockedDomain) {
       return false;
     }

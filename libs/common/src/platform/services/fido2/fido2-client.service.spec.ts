@@ -724,12 +724,12 @@ describe("FidoAuthenticatorService", () => {
       expect(result).toBe(false);
     });
 
-    it("returns false when the hostname is a subdomain of a `blockedInteractionsUris` entry", async () => {
+    it("returns true when the hostname is a subdomain of a `blockedInteractionsUris` entry", async () => {
       domainSettingsService.blockedInteractionsUris$ = of({ "example.com": null });
 
       const result = await client.isFido2FeatureEnabled(hostname, origin);
 
-      expect(result).toBe(false);
+      expect(result).toBe(true);
     });
 
     it("returns true when `blockedInteractionsUris` is empty", async () => {
@@ -749,7 +749,7 @@ describe("FidoAuthenticatorService", () => {
     });
 
     it("rejects via `blockedInteractionsUris` regardless of `neverDomains` state", async () => {
-      domainSettingsService.blockedInteractionsUris$ = of({ "example.com": null });
+      domainSettingsService.blockedInteractionsUris$ = of({ "sub.example.com": null });
       domainSettingsService.neverDomains$ = of({});
 
       const result = await client.isFido2FeatureEnabled(hostname, origin);
