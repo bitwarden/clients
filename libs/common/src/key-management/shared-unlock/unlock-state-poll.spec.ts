@@ -1,11 +1,12 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+ 
+import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 
 import { AccountInfo, AccountService } from "../../auth/abstractions/account.service";
-import { newGuid } from "@bitwarden/guid";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
@@ -45,7 +46,7 @@ describe("UnlockEventPoller", () => {
 
   it("fires onUnlock when an account transitions from locked to unlocked across two polls", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.getUserKey.mockResolvedValueOnce(null).mockResolvedValueOnce(keyA);
+    keyService.userKey$.mockReturnValueOnce(of(null)).mockReturnValueOnce(of(keyA));
 
     await poller.poll();
     expect(onUnlock).not.toHaveBeenCalled();
@@ -57,7 +58,7 @@ describe("UnlockEventPoller", () => {
 
   it("does not re-fire on subsequent polls while the account stays unlocked", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.getUserKey.mockResolvedValue(keyA);
+    keyService.userKey$.mockReturnValueOnce(of(keyA));
 
     for (let i = 0; i < 6; i++) {
       await poller.poll();
@@ -68,12 +69,12 @@ describe("UnlockEventPoller", () => {
 
   it("fires again after a relock-then-unlock cycle", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.getUserKey
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce(keyA)
-      .mockResolvedValueOnce(keyA)
-      .mockResolvedValueOnce(null)
-      .mockResolvedValueOnce(keyA);
+    keyService.userKey$
+      .mockReturnValueOnce(of(null))
+      .mockReturnValueOnce(of(keyA))
+      .mockReturnValueOnce(of(keyA))
+      .mockReturnValueOnce(of(null))
+      .mockReturnValueOnce(of(keyA));
 
     for (let i = 0; i < 5; i++) {
       await poller.poll();
@@ -86,7 +87,7 @@ describe("UnlockEventPoller", () => {
 
   it("fires on the first poll if an account is already unlocked when the poller is created", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.getUserKey.mockResolvedValue(keyA);
+    keyService.userKey$.mockReturnValueOnce(of(keyA));
 
     await poller.poll();
 
@@ -96,7 +97,7 @@ describe("UnlockEventPoller", () => {
 
   it("does not fire when an account is locked from the start and stays locked", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.getUserKey.mockResolvedValue(null);
+    keyService.userKey$.mockReturnValueOnce(of(null));
 
     for (let i = 0; i < 10; i++) {
       await poller.poll();
@@ -107,11 +108,11 @@ describe("UnlockEventPoller", () => {
 
   it("tracks multiple accounts independently", async () => {
     accounts$.next({ [userA]: accountInfo, [userB]: accountInfo });
-    keyService.getUserKey.mockImplementation(async (userId?: string) => {
+    keyService.userKey$.mockImplementation((userId: string) => {
       if (userId === userA) {
-        return null;
+        return of(null);
       }
-      return keyB;
+      return of(keyB);
     });
 
     await poller.poll();
@@ -123,7 +124,7 @@ describe("UnlockEventPoller", () => {
 
   it("clears internal tracking for accounts that disappear from accounts$", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.getUserKey.mockResolvedValue(keyA);
+    keyService.userKey$.mockReturnValueOnce(of(keyA));
 
     await poller.poll();
     expect(onUnlock).toHaveBeenCalledTimes(1);
