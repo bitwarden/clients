@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/delete-account-dialog/delete-account-dialog.component";
+import { DeleteAccountDialogComponent } from "@bitwarden/angular/auth/account-deletion/delete-account-dialog/delete-account-dialog.component";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import {
   OrganizationUserStatusType,
@@ -151,6 +151,67 @@ describe("AccountDeletionService", () => {
 
       expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
       expect(DeleteAccountDialogComponent.open).toHaveBeenCalled();
+    });
+  });
+
+  describe("owner filter edge cases", () => {
+    it("does not gate a provider-only owner (isMember = false)", async () => {
+      // An owner who accesses the org via provider, not as a member, should not be blocked
+      organizations$.next([
+        makeOrg({ isMember: false, productTierType: ProductTierType.Enterprise }),
+      ]);
+
+      await service.openDeleteAccountFlow();
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(DeleteAccountDialogComponent.open).toHaveBeenCalled();
+    });
+
+    it.each([
+      OrganizationUserStatusType.Invited,
+      OrganizationUserStatusType.Accepted,
+      OrganizationUserStatusType.Revoked,
+    ])("does not gate an owner whose status is %s (not Confirmed)", async (status) => {
+      organizations$.next([makeOrg({ status, productTierType: ProductTierType.Enterprise })]);
+
+      await service.openDeleteAccountFlow();
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(DeleteAccountDialogComponent.open).toHaveBeenCalled();
+    });
+  });
+
+  describe("paid-tier coverage", () => {
+    it.each([
+      ProductTierType.TeamsStarter,
+      ProductTierType.Teams,
+      ProductTierType.Families,
+      ProductTierType.Enterprise,
+    ])("blocks deletion for productTierType %s", async (tierType) => {
+      organizations$.next([makeOrg({ productTierType: tierType })]);
+
+      await service.openDeleteAccountFlow();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "cannotDeleteAccountOrganizationOwnerDesc" } }),
+      );
+      expect(DeleteAccountDialogComponent.open).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("mixed-org priority", () => {
+    it("shows the paid-org blocking dialog when the user owns both a free and a paid org", async () => {
+      organizations$.next([
+        makeOrg({ productTierType: ProductTierType.Free }),
+        makeOrg({ productTierType: ProductTierType.Enterprise }),
+      ]);
+
+      await service.openDeleteAccountFlow();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "cannotDeleteAccountOrganizationOwnerDesc" } }),
+      );
+      expect(DeleteAccountDialogComponent.open).not.toHaveBeenCalled();
     });
   });
 });

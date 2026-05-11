@@ -2499,6 +2499,12 @@
   "cannotDeleteAccountOrganizationOwnerDesc": {
     "message": "You cannot delete your account while you are the owner of an organization. Transfer ownership or delete the organization first."
   },
+  "cannotDeleteAccount": {
+    "message": "Cannot delete account"
+  },
+  "cannotDeleteAccountDesc": {
+    "message": "This action cannot be completed because your account is owned by an organization. Contact your organization administrator for additional details."
+  },
   "accountDeleted": {
     "message": "Account deleted"
   },

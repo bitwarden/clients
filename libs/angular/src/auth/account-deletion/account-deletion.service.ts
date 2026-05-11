@@ -8,7 +8,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { DialogService } from "@bitwarden/components";
 
-import { DeleteAccountDialogComponent } from "../delete-account-dialog/delete-account-dialog.component";
+import { DeleteAccountDialogComponent } from "./delete-account-dialog/delete-account-dialog.component";
 
 @Injectable()
 export class AccountDeletionService {
@@ -45,7 +45,7 @@ export class AccountDeletionService {
 
     if (ownsPaidOrg) {
       await this.dialogService.openSimpleDialog({
-        title: { key: "deleteAccount" },
+        title: { key: "cannotDeleteAccount" },
         content: { key: "cannotDeleteAccountOrganizationOwnerDesc" },
         acceptButtonText: { key: "close" },
         cancelButtonText: null,
