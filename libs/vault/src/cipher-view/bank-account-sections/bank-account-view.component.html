@@ -88,9 +88,8 @@
           bitSuffix
           type="button"
           [label]="'copyRoutingNumber' | i18n"
-          [appCopyClick]="bankAccount().routingNumber"
-          showToast
-          [valueLabel]="'routingNumber' | i18n"
+          appCopyField="routingNumber"
+          [cipher]="cipher()"
         ></button>
       </bit-form-field>
     }
