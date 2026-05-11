@@ -181,7 +181,13 @@ export class MemberActionsService {
       });
 
       if (result.failed.length > 0) {
-        this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result);
+        const resendUsers = await firstValueFrom(
+          this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result),
+        );
+
+        if (resendUsers.length > 0) {
+          await this.bulkReinvite(organization, resendUsers);
+        }
       }
     } catch (error) {
       result.failed = users.map((user) => ({
