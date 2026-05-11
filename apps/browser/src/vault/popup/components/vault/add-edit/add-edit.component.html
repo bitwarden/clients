@@ -9,7 +9,7 @@
   >
     @if (config?.originalCipher?.archivedDate) {
       <ng-container slot="end">
-        <button bit-chip-action [label]="'archived' | i18n"></button>
+        <button type="button" bit-chip-action [label]="'archived' | i18n"></button>
       </ng-container>
     }
     <app-pop-out slot="end" />

@@ -4,7 +4,7 @@
   </span>
 
   @if (isCipherArchived && !params.isAdminConsoleAction) {
-    <button bit-chip-action bitDialogHeaderEnd [label]="'archived' | i18n"></button>
+    <button type="button" bit-chip-action bitDialogHeaderEnd [label]="'archived' | i18n"></button>
   }
 
   <div bitDialogContent #dialogContent>
