@@ -3,8 +3,7 @@ import { mock } from "jest-mock-extended";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
-import { UnlockService } from "@bitwarden/unlock";
+import { BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 
