@@ -37,6 +37,13 @@ export class DomQueryService implements DomQueryServiceInterface {
 
   constructor() {
     this.getShadowRoot = stopwatch("getShadowRoot", this.getShadowRoot);
+    this.queryShadowRoots = stopwatch("queryShadowRoots", this.queryShadowRoots);
+    this.checkForNewShadowRoots = stopwatch("checkForNewShadowRoots", this.checkForNewShadowRoots);
+    this.deepQueryElements = stopwatch("deepQueryElements", this.deepQueryElements);
+    this.queryAllTreeWalkerNodes = stopwatch(
+      "queryAllTreeWalkerNodes",
+      this.queryAllTreeWalkerNodes,
+    );
     void this.init();
   }
 
