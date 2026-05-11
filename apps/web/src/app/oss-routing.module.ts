@@ -699,7 +699,7 @@ const routes: Routes = [
           {
             path: "data-recovery",
             component: DataRecoveryComponent,
-            data: { titleId: "dataRecovery" } satisfies RouteDataProperties,
+            data: { titleId: "troubleshooting" } satisfies RouteDataProperties,
           },
           {
             path: "domain-rules",

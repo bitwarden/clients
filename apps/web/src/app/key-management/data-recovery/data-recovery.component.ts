@@ -17,6 +17,7 @@ import { LogService } from "@bitwarden/logging";
 
 import { SharedModule } from "../../shared";
 
+import { DownloadEventLogsComponent } from "./download-event-logs.component";
 import { LogRecorder } from "./log-recorder";
 import {
   SyncStep,
@@ -46,7 +47,7 @@ interface StepState {
   selector: "app-data-recovery",
   templateUrl: "data-recovery.component.html",
   standalone: true,
-  imports: [JslibModule, ButtonModule, CommonModule, SharedModule],
+  imports: [JslibModule, ButtonModule, CommonModule, SharedModule, DownloadEventLogsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataRecoveryComponent {
