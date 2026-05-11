@@ -11,7 +11,7 @@ describe("flagEnabled", () => {
 
   it("returns true if enabled", () => {
     process.env.FLAGS = JSON.stringify({
-      newFeature: true,
+      all: { newFeature: true },
     });
 
     expect(flagEnabled<any>("newFeature")).toBe(true);
@@ -19,7 +19,35 @@ describe("flagEnabled", () => {
 
   it("returns false if disabled", () => {
     process.env.FLAGS = JSON.stringify({
-      newFeature: false,
+      all: { newFeature: false },
+    });
+
+    expect(flagEnabled<any>("newFeature")).toBe(false);
+  });
+});
+
+describe("flagEnabled with release channel", () => {
+  const originalChannel = (globalThis as any).BIT_RELEASE_CHANNEL;
+  beforeEach(() => {
+    (globalThis as any).BIT_RELEASE_CHANNEL = "stable";
+  });
+  afterEach(() => {
+    (globalThis as any).BIT_RELEASE_CHANNEL = originalChannel;
+  });
+
+  it("channel-specific value overrides 'all'", () => {
+    process.env.FLAGS = JSON.stringify({
+      all: { newFeature: true },
+      stable: { newFeature: false },
+    });
+
+    expect(flagEnabled<any>("newFeature")).toBe(false);
+  });
+
+  it("falls back to 'all' when channel omits the flag", () => {
+    process.env.FLAGS = JSON.stringify({
+      all: { newFeature: false },
+      stable: {},
     });
 
     expect(flagEnabled<any>("newFeature")).toBe(false);
@@ -47,7 +75,7 @@ describe("devFlagEnabled", () => {
 
     it("returns true if enabled", () => {
       process.env.DEV_FLAGS = JSON.stringify({
-        devHack: true,
+        all: { devHack: true },
       });
 
       expect(devFlagEnabled<any>("devHack")).toBe(true);
@@ -55,7 +83,7 @@ describe("devFlagEnabled", () => {
 
     it("returns true if truthy", () => {
       process.env.DEV_FLAGS = JSON.stringify({
-        devHack: { key: 3 },
+        all: { devHack: { key: 3 } },
       });
 
       expect(devFlagEnabled<any>("devHack")).toBe(true);
@@ -63,7 +91,7 @@ describe("devFlagEnabled", () => {
 
     it("returns false if disabled", () => {
       process.env.DEV_FLAGS = JSON.stringify({
-        devHack: false,
+        all: { devHack: false },
       });
 
       expect(devFlagEnabled<any>("devHack")).toBe(false);
@@ -73,7 +101,7 @@ describe("devFlagEnabled", () => {
   it("always returns false in prod", () => {
     process.env.ENV = "production";
     process.env.DEV_FLAGS = JSON.stringify({
-      devHack: true,
+      all: { devHack: true },
     });
 
     expect(devFlagEnabled<any>("devHack")).toBe(false);
@@ -88,7 +116,7 @@ describe("devFlagValue", () => {
 
   it("throws if dev flag is disabled", () => {
     process.env.DEV_FLAGS = JSON.stringify({
-      devHack: false,
+      all: { devHack: false },
     });
 
     expect(() => devFlagValue<any>("devHack")).toThrow("it is protected by a disabled dev flag");
@@ -96,7 +124,7 @@ describe("devFlagValue", () => {
 
   it("returns the dev flag value", () => {
     process.env.DEV_FLAGS = JSON.stringify({
-      devHack: "Hello world",
+      all: { devHack: "Hello world" },
     });
 
     expect(devFlagValue<any>("devHack")).toBe("Hello world");

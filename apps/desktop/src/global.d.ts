@@ -15,5 +15,5 @@ declare const BIT_ENVIRONMENT: string;
  *
  * This is done using the `DefinePlugin` in our webpack files.
  */
-declare const BIT_RELEASE_CHANNEL: "stable" | "beta" | string;
+declare const BIT_RELEASE_CHANNEL: "stable" | "beta";
 
