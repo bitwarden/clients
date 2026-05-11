@@ -436,9 +436,13 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
   }
 
   private loadCiphersOnly$(orgId: OrganizationId): Observable<CipherView[]> {
-    return from(this.cipherService.getAllFromApiForOrganization(orgId));
+    return from(this.cipherService.getAllFromApiForOrganization(orgId)).pipe(
+      catchError((err) => {
+        this.logService.error("[DefaultAccessIntelligenceDataService] Cipher load failed", err);
+        return of([] as CipherView[]);
+      }),
+    );
   }
-
   /**
    * Load organization data in parallel (ciphers and users with collections/groups)
    */
