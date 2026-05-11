@@ -31,5 +31,7 @@
   [class]="contentClassList()"
   [attr.aria-hidden]="!open()"
 >
-  <ng-content></ng-content>
+  <div class="tw-min-h-0 tw-max-h-80 tw-overflow-y-auto tw-px-4">
+    <ng-content></ng-content>
+  </div>
 </div>

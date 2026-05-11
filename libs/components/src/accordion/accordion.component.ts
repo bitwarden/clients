@@ -76,6 +76,7 @@ export class AccordionComponent {
       "tw-border-solid",
       "tw-border-border-base",
       "tw-rounded-xl",
+      "tw-overflow-hidden",
       ...(this.group
         ? [
             // Collapse inner radii and borders when stacked inside a group
@@ -100,9 +101,8 @@ export class AccordionComponent {
       "tw-border-0",
       "tw-text-start",
       "tw-cursor-pointer",
-      "[transition:background-color_150ms_ease,border-radius_150ms_150ms_ease]",
+      "[transition:background-color_150ms_ease]",
       "tw-rounded-t-xl",
-      this.open() ? "" : "tw-rounded-b-xl",
       this.resolvedVariant() === "default" ? "tw-bg-bg-secondary" : "tw-bg-bg-primary",
       "enabled:hover:tw-bg-bg-hover",
       "focus-visible:tw-outline-none",
@@ -141,15 +141,14 @@ export class AccordionComponent {
 
   protected readonly contentClassList = computed(() =>
     [
-      "tw-px-4",
+      "tw-grid",
       "tw-rounded-b-xl",
-      "tw-transition-[max-height,padding,opacity] tw-duration-300",
+      "tw-overflow-hidden",
+      "tw-transition-[grid-template-rows,padding] tw-duration-150",
       this.resolvedVariant() === "subtle"
         ? "tw-border-t tw-border-solid tw-border-border-base"
         : "",
-      this.open()
-        ? "tw-max-h-80 tw-overflow-y-auto tw-py-4 tw-opacity-100"
-        : "tw-py-0 tw-max-h-0 tw-overflow-hidden tw-opacity-0",
+      this.open() ? "tw-grid-rows-[1fr] tw-py-4" : "tw-grid-rows-[0fr] tw-py-0",
     ].join(" "),
   );
 }
