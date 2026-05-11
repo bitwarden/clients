@@ -126,6 +126,11 @@ export class BiometricMessageHandlerService {
   }
 
   async handleMessage(msg: LegacyMessageWrapper) {
+    if (!("appId" in msg)) {
+      this.logService.debug("[Native Messaging IPC] Unknown message format. Ignoring.");
+      return;
+    }
+
     const { appId, message: rawMessage } = msg as LegacyMessageWrapper;
 
     // Request to setup secure encryption

@@ -5,6 +5,7 @@ import { homedir, userInfo } from "os";
 import * as path from "path";
 
 import { ipcMain } from "electron";
+import { Subject } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ipc, windows_registry } from "@bitwarden/desktop-napi";
@@ -16,6 +17,16 @@ import { WindowMain } from "./window.main";
 export class NativeMessagingMain {
   private ipcServer: ipc.NativeIpcServer | null;
   private connected: number[] = [];
+
+  private _messages$ = new Subject<ipc.IpcMessage>();
+  readonly messages$ = this._messages$.asObservable();
+
+  /**
+   * Optional callback that returns true if the listener should be kept alive
+   * even when a specific integration is being disabled. This prevents one
+   * integration from stopping the listener while another still needs it.
+   */
+  shouldKeepListening?: () => Promise<boolean>;
 
   constructor(
     private logService: LogService,
@@ -36,7 +47,7 @@ export class NativeMessagingMain {
             return e;
           }
         } else {
-          this.stop();
+          await this.stopIfUnused();
           try {
             await this.removeManifests();
           } catch (e) {
@@ -60,7 +71,7 @@ export class NativeMessagingMain {
             return e;
           }
         } else {
-          this.stop();
+          await this.stopIfUnused();
           try {
             await this.removeDdgManifests();
           } catch (e) {
@@ -77,7 +88,6 @@ export class NativeMessagingMain {
     if (this.ipcServer) {
       this.ipcServer.stop();
     }
-
     this.ipcServer = await ipc.NativeIpcServer.listen("bw", (error, msg) => {
       switch (msg.kind) {
         case ipc.IpcMessageType.Connected: {
@@ -98,6 +108,7 @@ export class NativeMessagingMain {
           try {
             const msgJson = JSON.parse(msg.message);
             this.logService.debug("Native messaging message:", msgJson);
+            this._messages$.next(msg);
             this.windowMain.win?.webContents.send("nativeMessaging", msgJson);
           } catch (e) {
             this.logService.warning("Error processing message:", e, msg.message);
@@ -123,9 +134,21 @@ export class NativeMessagingMain {
     this.ipcServer?.stop();
   }
 
+  private async stopIfUnused() {
+    if (this.shouldKeepListening && (await this.shouldKeepListening())) {
+      return;
+    }
+    this.stop();
+  }
+
   send(message: object) {
     this.logService.debug("Native messaging reply:", message);
     this.ipcServer?.send(JSON.stringify(message));
+  }
+
+  sendTo(clientId: number, message: object) {
+    this.logService.debug("Native messaging targeted reply to client", clientId, ":", message);
+    this.ipcServer?.sendTo(clientId, JSON.stringify(message));
   }
 
   async generateManifests() {

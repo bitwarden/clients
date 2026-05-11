@@ -10,16 +10,18 @@ pub struct PeerInfo {
     uid: u32,
     pid: u32,
     process_name: String,
+    exe_hash: Option<String>,
     is_forwarding: Arc<AtomicBool>,
     host_key: Arc<Mutex<Vec<u8>>>,
 }
 
 impl PeerInfo {
-    pub fn new(uid: u32, pid: u32, process_name: String) -> Self {
+    pub fn new(uid: u32, pid: u32, process_name: String, exe_hash: Option<String>) -> Self {
         Self {
             uid,
             pid,
             process_name,
+            exe_hash,
             is_forwarding: Arc::new(AtomicBool::new(false)),
             host_key: Arc::new(Mutex::new(Vec::new())),
         }
@@ -30,6 +32,7 @@ impl PeerInfo {
             uid: 0,
             pid: 0,
             process_name: "Unknown application".to_string(),
+            exe_hash: None,
             is_forwarding: Arc::new(AtomicBool::new(false)),
             host_key: Arc::new(Mutex::new(Vec::new())),
         }
@@ -45,6 +48,10 @@ impl PeerInfo {
 
     pub fn process_name(&self) -> &str {
         &self.process_name
+    }
+
+    pub fn exe_hash(&self) -> Option<&str> {
+        self.exe_hash.as_deref()
     }
 
     pub fn is_forwarding(&self) -> bool {
