@@ -171,20 +171,35 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Detect changed crates
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        id: changes
+        with:
+          filters: |
+            ssh_agent:
+              - 'apps/desktop/desktop_native/ssh_agent/**'
+
       - name: Build
         working-directory: ./apps/desktop/desktop_native
         run: cargo build
 
+      - name: Linux test setup
+        if: ${{ matrix.os=='ubuntu-22.04' }}
+        run: |
+          mkdir -p ~/.cache
+          mkdir -p ~/.local/share/keyrings
+          eval "$(dbus-launch --sh-syntax)"
+          eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
+          eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
+          echo "DBUS_SESSION_BUS_ADDRESS=$DBUS_SESSION_BUS_ADDRESS" >> "$GITHUB_ENV"
+          echo "DBUS_SESSION_BUS_PID=$DBUS_SESSION_BUS_PID" >> "$GITHUB_ENV"
+          echo "GNOME_KEYRING_CONTROL=$GNOME_KEYRING_CONTROL" >> "$GITHUB_ENV"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+
       - name: Linux unit tests
         if: ${{ matrix.os=='ubuntu-22.04' }}
         working-directory: ./apps/desktop/desktop_native
-        run: |
-          eval "$(dbus-launch --sh-syntax)"
-          mkdir -p ~/.cache
-          mkdir -p ~/.local/share/keyrings
-          eval "$(printf '\n' | gnome-keyring-daemon --unlock)"
-          eval "$(printf '\n' | /usr/bin/gnome-keyring-daemon --start)"
-          cargo test --lib -- --test-threads=1
+        run: cargo test --lib -- --test-threads=1
 
       - name: MacOS unit tests
         if: ${{ matrix.os=='macos-14' }}
@@ -195,6 +210,11 @@ jobs:
         if: ${{ matrix.os=='windows-2022'}}
         working-directory: ./apps/desktop/desktop_native
         run: cargo test --lib --workspace --exclude=desktop_napi -- --test-threads=1
+
+      - name: Integration tests ssh_agent
+        if: ${{ steps.changes.outputs.ssh_agent == 'true' }}
+        working-directory: ./apps/desktop/desktop_native
+        run: cargo test -p ssh_agent --test '*' -- --test-threads=1
 
       - name: Doc tests
         working-directory: ./apps/desktop/desktop_native

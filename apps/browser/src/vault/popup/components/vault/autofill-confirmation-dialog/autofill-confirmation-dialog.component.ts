@@ -39,7 +39,11 @@ export type AutofillConfirmationDialogResultType = UnionOfValues<
 >;
 
 /** Match strategies that force showing full URLs */
-const FULL_URI_MATCH_STRATEGIES = [UriMatchStrategy.StartsWith, UriMatchStrategy.RegularExpression];
+const FULL_URI_MATCH_STRATEGIES = [
+  UriMatchStrategy.StartsWith,
+  UriMatchStrategy.RegularExpression,
+  UriMatchStrategy.Exact,
+];
 
 @Component({
   templateUrl: "./autofill-confirmation-dialog.component.html",
