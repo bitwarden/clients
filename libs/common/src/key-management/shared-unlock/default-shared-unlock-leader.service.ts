@@ -52,7 +52,7 @@ export class DefaultSharedUnlockLeaderService implements SharedUnlockLeaderServi
         return;
       }
 
-      await this.leader.handle_device_event({
+      await this.leader!.handle_device_event({
         ManualLock: {
           user_id: asUuid(userId),
         },
