@@ -110,7 +110,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     }
 
     // Set userId to ensure we have one for the account status update
-    await this.stateProvider.setUserState(USER_KEY, key, userId);
+    await this.stateProvider.setUserState(USER_KEY, this.userKeyToStateObject(key), userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     await this.storeAdditionalKeys(key, userId);

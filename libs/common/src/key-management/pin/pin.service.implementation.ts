@@ -79,7 +79,6 @@ export class PinService implements PinServiceAbstraction {
     });
   }
 
-
   // A helper function to get the PinSettingsClient for a user and execute a function with it.
   // This makes repeated calls to the SDK more compact
   private async withPinSettingsClient<TResult>(

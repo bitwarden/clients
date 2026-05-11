@@ -35,7 +35,6 @@ const mockPin = "1234";
 const mockMasterPassword = "master-password";
 const mockKdfParams = { type: "pbkdf2" } as any;
 const mockAccountCryptographicState = { some: "state" } as any;
-const mockPinProtectedUserKeyEnvelope = { some: "envelope" } as any;
 const mockMasterPasswordUnlockData = { some: "unlockData", salt: "salt", kdf: "pbkdf2" } as any;
 
 describe("DefaultUnlockService", () => {

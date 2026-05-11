@@ -82,7 +82,7 @@ export class DefaultUnlockService implements UnlockService {
       masterPasswordUnlock: {
         password: masterPassword,
         master_password_unlock: await this.getMasterPasswordUnlockData(userId),
-      }
+      },
     });
     await this.setLegacyMasterKeyFromUnlockData(
       masterPassword,
@@ -125,8 +125,7 @@ export class DefaultUnlockService implements UnlockService {
     await this.unlockWithMethod(userId, {
       keyConnectorUrl: {
         url: keyConnectorUnlockData.url,
-        key_connector_key_wrapped_user_key:
-          keyConnectorUnlockData.keyConnectorKeyWrappedUserKey,
+        key_connector_key_wrapped_user_key: keyConnectorUnlockData.keyConnectorKeyWrappedUserKey,
       },
     });
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithKeyConnector");
@@ -142,10 +141,7 @@ export class DefaultUnlockService implements UnlockService {
     this.logService.measure(startTime, "Unlock", "DefaultUnlockService", "unlockWithDecryptedKey");
   }
 
-  private async unlockWithMethod(
-    userId: UserId,
-    method: InitUserCryptoMethod
-  ): Promise<void> {
+  private async unlockWithMethod(userId: UserId, method: InitUserCryptoMethod): Promise<void> {
     await firstValueFrom(
       this.registerSdkService.registerClient$(userId).pipe(
         map(async (sdk) => {

@@ -16,10 +16,10 @@ import {
   KeyService,
   BiometricStateService,
 } from "@bitwarden/key-management";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { UnlockService } from "@bitwarden/unlock";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;

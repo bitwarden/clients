@@ -1,7 +1,7 @@
 import { UserId } from "@bitwarden/common/types/guid";
+import { SymmetricKey } from "@bitwarden/sdk-internal";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
-import { SymmetricKey } from "@bitwarden/sdk-internal";
 
 /**
  * Service for unlocking a user's account with various methods.
@@ -50,7 +50,7 @@ export abstract class UnlockService {
   /**
    * Unlocks the user's account with a decrypted user key
    * Note: Where possible use other unlock methods.
-   * 
+   *
    * @param userId - The user's id
    * @param userKey - The decrypted user key to unlock with
    * @throws If the SDK is not available
