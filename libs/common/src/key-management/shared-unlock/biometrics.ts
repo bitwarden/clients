@@ -4,7 +4,7 @@ import { BiometricsService, BiometricsStatus, KeyService } from "@bitwarden/key-
 import { UserId, BiometricsUnlock, BiometricsStatus as SdkBiometricsStatus } from "@bitwarden/sdk-internal";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
-function mapBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
+function toSdkBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
   switch (status) {
     case BiometricsStatus.Available:
       return SdkBiometricsStatus.Available;
@@ -19,18 +19,22 @@ function mapBiometricsStatus(status: BiometricsStatus): SdkBiometricsStatus {
   }
 }
 
+function fromSdkUserId(userId: UserId): TSUserId {
+  return uuidAsString(userId) as TSUserId;
+}
+
 export function createBiometricsDriver(
     biometricsService: BiometricsService,
     keyService: KeyService
 ): BiometricsUnlock {
   return {
     async get_biometrics_status(user_id: UserId): Promise<SdkBiometricsStatus> {
-      const status = await biometricsService.getBiometricsStatusForUser(uuidAsString(user_id) as TSUserId);
-      return mapBiometricsStatus(status);
+      const status = await biometricsService.getBiometricsStatusForUser(fromSdkUserId(user_id));
+      return toSdkBiometricsStatus(status);
     },
     async unlock_biometrics(user_id: UserId): Promise<void> {
-      const key = await biometricsService.unlockWithBiometricsForUser(uuidAsString(user_id) as TSUserId);
-      await keyService.setUserKey(key, uuidAsString(user_id) as TSUserId);
+      const key = await biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
+      await keyService.setUserKey(key, fromSdkUserId(user_id));
     },
     async authenticate_biometrics() {
       return await biometricsService.authenticateWithBiometrics();
