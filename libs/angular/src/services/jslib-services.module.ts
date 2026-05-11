@@ -81,6 +81,7 @@ import {
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -93,6 +94,7 @@ import { OrganizationApiService } from "@bitwarden/common/admin-console/services
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
 import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
+import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderApiService } from "@bitwarden/common/admin-console/services/provider/provider-api.service";
@@ -624,7 +626,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherFileUploadServiceAbstraction,
     useClass: CipherFileUploadService,
-    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, ConfigService],
+    deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, ConfigService, CipherSdkService],
   }),
   safeProvider({
     provide: DomainSettingsService,
@@ -843,18 +845,12 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PasswordGenerationServiceAbstraction,
     useFactory: legacyPasswordGenerationServiceFactory,
-    deps: [
-      EncryptService,
-      KeyService,
-      PolicyServiceAbstraction,
-      AccountServiceAbstraction,
-      StateProvider,
-    ],
+    deps: [PolicyServiceAbstraction, AccountServiceAbstraction, StateProvider, SdkService],
   }),
   safeProvider({
     provide: GeneratorHistoryService,
     useClass: LocalGeneratorHistoryService,
-    deps: [EncryptService, KeyService, StateProvider],
+    deps: [StateProvider, SdkService],
   }),
   safeProvider({
     provide: UsernameGenerationServiceAbstraction,
@@ -863,7 +859,7 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       I18nServiceAbstraction,
       KeyService,
-      EncryptService,
+      SdkService,
       PolicyServiceAbstraction,
       AccountServiceAbstraction,
       StateProvider,
@@ -946,6 +942,7 @@ const safeProviders: SafeProvider[] = [
       CollectionService,
       MessagingServiceAbstraction,
       InternalPolicyService,
+      InternalNewPolicyService,
       InternalSendService,
       LogService,
       KeyConnectorServiceAbstraction,
@@ -1051,6 +1048,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       ApiServiceAbstraction,
       RestrictedItemTypesService,
+      LogService,
     ],
   }),
   safeProvider({
@@ -1167,6 +1165,7 @@ const safeProviders: SafeProvider[] = [
       AuthRequestAnsweringService,
       ConfigService,
       InternalPolicyService,
+      InternalNewPolicyService,
       AutomaticUserConfirmationService,
     ],
   }),
@@ -1213,9 +1212,14 @@ const safeProviders: SafeProvider[] = [
     useExisting: InternalPolicyService,
   }),
   safeProvider({
+    provide: InternalNewPolicyService,
+    useClass: DefaultNewPolicyService,
+    deps: [StateProvider],
+  }),
+  safeProvider({
     provide: PolicyApiServiceAbstraction,
     useClass: PolicyApiService,
-    deps: [InternalPolicyService, ApiServiceAbstraction, AccountService],
+    deps: [InternalPolicyService, InternalNewPolicyService, ApiServiceAbstraction, AccountService],
   }),
   safeProvider({
     provide: InternalMasterPasswordServiceAbstraction,
