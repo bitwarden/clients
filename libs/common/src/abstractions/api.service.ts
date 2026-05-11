@@ -63,7 +63,6 @@ import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/model
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
@@ -154,8 +153,6 @@ export abstract class ApiService {
   abstract getAccountRevisionDate(): Promise<number>;
   abstract postPasswordHint(request: PasswordHintRequest): Promise<any>;
   abstract postPremium(data: FormData): Promise<PaymentResponse>;
-  abstract postReinstatePremium(): Promise<any>;
-  abstract postAccountStorage(request: StorageRequest): Promise<PaymentResponse>;
   abstract postAccountLicense(data: FormData): Promise<any>;
   abstract postAccountKeys(request: KeysRequest): Promise<any>;
   abstract postAccountVerifyEmail(): Promise<any>;

@@ -20,7 +20,9 @@ import {
 } from "rxjs";
 
 import {
+  CollectionEncryptionService,
   CollectionService,
+  DefaultCollectionEncryptionService,
   DefaultCollectionService,
   DefaultOrganizationUserApiService,
   DefaultOrganizationUserService,
@@ -48,10 +50,12 @@ import {
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { DefaultOrganizationService } from "@bitwarden/common/admin-console/services/organization/default-organization.service";
+import { DefaultNewPolicyService } from "@bitwarden/common/admin-console/services/policy/default-new-policy.service";
 import { DefaultPolicyService } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
@@ -74,7 +78,7 @@ import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
-import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
+import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
@@ -217,6 +221,7 @@ import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-st
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherSdkService } from "@bitwarden/common/vault/abstractions/cipher-sdk.service";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -238,6 +243,7 @@ import {
 } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DefaultCipherSdkService } from "@bitwarden/common/vault/services/cipher-sdk.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
+import { DefaultChangeLoginPasswordService } from "@bitwarden/common/vault/services/default-change-login-password.service";
 import { DefaultCipherEncryptionService } from "@bitwarden/common/vault/services/default-cipher-encryption.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
@@ -336,6 +342,7 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
+import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
@@ -449,6 +456,7 @@ export default class MainBackground {
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
+  newPolicyService: InternalNewPolicyService;
   sendService: InternalSendServiceAbstraction;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadServiceAbstraction;
@@ -517,8 +525,10 @@ export default class MainBackground {
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  autofillTriageService: AutofillTriageService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
+  collectionEncryptionService: CollectionEncryptionService;
   private restrictedItemTypesService: RestrictedItemTypesService;
   private securityStateService: SecurityStateService;
 
@@ -530,6 +540,8 @@ export default class MainBackground {
   autofillBadgeUpdaterService: AutofillBadgeUpdaterService;
   clipboardNotificationBadgeUpdaterService: ClipboardNotificationBadgeUpdaterService;
   atRiskCipherUpdaterService: AtRiskCipherBadgeUpdaterService;
+
+  changeLoginPasswordService: ChangeLoginPasswordService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -791,6 +803,8 @@ export default class MainBackground {
       this.accountService,
     );
 
+    this.newPolicyService = new DefaultNewPolicyService(this.stateProvider);
+
     const sessionTimeoutTypeService = new BrowserSessionTimeoutTypeService(
       this.platformUtilsService,
     );
@@ -837,23 +851,12 @@ export default class MainBackground {
       this.apiService,
       this.configService,
     );
-    this.cipherFileUploadService = new CipherFileUploadService(
-      this.apiService,
-      this.fileUploadService,
-      this.configService,
-    );
     this.searchService = new SearchService(this.logService, this.i18nService);
-
-    this.collectionService = new DefaultCollectionService(
-      this.keyService,
-      this.encryptService,
-      this.i18nService,
-      this.stateProvider,
-    );
 
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(
       this.policyService,
+      this.newPolicyService,
       this.apiService,
       this.accountService,
     );
@@ -884,6 +887,9 @@ export default class MainBackground {
       this.organizationService,
       this.organizationUserApiService,
       this.policyService,
+      this.authService,
+      this.accountService,
+      this.configService,
     );
 
     const sdkClientFactory = flagEnabled("sdk")
@@ -911,6 +917,20 @@ export default class MainBackground {
       this.apiService,
       this.stateProvider,
       this.configService,
+    );
+
+    this.collectionEncryptionService = new DefaultCollectionEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.collectionService = new DefaultCollectionService(
+      this.keyService,
+      this.encryptService,
+      this.i18nService,
+      this.stateProvider,
+      this.configService,
+      this.collectionEncryptionService,
     );
 
     this.keyConnectorService = new KeyConnectorService(
@@ -951,11 +971,10 @@ export default class MainBackground {
     this.passwordStrengthService = new PasswordStrengthService();
 
     this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
-      this.encryptService,
-      this.keyService,
       this.policyService,
       this.accountService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
@@ -1025,6 +1044,7 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       this.policyService,
+      this.environmentService,
     );
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
@@ -1057,6 +1077,13 @@ export default class MainBackground {
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);
+
+    this.cipherFileUploadService = new CipherFileUploadService(
+      this.apiService,
+      this.fileUploadService,
+      this.configService,
+      this.cipherSdkService,
+    );
 
     this.cipherService = new CipherService(
       this.keyService,
@@ -1134,6 +1161,7 @@ export default class MainBackground {
       this.collectionService,
       this.messagingService,
       this.policyService,
+      this.newPolicyService,
       this.sendService,
       this.logService,
       this.keyConnectorService,
@@ -1209,7 +1237,11 @@ export default class MainBackground {
 
     this.importMetadataService = new DefaultImportMetadataService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -1242,6 +1274,7 @@ export default class MainBackground {
       this.kdfConfigService,
       this.apiService,
       this.restrictedItemTypesService,
+      this.logService,
     );
 
     this.exportApiService = new DefaultVaultExportApiService(this.apiService);
@@ -1323,6 +1356,7 @@ export default class MainBackground {
       this.authRequestAnsweringService,
       this.configService,
       this.policyService,
+      this.newPolicyService,
       this.autoConfirmService,
     );
 
@@ -1461,6 +1495,12 @@ export default class MainBackground {
       messageListener,
     );
 
+    this.changeLoginPasswordService = new DefaultChangeLoginPasswordService(
+      this.apiService,
+      this.environmentService,
+      this.domainSettingsService,
+    );
+
     this.notificationBackground = new NotificationBackground(
       this.accountService,
       this.authService,
@@ -1477,6 +1517,7 @@ export default class MainBackground {
       this.themeStateService,
       this.userNotificationSettingsService,
       this.taskService,
+      this.changeLoginPasswordService,
       this.messagingService,
       this.fido2Background,
     );
@@ -1494,6 +1535,11 @@ export default class MainBackground {
       this.platformUtilsService,
       this.policyService,
       this.accountService,
+    );
+
+    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    this.autofillTriageService = new AutofillTriageService(
+      this.inlineMenuFieldQualificationService,
     );
 
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
@@ -1521,6 +1567,7 @@ export default class MainBackground {
       this.eventCollectionService,
       this.userVerificationService,
       this.accountService,
+      this.autofillTriageService,
     );
 
     this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
@@ -1538,7 +1585,7 @@ export default class MainBackground {
       this.apiService,
       this.i18nService,
       this.keyService,
-      this.encryptService,
+      this.sdkService,
       this.policyService,
       this.accountService,
       this.stateProvider,
@@ -1552,6 +1599,7 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
       this.accountService,
       this.restrictedItemTypesService,
+      this.configService,
     );
 
     this.cipherContextMenuHandler = new CipherContextMenuHandler(
@@ -1579,8 +1627,6 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
-
     this.phishingDataService = new PhishingDataService(
       this.apiService,
       this.taskSchedulerService,
@@ -1604,6 +1650,9 @@ export default class MainBackground {
       this.phishingDataService,
       this.phishingDetectionSettingsService,
       messageListener,
+      this.eventCollectionService,
+      this.organizationService,
+      this.accountService,
     );
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
@@ -1652,9 +1701,11 @@ export default class MainBackground {
     // This is here instead of in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
     const accounts = await firstValueFrom(this.accountService.accounts$);
+    const userIds = Object.keys(accounts) as UserId[];
+    await this.tokenService.cleanupTokenStorage(userIds);
 
     const setUserKeyInMemoryPromises = [];
-    for (const userId of Object.keys(accounts) as UserId[]) {
+    for (const userId of userIds) {
       // For each acct, we must await the process of setting the user key in memory
       // if the auto user key is set to avoid race conditions of any code trying to access
       // the user key from mem.
@@ -1677,6 +1728,12 @@ export default class MainBackground {
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
+    // Disable the side panel globally on startup so Bitwarden does not appear in
+    // Chrome's side panel picker. It is enabled per-tab on demand when the user
+    // triggers autofill triage via the context menu.
+    if (BrowserApi.isSidePanelApiSupported) {
+      await BrowserApi.setSidePanelOptions({ enabled: false });
+    }
     this.idleBackground.init();
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
@@ -1868,7 +1925,7 @@ export default class MainBackground {
     const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
-    await this.tokenService.clearAccessToken(userBeingLoggedOut);
+    await this.tokenService.clearTokens(userBeingLoggedOut);
     await this.accountService.clean(userBeingLoggedOut);
 
     await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
@@ -2083,7 +2140,11 @@ export default class MainBackground {
 
     this.credentialGeneratorService = await createCredentialGeneratorService(
       createSystemServiceProvider(
-        new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+        new KeyServiceLegacyEncryptorProvider(
+          this.encryptService,
+          this.keyService,
+          this.sdkService,
+        ),
         this.stateProvider,
         this.policyService,
         buildExtensionRegistry(),
@@ -2092,7 +2153,7 @@ export default class MainBackground {
         this.configService,
       ),
       createRandomizer(),
-      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService),
+      new KeyServiceLegacyEncryptorProvider(this.encryptService, this.keyService, this.sdkService),
       this.stateProvider,
       this.i18nService,
       this.apiService,
@@ -2102,9 +2163,8 @@ export default class MainBackground {
     // browser extension background — there is no feature-flag branching here unlike
     // createCredentialGeneratorService.
     this.generatorHistoryService = new LocalGeneratorHistoryService(
-      this.encryptService,
-      this.keyService,
       this.stateProvider,
+      this.sdkService,
     );
 
     this.overlayBackground = new OverlayBackground(

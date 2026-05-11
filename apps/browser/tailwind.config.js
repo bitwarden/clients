@@ -1,17 +1,13 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+const path = require("path");
+
 const config = require("../../libs/components/tailwind.config.base");
 
-config.content = [
-  "./src/**/*.{html,ts}",
-  "../../libs/components/src/**/*.{html,ts}",
-  "../../libs/assets/src/**/*.{html,ts}",
-  "../../libs/auth/src/**/*.{html,ts}",
-  "../../libs/key-management-ui/src/**/*.{html,ts}",
-  "../../libs/vault/src/**/*.{html,ts}",
-  "../../libs/angular/src/**/*.{html,ts}",
-  "../../libs/vault/src/**/*.{html,ts}",
-  "../../libs/pricing/src/**/*.{html,ts}",
-];
+// Add browser-specific paths here. Shared libs should go in tailwind.config.base.js instead
+const browserContent = [path.resolve(__dirname, "./src/**/*.{html,ts,mdx}")];
+
+config.content = [...config.content, ...browserContent];
+config.browserContent = browserContent;
 config.corePlugins.preflight = true;
 
 module.exports = config;

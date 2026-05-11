@@ -41,9 +41,23 @@ export abstract class TokenService {
   abstract clearTokens(userId?: UserId): Promise<void>;
 
   /**
+   * Ensures token storage is consistent with account state on app init.
+   * For each provided user id without an access token, clears all remaining tokens
+   * from all storage layers (disk and secure storage).
+   *
+   * A locked account always has an access token on disk, so this only affects
+   * accounts that have been logged out. Safe to call on every startup — a no-op
+   * when storage is already consistent.
+   * @param userIds - The user ids to check and clean up.
+   */
+  abstract cleanupTokenStorage(userIds: UserId[]): Promise<void>;
+
+  /**
    * Sets the access token in memory or disk based on the given vaultTimeoutAction and vaultTimeout
-   * and the user id read off the access token
-   * Note: for platforms that support secure storage, the access & refresh tokens are stored in secure storage instead of on disk.
+   * and the user id read off the access token. The other storage location is always cleared to
+   * enforce the invariant that only one location holds the token at a time.
+   * Note: for platforms that support secure storage, the access token is encrypted with a key stored
+   * in secure storage and the encrypted value is written to disk.
    * @param accessToken The access token to set.
    * @param vaultTimeoutAction The action to take when the vault times out.
    * @param vaultTimeout The timeout for the vault.
@@ -82,7 +96,9 @@ export abstract class TokenService {
   abstract getRefreshToken(userId: UserId): Promise<string | null>;
 
   /**
-   * Sets the API Key Client ID for the active user id in memory or disk based on the given vaultTimeoutAction and vaultTimeout.
+   * Sets the API Key Client ID for the active user id in memory or disk based on the given
+   * vaultTimeoutAction and vaultTimeout. The other storage location is always cleared to enforce
+   * the invariant that only one location holds the value at a time.
    * @param clientId The API Key Client ID to set.
    * @param vaultTimeoutAction The action to take when the vault times out.
    * @param vaultTimeout The timeout for the vault.
@@ -102,7 +118,9 @@ export abstract class TokenService {
   abstract getClientId(userId: UserId): Promise<string | undefined>;
 
   /**
-   * Sets the API Key Client Secret for the active user id in memory or disk based on the given vaultTimeoutAction and vaultTimeout.
+   * Sets the API Key Client Secret for the active user id in memory or disk based on the given
+   * vaultTimeoutAction and vaultTimeout. The other storage location is always cleared to enforce
+   * the invariant that only one location holds the value at a time.
    * @param clientSecret The API Key Client Secret to set.
    * @param vaultTimeoutAction The action to take when the vault times out.
    * @param vaultTimeout The timeout for the vault.
