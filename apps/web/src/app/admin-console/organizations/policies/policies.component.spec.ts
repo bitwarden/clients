@@ -589,7 +589,7 @@ describe("PoliciesComponent", () => {
     it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
       mockConfigService.getFeatureFlag.mockResolvedValue(true);
 
-      const mockDrawerRef = { close: jest.fn() };
+      const mockDrawerRef = { close: jest.fn(), closed: of(undefined) };
       const mockDrawerDialog = {
         open: jest.fn(),
         openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
