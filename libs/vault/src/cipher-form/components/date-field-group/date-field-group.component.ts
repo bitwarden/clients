@@ -133,7 +133,7 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
   }
 
   validate(): ValidationErrors | null {
-    return this.internalForm.errors;
+    return this.internalForm.invalid ? { invalidDate: true } : null;
   }
 
   registerOnValidatorChange(fn: () => void): void {
@@ -146,9 +146,6 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
     }
 
     this.internalForm.get("month")!.markAsTouched();
-    this.internalForm.get("day")!.markAsTouched();
-    this.internalForm.get("year")!.markAsTouched();
-    this.validateAllOrNothing();
   }
 
   /**
