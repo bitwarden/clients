@@ -1,5 +1,6 @@
 import { firstValueFrom } from "rxjs";
 
+ 
 // eslint-disable-next-line import/no-cycle
 import { LockService } from "@bitwarden/auth/common";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

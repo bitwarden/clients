@@ -38,7 +38,9 @@ export function createBiometricsDriver(
     },
     async unlock_biometrics(user_id: UserId): Promise<void> {
       const key = await biometricsService.unlockWithBiometricsForUser(fromSdkUserId(user_id));
-      await keyService.setUserKey(key, fromSdkUserId(user_id));
+      if (key != null) {
+        await keyService.setUserKey(key, fromSdkUserId(user_id));
+      }
     },
     async authenticate_biometrics() {
       return await biometricsService.authenticateWithBiometrics();
