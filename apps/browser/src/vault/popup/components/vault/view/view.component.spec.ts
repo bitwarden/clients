@@ -700,7 +700,7 @@ describe("ViewComponent", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("button[bit-chip-action]");
       expect(badge).toBeTruthy();
     }));
 
@@ -717,7 +717,7 @@ describe("ViewComponent", () => {
 
       fixture.detectChanges();
 
-      const badge = fixture.nativeElement.querySelector("span[bitBadge]");
+      const badge = fixture.nativeElement.querySelector("button[bit-chip-action]");
       expect(badge).toBeFalsy();
     });
   });
