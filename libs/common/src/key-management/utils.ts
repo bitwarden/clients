@@ -17,6 +17,11 @@ export async function firstValueFromOrThrow<T>(
   return result;
 }
 
+/**
+ * A helper function to run code on a PasswordManagerClient. This will get the
+ * locked or unlocked PasswordManagerClient depending on whether the user is currently locked or not.
+ * This should be (later) handled within the SDK service instead.
+ */
 export async function withPasswordManagerSdk<TResult>(
   userId: UserId,
   sdkService: SdkService,
