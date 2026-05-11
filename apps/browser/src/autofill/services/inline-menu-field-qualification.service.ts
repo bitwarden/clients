@@ -1128,4 +1128,13 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
 
     return false;
   }
+
+  /**
+   * Validates the provided field has `current-password` attribute
+   *
+   * * @param field - The field to validate
+   */
+  hasCurrentPasswordAutocomplete = (field: AutofillField): boolean => {
+    return this.fieldContainsAutocompleteValues(field, this.currentPasswordAutocompleteValue);
+  };
 }

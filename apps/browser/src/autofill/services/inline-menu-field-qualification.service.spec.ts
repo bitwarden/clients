@@ -1037,4 +1037,33 @@ describe("InlineMenuFieldQualificationService", () => {
       expect(inlineMenuFieldQualificationService.isEmailField(field)).toBe(true);
     });
   });
+
+  describe("hasCurrentPasswordAutocomplete", () => {
+    it("returns true when the autocomplete attribute contains `current-password`", () => {
+      const field = mock<AutofillField>({
+        type: "password",
+        autoCompleteType: "current-password",
+      });
+
+      expect(inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(field)).toBe(true);
+    });
+
+    it("returns false when the autocomplete attribute is `new-password`", () => {
+      const field = mock<AutofillField>({
+        type: "password",
+        autoCompleteType: "new-password",
+      });
+
+      expect(inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(field)).toBe(false);
+    });
+
+    it("returns false when the autocomplete attribute is missing", () => {
+      const field = mock<AutofillField>({
+        type: "password",
+        autoCompleteType: "",
+      });
+
+      expect(inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(field)).toBe(false);
+    });
+  });
 });
