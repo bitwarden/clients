@@ -19,8 +19,11 @@ import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault
 import { createSharedUnlockDriver } from "./shared-unlock-driver";
 import { SharedUnlockFollowerService } from "./shared-unlock-follower.service";
 import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
+import { pollForUnlockEvents } from "./unlock-state-poll";
 
 export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerService {
+  private follower: SharedUnlockFollower | null = null;
+
   constructor(
     private ipcService: IpcService,
     private accountService: AccountService,
@@ -44,65 +47,46 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
       this.sharedUnlockSettingsService,
     );
 
-    const follower = SharedUnlockFollower.try_new(this.ipcService.client, sharedUnlockDriver);
-    await follower.start();
+    this.follower = SharedUnlockFollower.try_new(this.ipcService.client, sharedUnlockDriver);
+    await this.follower.start();
 
     this.lockService.registerOnLockAction(async (userId) => {
       if (!(await this.enabled(userId))) {
         return;
       }
 
-      await follower.handle_device_event({
+      await this.follower.handle_device_event({
         ManualLock: {
           user_id: asUuid(userId),
         },
       });
     });
 
-    const previousUserKeys = new Map<UserId, SymmetricCryptoKey | null>();
-
-    const announceUnlock = async (userId: UserId, userKey: SymmetricCryptoKey) => {
-      if (!(await this.enabled(userId))) {
-        return;
-      }
-
-      await follower.handle_device_event({
-        ManualUnlock: {
-          user_id: asUuid(userId),
-          user_key: userKey.toSdk(),
-        },
-      });
-      previousUserKeys.set(userId, userKey);
-    };
-
-    this.unlockService.registerOnUnlockAction(announceUnlock);
-
-    // Polling fallback for unlock flows that do not yet route through UnlockService.
-    // Once every unlock path goes through UnlockService, this interval can be removed.
-    setInterval(async () => {
-      const accounts = await firstValueFrom(this.accountService.accounts$);
-      const accountIds = Object.keys(accounts) as UserId[];
-
-      for (const accountId of accountIds) {
-        const accountUserKey = await this.keyService.getUserKey(accountId);
-        const previousUserKey = previousUserKeys.get(accountId) ?? null;
-
-        if (previousUserKey == null && accountUserKey != null) {
-          await announceUnlock(accountId, accountUserKey);
-        } else {
-          previousUserKeys.set(accountId, accountUserKey);
-        }
-      }
-
-      for (const trackedUserId of previousUserKeys.keys()) {
-        if (!accountIds.includes(trackedUserId)) {
-          previousUserKeys.delete(trackedUserId);
-        }
-      }
-    }, 100);
+    this.unlockService.registerOnUnlockAction(async (userId, userKey) =>
+      this.onUnlock(userId, userKey),
+    );
+    pollForUnlockEvents(this.keyService, this.accountService, async (userId, userKey) =>
+      this.onUnlock(userId, userKey),
+    );
   }
 
   private async enabled(userId: UserId): Promise<boolean> {
     return await this.sharedUnlockSettingsService.allowSharingUnlockState(userId);
+  }
+
+  private async onUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {
+    if (!(await this.enabled(userId))) {
+      return;
+    }
+    if (this.follower == null) {
+      return;
+    }
+
+    await this.follower.handle_device_event({
+      ManualUnlock: {
+        user_id: asUuid(userId),
+        user_key: userKey.toSdk(),
+      },
+    });
   }
 }
