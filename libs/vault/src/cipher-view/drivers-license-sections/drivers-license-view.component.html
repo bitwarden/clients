@@ -106,6 +106,13 @@
       </bit-form-field>
     }
 
+    @if (driversLicense().issuingAuthority) {
+      <bit-form-field>
+        <bit-label>{{ "issuingAuthority" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().issuingAuthority" aria-readonly="true" />
+      </bit-form-field>
+    }
+
     @if (driversLicense().issueDate) {
       <bit-form-field>
         <bit-label>{{ "issueDate" | i18n }}</bit-label>
@@ -127,13 +134,6 @@
           [value]="formatDate(driversLicense().expirationDate)"
           aria-readonly="true"
         />
-      </bit-form-field>
-    }
-
-    @if (driversLicense().issuingAuthority) {
-      <bit-form-field>
-        <bit-label>{{ "issuingAuthority" | i18n }}</bit-label>
-        <input readonly bitInput [value]="driversLicense().issuingAuthority" aria-readonly="true" />
       </bit-form-field>
     }
 
