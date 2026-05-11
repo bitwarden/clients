@@ -561,7 +561,6 @@ export class ServiceContainer {
 
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
-      pinStateService,
       this.userDecryptionOptionsService,
       this.keyService,
       this.tokenService,
@@ -687,7 +686,7 @@ export class ServiceContainer {
       this.configService,
       customUserAgent,
     );
-    
+
     this.pinService = new PinService(
       this.sdkService,
       this.registerSdkService,
@@ -710,7 +709,6 @@ export class ServiceContainer {
     this.unlockService = new DefaultUnlockService(
       this.registerSdkService,
       this.accountCryptographicStateService,
-      pinStateService,
       this.kdfConfigService,
       this.accountService,
       this.masterPasswordService,
