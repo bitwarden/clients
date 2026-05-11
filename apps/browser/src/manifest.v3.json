@@ -55,6 +55,7 @@
     "idle",
     "offscreen",
     "scripting",
+    "sidePanel",
     "storage",
     "tabs",
     "unlimitedStorage",
@@ -108,6 +109,9 @@
     "pages": ["overlay/menu-button.html", "overlay/menu-list.html"]
   },
   "__firefox__sandbox": null,
+  "__chrome__side_panel": {
+    "default_path": "sidepanel-disabled.html"
+  },
   "commands": {
     "_execute_action": {
       "suggested_key": {

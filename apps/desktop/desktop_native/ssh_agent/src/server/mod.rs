@@ -7,6 +7,7 @@ mod auth_policy;
 mod connection;
 mod listener;
 mod peer_info;
+mod protocol;
 
 use std::sync::Arc;
 
@@ -14,11 +15,11 @@ use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
 // external exports for napi
 pub use auth_policy::{AuthRequest, SIGNamespace, SignRequest};
-use connection::Connection;
+use connection::{Connection, ConnectionHandler};
 pub(crate) use listener::Listener;
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
 use crate::KeyStore;
 
@@ -86,8 +87,6 @@ where
             cancel_token.clone(),
         ));
 
-        info!("Server started");
-
         self.accept_handle = Some(accept_handle);
         self.cancellation_token = Some(cancel_token);
 
@@ -100,7 +99,7 @@ where
 
     pub(crate) fn stop(&mut self) {
         if let Some(cancel_token) = self.cancellation_token.take() {
-            info!("Stopping server");
+            debug!("Stopping server");
 
             // Signal cancellation to all tasks
             cancel_token.cancel();
@@ -112,7 +111,7 @@ where
 
             info!("Server stopped");
         } else {
-            debug!("Cancellation token is None, server already stopped.");
+            warn!("Cancellation token is None, server already stopped.");
         }
     }
 
@@ -130,14 +129,14 @@ where
     {
         let (tx, mut rx) = mpsc::channel::<Connection<L::Stream>>(CONNECTION_CHANNEL_CAPACITY);
 
-        debug!("Accept loop spawning listener tasks");
+        debug!("Spawning listener tasks");
         listener::spawn_listener_tasks(listeners, &tx, &cancel_token);
 
         // Dropping tx exlicitly allows it to close when all listener tasks exit,
         // this is necessary for the recv block below to exit when listeners exit.
         drop(tx);
 
-        info!("Accept loop starting");
+        info!("Accepting connections");
         loop {
             tokio::select! {
                 () = cancel_token.cancelled() => {
@@ -147,19 +146,13 @@ where
                 conn = rx.recv() => if let Some(connection) = conn {
                     info!(peer_info = ?connection.peer_info, "Connection accepted");
 
-                    // TODO: PM-30755 Spawn handler for this connection
-                    // let handler = ConnectionHandler::new(
-                    //     keystore.clone(),
-                    //     auth_policy.clone(),
-                    //     connection,
-                    //     token.clone(),
-                    // );
-                    // tokio::spawn(async move { handler.handle().await });
-
-                    // TODO: PM-30755 temporary to avoid unused var warnings
-                    let _ = connection;
-                    let _ = keystore;
-                    let _ = auth_policy;
+                    let handler = ConnectionHandler::new(
+                        keystore.clone(),
+                        auth_policy.clone(),
+                        connection,
+                        cancel_token.clone(),
+                    );
+                    tokio::spawn(async move { handler.handle().await });
                 } else {
                     debug!("All listener tasks exited");
                     break;
@@ -167,7 +160,7 @@ where
             }
         }
 
-        info!("Accept loop exited");
+        debug!("Accept loop exited");
     }
 }
 

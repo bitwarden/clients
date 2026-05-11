@@ -118,6 +118,9 @@ export class CipherService implements CipherServiceAbstraction {
     FeatureFlag.PM28190CipherSharingOpsToSdk,
   );
 
+  private readonly sdkCipherAttachmentOpsEnabled$: Observable<boolean> =
+    this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk);
+
   constructor(
     private keyService: KeyService,
     private domainSettingsService: DomainSettingsService,
@@ -1158,6 +1161,7 @@ export class CipherService implements CipherServiceAbstraction {
       encData,
       admin,
       attachmentKey,
+      userId,
       options,
     );
 
@@ -1422,6 +1426,18 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     admin: boolean = false,
   ): Promise<CipherData> {
+    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      const updatedCipher = await this.cipherSdkService.deleteAttachmentWithServer(
+        id as CipherId,
+        attachmentId,
+        userId,
+        admin,
+      );
+      return updatedCipher?.toCipherData();
+    }
+
     let response: DeleteAttachmentResponse;
     try {
       response = admin

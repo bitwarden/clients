@@ -35,32 +35,38 @@
   "typeSshKey": {
     "message": "Chave SSH"
   },
+  "typeBankAccount": {
+    "message": "Conta bancária"
+  },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Site ou aplicativo"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Cartão de crédito ou débito"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Informações pessoais"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Texto importante"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Token de acesso ao servidor"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Dados bancários"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organize seus itens"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organize itens compartilhados"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Escolha o item a adicionar"
   },
   "chooseItemToAddDesc": {
-    "message": "Select the item type you want to add to your vault."
+    "message": "Selecione o tipo de item que você deseja adicionar ao seu cofre."
   },
   "folders": {
     "message": "Pastas"
@@ -115,64 +121,100 @@
     "message": "Ver item"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Ver credencial",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Ver cartão",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Ver identidade",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Ver anotação",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Ver chave SSH",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Nova credencial",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Novo cartão",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Nova identidade",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nova anotação",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Nova chave SSH",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Editar credencial",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Editar cartão",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Editar identidade",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Editar anotação",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Editar chave SSH",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Nome"
@@ -332,7 +374,7 @@
     "message": "Número do passaporte"
   },
   "licenseNumber": {
-    "message": "Número da licença"
+    "message": "Número da CNH"
   },
   "email": {
     "message": "E-mail"
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "Apagar anexo"
+  },
+  "deleteAttachmentName": {
+    "message": "Apagar anexo $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Baixar $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Tem certeza de que deseja enviar este item para a lixeira?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "Sempre mostrar um ícone na bandeja do sistema."
   },
-  "startToTray": {
-    "message": "Iniciar oculto na bandeja do sistema"
-  },
-  "startToTrayDesc": {
-    "message": "Ao abrir o aplicativo, apenas mostrar o ícone na bandeja do sistema."
-  },
-  "startToMenuBar": {
-    "message": "Iniciar oculto na barra de menu"
-  },
-  "startToMenuBarDesc": {
-    "message": "Ao abrir o aplicativo, apenas mostrar o ícone na barra de menu."
-  },
   "openAtLogin": {
     "message": "Iniciar automaticamente com o sistema"
   },
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "Detecção de correspondência padrão",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Mostrar detecção de correspondência"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Ocultar detecção de correspondência"
   },
   "toggleOptions": {
     "message": "Habilitar opções"
@@ -2332,7 +2386,7 @@
     "message": "Copiar chave do autenticador (TOTP)"
   },
   "copyNotes": {
-    "message": "Copy notes"
+    "message": "Copiar anotações"
   },
   "totpHelperTitle": {
     "message": "Torne a verificação em 2 etapas mais simples"
@@ -3628,61 +3682,61 @@
     "message": "Dispositivo confiado"
   },
   "device": {
-    "message": "Device"
+    "message": "Dispositivo"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Dispositivos"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "O que é um dispositivo?"
   },
   "aDeviceIs": {
-    "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
+    "message": "Um dispositivo é uma instalação única do aplicativo do Bitwarden na qual você se conectou. Reinstalar, limpar os dados do aplicativo ou limpar seus cookies pode fazer com que um dispositivo apareça várias vezes."
   },
   "deviceListDescriptionTemp": {
-    "message": "Your account was logged in to each of the devices below."
+    "message": "Sua conta foi conectada a cada um dos dispositivos abaixo."
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Estado de autenticação"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Ativo recentemente"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Hoje"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Últimos 7 dias"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Últimos 14 dias"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Últimos 30 dias"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Há mais de 30 dias"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Primeiro acesso"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Confiado"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Sessão atual"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Solicitação pendente"
   },
   "deviceIdMissing": {
-    "message": "Device ID is missing"
+    "message": "ID do dispositivo ausente"
   },
   "deviceTypeMissing": {
-    "message": "Device type is missing"
+    "message": "Tipo de dispositivo ausente"
   },
   "deviceCreationDateMissing": {
-    "message": "Device creation date is missing"
+    "message": "Data de criação do dispositivo ausente"
   },
   "trustOrganization": {
     "message": "Confiar na organização"
@@ -3921,6 +3975,9 @@
   },
   "chooseFile": {
     "message": "Selecionar arquivo"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Escolher arquivo"
   },
   "noFileChosen": {
     "message": "Nenhum arquivo escolhido"
@@ -4853,7 +4910,7 @@
     "message": "Itens em organizações suspensas não podem ser acessados. Entre em contato com o proprietário da sua organização para obter ajuda."
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% concluído",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -4917,40 +4974,131 @@
     "message": "usuário@bitwarden.com , usuário@acme.com"
   },
   "emailPlaceholderMultiple": {
-    "message": "user@bitwarden.com, user@acme.com"
+    "message": "usuário@bitwarden.com, usuário@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "Reordenar $LABEL$. Use as setas do teclado para mover o item para cima ou para baixo.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
   },
   "userVerificationFailed": {
     "message": "Falha na verificação do usuário."
   },
+  "bankAccount": {
+    "message": "Conta bancária"
+  },
+  "bankName": {
+    "message": "Nome do banco"
+  },
+  "nameOnAccount": {
+    "message": "Nome na conta"
+  },
+  "bankAccountType": {
+    "message": "Tipo da conta"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Empresa"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Número da conta"
+  },
+  "bankRoutingNumber": {
+    "message": "Número de roteamento",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Número da instituição"
+  },
+  "swiftCode": {
+    "message": "Código SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Número de contato do banco"
+  },
+  "searchBankAccount": {
+    "message": "Buscar nas contas bancárias"
+  },
+  "copyAccountNumber": {
+    "message": "Copiar número da conta"
+  },
+  "copyRoutingNumber": {
+    "message": "Copiar número de roteamento"
+  },
+  "copyPin": {
+    "message": "Copiar PIN"
+  },
+  "copyIban": {
+    "message": "Copiar IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Corrente"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Poupança"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificado de depósito"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Linha de crédito"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investimento/corretagem"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Mercado monetário"
+  },
+  "bankAccountTypeOther": {
+    "message": "Outros"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Armazene seus dados bancários de forma segura"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Salve as informações da sua conta bancária para acessá-la de forma fácil e segura em seus dispositivos."
+  },
   "discardEdits": {
-    "message": "Discard edits"
+    "message": "Descartar edições"
   },
   "discardEditsMessage": {
-    "message": "If you close this view, your unsaved edits will be discarded"
+    "message": "Se você fechar esta visualização, suas edições não salvas serão descartadas"
   },
   "backToEditing": {
-    "message": "Back to editing"
+    "message": "Voltar à edição"
   },
   "sendHasUnsavedEdits": {
-    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "message": "O Send tem edições não salvas. Tem certeza de que deseja sair?",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "saveSendEditsFailed": {
-    "message": "Saving Send edits failed",
+    "message": "Falha ao salvar as edições do Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideEmailPolicyInEffect": {
+    "message": "Sua organização requer visibilidade de email. Desmarque a opção \"Ocultar e-mail dos visualizadores\" para salvar."
+  },
   "sideNavigation": {
-    "message": "Side navigation"
+    "message": "Navegação lateral"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "Pular link"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Aviso",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Barra de progresso",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }
