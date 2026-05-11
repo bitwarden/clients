@@ -54,7 +54,7 @@ export class ExtensionLockService extends DefaultLockService {
   }
 
   async runPlatformOnLockActions(userId: UserId): Promise<void> {
-    super.runPlatformOnLockActions(userId);
+    await super.runPlatformOnLockActions(userId);
     await this.main.refreshMenu(true);
   }
 }
