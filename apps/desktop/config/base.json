@@ -1,7 +1,11 @@
 {
   "flags": {
     "all": {
-      "sdk": true
+      "sdk": true,
+      "nativeCredentialSync": false
+    },
+    "beta": {
+      "nativeCredentialSync": true
     }
   },
   "devFlags": {}
