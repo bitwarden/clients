@@ -1,9 +1,11 @@
 import { firstValueFrom } from "rxjs";
 
  
+// eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockLeader } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";

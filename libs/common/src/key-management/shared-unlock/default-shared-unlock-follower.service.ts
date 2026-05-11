@@ -1,10 +1,9 @@
 import { firstValueFrom } from "rxjs";
 
- 
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line no-restricted-imports
 import { LockService } from "@bitwarden/auth/common";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-// eslint-disable-next-line import/no-cycle
+// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 import { SharedUnlockFollower } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
