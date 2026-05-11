@@ -26,6 +26,7 @@ describe("NewItemNudgeComponent", () => {
   beforeEach(async () => {
     i18nService = mock<I18nService>({ t: (key: string) => key });
     nudgesService = mock<NudgesService>();
+    nudgesService.showNudgeSpotlight$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [NewItemNudgeComponent, CommonModule],
@@ -74,6 +75,7 @@ describe("NewItemNudgeComponent", () => {
   });
 
   it("should not show anything if spotlight has been dismissed", async () => {
+    nudgesService.showNudgeSpotlight$.mockReturnValue(of(false));
     componentRef.setInput("configType", CipherType.Identity);
     fixture.detectChanges();
     component.showNewItemSpotlight$.subscribe((value) => {
