@@ -56,6 +56,8 @@ import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 
 import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
+import { ForkLocalCipherTagsService } from "./fork-local-cipher-tags.service";
+
 const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "filterVisibility", {
   deserializer: (obj) => obj,
 });
@@ -68,6 +70,8 @@ export interface CachedFilterState {
   collectionId?: string;
   folderId?: string;
   cipherType?: CipherType | null;
+  /** Local fork tag filter (comma-free tag string) */
+  forkTag?: string;
 }
 
 /** All available cipher filters */
@@ -76,6 +80,8 @@ export type PopupListFilter = {
   collection: CollectionView | null;
   folder: FolderView | null;
   cipherType: CipherType | null;
+  /** Filters by a device-local tag (ForkLocalCipherTagsService). */
+  forkTag: string | null;
 };
 
 /** Delimiter that denotes a level of nesting  */
@@ -89,6 +95,7 @@ const INITIAL_FILTERS: PopupListFilter = {
   collection: null,
   folder: null,
   cipherType: null,
+  forkTag: null,
 };
 
 @Injectable({
@@ -133,6 +140,7 @@ export class VaultPopupListFiltersService {
       collectionId: this.filterForm.value.collection?.id,
       folderId: this.filterForm.value.folder?.id,
       cipherType: this.filterForm.value.cipherType,
+      forkTag: this.filterForm.value.forkTag ?? undefined,
     };
   }
 
@@ -149,6 +157,7 @@ export class VaultPopupListFiltersService {
           collection: null,
           folder: null,
           cipherType: null,
+          forkTag: null,
         };
 
         if (state.organizationId) {
@@ -176,6 +185,10 @@ export class VaultPopupListFiltersService {
           patchValue.cipherType = state.cipherType;
         }
 
+        if (state.forkTag) {
+          patchValue.forkTag = state.forkTag;
+        }
+
         this.filterForm.patchValue(patchValue);
       });
   }
@@ -197,6 +210,7 @@ export class VaultPopupListFiltersService {
     private viewCacheService: ViewCacheService,
     private restrictedItemTypesService: RestrictedItemTypesService,
     private configService: ConfigService,
+    private forkLocalCipherTagsService: ForkLocalCipherTagsService,
   ) {
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
@@ -230,55 +244,92 @@ export class VaultPopupListFiltersService {
    * Observable whose value is a function that filters an array of `PopupCipherViewLike` objects based on the current filters
    */
   filterFunction$: Observable<(ciphers: PopupCipherViewLike[]) => PopupCipherViewLike[]> =
-    this.filters$.pipe(
+    combineLatest([this.filters$, this.forkLocalCipherTagsService.tagsRecord$]).pipe(
       map(
-        (filters) => (ciphers: PopupCipherViewLike[]) =>
-          ciphers.filter((cipher) => {
-            // Vault popup lists never shows deleted ciphers
-            if (CipherViewLikeUtils.isDeleted(cipher)) {
-              return false;
-            }
+        ([filters, tagRecord]) =>
+          (ciphers: PopupCipherViewLike[]) =>
+            ciphers.filter((cipher) => {
+              // Vault popup lists never shows deleted ciphers
+              if (CipherViewLikeUtils.isDeleted(cipher)) {
+                return false;
+              }
 
-            if (
-              filters.cipherType !== null &&
-              CipherViewLikeUtils.getType(cipher) !== filters.cipherType
-            ) {
-              return false;
-            }
+              if (
+                filters.cipherType !== null &&
+                CipherViewLikeUtils.getType(cipher) !== filters.cipherType
+              ) {
+                return false;
+              }
 
-            if (
-              filters.collection &&
-              !cipher.collectionIds?.includes(asUuid(filters.collection.id!))
-            ) {
-              return false;
-            }
+              if (
+                filters.collection &&
+                !cipher.collectionIds?.includes(asUuid(filters.collection.id!))
+              ) {
+                return false;
+              }
 
-            if (filters.folder) {
-              if (!filters.folder.id) {
-                // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
-                if (cipher.folderId) {
+              if (filters.folder) {
+                if (!filters.folder.id) {
+                  // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+                  if (cipher.folderId) {
+                    return false;
+                  }
+                } else if (cipher.folderId !== filters.folder.id) {
                   return false;
                 }
-              } else if (cipher.folderId !== filters.folder.id) {
-                return false;
               }
-            }
 
-            const isMyVault = filters.organization?.id === MY_VAULT_ID;
+              const isMyVault = filters.organization?.id === MY_VAULT_ID;
 
-            if (isMyVault) {
-              if (cipher.organizationId != null) {
-                return false;
+              if (isMyVault) {
+                if (cipher.organizationId != null) {
+                  return false;
+                }
+              } else if (filters.organization) {
+                if (cipher.organizationId !== filters.organization.id) {
+                  return false;
+                }
               }
-            } else if (filters.organization) {
-              if (cipher.organizationId !== filters.organization.id) {
-                return false;
-              }
-            }
 
-            return true;
-          }),
+              if (filters.forkTag) {
+                const targetTag = ForkLocalCipherTagsService.normalize(filters.forkTag);
+                const tagsOnCipher =
+                  tagRecord[String(cipher.id)]?.map(
+                    (t) => ForkLocalCipherTagsService.normalize(t) ?? "",
+                  ) ?? [];
+
+                const matchesTag = !!targetTag && tagsOnCipher.some((t) => t === targetTag);
+                if (!matchesTag) {
+                  return false;
+                }
+              }
+
+              return true;
+            }),
       ),
+    );
+
+  /** Unique local tags derived from persisted tag assignments (sorted). */
+  forkTagOptions$: Observable<ChipFilterOption<string>[]> =
+    this.forkLocalCipherTagsService.tagsRecord$.pipe(
+      map((record) => {
+        const uniq = new Set<string>();
+        for (const tags of Object.values(record)) {
+          for (const tag of tags) {
+            const n = ForkLocalCipherTagsService.normalize(tag);
+            if (n) {uniq.add(n);}
+          }
+        }
+        return Array.from(uniq).sort((a, b) => a.localeCompare(b));
+      }),
+      map((tags) =>
+        tags.map((tag) => ({
+          value: tag,
+          label: tag,
+          icon: "bwi-tag" as BitwardenIcon,
+        })),
+      ),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
   /**

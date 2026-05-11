@@ -45,5 +45,16 @@
       [options]="cipherTypes$ | async"
     >
     </bit-chip-filter>
+    <ng-container *ngIf="forkTagOptions$ | async as forkTags">
+      <bit-chip-filter
+        *ngIf="forkTags.length > 0"
+        formControlName="forkTag"
+        fullWidth
+        placeholderIcon="bwi-tag"
+        [placeholderText]="'forkLocalTagFilterPlaceholder' | i18n"
+        [options]="forkTags"
+      >
+      </bit-chip-filter>
+    </ng-container>
   </form>
 </div>

@@ -15,7 +15,7 @@ const COMPACT_MODE = new KeyDefinition<boolean>(THEMING_DISK, "compactMode", {
 export class PopupCompactModeService implements CompactModeService {
   private state = inject(GlobalStateProvider).get(COMPACT_MODE);
 
-  enabled$: Observable<boolean> = this.state.state$.pipe(map((state) => state ?? false));
+  enabled$: Observable<boolean> = this.state.state$.pipe(map((state) => state ?? true));
 
   init() {
     this.enabled$.subscribe((enabled) => {

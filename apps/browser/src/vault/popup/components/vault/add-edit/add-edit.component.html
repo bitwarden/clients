@@ -17,6 +17,16 @@
     <app-pop-out slot="end" />
   </popup-header>
 
+  @if (!loading) {
+    <bit-card class="tw-mb-4">
+      <bit-form-field disableMargin>
+        <bit-label>{{ "forkLocalTags" | i18n }}</bit-label>
+        <input bitInput type="text" autocomplete="off" [(ngModel)]="forkTagsInput" />
+        <bit-hint>{{ "forkLocalTagsHint" | i18n }}</bit-hint>
+      </bit-form-field>
+    </bit-card>
+  }
+
   <vault-cipher-form
     *ngIf="!loading"
     formId="cipherForm"

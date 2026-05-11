@@ -26,6 +26,7 @@ import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { AccentColorStateService } from "@bitwarden/common/platform/theming/accent-color-state.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -69,6 +70,7 @@ describe("SettingsComponent", () => {
   const domainSettingsService = mock<DomainSettingsService>();
   const desktopAutofillSettingsService = mock<DesktopAutofillSettingsService>();
   const themeStateService = mock<ThemeStateService>();
+  const accentColorStateService = mock<AccentColorStateService>();
   const pinServiceAbstraction = mock<PinServiceAbstraction>();
   const desktopBiometricsService = mock<DesktopBiometricsService>();
   const platformUtilsService = mock<PlatformUtilsService>();
@@ -135,6 +137,7 @@ describe("SettingsComponent", () => {
         { provide: PolicyService, useValue: policyService },
         { provide: StateService, useValue: mock<StateService>() },
         { provide: ThemeStateService, useValue: themeStateService },
+        { provide: AccentColorStateService, useValue: accentColorStateService },
         { provide: UserVerificationService, useValue: userVerificationService },
         { provide: VaultTimeoutSettingsService, useValue: vaultTimeoutSettingsService },
         { provide: ValidationService, useValue: validationService },
@@ -185,6 +188,8 @@ describe("SettingsComponent", () => {
     domainSettingsService.showFavicons$ = of(false);
     desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$ = of(false);
     themeStateService.selectedTheme$ = of(ThemeType.System);
+    accentColorStateService.accentColorHex$ = of(null);
+    accentColorStateService.setAccentColor.mockResolvedValue(undefined);
     i18nService.userSetLocale$ = of("en");
     pinServiceAbstraction.isPinSet.mockResolvedValue(false);
     policyService.policiesByType$.mockReturnValue(of([null]));

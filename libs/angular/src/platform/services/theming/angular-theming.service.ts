@@ -1,7 +1,17 @@
 import { Inject, Injectable } from "@angular/core";
-import { fromEvent, map, merge, Observable, of, Subscription, switchMap } from "rxjs";
+import {
+  combineLatest,
+  fromEvent,
+  map,
+  merge,
+  Observable,
+  of,
+  Subscription,
+  switchMap,
+} from "rxjs";
 
-import { ThemeTypes, Theme } from "@bitwarden/common/platform/enums";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { AccentColorStateService } from "@bitwarden/common/platform/theming/accent-color-state.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
 import { SYSTEM_THEME_OBSERVABLE } from "../../../services/injection-tokens";
@@ -44,23 +54,59 @@ export class AngularThemingService implements AbstractThemingService {
         return this.systemTheme$;
       }
 
+      if (configuredTheme === ThemeTypes.Oled) {
+        return of(ThemeTypes.Oled);
+      }
+
       return of(configuredTheme);
     }),
   );
 
   constructor(
     private themeStateService: ThemeStateService,
+    private accentColorStateService: AccentColorStateService,
     @Inject(SYSTEM_THEME_OBSERVABLE)
     private systemTheme$: Observable<Theme>,
   ) {}
 
   applyThemeChangesTo(document: Document): Subscription {
-    return this.theme$.subscribe((theme) => {
-      document.documentElement.classList.remove(
-        "theme_" + ThemeTypes.Light,
-        "theme_" + ThemeTypes.Dark,
-      );
-      document.documentElement.classList.add("theme_" + theme);
-    });
+    const root = document.documentElement;
+
+    return combineLatest([this.theme$, this.accentColorStateService.accentColorHex$]).subscribe(
+      ([theme, accentHex]) => {
+        root.classList.remove(
+          "theme_" + ThemeTypes.Light,
+          "theme_" + ThemeTypes.Dark,
+          "theme_" + ThemeTypes.Oled,
+        );
+        if (theme === ThemeTypes.Oled) {
+          root.classList.add("theme_" + ThemeTypes.Dark, "theme_" + ThemeTypes.Oled);
+        } else {
+          root.classList.add("theme_" + theme);
+        }
+
+        const rgbTriplet =
+          accentHex && /^#[0-9A-Fa-f]{6}$/.test(accentHex)
+            ? AngularThemingService.hexToRgbTriplet(accentHex)
+            : null;
+        root.classList.toggle("fork-accent-override", !!rgbTriplet);
+        if (rgbTriplet) {
+          root.style.setProperty("--fork-accent-rgb", rgbTriplet);
+        } else {
+          root.style.removeProperty("--fork-accent-rgb");
+        }
+      },
+    );
+  }
+
+  private static hexToRgbTriplet(hex: string): string {
+    const m = /^#?([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/.exec(hex.trim());
+    if (!m) {
+      return "";
+    }
+    const r = parseInt(m[1], 16);
+    const g = parseInt(m[2], 16);
+    const b = parseInt(m[3], 16);
+    return `${r} ${g} ${b}`;
   }
 }

@@ -1,10 +1,11 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
 import { NudgeStatus, NudgeType } from "@bitwarden/angular/vault";
 import { VaultProfileService } from "@bitwarden/angular/vault/services/vault-profile.service";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -17,6 +18,7 @@ import { BrowserAutofillNudgeService } from "./browser-autofill-nudge.service";
 describe("BrowserAutofillNudgeService", () => {
   let service: BrowserAutofillNudgeService;
   let vaultProfileService: MockProxy<VaultProfileService>;
+  let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   let fakeStateProvider: FakeStateProvider;
 
   const userId = "test-user-id" as UserId;
@@ -39,6 +41,9 @@ describe("BrowserAutofillNudgeService", () => {
     vaultProfileService = mock<VaultProfileService>();
     vaultProfileService.getProfileCreationDate.mockResolvedValue(recentProfileDate);
 
+    autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
+    autofillSettingsService.autofillBrowserNudgeDisabled$ = of(false);
+
     fakeStateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
 
     TestBed.configureTestingModule({
@@ -47,6 +52,10 @@ describe("BrowserAutofillNudgeService", () => {
         {
           provide: VaultProfileService,
           useValue: vaultProfileService,
+        },
+        {
+          provide: AutofillSettingsServiceAbstraction,
+          useValue: autofillSettingsService,
         },
         {
           provide: StateProvider,
@@ -151,6 +160,20 @@ describe("BrowserAutofillNudgeService", () => {
 
       await firstValueFrom(service.nudgeStatus$(nudgeType, userId));
 
+      expect(browserAutofillSettingsOverriddenSpy).not.toHaveBeenCalled();
+    });
+
+    it("returns dismissed status when user disabled autofill nudge in settings", async () => {
+      autofillSettingsService.autofillBrowserNudgeDisabled$ = of(true);
+      jest.spyOn(BrowserApi, "getBrowserClientVendor").mockReturnValue(BrowserClientVendors.Chrome);
+      const browserAutofillSettingsOverriddenSpy = jest.spyOn(
+        BrowserApi,
+        "browserAutofillSettingsOverridden",
+      );
+
+      const result = await firstValueFrom(service.nudgeStatus$(nudgeType, userId));
+
+      expect(result).toEqual(dismissedStatus);
       expect(browserAutofillSettingsOverriddenSpy).not.toHaveBeenCalled();
     });
   });

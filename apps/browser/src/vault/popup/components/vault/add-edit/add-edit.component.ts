@@ -5,7 +5,7 @@ import { Component, OnInit, OnDestroy, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, switchMap, take } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -25,6 +25,8 @@ import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher
 import {
   AsyncActionsModule,
   ButtonModule,
+  CardComponent,
+  FormFieldModule,
   SearchModule,
   IconButtonModule,
   DialogService,
@@ -55,6 +57,7 @@ import { PopupCloseWarningService } from "../../../../../popup/services/popup-cl
 import { BrowserCipherFormGenerationService } from "../../../services/browser-cipher-form-generation.service";
 import { BrowserPremiumUpgradePromptService } from "../../../services/browser-premium-upgrade-prompt.service";
 import { BrowserTotpCaptureService } from "../../../services/browser-totp-capture.service";
+import { ForkLocalCipherTagsService } from "../../../services/fork-local-cipher-tags.service";
 import { VaultPopupAfterDeletionNavigationService } from "../../../services/vault-popup-after-deletion-navigation.service";
 import {
   fido2PopoutSessionData$,
@@ -170,6 +173,8 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     JslibModule,
     FormsModule,
     ButtonModule,
+    CardComponent,
+    FormFieldModule,
     OpenAttachmentsComponent,
     PopupPageComponent,
     PopupHeaderComponent,
@@ -183,6 +188,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
 })
 export class AddEditComponent implements OnInit, OnDestroy {
   readonly cipherFormComponent = viewChild(CipherFormComponent);
+  forkTagsInput = "";
   headerText: string;
   config: CipherFormConfig;
   canDeleteCipher$: Observable<boolean>;
@@ -232,6 +238,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     private accountService: AccountService,
     private archiveService: CipherArchiveService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
+    private forkLocalCipherTagsService: ForkLocalCipherTagsService,
   ) {
     this.subscribeToParams();
   }
@@ -323,6 +330,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
   };
 
   async onCipherSaved(cipher: CipherView) {
+    const parsedTags = ForkLocalCipherTagsService.parseCsv(this.forkTagsInput);
+    await this.forkLocalCipherTagsService.setTagsForCipher(String(cipher.id), parsedTags);
+
     if (BrowserPopupUtils.inPopout(window)) {
       this.popupCloseWarningService.disable();
     }
@@ -425,7 +435,24 @@ export class AddEditComponent implements OnInit, OnDestroy {
       .subscribe((config) => {
         this.config = config;
         this.headerText = this.setHeader(config.mode, config.cipherType);
+        void this.loadForkTags(new QueryParams(this.route.snapshot.queryParams));
       });
+  }
+
+  /** Loads device-local tag text for clone/edit from stored tag assignments (fork feature). */
+  private async loadForkTags(params: QueryParams) {
+    const id = params.cipherId;
+    const shouldLoadFromCipher =
+      !!id && (params.clone || this.config.mode === "edit" || this.config.mode === "partial-edit");
+
+    if (!shouldLoadFromCipher) {
+      this.forkTagsInput = "";
+      return;
+    }
+
+    const record = await firstValueFrom(this.forkLocalCipherTagsService.tagsRecord$.pipe(take(1)));
+    const tags = record[id as string] ?? [];
+    this.forkTagsInput = ForkLocalCipherTagsService.serialize(tags);
   }
 
   async setInitialValuesFromParams(params: QueryParams) {
@@ -493,6 +520,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
 
     try {
       const activeUserId = await firstValueFrom(this.userId$);
+      await this.forkLocalCipherTagsService.removeCipher(String(this.config.originalCipher.id));
       await this.deleteCipher(activeUserId);
     } catch (e) {
       this.logService.error(e);

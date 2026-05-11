@@ -21,6 +21,7 @@ export class VaultListFiltersComponent {
   protected collections$ = this.vaultPopupListFiltersService.collections$;
   protected folders$ = this.vaultPopupListFiltersService.folders$;
   protected cipherTypes$ = this.vaultPopupListFiltersService.cipherTypes$;
+  protected forkTagOptions$ = this.vaultPopupListFiltersService.forkTagOptions$;
 
   // Combine all filters into a single observable to eliminate the filters from loading separately in the UI.
   protected allFilters$ = combineLatest([

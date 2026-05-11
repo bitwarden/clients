@@ -83,3 +83,39 @@
 .theme_dark .card-ru-pay {
   background-image: url("~@bitwarden/angular/src/billing/images/cards/ru_pay-dark.png");
 }
+
+.theme_oled .card-visa {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/visa-dark.png");
+}
+
+.theme_oled .card-amex {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/amex-dark.png");
+}
+
+.theme_oled .card-diners-club {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/diners_club-dark.png");
+}
+
+.theme_oled .card-discover {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/discover-dark.png");
+}
+
+.theme_oled .card-jcb {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/jcb-dark.png");
+}
+
+.theme_oled .card-maestro {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/maestro-dark.png");
+}
+
+.theme_oled .card-mastercard {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/mastercard-dark.png");
+}
+
+.theme_oled .card-union-pay {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/union_pay-dark.png");
+}
+
+.theme_oled .card-ru-pay {
+  background-image: url("~@bitwarden/angular/src/billing/images/cards/ru_pay-dark.png");
+}

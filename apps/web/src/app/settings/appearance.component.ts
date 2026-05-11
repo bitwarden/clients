@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { filter, firstValueFrom, switchMap } from "rxjs";
+import { filter, firstValueFrom, skip, switchMap } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { AccentColorStateService } from "@bitwarden/common/platform/theming/accent-color-state.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
 
@@ -33,16 +34,20 @@ export class AppearanceComponent implements OnInit {
   readonly localeOptions: LocaleOption[];
   readonly themeOptions: ThemeOption[];
 
+  private readonly accentBrandDefault = "#175ddc";
+
   readonly form = this.formBuilder.group({
     enableFavicons: true,
     theme: [ThemeTypes.Light as Theme],
     locale: [null as string | null],
+    accentColorHexUi: [this.accentBrandDefault],
   });
 
   constructor(
     private readonly formBuilder: FormBuilder,
     private readonly i18nService: I18nService,
     private readonly themeStateService: ThemeStateService,
+    private readonly accentColorStateService: AccentColorStateService,
     private readonly domainSettingsService: DomainSettingsService,
     private readonly destroyRef: DestroyRef,
   ) {
@@ -60,16 +65,20 @@ export class AppearanceComponent implements OnInit {
     this.themeOptions = [
       { name: i18nService.t("themeLight"), value: ThemeTypes.Light },
       { name: i18nService.t("themeDark"), value: ThemeTypes.Dark },
+      { name: i18nService.t("themeOled"), value: ThemeTypes.Oled },
       { name: i18nService.t("themeSystem"), value: ThemeTypes.System },
     ];
   }
 
   async ngOnInit() {
+    const accentPersisted = await firstValueFrom(this.accentColorStateService.accentColorHex$);
+
     this.form.setValue(
       {
         enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
         theme: await firstValueFrom(this.themeStateService.selectedTheme$),
         locale: (await firstValueFrom(this.i18nService.userSetLocale$)) ?? null,
+        accentColorHexUi: accentPersisted ?? this.accentBrandDefault,
       },
       { emitEvent: false },
     );
@@ -94,14 +103,34 @@ export class AppearanceComponent implements OnInit {
       )
       .subscribe();
 
-    this.form.controls.locale.valueChanges
+    this.form.controls.accentColorHexUi.valueChanges
       .pipe(
-        switchMap(async (locale) => {
-          await this.i18nService.setLocale(locale);
-          window.location.reload();
+        skip(1),
+        filter((hex): hex is string => typeof hex === "string" && /^#[0-9A-Fa-f]{6}$/.test(hex)),
+        switchMap(async (hex) => {
+          const normalized = hex.toLowerCase();
+          if (normalized === this.accentBrandDefault.toLowerCase()) {
+            await this.accentColorStateService.setAccentColor(null);
+          } else {
+            await this.accentColorStateService.setAccentColor(normalized);
+          }
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+
+    this.form.controls.locale.valueChanges
+      .pipe(
+        switchMap(async (locale) => {
+          await this.i18nService.setLocale(locale);
+          this.reloadBrowserWindow();
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  protected reloadBrowserWindow(): void {
+    window.location.reload();
   }
 }

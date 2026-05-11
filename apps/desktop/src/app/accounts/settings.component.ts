@@ -31,6 +31,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums/theme-type.enum";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { AccentColorStateService } from "@bitwarden/common/platform/theming/accent-color-state.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
@@ -47,7 +48,7 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
@@ -124,6 +125,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   showAccountPreferences = true;
   showAppPreferences = true;
 
+  private readonly accentBrandDefault = "#175ddc";
+
   currentUserEmail: string;
   currentUserId: UserId;
 
@@ -165,6 +168,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     autotypeShortcut: [null as string | null],
     theme: [null as Theme | null],
     locale: [null as string | null],
+    accentColorHexUi: [this.accentBrandDefault],
   });
 
   protected refreshTimeoutSettings$ = new BehaviorSubject<void>(undefined);
@@ -182,6 +186,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private keyService: KeyService,
     private themeStateService: ThemeStateService,
+    private accentColorStateService: AccentColorStateService,
     private domainSettingsService: DomainSettingsService,
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
@@ -237,6 +242,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       { name: this.i18nService.t("default"), value: ThemeTypes.System },
       { name: this.i18nService.t("light"), value: ThemeTypes.Light },
       { name: this.i18nService.t("dark"), value: ThemeTypes.Dark },
+      { name: this.i18nService.t("oled"), value: ThemeTypes.Oled },
     ];
 
     this.clearClipboardOptions = [
@@ -332,6 +338,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
+      accentColorHexUi:
+        (await firstValueFrom(this.accentColorStateService.accentColorHex$)) ??
+        this.accentBrandDefault,
     };
     this.form.setValue(initialValues, { emitEvent: false });
 
@@ -603,6 +612,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async saveTheme() {
     await this.themeStateService.setSelectedTheme(this.form.value.theme);
+  }
+
+  async saveAccentColor() {
+    const hex = this.form.value.accentColorHexUi;
+    if (!hex || !/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+      return;
+    }
+    const normalized = hex.toLowerCase();
+    if (normalized === this.accentBrandDefault.toLowerCase()) {
+      await this.accentColorStateService.setAccentColor(null);
+      return;
+    }
+    await this.accentColorStateService.setAccentColor(normalized);
   }
 
   async saveMinOnCopyToClipboard() {

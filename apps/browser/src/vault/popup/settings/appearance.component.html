@@ -21,6 +21,12 @@
       </bit-form-field>
 
       <bit-form-field>
+        <bit-label>{{ "accentColorLabel" | i18n }}</bit-label>
+        <input bitInput type="color" formControlName="accentColorHexUi" />
+        <bit-hint>{{ "accentColorHint" | i18n }}</bit-hint>
+      </bit-form-field>
+
+      <bit-form-field>
         <bit-label>{{ "extensionWidth" | i18n }}</bit-label>
         <bit-select formControlName="width" [items]="widthOptions"></bit-select>
       </bit-form-field>

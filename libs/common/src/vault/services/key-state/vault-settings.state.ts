@@ -43,3 +43,13 @@ export const SHOW_AT_RISK_PASSWORD_NOTIFICATIONS = new UserKeyDefinition<boolean
     clearOn: [], // do not clear user settings
   },
 );
+
+/** Device-local cipher tags (not synced to Bitwarden server). Stored per user profile. */
+export const FORK_LOCAL_CIPHER_TAGS = new UserKeyDefinition<Record<string, string[]>>(
+  VAULT_SETTINGS_DISK,
+  "forkLocalCipherTags",
+  {
+    deserializer: (v) => (v != null && typeof v === "object" ? v : {}),
+    clearOn: [],
+  },
+);

@@ -132,7 +132,16 @@
                 ></bit-icon>
               }
             </div>
-            <span slot="secondary">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
+            <div slot="secondary" class="tw-flex tw-flex-col tw-gap-1 tw-min-w-0">
+              <span class="tw-truncate">{{ CipherViewLikeUtils.subtitle(cipher) }}</span>
+              @if (forkTagsForCipher(cipher.id).length > 0) {
+                <div class="tw-flex tw-flex-wrap tw-gap-1">
+                  @for (tag of forkTagsForCipher(cipher.id); track tag) {
+                    <span bitBadge variant="secondary">{{ tag }}</span>
+                  }
+                </div>
+              }
+            </div>
           </button>
 
           <ng-container slot="end">

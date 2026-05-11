@@ -5,7 +5,7 @@
  * npx sass ./libs/angular/src/scss/icons.scss ./libs/angular/src/scss/icons.css --no-source-map 2>&1
  */
 
-$dark-icon-themes: "theme_dark" !default;
+$dark-icon-themes: "theme_dark", "theme_oled" !default;
 $card-icons-base: "~@bitwarden/angular/src/billing/images/cards/" !default;
 
 $card-icons: (

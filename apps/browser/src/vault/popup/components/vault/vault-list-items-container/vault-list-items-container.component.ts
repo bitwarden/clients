@@ -36,6 +36,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
+  BadgeModule,
   ButtonModule,
   CompactModeService,
   DisclosureComponent,
@@ -58,6 +59,7 @@ import {
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
+import { ForkLocalCipherTagsService } from "../../../services/fork-local-cipher-tags.service";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import {
   VaultPopupSectionService,
@@ -70,6 +72,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 @Component({
   imports: [
     CommonModule,
+    BadgeModule,
     ItemModule,
     ButtonModule,
     IconButtonModule,
@@ -95,7 +98,19 @@ export class VaultListItemsContainerComponent implements AfterViewInit {
   private compactModeService = inject(CompactModeService);
   private vaultPopupSectionService = inject(VaultPopupSectionService);
   private configService = inject(ConfigService);
+  private forkLocalCipherTagsService = inject(ForkLocalCipherTagsService);
   protected CipherViewLikeUtils = CipherViewLikeUtils;
+
+  private readonly forkTagsRecord = toSignal(this.forkLocalCipherTagsService.tagsRecord$, {
+    initialValue: {} as Record<string, string[]>,
+  });
+
+  protected forkTagsForCipher(cipherId: string | undefined): string[] {
+    if (!cipherId) {
+      return [];
+    }
+    return this.forkTagsRecord()?.[cipherId] ?? [];
+  }
 
   /** Signal for the feature flag that controls simplified item action behavior */
   protected readonly simplifiedItemActionEnabled = toSignal(

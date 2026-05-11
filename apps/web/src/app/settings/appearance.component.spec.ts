@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
+import { AccentColorStateService } from "@bitwarden/common/platform/theming/accent-color-state.service";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 
 import { AppearanceComponent } from "./appearance.component";
@@ -21,6 +22,8 @@ describe("AppearanceComponent", () => {
   const mockShowFavicons$ = new BehaviorSubject<boolean>(true);
   const mockSelectedTheme$ = new BehaviorSubject<Theme>(ThemeTypes.Light);
   const mockUserSetLocale$ = new BehaviorSubject<string | undefined>("en");
+  const mockAccentColorHex$ = new BehaviorSubject<string | null>(null);
+  const setAccentColorMock = jest.fn().mockResolvedValue(undefined);
 
   const mockSupportedLocales = ["en", "es", "fr", "de"];
   const mockLocaleNames = new Map([
@@ -44,6 +47,8 @@ describe("AppearanceComponent", () => {
     mockI18nService.userSetLocale$ = mockUserSetLocale$;
 
     mockThemeStateService.selectedTheme$ = mockSelectedTheme$;
+    mockAccentColorHex$.next(null);
+    setAccentColorMock.mockResolvedValue(undefined);
     mockDomainSettingsService.showFavicons$ = mockShowFavicons$;
 
     mockDomainSettingsService.setShowFavicons.mockResolvedValue(undefined);
@@ -55,6 +60,13 @@ describe("AppearanceComponent", () => {
       providers: [
         { provide: I18nService, useValue: mockI18nService },
         { provide: ThemeStateService, useValue: mockThemeStateService },
+        {
+          provide: AccentColorStateService,
+          useValue: {
+            accentColorHex$: mockAccentColorHex$,
+            setAccentColor: setAccentColorMock,
+          },
+        },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
       ],
     })
@@ -91,10 +103,11 @@ describe("AppearanceComponent", () => {
     });
 
     describe("theme options setup", () => {
-      it("should create theme options with Light, Dark, and System", () => {
+      it("should create theme options with Light, Dark, OLED, and System", () => {
         expect(component.themeOptions).toEqual([
           { name: "themeLight-used-i18n", value: ThemeTypes.Light },
           { name: "themeDark-used-i18n", value: ThemeTypes.Dark },
+          { name: "themeOled-used-i18n", value: ThemeTypes.Oled },
           { name: "themeSystem-used-i18n", value: ThemeTypes.System },
         ]);
       });
@@ -114,6 +127,7 @@ describe("AppearanceComponent", () => {
         enableFavicons: false,
         theme: ThemeTypes.Dark,
         locale: "es",
+        accentColorHexUi: "#175ddc",
       });
     }));
 
@@ -163,7 +177,7 @@ describe("AppearanceComponent", () => {
       jest.clearAllMocks();
     }));
 
-    it.each([ThemeTypes.Light, ThemeTypes.Dark, ThemeTypes.System])(
+    it.each([ThemeTypes.Light, ThemeTypes.Dark, ThemeTypes.System, ThemeTypes.Oled])(
       "should call setSelectedTheme when theme changes to %s",
       fakeAsync((themeType: Theme) => {
         component.form.controls.theme.setValue(themeType);
@@ -182,26 +196,28 @@ describe("AppearanceComponent", () => {
   });
 
   describe("locale value changes", () => {
-    let reloadMock: jest.Mock;
+    let reloadSpy: jest.SpiedFunction<AppearanceComponent["reloadBrowserWindow"]>;
 
     beforeEach(fakeAsync(() => {
-      reloadMock = jest.fn();
-      Object.defineProperty(window, "location", {
-        value: { reload: reloadMock },
-        writable: true,
-      });
+      reloadSpy = jest
+        .spyOn(AppearanceComponent.prototype, "reloadBrowserWindow")
+        .mockImplementation(() => {});
 
       fixture.detectChanges();
       flush();
       jest.clearAllMocks();
     }));
 
+    afterEach(() => {
+      reloadSpy.mockRestore();
+    });
+
     it("should call setLocale and reload window when locale changes to english", fakeAsync(() => {
       component.form.controls.locale.setValue("es");
       flush();
 
       expect(mockI18nService.setLocale).toHaveBeenCalledWith("es");
-      expect(reloadMock).toHaveBeenCalled();
+      expect(reloadSpy).toHaveBeenCalled();
     }));
 
     it("should call setLocale and reload window when locale changes to default", fakeAsync(() => {
@@ -209,7 +225,7 @@ describe("AppearanceComponent", () => {
       flush();
 
       expect(mockI18nService.setLocale).toHaveBeenCalledWith(null);
-      expect(reloadMock).toHaveBeenCalled();
+      expect(reloadSpy).toHaveBeenCalled();
     }));
   });
 });

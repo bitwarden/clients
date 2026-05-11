@@ -1346,6 +1346,25 @@
     "message": "Light",
     "description": "Light color"
   },
+  "oled": {
+    "message": "OLED dark",
+    "description": "True black dark theme for OLED displays"
+  },
+  "accentColorLabel": {
+    "message": "Accent color"
+  },
+  "accentColorHint": {
+    "message": "Customize primary buttons and links (extension only). Choosing the default blue clears the override."
+  },
+  "forkLocalTags": {
+    "message": "Local tags (this device)"
+  },
+  "forkLocalTagsHint": {
+    "message": "Comma-separated labels stored only in this browser. They sync with your vault items by ID once saved; they are not sent to Bitwarden servers."
+  },
+  "forkLocalTagFilterPlaceholder": {
+    "message": "Local tag"
+  },
   "exportFrom": {
     "message": "Export from"
   },
@@ -4873,6 +4892,12 @@
   },
   "autofillSuggestionsTip": {
     "message": "Save a login item for this site to autofill"
+  },
+  "disableAutofillSetupNudge": {
+    "message": "Don't show reminders to disable the browser password manager"
+  },
+  "disableAutofillSetupNudgeHint": {
+    "message": "Hide the banner and settings badge prompting you to turn off built-in saved passwords (for example Chrome or Edge)."
   },
   "yourVaultIsEmpty": {
     "message": "Your vault is empty"

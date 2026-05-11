@@ -299,6 +299,10 @@ import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { SystemNotificationsService } from "@bitwarden/common/platform/system-notifications";
 import { UnsupportedSystemNotificationsService } from "@bitwarden/common/platform/system-notifications/unsupported-system-notifications.service";
 import {
+  AccentColorStateService,
+  DefaultAccentColorStateService,
+} from "@bitwarden/common/platform/theming/accent-color-state.service";
+import {
   DefaultThemeStateService,
   ThemeStateService,
 } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -523,9 +527,14 @@ const safeProviders: SafeProvider[] = [
     deps: [GlobalStateProvider],
   }),
   safeProvider({
+    provide: AccentColorStateService,
+    useClass: DefaultAccentColorStateService,
+    deps: [GlobalStateProvider],
+  }),
+  safeProvider({
     provide: AbstractThemingService,
     useClass: AngularThemingService,
-    deps: [ThemeStateService, SYSTEM_THEME_OBSERVABLE],
+    deps: [ThemeStateService, AccentColorStateService, SYSTEM_THEME_OBSERVABLE],
   }),
   safeProvider({
     provide: AppIdServiceAbstraction,
