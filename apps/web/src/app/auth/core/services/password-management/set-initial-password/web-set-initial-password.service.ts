@@ -57,7 +57,7 @@ export class WebSetInitialPasswordService
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    */
   override async setInitialPassword(
     credentials: SetInitialPasswordCredentials,

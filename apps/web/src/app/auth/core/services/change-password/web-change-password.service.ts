@@ -57,23 +57,6 @@ export class WebChangePasswordService
     );
   }
 
-  /**
-   * @deprecated To be removed in PM-28143
-   */
-  override async rotateUserKeyMasterPasswordAndEncryptedData(
-    currentPassword: string,
-    newPassword: string,
-    user: Account,
-    newPasswordHint: string,
-  ): Promise<void> {
-    await this.userKeyRotationService.rotateUserKeyMasterPasswordAndEncryptedData(
-      currentPassword,
-      newPassword,
-      user,
-      newPasswordHint,
-    );
-  }
-
   async clearDeeplinkState() {
     await this.routerService.getAndClearLoginRedirectUrl();
   }

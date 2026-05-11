@@ -12,15 +12,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
@@ -33,13 +28,12 @@ export class WebRegistrationFinishService
     protected keyService: KeyService,
     protected accountApiService: AccountApiService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
-    protected configService: ConfigService,
     private organizationInviteService: OrganizationInviteService,
     private policyApiService: PolicyApiServiceAbstraction,
     private logService: LogService,
     private policyService: PolicyService,
   ) {
-    super(keyService, accountApiService, masterPasswordService, configService);
+    super(keyService, accountApiService, masterPasswordService);
   }
 
   override async getOrgNameFromOrgInvite(): Promise<string | null> {
@@ -87,7 +81,6 @@ export class WebRegistrationFinishService
     newUserKey: UserKey,
     email: string,
     passwordInputResult: PasswordInputResult,
-    encryptedUserKey: EncryptedString,
     userAsymmetricKeys: [string, EncString],
     emailVerificationToken?: string,
     orgSponsoredFreeFamilyPlanToken?: string,
@@ -95,12 +88,11 @@ export class WebRegistrationFinishService
     emergencyAccessId?: string,
     providerInviteToken?: string,
     providerUserId?: string,
-  ): Promise<RegisterFinishRequest | RegisterFinishRequestWithAuthUnlockDataTypes> {
+  ): Promise<RegisterFinishRequest> {
     const registerRequest = await super.buildRegisterRequest(
       newUserKey,
       email,
       passwordInputResult,
-      encryptedUserKey,
       userAsymmetricKeys,
       emailVerificationToken,
     );

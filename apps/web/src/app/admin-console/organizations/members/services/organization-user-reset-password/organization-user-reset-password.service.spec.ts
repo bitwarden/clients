@@ -21,7 +21,6 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -29,8 +28,8 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { UserKey, OrgKey, MasterKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KdfConfig, KdfType, KeyService } from "@bitwarden/key-management";
+import { UserKey, OrgKey } from "@bitwarden/common/types/key";
+import { DEFAULT_KDF_CONFIG, KdfConfig, KeyService } from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 
@@ -49,7 +48,6 @@ describe("OrganizationUserResetPasswordService", () => {
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
   let masterPasswordService: FakeMasterPasswordService;
-  let configService: MockProxy<ConfigService>;
 
   beforeAll(() => {
     keyService = mock<KeyService>();
@@ -60,7 +58,6 @@ describe("OrganizationUserResetPasswordService", () => {
     i18nService = mock<I18nService>();
     accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
-    configService = mock<ConfigService>();
 
     sut = new OrganizationUserResetPasswordService(
       keyService,
@@ -71,7 +68,6 @@ describe("OrganizationUserResetPasswordService", () => {
       i18nService,
       accountService,
       masterPasswordService,
-      configService,
     );
   });
 
@@ -144,81 +140,12 @@ describe("OrganizationUserResetPasswordService", () => {
     });
   });
 
-  /**
-   * @deprecated This 'describe' to be removed in PM-28143. When you remove this, check also if there are
-   * any imports/properties in the test setup above that are now un-used and can also be removed.
-   */
-  describe("resetMasterPassword [PM27086_UpdateAuthenticationApisForInputPassword flag DISABLED]", () => {
-    const PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled = false;
-
-    const mockNewMP = "new-password";
-    const mockEmail = "test@example.com";
-    const mockOrgUserId = "test-org-user-id";
-    const mockOrgId = "test-org-id";
-
-    beforeEach(() => {
-      configService.getFeatureFlag.mockResolvedValue(
-        PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled,
-      );
-
-      organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
-        new OrganizationUserResetPasswordDetailsResponse({
-          kdf: KdfType.PBKDF2_SHA256,
-          kdfIterations: 5000,
-          resetPasswordKey: "test-reset-password-key",
-          encryptedPrivateKey: "test-encrypted-private-key",
-        }),
-      );
-
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      const mockOrgKey = new SymmetricCryptoKey(mockRandomBytes) as OrgKey;
-      keyService.orgKeys$.mockReturnValue(
-        of({ [mockOrgId]: mockOrgKey } as Record<OrganizationId, OrgKey>),
-      );
-
-      encryptService.decryptToBytes.mockResolvedValue(mockRandomBytes);
-
-      encryptService.rsaDecrypt.mockResolvedValue(mockRandomBytes);
-      const mockMasterKey = new SymmetricCryptoKey(mockRandomBytes) as MasterKey;
-      keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-      keyService.hashMasterKey.mockResolvedValue("test-master-key-hash");
-
-      const mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      keyService.encryptUserKeyWithMasterKey.mockResolvedValue([
-        mockUserKey,
-        new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "test-encrypted-user-key"),
-      ]);
-    });
-
-    it("should reset the user's master password", async () => {
-      await sut.resetMasterPassword(mockNewMP, mockEmail, mockOrgUserId, mockOrgId);
-      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalled();
-    });
-
-    it("should throw an error if the user details are null", async () => {
-      organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(null);
-      await expect(
-        sut.resetMasterPassword(mockNewMP, mockEmail, mockOrgUserId, mockOrgId),
-      ).rejects.toThrow();
-    });
-
-    it("should throw an error if the org key is null", async () => {
-      keyService.orgKeys$.mockReturnValue(of(null));
-      await expect(
-        sut.resetMasterPassword(mockNewMP, mockEmail, mockOrgUserId, mockOrgId),
-      ).rejects.toThrow();
-    });
-  });
-
-  describe("resetMasterPassword [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+  describe("resetMasterPassword", () => {
     // Mock sut method parameters
     const newMasterPassword = "new-master-password";
     const email = "user@example.com";
     const orgUserId = "org-user-id";
     const orgId = "org-id" as OrganizationId;
-
-    // Mock feature flag value
-    const PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled = true;
 
     // Mock method data
     let organizationUserResetPasswordDetailsResponse: OrganizationUserResetPasswordDetailsResponse;
@@ -229,11 +156,6 @@ describe("OrganizationUserResetPasswordService", () => {
     let userKey: UserKey;
 
     beforeEach(() => {
-      // Mock feature flag value
-      configService.getFeatureFlag.mockResolvedValue(
-        PM27086_UpdateAuthenticationApisForInputPasswordFlagEnabled,
-      );
-
       // Mock method data
       kdfConfig = DEFAULT_KDF_CONFIG;
 
@@ -381,9 +303,7 @@ describe("OrganizationUserResetPasswordService", () => {
     let unlockData: MasterPasswordUnlockData;
 
     /** Sets up mocks needed when resetMasterPassword is true */
-    function setupPasswordResetMocks(flagEnabled: boolean) {
-      configService.getFeatureFlag.mockResolvedValue(flagEnabled);
-
+    function setupPasswordResetMocks() {
       kdfConfig = DEFAULT_KDF_CONFIG;
 
       organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
@@ -406,46 +326,29 @@ describe("OrganizationUserResetPasswordService", () => {
       const mockDecryptedUserKey = new SymmetricCryptoKey(new Uint8Array(64).fill(3));
       encryptService.decapsulateKeyUnsigned.mockResolvedValue(mockDecryptedUserKey);
 
-      if (flagEnabled) {
-        salt = email as MasterPasswordSalt;
-        masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
+      salt = email as MasterPasswordSalt;
+      masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
 
-        authenticationData = {
-          salt,
-          kdf: kdfConfig,
-          masterPasswordAuthenticationHash:
-            "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
-        };
+      authenticationData = {
+        salt,
+        kdf: kdfConfig,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
 
-        unlockData = {
-          salt,
-          kdf: kdfConfig,
-          masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
-        } as MasterPasswordUnlockData;
+      unlockData = {
+        salt,
+        kdf: kdfConfig,
+        masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      } as MasterPasswordUnlockData;
 
-        masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue(
-          authenticationData,
-        );
-        masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
-      } else {
-        const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-        const mockMasterKey = new SymmetricCryptoKey(mockRandomBytes) as MasterKey;
-        keyService.makeMasterKey.mockResolvedValue(mockMasterKey);
-        keyService.hashMasterKey.mockResolvedValue("test-master-key-hash");
-        const mockEncryptedUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-        keyService.encryptUserKeyWithMasterKey.mockResolvedValue([
-          mockEncryptedUserKey,
-          new EncString(EncryptionType.AesCbc256_HmacSha256_B64, "test-encrypted-user-key"),
-        ]);
-      }
+      masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        authenticationData,
+      );
+      masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
     }
 
     describe("reset 2FA only", () => {
-      beforeEach(() => {
-        // No feature flag or password details needed for 2FA-only reset
-        configService.getFeatureFlag.mockResolvedValue(false);
-      });
-
       it("should call putOrganizationUserRecoverAccount with resetTwoFactor: true and resetMasterPassword: false", async () => {
         await sut.recoverAccount({
           organizationUserId: orgUserId,
@@ -487,62 +390,9 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
 
-    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag DISABLED]", () => {
+    describe("reset master password only", () => {
       beforeEach(() => {
-        setupPasswordResetMocks(false);
-      });
-
-      it("should call putOrganizationUserRecoverAccount with resetMasterPassword: true and resetTwoFactor: false", async () => {
-        await sut.recoverAccount({
-          organizationUserId: orgUserId,
-          organizationId: orgId,
-          resetMasterPassword: true,
-          resetTwoFactor: false,
-          newMasterPassword,
-          email,
-        });
-
-        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
-          orgId,
-          orgUserId,
-          expect.objectContaining({ resetMasterPassword: true, resetTwoFactor: false }),
-        );
-      });
-
-      it("should throw if reset password details are null", async () => {
-        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(null);
-
-        await expect(
-          sut.recoverAccount({
-            organizationUserId: orgUserId,
-            organizationId: orgId,
-            resetMasterPassword: true,
-            resetTwoFactor: false,
-            newMasterPassword,
-            email,
-          }),
-        ).rejects.toThrow();
-      });
-
-      it("should throw if org key is null", async () => {
-        keyService.orgKeys$.mockReturnValue(of(null));
-
-        await expect(
-          sut.recoverAccount({
-            organizationUserId: orgUserId,
-            organizationId: orgId,
-            resetMasterPassword: true,
-            resetTwoFactor: false,
-            newMasterPassword,
-            email,
-          }),
-        ).rejects.toThrow();
-      });
-    });
-
-    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
-      beforeEach(() => {
-        setupPasswordResetMocks(true);
+        setupPasswordResetMocks();
       });
 
       it("should call putOrganizationUserRecoverAccount with password data and resetTwoFactor: false", async () => {
@@ -598,9 +448,9 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
 
-    describe("reset both master password and 2FA [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+    describe("reset both master password and 2FA", () => {
       beforeEach(() => {
-        setupPasswordResetMocks(true);
+        setupPasswordResetMocks();
       });
 
       it("should call putOrganizationUserRecoverAccount with both flags true and password data", async () => {
@@ -692,7 +542,7 @@ describe("OrganizationUserResetPasswordService", () => {
 
 function createOrganization(id: string, name: string, resetPasswordEnrolled = true): Organization {
   const org = new Organization();
-  org.id = id;
+  org.id = id as OrganizationId;
   org.name = name;
   org.identifier = name;
   org.isMember = true;
