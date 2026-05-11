@@ -88,7 +88,13 @@
     <!-- Master Password input -->
     <bit-form-field class="!tw-mb-1">
       <bit-label>{{ "masterPass" | i18n }}</bit-label>
-      <input type="password" formControlName="masterPassword" bitInput #masterPasswordInputRef />
+      <input
+        type="password"
+        autocomplete="current-password"
+        formControlName="masterPassword"
+        bitInput
+        #masterPasswordInputRef
+      />
       <button type="button" bitIconButton bitSuffix bitPasswordInputToggle></button>
     </bit-form-field>
 
