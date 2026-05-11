@@ -4,6 +4,7 @@ export interface ImportOption {
 }
 
 export const featuredImportOptions = [
+  // TODO: Remove this from here! Just to make testing easier for now.
   { id: "keeper", name: "Keeper" },
   { id: "bitwardenjson", name: "Bitwarden (json)" },
   { id: "bitwardencsv", name: "Bitwarden (csv)" },
