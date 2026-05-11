@@ -226,6 +226,11 @@ export class AccessSelectorComponent implements ControlValueAccessor {
   readonly hideTable = input(false);
 
   /**
+   * Test ID applied to the multi-select element for automation
+   */
+  readonly multiSelectTestId = input<string>();
+
+  /**
    * The initial permission that will be selected in the dialog, defaults to View.
    */
   protected readonly initialPermission = input<CollectionPermission>(CollectionPermission.View);

@@ -1,7 +1,7 @@
 import { AsyncPipe } from "@angular/common";
 import { Component, input } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
-import { combineLatest, firstValueFrom, map, of, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, of, switchMap } from "rxjs";
 
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -21,14 +21,21 @@ import { CipherType } from "@bitwarden/sdk-internal";
 export class NewItemNudgeComponent {
   readonly configType = input.required<CipherType | null>();
   activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
-  showNewItemSpotlight$ = combineLatest([
-    this.activeUserId$,
-    toObservable(this.configType).pipe(map((cipherType) => this.mapToNudgeType(cipherType))),
-  ]).pipe(
-    switchMap(([userId, nudgeType]) => this.nudgesService.showNudgeSpotlight$(nudgeType, userId)),
+  showNewItemSpotlight$ = combineLatest([this.activeUserId$, toObservable(this.configType)]).pipe(
+    switchMap(([userId, cipherType]) => {
+      if (cipherType == null) {
+        return of(false);
+      }
+      const nudgeType = this.mapToNudgeType(cipherType);
+      return this.nudgesService.showNudgeSpotlight$(nudgeType, userId);
+    }),
   );
   nudgeTitle: string = "";
   nudgeBody: string = "";
+  nudgeBodyBold: string = "";
+  nudgeBodySuffix: string = "";
+  nudgeBodyLinkText: string = "";
+  nudgeBodyLinkUrl: string = "";
   dismissalNudgeType: NudgeType | null = null;
 
   constructor(
@@ -38,14 +45,17 @@ export class NewItemNudgeComponent {
   ) {}
 
   mapToNudgeType(cipherType: CipherType | null): NudgeType {
+    this.nudgeBodyBold = "";
+    this.nudgeBodySuffix = "";
+    this.nudgeBodyLinkText = "";
+    this.nudgeBodyLinkUrl = "";
     switch (cipherType) {
       case CipherType.Login: {
-        const nudgeBodyOne = this.i18nService.t("newLoginNudgeBodyOne");
-        const nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
-        const nudgeBodyTwo = this.i18nService.t("newLoginNudgeBodyTwo");
         this.dismissalNudgeType = NudgeType.NewLoginItemStatus;
         this.nudgeTitle = this.i18nService.t("newLoginNudgeTitle");
-        this.nudgeBody = `${nudgeBodyOne} <strong>${nudgeBodyBold}</strong> ${nudgeBodyTwo}`;
+        this.nudgeBody = this.i18nService.t("newLoginNudgeBodyOne");
+        this.nudgeBodyBold = this.i18nService.t("newLoginNudgeBodyBold");
+        this.nudgeBodySuffix = this.i18nService.t("newLoginNudgeBodyTwo");
         return NudgeType.NewLoginItemStatus;
       }
       case CipherType.Card:
@@ -67,12 +77,11 @@ export class NewItemNudgeComponent {
         return NudgeType.NewNoteItemStatus;
 
       case CipherType.SshKey: {
-        const sshPartOne = this.i18nService.t("newSshNudgeBodyOne");
-        const sshPartTwo = this.i18nService.t("newSshNudgeBodyTwo");
-
         this.dismissalNudgeType = NudgeType.NewSshItemStatus;
         this.nudgeTitle = this.i18nService.t("newSshNudgeTitle");
-        this.nudgeBody = `${sshPartOne} <a href="https://bitwarden.com/help/ssh-agent" class="tw-text-primary-600 tw-font-medium" target="_blank">${sshPartTwo}</a>`;
+        this.nudgeBody = this.i18nService.t("newSshNudgeBodyOne");
+        this.nudgeBodyLinkText = this.i18nService.t("newSshNudgeBodyTwo");
+        this.nudgeBodyLinkUrl = "https://bitwarden.com/help/ssh-agent";
         return NudgeType.NewSshItemStatus;
       }
       case CipherType.BankAccount:
