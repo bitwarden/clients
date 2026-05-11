@@ -23,7 +23,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   BACKGROUND_POLLING_INTERVAL = 30_000;
 
   // Temporary workaround for dep cycle until we merge new biometrics work based on shared unlock.
-  private unlockService: UnlockService;
+  private unlockService: UnlockService | null = null;
   public setUnlockService(unlockService: UnlockService) {
     this.unlockService = unlockService;
   }
@@ -104,7 +104,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
         const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
         try {
-          await this.unlockService.unlockWithDecryptedKey(userId, userKey.toSdk());
+          await this.unlockService!.unlockWithDecryptedKey(userId, userKey.toSdk());
           await this.biometricStateService.setBiometricUnlockEnabled(true);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
