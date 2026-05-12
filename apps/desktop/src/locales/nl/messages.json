@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Te delen tekst"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nieuwe Send (tekst)",
+  "newItemHeaderTextSendV2": {
+    "message": "Nieuwe tekst",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nieuwe Send (bestand)",
+  "newItemHeaderFileSendV2": {
+    "message": "Nieuw bestand",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send (tekst) bewerken",
+  "editItemHeaderTextSendV2": {
+    "message": "Tekst bewerken",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send (bestand) bewerken",
+  "editItemHeaderFileSendV2": {
+    "message": "Bestand bewerken",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -2780,7 +2780,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Wacht op interactie met beveiligingssleutel..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Verberg mijn e-mailadres voor ontvangers."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Persoonlijke kluis exporteren"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Alleen de individuele kluisitems geassocieerd met $EMAIL$ worden geëxporteerd. Kluisitems van de organisatie worden niet meegenomen. Alleen informatie over kluisitem wordt geëxporteerd en bevat geen bijlagen.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Exporteert alleen de persoonlijke kluis-items, inclusief attachments, gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Organisatiekluis exporteren"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items of items van andere organisaties.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Alleen items in je individuele kluis worden geëxporteerd."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Alleen items die gekoppeld zijn aan de $ORGANIZATION$ kluis worden geëxporteerd. Items in individuele kluizen worden niet geëxporteerd.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +3995,18 @@
   "exportError": {
     "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 beschadigde bijlage is overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ beschadigde bijlagen zijn overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor-authenticatie geannuleerd"
   },
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Sessietime-out"
   },
+  "browserAccessDenied": {
+    "message": "Er is een ongeldige browsermap geselecteerd, of de toegang is geweigerd"
+  },
   "resizeSideNavigation": {
     "message": "Formaat zijnavigatie wijzigen"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Stel een ontgrendelingsmethode in om je kluis time-out actie te wijzigen"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is niet geïnstalleerd. Installeer $BROWSER$ voordat je wachtwoorden importeert.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Selecteer de gegevensmap van $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Verwachte locatie:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Toegang verlenen"
   },
   "upgrade": {
     "message": "Upgrade"
@@ -5083,6 +5107,22 @@
   "saveSendEditsFailed": {
     "message": "Bewerkingen Send opslaan mislukt",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "Tekst bekijken"
+  },
+  "viewFileSendHeader": {
+    "message": "Bestand bekijken"
+  },
+  "sendCreated": {
+    "message": "Send aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Invoer moet numeriek zijn"
+  },
+  "integerInputError": {
+    "message": "Invoer moet een geheel getal zijn"
   },
   "hideEmailPolicyInEffect": {
     "message": "Je organisatie vereist zichtbaarheid van e-mail. Vink \"Verberg je e-mail van de kijkers\" uit om deze op te slaan."

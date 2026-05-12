@@ -118,6 +118,8 @@ export class CipherService implements CipherServiceAbstraction {
     FeatureFlag.PM28190CipherSharingOpsToSdk,
   );
 
+  private readonly sdkCipherAdminOpsEnabled$: Observable<boolean> =
+    this.configService.getFeatureFlag$(FeatureFlag.PM28191CipherAdminOpsToSdk);
   private readonly sdkCipherAttachmentOpsEnabled$: Observable<boolean> =
     this.configService.getFeatureFlag$(FeatureFlag.PM28192_CipherAttachmentOpsToSdk);
 
@@ -1173,6 +1175,18 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServer(cipher: Cipher, userId: UserId): Promise<Cipher> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      await this.clearCache(userId);
+      const cipherView = await this.cipherSdkService.saveCollectionsWithServer(
+        cipher.id,
+        cipher.collectionIds,
+        userId,
+      );
+      const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
+      return encryptResult.cipher;
+    }
+
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollections(cipher.id, request);
     // The response will now check for an unavailable value. This value determines whether
@@ -1187,6 +1201,19 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async saveCollectionsWithServerAdmin(cipher: Cipher): Promise<Cipher> {
+    const useSdk = await firstValueFrom(this.sdkCipherAdminOpsEnabled$);
+    if (useSdk) {
+      const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+      await this.clearCache(userId);
+      const cipherView = await this.cipherSdkService.saveCollectionsWithServerAdmin(
+        cipher.id,
+        cipher.collectionIds,
+        userId,
+      );
+      const encryptResult = await this.cipherEncryptionService.encrypt(cipherView, userId);
+      return encryptResult.cipher;
+    }
+
     const request = new CipherCollectionsRequest(cipher.collectionIds);
     const response = await this.apiService.putCipherCollectionsAdmin(cipher.id, request);
     // The response will be incomplete with several properties missing values
