@@ -36,7 +36,7 @@
     "message": "SSH 金鑰"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "銀行帳戶"
   },
   "typeLoginSubtitle": {
     "message": "網站或應用程式"
@@ -54,7 +54,7 @@
     "message": "伺服器登入憑證"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "銀行資料"
   },
   "folderSubtitle": {
     "message": "整理您的項目"
@@ -141,15 +141,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "檢視銀行帳戶",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderDriversLicense": {
-    "message": "View license",
+    "message": "檢視駕照",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "檢視護照",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
@@ -173,15 +173,15 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "新增銀行帳戶",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "新增駕照",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "新增護照",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
@@ -205,15 +205,15 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "編輯銀行帳戶",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderDriversLicense": {
-    "message": "Edit license",
+    "message": "編輯駕照",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "編輯護照",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "要分享的文字"
   },
-  "newItemHeaderTextSend": {
-    "message": "新增文字 Send",
+  "newItemHeaderTextSendV2": {
+    "message": "新增文字",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "新增檔案 Send",
+  "newItemHeaderFileSendV2": {
+    "message": "新增檔案",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "編輯文字 Send",
+  "editItemHeaderTextSendV2": {
+    "message": "編輯文字",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "編輯檔案 Send",
+  "editItemHeaderFileSendV2": {
+    "message": "編輯檔案",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -750,7 +750,7 @@
     "message": "刪除附件"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "刪除附檔 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -759,7 +759,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "下載 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2012,10 +2012,10 @@
     "description": "Default URI match detection for auto-fill."
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "顯示比對偵測"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "隱藏比對偵測"
   },
   "toggleOptions": {
     "message": "切換選項"
@@ -2780,8 +2780,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "等待安全金鑰操作中……"
   },
-  "hideEmail": {
-    "message": "對收件人隱藏我的電子郵件位址。"
+  "hideMyEmail": {
+    "message": "向收件者隱藏我的電子郵件地址。"
   },
   "sendOptionsPolicyInEffect": {
     "message": "一個或多個組織原則正影響您的 Send 選項。"
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "正匯出個人密碼庫"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "僅匯出與 $EMAIL$ 關聯的個人密碼庫項目。組織密碼庫項目將不包括在內。僅匯出密碼庫項目資訊，不包括關聯的附件。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "只會匯出與 $EMAIL$ 關聯的個人密碼庫（包含附件）。組織密碼庫的項目不包含在內。",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "正匯出組織密碼庫"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "僅匯出與 $ORGANIZATION$ 相關的組織密碼庫項目。個人密碼庫項目或其他組織中的項目將不包括在内。",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "只會匯出您個人保管庫中的項目。"
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "只會匯出與 $ORGANIZATION$ 保管庫相關聯的項目。個人保管庫中的項目不會被匯出。",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3977,7 +3962,7 @@
     "message": "選擇檔案"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "選擇檔案"
   },
   "noFileChosen": {
     "message": "未選擇任何檔案"
@@ -4009,6 +3994,18 @@
   },
   "exportError": {
     "message": "匯出密碼庫資料時發生錯誤"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "匯出時已略過 1 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。"
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "匯出時已略過 $COUNT$ 個損毀的附件。其餘保管庫資料與附件皆已成功匯出。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "多因素驗證已取消"
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "工作階段逾時"
   },
+  "browserAccessDenied": {
+    "message": "選取的瀏覽器目錄無效，或存取權限遭到拒絕"
+  },
   "resizeSideNavigation": {
     "message": "調整側邊欄大小"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ 尚未安裝。請先安裝 $BROWSER$ 後再從中匯入密碼。",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "請選擇您的 $BROWSER$ 資料夾",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "預期位置："
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "授予存取權限"
   },
   "upgrade": {
     "message": "升級"
@@ -4977,7 +5001,7 @@
     "message": "user@bitwarden.com, user@acme.com"
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "重新排序 $LABEL$。使用方向鍵來往上或下移動。",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4989,83 +5013,83 @@
     "message": "使用者驗證失敗。"
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "銀行帳戶"
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "銀行名稱"
   },
   "nameOnAccount": {
-    "message": "Name on account"
+    "message": "帳戶名稱"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "帳戶類型"
   },
   "bankAccountTypeCompany": {
-    "message": "Company"
+    "message": "公司"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual"
+    "message": "個人"
   },
   "accountNumber": {
-    "message": "Account number"
+    "message": "帳號"
   },
   "bankRoutingNumber": {
-    "message": "Routing number",
+    "message": "匯款路徑編號",
     "description": "Used in the bank account cipher type"
   },
   "branchNumber": {
-    "message": "Branch/institution number"
+    "message": "分行／機構代碼"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "SWIFT 代碼"
   },
   "iban": {
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "Bank contact phone"
+    "message": "銀行聯絡電話"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "搜尋銀行帳戶"
   },
   "copyAccountNumber": {
-    "message": "Copy account number"
+    "message": "複製帳號"
   },
   "copyRoutingNumber": {
-    "message": "Copy routing number"
+    "message": "複製匯款路徑編號"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "複製 PIN 碼"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "複製 IBAN"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "支票帳戶"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "儲蓄帳戶"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "定期存款"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "信用額度"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "投資／券商帳戶"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "貨幣市場帳戶"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "其他"
   },
   "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
+    "message": "安全地儲存您的銀行資料"
   },
   "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
+    "message": "儲存您的銀行帳戶資訊，以便在各裝置間輕鬆且安全地存取。"
   },
   "discardEdits": {
     "message": "放棄變更"
@@ -5084,8 +5108,24 @@
     "message": "儲存 Send 變更失敗",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "檢視文字"
+  },
+  "viewFileSendHeader": {
+    "message": "檢視檔案"
+  },
+  "sendCreated": {
+    "message": "Send 已建立",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "輸入內容必須為數字"
+  },
+  "integerInputError": {
+    "message": "輸入內容必須為整數"
+  },
   "hideEmailPolicyInEffect": {
-    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+    "message": "您的組織要求電子郵件可見性。請取消勾選「向檢視者隱藏您的電子郵件」後再儲存。"
   },
   "sideNavigation": {
     "message": "側邊導覽"

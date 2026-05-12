@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Text, ktorý chcete zdieľať"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nový textový Send",
+  "newItemHeaderTextSendV2": {
+    "message": "Nový text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nový súborový Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Nový súbor",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Upraviť textový Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Upraviť text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Upraviť súborový Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Upraviť súbor",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -2780,7 +2780,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Čaká sa na interakciu s bezpečnostným kľúčom..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Skryť moju e-mailovú adresu pred príjemcami."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportovanie osobného trezora"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Exportované budú iba položky súvisiace s $EMAIL$. Položky z trezora organizácie nebudú zahrnuté v exporte. Export bude obsahovať iba informácie z položiek v trezore, súvisiace prílohy nebudú súčasťou exportu.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Exportované budú iba položky osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté v exporte",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportovanie trezora organizácie"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exportované budú iba položky trezora organizácie spojené s $ORGANIZATION$. Položky osobného trezora a položky z iných organizácií nebudú zahrnuté.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Exportovať sa budú iba položky vo vašom osobnom trezore."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Exportovať sa budú iba položky spojené s trezorom $ORGANIZATION$. Položky v osobných trezoroch sa exportovať nebudú.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +3995,18 @@
   "exportError": {
     "message": "Pri exportovaní údajov trezora sa vyskytla chyba"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "Pri exporte bola preskočená 1 poškodená príloha. Všetky ostatné údaje trezora a prílohy boli úspešne exportované."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "Pri exporte boli preskočené poškodené prílohy – $COUNT$. Všetky ostatné údaje trezora a prílohy boli úspešne exportované.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Viacfaktorové overenie zrušené"
   },
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Časový limit relácie"
   },
+  "browserAccessDenied": {
+    "message": "Buď bol zvolený neplatný priečinok prehliadača, alebo bol prístup zamietnutý"
+  },
   "resizeSideNavigation": {
     "message": "Zmeniť veľkosť bočnej navigácie"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Nastavte metódu odomknutia, aby ste zmenili akciu pri vypršaní časového limitu"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "Prehliadač $BROWSER$ nie je nainštalovaný. Pred importom hesiel z prehliadača $BROWSER$ ho nainštalujte.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Vyberte priečinok s údajmi $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Očakávané umiestnenie:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Povoliť prístup"
   },
   "upgrade": {
     "message": "Upgradovať"
@@ -5083,6 +5107,22 @@
   "saveSendEditsFailed": {
     "message": "Uloženie úprav Sendu zlyhalo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "Zobraziť text"
+  },
+  "viewFileSendHeader": {
+    "message": "Zobraziť súbor"
+  },
+  "sendCreated": {
+    "message": "Send bol vytvorený",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Vstup musí byť číselný"
+  },
+  "integerInputError": {
+    "message": "Vstup musí byť celé číslo"
   },
   "hideEmailPolicyInEffect": {
     "message": "Vaša organizácia vyžaduje, aby bola e-mailová adresa viditeľná. Odčiarknite pole \"Skryť e-mailovú adresu\" a uložte zmeny."

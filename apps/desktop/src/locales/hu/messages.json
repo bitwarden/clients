@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Megosztandó szöveg"
   },
-  "newItemHeaderTextSend": {
-    "message": "Új szöveges Send elem",
+  "newItemHeaderTextSendV2": {
+    "message": "Új szöveg",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Új fájl Send elem",
+  "newItemHeaderFileSendV2": {
+    "message": "Új fájl",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send szöveg szerkesztése",
+  "editItemHeaderTextSendV2": {
+    "message": "Szöveg szerkesztése",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send fájl szerkesztése",
+  "editItemHeaderFileSendV2": {
+    "message": "Fájl szerkesztése",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -2780,7 +2780,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Várakozás a biztonsági kulcs interakciójára..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Saját email cím elrejtése a címzettek elől."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Személyes széf exportálása"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ email címhez társított egyedi széfek kerülnek csak exportálásra. A szervezeti széf elemei nem lesznek benne. Csak a széf információk kerülnek exportálásra és nem tartalmazzák a kapcsolódó mellékleteket.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Szervezeti széf exportálása"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Csak $ORGANIZATION$ névvel társított szervezeti széf kerül exportálásra. Ebbe nem kerülnek be a személyes és más szervezeti széf elemek.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Csak az egyéni széfben lévő elemek exportálhatók."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Csak $ORGANIZATION$ széfhez kapcsolódó elemek exportálhatók. Az egyes széfekben lévő elemek nem.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +3995,18 @@
   "exportError": {
     "message": "Hiba történt a széf adatainak exportálása közben."
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "A többtényezős hitelesítés megszakításra került."
   },
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Munkamenet időkifutás"
   },
+  "browserAccessDenied": {
+    "message": "Vagy érvénytelen böngésző könyvtár lett kiválasztva vagy a hozzáférés lett megtagadva."
+  },
   "resizeSideNavigation": {
     "message": "Oldalnavigáció átméretezés"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ nincs telepítve. Telepítsük $BROWSER$ böngészőt, mielőtt jelszavakat importálunk abbóll.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Válasszuk ki $BROWSER$ böngésző adatmappáját.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Várható hely:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Hozzáférés megadása"
   },
   "upgrade": {
     "message": "Áttérés"
@@ -5083,6 +5107,22 @@
   "saveSendEditsFailed": {
     "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "Szöveg megtekintése"
+  },
+  "viewFileSendHeader": {
+    "message": "Fájl megtekintése"
+  },
+  "sendCreated": {
+    "message": "Az új Send elem létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "A beviteli adat legyen numerikus."
+  },
+  "integerInputError": {
+    "message": "A beviteli adat legyen egész szám."
   },
   "hideEmailPolicyInEffect": {
     "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."

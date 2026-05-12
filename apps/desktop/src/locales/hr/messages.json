@@ -36,7 +36,7 @@
     "message": "SSH ključ"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Bankovni račun"
   },
   "typeLoginSubtitle": {
     "message": "Mrežna stranica ili aplikacija"
@@ -54,7 +54,7 @@
     "message": "Token prijavnog poslužitelja"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Podaci o banci"
   },
   "folderSubtitle": {
     "message": "Organiziraj svoje stavke"
@@ -141,15 +141,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Pogledaj broj bankovnog računa",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderDriversLicense": {
-    "message": "View license",
+    "message": "Pogledaj vozačku dozvolu",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Pogledaj putovnicu",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
@@ -173,15 +173,15 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Novi broj računa",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Nova vozačka dozvola",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Nova putovnica",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
@@ -205,15 +205,15 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Uredi podatke o bankovnom računu",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderDriversLicense": {
-    "message": "Edit license",
+    "message": "Uredi vozačku",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Uredi putovnicu",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Tekst za dijeljenje"
   },
-  "newItemHeaderTextSend": {
-    "message": "Novi teksutalni Send",
+  "newItemHeaderTextSendV2": {
+    "message": "Novi tekst",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Novi datotečni Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Nova datoteka",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Uredi tekstualni Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Uredi tekst",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Uredi datotečni Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Uredi datoteku",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -750,7 +750,7 @@
     "message": "Izbriši privitak"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Obriši privitak $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -759,7 +759,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "Preuzmi $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2012,10 +2012,10 @@
     "description": "Default URI match detection for auto-fill."
   },
   "showMatchDetectionNoPlaceholder": {
-    "message": "Show match detection"
+    "message": "Prikaži otkrivanje podudaranja"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "Sarkrij otkrivanje podudaranja"
   },
   "toggleOptions": {
     "message": "Uključi/isključi opcije"
@@ -2780,7 +2780,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Čekanje na interakciju sa sigurnosnim ključem..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Sakrij moju adresu e-pošte od primatelja."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Izvoz osobnog trezora u tijeku"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Izvest će se samo stavke osobnog trezora povezanog s $EMAIL$. Stavke organizacijskog trezora neće biti uključene. Izvest će se samo informacija o stavci trezora bez pripadajućih podataka o povijesti lozinki i privitaka.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Izvest će se samo stavke i privici osobnog trezora povezanog s $EMAIL$. Stavke organizacijskog trezora neće biti uključene",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Izvoz organizacijskog trezora"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Izvest će se samo organizacijski trezor povezan s $ORGANIZATION$. Stavke iz osobnih trezora i stavke iz drugih organizacija neće biti uključene.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Izvest će se samo stavke iz tvog osobnog trezora."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Izvest će se samo stavke povezane s trezorom $ORGANIZATION$, no ne i osobne stavke.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3977,7 +3962,7 @@
     "message": "Odaberi datoteku"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "Odaberi datoteku"
   },
   "noFileChosen": {
     "message": "Nije odabrana datoteka"
@@ -4009,6 +3994,18 @@
   },
   "exportError": {
     "message": "Došlo je do greške kod izvoza tvojih podataka trezora"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "Jedan oštećeni privitak je preskočen tijekom izvoza. Svi ostali prilozi i podaci o trezoru su uspješno izvezeni."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "Broj oštećenih privitaka preskočenih tijekom izvoza: $COUNT$. Svi ostali prilozi i podaci o trezoru su uspješno izvezeni.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktorska autentifikacija otkazana"
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Istek sesije"
   },
+  "browserAccessDenied": {
+    "message": "Ili je odabran nevažeća mapa preglednika ili je pristup odbijen"
+  },
   "resizeSideNavigation": {
     "message": "Promjeni veličinu bočne navigacije"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Postavi metodu otključavanja za promjenu radnje nakon isteka vremenskog ograničenja trezora"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "Preglednik $BROWSER$ nije instaliran. Instaliraj preglednik $BROWSER$ prije uvoza lozinki.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Odaberi podatkovnu mapu svojeg preglednika $BROWSER$",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Očekivano mjesto:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Odobri pristup"
   },
   "upgrade": {
     "message": "Nadogradnja"
@@ -4977,7 +5001,7 @@
     "message": "korisnik@bitwarden.com, korisnik@primjer.hr"
   },
   "reorderToggleButton": {
-    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "message": "Ponovno poredaj $LABEL$. Koristi tipke sa strelicom za pomicanje stavke gore ili dolje.",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -4989,62 +5013,62 @@
     "message": "Nije uspjela provjera korisnika."
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "Bankovni račun"
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "Naziv banke"
   },
   "nameOnAccount": {
-    "message": "Name on account"
+    "message": "Nositelj računa"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "Vrsta računa"
   },
   "bankAccountTypeCompany": {
-    "message": "Company"
+    "message": "Tvrtka"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual"
+    "message": "Pojedinac"
   },
   "accountNumber": {
-    "message": "Account number"
+    "message": "Broj računa"
   },
   "bankRoutingNumber": {
-    "message": "Routing number",
+    "message": "Routing Number (SAD)",
     "description": "Used in the bank account cipher type"
   },
   "branchNumber": {
-    "message": "Branch/institution number"
+    "message": "Broj poslovnice/institucije"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "SWIFT"
   },
   "iban": {
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "Bank contact phone"
+    "message": "Telefonski broj banke"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "Pretraži bankovne račune"
   },
   "copyAccountNumber": {
-    "message": "Copy account number"
+    "message": "Kopiraj broj računa"
   },
   "copyRoutingNumber": {
-    "message": "Copy routing number"
+    "message": "Kopiraj routing number (SAD)"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "Kopiraj PIN"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "Kopiraj IBAN"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "Tekući račun"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "Štedni račun"
   },
   "bankAccountTypeCertificateOfDeposit": {
     "message": "Certificate of deposit"
@@ -5083,6 +5107,22 @@
   "saveSendEditsFailed": {
     "message": "Spremanje promjena Send-a nije uspjelo",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."

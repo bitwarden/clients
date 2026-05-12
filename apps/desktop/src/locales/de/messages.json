@@ -141,15 +141,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Bankkonto anzeigen",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderDriversLicense": {
-    "message": "View license",
+    "message": "Führerschein anzeigen",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Reisepass anzeigen",
     "description": "Header for view passport item type"
   },
   "newItemHeaderLogin": {
@@ -173,15 +173,15 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Neues Bankkonto",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Neuer Führerschein",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Neuer Reisepass",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
@@ -205,15 +205,15 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Bankkonto bearbeiten",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderDriversLicense": {
-    "message": "Edit license",
+    "message": "Führerschein bearbeiten",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Reisepass bearbeiten",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Zu teilender Text"
   },
-  "newItemHeaderTextSend": {
-    "message": "Neues Text-Send",
+  "newItemHeaderTextSendV2": {
+    "message": "Neuer Text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Neues Datei-Send",
+  "newItemHeaderFileSendV2": {
+    "message": "Neue Datei",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Text-Send bearbeiten",
+  "editItemHeaderTextSendV2": {
+    "message": "Text bearbeiten",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Datei-Send bearbeiten",
+  "editItemHeaderFileSendV2": {
+    "message": "Datei bearbeiten",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -2780,7 +2780,7 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Warte auf Sicherheitsschlüssel-Interaktion..."
   },
-  "hideEmail": {
+  "hideMyEmail": {
     "message": "Meine E-Mail-Adresse vor den Empfängern ausblenden."
   },
   "sendOptionsPolicyInEffect": {
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Persönlichen Tresor exportieren"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Es werden nur persönliche Tresoreinträge exportiert, die mit $EMAIL$ verbunden sind. Tresoreinträge der Organisation werden nicht berücksichtigt. Es werden nur Informationen der Tresoreinträge exportiert. Diese enthalten nicht die zugehörigen Anhänge.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Nur die einzelnen Tresor-Einträge einschließlich Anhängen von $EMAIL$ werden exportiert. Tresor-Einträge der Organisation werden nicht berücksichtigt",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Tresor der Organisation wird exportiert"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Nur der mit $ORGANIZATION$ verbundene Organisationstresor wird exportiert. Einträge in persönlichen Tresoren oder anderen Organisationen werden nicht berücksichtigt.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Nur Einträge in deinem persönlichen Tresor werden exportiert."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Nur Einträge, die mit dem $ORGANIZATION$ Tresor verknüpft sind, werden exportiert. Einträge in persönlichen Tresoren werden nicht exportiert.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +3995,18 @@
   "exportError": {
     "message": "Beim Exportieren deiner Tresordaten ist ein Fehler aufgetreten"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 beschädigter Anhang wurde beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ beschädigte Anhänge wurden beim Export übersprungen. Alle anderen Tresor-Daten und Anhänge wurden erfolgreich exportiert.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifaktor-Authentifizierung abgebrochen"
   },
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Sitzungs-Timeout"
   },
+  "browserAccessDenied": {
+    "message": "Entweder wurde ein ungültiges Browserverzeichnis ausgewählt oder der Zugriff wurde verweigert"
+  },
   "resizeSideNavigation": {
     "message": "Größe der Seitennavigation ändern"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Stell eine Entsperrmethode ein, um deine Timeout-Aktion zu ändern"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ ist nicht installiert. Bitte installiere $BROWSER$, bevor du Passwörter daraus importierst.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Bitte wähle deinen $BROWSER$-Datenordner aus",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Erwarteter Speicherort:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Zugriff gewähren"
   },
   "upgrade": {
     "message": "Upgrade"
@@ -5083,6 +5107,22 @@
   "saveSendEditsFailed": {
     "message": "Speichern der Send-Änderungen fehlgeschlagen",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "Text anzeigen"
+  },
+  "viewFileSendHeader": {
+    "message": "Datei anzeigen"
+  },
+  "sendCreated": {
+    "message": "Send erstellt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Die Eingabe muss eine Zahl sein"
+  },
+  "integerInputError": {
+    "message": "Die Eingabe muss eine ganze Zahl sein"
   },
   "hideEmailPolicyInEffect": {
     "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
