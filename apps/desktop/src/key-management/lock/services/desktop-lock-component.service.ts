@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { catchError, combineLatest, defer, map, Observable, of, switchMap, timer } from "rxjs";
+import { combineLatest, defer, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { DeviceType } from "@bitwarden/common/enums";
