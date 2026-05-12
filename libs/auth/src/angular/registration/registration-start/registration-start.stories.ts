@@ -42,6 +42,7 @@ import { RegistrationStartComponentService } from "./registration-start-componen
 import { RegistrationStartComponent } from "./registration-start.component";
 
 class MockExtensionRegistrationStartComponentService extends DefaultRegistrationStartComponentService {
+  override dataEntryAdjustedLayout = true;
   override marketingEmailsLabelText = "receiveMarketingEmailsShort";
 }
 

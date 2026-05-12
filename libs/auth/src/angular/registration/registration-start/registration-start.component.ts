@@ -15,6 +15,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
+  AnonLayoutWrapperData,
   AnonLayoutWrapperDataService,
   AsyncActionsModule,
   ButtonModule,
@@ -181,7 +182,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
         key: "checkYourEmail",
       },
       pageIcon: RegistrationCheckEmailIcon,
-    });
+      adjustedLayout: false, // exists only on ExtensionAnonLayoutWrapperData. Partial cast allows this excess property.
+    } as Partial<AnonLayoutWrapperData>);
     this.registrationStartStateChange.emit(this.state);
   };
 
@@ -212,7 +214,8 @@ export class RegistrationStartComponent implements OnInit, OnDestroy {
       pageTitle: {
         key: "createAccount",
       },
-    });
+      adjustedLayout: this.registrationStartComponentService.dataEntryAdjustedLayout, // exists only on ExtensionAnonLayoutWrapperData. Partial cast allows this excess property.
+    } as Partial<AnonLayoutWrapperData>);
     this.registrationStartStateChange.emit(this.state);
   }
 

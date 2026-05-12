@@ -11,5 +11,6 @@ export class ExtensionRegistrationStartComponentService
   implements RegistrationStartComponentService
 {
   showDataEntryPageIcon = false;
+  dataEntryAdjustedLayout = true;
   marketingEmailsLabelText = "receiveMarketingEmailsShort";
 }

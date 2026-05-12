@@ -2,5 +2,6 @@ import { RegistrationStartComponentService } from "./registration-start-componen
 
 export class DefaultRegistrationStartComponentService implements RegistrationStartComponentService {
   showDataEntryPageIcon = true;
+  dataEntryAdjustedLayout = false;
   marketingEmailsLabelText = "receiveMarketingEmailsV2";
 }
