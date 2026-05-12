@@ -553,10 +553,12 @@ export class MemberDialogComponent implements OnDestroy {
       ssoExternalId: null,
       permissions,
       collections,
+      groups,
+      accessSecretsManager: this.formGroup.value.accessSecretsManager,
+      resetPasswordEnrolled: false,
+      hasMasterPassword: false,
+      managedByOrganization: false,
     });
-
-    userView.groups = groups;
-    userView.accessSecretsManager = this.formGroup.value.accessSecretsManager;
 
     return userView;
   }

@@ -30,21 +30,31 @@ export class OrganizationUserAdminView {
     userId: UserId;
     organizationId: OrganizationId;
     collections: CollectionAccessSelectionView[];
+    groups: string[];
     type: OrganizationUserType;
     status: OrganizationUserStatusType;
     externalId: string;
     ssoExternalId: string;
     permissions: PermissionsApi;
+    accessSecretsManager: boolean;
+    resetPasswordEnrolled: boolean;
+    hasMasterPassword: boolean;
+    managedByOrganization: boolean;
   }) {
     this.id = c.id;
     this.userId = c.userId;
     this.organizationId = c.organizationId;
     this.collections = c.collections;
+    this.groups = c.groups;
     this.type = c.type;
     this.status = c.status;
     this.externalId = c.externalId;
     this.ssoExternalId = c.ssoExternalId;
     this.permissions = c.permissions;
+    this.accessSecretsManager = c.accessSecretsManager;
+    this.resetPasswordEnrolled = c.resetPasswordEnrolled;
+    this.hasMasterPassword = c.hasMasterPassword;
+    this.managedByOrganization = c.managedByOrganization;
   }
 
   static fromResponse(
@@ -52,7 +62,6 @@ export class OrganizationUserAdminView {
     response: OrganizationUserDetailsResponse,
   ): OrganizationUserAdminView {
     const view = new OrganizationUserAdminView({
-      ...response,
       id: response.id as Guid,
       userId: response.userId as UserId,
       organizationId: organizationId,
@@ -62,6 +71,16 @@ export class OrganizationUserAdminView {
         readOnly: c.readOnly,
         manage: c.manage,
       })),
+      groups: response.groups ?? [],
+      type: response.type,
+      status: response.status,
+      externalId: response.externalId,
+      ssoExternalId: response.ssoExternalId,
+      permissions: response.permissions,
+      accessSecretsManager: response.accessSecretsManager ?? false,
+      resetPasswordEnrolled: response.resetPasswordEnrolled ?? false,
+      hasMasterPassword: response.hasMasterPassword ?? false,
+      managedByOrganization: response.managedByOrganization ?? false,
     });
 
     return view;

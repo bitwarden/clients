@@ -7,7 +7,7 @@ import { DialogConfig, DialogService } from "@bitwarden/components";
 import { MembersTableDataSource } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core";
-import { BulkActionResult } from "../../services/member-actions/member-actions.service";
+import { BulkActionResult } from "../../services/member-actions/member-actions.types";
 
 export interface BulkReinviteFailureDialogParams {
   result: BulkActionResult;
