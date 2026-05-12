@@ -6,7 +6,6 @@ import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
-import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 
 import { OrganizationPlansComponent } from "../../billing";
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -52,9 +51,7 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
 
       this.secretsManager = qParams.product == ProductType.SecretsManager;
 
-      this.trialLength = qParams.trialLength
-        ? parseInt(qParams.trialLength)
-        : DEFAULT_TRIAL_LENGTH_DAYS;
+      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : null;
     });
   }
 
