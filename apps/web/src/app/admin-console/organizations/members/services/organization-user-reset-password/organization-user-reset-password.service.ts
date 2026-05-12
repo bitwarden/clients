@@ -223,7 +223,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     newUserKey: UserKey,
     trustedPublicKeys: Uint8Array[],
     userId: UserId,
-  ): Promise<OrganizationUserResetPasswordWithIdRequest[] | null> {
+  ): Promise<OrganizationUserResetPasswordWithIdRequest[]> {
     if (newUserKey == null) {
       throw new Error("New user key is required for rotation.");
     }
