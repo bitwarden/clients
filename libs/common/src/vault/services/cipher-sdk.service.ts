@@ -436,4 +436,64 @@ export class DefaultCipherSdkService implements CipherSdkService {
       ),
     );
   }
+
+  async saveCollectionsWithServerAdmin(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .update_collection(
+              asUuid(cipherId),
+              collectionIds.map((id) => asUuid(id)),
+            );
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to update cipher collections as admin: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async saveCollectionsWithServer(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .update_collection(
+              asUuid(cipherId),
+              collectionIds.map((id) => asUuid(id)),
+              false,
+            );
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to update cipher collections: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
 }
