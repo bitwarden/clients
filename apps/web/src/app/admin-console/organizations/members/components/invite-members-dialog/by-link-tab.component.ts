@@ -6,8 +6,8 @@ import {
   combineLatest,
   filter,
   firstValueFrom,
+  map,
   Observable,
-  of,
   shareReplay,
   switchMap,
 } from "rxjs";
@@ -81,7 +81,9 @@ export class ByLinkTabComponent {
     ),
   );
 
-  readonly hasInviteLinkUrl$: Observable<boolean> = of(false);
+  readonly hasInviteLinkUrl$: Observable<boolean> = this.inviteLinkUrl$.pipe(
+    map((inviteLink) => inviteLink != undefined),
+  );
 
   readonly form = this.fb.group({
     domains: ["", Validators.required],
