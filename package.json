@@ -233,7 +233,8 @@
     "tailwindcss": "$tailwindcss",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "@types/react": "18.3.27"
+    "@types/react": "18.3.27",
+    "tmp": ">=0.2.4"
   },
   "engines": {
     "node": ">=22.12.0",
