@@ -57,13 +57,13 @@
     "message": "Rischio password"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "Password"
   },
   "riskOverTime": {
-    "message": "Risk over time"
+    "message": "Rischio nel tempo"
   },
   "passwordsAtRisk": {
-    "message": "Passwords at risk"
+    "message": "Password a rischio"
   },
   "noEditPermissions": {
     "message": "Non hai il permesso per modificare questo elemento"
@@ -764,7 +764,7 @@
     "message": "Bitwarden può memorizzare e autocompletare codici di verifica 2FA. Selezionare l'icona della fotocamera per creare uno screenshot del codice QR dell'autenticatore di questo sito web, oppure copia e incolla la chiave in questo campo."
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "Scansiona il codice QR dell'autenticatore dalla pagina corrente"
   },
   "learnMoreAboutAuthenticators": {
     "message": "Ulteriori informazioni sugli autenticatori"
@@ -998,28 +998,28 @@
     "message": "Chiave SSH"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Sito web o app"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Carta di credito o debito"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Informazioni personali"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Testo importante"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Token di login del server"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Dettagli bancari"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organizza i tuoi elementi"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Organizza gli elementi condivisi"
   },
   "typeLoginPlural": {
     "message": "Login"
@@ -1034,7 +1034,7 @@
     "message": "Note sicure"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Account bancario"
   },
   "folders": {
     "message": "Cartelle"
@@ -1094,7 +1094,7 @@
     "message": "Aggiungi elemento"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Scegli l'elemento da aggiungere"
   },
   "editItem": {
     "message": "Modifica elemento"
@@ -1123,23 +1123,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Nuovo account bancario",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Nuova licenza",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Nuovo passaporto",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nuovo Send (testo)",
+  "newItemHeaderTextSendV2": {
+    "message": "Nuovo testo",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nuovo Send (file)",
+  "newItemHeaderFileSendV2": {
+    "message": "Nuovo file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1163,23 +1163,23 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Modifica account bancario",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderDriversLicense": {
-    "message": "Edit driver's license",
+    "message": "Modifica patente di guida",
     "description": "Header for edit driver's license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Modifica passaporto",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Modifica Send testuale",
+  "editItemHeaderTextSendV2": {
+    "message": "Modifica testo",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Modifica Send con file",
+  "editItemHeaderFileSendV2": {
+    "message": "Modifica file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -1203,15 +1203,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Visualizza account bancario",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderDriversLicense": {
-    "message": "View driver's license",
+    "message": "Visualizza patente di guida",
     "description": "Header for view driver's license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "Visualizza passaporto",
     "description": "Header for view passport item type"
   },
   "new": {
@@ -1350,7 +1350,7 @@
     }
   },
   "copyInfoTitle": {
-    "message": "Copy info - $ITEMNAME$",
+    "message": "Copia informazioni - $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1360,7 +1360,7 @@
     }
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "Copia nota - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -1370,10 +1370,10 @@
     }
   },
   "noValuesToCopy": {
-    "message": "No values to copy"
+    "message": "Nessun valore da copiare"
   },
   "launchWebsiteName": {
-    "message": "Launch website $ITEMNAME$",
+    "message": "Apri sito web $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1491,7 +1491,7 @@
     "message": "Elimina allegato"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Elimina allegato $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1500,7 +1500,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "Scarica $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2253,7 +2253,19 @@
     "message": "Dati della cassaforte esportati"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "Si è verificato un errore durante l'esportazione dei dati della cassaforte"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 allegato danneggiato è stato saltato durante l'esportazione. Tutti gli altri dati della cassaforte e gli allegati sono stati esportati con successo."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ allegati danneggiati sono stati saltati durante l'esportazione. Tutti gli altri dati della cassaforte e gli allegati sono stati esportati con successo.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "passwordGenerator": {
     "message": "Generatore di password"
@@ -2633,7 +2645,7 @@
     "message": "Seleziona file"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "Scegli file"
   },
   "noFileChosen": {
     "message": "Nessun file selezionato"
@@ -3533,7 +3545,7 @@
     "message": "sconto"
   },
   "discountExpiredOnPurchase": {
-    "message": "Discount expired. Please review your cart total and try again."
+    "message": "Sconto scaduto. Controlla il totale del tuo carrello e riprova."
   },
   "downloadLicense": {
     "message": "Scarica licenza"
@@ -3946,10 +3958,10 @@
     "message": "Data controls"
   },
   "authentication": {
-    "message": "Authentication"
+    "message": "Autenticazione"
   },
   "vaultManagement": {
-    "message": "Vault management"
+    "message": "Gestione cassaforte"
   },
   "singleSignOn": {
     "message": "Single Sign-On"
@@ -4045,16 +4057,16 @@
     }
   },
   "invite": {
-    "message": "Invite"
+    "message": "Invita"
   },
   "inviteUserDesc": {
     "message": "Invita un nuovo utente alla tua organizzazione inserendo il suo indirizzo email dell'account Bitwarden qui sotto. Se non ha già un account Bitwarden, gli sarà richiesto di creare un nuovo account."
   },
   "inviteUserDescription": {
-    "message": "Invite new users to your organization by entering their email address below."
+    "message": "Invita nuovi utenti alla tua organizzazione inserendo i loro indirizzi email qui sotto."
   },
   "inviteMultipleEmailDesc": {
-    "message": "Enter up to $COUNT$ emails by separating with a comma.",
+    "message": "Inserisci fino a $COUNT$ indirizzi email separati da una virgola.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4063,7 +4075,7 @@
     }
   },
   "inviteMultipleEmailsWithSeatLimit": {
-    "message": "Enter up to $BATCHLIMIT$ emails by separating with a comma. ($REMAININGSEATS$ seats remaining)",
+    "message": "Inserisci fino a $BATCHLIMIT$ indirizzi email separati da una virgola. ($REMAININGSEATS$ posti rimanenti)",
     "placeholders": {
       "batchlimit": {
         "content": "$1",
@@ -4938,6 +4950,9 @@
   "riskInsightsRunReport": {
     "message": "Avvia report"
   },
+  "goToAccessIntelligence": {
+    "message": "Go to Access Intelligence"
+  },
   "updateBrowserDesc": {
     "message": "Stai utilizzando un browser non supportato. La cassaforte web potrebbe non funzionare correttamente."
   },
@@ -5458,6 +5473,21 @@
   },
   "byLink": {
     "message": "By link"
+  },
+  "allowedDomains": {
+    "message": "Allowed domains"
+  },
+  "allowedDomainsHint": {
+    "message": "If entering multiple domains, separate with commas"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Enter allowed domains to generate an invite link"
+  },
+  "domainsEdited": {
+    "message": "Domains edited"
+  },
+  "inviteByLinkDesc": {
+    "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Continuando accetti le"
@@ -6071,14 +6101,6 @@
         "example": "5"
       }
     }
-  },
-  "newTextSend": {
-    "message": "Nuovo Send testuale",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Nuovo Send con file",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
     "message": "Send salvato",
@@ -6883,8 +6905,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "Ripristino della password principale per l'utente $ID$.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Account recovery with master password initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6892,8 +6914,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Two-step login reset for user $ID$.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Account recovery with two-step login initiated for $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8054,26 +8076,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Esportando cassaforte dell'organizzazione"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$ saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi. Solo le informazioni sugli elementi della cassaforte saranno esportate e non includeranno gli allegati.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Solo gli elementi della cassaforte personale associati a $EMAIL$, inclusi gli allegati, saranno esportati. Gli elementi della cassaforte dell'organizzazione non saranno inclusi",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Solo la cassaforte dell'organizzazione associata a $ORGANIZATION$ sarà esportata. Elementi nelle casseforti individuali o in altre organizzazioni non saranno inclusi.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10079,8 +10086,8 @@
   "recoverAccountSuccess": {
     "message": "Account recovery success!"
   },
-  "updatedTempPassword": {
-    "message": "L'utente ha aggiornato una password emessa tramite il recupero dell'account."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "User reset their master password through account recovery."
   },
   "activatedAccessToSecretsManager": {
     "message": "Accesso al Secrets Manager attivato",
@@ -13445,7 +13452,7 @@
     "message": "Quando rimuovi spazio di archiviazione, riceverai un credito che sarà automaticamente applicato al tuo prossimo pagamento."
   },
   "ownerBadgeA11yDescription": {
-    "message": "Owner, $OWNER$, show all items owned by $OWNER$",
+    "message": "Proprietario, $OWNER$, mostra tutti gli elementi di proprietà di $OWNER$",
     "placeholders": {
       "owner": {
         "content": "$1",
@@ -13463,23 +13470,23 @@
     "message": "Password del Send non valida"
   },
   "vaultWelcomeDialogTitle": {
-    "message": "You're in! Welcome to Bitwarden"
+    "message": "Sei dentro! Benvenuto su Bitwarden"
   },
   "vaultWelcomeDialogDescription": {
     "message": "Store all your passwords and personal info in your Bitwarden vault. We'll show you around."
   },
   "vaultWelcomeDialogPrimaryCta": {
-    "message": "Start tour"
+    "message": "Inizia il tour"
   },
   "vaultWelcomeDialogDismissCta": {
-    "message": "Skip"
+    "message": "Salta"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "perUser": {
-    "message": "per user"
+    "message": "per utente"
   },
   "upgradeToTeams": {
     "message": "Upgrade to Teams"
@@ -13604,7 +13611,7 @@
     "message": "Money market"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "Altro"
   },
   "newBankAccountNudgeTitle": {
     "message": "Securely store your bank details"
@@ -13622,13 +13629,13 @@
     "message": "Past month"
   },
   "past3Months": {
-    "message": "Past 3 months"
+    "message": "Ultimi 3 mesi"
   },
   "past6Months": {
-    "message": "Past 6 months"
+    "message": "Ultimi 6 mesi"
   },
   "pastYear": {
-    "message": "Past year"
+    "message": "Ultimo anno"
   },
   "allTime": {
     "message": "All time"
@@ -13637,7 +13644,7 @@
     "message": "Time period"
   },
   "of": {
-    "message": "of"
+    "message": "di"
   },
   "coachmarkImportTitle": {
     "message": "Quickly import your passwords"
@@ -13690,6 +13697,28 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "fileToShare": {
+    "message": "File to share"
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
@@ -13706,5 +13735,8 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "copy": {
+    "message": "Copy"
   }
 }
