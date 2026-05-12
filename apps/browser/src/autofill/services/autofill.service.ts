@@ -1220,10 +1220,6 @@ export default class AutofillService implements AutofillServiceInterface {
       // If there are no passwords, username or TOTP fields may be present.
       // username and TOTP fields are mutually exclusive
       pageDetails.fields.forEach((field) => {
-        if (!field.viewable) {
-          return;
-        }
-
         const isTotpCandidate =
           options.allowTotpAutofill &&
           ["number", "tel", "text"].some((t) => t === field.type) &&
@@ -1233,6 +1229,12 @@ export default class AutofillService implements AutofillServiceInterface {
           isTotpCandidate &&
           (fieldContainsKeyword(field, AutoFillConstants.TotpFieldNames) ||
             field.autoCompleteType === "one-time-code");
+
+        // Allow explicit TOTP fields through even when hidden — some sites (e.g. Stripe's
+        // CodePuncher) use a single low-opacity input that Bitwarden marks non-viewable.
+        if (!field.viewable && !isTotpField) {
+          return;
+        }
 
         const maybeTotpField =
           isTotpCandidate && fieldContainsKeyword(field, AutoFillConstants.AmbiguousTotpFieldNames);
