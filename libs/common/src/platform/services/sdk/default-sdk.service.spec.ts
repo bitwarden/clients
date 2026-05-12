@@ -289,10 +289,5 @@ function createMockClient(): MockProxy<PasswordManagerClient> {
     free: mock(),
     [Symbol.dispose]: jest.fn(),
   });
-  client.km_state_bridge.mockReturnValue({
-    register_bridge_impl: jest.fn(),
-    free: mock(),
-    [Symbol.dispose]: jest.fn(),
-  } as any);
   return client;
 }

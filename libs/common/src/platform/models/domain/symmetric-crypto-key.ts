@@ -2,8 +2,6 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
-import { SymmetricKey } from "@bitwarden/sdk-internal";
-
 import { Utils } from "../../../platform/misc/utils";
 import { EncryptionType } from "../../enums";
 
@@ -126,13 +124,5 @@ export class SymmetricCryptoKey {
 
   static fromJSON(obj: Jsonify<SymmetricCryptoKey>): SymmetricCryptoKey {
     return SymmetricCryptoKey.fromString(obj?.keyB64);
-  }
-
-  static fromSdk(key: SymmetricKey): SymmetricCryptoKey {
-    return SymmetricCryptoKey.fromString(key);
-  }
-
-  toSdk(): SymmetricKey {
-    return this.toBase64() as SymmetricKey;
   }
 }
