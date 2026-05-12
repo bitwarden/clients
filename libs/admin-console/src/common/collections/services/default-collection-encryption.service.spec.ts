@@ -29,7 +29,7 @@ const stubSdkCollection: SdkCollection = {
   readOnly: false,
   manage: false,
   defaultUserCollectionEmail: undefined,
-  type: "SharedCollection",
+  type: CollectionTypes.SharedCollection,
 };
 
 function makeCollection(overrides: Partial<Collection> = {}): Collection {
@@ -50,7 +50,7 @@ function makeSdkCollectionView(overrides: Partial<SdkCollectionView> = {}): SdkC
     hidePasswords: false,
     readOnly: false,
     manage: true,
-    type: "SharedCollection",
+    type: CollectionTypes.SharedCollection,
     ...overrides,
   };
 }
@@ -188,7 +188,9 @@ describe("DefaultCollectionEncryptionService", () => {
         type: CollectionTypes.DefaultUserCollection,
       });
       jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-      mockDecrypt.mockReturnValue(makeSdkCollectionView({ type: "DefaultUserCollection" }));
+      mockDecrypt.mockReturnValue(
+        makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection }),
+      );
 
       const [result] = await service.decryptMany([collection], userId);
 
