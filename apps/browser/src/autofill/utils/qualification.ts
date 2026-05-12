@@ -1,10 +1,22 @@
 import AutofillField from "../models/autofill-field";
+import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutoFillConstants } from "../services/autofill-constants";
+
+export const KeywordMatchMode = Object.freeze({
+  AppearsWithin: "appearsWithin",
+  MatchesToken: "matchesToken",
+} as const);
+export type KeywordMatchMode = (typeof KeywordMatchMode)[keyof typeof KeywordMatchMode];
 
 // Module-level cache
 const autofillFieldKeywordsCache: WeakMap<
   AutofillField,
+  { keywordsSet: Set<string>; stringValue: string }
+> = new WeakMap();
+
+const autofillFormKeywordsCache: WeakMap<
+  AutofillForm,
   { keywordsSet: Set<string>; stringValue: string }
 > = new WeakMap();
 
@@ -72,25 +84,88 @@ function buildAutofillFieldKeywords(field: AutofillField) {
 }
 
 /**
- * Returns true if any of the provided keywords is found in the field's attributes.
- * Strips hyphens from input keywords before matching.
- *
- * @param field - The AutofillField to check
- * @param keywords - Keywords to search for
- * @param substringMatch - If true (default), keyword is searched as a substring across the
- *   field's normalized attribute data. If false, keyword must be an exact token in the set.
+ * True if any keyword matches a token from the field. With `appearsWithin` (default), the
+ * keyword may appear as a substring of any token; `matchesToken` requires an exact token.
+ * Hyphens are stripped from keywords before matching.
  */
 export function fieldContainsKeyword(
   field: AutofillField,
-  keywords: string[],
-  substringMatch = true,
+  keywords: readonly string[],
+  mode: KeywordMatchMode = KeywordMatchMode.AppearsWithin,
 ): boolean {
   const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
   const { keywordsSet, stringValue } = buildAutofillFieldKeywords(field);
-  if (substringMatch) {
+  if (mode === KeywordMatchMode.AppearsWithin) {
     return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
   }
   return parsedKeywords.some((k) => keywordsSet.has(k));
+}
+
+/**
+ * True if any keyword matches a token from the form. With `appearsWithin` (default), the
+ * keyword may appear as a substring of any token; `matchesToken` requires an exact token.
+ * Hyphens are stripped from keywords before matching.
+ */
+export function formContainsKeyword(
+  form: AutofillForm,
+  keywords: readonly string[],
+  mode: KeywordMatchMode = KeywordMatchMode.AppearsWithin,
+): boolean {
+  const parsedKeywords = keywords.map((k) => k.replace(/-/g, ""));
+  const { keywordsSet, stringValue } = buildAutofillFormKeywords(form);
+  if (mode === KeywordMatchMode.AppearsWithin) {
+    return parsedKeywords.some((k) => stringValue.indexOf(k) > -1);
+  }
+  return parsedKeywords.some((k) => keywordsSet.has(k));
+}
+
+/**
+ * Tokenizes form attrs only — heading text is handled by classifyHeadings.
+ */
+function buildAutofillFormKeywords(form: AutofillForm) {
+  if (autofillFormKeywordsCache.has(form)) {
+    return autofillFormKeywordsCache.get(form)!;
+  }
+  const stringAttributes = [form.htmlID, form.htmlName, form.htmlAction, form.htmlClass];
+  const keywordsSet = new Set<string>();
+  for (const attributeValue of stringAttributes) {
+    if (!attributeValue || typeof attributeValue !== "string") {
+      continue;
+    }
+    tokenizeValue(attributeValue).forEach((k) => keywordsSet.add(k));
+  }
+  const result = { keywordsSet, stringValue: Array.from(keywordsSet).join(",") };
+  autofillFormKeywordsCache.set(form, result);
+  return result;
+}
+
+/**
+ * Walks headings closest-first; first match against the login or identity keyword
+ * lists wins, silent headings skipped. Returns a context signal, not a verdict.
+ */
+export function classifyHeadings(
+  headings: readonly string[] | undefined,
+  loginKeywords: readonly string[],
+  identityKeywords: readonly string[],
+): "login" | "identity" | "ambiguous" {
+  if (!headings?.length) {
+    return "ambiguous";
+  }
+  const loginTokens = loginKeywords.map((k) => k.replace(/-/g, "").toLowerCase());
+  const identityTokens = identityKeywords.map((k) => k.replace(/-/g, "").toLowerCase());
+  for (const heading of headings) {
+    if (!heading) {
+      continue;
+    }
+    const stringValue = Array.from(tokenizeValue(heading)).join(",");
+    if (loginTokens.some((k) => stringValue.indexOf(k) > -1)) {
+      return "login";
+    }
+    if (identityTokens.some((k) => stringValue.indexOf(k) > -1)) {
+      return "identity";
+    }
+  }
+  return "ambiguous";
 }
 
 /**
@@ -134,18 +209,10 @@ export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
 }
 
 /**
- * Returns true if the field's parent form contains keywords indicating a non-login
- * context (e.g. newsletter signup, subscription forms). Checks the form's {@link AutofillForm.htmlID},
- * {@link AutofillForm.htmlName}, and {@link AutofillForm.htmlAction} attributes against
- * {@link AutoFillConstants.NonLoginFormKeywords}. Returns false when the field has no parent form.
- *
- * @param field - The AutofillField whose parent form is to be checked
- * @param pageDetails - Page details containing the forms map
+ * True if the field's parent form carries a non-login signal, scanned against
+ * {@link AutoFillConstants.StrongNonLoginKeywords}.
  */
-export function isNonLoginFormContext(
-  field: AutofillField,
-  pageDetails: AutofillPageDetails,
-): boolean {
+function isNonLoginFormContext(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
   const fieldForm = field.form;
   if (!fieldForm) {
     return false;
@@ -156,18 +223,74 @@ export function isNonLoginFormContext(
     return false;
   }
 
-  const formAttributes = [parentForm.htmlID, parentForm.htmlName, parentForm.htmlAction];
-  for (const attr of formAttributes) {
-    if (!attr || typeof attr !== "string") {
-      continue;
+  return formContainsKeyword(parentForm, AutoFillConstants.StrongNonLoginKeywords);
+}
+
+/**
+ * True if the field or any same-form sibling matches a keyword.
+ * Returns false when the field has no form to scope siblings against.
+ */
+function anyFieldInFormMatches(
+  field: AutofillField,
+  pageDetails: AutofillPageDetails,
+  keywords: readonly string[],
+): boolean {
+  if (fieldContainsKeyword(field, keywords)) {
+    return true;
+  }
+
+  if (!field.form) {
+    return false;
+  }
+
+  return pageDetails.fields.some(
+    (sibling) =>
+      sibling !== field && sibling.form === field.form && fieldContainsKeyword(sibling, keywords),
+  );
+}
+
+/**
+ * Checks form context plus field/siblings for non-login keywords. Headings are
+ * deferred to isAmbiguousFieldNonLogin pending a confidence-weighting system.
+ */
+export function isNonLoginUsernameField(
+  field: AutofillField,
+  pageDetails: AutofillPageDetails,
+): boolean {
+  if (isNonLoginFormContext(field, pageDetails)) {
+    return true;
+  }
+
+  return anyFieldInFormMatches(field, pageDetails, AutoFillConstants.StrongNonLoginKeywords);
+}
+
+/**
+ * Tie-break for an ambiguously structured login input (lone username, no password).
+ * Headings go through classifyHeadings; a closer login signal short-circuits.
+ */
+export function isAmbiguousFieldNonLogin(
+  field: AutofillField,
+  pageDetails: AutofillPageDetails,
+): boolean {
+  const keywords = AutoFillConstants.ComprehensiveNonLoginKeywords;
+  const parentForm = field.form ? pageDetails.forms?.[field.form] : undefined;
+
+  if (parentForm) {
+    const headingClassification = classifyHeadings(
+      parentForm.htmlAncestorHeadings,
+      AutoFillConstants.StrongLoginHeadingKeywords,
+      keywords,
+    );
+    if (headingClassification === "login") {
+      return false;
     }
-    const attrLower = attr.toLowerCase();
-    for (const keyword of AutoFillConstants.NonLoginFormKeywords) {
-      if (attrLower.includes(keyword)) {
-        return true;
-      }
+    if (headingClassification === "identity") {
+      return true;
+    }
+    if (formContainsKeyword(parentForm, keywords)) {
+      return true;
     }
   }
 
-  return false;
+  return anyFieldInFormMatches(field, pageDetails, keywords);
 }

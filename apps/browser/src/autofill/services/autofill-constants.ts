@@ -155,18 +155,29 @@ export class AutoFillConstants {
   ];
 
   /**
-   * Form-level keywords indicating a non-login context such as newsletter signup or
-   * subscription forms. Used to exclude fields within these forms from login autofill.
+   * Non-login keywords with high enough confidence to disqualify a form for login on their own.
+   * Included by default in {@link ComprehensiveNonLoginKeywords}.
    */
-  static readonly NonLoginFormKeywords: string[] = [
-    "newsletter",
-    // @TODO expand list thoughtfully
-    // consider possible collisions with login forms
-    // consider using a "maybe" check
-    // "subscribe",
-    // "subscription",
-    // "unsubscribe",
-  ];
+  static readonly StrongNonLoginKeywords = ["newsletter"] as const;
+
+  /** Full lexicon of non-login keywords. */
+  static readonly ComprehensiveNonLoginKeywords = [
+    ...AutoFillConstants.StrongNonLoginKeywords,
+    "mailing list",
+    "subscribe",
+    "subscription",
+    "unsubscribe",
+  ] as const;
+
+  /** Login-positive heading text used to short-circuit ambiguous-case disqualification. */
+  static readonly StrongLoginHeadingKeywords = [
+    "sign in",
+    "signin",
+    "log in",
+    "login",
+    "log on",
+    "logon",
+  ] as const;
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 

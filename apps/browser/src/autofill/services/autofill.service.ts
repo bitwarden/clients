@@ -56,7 +56,7 @@ import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
-import { fieldContainsKeyword, isNonLoginFormContext } from "../utils/qualification";
+import { fieldContainsKeyword, isNonLoginUsernameField } from "../utils/qualification";
 
 import {
   AutoFillOptions,
@@ -1241,7 +1241,7 @@ export default class AutofillService implements AutofillServiceInterface {
           !options.skipUsernameOnlyFill &&
           ["email", "tel", "text"].some((t) => t === field.type) &&
           fieldContainsKeyword(field, AutoFillConstants.UsernameFieldNames) &&
-          !isNonLoginFormContext(field, pageDetails);
+          !isNonLoginUsernameField(field, pageDetails);
 
         // Reliable TOTP signals win unconditionally; username wins over ambiguous TOTP signals.
         switch (true) {
@@ -2715,7 +2715,7 @@ export default class AutofillService implements AutofillServiceInterface {
         continue;
       }
 
-      if (isNonLoginFormContext(field, pageDetails)) {
+      if (isNonLoginUsernameField(field, pageDetails)) {
         continue;
       }
 
