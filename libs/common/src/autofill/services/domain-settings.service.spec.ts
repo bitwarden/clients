@@ -113,12 +113,9 @@ describe("DefaultDomainSettingsService", () => {
     };
 
     beforeEach(() => {
-      configService.getFeatureFlag.mockImplementation((flag: string) => {
-        if (flag === FeatureFlag.FillAssistTargetingRules) {
-          return Promise.resolve(true);
-        }
-        return Promise.resolve(false);
-      });
+      configService.getFeatureFlag
+        .calledWith(FeatureFlag.FillAssistTargetingRules)
+        .mockResolvedValue(true);
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
     });
 
@@ -639,7 +636,7 @@ describe("DefaultDomainSettingsService", () => {
 
     describe("handles state gates", () => {
       it("returns null when feature flag is disabled", async () => {
-        configService.getFeatureFlag.mockImplementation(() => Promise.resolve(false));
+        configService.getFeatureFlag.mockResolvedValue(false);
         await domainSettingsService.setEnableFillAssist(true);
         await setupRules(mockRules);
 
@@ -651,7 +648,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when fill assist setting is disabled", async () => {
-        configService.getFeatureFlag.mockImplementation(() => Promise.resolve(true));
+        configService.getFeatureFlag.mockResolvedValue(true);
         await domainSettingsService.setEnableFillAssist(false);
         await domainSettingsService.setTargetingRules(mockRules);
 
@@ -663,7 +660,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no active account (logged out)", async () => {
-        configService.getFeatureFlag.mockImplementation(() => Promise.resolve(true));
+        configService.getFeatureFlag.mockResolvedValue(true);
         await domainSettingsService.setEnableFillAssist(true);
         accountService.activeAccountSubject.next(null);
         await setupRules(mockRules);
@@ -676,7 +673,7 @@ describe("DefaultDomainSettingsService", () => {
       });
 
       it("returns null when no rules exist in state", async () => {
-        configService.getFeatureFlag.mockImplementation(() => Promise.resolve(true));
+        configService.getFeatureFlag.mockResolvedValue(true);
         await domainSettingsService.setEnableFillAssist(true);
         await domainSettingsService.setTargetingRules({});
 

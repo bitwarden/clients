@@ -1148,6 +1148,15 @@
     "message": "Kopyalanmış dəyərləri lövhədən avtomatik təmizlə.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "Lövhə ayarı güncəlləndi"
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "Lövhənizin bitmə vaxtı ilkin dəyərə ayarlanıb və əlavə təhlükəsizlik üçün 5 dəqiqəyə güncəllənib."
+  },
+  "jumpToSetting": {
+    "message": "Ayarlara get"
+  },
   "notificationAddDesc": {
     "message": "Bitwarden sizin üçün bu parolu xatırlasın?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Əlavə seçimlər"
+  },
+  "enableFillAssist": {
+    "message": "Doldurma köməyini istifadə et"
   },
   "enableContextMenuItem": {
     "message": "Konteks menyu seçimlərini göstər"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Bu sayt, saxlanılmış giriş məlumatlarınızla uyuşmur. Giriş məlumatlarınızı doldurmazdan əvvəl, güvənli sayt olduğuna əmin olun."
   },
+  "loginHasNoSiteSaved": {
+    "message": "Girişdə heç bir sayt saxlanılmayıb"
+  },
+  "siteDoesntMatch": {
+    "message": "Sayt uyuşmur"
+  },
+  "loginNoSiteDesc": {
+    "message": "Bu girişdə hələ heç bir veb sayt saxlanılmayıb. Avto-doldurmazdan əvvəl güvənilən bir saytda olduğunuzu doğrulayın."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Bu sayt, bu giriş üçün qeyd etdiyiniz saytla uyuşmur. Avto-doldurmazdan əvvəl güvənilən bir saytda olduğunuzu doğrulayın."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Bu sayt, bu giriş üçün qeyd etdiyiniz saytlarla uyuşmur. Avto-doldurmazdan əvvəl güvənilən bir saytda olduğunuzu doğrulayın."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Avto-doldur və bu saytı saxla"
+  },
+  "autofillOnly": {
+    "message": "Yalnız avto-doldur"
+  },
   "showInlineMenuLabel": {
     "message": "Avto-doldurma təkliflərini form xanalarında göstər"
   },
@@ -2099,8 +2132,38 @@
   "typeSshKey": {
     "message": "SSH açarı"
   },
+  "bankAccount": {
+    "message": "Bank hesabı"
+  },
   "typeNote": {
     "message": "Not"
+  },
+  "typeBankAccount": {
+    "message": "Bank hesabı"
+  },
+  "typeLoginSubtitle": {
+    "message": "Veb sayt və ya tətbiq"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit və ya debet kart"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Fərdi məlumatlar"
+  },
+  "typeNoteSubtitle": {
+    "message": "Mühüm mətn"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server giriş tokeni"
+  },
+  "folderSubtitle": {
+    "message": "Elementlərinizi təşkil edin"
+  },
+  "collectionSubtitle": {
+    "message": "Paylaşılan elementləri təşkil edin"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Bank məlumatları"
   },
   "newItemHeaderLogin": {
     "message": "Yeni giriş",
@@ -2122,12 +2185,24 @@
     "message": "Yeni SSH açarı",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Yeni Send mətni",
+  "newItemHeaderBankAccount": {
+    "message": "Yeni bank hesabı",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Yeni lisenziya",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Yeni pasport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Yeni Send faylı",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2150,12 +2225,24 @@
     "message": "SSH açarına düzəliş et",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send mətninə düzəliş et",
+  "editItemHeaderBankAccount": {
+    "message": "Bank hesabına düzəliş",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Lisenziyaya düzəliş",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Pasporta düzəliş",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send faylına düzəliş et",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2177,6 +2264,21 @@
   "viewItemHeaderSshKey": {
     "message": "SSH açarına bax",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bank hesabına bax",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Lisenziyaya bax",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Pasporta bax",
+    "description": "Header for view passport item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Əlavə olunacaq elementi seç"
   },
   "passwordHistory": {
     "message": "Parol tarixçəsi"
@@ -2481,7 +2583,7 @@
     "message": "Seyf vaxtının bitmə əməliyyatı"
   },
   "showAtRiskPasswordNotifications": {
-    "message": "Show at-risk password notifications"
+    "message": "Riskli parolları göstər bildirişləri"
   },
   "lock": {
     "message": "Kilidlə",
@@ -2837,8 +2939,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$, bu parolun risk altında olduğu üçün dəyişdirməyinizi istəyir. Parolu dəyişdirmək üçün hesabınızın ayarlarına gedin.",
+  "atRiskNavigatePromptV2": {
+    "message": "Bu sayt üçün parolunuz risklidir. $ORGANIZATION$ sizdən hesab ayarlarınıza gedib onu dəyişdirməyinizi tələb edib.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3358,33 +3460,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Fərdi seyfin xaricə köçürülməsi"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş fərdi seyf elementləri xaricə köçürüləcək. Təşkilat seyf elementləri daxil edilməyəcək. Yalnız seyf element məlumatları xaricə köçürüləcək və əlaqələndirilmiş qoşmalar daxil edilməyəcək.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Yalnız $EMAIL$ ilə əlaqələndirilmiş qoşmalar daxil olmaqla fərdi anbar elementləri xaricə köçürüləcək. Təşkilat anbar elementləri daxil edilməyəcək",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Təşkilat seyfini xaricə köçürmə"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Yalnız $ORGANIZATION$ ilə əlaqələndirilmiş təşkilat seyfi xaricə köçürüləcək. Fərdi seyfdə və digər təşkilatlardakı elementlər daxil edilməyəcək.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3767,6 +3854,24 @@
   },
   "loginStatus": {
     "message": "Giriş statusu"
+  },
+  "recentlyActive": {
+    "message": "Təzəlikcə aktiv"
+  },
+  "recentlyActiveToday": {
+    "message": "Bu gün"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Son 7 gün"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Son 14 gün"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Son 30 gün"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 gündən çox əvvəl"
   },
   "masterPasswordChanged": {
     "message": "Ana parol saxlanıldı"
@@ -4423,6 +4528,9 @@
   "chooseFile": {
     "message": "Fayl seç"
   },
+  "chooseFileSentenceCase": {
+    "message": "Faylı seç"
+  },
   "noFileChosen": {
     "message": "Heç bir fayl seçilməyib"
   },
@@ -4453,6 +4561,18 @@
   },
   "exportError": {
     "message": "Seyf verilərinizi xaricə köçürərkən bir xəta baş verdi"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Keçid açarı"
@@ -6115,6 +6235,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Vaxt bitmə əməliyyatınızı dəyişdirmək üçün bir kilid açma üsulu qurun."
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "Bitwarden masaüstü tətbiqi tərəfindən idarə olunur. Düzəliş etmək üçün masaüstü tətbiqini açın."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% tamamlandı",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Yüksəlt"
   },
@@ -6202,6 +6334,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Bitwarden tətbiqini endir"
   },
@@ -6215,7 +6350,127 @@
   "userVerificationFailed": {
     "message": "İstifadəçi doğrulaması uğursuz oldu."
   },
+  "bankName": {
+    "message": "Bank adı"
+  },
+  "nameOnAccount": {
+    "message": "Hesabdakı ad"
+  },
+  "bankAccountType": {
+    "message": "Hesab növü"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Şirkət (biznes)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Fərdi (şəxsi)"
+  },
+  "accountNumber": {
+    "message": "Hesab nömrəsi"
+  },
+  "bankRoutingNumber": {
+    "message": "Yönləndirmə nömrəsi",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial/təşkilat nömrəsi"
+  },
+  "swiftCode": {
+    "message": "SWIFT kodu"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bankın əlaqə nömrəsi"
+  },
+  "searchBankAccount": {
+    "message": "Bank hesabını axtar"
+  },
+  "copyAccountNumber": {
+    "message": "Hesab nömrəsini kopyala"
+  },
+  "copyRoutingNumber": {
+    "message": "Yönləndirmə nömrəsini kopyala"
+  },
+  "copyPin": {
+    "message": "PIN-i kopyala"
+  },
+  "copyIban": {
+    "message": "IBAN-ı kopyala"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Yoxlanılır"
+  },
+  "bankAccountTypeSavings": {
+    "message": "YIğımlar"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Depozit sertifikatı"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kredit xətti"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "İnvestisiya/brokerlik"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Pul bazarı"
+  },
+  "bankAccountTypeOther": {
+    "message": "Digər"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bank məlumatlarınızı güvənli şəkildə saxlayın"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Bank hesabı məlumatlarınızı saxlayaraq bütün cihazlarınızdan asanlıqla və güvənli şəkildə erişə bilərsiniz."
+  },
   "downloadFailed": {
     "message": "Endirmə uğursuz oldu."
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "sideNavigation": {
+    "message": "Yan naviqasiya"
+  },
+  "skipLink": {
+    "message": "Keçidi ötür"
+  },
+  "callout": {
+    "message": "Elan",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "İrəliləyiş çubuğu",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Send düzəlişlərini saxlama uğursuz oldu",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Təşkilatınızın e-poçtun görünməsini tələb edir. Saxlamaq üçün \"E-poçtunuzu baxanlardan gizlədin\" seçimini ləğv edin."
   }
 }

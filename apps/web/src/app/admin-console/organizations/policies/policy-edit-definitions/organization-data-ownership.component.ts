@@ -1,39 +1,43 @@
-import { ChangeDetectionStrategy, Component, OnInit, TemplateRef, ViewChild } from "@angular/core";
-import { lastValueFrom, map, Observable } from "rxjs";
+import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder } from "@angular/forms";
+import { firstValueFrom, startWith } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { getById } from "@bitwarden/common/platform/misc";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
-import { CenterPositionStrategy, DialogService } from "@bitwarden/components";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
+import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
+import { PolicyStep } from "../policy-edit-dialogs/models";
 
-type VNextSaveOrganizationDataOwnershipPolicyRequest = VNextSavePolicyRequest<{
+type SaveOrganizationDataOwnershipPolicyRequest = SavePolicyRequest<{
   defaultUserCollectionName: string;
 }>;
 
+type OrganizationDataOwnershipPolicyData = {
+  enableIndividualItemsTransfer: boolean;
+};
+
 export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
-  name = "organizationDataOwnership";
-  description = "organizationDataOwnershipDesc";
+  name = "centralizeDataOwnership";
+  description = "centralizeDataOwnershipDesc";
   type = PolicyType.OrganizationDataOwnership;
   category = PolicyCategory.DataControl;
   priority = 20;
   component = OrganizationDataOwnershipPolicyComponent;
   showDescription = false;
 
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService
-      .getFeatureFlag$(FeatureFlag.MigrateMyVaultToMyItems)
-      .pipe(map((enabled) => !enabled));
-  }
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
 }
 
 @Component({
@@ -46,39 +50,91 @@ export class OrganizationDataOwnershipPolicyComponent
   extends BasePolicyEditComponent
   implements OnInit
 {
+  protected readonly useMyItems = signal(false);
+
   constructor(
-    private readonly dialogService: DialogService,
     private readonly i18nService: I18nService,
     private readonly encryptService: EncryptService,
+    private readonly formBuilder: FormBuilder,
+    private readonly organizationService: OrganizationService,
   ) {
     super();
+
+    this.enabled.valueChanges.pipe(takeUntilDestroyed()).subscribe((enabled) => {
+      if (enabled && this.useMyItems()) {
+        this.data.controls.enableIndividualItemsTransfer.enable();
+      } else {
+        this.data.controls.enableIndividualItemsTransfer.disable();
+        this.data.controls.enableIndividualItemsTransfer.setValue(false);
+      }
+    });
   }
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("dialog", { static: true }) warningContent!: TemplateRef<unknown>;
+  override readonly policySteps: PolicyStep[] = [
+    {
+      sideEffect: () => this.savePolicy(),
+    },
+  ];
 
-  async confirm(): Promise<boolean> {
-    if (this.policyResponse()?.enabled && !this.enabled.value) {
-      const dialogRef = this.dialogService.open(this.warningContent, {
-        positionStrategy: new CenterPositionStrategy(),
-      });
-      const result = await lastValueFrom(dialogRef.closed);
-      return Boolean(result);
+  readonly data = this.formBuilder.group({
+    enableIndividualItemsTransfer: [{ value: false, disabled: true }],
+  });
+
+  protected readonly enableIndividualItemsTransfer = toSignal(
+    this.data.controls.enableIndividualItemsTransfer.valueChanges.pipe(startWith(false)),
+    { initialValue: false },
+  );
+
+  override async ngOnInit(): Promise<void> {
+    super.ngOnInit();
+
+    const orgId = this.policyResponse()?.organizationId as OrganizationId | undefined;
+    if (orgId) {
+      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const org = await firstValueFrom(
+        this.organizationService.organizations$(userId).pipe(getById(orgId)),
+      );
+      this.useMyItems.set(org?.useMyItems ?? false);
     }
-    return true;
+
+    if (this.enabled.value && this.useMyItems()) {
+      this.data.controls.enableIndividualItemsTransfer.enable();
+    }
   }
 
-  async buildVNextRequest(
-    orgKey: OrgKey,
-  ): Promise<VNextSaveOrganizationDataOwnershipPolicyRequest> {
+  protected override loadData() {
+    if (!this.policyResponse()?.data) {
+      return;
+    }
+
+    const data = this.policyResponse()!.data as OrganizationDataOwnershipPolicyData;
+    this.data.patchValue({
+      enableIndividualItemsTransfer: data.enableIndividualItemsTransfer ?? false,
+    });
+  }
+
+  protected override buildRequestData(): OrganizationDataOwnershipPolicyData {
+    const raw = this.data.getRawValue();
+    return {
+      enableIndividualItemsTransfer:
+        (this.useMyItems() && raw.enableIndividualItemsTransfer) ?? false,
+    };
+  }
+
+  override async buildRequest(
+    orgKey?: OrgKey,
+  ): Promise<SaveOrganizationDataOwnershipPolicyRequest> {
     if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
+    if (orgKey == null) {
+      throw new Error("No encryption key for this organization.");
+    }
+
     const defaultUserCollectionName = await this.getEncryptedDefaultUserCollectionName(orgKey);
 
-    const request: VNextSaveOrganizationDataOwnershipPolicyRequest = {
+    return {
       policy: {
         enabled: this.enabled.value ?? false,
         data: this.buildRequestData(),
@@ -87,8 +143,6 @@ export class OrganizationDataOwnershipPolicyComponent
         defaultUserCollectionName,
       },
     };
-
-    return request;
   }
 
   private async getEncryptedDefaultUserCollectionName(orgKey: OrgKey): Promise<EncString> {

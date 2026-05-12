@@ -63,7 +63,8 @@ export class SshKeySectionComponent implements OnInit {
     return (
       // Web does not support clipboard access
       this.platformUtilsService.getClientType() !== ClientType.Web &&
-      this.originalCipherView()?.edit
+      // null means a new cipher is being created, which always has edit access
+      (this.originalCipherView() == null || this.originalCipherView()!.edit)
     );
   });
 

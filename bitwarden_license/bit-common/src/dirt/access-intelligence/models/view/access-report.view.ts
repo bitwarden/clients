@@ -5,8 +5,9 @@ import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/gu
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { AccessReportApi } from "../api/access-report.api";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { AccessReportData } from "../data/access-report.data";
+import { AccessReportSettingsData } from "../data/access-report-settings.data";
+import { ApplicationHealthData } from "../data/application-health.data";
+import { MemberRegistryEntryData } from "../data/member-registry-entry.data";
 import { AccessReport } from "../domain/access-report";
 import { AccessReportMetrics } from "../domain/access-report-metrics";
 
@@ -158,28 +159,31 @@ export class AccessReportView implements View {
   }
 
   /**
-   * Get at-risk password count for a specific member
-   *
-   * Counts all at-risk passwords across applications where member has access.
-   * Optionally limits count to a specific application.
+   * Get at-risk password count for a member across ALL applications.
    *
    * @param memberId - Organization user ID
-   * @param applicationName - Optional: limit count to specific application
-   * @returns Count of at-risk passwords for this member
+   * @returns Count of at-risk passwords for this member across every application
    */
-  getAtRiskPasswordCountForMember(memberId: string, applicationName?: string): number {
-    if (applicationName) {
-      // Count only within specific application
-      const app = this.getApplicationByName(applicationName);
-      if (!app || !app.isMemberAtRisk(memberId)) {
-        return 0;
-      }
-      return app.getAtRiskCipherIds().length;
-    }
-
-    // Count across all applications where member is at-risk
+  getAtRiskPasswordCountForMember(memberId: string): number {
     let count = 0;
     this.reports.forEach((report) => {
+      if (report.memberRefs[memberId] === true) {
+        count += report.getAtRiskCipherIds().length;
+      }
+    });
+    return count;
+  }
+
+  /**
+   * Get at-risk password count for a member scoped to critical applications only.
+   *
+   * @param memberId - Organization user ID
+   * @returns Count of at-risk passwords for this member across applications
+   *   flagged critical
+   */
+  getCriticalAtRiskPasswordCountForMember(memberId: string): number {
+    let count = 0;
+    this.getCriticalApplications().forEach((report) => {
       if (report.memberRefs[memberId] === true) {
         count += report.getAtRiskCipherIds().length;
       }
@@ -198,21 +202,23 @@ export class AccessReportView implements View {
    * @param applicationNames - Names of the applications to mark as critical
    */
   markApplicationsAsCritical(applicationNames: string[]): void {
-    for (const applicationName of applicationNames) {
-      const app = this.applications.find((a) => a.applicationName === applicationName);
+    const knownNames = new Set(this.reports.map((r) => r.applicationName));
 
-      if (app) {
-        app.isCritical = true;
-        if (!app.reviewedDate) {
-          app.reviewedDate = new Date();
-        }
-      } else {
-        // Application not in list, add it
-        const newApp = new AccessReportSettingsView();
-        newApp.applicationName = applicationName;
-        newApp.isCritical = true;
-        newApp.reviewedDate = new Date();
-        this.applications.push(newApp);
+    for (const applicationName of applicationNames) {
+      if (!knownNames.has(applicationName)) {
+        continue;
+      }
+
+      let app = this.applications.find((a) => a.applicationName === applicationName);
+      if (!app) {
+        app = new AccessReportSettingsView();
+        app.applicationName = applicationName;
+        this.applications.push(app);
+      }
+
+      app.isCritical = true;
+      if (!app.reviewedDate) {
+        app.reviewedDate = new Date();
       }
     }
 
@@ -246,16 +252,19 @@ export class AccessReportView implements View {
    * @param reviewedDate - Date of review (defaults to current date)
    */
   markApplicationAsReviewed(applicationName: string, reviewedDate?: Date): void {
-    const app = this.applications.find((a) => a.applicationName === applicationName);
-
-    if (app) {
-      app.reviewedDate = reviewedDate ?? new Date();
-    } else {
-      const newApp = new AccessReportSettingsView();
-      newApp.applicationName = applicationName;
-      newApp.reviewedDate = reviewedDate ?? new Date();
-      this.applications.push(newApp);
+    const knownNames = new Set(this.reports.map((r) => r.applicationName));
+    if (!knownNames.has(applicationName)) {
+      return;
     }
+
+    let app = this.applications.find((a) => a.applicationName === applicationName);
+    if (!app) {
+      app = new AccessReportSettingsView();
+      app.applicationName = applicationName;
+      this.applications.push(app);
+    }
+
+    app.reviewedDate = reviewedDate ?? new Date();
   }
 
   // === Computation Methods ===
@@ -335,6 +344,54 @@ export class AccessReportView implements View {
     summary.totalCriticalAtRiskPasswordCount = totalCriticalAtRiskPasswordCount;
 
     this.summary = summary;
+  }
+
+  /**
+   * Builds the decrypted payload ready for encryption.
+   *
+   * Converts view-layer types to the data-layer types expected by the encryption service,
+   * without coupling the view model to the encryption service abstraction.
+   */
+  toEncryptionPayload(): {
+    reportData: {
+      reports: ApplicationHealthData[];
+      memberRegistry: Record<string, MemberRegistryEntryData>;
+    };
+    summaryData: AccessReportSummaryView;
+    applicationData: AccessReportSettingsData[];
+  } {
+    return {
+      reportData: {
+        reports: this.reports.map((r) => {
+          const data = new ApplicationHealthData();
+          data.applicationName = r.applicationName;
+          data.passwordCount = r.passwordCount;
+          data.atRiskPasswordCount = r.atRiskPasswordCount;
+          data.memberRefs = { ...r.memberRefs };
+          data.cipherRefs = { ...r.cipherRefs };
+          data.memberCount = r.memberCount;
+          data.atRiskMemberCount = r.atRiskMemberCount;
+          data.iconUri = r.iconUri;
+          data.iconCipherId = r.iconCipherId;
+          return data;
+        }),
+        memberRegistry: Object.fromEntries(
+          Object.entries(this.memberRegistry).map(([id, e]) => {
+            const data = new MemberRegistryEntryData();
+            data.id = e.id;
+            data.userName = e.userName;
+            data.email = e.email;
+            return [id, data];
+          }),
+        ),
+      },
+      summaryData: this.summary,
+      applicationData: this.applications.map((app) => ({
+        applicationName: app.applicationName,
+        isCritical: app.isCritical,
+        reviewedDate: app.reviewedDate?.toISOString(),
+      })),
+    };
   }
 
   /**
