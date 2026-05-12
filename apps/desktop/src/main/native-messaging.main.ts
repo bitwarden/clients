@@ -13,6 +13,27 @@ import { isDev } from "../utils";
 
 import { WindowMain } from "./window.main";
 
+const MANIFEST_APP_NAME = "com.8bit.bitwarden";
+const MANIFEST_FILENAME = `${MANIFEST_APP_NAME}.json`;
+const CHROME_MANIFEST_FILENAME = "chrome.json";
+const FIREFOX_MANIFEST_FILENAME = "firefox.json";
+const FIREFOX_EXTENSION_ID = "{446900e4-71c2-419f-a6a7-df9c091e268b}";
+
+const PROXY_BINARY_NAME = ".bitwarden_desktop_proxy";
+const DESKTOP_PROXY_EXECUTABLE = "desktop_proxy";
+
+const NATIVE_MESSAGING_HOSTS_DIR = "NativeMessagingHosts";
+const FIREFOX_LINUX_NMHS_DIR = "native-messaging-hosts";
+
+const WINDOWS_BROWSERS_DIR = "browsers";
+const WINDOWS_BROWSER_USER_DATA_DIR = "User Data";
+const NMHS_REGISTRY_KEY_SUFFIX = `${NATIVE_MESSAGING_HOSTS_DIR}\\${MANIFEST_APP_NAME}`;
+
+const DARWIN_APP_SUPPORT_PATH = "Library/Application Support";
+const DUCKDUCKGO_MAC_NMHS_PATH = `Library/Containers/com.duckduckgo.macos.browser/Data/${DARWIN_APP_SUPPORT_PATH}/${NATIVE_MESSAGING_HOSTS_DIR}`;
+
+const CHROME_PREFERENCES_FILENAME = "Preferences";
+
 export class NativeMessagingMain {
   private ipcServer: ipc.NativeIpcServer | null;
   private connected: number[] = [];
@@ -132,7 +153,7 @@ export class NativeMessagingMain {
 
   private async generateChromeJson(binaryPath: string) {
     return {
-      name: "com.8bit.bitwarden",
+      name: MANIFEST_APP_NAME,
       description: "Bitwarden desktop <-> browser bridge",
       path: binaryPath,
       type: "stdio",
@@ -142,11 +163,11 @@ export class NativeMessagingMain {
 
   private async generateFirefoxJson(binaryPath: string) {
     return {
-      name: "com.8bit.bitwarden",
+      name: MANIFEST_APP_NAME,
       description: "Bitwarden desktop <-> browser bridge",
       path: binaryPath,
       type: "stdio",
-      allowed_extensions: ["{446900e4-71c2-419f-a6a7-df9c091e268b}"],
+      allowed_extensions: [FIREFOX_EXTENSION_ID],
     };
   }
 
@@ -158,21 +179,21 @@ export class NativeMessagingMain {
 
     switch (process.platform) {
       case "win32": {
-        const destination = path.join(this.userPath, "browsers");
+        const destination = path.join(this.userPath, WINDOWS_BROWSERS_DIR);
         await this.writeManifest(
-          path.join(destination, "firefox.json"),
+          path.join(destination, FIREFOX_MANIFEST_FILENAME),
           await this.generateFirefoxJson(binaryPath),
         );
         await this.writeManifest(
-          path.join(destination, "chrome.json"),
+          path.join(destination, CHROME_MANIFEST_FILENAME),
           await this.generateChromeJson(binaryPath),
         );
 
         const nmhs = this.getWindowsNMHS();
         for (const [name, [key, subkey]] of Object.entries(nmhs)) {
-          let manifestPath = path.join(destination, "chrome.json");
+          let manifestPath = path.join(destination, CHROME_MANIFEST_FILENAME);
           if (name === "Firefox") {
-            manifestPath = path.join(destination, "firefox.json");
+            manifestPath = path.join(destination, FIREFOX_MANIFEST_FILENAME);
           }
           await windows_registry.createKey(key, subkey, manifestPath);
         }
@@ -182,7 +203,7 @@ export class NativeMessagingMain {
         const nmhs = this.getDarwinNMHS();
         for (const [key, value] of Object.entries(nmhs)) {
           if (existsSync(value)) {
-            const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
+            const p = path.join(value, NATIVE_MESSAGING_HOSTS_DIR, MANIFEST_FILENAME);
 
             let manifest: any = await this.generateChromeJson(binaryPath);
             if (key === "Firefox" || key === "Zen") {
@@ -205,11 +226,11 @@ export class NativeMessagingMain {
         // Unsandboxed browser
         for (const [key, value] of Object.entries(this.getLinuxNMHS())) {
           if (existsSync(value)) {
-            let nhmsPath = path.join(value, "NativeMessagingHosts");
+            let nhmsPath = path.join(value, NATIVE_MESSAGING_HOSTS_DIR);
             if (key === "Firefox") {
-              nhmsPath = path.join(value, "native-messaging-hosts");
+              nhmsPath = path.join(value, FIREFOX_LINUX_NMHS_DIR);
             }
-            const browserBinaryPath = path.join(nhmsPath, ".bitwarden_desktop_proxy");
+            const browserBinaryPath = path.join(nhmsPath, PROXY_BINARY_NAME);
 
             await fs.mkdir(nhmsPath, { recursive: true });
             await this.linkOrCopy(binaryPath, browserBinaryPath);
@@ -219,12 +240,12 @@ export class NativeMessagingMain {
 
             if (key === "Firefox") {
               await this.writeManifest(
-                path.join(nhmsPath, "com.8bit.bitwarden.json"),
+                path.join(nhmsPath, MANIFEST_FILENAME),
                 await this.generateFirefoxJson(browserBinaryPath),
               );
             } else {
               await this.writeManifest(
-                path.join(nhmsPath, "com.8bit.bitwarden.json"),
+                path.join(nhmsPath, MANIFEST_FILENAME),
                 await this.generateChromeJson(browserBinaryPath),
               );
             }
@@ -235,7 +256,7 @@ export class NativeMessagingMain {
 
         for (const [key, value] of Object.entries(this.getFlatpakNMHS())) {
           if (existsSync(value)) {
-            const sandboxedProxyBinaryPath = path.join(value, ".bitwarden_desktop_proxy");
+            const sandboxedProxyBinaryPath = path.join(value, PROXY_BINARY_NAME);
             await this.linkOrCopy(binaryPath, sandboxedProxyBinaryPath);
             this.logService.info(
               `[Native messaging] Hard-linked ${binaryPath} to ${sandboxedProxyBinaryPath}`,
@@ -243,12 +264,12 @@ export class NativeMessagingMain {
 
             if (key === "Firefox") {
               await this.writeManifest(
-                path.join(value, "com.8bit.bitwarden.json"),
+                path.join(value, MANIFEST_FILENAME),
                 await this.generateFirefoxJson(sandboxedProxyBinaryPath),
               );
             } else if (key === "Chrome" || key === "Chromium" || key === "Microsoft Edge") {
               await this.writeManifest(
-                path.join(value, "com.8bit.bitwarden.json"),
+                path.join(value, MANIFEST_FILENAME),
                 await this.generateChromeJson(sandboxedProxyBinaryPath),
               );
             } else {
@@ -268,7 +289,7 @@ export class NativeMessagingMain {
 
   async generateDdgManifests() {
     const manifest = {
-      name: "com.8bit.bitwarden",
+      name: MANIFEST_APP_NAME,
       description: "Bitwarden desktop <-> DuckDuckGo bridge",
       path: this.binaryPath(),
       type: "stdio",
@@ -280,9 +301,8 @@ export class NativeMessagingMain {
 
     switch (process.platform) {
       case "darwin": {
-        /* eslint-disable-next-line no-useless-escape */
-        const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
-        await this.writeManifest(path, manifest);
+        const manifestPath = `${this.homedir()}/${DUCKDUCKGO_MAC_NMHS_PATH}/${MANIFEST_FILENAME}`;
+        await this.writeManifest(manifestPath, manifest);
         break;
       }
       default:
@@ -293,8 +313,12 @@ export class NativeMessagingMain {
   async removeManifests() {
     switch (process.platform) {
       case "win32": {
-        await this.removeIfExists(path.join(this.userPath, "browsers", "firefox.json"));
-        await this.removeIfExists(path.join(this.userPath, "browsers", "chrome.json"));
+        await this.removeIfExists(
+          path.join(this.userPath, WINDOWS_BROWSERS_DIR, FIREFOX_MANIFEST_FILENAME),
+        );
+        await this.removeIfExists(
+          path.join(this.userPath, WINDOWS_BROWSERS_DIR, CHROME_MANIFEST_FILENAME),
+        );
 
         const nmhs = this.getWindowsNMHS();
         for (const [, [key, subkey]] of Object.entries(nmhs)) {
@@ -306,7 +330,7 @@ export class NativeMessagingMain {
         const nmhs = this.getDarwinNMHS();
         for (const [, value] of Object.entries(nmhs)) {
           await this.removeIfExists(
-            path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json"),
+            path.join(value, NATIVE_MESSAGING_HOSTS_DIR, MANIFEST_FILENAME),
           );
         }
         break;
@@ -315,18 +339,18 @@ export class NativeMessagingMain {
         for (const [key, value] of Object.entries(this.getLinuxNMHS())) {
           if (key === "Firefox") {
             await this.removeIfExists(
-              path.join(value, "native-messaging-hosts", "com.8bit.bitwarden.json"),
+              path.join(value, FIREFOX_LINUX_NMHS_DIR, MANIFEST_FILENAME),
             );
           } else {
             await this.removeIfExists(
-              path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json"),
+              path.join(value, NATIVE_MESSAGING_HOSTS_DIR, MANIFEST_FILENAME),
             );
           }
         }
 
         for (const [, value] of Object.entries(this.getFlatpakNMHS())) {
-          await this.removeIfExists(path.join(value, "com.8bit.bitwarden.json"));
-          await this.removeIfExists(path.join(value, ".bitwarden_desktop_proxy"));
+          await this.removeIfExists(path.join(value, MANIFEST_FILENAME));
+          await this.removeIfExists(path.join(value, PROXY_BINARY_NAME));
         }
 
         break;
@@ -339,9 +363,8 @@ export class NativeMessagingMain {
   async removeDdgManifests() {
     switch (process.platform) {
       case "darwin": {
-        /* eslint-disable-next-line no-useless-escape */
-        const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
-        await this.removeIfExists(path);
+        const manifestPath = `${this.homedir()}/${DUCKDUCKGO_MAC_NMHS_PATH}/${MANIFEST_FILENAME}`;
+        await this.removeIfExists(manifestPath);
         break;
       }
       default:
@@ -364,39 +387,32 @@ export class NativeMessagingMain {
 
   private getWindowsNMHS() {
     return {
-      Firefox: ["HKCU", "SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      Chrome: ["HKCU", "SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      Chromium: ["HKCU", "SOFTWARE\\Chromium\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      "Microsoft Edge": [
-        "HKCU",
-        "SOFTWARE\\Microsoft\\Edge\\NativeMessagingHosts\\com.8bit.bitwarden",
-      ],
-      Vivaldi: ["HKCU", "SOFTWARE\\Vivaldi\\NativeMessagingHosts\\com.8bit.bitwarden"],
-      Brave: [
-        "HKCU",
-        "SOFTWARE\\BraveSoftware\\Brave-Browser\\NativeMessagingHosts\\com.8bit.bitwarden",
-      ],
+      Firefox: ["HKCU", `SOFTWARE\\Mozilla\\${NMHS_REGISTRY_KEY_SUFFIX}`],
+      Chrome: ["HKCU", `SOFTWARE\\Google\\Chrome\\${NMHS_REGISTRY_KEY_SUFFIX}`],
+      Chromium: ["HKCU", `SOFTWARE\\Chromium\\${NMHS_REGISTRY_KEY_SUFFIX}`],
+      "Microsoft Edge": ["HKCU", `SOFTWARE\\Microsoft\\Edge\\${NMHS_REGISTRY_KEY_SUFFIX}`],
+      Vivaldi: ["HKCU", `SOFTWARE\\Vivaldi\\${NMHS_REGISTRY_KEY_SUFFIX}`],
+      Brave: ["HKCU", `SOFTWARE\\BraveSoftware\\Brave-Browser\\${NMHS_REGISTRY_KEY_SUFFIX}`],
     };
   }
 
   private getDarwinNMHS() {
-    /* eslint-disable no-useless-escape */
+    const appSupport = `${this.homedir()}/${DARWIN_APP_SUPPORT_PATH}`;
     return {
-      Firefox: `${this.homedir()}/Library/Application\ Support/Mozilla/`,
-      Chrome: `${this.homedir()}/Library/Application\ Support/Google/Chrome/`,
-      "Chrome Beta": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Beta/`,
-      "Chrome Dev": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Dev/`,
-      "Chrome Canary": `${this.homedir()}/Library/Application\ Support/Google/Chrome\ Canary/`,
-      Chromium: `${this.homedir()}/Library/Application\ Support/Chromium/`,
-      "Microsoft Edge": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge/`,
-      "Microsoft Edge Beta": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Beta/`,
-      "Microsoft Edge Dev": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Dev/`,
-      "Microsoft Edge Canary": `${this.homedir()}/Library/Application\ Support/Microsoft\ Edge\ Canary/`,
-      Vivaldi: `${this.homedir()}/Library/Application\ Support/Vivaldi/`,
-      Zen: `${this.homedir()}/Library/Application\ Support/Zen/`,
-      Helium: `${this.homedir()}/Library/Application\ Support/net.imput.helium/`,
+      Firefox: `${appSupport}/Mozilla/`,
+      Chrome: `${appSupport}/Google/Chrome/`,
+      "Chrome Beta": `${appSupport}/Google/Chrome Beta/`,
+      "Chrome Dev": `${appSupport}/Google/Chrome Dev/`,
+      "Chrome Canary": `${appSupport}/Google/Chrome Canary/`,
+      Chromium: `${appSupport}/Chromium/`,
+      "Microsoft Edge": `${appSupport}/Microsoft Edge/`,
+      "Microsoft Edge Beta": `${appSupport}/Microsoft Edge Beta/`,
+      "Microsoft Edge Dev": `${appSupport}/Microsoft Edge Dev/`,
+      "Microsoft Edge Canary": `${appSupport}/Microsoft Edge Canary/`,
+      Vivaldi: `${appSupport}/Vivaldi/`,
+      Zen: `${appSupport}/Zen/`,
+      Helium: `${appSupport}/net.imput.helium/`,
     };
-    /* eslint-enable no-useless-escape */
   }
 
   private getLinuxNMHS() {
@@ -411,11 +427,12 @@ export class NativeMessagingMain {
   }
 
   private getFlatpakNMHS() {
+    const flatpakRoot = `${this.homedir()}/.var/app`;
     return {
-      Firefox: `${this.homedir()}/.var/app/org.mozilla.firefox/.mozilla/native-messaging-hosts/`,
-      Chrome: `${this.homedir()}/.var/app/com.google.Chrome/config/google-chrome/NativeMessagingHosts/`,
-      Chromium: `${this.homedir()}/.var/app/org.chromium.Chromium/config/chromium/NativeMessagingHosts/`,
-      "Microsoft Edge": `${this.homedir()}/.var/app/com.microsoft.Edge/config/microsoft-edge/NativeMessagingHosts/`,
+      Firefox: `${flatpakRoot}/org.mozilla.firefox/.mozilla/${FIREFOX_LINUX_NMHS_DIR}/`,
+      Chrome: `${flatpakRoot}/com.google.Chrome/config/google-chrome/${NATIVE_MESSAGING_HOSTS_DIR}/`,
+      Chromium: `${flatpakRoot}/org.chromium.Chromium/config/chromium/${NATIVE_MESSAGING_HOSTS_DIR}/`,
+      "Microsoft Edge": `${flatpakRoot}/com.microsoft.Edge/config/microsoft-edge/${NATIVE_MESSAGING_HOSTS_DIR}/`,
     };
   }
 
@@ -464,8 +481,8 @@ export class NativeMessagingMain {
       case "win32": {
         // TODO: Add more supported browsers for Windows?
         chromePaths = [
-          path.join(process.env.LOCALAPPDATA, "Microsoft", "Edge", "User Data"),
-          path.join(process.env.LOCALAPPDATA, "Google", "Chrome", "User Data"),
+          path.join(process.env.LOCALAPPDATA, "Microsoft", "Edge", WINDOWS_BROWSER_USER_DATA_DIR),
+          path.join(process.env.LOCALAPPDATA, "Google", "Chrome", WINDOWS_BROWSER_USER_DATA_DIR),
         ];
         break;
       }
@@ -483,7 +500,10 @@ export class NativeMessagingMain {
           try {
             // Read the profile Preferences file and find the extension commands section
             const prefs = JSON.parse(
-              await fs.readFile(path.join(chromePath, profile, "Preferences"), "utf8"),
+              await fs.readFile(
+                path.join(chromePath, profile, CHROME_PREFERENCES_FILENAME),
+                "utf8",
+              ),
             );
             const commands: Map<string, any> = prefs.extensions.commands;
 
@@ -529,7 +549,7 @@ export class NativeMessagingMain {
         "desktop_native",
         "target",
         "debug",
-        `desktop_proxy${ext}`,
+        `${DESKTOP_PROXY_EXECUTABLE}${ext}`,
       );
 
       // isDev() returns true when using a production build with ELECTRON_IS_DEV=1,
@@ -539,7 +559,7 @@ export class NativeMessagingMain {
       }
     }
 
-    return path.join(path.dirname(this.exePath), `desktop_proxy${ext}`);
+    return path.join(path.dirname(this.exePath), `${DESKTOP_PROXY_EXECUTABLE}${ext}`);
   }
 
   private homedir() {
