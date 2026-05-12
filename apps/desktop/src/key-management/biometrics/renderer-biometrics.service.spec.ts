@@ -102,8 +102,7 @@ describe("renderer biometrics service tests", function () {
     const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
     const mockKeyId = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
 
-    const getKeyIdMock = () =>
-      (CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock;
+    const getKeyIdMock = () => (CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock;
 
     it("stores the derived key id when the SDK returns a key id", async () => {
       const service = new RendererBiometricsService(tokenService, biometricStateService);
