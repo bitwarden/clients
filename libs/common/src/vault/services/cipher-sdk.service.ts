@@ -3,7 +3,7 @@ import { firstValueFrom, switchMap, catchError } from "rxjs";
 import { DECRYPT_ERROR } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService, asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherListView, CipherView as SdkCipherView } from "@bitwarden/sdk-internal";
 
@@ -343,6 +343,35 @@ export class DefaultCipherSdkService implements CipherSdkService {
     );
   }
 
+  async deleteAttachmentWithServer(
+    cipherId: CipherId,
+    attachmentId: string,
+    userId: UserId,
+    asAdmin = false,
+  ): Promise<Cipher | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+
+          const result = asAdmin
+            ? await ref.value
+                .vault()
+                .ciphers()
+                .admin()
+                .delete_attachment(asUuid(cipherId), attachmentId)
+            : await ref.value.vault().ciphers().delete_attachment(asUuid(cipherId), attachmentId);
+
+          return Cipher.fromSdkCipher(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to delete cipher attachment: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
   async getAllDecrypted(userId: UserId): Promise<DecryptAllCiphersResult> {
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -402,6 +431,66 @@ export class DefaultCipherSdkService implements CipherSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to list organization ciphers: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async saveCollectionsWithServerAdmin(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .admin()
+            .update_collection(
+              asUuid(cipherId),
+              collectionIds.map((id) => asUuid(id)),
+            );
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to update cipher collections as admin: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async saveCollectionsWithServer(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    return await firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          if (!sdk) {
+            throw new Error("SDK not available");
+          }
+          using ref = sdk.take();
+          const result = await ref.value
+            .vault()
+            .ciphers()
+            .update_collection(
+              asUuid(cipherId),
+              collectionIds.map((id) => asUuid(id)),
+              false,
+            );
+          return CipherView.fromSdkCipherView(result);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to update cipher collections: ${error}`);
           throw error;
         }),
       ),

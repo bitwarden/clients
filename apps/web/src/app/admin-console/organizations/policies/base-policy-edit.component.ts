@@ -6,8 +6,7 @@ import { Constructor } from "type-fest";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
+import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -134,44 +133,22 @@ export abstract class BasePolicyEditComponent implements OnInit {
     }
   }
 
-  /**
-   * An optional guard called before submission in {@link PolicyEditDialogComponent}.
-   * Return `false` to abort the save (e.g. when the user cancels a warning dialog).
-   * Components that need a confirmation step before saving should override this method.
-   *
-   * TODO: Remove this method when the `MigrateMyVaultToMyItems` feature flag is removed.
-   * New policy components should use {@link policySteps} with a `sideEffect` instead.
-   */
-  confirm?(): Promise<boolean>;
-
-  async buildVNextRequest(orgKey: OrgKey): Promise<VNextSavePolicyRequest> {
+  async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
     if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
-    const request: VNextSavePolicyRequest = {
-      policy: await this.buildRequest(),
+    return {
+      policy: {
+        enabled: this.enabled.value ?? false,
+        data: this.buildRequestData(),
+      },
       metadata: null,
     };
-
-    return request;
-  }
-
-  buildRequest() {
-    if (!this.policy()) {
-      throw new Error("Policy was not found");
-    }
-
-    const request: PolicyRequest = {
-      enabled: this.enabled.value ?? false,
-      data: this.buildRequestData(),
-    };
-
-    return Promise.resolve(request);
   }
 
   /**
-   * Saves the policy via the vNext API. Subclasses that require additional steps or side effects
+   * Saves the policy. Subclasses that require additional steps or side effects
    * (e.g. enabling a prerequisite policy) should override this method.
    */
   protected async savePolicy(): Promise<PolicyStepResult | void> {
@@ -194,9 +171,9 @@ export abstract class BasePolicyEditComponent implements OnInit {
       throw new Error("No encryption key for this organization.");
     }
 
-    const request = await this.buildVNextRequest(orgKey);
+    const request = await this.buildRequest(orgKey);
 
-    await this.policyApiService.putPolicyVNext(
+    await this.policyApiService.putPolicy(
       this.organizationId() ?? "",
       this.policy()!.type,
       request,

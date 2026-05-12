@@ -5,7 +5,6 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
-  HostListener,
   Inject,
   Signal,
   ViewContainerRef,
@@ -15,19 +14,19 @@ import {
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder } from "@angular/forms";
-import { map, firstValueFrom, switchMap, filter } from "rxjs";
+import { map, firstValueFrom, switchMap, filter, of } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrgKey } from "@bitwarden/common/types/key";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -88,26 +87,19 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     protected readonly dialogService: DialogService,
     protected readonly cdkDialogRef: CdkDialogRef,
     protected readonly configService: ConfigService,
+    private readonly authService: AuthService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
   }
 
-  /**
-   * Type guard to check if the policy component has the buildVNextRequest method.
-   */
-  private hasVNextRequest(
-    component: BasePolicyEditComponent,
-  ): component is BasePolicyEditComponent & {
-    buildVNextRequest: (orgKey: OrgKey) => Promise<VNextSavePolicyRequest>;
-  } {
-    return "buildVNextRequest" in component && typeof component.buildVNextRequest === "function";
-  }
-
   private isFormDirty(): boolean {
     const component = this.policyComponent();
-    return (component?.enabled?.dirty ?? false) || (component?.data?.dirty ?? false);
+    if (!component) {
+      return false;
+    }
+    return component.enabled.dirty || (component.data?.dirty ?? false);
   }
 
   private readonly discardDialogOptions = {
@@ -152,12 +144,39 @@ export class PolicyEditDialogComponent implements AfterViewInit {
         .subscribe(() => void this.cancel());
     } else {
       this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
-        // A defined result means an intentional close (e.g. after a successful save) — always allow.
-        if (result !== undefined || !this.isFormDirty()) {
+        // A truthy result means an intentional close (e.g. after a successful save) — always allow.
+        if (result || !this.isFormDirty()) {
           return true;
         }
-        return this.dialogService.openSimpleDialog(this.discardDialogOptions);
+        const confirmed = await this.dialogService.openSimpleDialog(this.discardDialogOptions);
+        if (confirmed) {
+          // Disarm the guard so closePredicate won't prompt again when close() is called
+          // after this predicate resolves true.
+          this.discardGuardEnabled.set(false);
+        }
+        return confirmed;
       };
+
+      // When the vault is locked or the user is logged out, disarm the guard so the
+      // closePredicate won't show the discard dialog during the subsequent router teardown.
+      // If the active account becomes null (switchAccount(null) during logout), treat that
+      // as a non-Unlocked state and disarm as well.
+      this.accountService.activeAccount$
+        .pipe(
+          switchMap((account) => {
+            if (account?.id == null) {
+              return of(null); // no active account — disarm immediately
+            }
+            return this.authService
+              .authStatusFor$(account.id)
+              .pipe(filter((status) => status !== AuthenticationStatus.Unlocked));
+          }),
+          takeUntilDestroyed(this.destroyRef),
+        )
+        .subscribe(() => {
+          this.discardGuardEnabled.set(false);
+          this.dialogRef.closePredicate = undefined;
+        });
     }
   }
 
@@ -173,14 +192,6 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       await this.dialogRef.close();
     }
   };
-
-  @HostListener("window:beforeunload", ["$event"])
-  onBeforeUnload(event: BeforeUnloadEvent): void {
-    if (this.discardGuardEnabled() && this.isFormDirty()) {
-      event.preventDefault();
-      event.returnValue = "";
-    }
-  }
 
   async ngAfterViewInit() {
     const policyResponse = await this.load();
@@ -232,13 +243,8 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("PolicyComponent not initialized.");
     }
 
-    if ((await policyComponent.confirm?.()) == false) {
-      await this.dialogRef.close();
-      return;
-    }
-
     try {
-      await this.handleVNextSubmission(policyComponent);
+      await this.submitPolicy(policyComponent);
 
       this.toastService.showToast({
         variant: "success",
@@ -253,7 +259,7 @@ export class PolicyEditDialogComponent implements AfterViewInit {
     }
   };
 
-  private async handleVNextSubmission(policyComponent: BasePolicyEditComponent): Promise<void> {
+  private async submitPolicy(policyComponent: BasePolicyEditComponent): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
@@ -267,9 +273,9 @@ export class PolicyEditDialogComponent implements AfterViewInit {
       throw new Error("No encryption key for this organization.");
     }
 
-    const request = await policyComponent.buildVNextRequest(orgKey);
+    const request = await policyComponent.buildRequest(orgKey);
 
-    await this.policyApiService.putPolicyVNext(
+    await this.policyApiService.putPolicy(
       this.data.organization.id,
       this.data.policy.type,
       request,
