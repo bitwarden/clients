@@ -37,7 +37,6 @@ describe("EncryptedMigrator", () => {
   const mockBiometricsService = mock<BiometricsService>();
   const mockBiometricStateService = mock<BiometricStateService>();
   const mockPlatformUtilsService = mock<PlatformUtilsService>();
-  const mockSdkService = mock<SdkService>();
 
   let sut: DefaultEncryptedMigrator;
   const mockMigration = mock<MinimumKdfMigration>();
@@ -74,7 +73,6 @@ describe("EncryptedMigrator", () => {
       mockBiometricsService,
       mockBiometricStateService,
       mockPlatformUtilsService,
-      mockSdkService,
     );
   });
 

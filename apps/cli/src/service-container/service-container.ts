@@ -1124,7 +1124,6 @@ export class ServiceContainer {
       new CliBiometricsService(),
       this.biometricStateService,
       this.platformUtilsService,
-      this.sdkService,
     );
   }
 

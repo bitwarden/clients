@@ -37,7 +37,6 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     biometricsService: BiometricsService,
     biometricStateService: BiometricStateService,
     platformUtilsService: PlatformUtilsService,
-    sdkService: SdkService,
   ) {
     // Register migrations here
     this.migrations.push({
@@ -61,7 +60,6 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
           biometricsService,
           biometricStateService,
           logService,
-          sdkService,
         ),
       });
     }

@@ -23,7 +23,6 @@ export class BiometricPersistentMigration implements EncryptedMigration {
     private readonly biometricsService: BiometricsService,
     private readonly biometricStateService: BiometricStateService,
     private readonly logService: LogService,
-    private readonly sdkService: SdkService,
   ) {}
 
   async needsMigration(userId: UserId): Promise<MigrationRequirement> {
