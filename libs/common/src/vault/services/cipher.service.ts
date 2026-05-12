@@ -34,6 +34,7 @@ import { View } from "../../models/view/view";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
+import { FileUploadType } from "../../platform/enums";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -1139,6 +1140,8 @@ export class CipherService implements CipherServiceAbstraction {
     admin = false,
     options?: UploadOptions,
   ): Promise<Cipher> {
+    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
+
     // The organization's symmetric key or the user's user key
     const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
 
@@ -1154,6 +1157,41 @@ export class CipherService implements CipherServiceAbstraction {
       new Uint8Array(data),
       attachmentKey[0],
     );
+
+    if (useSdk) {
+      await this.clearCache(userId);
+
+      const created = await this.cipherSdkService.createAttachment(
+        cipher.id as CipherId,
+        {
+          key: attachmentKey[1].encryptedString,
+          fileName: encFileName.encryptedString,
+          fileSize: encData.buffer.byteLength,
+          lastKnownRevisionDate: cipher.revisionDate.toISOString(),
+          asAdmin: admin,
+        },
+        userId,
+      );
+
+      await this.cipherFileUploadService.uploadPrepared(
+        cipher.id,
+        created.attachmentId,
+        created.uploadUrl,
+        created.fileUploadType === "Direct" ? FileUploadType.Direct : FileUploadType.Azure,
+        encFileName,
+        encData,
+        userId,
+        admin,
+        options,
+      );
+
+      if (admin) {
+        // Admin ops bypass local state; the SDK returns the merged cipher inline.
+        return Cipher.fromSdkCipher(created.cipher) ?? cipher;
+      }
+
+      return await this.get(cipher.id, userId);
+    }
 
     const response = await this.cipherFileUploadService.upload(
       cipher,
@@ -1885,6 +1923,7 @@ export class CipherService implements CipherServiceAbstraction {
       return cipher;
     }
 
+    const useSdk = await firstValueFrom(this.sdkCipherAttachmentOpsEnabled$);
     let cipherDomain = await this.get(cipher.id, userId);
 
     for (const attachmentView of cipher.attachments) {
@@ -1896,41 +1935,49 @@ export class CipherService implements CipherServiceAbstraction {
       }
 
       try {
-        // 1. Get download URL
-        const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
+        if (useSdk) {
+          cipherDomain = await this.upgradeOldAttachmentViaSdk(
+            cipher.id,
+            attachmentView.id,
+            userId,
+          );
+        } else {
+          // 1. Get download URL
+          const downloadUrl = await this.getAttachmentDownloadUrl(cipher.id, attachmentView);
 
-        // 2. Download attachment data
-        const dataResponse = await this.apiService.nativeFetch(
-          new Request(downloadUrl, { cache: "no-store" }),
-        );
+          // 2. Download attachment data
+          const dataResponse = await this.apiService.nativeFetch(
+            new Request(downloadUrl, { cache: "no-store" }),
+          );
 
-        if (dataResponse.status !== 200) {
-          throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
+          if (dataResponse.status !== 200) {
+            throw new Error(`Failed to download attachment. Status: ${dataResponse.status}`);
+          }
+
+          // 3. Decrypt the attachment
+          const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
+            cipher.id as CipherId,
+            attachmentView,
+            dataResponse,
+            userId,
+          );
+
+          // 4. Re-upload with attachment key
+          cipherDomain = await this.saveAttachmentRawWithServer(
+            cipherDomain,
+            attachmentView.fileName,
+            decryptedBuffer,
+            userId,
+          );
+
+          // 5. Delete the old attachment
+          const cipherData = await this.deleteAttachmentWithServer(
+            cipher.id,
+            attachmentView.id,
+            userId,
+          );
+          cipherDomain = new Cipher(cipherData);
         }
-
-        // 3. Decrypt the attachment
-        const decryptedBuffer = await this.getDecryptedAttachmentBuffer(
-          cipher.id as CipherId,
-          attachmentView,
-          dataResponse,
-          userId,
-        );
-
-        // 4. Re-upload with attachment key
-        cipherDomain = await this.saveAttachmentRawWithServer(
-          cipherDomain,
-          attachmentView.fileName,
-          decryptedBuffer,
-          userId,
-        );
-
-        // 5. Delete the old attachment
-        const cipherData = await this.deleteAttachmentWithServer(
-          cipher.id,
-          attachmentView.id,
-          userId,
-        );
-        cipherDomain = new Cipher(cipherData);
       } catch (e) {
         this.logService.error(`Failed to upgrade attachment ${attachmentView.id}`, e);
         throw e;
@@ -1938,6 +1985,35 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     return await this.decrypt(cipherDomain, userId);
+  }
+
+  private async upgradeOldAttachmentViaSdk(
+    cipherId: string,
+    attachmentId: string,
+    userId: UserId,
+  ): Promise<Cipher> {
+    await this.clearCache(userId);
+
+    const upgrade = await this.cipherSdkService.prepareAttachmentUpgrade(
+      cipherId as CipherId,
+      attachmentId,
+      userId,
+    );
+
+    await this.cipherFileUploadService.uploadPrepared(
+      cipherId,
+      upgrade.attachmentId,
+      upgrade.uploadUrl,
+      upgrade.fileUploadType === "Direct" ? FileUploadType.Direct : FileUploadType.Azure,
+      new EncString(upgrade.encryptedFileName),
+      new EncArrayBuffer(new Uint8Array(upgrade.encryptedContents)),
+      userId,
+      false,
+    );
+
+    await this.deleteAttachmentWithServer(cipherId, attachmentId, userId);
+
+    return await this.get(cipherId, userId);
   }
 
   private async getAttachmentDownloadUrl(

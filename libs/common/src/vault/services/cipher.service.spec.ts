@@ -21,6 +21,7 @@ import { EncString } from "../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { FileUploadType } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
@@ -224,6 +225,102 @@ describe("Cipher Service", () => {
       expect(uploadSpy).toHaveBeenCalled();
       const cipherArg = uploadSpy.mock.calls[0][0];
       expect(cipherArg.revisionDate).toEqual(new Date(expectedRevisionDate));
+    });
+
+    it("routes through SDK createAttachment + uploadPrepared when flag is enabled (non-admin)", async () => {
+      sdkAttachmentOpsFeatureFlag$.next(true);
+
+      const fileName = "filename";
+      const fileData = new Uint8Array(10);
+      const testCipher = new Cipher(cipherData);
+
+      keyService.makeDataEncKey.mockResolvedValue([
+        new SymmetricCryptoKey(new Uint8Array(32)),
+        new EncString("2.encryptedKey"),
+      ] as any);
+      encryptService.encryptString.mockResolvedValue(new EncString("2.encryptedFileName"));
+      encryptService.encryptFileData.mockResolvedValue({ buffer: new Uint8Array(10) } as any);
+
+      cipherSdkService.createAttachment.mockResolvedValue({
+        attachmentId: "newatt",
+        uploadUrl: "https://example.com/upload",
+        fileUploadType: "Direct",
+        cipher: undefined,
+      } as any);
+      cipherFileUploadService.uploadPrepared.mockResolvedValue(undefined);
+
+      const getSpy = jest.spyOn(cipherService, "get").mockResolvedValue(testCipher);
+
+      await cipherService.saveAttachmentRawWithServer(testCipher, fileName, fileData, userId);
+
+      expect(cipherSdkService.createAttachment).toHaveBeenCalledWith(
+        testCipher.id,
+        expect.objectContaining({ asAdmin: false }),
+        userId,
+      );
+      expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
+        testCipher.id,
+        "newatt",
+        "https://example.com/upload",
+        FileUploadType.Direct,
+        expect.any(EncString),
+        expect.anything(),
+        userId,
+        false,
+        undefined,
+      );
+      expect(getSpy).toHaveBeenCalledWith(testCipher.id, userId);
+    });
+
+    it("returns SDK-provided cipher and skips state fetch when admin and flag is enabled", async () => {
+      sdkAttachmentOpsFeatureFlag$.next(true);
+
+      const fileName = "filename";
+      const fileData = new Uint8Array(10);
+      const testCipher = new Cipher(cipherData);
+
+      keyService.makeDataEncKey.mockResolvedValue([
+        new SymmetricCryptoKey(new Uint8Array(32)),
+        new EncString("2.encryptedKey"),
+      ] as any);
+      encryptService.encryptString.mockResolvedValue(new EncString("2.encryptedFileName"));
+      encryptService.encryptFileData.mockResolvedValue({ buffer: new Uint8Array(10) } as any);
+
+      const sdkCipher = { id: testCipher.id } as any;
+      const fromSdkSpy = jest
+        .spyOn(Cipher, "fromSdkCipher")
+        .mockReturnValue(new Cipher(cipherData));
+
+      cipherSdkService.createAttachment.mockResolvedValue({
+        attachmentId: "newatt",
+        uploadUrl: "https://example.com/upload",
+        fileUploadType: "Azure",
+        cipher: sdkCipher,
+      } as any);
+      cipherFileUploadService.uploadPrepared.mockResolvedValue(undefined);
+
+      const getSpy = jest.spyOn(cipherService, "get");
+
+      await cipherService.saveAttachmentRawWithServer(testCipher, fileName, fileData, userId, true);
+
+      expect(cipherSdkService.createAttachment).toHaveBeenCalledWith(
+        testCipher.id,
+        expect.objectContaining({ asAdmin: true }),
+        userId,
+      );
+      expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
+        testCipher.id,
+        "newatt",
+        "https://example.com/upload",
+        FileUploadType.Azure,
+        expect.any(EncString),
+        expect.anything(),
+        userId,
+        true,
+        undefined,
+      );
+      expect(fromSdkSpy).toHaveBeenCalledWith(sdkCipher);
+      expect(getSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -1133,6 +1230,70 @@ describe("Cipher Service", () => {
       expect(apiSpy).not.toHaveBeenCalled();
       expect(deleteAttachmentSpy).not.toHaveBeenCalled();
       expect(result).toEqual(updatedCipher.toCipherData());
+    });
+  });
+
+  describe("upgradeOldCipherAttachments()", () => {
+    it("should return cipher unchanged when there are no old attachments", async () => {
+      const view = new CipherView(new Cipher(cipherData));
+      view.attachments = [];
+
+      const apiSpy = jest.spyOn(apiService, "getAttachmentData");
+
+      const result = await cipherService.upgradeOldCipherAttachments(view, userId);
+
+      expect(result).toBe(view);
+      expect(apiSpy).not.toHaveBeenCalled();
+    });
+
+    it("routes each legacy attachment through prepareAttachmentUpgrade when flag is enabled", async () => {
+      sdkAttachmentOpsFeatureFlag$.next(true);
+
+      const view = new CipherView(new Cipher(cipherData));
+      const legacyAttachment = new AttachmentView();
+      legacyAttachment.id = "legacy-attachment-id";
+      legacyAttachment.fileName = "legacy.txt";
+      legacyAttachment.key = null;
+      view.attachments = [legacyAttachment];
+
+      const validEncBytes = new Uint8Array(50);
+      validEncBytes[0] = 2;
+      cipherSdkService.prepareAttachmentUpgrade.mockResolvedValue({
+        attachmentId: "newatt",
+        uploadUrl: "https://example.com/upload",
+        fileUploadType: "Direct",
+        encryptedFileName: "2.encryptedFileName",
+        encryptedContents: validEncBytes,
+      } as any);
+      cipherFileUploadService.uploadPrepared.mockResolvedValue(undefined);
+
+      const refreshedCipher = new Cipher(cipherData);
+      jest.spyOn(cipherService, "get").mockResolvedValue(refreshedCipher);
+      jest
+        .spyOn(cipherService, "deleteAttachmentWithServer")
+        .mockResolvedValue(refreshedCipher.toCipherData());
+      jest.spyOn(cipherService, "decrypt").mockResolvedValue(view);
+
+      const apiSpy = jest.spyOn(apiService, "getAttachmentData");
+
+      await cipherService.upgradeOldCipherAttachments(view, userId);
+
+      expect(cipherSdkService.prepareAttachmentUpgrade).toHaveBeenCalledWith(
+        view.id,
+        "legacy-attachment-id",
+        userId,
+      );
+      expect(cipherFileUploadService.uploadPrepared).toHaveBeenCalledWith(
+        view.id,
+        "newatt",
+        "https://example.com/upload",
+        FileUploadType.Direct,
+        expect.any(EncString),
+        expect.anything(),
+        userId,
+        false,
+      );
+      expect(apiSpy).not.toHaveBeenCalled();
     });
   });
 
