@@ -2528,12 +2528,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Unfortunately browser integration is currently not supported in the linux version."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Require verification for browser integration"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Add an additional layer of security by requiring fingerprint phrase confirmation when establishing a link between your desktop and browser. This requires user action and verification each time a connection is created."
-  },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
   },
@@ -2542,12 +2536,6 @@
   },
   "approve": {
     "message": "Approve"
-  },
-  "verifyBrowserTitle": {
-    "message": "Verify browser connection"
-  },
-  "verifyBrowserDesc": {
-    "message": "Please ensure the shown fingerprint is identical to the fingerprint showed in the browser extension."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ wants to connect to Bitwarden",

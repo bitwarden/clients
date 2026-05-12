@@ -1,4 +1,3 @@
-import { NgZone } from "@angular/core";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, filter, firstValueFrom, of, take, timeout, timer } from "rxjs";
 
@@ -8,13 +7,11 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith, FakeAccountService } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-import { DialogService } from "@bitwarden/components";
-import { KeyService, BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
+import { BiometricsService, BiometricsCommands } from "@bitwarden/key-management";
 import { ConfigService } from "@bitwarden/services/config.service";
 
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
@@ -38,35 +35,25 @@ describe("BiometricMessageHandlerService", () => {
   let service: BiometricMessageHandlerService;
 
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
-  let keyService: MockProxy<KeyService>;
   let encryptService: MockProxy<EncryptService>;
   let logService: MockProxy<LogService>;
   let configService: MockProxy<ConfigService>;
-  let messagingService: MockProxy<MessagingService>;
   let desktopSettingsService: DesktopSettingsService;
   let biometricsService: MockProxy<BiometricsService>;
-  let dialogService: MockProxy<DialogService>;
   let accountService: AccountService;
   let authService: MockProxy<AuthService>;
-  let ngZone: MockProxy<NgZone>;
 
   beforeEach(() => {
     cryptoFunctionService = mock<CryptoFunctionService>();
-    keyService = mock<KeyService>();
     encryptService = mock<EncryptService>();
     logService = mock<LogService>();
-    messagingService = mock<MessagingService>();
     desktopSettingsService = mock<DesktopSettingsService>();
     configService = mock<ConfigService>();
     biometricsService = mock<BiometricsService>();
-    dialogService = mock<DialogService>();
-
     accountService = new FakeAccountService(accounts);
     authService = mock<AuthService>();
-    ngZone = mock<NgZone>();
 
     desktopSettingsService.browserIntegrationEnabled$ = of(false);
-    desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(false);
 
     (global as any).ipc = {
       platform: {
@@ -89,23 +76,18 @@ describe("BiometricMessageHandlerService", () => {
     configService.getFeatureFlag.mockResolvedValue(false);
     service = new BiometricMessageHandlerService(
       cryptoFunctionService,
-      keyService,
       encryptService,
       logService,
-      messagingService,
       desktopSettingsService,
       biometricsService,
-      dialogService,
       accountService,
       authService,
-      ngZone,
       configService,
     );
   });
 
   describe("constructor", () => {
     let browserIntegrationEnabled = new BehaviorSubject<boolean>(true);
-    let browserIntegrationFingerprintEnabled = new BehaviorSubject<boolean>(true);
 
     beforeEach(async () => {
       (global as any).ipc = {
@@ -141,32 +123,23 @@ describe("BiometricMessageHandlerService", () => {
       };
 
       desktopSettingsService.browserIntegrationEnabled$ = browserIntegrationEnabled.asObservable();
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ =
-        browserIntegrationFingerprintEnabled.asObservable();
 
       service = new BiometricMessageHandlerService(
         cryptoFunctionService,
-        keyService,
         encryptService,
         logService,
-        messagingService,
         desktopSettingsService,
         biometricsService,
-        dialogService,
         accountService,
         authService,
-        ngZone,
         configService,
       );
     });
 
     afterEach(() => {
       browserIntegrationEnabled = new BehaviorSubject<boolean>(true);
-      browserIntegrationFingerprintEnabled = new BehaviorSubject<boolean>(true);
 
       desktopSettingsService.browserIntegrationEnabled$ = browserIntegrationEnabled.asObservable();
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ =
-        browserIntegrationFingerprintEnabled.asObservable();
     });
 
     it("should clear connected apps when browser integration disabled", async () => {
@@ -189,38 +162,6 @@ describe("BiometricMessageHandlerService", () => {
       );
       expect((global as any).ipc.platform.ephemeralStore.removeEphemeralValue).toHaveBeenCalledWith(
         "connectedApp_appId2",
-      );
-    });
-
-    it("should un-trust connected apps when browser integration verification fingerprint disabled", async () => {
-      browserIntegrationFingerprintEnabled.next(false);
-
-      await firstValueFrom(
-        timer(0, 100).pipe(
-          filter(
-            () =>
-              (global as any).ipc.platform.ephemeralStore.setEphemeralValue.mock.calls.length == 2,
-          ),
-          take(1),
-          timeout(1000),
-        ),
-      );
-
-      expect((global as any).ipc.platform.ephemeralStore.setEphemeralValue).toHaveBeenCalledWith(
-        "connectedApp_appId1",
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKeyApp1"),
-          sessionSecret: Utils.fromUtf8ToB64("sessionSecretApp1"),
-          trusted: false,
-        }),
-      );
-      expect((global as any).ipc.platform.ephemeralStore.setEphemeralValue).toHaveBeenCalledWith(
-        "connectedApp_appId2",
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKeyApp2"),
-          sessionSecret: Utils.fromUtf8ToB64("sessionSecretApp2"),
-          trusted: false,
-        }),
       );
     });
   });
@@ -274,7 +215,6 @@ describe("BiometricMessageHandlerService", () => {
         JSON.stringify({
           publicKey: Utils.fromUtf8ToB64("publicKey"),
           sessionSecret: null,
-          trusted: false,
         }),
       );
       await service.handleMessage({
@@ -297,7 +237,6 @@ describe("BiometricMessageHandlerService", () => {
         JSON.stringify({
           publicKey: Utils.fromUtf8ToB64("publicKey"),
           sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: false,
         }),
       );
     });
@@ -310,7 +249,6 @@ describe("BiometricMessageHandlerService", () => {
         JSON.stringify({
           publicKey: Utils.fromUtf8ToB64("publicKey"),
           sessionSecret: null,
-          trusted: false,
         }),
       );
       await service.handleMessage({
@@ -327,109 +265,7 @@ describe("BiometricMessageHandlerService", () => {
       });
     });
 
-    it("should send verify fingerprint when fingerprinting is required on modern unlock, and dialog is accepted, and set to trusted", async () => {
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
-        "connectedApp_appId",
-      ]);
-      (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: false,
-        }),
-      );
-      ngZone.run.mockReturnValue({
-        closed: of(true),
-      });
-      encryptService.decryptString.mockResolvedValue(
-        JSON.stringify({
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        }),
-      );
-      await service.handleMessage({
-        appId: "appId",
-        message: {
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        },
-      });
-
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "verifyDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "verifiedDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.ephemeralStore.setEphemeralValue).toHaveBeenCalledWith(
-        "connectedApp_appId",
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: true,
-        }),
-      );
-    });
-
-    it("should send reject fingerprint when fingerprinting is required on modern unlock, and dialog is rejected, and it should not set to trusted", async () => {
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
-      (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
-        "connectedApp_appId",
-      ]);
-      (global as any).ipc.platform.ephemeralStore.getEphemeralValue.mockResolvedValue(
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: false,
-        }),
-      );
-      ngZone.run.mockReturnValue({
-        closed: of(false),
-      });
-      encryptService.decryptString.mockResolvedValue(
-        JSON.stringify({
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        }),
-      );
-      await service.handleMessage({
-        appId: "appId",
-        message: {
-          command: BiometricsCommands.UnlockWithBiometricsForUser,
-          messageId: 0,
-          timestamp: Date.now(),
-          userId: SomeUser,
-        },
-      });
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "verifyDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.nativeMessaging.sendMessage).toHaveBeenCalledWith({
-        command: "rejectedDesktopIPCFingerprint",
-        appId: "appId",
-      });
-      expect(ipc.platform.ephemeralStore.setEphemeralValue).not.toHaveBeenCalledWith(
-        "connectedApp_appId",
-        JSON.stringify({
-          publicKey: Utils.fromUtf8ToB64("publicKey"),
-          sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: true,
-        }),
-      );
-    });
-
     it("should not attempt to verify when the connected app is already trusted", async () => {
-      desktopSettingsService.browserIntegrationFingerprintEnabled$ = of(true);
       (global as any).ipc.platform.ephemeralStore.listEphemeralValueKeys.mockResolvedValue([
         "connectedApp_appId",
       ]);
@@ -437,7 +273,6 @@ describe("BiometricMessageHandlerService", () => {
         JSON.stringify({
           publicKey: Utils.fromUtf8ToB64("publicKey"),
           sessionSecret: Utils.fromBufferToB64(new Uint8Array(64)),
-          trusted: true,
         }),
       );
       encryptService.decryptString.mockResolvedValue(
@@ -457,7 +292,7 @@ describe("BiometricMessageHandlerService", () => {
           userId: SomeUser,
         },
       });
-      expect(ipc.platform.nativeMessaging.sendMessage).not.toHaveBeenCalledWith({
+      expect((global as any).ipc.platform.nativeMessaging.sendMessage).not.toHaveBeenCalledWith({
         command: "verifyDesktopIPCFingerprint",
         appId: "appId",
       });
