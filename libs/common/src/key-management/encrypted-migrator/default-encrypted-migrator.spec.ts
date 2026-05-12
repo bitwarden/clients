@@ -1,6 +1,5 @@
 import { mock } from "jest-mock-extended";
 
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 // eslint-disable-next-line
 import {
   BiometricStateService,

@@ -28,7 +28,6 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
-import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import {
   DefaultBiometricStateService,
   KdfConfigService,
@@ -107,7 +106,6 @@ export class Main {
   shell: SafeShell;
   sshAgentService: MainSshAgentService;
   sdkLoadService: SdkLoadService;
-  sdkService: DefaultSdkService;
   platformUtilsService: PlatformUtilsService;
   accountService: AccountService;
   kdfConfigService: KdfConfigService;
@@ -251,19 +249,6 @@ export class Main {
       this.shell,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
-    );
-
-    this.sdkService = new DefaultSdkService(
-      sdkClientFactory,
-      this.environmentService,
-      this.platformUtilsService,
-      this.accountService,
-      this.kdfConfigService,
-      this.keyService,
-      this.accountCryptographicStateService,
-      this.apiService,
-      stateProvider,
-      this.configService,
     );
 
     this.biometricsService = new MainBiometricsService(
