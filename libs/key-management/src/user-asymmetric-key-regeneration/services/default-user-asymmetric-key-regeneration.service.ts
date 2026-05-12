@@ -1,7 +1,6 @@
 import { firstValueFrom, map } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -16,7 +15,6 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
     private logService: LogService,
     private sdkService: SdkService,
     private configService: ConfigService,
-    private accountCryptographyStateService: AccountCryptographicStateService,
   ) {}
 
   async regenerateIfNeeded(userId: UserId): Promise<void> {
@@ -73,7 +71,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       throw new Error("User key not found");
     }
 
-    const newAccountCryptoState = await firstValueFrom(
+    const regenerated = await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
         map((sdk) => {
           if (!sdk) {
@@ -88,11 +86,7 @@ export class DefaultUserAsymmetricKeysRegenerationService implements UserAsymmet
       ),
     );
 
-    if (newAccountCryptoState != null) {
-      await this.accountCryptographyStateService.setAccountCryptographicState(
-        newAccountCryptoState,
-        userId,
-      );
+    if (regenerated) {
       this.logService.info(
         "[UserAsymmetricKeyRegeneration] User's asymmetric keys successfully regenerated.",
       );
