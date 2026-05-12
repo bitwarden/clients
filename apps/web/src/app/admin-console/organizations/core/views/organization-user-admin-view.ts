@@ -39,6 +39,7 @@ export class OrganizationUserAdminView {
     this.id = c.id;
     this.userId = c.userId;
     this.organizationId = c.organizationId;
+    this.collections = c.collections;
     this.type = c.type;
     this.status = c.status;
     this.externalId = c.externalId;

@@ -57,14 +57,24 @@ export class OrganizationUserView {
   }
 
   static fromResponse(response: OrganizationUserUserDetailsResponse): OrganizationUserView {
-    const view = Object.assign(
-      new OrganizationUserView({
-        ...response,
-        id: response.id as Guid,
-        userId: response.userId as UserId,
-      }),
-      response,
-    ) as OrganizationUserView;
+    const view = new OrganizationUserView({
+      id: response.id as Guid,
+      userId: response.userId as UserId,
+      email: response.email,
+      type: response.type,
+      revocationReason: response.revocationReason,
+      status: response.status,
+      permissions: response.permissions,
+      avatarColor: response.avatarColor,
+      name: response.name,
+    });
+
+    view.resetPasswordEnrolled = response.resetPasswordEnrolled;
+    view.twoFactorEnabled = response.twoFactorEnabled;
+    view.usesKeyConnector = response.usesKeyConnector;
+    view.hasMasterPassword = response.hasMasterPassword;
+    view.accessSecretsManager = response.accessSecretsManager;
+    view.managedByOrganization = response.managedByOrganization;
 
     if (response.collections != undefined) {
       view.collections = response.collections.map((c) => new CollectionAccessSelectionView(c));

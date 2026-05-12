@@ -63,7 +63,7 @@ export class OrganizationUserUserDetailsResponse extends OrganizationUserRespons
     this.name = this.getResponseProperty("Name");
     this.email = this.getResponseProperty("Email");
     this.avatarColor = this.getResponseProperty("AvatarColor");
-    this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled");
+    this.twoFactorEnabled = this.getResponseProperty("TwoFactorEnabled") ?? false;
     this.usesKeyConnector = this.getResponseProperty("UsesKeyConnector") ?? false;
     this.managedByOrganization = this.getResponseProperty("ManagedByOrganization") ?? false;
 
