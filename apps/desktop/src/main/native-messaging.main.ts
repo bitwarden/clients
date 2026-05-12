@@ -197,7 +197,7 @@ export class NativeMessagingMain {
         break;
       }
       case "linux": {
-        // Because on linux, th path inside the sandbox is different, and we want to support:
+        // Because on linux, the path inside the sandbox is different, and we want to support:
         // Flatpak App, Unsandboxed App, Flatpak Browser, Unsandboxed Browser, Snap App, Unsandboxed App
         // and any combination of the above, we copy the binary to the applications native-messaging-hosts path
         // so that a canonical path to put in the manifest can be used.
