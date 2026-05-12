@@ -381,13 +381,57 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.NAME),
-        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS),
+        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS) ?? "",
         htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
         htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
+        htmlAncestorHeadings: this.getAncestorHeadings(formElement),
       } as AutofillForm);
     }
 
     return this.getFormattedAutofillFormsData();
+  }
+
+  /**
+   * Headings inside the form's nearest section/article/main/aside/form ancestor,
+   * ordered by depth of common ancestor (closest first). Sibling-form headings skipped.
+   */
+  private getAncestorHeadings(formElement: HTMLFormElement): string[] {
+    const scope = formElement.parentElement?.closest("section, article, main, aside");
+    if (!scope) {
+      return [];
+    }
+
+    const ancestorDepths = new Map<Element, number>();
+    let cursor: Element | null = formElement;
+    let depth = 0;
+    while (cursor) {
+      ancestorDepths.set(cursor, depth++);
+      if (cursor === scope) {
+        break;
+      }
+      cursor = cursor.parentElement;
+    }
+
+    return Array.from(scope.querySelectorAll("h1, h2, h3, h4, h5, h6"))
+      .flatMap((heading) => {
+        const f = heading.closest("form");
+        if (f !== null && f !== formElement) {
+          return [];
+        }
+        const text = this.getTextContentFromElement(heading);
+        if (!text) {
+          return [];
+        }
+        // Every retained heading lives under `scope`, and `scope` is in `ancestorDepths`,
+        // so the walk always terminates at a known ancestor.
+        let ancestor: Element = heading;
+        while (!ancestorDepths.has(ancestor)) {
+          ancestor = ancestor.parentElement!;
+        }
+        return [{ text, distance: ancestorDepths.get(ancestor)! }];
+      })
+      .sort((a, b) => a.distance - b.distance)
+      .map((entry) => entry.text);
   }
 
   /**
