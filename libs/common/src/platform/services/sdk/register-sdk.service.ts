@@ -14,7 +14,6 @@ import {
   firstValueFrom,
 } from "rxjs";
 
-import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { PasswordManagerClient, ClientSettings, TokenProvider } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../../abstractions/api.service";

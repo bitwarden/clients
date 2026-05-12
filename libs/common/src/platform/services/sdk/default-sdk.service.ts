@@ -19,7 +19,6 @@ import {
 } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { JsWasmStateBridge } from "@bitwarden/common/key-management/state-bridge";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserKey } from "@bitwarden/common/types/key";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
