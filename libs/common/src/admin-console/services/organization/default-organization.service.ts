@@ -81,7 +81,12 @@ export class DefaultOrganizationService implements InternalOrganizationServiceAb
   organizations$(userId: UserId): Observable<Organization[]> {
     return this.organizationState(userId).state$.pipe(
       this.mapOrganizationRecordToArray(),
-      map((orgs) => orgs.filter((o) => o.status === OrganizationUserStatusType.Confirmed)),
+      // Provider orgs are always Confirmed, but we check for `isProviderUser`
+      // just in case the server omits Status on those rows to ensure we
+      // maintain existing behavior.
+      map((orgs) =>
+        orgs.filter((o) => o.status === OrganizationUserStatusType.Confirmed || o.isProviderUser),
+      ),
     );
   }
 

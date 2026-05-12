@@ -690,7 +690,9 @@ describe("DefaultSyncService", () => {
             Id: user1,
             Organizations: [] as any[],
             OrganizationsNew: [{ Id: "org1", Status: OrganizationUserStatusType.Accepted }],
-            ProviderOrganizations: [{ Id: "provider-org" }],
+            ProviderOrganizations: [
+              { Id: "provider-org", Status: OrganizationUserStatusType.Confirmed },
+            ],
           },
         });
         apiService.getSync.mockResolvedValue(syncResponse);
