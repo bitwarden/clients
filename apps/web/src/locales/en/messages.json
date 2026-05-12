@@ -6527,16 +6527,23 @@
     "message": "Due to an Enterprise policy, you are only able to delete an existing Send.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendDisabledBannerTitle": {
-    "message": "This Send has been disabled",
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "sendDisabledBannerMessage": {
-    "message": "Due to an Enterprise policy, this Send has been disabled and can no longer be edited. It will be deleted from the server within 30 days.",
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   },
   "sendControls": {
     "message": "Send controls"
+  },
+  "sendControlsPolicyDesc": {
+    "message": "Set options for creating and editing Sends, including the ability to remove Sends.",
+    "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
   "sendControlsPolicyDescV2": {
     "message": "Configure what members can do using Send. Admins and owners are exempt from this policy.",
@@ -13681,7 +13688,7 @@
     "message": "One or more domains are invalid"
   },
   "domainNotAllowed": {
-    "message": "Due to an Enterprise policy you can only expose Sends to emails with domains $DOMAINS$",
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -13696,7 +13703,7 @@
     "message": "Any"
   },
   "allowedDomainsAutopopulateAlert": {
-    "message": "This was filled in using claimed domains. You can edit them at any time."
+    "message": "This was filled in using claimed domains."
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
@@ -13713,7 +13720,8 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendControlsPolicySwitchLabel": {
-    "message": "Enable Send controls"
+    "message": "Enable Send controls",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allow": {
     "message": "Allow"
@@ -13721,8 +13729,8 @@
   "block": {
     "message": "Block"
   },
-  "sendControlRecipientAccessMethod": {
-    "message": "Recipient access method"
+  "sendControlAccessOptions": {
+    "message": "Access options"
   },
   "sendControlHideEmailDescription": {
     "message": "Always show member's email address with recipients"

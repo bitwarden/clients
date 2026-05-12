@@ -33,7 +33,10 @@ export abstract class SendFormService {
   sendFormConfig?: SendFormConfig;
 
   /** The original SendView of the Send the form displays */
-  readonly originalSendView: Signal<SendView | null>;
+  readonly originalSendView: Signal<SendView | null> = signal(null);
+
+  /** The updated state of the SendView shown in the form */
+  readonly updatedSendView: Signal<SendView | null> = signal(null);
 
   /**
    * Registers a child form group with the parent form group. Used by child components to add their form groups to

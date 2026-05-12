@@ -210,22 +210,19 @@ export class PolicyEditDialogComponent implements AfterViewInit {
 
     combineLatest([
       component.enabled.valueChanges.pipe(startWith(policyResponse.enabled)),
-      component.data?.valueChanges ?? of({}),
-      component.data?.statusChanges ?? of("VALID"),
+      component.data?.valueChanges.pipe(startWith(policyResponse.data)) ?? of({}),
+      component.data?.statusChanges.pipe(startWith(policyResponse.data)) ?? of("VALID"),
     ])
       .pipe(
         map(([enabledFormValue, _dataFormValue, dataFormStatus]) => {
           // Disable the Save button if one of the three is true:
-          // 1. The policy data and enabled states have not changed from what currently exists
+          // 1. The policy data and enabled field have not changed from what currently exists
           // 2. The policy data form is currently invalid
           // 3. The server says the policy cannot be toggled
           return (
             (enabledFormValue === policyResponse.enabled &&
               // For the new policy state we need to get the raw form value in case the form is disabled
-              !this.policyDataHasChanged(
-                policyResponse.data,
-                component.data?.getRawValue() ?? {},
-              )) ||
+              !this.policyDataHasChanged(policyResponse.data, component.data?.getRawValue())) ||
             dataFormStatus === "INVALID" ||
             !policyResponse.canToggleState
           );
@@ -239,9 +236,11 @@ export class PolicyEditDialogComponent implements AfterViewInit {
   }
 
   private policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
+    const oldPolicy = oldPolicyData ?? {};
+    const newPolicy = newPolicyData ?? {};
     return (
-      Object.keys(oldPolicyData).length !== Object.keys(newPolicyData).length ||
-      Object.keys(newPolicyData).some((newKey) => oldPolicyData[newKey] !== newPolicyData[newKey])
+      Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
+      Object.keys(newPolicy).some((newKey) => oldPolicy[newKey] !== newPolicy[newKey])
     );
   }
 

@@ -3111,14 +3111,6 @@
   "disabled": {
     "message": "Disabled"
   },
-  "sendDisabledBannerTitle": {
-    "message": "This Send has been disabled",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "sendDisabledBannerMessage": {
-    "message": "Due to an enterprise policy, this Send has been disabled and can no longer be edited. It will be deleted from the server within 30 days.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "removePasswordConfirmation": {
     "message": "Are you sure you want to remove the password?"
   },
@@ -6482,11 +6474,22 @@
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
   "domainNotAllowed": {
-    "message": "Due to an Enterprise policy you can only expose Sends to emails with domains $DOMAINS$",
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
     "placeholders": {
       "domains": {
         "content": "$1"
       }
     }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
   }
 }

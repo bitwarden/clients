@@ -23,7 +23,6 @@ import {
   BitSubmitDirective,
   ButtonComponent,
   ButtonModule,
-  CalloutComponent,
   CardComponent,
   CopyClickDirective,
   FormFieldModule,
@@ -47,7 +46,6 @@ import { SendDetailsComponent } from "./send-details/send-details.component";
   providers: [],
   imports: [
     AsyncActionsModule,
-    CalloutComponent,
     JslibModule,
     TypographyModule,
     ItemModule,

@@ -3,10 +3,13 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, Inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   DIALOG_DATA,
@@ -19,12 +22,14 @@ import {
   ToastService,
   DialogModule,
   ButtonComponent,
+  CalloutComponent,
 } from "@bitwarden/components";
 import { AlgorithmInfo } from "@bitwarden/generator-core";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 import { SendFormComponent, SendFormConfig, SendFormModule, SendFormService } from "../send-form";
+import { SendPolicyService } from "../services/send-policy.service";
 
 export interface SendItemDialogParams {
   /**
@@ -77,6 +82,7 @@ export type SendItemDialogResult = {
     AsyncActionsModule,
     DialogModule,
     CipherFormGeneratorComponent,
+    CalloutComponent,
   ],
 })
 export class SendAddEditDialogComponent {
@@ -147,6 +153,7 @@ export class SendAddEditDialogComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private sendFormService: SendFormService,
+    private sendPolicyService: SendPolicyService,
   ) {
     this.config = params.formConfig;
     this.disableForm = params.disableForm ?? this.config.originalSend?.disabled ?? false;
@@ -305,6 +312,36 @@ export class SendAddEditDialogComponent {
     >(SendAddEditDialogComponent, {
       data: params,
       closePredicate: params.closePredicate,
+    });
+  }
+
+  async makeCopy() {
+    const originalSendView = this.sendFormService.originalSendView();
+    if (!originalSendView) {
+      return;
+    }
+    const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+    const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+    await SendAddEditDialogComponent.openDrawer(this.dialogService, {
+      formConfig: {
+        areSendsAllowed: true,
+        mode: "add",
+        sendType: originalSendView.type,
+        originalSend: null,
+        presetSendFields: {
+          name: originalSendView.name,
+          text: originalSendView.text,
+          maxAccessCount: originalSendView.maxAccessCount,
+          hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+          notes: originalSendView.notes,
+          authType:
+            whoCanAccess === null
+              ? AuthType.None
+              : whoCanAccess === WhoCanAccessType.PasswordProtected
+                ? AuthType.Password
+                : AuthType.Email,
+        },
+      },
     });
   }
 }

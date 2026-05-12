@@ -31,8 +31,8 @@
           name="SelectedDeletionDatePreset"
           formControlName="selectedDeletionDatePreset"
         >
-          @for (o of datePresetOptions; track o.name) {
-            <bit-option [value]="o.value" [label]="o.name"></bit-option>
+          @for (o of datePresetOptions; track o.label) {
+            <bit-option [value]="o.value" [label]="o.label"></bit-option>
           }
         </bit-select>
       }

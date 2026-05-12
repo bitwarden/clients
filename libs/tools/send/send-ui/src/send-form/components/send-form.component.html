@@ -1,11 +1,6 @@
 <form [id]="formId()" [formGroup]="sendFormService.sendForm()" [bitSubmit]="submit">
   @if (!loading) {
-    @if (sendDisabled()) {
-      <bit-callout type="warning" [title]="'sendDisabledBannerTitle' | i18n">
-        {{ "sendDisabledBannerMessage" | i18n }}
-      </bit-callout>
-    }
-    @if (!editing()) {
+    @if (!sendDisabled() && !editing()) {
       <bit-card>
         <div bitTypography="h4">{{ "sendLink" | i18n }}</div>
         <div
@@ -32,7 +27,6 @@
     <tools-send-details
       [editing]="editing()"
       (openPasswordGenerator)="openPasswordGenerator.emit()"
-      [originalSendView]="originalSendView"
     ></tools-send-details>
   }
 </form>
