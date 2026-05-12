@@ -2197,12 +2197,12 @@
     "message": "Nieuw paspoort",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nieuwe Send (tekst)",
+  "newItemHeaderTextSendV2": {
+    "message": "Nieuwe tekst",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nieuwe Send (bestand)",
+  "newItemHeaderFileSendV2": {
+    "message": "Nieuw bestand",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2237,12 +2237,12 @@
     "message": "Paspoort bewerken",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send (tekst) bewerken",
+  "editItemHeaderTextSendV2": {
+    "message": "Bewerk tekst",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send (bestand) bewerken",
+  "editItemHeaderFileSendV2": {
+    "message": "Bestand bewerken",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -3460,33 +3460,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Persoonlijke kluis exporteren"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Alleen de individuele kluisitems die gekoppeld zijn aan $EMAIL$ worden geëxporteerd. Kluisitems van organisaties worden niet meegenomen. Alleen de informatie over het kluisitem wordt geëxporteerd en niet de bijbehorende bijlagen.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Exporteert alleen de persoonlijke kluis-items, inclusief attachments, gerelateerd aan $EMAIL$. Geen kluis-items van de organisatie",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Organisatiekluis exporteren"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exporteert alleen de organisatiekluis van $ORGANIZATION$. Geen persoonlijke kluis-items of items van andere organisaties.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Alleen items in je individuele kluis worden geëxporteerd."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Alleen items die gekoppeld zijn aan de $ORGANIZATION$ kluis worden geëxporteerd. Items in individuele kluizen worden niet geëxporteerd.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4576,6 +4561,18 @@
   },
   "exportError": {
     "message": "Er is een fout opgetreden tijdens het exporteren van je kluisgegevens"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 beschadigde bijlage is overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ beschadigde bijlagen zijn overgeslagen met exporteren. Alle andere gegevens en bijlagen zijn met succes geëxporteerd.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Passkey"
@@ -6431,6 +6428,29 @@
   },
   "downloadFailed": {
     "message": "Downloaden mislukt."
+  },
+  "maxAccessCount": {
+    "message": "Maximum toegangsaantal",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Verberg mijn e-mailadres voor ontvangers."
+  },
+  "viewTextSendHeader": {
+    "message": "Tekst bekijken"
+  },
+  "viewFileSendHeader": {
+    "message": "Bestand bekijken"
+  },
+  "sendCreated": {
+    "message": "Send aangemaakt",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Invoer moet numeriek zijn"
+  },
+  "integerInputError": {
+    "message": "Invoer moet een geheel getal zijn"
   },
   "sideNavigation": {
     "message": "Zijnavigatie"

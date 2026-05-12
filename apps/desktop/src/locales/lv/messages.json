@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Kopīgojamais teksts"
   },
-  "newItemHeaderTextSend": {
-    "message": "Jauns teksta Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Jauns datnes Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Labot teksta Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Labot datnes Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -2780,8 +2780,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Gaida mijiedarbību ar drošības atslēgu..."
   },
-  "hideEmail": {
-    "message": "Slēpt e-pasta adresi no saņēmējiem."
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Viens vai vairāki apvienības nosacījumi ietekmē Send iespējas."
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Izgūst personīgo glabātavu"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Tiks izgūti tikai atsevišķi glabātavas vienumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti. Tiks izgūta tikai glabātavas vienumu informācija, un saistītie pielikumi netiks iekļauti.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Tiks izdoti tikai atsevišķi glabātavas vienumi, tajā skaitā pielikumi, kas ir saistīti ar $EMAIL$. Apvienības glabātavas vienumi netiks iekļauti",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Izgūst apvienības glabātavu"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Tiks izgūta tikai apvienības glabātava, kas ir saistīta ar $ORGANIZATION$. Atsevišķu glabātavu vai citu apvienību vienumi netiks iekļauti.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4010,6 +3995,18 @@
   "exportError": {
     "message": "An error occurred while exporting your vault data"
   },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "multifactorAuthenticationCancelled": {
     "message": "Daudzpakāpju pieteikšanās atcelta"
   },
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Sesijas noildze"
   },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
+  },
   "resizeSideNavigation": {
     "message": "Mainīt sānu pārvietošanās joslas izmēru"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
   },
   "upgrade": {
     "message": "Uzlabot"
@@ -5083,6 +5107,22 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
