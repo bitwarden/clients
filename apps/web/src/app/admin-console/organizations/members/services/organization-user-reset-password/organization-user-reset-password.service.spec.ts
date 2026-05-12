@@ -400,9 +400,9 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
 
-    describe("reset master password only", () => {
+    describe("reset master password only — server omits salt → email fallback", () => {
       beforeEach(() => {
-        setupPasswordResetMocks(false);
+        setupPasswordResetMocks(/* useServerSalt */ false);
       });
 
       it("should call putOrganizationUserRecoverAccount with resetMasterPassword: true and resetTwoFactor: false", async () => {
@@ -419,6 +419,50 @@ describe("OrganizationUserResetPasswordService", () => {
           orgId,
           orgUserId,
           expect.objectContaining({ resetMasterPassword: true, resetTwoFactor: false }),
+        );
+      });
+
+      it("should derive the salt from the email and pass it to the master password helpers", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(masterPasswordService.mock.emailToSalt).toHaveBeenCalledWith(email);
+        expect(
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData,
+        ).toHaveBeenCalledWith(newMasterPassword, kdfConfig, salt);
+        expect(masterPasswordService.mock.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
+          newMasterPassword,
+          kdfConfig,
+          salt,
+          expect.anything(),
+        );
+      });
+
+      it("should still complete the recover-account API call with the fallback-derived data", async () => {
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
+          orgId,
+          orgUserId,
+          expect.objectContaining({
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
+            key: unlockData.masterKeyWrappedUserKey,
+          }),
         );
       });
 
@@ -453,7 +497,7 @@ describe("OrganizationUserResetPasswordService", () => {
       });
     });
 
-    describe("reset master password only [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED, server provides salt]", () => {
+    describe("reset master password only — server provides salt", () => {
       beforeEach(() => {
         setupPasswordResetMocks(true);
       });
