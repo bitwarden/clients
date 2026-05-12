@@ -3,33 +3,33 @@
     "message": "Bitwarden"
   },
   "appLogoLabel": {
-    "message": "Bitwarden logo"
+    "message": "Bitwarden логотиби"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden Купуясөз башкаруучусу",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Үйдө, жумушта, жолдо - Bitwarden дайыма купуясөздөрүңүздү, passkey'лериңизди, жашыруун маалыматыңызды коргойт",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
-    "message": "Log in or create a new account to access your secure vault."
+    "message": "Коопсуз сакталгычыңызга жетүү үчүн катталыңыз же жаңы эсеп түзүңүз."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Чакыруу кабыл алынды"
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Катталуу"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Bitwarden'ге жаңы келдиңизби?"
   },
   "logInWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Passkey менен кирүү"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Passkey менен ачуу"
   },
   "useSingleSignOn": {
     "message": "Use single sign-on"
@@ -38,10 +38,10 @@
     "message": "Your organization requires single sign-on."
   },
   "welcomeBack": {
-    "message": "Welcome back"
+    "message": "Кайрадан кош келиңиз"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Күчтүү купуясөз түзүү"
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Finish creating your account by setting a password"
@@ -50,16 +50,16 @@
     "message": "Enterprise single sign-on"
   },
   "cancel": {
-    "message": "Cancel"
+    "message": "Жокко чыгаруу"
   },
   "close": {
-    "message": "Close"
+    "message": "Жабуу"
   },
   "submit": {
     "message": "Submit"
   },
   "emailAddress": {
-    "message": "Email address"
+    "message": "Email дареги"
   },
   "masterPass": {
     "message": "Master password"
@@ -99,7 +99,7 @@
     }
   },
   "joinOrganization": {
-    "message": "Join organization"
+    "message": "Уюмга кошулуу"
   },
   "joinOrganizationName": {
     "message": "Join $ORGANIZATIONNAME$",
@@ -117,25 +117,25 @@
     "message": "Tab"
   },
   "vault": {
-    "message": "Vault"
+    "message": "Сактагыч"
   },
   "myVault": {
-    "message": "My vault"
+    "message": "Сактагычым"
   },
   "allVaults": {
-    "message": "All vaults"
+    "message": "Бардык сактагычтар"
   },
   "tools": {
     "message": "Tools"
   },
   "settings": {
-    "message": "Settings"
+    "message": "Орнотуулар"
   },
   "currentTab": {
     "message": "Current tab"
   },
   "copyPassword": {
-    "message": "Copy password"
+    "message": "Купуясөздү көчүрүү"
   },
   "copyPassphrase": {
     "message": "Copy passphrase"
@@ -150,37 +150,37 @@
     "message": "Copy username"
   },
   "copyNumber": {
-    "message": "Copy number"
+    "message": "Номерди көчүрүү"
   },
   "copySecurityCode": {
-    "message": "Copy security code"
+    "message": "Коопсуздук кодун көчүрүү"
   },
   "copyName": {
     "message": "Copy name"
   },
   "copyCompany": {
-    "message": "Copy company"
+    "message": "Компанияны көчүрүү"
   },
   "copySSN": {
     "message": "Copy Social Security number"
   },
   "copyPassportNumber": {
-    "message": "Copy passport number"
+    "message": "Паспорт номерин көчүрүү"
   },
   "copyLicenseNumber": {
-    "message": "Copy license number"
+    "message": "Лицензия номерин көчүрүү"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Купуя ачкычты көчүрүү"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Коомдук ачкычты көчүрүү"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Манжа изин көчүрүү"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "$FIELD$ көчүрүү",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -189,13 +189,13 @@
     }
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "Сайтты көчүрүү"
   },
   "copyNotes": {
     "message": "Copy notes"
   },
   "copy": {
-    "message": "Copy",
+    "message": "Көчүрүү",
     "description": "Copy to clipboard"
   },
   "fill": {
@@ -203,7 +203,7 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autoFill": {
-    "message": "Autofill"
+    "message": "Автотолтуруу"
   },
   "autoFillLogin": {
     "message": "Autofill login"
@@ -231,19 +231,19 @@
     "message": "No matching logins"
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Карта жок"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Жеке маалымат жок"
   },
   "addLoginMenu": {
     "message": "Add login"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Карта кошуу"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "Жеке маалымат кошуу"
   },
   "unlockVaultMenu": {
     "message": "Unlock your vault"
@@ -276,16 +276,16 @@
     "message": "Get master password hint"
   },
   "continue": {
-    "message": "Continue"
+    "message": "Улантуу"
   },
   "sendVerificationCode": {
     "message": "Send a verification code to your email"
   },
   "sendCode": {
-    "message": "Send code"
+    "message": "Код жөнөтүү"
   },
   "codeSent": {
-    "message": "Code sent"
+    "message": "Код жөнөтүлдү"
   },
   "verificationCode": {
     "message": "Verification code"
@@ -329,22 +329,22 @@
     "message": "Two-step login"
   },
   "logOut": {
-    "message": "Log out"
+    "message": "Чыгуу"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Bitwarden жөнүндө"
   },
   "about": {
     "message": "About"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Bitwarden'ден кененирээк"
   },
   "continueToBitwardenDotCom": {
     "message": "Continue to bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Бизнес үчүн Bitwarden"
   },
   "bitwardenAuthenticator": {
     "message": "Bitwarden Authenticator"
@@ -371,13 +371,13 @@
     "message": "You are eligible for Free Bitwarden Families. Redeem this offer today in the web app."
   },
   "version": {
-    "message": "Version"
+    "message": "Версия"
   },
   "save": {
-    "message": "Save"
+    "message": "Сактоо"
   },
   "move": {
-    "message": "Move"
+    "message": "Жылдыруу"
   },
   "addFolder": {
     "message": "Add folder"
@@ -425,7 +425,7 @@
     "message": "There are no folders to list."
   },
   "helpFeedback": {
-    "message": "Help & feedback"
+    "message": "Жардам жана ой-пикир"
   },
   "helpCenter": {
     "message": "Bitwarden Help center"
@@ -459,7 +459,7 @@
     "message": "Bitwarden web app"
   },
   "select": {
-    "message": "Select"
+    "message": "Тандоо"
   },
   "generatePassword": {
     "message": "Generate password"
@@ -483,10 +483,10 @@
     "message": "Regenerate password"
   },
   "options": {
-    "message": "Options"
+    "message": "Орнотуулар"
   },
   "length": {
-    "message": "Length"
+    "message": "Узундук"
   },
   "include": {
     "message": "Include",
@@ -524,10 +524,10 @@
     "message": "Number of words"
   },
   "wordSeparator": {
-    "message": "Word separator"
+    "message": "Сөз ажыраткыч"
   },
   "capitalize": {
-    "message": "Capitalize",
+    "message": "Баш тамга",
     "description": "Make the first letter of a work uppercase."
   },
   "includeNumber": {
@@ -548,21 +548,21 @@
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
-    "message": "Search vault"
+    "message": "Сактагычта издөө"
   },
   "resetSearch": {
     "message": "Reset search"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Архив",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Архивдөө",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Архивден чыгаруу"
   },
   "itemsInArchive": {
     "message": "Items in archive"
@@ -586,10 +586,10 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Архивделди"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Архивден чыгарып сактоо"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
@@ -598,16 +598,16 @@
     "message": "Item has been restored"
   },
   "edit": {
-    "message": "Edit"
+    "message": "Өзгөртүү"
   },
   "view": {
-    "message": "View"
+    "message": "Көрүү"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Баарын көрүү"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Баарын көрсөтүү"
   },
   "viewLess": {
     "message": "View less"
@@ -625,7 +625,7 @@
     "message": "Username"
   },
   "password": {
-    "message": "Password"
+    "message": "Купуясөз"
   },
   "totp": {
     "message": "Authenticator secret"
@@ -634,7 +634,7 @@
     "message": "Passphrase"
   },
   "favorite": {
-    "message": "Favorite"
+    "message": "Сүйүктүү"
   },
   "unfavorite": {
     "message": "Unfavorite"
@@ -691,7 +691,7 @@
     "message": "Manage"
   },
   "other": {
-    "message": "Other"
+    "message": "Башка"
   },
   "unlockMethods": {
     "message": "Unlock options"
@@ -703,7 +703,7 @@
     "message": "Session timeout"
   },
   "otherOptions": {
-    "message": "Other options"
+    "message": "Башка орнотуулар"
   },
   "rateExtension": {
     "message": "Rate the extension"
@@ -730,7 +730,7 @@
     "message": "Your account is locked"
   },
   "or": {
-    "message": "or"
+    "message": "же"
   },
   "unlock": {
     "message": "Unlock"
@@ -776,34 +776,34 @@
     "message": "Immediately"
   },
   "tenSeconds": {
-    "message": "10 seconds"
+    "message": "10 секунда"
   },
   "twentySeconds": {
-    "message": "20 seconds"
+    "message": "20 секунда"
   },
   "thirtySeconds": {
-    "message": "30 seconds"
+    "message": "30 секунда"
   },
   "oneMinute": {
-    "message": "1 minute"
+    "message": "1 мүнөт"
   },
   "twoMinutes": {
-    "message": "2 minutes"
+    "message": "2 мүнөт"
   },
   "fiveMinutes": {
-    "message": "5 minutes"
+    "message": "5 мүнөт"
   },
   "fifteenMinutes": {
-    "message": "15 minutes"
+    "message": "15 мүнөт"
   },
   "thirtyMinutes": {
-    "message": "30 minutes"
+    "message": "30 мүнөт"
   },
   "oneHour": {
-    "message": "1 hour"
+    "message": "1 саат"
   },
   "fourHours": {
-    "message": "4 hours"
+    "message": "4 саат"
   },
   "onLocked": {
     "message": "On system lock"
@@ -818,10 +818,10 @@
     "message": "On browser restart"
   },
   "never": {
-    "message": "Never"
+    "message": "Эч качан"
   },
   "security": {
-    "message": "Security"
+    "message": "Коопсуздук"
   },
   "confirmMasterPassword": {
     "message": "Confirm master password"
@@ -836,13 +836,13 @@
     "message": "Master password hint"
   },
   "errorOccurred": {
-    "message": "An error has occurred"
+    "message": "Ката кетти"
   },
   "emailRequired": {
-    "message": "Email address is required."
+    "message": "Email дареги талап кылынат."
   },
   "invalidEmail": {
-    "message": "Invalid email address."
+    "message": "Туура эмес email дареги."
   },
   "masterPasswordRequired": {
     "message": "Master password is required."
@@ -876,7 +876,7 @@
     "message": "You successfully logged in"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "Бул терезени жаап салсаңыз болот"
   },
   "masterPassSent": {
     "message": "We've sent you an email with your master password hint."
@@ -894,7 +894,7 @@
     "message": "Invalid email or verification code"
   },
   "valueCopied": {
-    "message": "$VALUE$ copied",
+    "message": "$VALUE$ көчүрүлдү",
     "description": "Value has been copied to the clipboard.",
     "placeholders": {
       "value": {
@@ -940,10 +940,10 @@
     "message": "Your login session has expired."
   },
   "logIn": {
-    "message": "Log in"
+    "message": "Кирүү"
   },
   "logInToBitwarden": {
-    "message": "Log in to Bitwarden"
+    "message": "Bitwarden'ге кирүү"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Enter the code sent to your email"
@@ -964,7 +964,7 @@
     "message": "Follow the steps below to finish logging in with your security key."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Каттоону кайрадан баштоо"
   },
   "expiredLink": {
     "message": "Expired link"
@@ -973,16 +973,16 @@
     "message": "Please restart registration or try logging in."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Сиздин эсебиңиз бар болушу мүмкүн"
   },
   "logOutConfirmation": {
     "message": "Are you sure you want to log out?"
   },
   "yes": {
-    "message": "Yes"
+    "message": "Ооба"
   },
   "no": {
-    "message": "No"
+    "message": "Жок"
   },
   "noAuth": {
     "message": "Anyone with the link"
@@ -1049,7 +1049,7 @@
     }
   },
   "newUri": {
-    "message": "New URI"
+    "message": "Жаңы URI"
   },
   "addDomain": {
     "message": "Add domain",
@@ -1155,16 +1155,16 @@
     "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
   },
   "jumpToSetting": {
-    "message": "Jump to setting"
+    "message": "Орнотууларга өтүү"
   },
   "notificationAddDesc": {
     "message": "Should Bitwarden remember this password for you?"
   },
   "notificationAddSave": {
-    "message": "Save"
+    "message": "Сактоо"
   },
   "notificationViewAria": {
-    "message": "View $ITEMNAME$, opens in new window",
+    "message": "$ITEMNAME$ көрүү, жаңы терезеде ачылат",
     "placeholders": {
       "itemName": {
         "content": "$1"
@@ -1181,10 +1181,10 @@
     "description": "Tooltip and Aria label for edit button on cipher item"
   },
   "newNotification": {
-    "message": "New notification"
+    "message": "Жаңы кабарлама"
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Жаңы кабарлама",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {
@@ -1202,7 +1202,7 @@
     "description": "Shown to user after item is updated."
   },
   "selectItemAriaLabel": {
-    "message": "Select $ITEMTYPE$, $ITEMNAME$",
+    "message": "$ITEMTYPE$, $ITEMNAME$ тандоо",
     "description": "Used by screen readers. $1 is the item type (like vault or folder), $2 is the selected item name.",
     "placeholders": {
       "itemType": {
@@ -1299,7 +1299,7 @@
     "message": "Do you want to update this password in Bitwarden?"
   },
   "notificationChangeSave": {
-    "message": "Update"
+    "message": "Жаңыртуу"
   },
   "notificationUnlockDesc": {
     "message": "Unlock your Bitwarden vault to complete the autofill request."
@@ -1308,7 +1308,7 @@
     "message": "Unlock"
   },
   "additionalOptions": {
-    "message": "Additional options"
+    "message": "Кошумча орнотуулар"
   },
   "enableFillAssist": {
     "message": "Use fill assist"
@@ -1330,7 +1330,7 @@
     "message": "Choose the default way that URI match detection is handled for logins when performing actions such as autofill."
   },
   "theme": {
-    "message": "Theme"
+    "message": "Тема"
   },
   "themeDesc": {
     "message": "Change the application's color theme."
@@ -1339,11 +1339,11 @@
     "message": "Change the application's color theme. Applies to all logged in accounts."
   },
   "dark": {
-    "message": "Dark",
+    "message": "Караңгы",
     "description": "Dark color"
   },
   "light": {
-    "message": "Light",
+    "message": "Жарык",
     "description": "Light color"
   },
   "exportFrom": {
@@ -1366,13 +1366,13 @@
     "description": "The verb form of the word Import"
   },
   "fileFormat": {
-    "message": "File format"
+    "message": "Файл форматы"
   },
   "fileEncryptedExportWarningDesc": {
     "message": "This file export will be password protected and require the file password to decrypt."
   },
   "filePassword": {
-    "message": "File password"
+    "message": "Файл купуясөзү"
   },
   "exportPasswordDescription": {
     "message": "This password will be used to export and import this file"
@@ -1397,7 +1397,7 @@
     "description": "WARNING (should stay in capitalized letters if the language permits)"
   },
   "warningCapitalized": {
-    "message": "Warning",
+    "message": "Эскертүү",
     "description": "Warning (should maintain locale-relevant capitalization)"
   },
   "confirmVaultExport": {
@@ -1441,7 +1441,7 @@
     "message": "Choose an organization that you wish to move this item to. Moving to an organization transfers ownership of the item to that organization. You will no longer be the direct owner of this item once it has been moved."
   },
   "learnMore": {
-    "message": "Learn more"
+    "message": "Кененирээк"
   },
   "migrationsFailed": {
     "message": "An error occurred updating the encryption settings."
@@ -1462,7 +1462,7 @@
     "message": "Update settings"
   },
   "later": {
-    "message": "Later"
+    "message": "Кийинчерээк"
   },
   "authenticatorKeyTotp": {
     "message": "Authenticator key (TOTP)"
@@ -1504,13 +1504,13 @@
     "message": "Attachment updated"
   },
   "file": {
-    "message": "File"
+    "message": "Файл"
   },
   "fileToShare": {
     "message": "File to share"
   },
   "selectFile": {
-    "message": "Select a file"
+    "message": "Файл тандоо"
   },
   "itemsTransferred": {
     "message": "Items transferred"
@@ -1582,7 +1582,7 @@
     "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
-    "message": "Purchase Premium"
+    "message": "Премиум сатып алуу"
   },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
@@ -1597,7 +1597,7 @@
     "message": "Upgrade to Premium and receive:"
   },
   "premiumPrice": {
-    "message": "All for just $PRICE$ /year!",
+    "message": "Жыл сайын болгону $PRICE$!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1606,7 +1606,7 @@
     }
   },
   "premiumPriceV2": {
-    "message": "All for just $PRICE$ per year!",
+    "message": "Жыл сайын болгону $PRICE$!",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -1645,7 +1645,7 @@
     "message": "Don't ask again on this device for 30 days"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Башка ыкма тандоо",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
@@ -1745,7 +1745,7 @@
     "message": "Custom environment"
   },
   "baseUrl": {
-    "message": "Server URL"
+    "message": "Сервер URL'и"
   },
   "selfHostBaseUrl": {
     "message": "Self-host server URL",
@@ -1767,7 +1767,7 @@
     "message": "Icons server URL"
   },
   "environmentSaved": {
-    "message": "Environment URLs saved"
+    "message": "Чөйрөнүн URL'дери сакталды"
   },
   "showAutoFillMenuOnFormFields": {
     "message": "Show autofill menu on form fields",
@@ -1828,7 +1828,7 @@
     "message": "How does Bitwarden protect your data from phishing?"
   },
   "currentWebsite": {
-    "message": "Current website"
+    "message": "Азыркы сайт"
   },
   "autofillAndAddWebsite": {
     "message": "Autofill and add this website"
@@ -1858,7 +1858,7 @@
     "message": "Edit browser settings."
   },
   "autofillOverlayVisibilityOff": {
-    "message": "Off",
+    "message": "Өчүк",
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
@@ -2197,12 +2197,12 @@
     "message": "New passport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2237,12 +2237,12 @@
     "message": "Edit passport",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -3460,33 +3460,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Exporting individual vault"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Exporting organization vault"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3865,7 +3850,7 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "device": {
-    "message": "Device"
+    "message": "Түзмөк"
   },
   "loginStatus": {
     "message": "Login status"
@@ -3874,19 +3859,19 @@
     "message": "Recently active"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Бүгүн"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Акыркы 7 күн"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Акыркы 14 күн"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Акыркы 30 күн"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "30 күндөн ашык мурун"
   },
   "masterPasswordChanged": {
     "message": "Master password saved"
@@ -3907,7 +3892,7 @@
     "message": "Check known data breaches for this password"
   },
   "important": {
-    "message": "Important:"
+    "message": "Маанилүү:"
   },
   "masterPasswordHint": {
     "message": "Your master password cannot be recovered if you forget it!"
@@ -3937,7 +3922,7 @@
     "message": "Select an item from this screen, or explore other options in settings."
   },
   "gotIt": {
-    "message": "Got it"
+    "message": "Түшүнүктүү"
   },
   "autofillSettings": {
     "message": "Autofill settings"
@@ -3976,19 +3961,19 @@
     }
   },
   "opensInANewWindow": {
-    "message": "Opens in a new window"
+    "message": "Жаңы терезеде ачылат"
   },
   "rememberThisDeviceToMakeFutureLoginsSeamless": {
     "message": "Remember this device to make future logins seamless"
   },
   "manageDevices": {
-    "message": "Manage devices"
+    "message": "Түзмөктөрдү башкаруу"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Азыркы сессия"
   },
   "mobile": {
-    "message": "Mobile",
+    "message": "Мобилдик",
     "description": "Mobile app"
   },
   "extension": {
@@ -3996,14 +3981,14 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "Desktop",
+    "message": "Компьютер",
     "description": "Desktop app"
   },
   "webVault": {
-    "message": "Web vault"
+    "message": "Веб сактагыч"
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Веб тиркеме"
   },
   "cli": {
     "message": "CLI"
@@ -4019,13 +4004,13 @@
     "message": "First login"
   },
   "trusted": {
-    "message": "Trusted"
+    "message": "Ишенимдүү"
   },
   "needsApproval": {
-    "message": "Needs approval"
+    "message": "Жактыруу талап кылынат"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Түзмөктөр"
   },
   "accessAttemptBy": {
     "message": "Access attempt by $EMAIL$",
@@ -4112,26 +4097,26 @@
     "message": "and continue creating your account."
   },
   "noEmail": {
-    "message": "No email?"
+    "message": "Email жокпу?"
   },
   "goBack": {
-    "message": "Go back"
+    "message": "Артка кайтуу"
   },
   "toEditYourEmailAddress": {
     "message": "to edit your email address."
   },
   "eu": {
-    "message": "EU",
+    "message": "Европа биримдиги",
     "description": "European Union"
   },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
   },
   "general": {
-    "message": "General"
+    "message": "Жалпы"
   },
   "display": {
-    "message": "Display"
+    "message": "Көрсөтүү"
   },
   "accountSuccessfullyCreated": {
     "message": "Account successfully created!"
@@ -4146,7 +4131,7 @@
     "message": "Trouble logging in?"
   },
   "loginApproved": {
-    "message": "Login approved"
+    "message": "Кирүү жактырылды"
   },
   "userEmailMissing": {
     "message": "User email missing"
@@ -4155,19 +4140,19 @@
     "message": "Active user email not found. Logging you out."
   },
   "deviceTrusted": {
-    "message": "Device trusted"
+    "message": "Ишенимдүү түзмөк"
   },
   "trustOrganization": {
-    "message": "Trust organization"
+    "message": "Ишенимдүү уюм"
   },
   "trust": {
-    "message": "Trust"
+    "message": "Ишенүү"
   },
   "doNotTrust": {
-    "message": "Do not trust"
+    "message": "Ишенбөө"
   },
   "organizationNotTrusted": {
-    "message": "Organization is not trusted"
+    "message": "Уюм ишенилген эмес"
   },
   "emergencyAccessTrustWarning": {
     "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
@@ -4193,10 +4178,10 @@
     "message": "Input is required."
   },
   "required": {
-    "message": "required"
+    "message": "талап кылынат"
   },
   "search": {
-    "message": "Search"
+    "message": "Издөө"
   },
   "inputMinLength": {
     "message": "Input must be at least $COUNT$ characters long.",
@@ -4275,7 +4260,7 @@
     }
   },
   "selectPlaceholder": {
-    "message": "-- Select --"
+    "message": "-- Тандоо --"
   },
   "multiSelectPlaceholder": {
     "message": "-- Type to filter --"
@@ -4287,7 +4272,7 @@
     "message": "No items found"
   },
   "multiSelectClearAll": {
-    "message": "Clear all"
+    "message": "Баарын тазалоо"
   },
   "plusNMore": {
     "message": "+ $QUANTITY$ more",
@@ -4392,7 +4377,7 @@
     "description": "Screen reader text (aria-label) for new login button within inline menu"
   },
   "newCard": {
-    "message": "New card",
+    "message": "Жаңы карта",
     "description": "Button text to display within inline menu when there are no matching items on a credit card field"
   },
   "addNewCardItemAria": {
@@ -4412,7 +4397,7 @@
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
-    "message": "Turn on"
+    "message": "Күйгүзүү"
   },
   "ignore": {
     "message": "Ignore"
@@ -4427,7 +4412,7 @@
     "message": "Resolve the errors below and try again."
   },
   "description": {
-    "message": "Description"
+    "message": "Сыпаттама"
   },
   "importSuccess": {
     "message": "Data successfully imported"
@@ -4442,7 +4427,7 @@
     }
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "Кайра аракет кылыңыз"
   },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "Verification required for this action. Set a PIN to continue."
@@ -4451,7 +4436,7 @@
     "message": "Set PIN"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Биометрия менен тастыктоо"
   },
   "awaitingConfirmation": {
     "message": "Awaiting confirmation"
@@ -4460,22 +4445,22 @@
     "message": "Could not complete biometrics."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Башка ыкма керекпи?"
   },
   "useMasterPassword": {
     "message": "Use master password"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "PIN код колдонуу"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Биометрия колдонуу"
   },
   "enterVerificationCodeSentToEmail": {
     "message": "Enter the verification code that was sent to your email."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Коддү кайра жөнөтүү"
   },
   "total": {
     "message": "Total"
@@ -4576,6 +4561,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Passkey"
@@ -4726,7 +4723,7 @@
     "message": "Active account"
   },
   "bitwardenAccount": {
-    "message": "Bitwarden account"
+    "message": "Bitwarden эсеби"
   },
   "availableAccounts": {
     "message": "Available accounts"
@@ -4735,7 +4732,7 @@
     "message": "Account limit reached. Log out of an account to add another."
   },
   "active": {
-    "message": "active"
+    "message": "активдүү"
   },
   "locked": {
     "message": "locked"
@@ -4744,7 +4741,7 @@
     "message": "unlocked"
   },
   "server": {
-    "message": "server"
+    "message": "сервер"
   },
   "hostedAt": {
     "message": "hosted at"
@@ -4753,10 +4750,10 @@
     "message": "Use your device or hardware key"
   },
   "justOnce": {
-    "message": "Just once"
+    "message": "Азыр гана"
   },
   "alwaysForThisSite": {
-    "message": "Always for this site"
+    "message": "Дайыма бул сайт үчүн"
   },
   "domainAddedToExcludedDomains": {
     "message": "$DOMAIN$ added to excluded domains.",
@@ -4836,7 +4833,7 @@
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
-    "message": "Make default",
+    "message": "Демейки кылуу",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "saveCipherAttemptSuccess": {
@@ -4844,7 +4841,7 @@
     "description": "Notification message for when saving credentials has succeeded."
   },
   "passwordSaved": {
-    "message": "Password saved!",
+    "message": "Купуясөз сакталды!",
     "description": "Notification message for when saving credentials has succeeded."
   },
   "updateCipherAttemptSuccess": {
@@ -4852,7 +4849,7 @@
     "description": "Notification message for when updating credentials has succeeded."
   },
   "passwordUpdated": {
-    "message": "Password updated!",
+    "message": "Купуясөз жаңыртылды!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
@@ -4860,7 +4857,7 @@
     "description": "Notification message for when saving credentials has failed."
   },
   "success": {
-    "message": "Success"
+    "message": "Ийгилик"
   },
   "removePasskey": {
     "message": "Remove passkey"
@@ -4878,7 +4875,7 @@
     "message": "Save a login item for this site to autofill"
   },
   "yourVaultIsEmpty": {
-    "message": "Your vault is empty"
+    "message": "Сактагычыңыз бош"
   },
   "noItemsMatchSearch": {
     "message": "No items match your search"
@@ -5046,19 +5043,19 @@
     "message": "Available now"
   },
   "accountSecurity": {
-    "message": "Account security"
+    "message": "Эсептин коопсуздугу"
   },
   "phishingBlocker": {
     "message": "Phishing Blocker"
   },
   "enablePhishingDetection": {
-    "message": "Phishing detection"
+    "message": "Фишингти аныктоо"
   },
   "enablePhishingDetectionDesc": {
     "message": "Display warning before accessing suspected phishing sites"
   },
   "notifications": {
-    "message": "Notifications"
+    "message": "Кабарламалар"
   },
   "appearance": {
     "message": "Appearance"
@@ -5090,7 +5087,7 @@
     }
   },
   "new": {
-    "message": "New"
+    "message": "Жаңы"
   },
   "removeItem": {
     "message": "Remove $NAME$",
@@ -5115,26 +5112,26 @@
     "message": "Organization is deactivated"
   },
   "owner": {
-    "message": "Owner"
+    "message": "Ээси"
   },
   "selfOwnershipLabel": {
-    "message": "You",
+    "message": "Сиз",
     "description": "Used as a label to indicate that the user is the owner of an item."
   },
   "contactYourOrgAdmin": {
     "message": "Items in deactivated organizations cannot be accessed. Contact your organization owner for assistance."
   },
   "additionalInformation": {
-    "message": "Additional information"
+    "message": "Кошумча маалымат"
   },
   "itemHistory": {
     "message": "Item history"
   },
   "lastEdited": {
-    "message": "Last edited"
+    "message": "Акыркы өзгөртүү"
   },
   "ownerYou": {
-    "message": "Owner: You"
+    "message": "Ээси: сизсиз"
   },
   "linked": {
     "message": "Linked"
@@ -5143,7 +5140,7 @@
     "message": "Copy Successful"
   },
   "upload": {
-    "message": "Upload"
+    "message": "Жүктөө"
   },
   "addAttachment": {
     "message": "Add attachment"
@@ -5161,7 +5158,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "$NAME$ жүктөө",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5173,10 +5170,10 @@
     "message": "Download Attachment"
   },
   "downloadBitwarden": {
-    "message": "Download Bitwarden"
+    "message": "Bitwarden жүктөө"
   },
   "downloadBitwardenOnAllDevices": {
-    "message": "Download Bitwarden on all devices"
+    "message": "Bitwarden'ди бардык түзмөктөргө жүктөө"
   },
   "getTheMobileApp": {
     "message": "Get the mobile app"
@@ -5236,10 +5233,10 @@
     "message": "Identification"
   },
   "contactInfo": {
-    "message": "Contact info"
+    "message": "Байланыш маалыматы"
   },
   "downloadAttachment": {
-    "message": "Download - $ITEMNAME$",
+    "message": "$ITEMNAME$ - жүктөө",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -5283,7 +5280,7 @@
     "message": "Delete website"
   },
   "defaultLabel": {
-    "message": "Default ($VALUE$)",
+    "message": "Демейки ($VALUE$)",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5293,7 +5290,7 @@
     }
   },
   "defaultLabelWithValue": {
-    "message": "Default ( $VALUE$ )",
+    "message": "Демейки ( $VALUE$ )",
     "description": "A label that indicates the default value for a field with the current default value in parentheses.",
     "placeholders": {
       "value": {
@@ -5345,7 +5342,7 @@
     "message": "Add account"
   },
   "loading": {
-    "message": "Loading"
+    "message": "Жүктөө"
   },
   "data": {
     "message": "Data"
@@ -5387,7 +5384,7 @@
     "message": "Add field"
   },
   "add": {
-    "message": "Add"
+    "message": "Кошуу"
   },
   "fieldType": {
     "message": "Field type"
@@ -6431,6 +6428,29 @@
   },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "sideNavigation": {
     "message": "Side navigation"

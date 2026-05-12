@@ -574,7 +574,7 @@
     "message": "Zarchiwizowane elementy pojawią się tutaj i zostaną wykluczone z wyników wyszukiwania i sugestii autouzupełniania."
   },
   "itemArchiveToast": {
-    "message": "Element zarchiwizowany"
+    "message": "Element został zarchiwizowany"
   },
   "itemUnarchivedToast": {
     "message": "Element został usunięty z archiwum"
@@ -583,7 +583,7 @@
     "message": "Archiwizuj element"
   },
   "archiveItemDialogContent": {
-    "message": "Po zarchiwizowaniu element zostanie wyłączony z wyników wyszukiwania i sugestii autouzupełniania."
+    "message": "Zarchiwizowany element zostanie wykluczony z wyników wyszukiwania i sugestii autouzupełniania."
   },
   "archived": {
     "message": "Zarchiwizowano"
@@ -592,7 +592,7 @@
     "message": "Usuń z archiwum i zapisz"
   },
   "upgradeToUseArchive": {
-    "message": "Konto premium jest wymagane, aby użyć archiwum."
+    "message": "Konto Premium jest wymagane, aby skorzystać z archiwum."
   },
   "itemRestored": {
     "message": "Element został przywrócony"
@@ -752,7 +752,7 @@
     "message": "Hasło główne jest nieprawidłowe"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Nieprawidłowe hasło główne. Sprawdź, czy Twój adres e-mail jest poprawny i czy Twoje konto zostało utworzone na $HOST$.",
+    "message": "Hasło główne jest nieprawidłowe. Sprawdź, czy adres e-mail jest prawidłowy i czy konto zostało utworzone na serwerze $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -891,7 +891,7 @@
     "message": "Kod weryfikacyjny jest nieprawidłowy"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Nieprawidłowy adres e-mail lub kod weryfikacyjny"
+    "message": "Adres e-mail lub kod weryfikacyjny jest nieprawidłowy"
   },
   "valueCopied": {
     "message": "Skopiowano $VALUE$",
@@ -1311,7 +1311,7 @@
     "message": "Dodatkowe opcje"
   },
   "enableFillAssist": {
-    "message": "Use fill assist"
+    "message": "Użyj asystenta autouzupełniania"
   },
   "enableContextMenuItem": {
     "message": "Pokaż opcje w menu kontekstowym"
@@ -1354,11 +1354,11 @@
     "description": "The verb form of the word Export"
   },
   "exportNoun": {
-    "message": "Eksport",
+    "message": "Eksportowanie",
     "description": "The noun form of the word Export"
   },
   "importNoun": {
-    "message": "Importuj",
+    "message": "Importowanie",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
@@ -1450,7 +1450,7 @@
     "message": "Zaktualizuj ustawienia szyfrowania"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wprowadź hasło główne, aby zaktualizować."
+    "message": "Nowe zalecane ustawienia szyfrowania poprawią bezpieczeństwo Twojego konta. Wpisz hasło główne, aby zaktualizować zabezpieczenia."
   },
   "confirmIdentityToContinue": {
     "message": "Potwierdź tożsamość, aby kontynuować"
@@ -1667,7 +1667,7 @@
     "message": "Odczytywanie klucza dostępu..."
   },
   "passkeyAuthenticationFailed": {
-    "message": "Uwierzytelnienie za pomocą klucza nie powiodło się"
+    "message": "Logowanie kluczem dostępu nie powiodło się"
   },
   "useADifferentLogInMethod": {
     "message": "Użyj innej metody logowania"
@@ -1801,31 +1801,31 @@
     "message": "Ta witryna nie pasuje do Twoich zapisanych danych logowania. Zanim wpiszesz dane logowania, upewnij się, że jest to zaufana witryna."
   },
   "loginHasNoSiteSaved": {
-    "message": "Login nie posiada zapisanej strony"
+    "message": "Dane logowania nie zawierają strony internetowej"
   },
   "siteDoesntMatch": {
     "message": "Strona nie pasuje"
   },
   "loginNoSiteDesc": {
-    "message": "Ten login nie ma jeszcze zapisanej strony. Sprawdź, czy jesteś na zaufanej stronie przed autowypełnieniem."
+    "message": "Dane logowania nie zawierają adresu strony internetowej. Sprawdź, czy jesteś na zaufanej stronie."
   },
   "loginSingleSiteDesc": {
-    "message": "Ta strona nie pasuje do adresu, który zapisałeś dla tego loginu. Sprawdź, czy jesteś na zaufanej stronie przed autowypełnieniem."
+    "message": "Strona nie pasuje do zapisanego adresu danych logowania. Sprawdź, czy jesteś na zaufanej stronie."
   },
   "loginMultipleSitesDesc": {
-    "message": "Te strony nie pasują do adresu, który zapisałeś dla tego loginu. Sprawdź, czy jesteś na zaufanej stronie przed autowypełnieniem."
+    "message": "Strona nie pasuje do zapisanego adresu danych logowania. Sprawdź, czy jesteś na zaufanej stronie."
   },
   "autofillAndSaveThisSite": {
-    "message": "Uzupełnij i zapisz stronę internetową"
+    "message": "Uzupełnij i zapisz"
   },
   "autofillOnly": {
-    "message": "Tylko autouzupełnianie"
+    "message": "Tylko uzupełnij"
   },
   "showInlineMenuLabel": {
     "message": "Pokaż sugestie autouzupełniania na polach formularza"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "W jaki sposób Bitwarden chroni Twoje dane przed phishingiem?"
+    "message": "Jak Bitwarden chroni Twoje dane przed phishingiem?"
   },
   "currentWebsite": {
     "message": "Obecna strona internetowa"
@@ -2151,10 +2151,10 @@
     "message": "Dane osobowe"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Ważny tekst"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Token serwera"
   },
   "folderSubtitle": {
     "message": "Organizuj elementy"
@@ -2190,19 +2190,19 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "Nowy dokument",
+    "message": "Nowe prawo jazdy",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
     "message": "Nowy paszport",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nowa wysyłka tekstu",
+  "newItemHeaderTextSendV2": {
+    "message": "Nowy tekst",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nowa wysyłka pliku",
+  "newItemHeaderFileSendV2": {
+    "message": "Nowy plik",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2230,19 +2230,19 @@
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderDriversLicense": {
-    "message": "Edytuj dokument",
+    "message": "Edytuj prawo jazdy",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "Edytuj paszport",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edytuj tekst wysyłki",
+  "editItemHeaderTextSendV2": {
+    "message": "Edytuj tekst",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edytuj plik wysyłki",
+  "editItemHeaderFileSendV2": {
+    "message": "Edytuj plik",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2270,7 +2270,7 @@
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderDriversLicense": {
-    "message": "Pokaż dokument",
+    "message": "Pokaż prawo jazdy",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -2475,7 +2475,7 @@
     "message": "Zmień klucz szyfrowania"
   },
   "rotateEncKeyConfirmation": {
-    "message": "Czy na pewno chcesz zmienić swój klucz szyfrowania?"
+    "message": "Czy na pewno chcesz zmienić klucz szyfrowania konta?"
   },
   "updateEncryptionKeyWarning": {
     "message": "Po zaktualizowaniu klucza szyfrowania, musisz ponownie zalogować się do wszystkich aplikacji Bitwarden, z których obecnie korzystasz (na przykład aplikacje mobilne lub rozszerzenia przeglądarki). Niepowodzenie logowania (podczas którego pobierany jest nowy klucz szyfrowania) może spowodować uszkodzenie danych. Postaramy się wylogować Ciebie automatycznie, jednak może to chwilę potrwać."
@@ -3207,7 +3207,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ godzin",
+    "message": "$HOURS$ godz.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -3216,7 +3216,7 @@
     }
   },
   "sendCreatedDescriptionV2": {
-    "message": "Skopiuj i udostępnij ten link. Link będzie dostępny dla każdego posiadacza linku przez następne $TIME$.",
+    "message": "Skopiuj link, aby udostępnić wysyłkę. Link będzie dostępny przez $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3226,7 +3226,7 @@
     }
   },
   "sendCreatedDescriptionPassword": {
-    "message": "Skopiuj i udostępnij ten link. Link będzie dostępny dla każdego posiadacza linku oraz hasła przez następne $TIME$.",
+    "message": "Skopiuj link, aby udostępnić wysyłkę. Link z hasłem będzie dostępny przez $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3236,7 +3236,7 @@
     }
   },
   "sendCreatedDescriptionEmail": {
-    "message": "Skopiuj i udostępnij ten link. Link będzie dostępny dla podanych osób przez następne $TIME$.",
+    "message": "Skopiuj link, aby udostępnić wysyłkę. Link będzie dostępny dla odbiorców przez $TIME$.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated.",
     "placeholders": {
       "time": {
@@ -3460,33 +3460,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Eksportowanie osobistego sejfu"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Wyeksportowane zostaną tylko osobiste elementy konta $EMAIL$. Elementy organizacji nie zostaną uwzględnione. Wyeksportowane zostaną tylko informacje o elementach sejfu i nie będą one zawierać powiązanych załączników.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Tylko osobisty sejf $EMAIL$ zostanie wyeksportowany. Elementy organizacji nie zostaną uwzględnione.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Eksportowanie sejfu organizacji"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Elementy innych sejfów nie zostaną uwzględnione.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Tylko osobiste elementy sejfu zostaną wyeksportowane."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Tylko elementy powiązane z sejfem organizacji $ORGANIZATION$ zostaną wyeksportowane. Elementy osobistego sejfu nie będą uwzględnione.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3512,10 +3497,10 @@
     "message": "Błąd"
   },
   "prfUnlockFailed": {
-    "message": "Nie udało się odblokować poprzez passkey. Spróbuj ponownie lub użyj innej metody odblokowania."
+    "message": "Nie udało się odblokować za pomocą klucza dostępu. Spróbuj ponownie lub użyj innej metody odblokowania."
   },
   "noPrfCredentialsAvailable": {
-    "message": "No PRF-enabled passkeys are available for unlock. Please log in with a passkey first."
+    "message": "Brak dostępnych kluczy dostępu z obsługą PRF do odblokowania. Zaloguj się za pomocą klucza dostępu."
   },
   "decryptionError": {
     "message": "Błąd odszyfrowywania"
@@ -3871,10 +3856,10 @@
     "message": "Status logowania"
   },
   "recentlyActive": {
-    "message": "Ostatnio aktywni"
+    "message": "Ostatnia aktywność"
   },
   "recentlyActiveToday": {
-    "message": "Dziś"
+    "message": "Dzisiaj"
   },
   "recentlyActivePast7Days": {
     "message": "Ostatnie 7 dni"
@@ -4131,7 +4116,7 @@
     "message": "Ogólne"
   },
   "display": {
-    "message": "Wyświetl"
+    "message": "Wyświetlanie"
   },
   "accountSuccessfullyCreated": {
     "message": "Konto zostało utworzone!"
@@ -4575,7 +4560,19 @@
     "message": "Dane sejfu zostały wyeksportowane"
   },
   "exportError": {
-    "message": "Wystąpił błąd podczas eksportowania danych Twojego sejfu"
+    "message": "Wystąpił błąd podczas eksportowania danych sejfu"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "Podczas eksportowania danych pominięto 1 uszkodzony załącznik. Wszystkie pozostałe dane zostały wyeksportowane."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Klucz dostępu"
@@ -5905,7 +5902,7 @@
     "message": "Dane logowania są zagrożone i nie zawierają strony internetowej. Dodaj stronę internetową i zmień hasło."
   },
   "vulnerablePassword": {
-    "message": "Słabe hasło."
+    "message": "Hasło jest słabe."
   },
   "changeNow": {
     "message": "Zmień teraz"
@@ -6128,7 +6125,7 @@
     "message": "Odblokuj zaawansowane funkcje bezpieczeństwa"
   },
   "unlockAdvancedSecurityDesc": {
-    "message": "Subskrypcja Premium daje Ci więcej narzędzi do zachowania bezpieczeństwa i kontroli"
+    "message": "Plan Premium zapewnia więcej narzędzi, które pomogą Ci zachować bezpieczeństwo i kontrolę."
   },
   "explorePremium": {
     "message": "Poznaj konto Premium"
@@ -6180,7 +6177,7 @@
     "message": "Jeśli nie zweryfikujesz swojej organizacji, Twój dostęp do organizacji zostanie cofnięty."
   },
   "leaveNow": {
-    "message": "Wyjdź teraz"
+    "message": "Opuść teraz"
   },
   "verifyYourDomainToLogin": {
     "message": "Zweryfikuj domenę, aby się zalogować"
@@ -6198,7 +6195,7 @@
     "message": "Ustawienie jest zarządzane przez Twoją organizację."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
-    "message": "Twoja organizacja ustawiła maksymalny czas sesji na $HOURS$ godzin i $MINUTES$ minut.",
+    "message": "Zasady organizacji mają wpływ na czas blokowania sejfu. Maksymalny dozwolony czas wynosi $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6220,7 +6217,7 @@
     "message": "Twoja organizacja ustawiła domyślną blokadę aplikacji po uruchomieniu przeglądarki."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
-    "message": "Maksymalny czas nie może przekraczać $HOURS$ godzin i $MINUTES$ minut",
+    "message": "Maksymalny dozwolony czas nie może przekroczyć $HOURS$ godz. i $MINUTES$ min.",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -6254,7 +6251,7 @@
     "message": "Ulepsz"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Czy na pewno chcesz wyjść?"
+    "message": "Czy na pewno chcesz opuścić organizację?"
   },
   "leaveConfirmationDialogContentOne": {
     "message": "Odrzucenie spowoduje, że Twoje osobiste elementy pozostaną na koncie, ale stracisz dostęp do udostępnionych elementów oraz funkcji organizacji."
@@ -6344,10 +6341,10 @@
     "message": "Pobierz aplikacje Bitwarden"
   },
   "emailProtected": {
-    "message": "E-mail chroniony"
+    "message": "Dla wskazanych odbiorców"
   },
   "sendPasswordHelperText": {
-    "message": "Osoby będą musiały wprowadzić hasło, aby otworzyć widok tej wysyłki",
+    "message": "Odbiorca będzie musiał wpisać hasło, aby zobaczyć tekst wysyłki",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "userVerificationFailed": {
@@ -6432,6 +6429,29 @@
   "downloadFailed": {
     "message": "Pobieranie nie powiodło się."
   },
+  "maxAccessCount": {
+    "message": "Maksymalna liczba dostępów",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Ukryj mój adres e-mail przed odbiorcami."
+  },
+  "viewTextSendHeader": {
+    "message": "Pokaż tekst"
+  },
+  "viewFileSendHeader": {
+    "message": "Pokaż plik"
+  },
+  "sendCreated": {
+    "message": "Wysyłka została utworzona",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Dane wejściowe muszą być liczbą"
+  },
+  "integerInputError": {
+    "message": "Dane wejściowe muszą być liczbą całkowitą"
+  },
   "sideNavigation": {
     "message": "Nawigacja boczna"
   },
@@ -6439,7 +6459,7 @@
     "message": "Pomiń link"
   },
   "callout": {
-    "message": "Zgłoszenie",
+    "message": "Banner",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
