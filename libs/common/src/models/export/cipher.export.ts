@@ -4,6 +4,7 @@ import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
 import { CipherView } from "../../vault/models/view/cipher.view";
 
+import { BankAccountExport } from "./bank-account.export";
 import { CardExport } from "./card.export";
 import { FieldExport } from "./field.export";
 import { IdentityExport } from "./identity.export";
@@ -73,6 +74,11 @@ export class CipherExport {
           view.sshKey = SshKeyExport.toView(req.sshKey)!;
         }
         break;
+      case CipherType.BankAccount:
+        if (req.bankAccount != null) {
+          view.bankAccount = BankAccountExport.toView(req.bankAccount)!;
+        }
+        break;
     }
 
     if (req.passwordHistory != null) {
@@ -128,6 +134,11 @@ export class CipherExport {
           domain.sshKey = SshKeyExport.toDomain(req.sshKey);
         }
         break;
+      case CipherType.BankAccount:
+        if (req.bankAccount != null) {
+          domain.bankAccount = BankAccountExport.toDomain(req.bankAccount);
+        }
+        break;
     }
 
     if (req.passwordHistory != null) {
@@ -154,6 +165,7 @@ export class CipherExport {
   card?: CardExport;
   identity?: IdentityExport;
   sshKey?: SshKeyExport;
+  bankAccount?: BankAccountExport;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   passwordHistory?: PasswordHistoryExport[];
   revisionDate?: Date;
@@ -196,6 +208,9 @@ export class CipherExport {
         break;
       case CipherType.SshKey:
         this.sshKey = new SshKeyExport(o.sshKey);
+        break;
+      case CipherType.BankAccount:
+        this.bankAccount = new BankAccountExport(o.bankAccount);
         break;
     }
 

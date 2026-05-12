@@ -1,7 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, DatePipe } from "@angular/common";
-import { Component, OnInit, Input, inject, output } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  input,
+  output,
+  effect,
+  PipeTransform,
+  Pipe,
+  inject,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   FormBuilder,
@@ -11,19 +20,15 @@ import {
   ValidatorFn,
   ValidationErrors,
 } from "@angular/forms";
-import { firstValueFrom, combineLatest, map, switchMap, tap } from "rxjs";
+import { combineLatest, map, startWith, switchMap, tap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
-import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
@@ -37,29 +42,76 @@ import {
   SelectModule,
   AsyncActionsModule,
   ButtonModule,
-  ToastService,
-  DialogService,
+  CopyClickDirective,
+  Option,
 } from "@bitwarden/components";
-import { SendFormConfig, SendFormGenerationService, SendPolicyService } from "@bitwarden/send-ui";
+import { SendPolicyService } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import {
-  DatePreset,
-  DatePresetSelectOption,
-  isDatePreset,
-  asDatePreset,
-} from "../../../models/date-preset";
 import { SendFormService } from "../../abstractions/send-form.service";
 import { SendOptionsComponent } from "../options/send-options.component";
 
 import { SendFileDetailsComponent } from "./send-file-details.component";
 import { SendTextDetailsComponent } from "./send-text-details.component";
 
-export {
-  DatePreset,
-  DatePresetSelectOption,
-  isDatePreset,
-  asDatePreset,
-} from "../../../models/date-preset";
+/** A preset duration (in hours) for deletion. */
+export const DatePreset = Object.freeze({
+  /** One-hour duration. */
+  OneHour: 1,
+  /** One-day duration (24 hours). */
+  OneDay: 24,
+  /** Two-day duration (48 hours). */
+  TwoDays: 48,
+  /** Three-day duration (72 hours). */
+  ThreeDays: 72,
+  /** Seven-day duration (168 hours). */
+  SevenDays: 168,
+  /** Fourteen-day duration (336 hours). */
+  FourteenDays: 336,
+  /** Thirty-day duration (720 hours). */
+  ThirtyDays: 720,
+} as const);
+
+/** A preset duration (in hours) for deletion. */
+export type DatePreset = (typeof DatePreset)[keyof typeof DatePreset];
+
+const namesByDatePreset = new Map<DatePreset, keyof typeof DatePreset>(
+  Object.entries(DatePreset).map(([k, v]) => [v as DatePreset, k as keyof typeof DatePreset]),
+);
+
+/**
+ * Runtime type guard to verify a value is a valid DatePreset.
+ */
+export function isDatePreset(value: unknown): value is DatePreset {
+  return namesByDatePreset.has(value as DatePreset);
+}
+
+/**
+ * Safe converter to DatePreset (numeric preset), returns undefined for invalid inputs.
+ */
+export function asDatePreset(value: unknown): DatePreset | undefined {
+  return isDatePreset(value) ? (value as DatePreset) : undefined;
+}
+
+/** The types of authorization that Sends are able to use */
+const sendAuthTypes = Object.freeze([
+  { nameKey: "noAuth", value: AuthType.None },
+  { nameKey: "specificPeople", value: AuthType.Email },
+  { nameKey: "anyOneWithPassword", value: AuthType.Password },
+] as const);
+
+@Pipe({
+  name: "AuthTypeName",
+})
+export class AuthTypeNamePipe implements PipeTransform {
+  constructor(private i18nSvc: I18nService) { }
+  transform(value: number) {
+    const authTypeWithValue = sendAuthTypes.find((a) => a.value === value);
+    return authTypeWithValue
+      ? this.i18nSvc.t(authTypeWithValue.nameKey)
+      : this.i18nSvc.t("unknown");
+  }
+}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -71,7 +123,9 @@ export {
     SectionComponent,
     SectionHeaderComponent,
     TypographyModule,
-    JslibModule,
+    AuthTypeNamePipe,
+    I18nPipe,
+    CopyClickDirective,
     CardComponent,
     FormFieldModule,
     ReactiveFormsModule,
@@ -89,59 +143,50 @@ export {
 })
 export class SendDetailsComponent implements OnInit {
   readonly SendType = SendType;
+  readonly AuthType = AuthType;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() config: SendFormConfig;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() originalSendView?: SendView;
+  protected readonly editing = input<boolean>(false);
 
   readonly openPasswordGenerator = output<void>();
 
-  FileSendType = SendType.File;
-  TextSendType = SendType.Text;
-  readonly AuthType = AuthType;
-  sendLink: string | null = null;
-  customDeletionDateOption: DatePresetSelectOption | null = null;
-  datePresetOptions: DatePresetSelectOption[] = [];
+  datePresetOptions: Option<DatePreset | string>[] = [
+    { label: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
+    { label: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
+    { label: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
+    { label: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
+    { label: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
+    { label: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
+    { label: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
+  ];
   passwordRemoved = false;
   policyAllowedDomains: string[] | null = null;
   policyDeletionHours: DatePreset | null = null;
   policyDeletionHoursOrgName: string | null = null;
 
-  emailVerificationFeatureFlag$ = this.configService.getFeatureFlag$(FeatureFlag.SendEmailOTP);
   hasPremium$ = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
     ),
   );
 
-  authTypes: { name: string; value: AuthType; disabled?: boolean }[] = [
-    { name: this.i18nService.t("noAuth"), value: AuthType.None },
-    { name: this.i18nService.t("specificPeople"), value: AuthType.Email },
-    { name: this.i18nService.t("anyOneWithPassword"), value: AuthType.Password },
-  ];
-
   private sendPolicyService = inject(SendPolicyService);
 
   availableAuthTypes$ = combineLatest([
-    this.emailVerificationFeatureFlag$,
     this.hasPremium$,
     this.sendPolicyService.whoCanAccess$,
   ]).pipe(
-    map(([enabled, hasPremium, whoCanAccess]) => {
+    map(([hasPremium, whoCanAccess]) => {
       const anyAuthTypeAllowed = whoCanAccess === WhoCanAccessType.Any || whoCanAccess === null;
       /** Show the email auth type if the feature flag is enabled AND EITHER
        * 1. There is an enterprise policy that mandates the email auth type
        * 2. There are no policies dictating required auth types
        * 3. The Send currently uses the email auth type */
+      const originalSendView = this.sendFormService.originalSendView();
       const includeEmail =
-        enabled &&
         hasPremium &&
         (whoCanAccess === WhoCanAccessType.SpecificPeople ||
           anyAuthTypeAllowed ||
-          this.originalSendView?.authType === AuthType.Email);
+          originalSendView?.authType === AuthType.Email);
       /** Show the password auth type if EITHER
        * 1. There is an enterprise policy that mandates the password auth type
        * 2. There are no policies dictating required auth types
@@ -149,12 +194,12 @@ export class SendDetailsComponent implements OnInit {
       const includePassword =
         whoCanAccess === WhoCanAccessType.PasswordProtected ||
         anyAuthTypeAllowed ||
-        this.originalSendView?.authType === AuthType.Password;
+        originalSendView?.authType === AuthType.Password;
       /** Show the "Anyone with the link" auth type if EITHER
        * 1. There are no enterprise policies that dictate required auth types
        * 2. The Send currently uses the "Anyone with the link" auth type */
-      const includeAny = anyAuthTypeAllowed || this.originalSendView?.authType === AuthType.None;
-      return this.authTypes.filter(
+      const includeAny = anyAuthTypeAllowed || originalSendView?.authType === AuthType.None;
+      return sendAuthTypes.filter(
         (at) =>
           (includeEmail && at.value === AuthType.Email) ||
           (includePassword && at.value === AuthType.Password) ||
@@ -164,15 +209,20 @@ export class SendDetailsComponent implements OnInit {
   );
 
   sendDetailsForm = this.formBuilder.group({
-    name: new FormControl("", Validators.required),
-    selectedDeletionDatePreset: new FormControl(DatePreset.SevenDays || "", Validators.required),
-    authType: [AuthType.None as AuthType],
-    password: [null as string],
-    emails: [null as string],
+    name: new FormControl(this.sendFormService.updatedSendView()?.name ?? "", Validators.required),
+    selectedDeletionDatePreset: new FormControl<DatePreset | string>(
+      this.sendFormService.updatedSendView()?.deletionDate?.toString() ?? DatePreset.SevenDays,
+      Validators.required,
+    ),
+    authType: new FormControl<AuthType>(
+      this.sendFormService.updatedSendView()?.authType ?? AuthType.None,
+    ),
+    password: new FormControl(this.originalHadPassword ? "************" : null),
+    emails: new FormControl(this.sendFormService.updatedSendView()?.emails?.join(", ") ?? null),
   });
 
-  get hasPassword(): boolean {
-    return this.sendFormService.originalSendView?.password != null;
+  get originalHadPassword(): boolean {
+    return this.sendFormService.originalSendView()?.password != null;
   }
 
   constructor(
@@ -180,15 +230,20 @@ export class SendDetailsComponent implements OnInit {
     protected i18nService: I18nService,
     protected datePipe: DatePipe,
     protected environmentService: EnvironmentService,
-    private configService: ConfigService,
     private accountService: AccountService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private sendApiService: SendApiService,
-    private dialogService: DialogService,
-    private toastService: ToastService,
     protected sendFormService: SendFormService,
-    private sendFormGenerationService: SendFormGenerationService,
   ) {
+    this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
+    // When we change editing state we want to update the password field's disabled status
+    effect(() => {
+      if (this.editing() && this.originalHadPassword) {
+        this.sendDetailsForm.get("password").disable();
+      } else {
+        this.sendDetailsForm.get("password").enable();
+      }
+    });
+
     this.sendDetailsForm.valueChanges
       .pipe(
         tap((value) => {
@@ -208,9 +263,9 @@ export class SendDetailsComponent implements OnInit {
             authType: value.authType,
             emails: value.emails
               ? value.emails
-                  .split(",")
-                  .map((e) => e.trim())
-                  .filter((e) => e.length > 0)
+                .split(",")
+                .map((e) => e.trim())
+                .filter((e) => e.length > 0)
               : [],
           } as unknown as SendView);
         });
@@ -218,7 +273,10 @@ export class SendDetailsComponent implements OnInit {
 
     this.sendDetailsForm
       .get("authType")
-      .valueChanges.pipe(takeUntilDestroyed())
+      .valueChanges.pipe(
+        startWith(this.sendFormService.updatedSendView()?.authType ?? AuthType.None),
+        takeUntilDestroyed(),
+      )
       .subscribe((type) => {
         const emailsControl = this.sendDetailsForm.get("emails");
         const passwordControl = this.sendDetailsForm.get("password");
@@ -226,7 +284,13 @@ export class SendDetailsComponent implements OnInit {
         if (type === AuthType.Password) {
           emailsControl.setValue(null);
           emailsControl.clearValidators();
+          if (this.originalHadPassword) {
+            passwordControl.setValue("************");
+          }
           passwordControl.setValidators([Validators.required]);
+          if (this.editing() && this.originalHadPassword) {
+            passwordControl.disable();
+          }
         } else if (type === AuthType.Email) {
           passwordControl.setValue(null);
           passwordControl.clearValidators();
@@ -253,79 +317,42 @@ export class SendDetailsComponent implements OnInit {
         emailsControl.updateValueAndValidity();
       });
 
-    combineLatest([
-      this.sendPolicyService.deletionHours$,
-      this.sendPolicyService.deletionHoursOrgName$,
-    ])
-      .pipe(takeUntilDestroyed())
-      .subscribe(([deletionHours, orgName]) => {
-        this.policyDeletionHours = deletionHours;
-        this.policyDeletionHoursOrgName = orgName;
-        const deletionControl = this.sendDetailsForm.get("selectedDeletionDatePreset");
-        if (deletionHours != null) {
-          deletionControl.setValue(deletionHours as any);
-          deletionControl.disable();
+    effect(() => {
+      if (!this.editing()) {
+        if (this.sendFormService.originalSendView()) {
+          this.initializeFormFromOriginal(this.sendFormService.originalSendView());
         }
-      });
-    this.sendFormService.registerChildForm("sendDetailsForm", this.sendDetailsForm);
+      }
+    });
   }
 
   async ngOnInit() {
-    this.setupDeletionDatePresets();
+    const updatedSendView = this.sendFormService.updatedSendView();
 
-    if (this.sendFormService.originalSendView) {
-      this.sendDetailsForm.patchValue({
-        name: this.sendFormService.originalSendView.name,
-        selectedDeletionDatePreset: this.sendFormService.originalSendView.deletionDate.toString(),
-        password: this.hasPassword ? "************" : null,
-        authType: this.sendFormService.originalSendView.authType,
-        emails: this.sendFormService.originalSendView.emails?.join(", ") ?? null,
+    if (this.originalHadPassword) {
+      this.sendDetailsForm.get("password")?.disable();
+    }
+
+    if (updatedSendView.deletionDate) {
+      this.datePresetOptions.unshift({
+        label: this.datePipe.transform(updatedSendView.deletionDate, "short"),
+        value: updatedSendView.deletionDate.toString(),
       });
-
-      if (this.hasPassword) {
-        this.sendDetailsForm.get("password")?.disable();
-      }
-
-      if (this.sendFormService.originalSendView.deletionDate) {
-        this.customDeletionDateOption = {
-          name: this.datePipe.transform(
-            this.sendFormService.originalSendView.deletionDate,
-            "short",
-          ),
-          value: this.sendFormService.originalSendView.deletionDate.toString(),
-        };
-        this.datePresetOptions.unshift(this.customDeletionDateOption);
-      }
-
-      const env = await firstValueFrom(this.environmentService.environment$);
-      this.sendLink =
-        env.getSendUrl() +
-        this.sendFormService.originalSendView.accessId +
-        "/" +
-        this.sendFormService.originalSendView.urlB64Key;
     }
 
     if (!this.sendFormService.sendFormConfig.areSendsAllowed) {
       this.sendDetailsForm.disable();
     }
-
-    if (this.originalSendView?.disabled) {
-      this.sendDetailsForm.disable();
-    }
   }
 
-  setupDeletionDatePresets() {
-    const defaultSelections: DatePresetSelectOption[] = [
-      { name: this.i18nService.t("oneHour"), value: DatePreset.OneHour },
-      { name: this.i18nService.t("oneDay"), value: DatePreset.OneDay },
-      { name: this.i18nService.t("days", "2"), value: DatePreset.TwoDays },
-      { name: this.i18nService.t("days", "3"), value: DatePreset.ThreeDays },
-      { name: this.i18nService.t("days", "7"), value: DatePreset.SevenDays },
-      { name: this.i18nService.t("days", "14"), value: DatePreset.FourteenDays },
-      { name: this.i18nService.t("days", "30"), value: DatePreset.ThirtyDays },
-    ];
-
-    this.datePresetOptions = defaultSelections;
+  private initializeFormFromOriginal(originalSendView: SendView) {
+    this.sendDetailsForm.patchValue({
+      name: originalSendView.name,
+      selectedDeletionDatePreset: originalSendView.deletionDate.toString(),
+      password: this.originalHadPassword ? "************" : null,
+      authType: originalSendView.authType,
+      emails: originalSendView.emails?.join(", ") ?? null,
+    });
   }
 
   get formattedDeletionDate(): string {
@@ -397,33 +424,13 @@ export class SendDetailsComponent implements OnInit {
   }
 
   removePassword = async () => {
-    if (!this.hasPassword) {
-      return;
+    const removed = await this.sendFormService.removeSendPassword();
+    if (removed) {
+      this.passwordRemoved = true;
+      this.sendDetailsForm.patchValue({
+        authType: AuthType.None,
+        password: null,
+      });
     }
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "removePassword" },
-      content: { key: "removePasswordConfirmation" },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return false;
-    }
-
-    this.passwordRemoved = true;
-
-    await this.sendApiService.removePassword(this.sendFormService.originalSendView.id);
-
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("removedPassword"),
-    });
-
-    this.sendFormService.originalSendView.password = null;
-    this.sendDetailsForm.patchValue({
-      password: null,
-    });
-    this.sendDetailsForm.get("password")?.enable();
   };
 }

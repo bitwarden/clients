@@ -16,6 +16,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
 import { SendItemDialogResult } from "../../add-edit/send-add-edit-dialog.component";
+import { SendPolicyService } from "../../services/send-policy.service";
 import { SendFormConfig } from "../abstractions/send-form-config.service";
 import { SendFormService } from "../abstractions/send-form.service";
 import {
@@ -34,6 +35,7 @@ export class DefaultSendFormService implements SendFormService {
   private sendApiService = inject(SendApiService);
   private sendService = inject(SendService);
   private i18nService = inject(I18nService);
+  private sendPolicyService = inject(SendPolicyService);
 
   private _sendForm = this.formBuilder.group<SendForm>({});
   readonly sendForm = signal(this._sendForm).asReadonly();
@@ -42,8 +44,10 @@ export class DefaultSendFormService implements SendFormService {
 
   sendFormConfig: SendFormConfig | null = null;
 
-  originalSendView: SendView | null = null;
-  private updatedSendView: SendView | null = null;
+  private readonly _originalSendView = signal<SendView | null>(null);
+  readonly originalSendView = this._originalSendView.asReadonly();
+  private readonly _updatedSendView = signal<SendView | null>(null);
+  readonly updatedSendView = this._updatedSendView.asReadonly();
   private file: File | null = null;
 
   async decryptSend(send: Send): Promise<SendView> {
@@ -59,7 +63,7 @@ export class DefaultSendFormService implements SendFormService {
   }
 
   patchSend(updateFn: (current: SendView) => SendView): void {
-    this.updatedSendView = updateFn(this.updatedSendView);
+    this._updatedSendView.set(updateFn(this._updatedSendView()));
   }
 
   setFile(file: File): void {
@@ -73,17 +77,20 @@ export class DefaultSendFormService implements SendFormService {
     });
     this._sendForm.reset();
     this.file = undefined;
-    this.updatedSendView = new SendView();
+    let originalSendView: SendView | null = null;
+    let updatedSendView = new SendView();
     if (this.sendFormConfig.mode === "add") {
-      this.originalSendView = null;
-      this.updatedSendView.type = this.sendFormConfig.sendType;
+      updatedSendView.type = this.sendFormConfig.sendType;
+      updatedSendView = Object.assign(updatedSendView, this.sendFormConfig.presetSendFields ?? {});
     } else {
       if (!this.sendFormConfig.originalSend) {
         throw new Error("Original send is required for edit or clone mode");
       }
-      this.originalSendView = await this.decryptSend(this.sendFormConfig.originalSend);
-      this.updatedSendView = Object.assign(this.updatedSendView, this.originalSendView);
+      originalSendView = await this.decryptSend(this.sendFormConfig.originalSend);
+      updatedSendView = Object.assign(updatedSendView, originalSendView);
     }
+    this._originalSendView.set(originalSendView);
+    this._updatedSendView.set(updatedSendView);
   }
 
   async submitSendForm() {
@@ -94,16 +101,32 @@ export class DefaultSendFormService implements SendFormService {
       return;
     }
 
+    if (this._updatedSendView()?.hideEmail === true) {
+      const disableHideEmail = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+      if (disableHideEmail) {
+        this.toastService.showToast({
+          message: this.i18nService.t(
+            "hideEmailPolicyInEffect",
+            this.i18nService.t("hideYourEmail"),
+          ),
+          variant: "error",
+        });
+        this._submitting.set(false);
+        return;
+      }
+    }
+
     try {
       const sendData = await this.sendService.encrypt(
-        this.updatedSendView,
+        this._updatedSendView(),
         this.file,
-        this.updatedSendView.password,
+        this._updatedSendView().password,
         null,
       );
       const newSend = await this.sendApiService.save(sendData);
       const sendView = await this.decryptSend(newSend);
-      this.originalSendView = this.updatedSendView = null;
+      this._originalSendView.set(null);
+      this._updatedSendView.set(null);
       this._submitting.set(false);
       return sendView;
     } catch (err) {
@@ -130,8 +153,8 @@ export class DefaultSendFormService implements SendFormService {
     };
     return (
       this.sendForm().touched &&
-      JSON.stringify(this.originalSendView, replacer) !==
-        JSON.stringify(this.updatedSendView, replacer)
+      JSON.stringify(this._originalSendView(), replacer) !==
+        JSON.stringify(this._updatedSendView(), replacer)
     );
   }
 
@@ -149,13 +172,42 @@ export class DefaultSendFormService implements SendFormService {
       );
       const unsavedEditsDialogResult = await lastValueFrom(dialogRef.closed);
       if (unsavedEditsDialogResult?.result === UnsavedEditsDialogResult.Discard) {
-        this.originalSendView = null;
-        this.updatedSendView = null;
+        this._originalSendView.set(null);
+        this._updatedSendView.set(null);
         return true;
       } else {
         return false;
       }
     }
+    return true;
+  }
+
+  async removeSendPassword(): Promise<boolean> {
+    const originalSendViewId = this.originalSendView()?.id;
+    if (!originalSendViewId) {
+      return false;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "removePassword" },
+      content: { key: "removePasswordConfirmation" },
+      type: "warning",
+    });
+
+    if (!confirmed) {
+      return false;
+    }
+
+    await this.sendApiService.removePassword(originalSendViewId);
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("removedPassword"),
+    });
+
+    const updatedSend = await firstValueFrom(this.sendService.get$(this._originalSendView().id));
+    const updatedSendView = await this.decryptSend(updatedSend);
+    this._originalSendView.set(updatedSendView);
     return true;
   }
 }
