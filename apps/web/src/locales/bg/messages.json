@@ -1134,12 +1134,12 @@
     "message": "Нов паспорт",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Ново текстово Изпращане",
+  "newItemHeaderTextSendV2": {
+    "message": "Нов текст",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Ново файлово Изпращане",
+  "newItemHeaderFileSendV2": {
+    "message": "Нов файл",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1174,12 +1174,12 @@
     "message": "Редактиране на паспорта",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Редактиране на текстовото Изпращане",
+  "editItemHeaderTextSendV2": {
+    "message": "Редактиране на текста",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Редактиране на файловото Изпращане",
+  "editItemHeaderFileSendV2": {
+    "message": "Редактиране на файла",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2254,6 +2254,18 @@
   },
   "exportError": {
     "message": "Възникна грешка при изнасянето на данните от трезора"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 повреден прикачен файл беше пропуснат при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ повредени прикачени файла бяха пропуснати при изнасянето. Всички други данни и прикачени файлове от трезора бяха изнесени успешно.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "passwordGenerator": {
     "message": "Създаване на пароли"
@@ -4938,6 +4950,9 @@
   "riskInsightsRunReport": {
     "message": "Изпълнение на доклада"
   },
+  "goToAccessIntelligence": {
+    "message": "Към Анализа на достъпа"
+  },
   "updateBrowserDesc": {
     "message": "Ползвате неподдържан браузър. Трезорът по уеб може да не сработи правилно."
   },
@@ -5458,6 +5473,21 @@
   },
   "byLink": {
     "message": "Чрез връзка"
+  },
+  "allowedDomains": {
+    "message": "Разрешени домейни"
+  },
+  "allowedDomainsHint": {
+    "message": "Ако въвеждате повече от един домейн, разделете ги със запетаи"
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Въведете разрешените домейни, за да създадете връзка за покана"
+  },
+  "domainsEdited": {
+    "message": "Домейните са редактирани"
+  },
+  "inviteByLinkDesc": {
+    "message": "Поканете членове в организацията си чрез връзка. Ако все още не е определена роля, те ще бъдат добавени като обикновени потребители."
   },
   "byContinuingYouAgreeToThe": {
     "message": "Ако продължите, Вие се съгласявате с"
@@ -6071,14 +6101,6 @@
         "example": "5"
       }
     }
-  },
-  "newTextSend": {
-    "message": "Ново текстово Изпращане",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Ново файлово Изпращане",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
     "message": "Редактирано изпращане",
@@ -6883,8 +6905,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "Главната парола на потребителя $ID$ беше сменена.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "Стартирано е възстановяване на акаунт чрез главна парола за $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6892,8 +6914,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "Двустепенното удостоверяване е нулирано за потребителя $ID$.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "Стартирано е възстановяване на акаунт чрез двустепенно удостоверяване за $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8054,26 +8076,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Изнасяне на трезора на организацията"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Ще бъдат изнесени само отделните записи в трезора, които са свързани с $EMAIL$. Записите от трезора на организацията няма да бъдат включени. Ще бъде изнесена само информацията за записите от трезора, а свързаните прикачени елементи няма да бъдат включени.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Само записите от личния трезор ще бъдат изнесени."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Ще бъдат изнесени само записите и прикачените файлове от личния трезор свързан с $EMAIL$. Записите в трезора на организацията няма да бъдат включени.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Ще бъдат изнесени само записите от трезора свързан с $ORGANIZATION$. Записите в отделните лични трезори и тези в други организации няма да бъдат включени.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Само записите свързани с трезора на $ORGANIZATION$ ще бъдат изнесени. Тези в личните трезори – не.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10079,8 +10086,8 @@
   "recoverAccountSuccess": {
     "message": "Акаунтът беше възстановен успешно!"
   },
-  "updatedTempPassword": {
-    "message": "Потребителят промени парола издадена чрез възстановяването на профили."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "Потребителят нулира главната си парола чрез системата за възстановяване на акаунта."
   },
   "activatedAccessToSecretsManager": {
     "message": "Достъпът до Управлението на тайни е включен",
@@ -13690,6 +13697,28 @@
     "message": "Запазването на промените по Изпращането беше неуспешно",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideMyEmail": {
+    "message": "Скриване на е-пощата ми от получателите."
+  },
+  "fileToShare": {
+    "message": "Файл за споделяне"
+  },
+  "viewTextSendHeader": {
+    "message": "Преглед на текста"
+  },
+  "viewFileSendHeader": {
+    "message": "Преглед на файла"
+  },
+  "sendCreated": {
+    "message": "Изпращането е създадено",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Въведеното трябва да е число"
+  },
+  "integerInputError": {
+    "message": "Въведеното трябва да е цяло число"
+  },
   "hideEmailPolicyInEffect": {
     "message": "Организацията изисква е-пощата да е видима. Махнете отметката от полето за скриване на Вашата е-поща, за да може да запазите."
   },
@@ -13706,5 +13735,8 @@
   "progressBar": {
     "message": "Лента за напредък",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "copy": {
+    "message": "Копиране"
   }
 }

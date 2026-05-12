@@ -1134,12 +1134,12 @@
     "message": "Új útlevél",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Új szöveges Send elem",
+  "newItemHeaderTextSendV2": {
+    "message": "Új szöveg",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Új fájl Send elem",
+  "newItemHeaderFileSendV2": {
+    "message": "Új fájl",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -1174,12 +1174,12 @@
     "message": "Útlevél szerkesztése",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Send szöveg szerkesztése",
+  "editItemHeaderTextSendV2": {
+    "message": "Szöveg szerkesztése",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Send fájl szerkesztése",
+  "editItemHeaderFileSendV2": {
+    "message": "Fájl szerkesztése",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2254,6 +2254,18 @@
   },
   "exportError": {
     "message": "Hiba történt a széf adatainak exportálása közben."
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ sérült csatolás kimaradt az exportálás során. Az összes többi széf adat és melléklet sikeresen exportálásra került.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "passwordGenerator": {
     "message": "Jelszó generátor"
@@ -4938,6 +4950,9 @@
   "riskInsightsRunReport": {
     "message": "Jelentés futtatása"
   },
+  "goToAccessIntelligence": {
+    "message": "Igrás az Access Intelligence webhelyre"
+  },
   "updateBrowserDesc": {
     "message": "Nem támogatott böngészőt használunk. Előfordulhat, hogy a webes széf nem működik megfelelően."
   },
@@ -5458,6 +5473,21 @@
   },
   "byLink": {
     "message": "Hivakozással"
+  },
+  "allowedDomains": {
+    "message": "Engedélyezett tartományok"
+  },
+  "allowedDomainsHint": {
+    "message": "Több tartományba belépés esetén ezeket vesszővel válasszuk el."
+  },
+  "enterAllowedDomainsToGenerateInviteLink": {
+    "message": "Adjuk meg az engedélyezett tartományokat meghívó hivatkozás generálásához."
+  },
+  "domainsEdited": {
+    "message": "A tartományok frissítésre kerültek."
+  },
+  "inviteByLinkDesc": {
+    "message": "Hívjunk meg tagokat a szervezetbe egy hivatkozással. Ha még nincs megadva szerepkör, akkor alapértelmezett felhasználóként kerülnek hozzáadásra."
   },
   "byContinuingYouAgreeToThe": {
     "message": "A folytatással elfogadjuk"
@@ -6071,14 +6101,6 @@
         "example": "5"
       }
     }
-  },
-  "newTextSend": {
-    "message": "Új szöveges Send elem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
-  "newFileSend": {
-    "message": "Új fájl Send elem",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editedSend": {
     "message": "A Send szerkesztésre került.",
@@ -6883,8 +6905,8 @@
       }
     }
   },
-  "eventAdminPasswordReset": {
-    "message": "A mesterjelszó alaphelyzetbe került $ID$ felhasználónál.",
+  "eventAccountRecoveryWithMasterPasswordInitiated": {
+    "message": "A fiók helyreállítása mesterjelszóval $ID$ érdekében elindult.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6892,8 +6914,8 @@
       }
     }
   },
-  "eventAdminResetTwoFactor": {
-    "message": "A kétlépéses bejelentkezés alaphelyzetbe állítása $ID$ felhasználó számára.",
+  "eventAccountRecoveryWithTwoStepLoginInitiated": {
+    "message": "A fiók helyreállítása kétlépcsős bejelentkezéssel $ID$ érdekében elindult.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8054,26 +8076,11 @@
   "exportingOrganizationVaultTitle": {
     "message": "Szervezeti széf exportálása"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ e-mail címhez társított egyedi széfek kerülnek csak exportálásra. A szervezeti széf elemei nem lesznek benne. Csak a széf információk kerülnek exportálásra és nem tartalmazzák a kapcsolódó mellékleteket.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Csak az egyéni széfben lévő elemek exportálhatók."
   },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Csak $EMAIL$ email címmel társított személyes széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a szervezeti széf elemek.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingOrganizationVaultDesc": {
-    "message": "Csak$ORGANIZATION$ névvel társított szervezeti széf elemek kerülnek exportálásra. Ebbe nem kerülnek be a személyes és más szervezeti széf elemek.",
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Csak $ORGANIZATION$ széfhez kapcsolódó elemek exportálhatók. Az egyes széfekben lévő elemek nem.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -10079,8 +10086,8 @@
   "recoverAccountSuccess": {
     "message": "A fiók helyreállítása sikeres volt."
   },
-  "updatedTempPassword": {
-    "message": "A felhasználó frissítette a fiók helyreállítás során kiadott jelszót."
+  "userResetMasterPasswordThroughAccountRecovery": {
+    "message": "A felhasználó alaphelyzetbe állítja a mesterjelszavát a fiók helyreállításával."
   },
   "activatedAccessToSecretsManager": {
     "message": "A hozzáférés engedélyezése a Titkos kód kezelőhöz",
@@ -13690,6 +13697,28 @@
     "message": "A Send elem szerkesztések mentése nem sikerült.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "hideMyEmail": {
+    "message": "Saját email cím elrejtése a címzettek elől."
+  },
+  "fileToShare": {
+    "message": "Megosztandó fájl"
+  },
+  "viewTextSendHeader": {
+    "message": "Szöveg megtekintése"
+  },
+  "viewFileSendHeader": {
+    "message": "Fájl megtekintése"
+  },
+  "sendCreated": {
+    "message": "Az új Send elem létrejött.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "A beviteli adat legyen numerikus."
+  },
+  "integerInputError": {
+    "message": "A beviteli adat legyen egész szám."
+  },
   "hideEmailPolicyInEffect": {
     "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
   },
@@ -13706,5 +13735,8 @@
   "progressBar": {
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "copy": {
+    "message": "Másolás"
   }
 }
