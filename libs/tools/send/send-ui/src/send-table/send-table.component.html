@@ -26,7 +26,10 @@
               <!-- Since the icons are not focusable, we append their screen reader messages to the Send name -->
               @if (s.authType !== authType.None) {
                 <span class="tw-sr-only"
-                  >, {{ (authType.Email ? "emailProtected" : "passwordProtected") | i18n }}</span
+                  >,
+                  {{
+                    (s.authType === authType.Email ? "emailProtected" : "passwordProtected") | i18n
+                  }}</span
                 >
               }
               @if (s.disabled) {
