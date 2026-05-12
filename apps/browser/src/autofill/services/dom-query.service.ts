@@ -306,18 +306,14 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     const shadowRoots: ShadowRoot[] = [];
 
-    // Previously used querySelectorAll(":defined") which matches ALL registered/built-in
-    // elements — potentially thousands on complex pages like Jira.
-    // Open shadow roots (element.shadowRoot) are freely readable on any element type
-    // at no extension-API cost. Closed shadow roots require the expensive
-    // chrome.dom.openOrClosedShadowRoot call — we restrict that to custom elements
-    // (hyphenated tag names) because only they are commonly given closed shadow roots.
+    // Fast path first: element.shadowRoot is cheap and works on any element with
+    // an open root. Fall back to chrome.dom.openOrClosedShadowRoot for closed
+    // roots — the expensive cross-boundary call — on any host element, since
+    // closed roots can be (and are) attached to plain HTML hosts in the wild.
     const potentialShadowRoots = root.querySelectorAll("*");
     for (const potentialShadowRoot of potentialShadowRoots) {
-      // Fast path: open shadow root works on any element without extension API
       let shadowRoot: ShadowRoot | null = potentialShadowRoot.shadowRoot;
-      // Slow path: closed shadow roots via extension API — custom elements only
-      if (!shadowRoot && potentialShadowRoot.tagName.includes("-")) {
+      if (!shadowRoot) {
         shadowRoot = this.getShadowRoot(potentialShadowRoot);
       }
       if (!shadowRoot) {
@@ -419,16 +415,13 @@ export class DomQueryService implements DomQueryServiceInterface {
       }
 
       // Only probe for a shadow root when the page is known to have shadow DOM.
-      // Open shadow roots (element.shadowRoot) are cheap on any element type.
-      // The extension API (chrome.dom.openOrClosedShadowRoot) is restricted to
-      // custom elements (hyphenated tag names) since it crosses the JS/browser
-      // boundary synchronously and would cause long tasks if called on every node.
+      // Fast path: element.shadowRoot for open roots, free on any element type.
+      // Fall back to the extension API (chrome.dom.openOrClosedShadowRoot) for
+      // closed roots on any host element.
       if (this.pageContainsShadowDom && nodeIsElement(currentNode)) {
         const el = currentNode as Element;
-        // Open shadow root: cheap read, works on any element
         let nodeShadowRoot: ShadowRoot | null = el.shadowRoot;
-        // Closed shadow root via extension API: restrict to custom elements only
-        if (!nodeShadowRoot && el.tagName.includes("-")) {
+        if (!nodeShadowRoot) {
           nodeShadowRoot = this.getShadowRoot(currentNode);
         }
         if (nodeShadowRoot) {
