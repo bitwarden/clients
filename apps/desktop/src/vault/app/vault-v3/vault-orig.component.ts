@@ -732,6 +732,38 @@ export class VaultComponent implements OnInit, OnDestroy, CopyClickListener {
           });
         }
         break;
+      case CipherType.Passport:
+        if (
+          cipher.passport.passportNumber != null ||
+          cipher.passport.nationalIdentificationNumber != null
+        ) {
+          menu.push({ type: "separator" });
+        }
+        if (cipher.passport.passportNumber != null) {
+          menu.push({
+            label: this.i18nService.t("copyPassportNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.passport.passportNumber,
+                "passportNumber",
+                "Passport Number",
+              ),
+          });
+        }
+        if (cipher.passport.nationalIdentificationNumber != null) {
+          menu.push({
+            label: this.i18nService.t("copyNationalIdentificationNumber"),
+            click: () =>
+              this.copyValue(
+                cipher,
+                cipher.passport.nationalIdentificationNumber,
+                "nationalIdentificationNumber",
+                "National Identification Number",
+              ),
+          });
+        }
+        break;
       default:
         break;
     }
