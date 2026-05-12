@@ -140,7 +140,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
     if (this.data.operation === OperationType.Edit && this.data.secretId) {
       await this.loadEditDialog();
     } else if (this.data.operation !== OperationType.Add) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       throw new Error(`The secret dialog was not called with the appropriate operation values.`);
     } else if (this.data.operation === OperationType.Add) {
       await this.loadAddDialog();
@@ -214,7 +214,7 @@ export class SecretDialogComponent implements OnInit, OnDestroy {
       secretView.id = this.data.secretId;
       await this.updateSecret(secretView, secretAccessPoliciesView);
     }
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   delete = async () => {

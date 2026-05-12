@@ -1148,6 +1148,15 @@
     "message": "Automatikusan törli a vágólapra másolt értékeket.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "clipboardSettingUpdated": {
+    "message": "A vágólap beállítása frissításre került."
+  },
+  "clipboardSettingUpdatedMessage": {
+    "message": "A vágólap időkifutása alapértelmezettre van állítva, amely 5 percre frissült a nagyobb biztonság érdekében."
+  },
+  "jumpToSetting": {
+    "message": "Ugrás a beállításhoz"
+  },
   "notificationAddDesc": {
     "message": "A Bitwarden megjegyezze ezt a jelszót?"
   },
@@ -1300,6 +1309,9 @@
   },
   "additionalOptions": {
     "message": "Kiegészítő opciók"
+  },
+  "enableFillAssist": {
+    "message": "Kitöltési segédlet használata"
   },
   "enableContextMenuItem": {
     "message": "Helyi menü opciók megjelenítése"
@@ -1788,6 +1800,27 @@
   "confirmAutofillDesc": {
     "message": "Ez a webhely nem egyezik a mentett bejelentkezési adatokkal. Mielőtt kitöltenénk a bejelentkezés hitelesítő adatokat, győződjünk meg arról, hogy megbízható webhelyről van-e szó."
   },
+  "loginHasNoSiteSaved": {
+    "message": "A bejelentkezés nem mentett webhelyet."
+  },
+  "siteDoesntMatch": {
+    "message": "A webhely nem egyezik."
+  },
+  "loginNoSiteDesc": {
+    "message": "Ennek a bejelentkezésnek még nincs mentett webhelye. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "loginSingleSiteDesc": {
+    "message": "Ez a webhely nem egyezik azzal, amelyet ehhez a bejelentkezéshez mentettünk. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "loginMultipleSitesDesc": {
+    "message": "Ez a webhely nem egyezik azzal, amelyet ehhez a bejelentkezéshez mentettünk. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "autofillAndSaveThisSite": {
+    "message": "Automatikus kitöltés és ezen webhely mentése"
+  },
+  "autofillOnly": {
+    "message": "Csak automatikus kitöltés"
+  },
   "showInlineMenuLabel": {
     "message": "Automatikus kitöltési javaslatok megjelenítése űrlapmezőknél"
   },
@@ -2099,8 +2132,38 @@
   "typeSshKey": {
     "message": "SSH kulcs"
   },
+  "bankAccount": {
+    "message": "Bankszámla"
+  },
   "typeNote": {
     "message": "Jegyzet"
+  },
+  "typeBankAccount": {
+    "message": "Bankszámla"
+  },
+  "typeLoginSubtitle": {
+    "message": "Webhely vagy alkalmazás"
+  },
+  "typeCardSubtitle": {
+    "message": "Hitelkártya vagy bankkártya"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Személyes adatok"
+  },
+  "typeNoteSubtitle": {
+    "message": "Fontos szöveg"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Szerver bejelentkezési token"
+  },
+  "folderSubtitle": {
+    "message": "Elemek szervezése"
+  },
+  "collectionSubtitle": {
+    "message": "Megosztott elemek szervezése"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banki adatok"
   },
   "newItemHeaderLogin": {
     "message": "Új bejelentkezés",
@@ -2121,6 +2184,18 @@
   "newItemHeaderSshKey": {
     "message": "Új SSH kulcs",
     "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Új bankszámla",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Új licensz",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Új útlevél",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderTextSend": {
     "message": "Új szöveges Send elem",
@@ -2150,6 +2225,18 @@
     "message": "SSH kulcs szerkesztése",
     "description": "Header for edit SSH key item type"
   },
+  "editItemHeaderBankAccount": {
+    "message": "Bankszámla szerkesztése",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Licensz szerkesztése",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Útlevél szerkesztése",
+    "description": "Header for edit passport item type"
+  },
   "editItemHeaderTextSend": {
     "message": "Send szöveg szerkesztése",
     "description": "Header for edit text send"
@@ -2177,6 +2264,21 @@
   "viewItemHeaderSshKey": {
     "message": "SSH kulcs megtekintése",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Bankszámla megtekintése",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Licensz megtekintése",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Útlevél megtekintése",
+    "description": "Header for view passport item type"
+  },
+  "chooseItemToAdd": {
+    "message": "Válasszuk ki a hozzáadandó elemet"
   },
   "passwordHistory": {
     "message": "Jelszó előzmények"
@@ -2366,6 +2468,30 @@
   "weakMasterPasswordDesc": {
     "message": "A választott mesterjelszó gyenge. Erős jelszót (vagy kifejezést) kell használni a Bitwarden fiók megfelelő védelme érdekében. Biztosan ezt a mesterjelszót szeretnénk használni?"
   },
+  "rotateAccountEncKey": {
+    "message": "A felhasználói fiókom titkosítókódját is cseréljük le"
+  },
+  "rotateEncKeyTitle": {
+    "message": "Titkosító kulcs cseréje"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Biztosan cserére kerüljön a fiók titkosító kulcsa?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "A titkosítási kulcs frissítése után ki kell jelentkezni és vissza kell jelentkezni az összes jelenleg használt Bitwarden alkalmazásba (például a mobilalkalmazás vagy a böngésző bővítmények). A kijelentkezés és a bejelentkezés elmulasztása (amely letölti az új titkosítási kulcsot) adatvesztést okozhat. Megkíséreljük az automatikusan kijelentkeztetést, azonban ez késhet."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "A fiókhoz korlátozottan mentett exportálások érvénytelenek lesznek."
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "A széfben régi mellékletek vannak, amelyeket javítani kell a fiók titkosító kulcsának fordítása előtt."
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "A titkosítási kulcs cseréjének hattása"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Egy vagy több szervezeti rendszabályhoz mesterjelszó szükséges a következő követelmények megfeleléséhez:"
+  },
   "pin": {
     "message": "Pinkód",
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
@@ -2455,6 +2581,9 @@
   },
   "vaultTimeoutAction": {
     "message": "Széf időkifutás művelet"
+  },
+  "showAtRiskPasswordNotifications": {
+    "message": "Kockázatos jelszó értesítések megjelenítése"
   },
   "lock": {
     "message": "Lezárás",
@@ -2810,8 +2939,8 @@
     },
     "description": "Notification body when a login triggers an at-risk password change request and the change password domain is known."
   },
-  "atRiskNavigatePrompt": {
-    "message": "$ORGANIZATION$ azt akarja, hogy változtassuk meg ezt a jelszót, mert veszélyben van. A jelszó módosításához navigáljunk fiók beállításokhoz.",
+  "atRiskNavigatePromptV2": {
+    "message": "A webhelyhez tartozó jelszó veszélyben van. $ORGANIZATION$ kérte, hogy navigáljunk a fiók beállításokhoz és módosítsuk azokat.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -3741,6 +3870,24 @@
   "loginStatus": {
     "message": "Bejelentkezési állapot"
   },
+  "recentlyActive": {
+    "message": "Legutóbb aktív"
+  },
+  "recentlyActiveToday": {
+    "message": "Ma"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Az elmúlt 7 nap"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Az elmúlt 14 nap"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Elmúlt 30 nap"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Több mint 30 napja"
+  },
   "masterPasswordChanged": {
     "message": "A mesterjelszó mentésre került."
   },
@@ -4394,6 +4541,9 @@
     "message": "Válasszuk ki az import fájlt"
   },
   "chooseFile": {
+    "message": "Fájl kiválasztása"
+  },
+  "chooseFileSentenceCase": {
     "message": "Fájl kiválasztása"
   },
   "noFileChosen": {
@@ -6088,6 +6238,18 @@
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Állítsunk be egy feloldási módot a széf időkifutási műveletének módosításához."
   },
+  "sessionTimeoutSuppressedByConnectedDevice": {
+    "message": "A Bitwarden böngésző bővítmény alkalmazás kezeli. Nyissuk meg a böngésző alkalmazást szerkesztésre."
+  },
+  "percentageCompleted": {
+    "message": "$PERCENT$% kész",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "upgrade": {
     "message": "Áttérés"
   },
@@ -6175,6 +6337,9 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
   "downloadBitwardenApps": {
     "message": "Bitwarden alkalmazások letöltése"
   },
@@ -6188,7 +6353,104 @@
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
   },
+  "bankName": {
+    "message": "Bank neve"
+  },
+  "nameOnAccount": {
+    "message": "Számlatulajdonos neve"
+  },
+  "bankAccountType": {
+    "message": "Számlatípus"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Cég (üzleti)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Egyéni (személyes)"
+  },
+  "accountNumber": {
+    "message": "Számlaszám"
+  },
+  "bankRoutingNumber": {
+    "message": "Banki azonosító",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Fióktelep/intézmény szám"
+  },
+  "swiftCode": {
+    "message": "SWIFT-kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Banki kapcsolati telefon"
+  },
+  "searchBankAccount": {
+    "message": "Bankfiók keresése"
+  },
+  "copyAccountNumber": {
+    "message": "Számlaszám másolása"
+  },
+  "copyRoutingNumber": {
+    "message": "Banki azonosító másolása"
+  },
+  "copyPin": {
+    "message": "PIN kód másolása"
+  },
+  "copyIban": {
+    "message": "IBAN másolása"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Ellenőrzés"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Megtakarítások"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Áthelyezési igazolás"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Hitelkeret"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Befektetés/brókerügylet"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Pénzpiaci számla"
+  },
+  "bankAccountTypeOther": {
+    "message": "Egyéb"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Banki adatok biztonságos tárolása"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Mentsük el a bankszámla adatokat, hogy könnyen és biztonságosan hozzáférhessünk az eszközökhöz."
+  },
   "downloadFailed": {
     "message": "A letöltés sikertelen volt."
+  },
+  "sideNavigation": {
+    "message": "Oldal navigáció"
+  },
+  "skipLink": {
+    "message": "Hivatkozás kihagyása"
+  },
+  "callout": {
+    "message": "Felhívás",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Folyamatjelző sáv",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "A Send elem szerkesztések mentése nem sikerült.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
   }
 }

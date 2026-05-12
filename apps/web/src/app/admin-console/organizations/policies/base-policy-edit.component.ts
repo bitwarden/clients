@@ -1,19 +1,25 @@
-import { Directive, Input, OnInit } from "@angular/core";
+import { Directive, OnInit, Signal, inject, input, signal } from "@angular/core";
 import { FormControl, UntypedFormGroup } from "@angular/forms";
-import { Observable, of } from "rxjs";
+import { Observable, firstValueFrom, of, switchMap } from "rxjs";
 import { Constructor } from "type-fest";
 
+import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
-import { VNextSavePolicyRequest } from "@bitwarden/common/admin-console/models/request/v-next-save-policy.request";
+import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
+import { KeyService } from "@bitwarden/key-management";
 
 import { PolicyCategory } from "./pipes/policy-category";
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+import type { PolicyStep, PolicyStepResult } from "./policy-edit-dialogs/models";
 
 /**
  * Interface for policy dialog components.
@@ -24,6 +30,10 @@ export interface PolicyDialogComponent {
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => DialogRef<PolicyEditDialogResult>;
+  openDrawer?: (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => Promise<DialogRef<PolicyEditDialogResult> | undefined>;
 }
 
 /**
@@ -91,12 +101,14 @@ export abstract class BasePolicyEditDefinition {
  */
 @Directive()
 export abstract class BasePolicyEditComponent implements OnInit {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policyResponse: PolicyStatusResponse | undefined;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input() policy: BasePolicyEditDefinition | undefined;
+  readonly policyResponse = input<PolicyStatusResponse | undefined>(undefined);
+  readonly policy = input<BasePolicyEditDefinition | undefined>(undefined);
+  readonly currentStep = input<Signal<number>>(signal(0));
+  readonly organizationId = input<string | undefined>(undefined);
+
+  protected readonly accountService = inject(AccountService);
+  protected readonly keyService = inject(KeyService);
+  protected readonly policyApiService = inject(PolicyApiServiceAbstraction);
 
   /**
    * Whether the policy is enabled.
@@ -108,51 +120,68 @@ export abstract class BasePolicyEditComponent implements OnInit {
    */
   data: UntypedFormGroup | undefined;
 
-  ngOnInit(): void {
-    this.enabled.setValue(this.policyResponse?.enabled ?? false);
+  /**
+   * Optional multi-step configuration for policies that require multiple steps to complete.
+   */
+  policySteps?: PolicyStep[];
 
-    if (this.policyResponse?.data != null) {
+  ngOnInit(): void {
+    this.enabled.setValue(this.policyResponse()?.enabled ?? false);
+
+    if (this.policyResponse()?.data != null) {
       this.loadData();
     }
   }
 
-  async buildVNextRequest(orgKey: OrgKey): Promise<VNextSavePolicyRequest> {
-    if (!this.policy) {
+  async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
+    if (!this.policy()) {
       throw new Error("Policy was not found");
     }
 
-    const request: VNextSavePolicyRequest = {
-      policy: await this.buildRequest(),
+    return {
+      policy: {
+        enabled: this.enabled.value ?? false,
+        data: this.buildRequestData(),
+      },
       metadata: null,
     };
-
-    return request;
-  }
-
-  buildRequest() {
-    if (!this.policy) {
-      throw new Error("Policy was not found");
-    }
-
-    const request: PolicyRequest = {
-      enabled: this.enabled.value ?? false,
-      data: this.buildRequestData(),
-    };
-
-    return Promise.resolve(request);
   }
 
   /**
-   * This is called before the policy is saved. If it returns false, it will not be saved
-   * and the user will remain on the policy edit dialog.
-   * This can be used to trigger an additional confirmation modal before saving.
-   * */
-  confirm(): Promise<boolean> | boolean {
-    return true;
+   * Saves the policy. Subclasses that require additional steps or side effects
+   * (e.g. enabling a prerequisite policy) should override this method.
+   */
+  protected async savePolicy(): Promise<PolicyStepResult | void> {
+    if (!this.policy()) {
+      throw new Error("Policy was not found");
+    }
+
+    const orgKeys = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.keyService.orgKeys$(userId)),
+      ),
+    );
+
+    assertNonNullish(orgKeys, "Org keys not provided");
+
+    const orgKey = orgKeys[this.organizationId() as OrganizationId];
+
+    if (orgKey == null) {
+      throw new Error("No encryption key for this organization.");
+    }
+
+    const request = await this.buildRequest(orgKey);
+
+    await this.policyApiService.putPolicy(
+      this.organizationId() ?? "",
+      this.policy()!.type,
+      request,
+    );
   }
 
   protected loadData() {
-    this.data?.patchValue(this.policyResponse?.data ?? {});
+    this.data?.patchValue(this.policyResponse()?.data ?? {});
   }
 
   /**
@@ -160,7 +189,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
    */
   protected buildRequestData() {
     if (this.data != null) {
-      return this.data.value;
+      return this.data.getRawValue();
     }
 
     return null;

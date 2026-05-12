@@ -179,7 +179,14 @@ export class OverlayNotificationsContentService implements OverlayNotificationsC
       if (this.notificationBarRootElement) {
         globalThis.document.body.appendChild(this.notificationBarRootElement);
       }
+      return;
     }
+    this.currentNotificationBarType = initData.type ?? null;
+    this.sendMessageToNotificationBarIframe({
+      command: "initNotificationBar",
+      initData,
+      parentOrigin: globalThis.location.origin,
+    });
   }
 
   /**

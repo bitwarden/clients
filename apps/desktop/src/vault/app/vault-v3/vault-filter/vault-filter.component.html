@@ -11,7 +11,7 @@
       [activeSingleOrganizationPolicy]="activeSingleOrganizationPolicy"
     />
     <app-type-filter [activeFilter]="activeFilter()" [cipherTypes]="cipherTypes()" />
-    <app-status-filter [hideArchive]="!showArchiveVaultFilter" [activeFilter]="activeFilter()" />
+    <app-status-filter [activeFilter]="activeFilter()" />
     @if (showCollectionsFilter()) {
       <bit-nav-group
         icon="bwi-collection"

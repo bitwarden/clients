@@ -7,9 +7,14 @@
       [placeholder]="'searchMembers' | i18n"
       class="tw-grow"
     ></bit-search>
-    <button type="button" bitButton buttonType="primary" [bitAction]="exportReportAction">
-      <span>{{ "export" | i18n }}</span>
-      <bit-icon name="bwi-sign-in" class="bwi-fw" aria-hidden="true"></bit-icon>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      endIcon="bwi-import"
+      [bitAction]="exportReportAction"
+    >
+      {{ "exportVerb" | i18n }}
     </button>
   }
 </app-header>
@@ -43,7 +48,6 @@
       <td bitCell>
         <div class="tw-flex tw-items-center">
           <bit-avatar
-            size="small"
             [text]="row.name ? row.name : row.email"
             [id]="row.userIdFromOrgUser"
             [color]="row.avatarColor"

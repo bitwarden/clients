@@ -9,7 +9,7 @@ import {
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { TableModule } from "@bitwarden/components";
+import { LinkModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden/vault";
 
@@ -20,6 +20,7 @@ import { GetOrgNameFromIdPipe, OrganizationNameBadgeComponent } from "@bitwarden
   templateUrl: "vault-collection-row.component.html",
   imports: [
     TableModule,
+    LinkModule,
     NgClass,
     I18nPipe,
     RouterLink,

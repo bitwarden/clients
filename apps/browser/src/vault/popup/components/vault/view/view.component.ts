@@ -23,7 +23,6 @@ import {
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -49,10 +48,8 @@ import {
 } from "@bitwarden/components";
 import {
   ArchiveCipherUtilitiesService,
-  ChangeLoginPasswordService,
   CipherViewComponent,
   CopyCipherFieldService,
-  DefaultChangeLoginPasswordService,
   PasswordRepromptService,
 } from "@bitwarden/vault";
 
@@ -113,7 +110,6 @@ type LoadAction =
   providers: [
     { provide: ViewPasswordHistoryService, useClass: BrowserViewPasswordHistoryService },
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },
-    { provide: ChangeLoginPasswordService, useClass: DefaultChangeLoginPasswordService },
   ],
 })
 export class ViewComponent {
@@ -139,8 +135,6 @@ export class ViewComponent {
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
-  protected archiveFlagEnabled$ = this.archiveService.hasArchiveFlagEnabled$;
-
   constructor(
     private passwordRepromptService: PasswordRepromptService,
     private route: ActivatedRoute,
@@ -235,6 +229,9 @@ export class ViewComponent {
       [CipherType.Identity]: "viewItemHeaderIdentity",
       [CipherType.SecureNote]: "viewItemHeaderNote",
       [CipherType.SshKey]: "viewItemHeaderSshKey",
+      [CipherType.BankAccount]: "viewItemHeaderBankAccount",
+      [CipherType.DriversLicense]: "viewItemHeaderDriversLicense",
+      [CipherType.Passport]: "viewItemHeaderPassport",
     };
     return this.i18nService.t(translation[type]);
   }
@@ -368,26 +365,6 @@ export class ViewComponent {
     //for non login types that are still auto-fillable
     if (CipherViewLikeUtils.getType(this.cipher) !== CipherType.Login) {
       await this.vaultPopupAutofillService.doAutofill(this.cipher, true, true);
-      return;
-    }
-
-    const uris = this.cipher.login?.uris ?? [];
-    const uriMatchStrategy = await firstValueFrom(this.uriMatchStrategy$);
-
-    const showExactMatchDialog =
-      uris.length === 0
-        ? uriMatchStrategy === UriMatchStrategy.Exact
-        : // all saved URIs are exact match
-          uris.every((u) => (u.match ?? uriMatchStrategy) === UriMatchStrategy.Exact);
-
-    if (showExactMatchDialog) {
-      await this.dialogService.openSimpleDialog({
-        title: { key: "cannotAutofill" },
-        content: { key: "cannotAutofillExactMatch" },
-        type: "info",
-        acceptButtonText: { key: "okay" },
-        cancelButtonText: null,
-      });
       return;
     }
 

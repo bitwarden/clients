@@ -19,6 +19,7 @@ import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
   OrganizationUserDetailsResponse,
+  OrganizationUserPendingAutoConfirmResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
   OrganizationUserUserMiniResponse,
@@ -293,6 +294,20 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
+  putOrganizationUserRecoverAccount(
+    organizationId: string,
+    id: string,
+    request: OrganizationUserResetPasswordRequest,
+  ): Promise<void> {
+    return this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/" + id + "/recover-account",
+      request,
+      true,
+      false,
+    );
+  }
+
   removeOrganizationUser(organizationId: string, id: string): Promise<any> {
     return this.apiService.send(
       "DELETE",
@@ -397,6 +412,33 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       "DELETE",
       "/organizations/" + organizationId + "/users/delete-account",
       new OrganizationUserBulkRequest(ids),
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
+
+  async getPendingAutoConfirmUsers(
+    organizationId: string,
+  ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/users/pending-auto-confirm",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserPendingAutoConfirmResponse);
+  }
+
+  async postBulkOrganizationUserAutoConfirm(
+    organizationId: string,
+    request: OrganizationUserBulkConfirmRequest,
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/bulk-auto-confirm",
+      request,
       true,
       true,
     );

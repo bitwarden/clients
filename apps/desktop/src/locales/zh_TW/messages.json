@@ -35,6 +35,39 @@
   "typeSshKey": {
     "message": "SSH 金鑰"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
+  "typeLoginSubtitle": {
+    "message": "網站或應用程式"
+  },
+  "typeCardSubtitle": {
+    "message": "信用卡或金融卡"
+  },
+  "typeIdentitySubtitle": {
+    "message": "個人資料"
+  },
+  "typeNoteSubtitle": {
+    "message": "重要文字"
+  },
+  "typeSshKeySubtitle": {
+    "message": "伺服器登入憑證"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
+  "folderSubtitle": {
+    "message": "整理您的項目"
+  },
+  "collectionSubtitle": {
+    "message": "整理共享項目"
+  },
+  "chooseItemToAdd": {
+    "message": "選擇要新增的項目"
+  },
+  "chooseItemToAddDesc": {
+    "message": "選擇要新增到保險庫的項目類型。"
+  },
   "folders": {
     "message": "資料夾"
   },
@@ -86,6 +119,102 @@
   },
   "viewItem": {
     "message": "檢視項目"
+  },
+  "viewItemHeaderLogin": {
+    "message": "檢視登入資訊",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "檢視付款卡",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "檢視身分",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "檢視備註",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "檢視 SSH 金鑰",
+    "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "新增登入資料",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "新增付款卡",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "新增身分",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "新增備註",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "新增 SSH 金鑰",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "編輯登入資訊",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "編輯付款卡",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "編輯身分",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "編輯備註",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "編輯 SSH 金鑰",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "名稱"
@@ -338,10 +467,10 @@
     "message": "進階會員才可使用此功能。"
   },
   "syncWithBrowser": {
-    "message": "Sync with browser"
+    "message": "與瀏覽器同步"
   },
   "acquireCookieSpeedbumpContent": {
-    "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
+    "message": "若要連線至 $VAULTURL$，您需要將預設瀏覽器與 Bitwarden 應用程式同步。瀏覽器同步完成後，您將被重新導向回此應用程式。",
     "description": "A speedbump message (dialog) shown when the user needs to sync with the browser to acquire an SSO cookie.",
     "placeholders": {
       "vaultUrl": {
@@ -351,7 +480,7 @@
     }
   },
   "launchBrowser": {
-    "message": "Launch browser"
+    "message": "開啟瀏覽器"
   },
   "errorOccurred": {
     "message": "發生錯誤。"
@@ -619,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "刪除附件"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "確定要刪除此項目嗎?"
@@ -921,6 +1068,9 @@
   "masterPassHintLabel": {
     "message": "主密碼提示"
   },
+  "masterPasswordChanged": {
+    "message": "主密碼已儲存"
+  },
   "passwordStrengthScore": {
     "message": "密碼強度分數 $SCORE$",
     "placeholders": {
@@ -1212,6 +1362,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "新的建議加密設定將提升您的帳戶安全性。請輸入主密碼以立即更新。"
   },
+  "rotateAccountEncKey": {
+    "message": "同時輪換帳戶的加密金鑰"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "輪換加密金鑰的影響"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "需要先修正密碼庫中舊的檔案附件，然後才能輪換帳戶的加密金鑰。"
+  },
+  "rotateEncKeyTitle": {
+    "message": "輪換加密金鑰"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "確定要輪換帳戶的加密金鑰嗎？"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "更新加密金鑰後，您需要登出並重新登入目前使用的所有 Bitwarden 應用程式（如行動應用程式或瀏覽器擴充套件）。登出和重新登入（這會下載新的加密金鑰）失敗可能會導致資料損毀。我們將嘗試自動登出，但可能會有所延遲。"
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "您保存的任何受限制匯出帳號將失效。"
+  },
   "confirmIdentityToContinue": {
     "message": "請先確認身分後再繼續"
   },
@@ -1296,8 +1467,8 @@
   "changeMasterPass": {
     "message": "變更主密碼"
   },
-  "masterPasswordChanged": {
-    "message": "Master password saved"
+  "changeMasterPassword": {
+    "message": "變更主密碼"
   },
   "continueToWebApp": {
     "message": "前往網頁應用程式嗎？"
@@ -1477,18 +1648,6 @@
   },
   "enableTrayDesc": {
     "message": "總是在系統匣中顯示圖示。"
-  },
-  "startToTray": {
-    "message": "啟動時隱藏至系統匣"
-  },
-  "startToTrayDesc": {
-    "message": "應用程式首次啟動時，只在系統匣顯示一個圖示。"
-  },
-  "startToMenuBar": {
-    "message": "啟動到選單列"
-  },
-  "startToMenuBarDesc": {
-    "message": "應用程式首次啟動時，只在選單列顯示一個圖示。"
   },
   "openAtLogin": {
     "message": "登入時自動啟動"
@@ -1852,6 +2011,12 @@
     "message": "預設一致性偵測",
     "description": "Default URI match detection for auto-fill."
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "toggleOptions": {
     "message": "切換選項"
   },
@@ -2102,6 +2267,15 @@
   "unsavedChangesTitle": {
     "message": "有尚未儲存的變更"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "如果您現在離開，變更將不會被儲存。請稍後安裝更新，以便您可以留下並儲存變更。"
+  },
+  "installLater": {
+    "message": "稍後安裝"
+  },
+  "continueWithInstall": {
+    "message": "繼續安裝"
+  },
   "clone": {
     "message": "克隆"
   },
@@ -2211,6 +2385,9 @@
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
   },
+  "copyNotes": {
+    "message": "複製備註"
+  },
   "totpHelperTitle": {
     "message": "無縫兩步驟驗證"
   },
@@ -2299,6 +2476,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "新的主密碼不符合原則要求。"
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "一個或多個組織原則要求主密碼須符合下列條件："
   },
   "receiveMarketingEmailsV2": {
     "message": "獲得來自 Bitwarden 的公告、建議及研究資訊電子郵件。"
@@ -3501,6 +3681,63 @@
   "deviceTrusted": {
     "message": "裝置已信任"
   },
+  "device": {
+    "message": "裝置"
+  },
+  "devices": {
+    "message": "裝置"
+  },
+  "whatIsADevice": {
+    "message": "什麼是裝置？"
+  },
+  "aDeviceIs": {
+    "message": "裝置是您登入 Bitwarden 應用程式的唯一安裝環境。重新安裝、清除應用程式資料或清除 Cookie 可能導致裝置出現多次。"
+  },
+  "deviceListDescriptionTemp": {
+    "message": "你的帳號已在下列各裝置登入。"
+  },
+  "loginStatus": {
+    "message": "登入狀態"
+  },
+  "recentlyActive": {
+    "message": "最近活動"
+  },
+  "recentlyActiveToday": {
+    "message": "今天"
+  },
+  "recentlyActivePast7Days": {
+    "message": "過去 7 天"
+  },
+  "recentlyActivePast14Days": {
+    "message": "過去 14 天"
+  },
+  "recentlyActivePast30Days": {
+    "message": "過去 30 天"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "30 天前以上"
+  },
+  "firstLogin": {
+    "message": "首次登入"
+  },
+  "trusted": {
+    "message": "已信任"
+  },
+  "currentSession": {
+    "message": "目前工作階段"
+  },
+  "requestPending": {
+    "message": "等待請求"
+  },
+  "deviceIdMissing": {
+    "message": "缺少裝置 ID"
+  },
+  "deviceTypeMissing": {
+    "message": "缺少裝置類型"
+  },
+  "deviceCreationDateMissing": {
+    "message": "缺少裝置建立日期"
+  },
   "trustOrganization": {
     "message": "目前組織"
   },
@@ -3739,6 +3976,9 @@
   "chooseFile": {
     "message": "選擇檔案"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "未選擇任何檔案"
   },
@@ -3768,7 +4008,7 @@
     "message": "密碼庫資料已匯出"
   },
   "exportError": {
-    "message": "An error occurred while exporting your vault data"
+    "message": "匯出密碼庫資料時發生錯誤"
   },
   "multifactorAuthenticationCancelled": {
     "message": "多因素驗證已取消"
@@ -4669,6 +4909,15 @@
   "organizationIsSuspendedDesc": {
     "message": "無法存取已停用組織中的項目。請聯絡您組織的擁有者以獲取協助。"
   },
+  "percentageCompleted": {
+    "message": "完成 $PERCENT$%",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "垃圾桶中沒有項目"
   },
@@ -4724,7 +4973,132 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "使用者驗證失敗。"
+  },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
+  "discardEdits": {
+    "message": "放棄變更"
+  },
+  "discardEditsMessage": {
+    "message": "若關閉此畫面，尚未儲存的變更將會遺失"
+  },
+  "backToEditing": {
+    "message": "返回編輯"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send 有未儲存的變更。確定要離開嗎？",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "儲存 Send 變更失敗",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "sideNavigation": {
+    "message": "側邊導覽"
+  },
+  "skipLink": {
+    "message": "略過連結"
+  },
+  "callout": {
+    "message": "提示區塊",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "進度條",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

@@ -35,6 +35,39 @@
   "typeSshKey": {
     "message": "Ключ SSH"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
+  "typeLoginSubtitle": {
+    "message": "Веб-сайт или приложение"
+  },
+  "typeCardSubtitle": {
+    "message": "Кредитная или дебетовая карта"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Личная информация"
+  },
+  "typeNoteSubtitle": {
+    "message": "Важный текст"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Токен входа на сервер"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
+  "folderSubtitle": {
+    "message": "Организуйте свои элементы"
+  },
+  "collectionSubtitle": {
+    "message": "Организуйте общие элементы"
+  },
+  "chooseItemToAdd": {
+    "message": "Выберите элемент для добавления"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Выберите тип элемента, который хотите добавить в хранилище."
+  },
   "folders": {
     "message": "Папки"
   },
@@ -86,6 +119,102 @@
   },
   "viewItem": {
     "message": "Просмотр элемента"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Просмотр логина",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Просмотр карты",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Просмотр личной информации",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Просмотр заметки",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Просмотр ключа SSH",
+    "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Просмотреть банковский счет",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Просмотреть лицензию",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Просмотреть паспорт",
+    "description": "Header for view passport item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Новый логин",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Новая карта",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Новая личная информация",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Новая заметка",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Новый ключ SSH",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Новый банковский счет",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Новая лицензия",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Новый паспорт",
+    "description": "Header for new passport item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Изменить логин",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Редактировать карту",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Редактировать личную информацию",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Редактировать заметку",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Редактировать ключ SSH",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Изменить банковский счет",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Изменить лицензию",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Изменить паспорт",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Название"
@@ -620,6 +749,24 @@
   "deleteAttachment": {
     "message": "Удалить вложение"
   },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Вы действительно хотите отправить в корзину?"
   },
@@ -921,6 +1068,9 @@
   "masterPassHintLabel": {
     "message": "Подсказка к мастер-паролю"
   },
+  "masterPasswordChanged": {
+    "message": "Мастер-пароль сохранен"
+  },
   "passwordStrengthScore": {
     "message": "Оценка надежности пароля $SCORE$",
     "placeholders": {
@@ -1212,6 +1362,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Новые рекомендуемые настройки шифрования повысят безопасность вашего аккаунта. Введите мастер-пароль, чтобы обновить сейчас."
   },
+  "rotateAccountEncKey": {
+    "message": "Также сменить ключ шифрования моего аккаунта"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Последствия смены ключа шифрования"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "В вашем хранилище есть старые вложения файлов, которые необходимо исправить, прежде чем вы сможете сменить ключ шифрования вашего аккаунта."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Сменить ключ шифрования"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Вы уверены, что хотите сменить ключ шифрования вашего аккаунта?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Любые сохраненные вами настройки ограничения экспорта для аккаунта утратят силу."
+  },
   "confirmIdentityToContinue": {
     "message": "Подтвердите вашу личность, чтобы продолжить"
   },
@@ -1296,8 +1467,8 @@
   "changeMasterPass": {
     "message": "Изменить мастер-пароль"
   },
-  "masterPasswordChanged": {
-    "message": "Мастер-пароль сохранен"
+  "changeMasterPassword": {
+    "message": "Изменить мастер-пароль"
   },
   "continueToWebApp": {
     "message": "Перейти к веб-приложению?"
@@ -1477,18 +1648,6 @@
   },
   "enableTrayDesc": {
     "message": "Всегда отображать значок в области уведомлений."
-  },
-  "startToTray": {
-    "message": "Запускать свернутым в область уведомлений"
-  },
-  "startToTrayDesc": {
-    "message": "При первом запуске приложения будет отображаться только значок в области уведомлений."
-  },
-  "startToMenuBar": {
-    "message": "Запускать в панели меню"
-  },
-  "startToMenuBarDesc": {
-    "message": "При первом запуске приложения будет отображаться только значок в панели меню."
   },
   "openAtLogin": {
     "message": "Запускать автоматически при входе в систему"
@@ -1852,6 +2011,12 @@
     "message": "Метод обнаружения по умолчанию",
     "description": "Default URI match detection for auto-fill."
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
+  },
   "toggleOptions": {
     "message": "Настройки перебора"
   },
@@ -2102,6 +2267,15 @@
   "unsavedChangesTitle": {
     "message": "Несохраненные изменения"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Если вы остановитесь сейчас, ваши изменения не будут сохранены. Установите обновление позже, чтобы вы могли остаться и сохранить свои изменения."
+  },
+  "installLater": {
+    "message": "Установить позднее"
+  },
+  "continueWithInstall": {
+    "message": "Продолжить установку"
+  },
   "clone": {
     "message": "Клонировать"
   },
@@ -2211,6 +2385,9 @@
   "copyTOTP": {
     "message": "Скопировать ключ аутентификатора (TOTP)"
   },
+  "copyNotes": {
+    "message": "Скопировать заметки"
+  },
   "totpHelperTitle": {
     "message": "Сделайте двухэтапную аутентификацию простой и удобной"
   },
@@ -2299,6 +2476,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Ваш новый мастер-пароль не соответствует требованиям политики."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Одна или несколько политик организации требуют, чтобы мастер-пароль соответствовал следующим требованиям:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Получайте советы, анонсы и возможности для исследований от Bitwarden на свой email."
@@ -3501,6 +3681,63 @@
   "deviceTrusted": {
     "message": "Доверенное устройство"
   },
+  "device": {
+    "message": "Устройство"
+  },
+  "devices": {
+    "message": "Устройства"
+  },
+  "whatIsADevice": {
+    "message": "Что такое устройство?"
+  },
+  "aDeviceIs": {
+    "message": "Устройство - это уникальная установка приложения Bitwarden, в которой вы авторизовались. Переустановка, очистка данных приложения или очистка файлов cookie может привести к тому, что устройство будет отображаться несколько раз."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Ваш аккаунт авторизован на перечисленных ниже устройствах."
+  },
+  "loginStatus": {
+    "message": "Статус авторизации"
+  },
+  "recentlyActive": {
+    "message": "Недавняя активность"
+  },
+  "recentlyActiveToday": {
+    "message": "Сегодня"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Последние 7 дней"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Последние 14 дней"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Последние 30 дней"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Более 30 дней назад"
+  },
+  "firstLogin": {
+    "message": "Первый вход"
+  },
+  "trusted": {
+    "message": "Доверенное"
+  },
+  "currentSession": {
+    "message": "Текущая сессия"
+  },
+  "requestPending": {
+    "message": "Запрос в ожидании"
+  },
+  "deviceIdMissing": {
+    "message": "ID устройства отсутствует"
+  },
+  "deviceTypeMissing": {
+    "message": "Тип устройства отсутствует"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Дата создания устройства отсутствует"
+  },
   "trustOrganization": {
     "message": "Доверенная организация"
   },
@@ -3738,6 +3975,9 @@
   },
   "chooseFile": {
     "message": "Выбрать файл"
+  },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
   },
   "noFileChosen": {
     "message": "Файл не выбран"
@@ -4669,6 +4909,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Доступ к элементам в отключенных организациях невозможен. Обратитесь за помощью к владельцу организации."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$% complete",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Нет элементов в корзине"
   },
@@ -4724,7 +4973,132 @@
   "emailPlaceholder": {
     "message": "user@bitwarden.com , user@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
+  },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
+  "discardEdits": {
+    "message": "Discard edits"
+  },
+  "discardEditsMessage": {
+    "message": "If you close this view, your unsaved edits will be discarded"
+  },
+  "backToEditing": {
+    "message": "Back to editing"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send has unsaved edits. Are you sure you want to leave?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
+  "sideNavigation": {
+    "message": "Боковая навигация"
+  },
+  "skipLink": {
+    "message": "Пропустить ссылку"
+  },
+  "callout": {
+    "message": "Callout",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Индикатор прогресса",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

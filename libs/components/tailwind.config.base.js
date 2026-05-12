@@ -1,20 +1,33 @@
 /* eslint-disable */
 const colors = require("tailwindcss/colors");
 const plugin = require("tailwindcss/plugin");
+const path = require("path");
 
 function rgba(color) {
   return "rgb(var(" + color + ") / <alpha-value>)";
 }
 
+// shared lib paths; add app-specific paths to the app's tailwind.config.js, not here
+const libContent = [
+  "./src/**/*.{html,ts,mdx}",
+  "../../libs/admin-console/src/**/*.{html,ts,mdx}",
+  "../../libs/angular/src/**/*.{html,ts,mdx}",
+  "../../libs/assets/src/**/*.{html,ts,mdx}",
+  "../../libs/auth/src/**/*.{html,ts,mdx}",
+  "../../libs/billing/src/**/*.{html,ts,mdx}",
+  "../../libs/dirt/card/src/**/*.{html,ts,mdx}",
+  "../../libs/key-management-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/platform/src/**/*.{html,ts,mdx}",
+  "../../libs/pricing/src/**/*.{html,ts,mdx}",
+  "../../libs/subscription/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/generator/components/src/**/*.{html,ts,mdx}",
+  "../../libs/tools/send/send-ui/src/**/*.{html,ts,mdx}",
+  "../../libs/vault/src/**/*.{html,ts,mdx}",
+].map((libPath) => path.resolve(__dirname, libPath));
+
 module.exports = {
   prefix: "tw-",
-  content: [
-    "./src/**/*.{html,ts,mdx}",
-    "../../libs/assets/src/**/*.{html,ts}",
-    "../../libs/components/src/**/*.{html,ts,mdx}",
-    "../../libs/key-management-ui/src/**/*.{html,ts}",
-    "../../libs/auth/src/**/*.{html,ts}",
-  ],
+  content: libContent,
   safelist: [],
   corePlugins: { preflight: false },
   theme: {
@@ -83,6 +96,7 @@ module.exports = {
         dark: "var(--color-bg-dark)",
         contrast: "var(--color-bg-contrast)",
         "contrast-strong": "var(--color-bg-contrast-strong)",
+        "contrast-soft": "var(--color-bg-contrast-soft)",
         primary: "var(--color-bg-primary)",
         secondary: "var(--color-bg-secondary)",
         tertiary: "var(--color-bg-tertiary)",
@@ -110,6 +124,7 @@ module.exports = {
         "warning-strong": "var(--color-bg-warning-strong)",
         "accent-primary-soft": "var(--color-bg-accent-primary-soft)",
         "accent-primary-medium": "var(--color-bg-accent-primary-medium)",
+        "accent-primary-strong": "var(--color-bg-accent-primary-strong)",
         "accent-primary": "var(--color-bg-accent-primary)",
         "accent-secondary-soft": "var(--color-bg-accent-secondary-soft)",
         "accent-secondary-medium": "var(--color-bg-accent-secondary-medium)",
@@ -117,6 +132,16 @@ module.exports = {
         "accent-tertiary-soft": "var(--color-bg-accent-tertiary-soft)",
         "accent-tertiary-medium": "var(--color-bg-accent-tertiary-medium)",
         "accent-tertiary": "var(--color-bg-accent-tertiary)",
+        "avatar-teal": "var(--color-bg-avatar-teal)",
+        "avatar-teal-hover": "var(--color-bg-avatar-teal-hover)",
+        "avatar-coral": "var(--color-bg-avatar-coral)",
+        "avatar-coral-hover": "var(--color-bg-avatar-coral-hover)",
+        "avatar-brand": "var(--color-bg-avatar-brand)",
+        "avatar-brand-hover": "var(--color-bg-avatar-brand-hover)",
+        "avatar-green": "var(--color-bg-avatar-green)",
+        "avatar-green-hover": "var(--color-bg-avatar-green-hover)",
+        "avatar-purple": "var(--color-bg-avatar-purple)",
+        "avatar-purple-hover": "var(--color-bg-avatar-purple-hover)",
         hover: "var(--color-bg-hover)",
         "hover-contrast": "var(--color-bg-hover-contrast)",
         overlay: "var(--color-bg-overlay)",
@@ -141,10 +166,12 @@ module.exports = {
         white: "var(--color-fg-white)",
         dark: "var(--color-fg-dark)",
         contrast: "var(--color-fg-contrast)",
+        "contrast-strong": "var(--color-fg-contrast-strong)",
         heading: "var(--color-fg-heading)",
         body: "var(--color-fg-body)",
         "body-subtle": "var(--color-fg-body-subtle)",
         disabled: "var(--color-fg-disabled)",
+        inactive: "var(--color-fg-inactive)",
         "brand-soft": "var(--color-fg-brand-soft)",
         brand: "var(--color-fg-brand)",
         "brand-strong": "var(--color-fg-brand-strong)",
@@ -171,6 +198,7 @@ module.exports = {
         light: "var(--color-border-light)",
         base: "var(--color-border-base)",
         strong: "var(--color-border-strong)",
+        stronger: "var(--color-border-stronger)",
         buffer: "var(--color-border-buffer)",
         "brand-soft": "var(--color-border-brand-soft)",
         brand: "var(--color-border-brand)",
@@ -239,10 +267,12 @@ module.exports = {
       "fg-white": "var(--color-fg-white)",
       "fg-dark": "var(--color-fg-dark)",
       "fg-contrast": "var(--color-fg-contrast)",
+      "fg-contrast-strong": "var(--color-fg-contrast-strong)",
       "fg-heading": "var(--color-fg-heading)",
       "fg-body": "var(--color-fg-body)",
       "fg-body-subtle": "var(--color-fg-body-subtle)",
       "fg-disabled": "var(--color-fg-disabled)",
+      "fg-inactive": "var(--color-fg-inactive)",
       "fg-brand-soft": "var(--color-fg-brand-soft)",
       "fg-brand": "var(--color-fg-brand)",
       "fg-brand-strong": "var(--color-fg-brand-strong)",
@@ -325,6 +355,7 @@ module.exports = {
         xxs: [".5rem", "150%"],
       },
       container: {
+        "@3xl": "769px",
         "@5xl": "1100px",
       },
       keyframes: {

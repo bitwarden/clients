@@ -35,6 +35,39 @@
   "typeSshKey": {
     "message": "SSH klíč"
   },
+  "typeBankAccount": {
+    "message": "Bankovní účet"
+  },
+  "typeLoginSubtitle": {
+    "message": "Webová stránka nebo aplikace"
+  },
+  "typeCardSubtitle": {
+    "message": "Kreditní nebo debetní karta"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Osobní informace"
+  },
+  "typeNoteSubtitle": {
+    "message": "Důležitý text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Přihlašovací token serveru"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Údaje o bance"
+  },
+  "folderSubtitle": {
+    "message": "Uspořádat položky"
+  },
+  "collectionSubtitle": {
+    "message": "Uspořádat sdílené položky"
+  },
+  "chooseItemToAdd": {
+    "message": "Vyberte položku k přidání"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Vyberte typ položky, který chcete přidat do trezoru."
+  },
   "folders": {
     "message": "Složky"
   },
@@ -86,6 +119,102 @@
   },
   "viewItem": {
     "message": "Zobrazit položku"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zobrazit přihlášení",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Zobrazit kartu",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Zobrazit identitu",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Zobrazit poznámku",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "Zobrazit SSH klíč",
+    "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "Zobrazit bankovní účet",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Zobrazit licenci",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Zobrazit pas",
+    "description": "Header for view passport item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Nové přihlášení",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Nová karta",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Nová identita",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Nová poznámka",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Nový SSH klíč",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "Nový bankovní účet",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Nová licence",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Nový pas",
+    "description": "Header for new passport item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Upravit přihlášení",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Upravit kartu",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Upravit identitu",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Upravit poznámku",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "Upravit SSH klíč",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Upravit bankovní účet",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Upravit licenci",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Upravit pas",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Název"
@@ -620,6 +749,24 @@
   "deleteAttachment": {
     "message": "Smazat přílohu"
   },
+  "deleteAttachmentName": {
+    "message": "Smazat přílohu $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Stáhnout $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Opravdu chcete položku přesunout do koše?"
   },
@@ -921,6 +1068,9 @@
   "masterPassHintLabel": {
     "message": "Nápověda k hlavnímu heslu"
   },
+  "masterPasswordChanged": {
+    "message": "Hlavní heslo bylo uloženo"
+  },
   "passwordStrengthScore": {
     "message": "Skóre síly hesla: $SCORE$",
     "placeholders": {
@@ -1212,6 +1362,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Nové doporučené nastavení šifrování zlepší bezpečnost Vašeho účtu. Pokud chcete aktualizovat nyní, zadejte hlavní heslo."
   },
+  "rotateAccountEncKey": {
+    "message": "Měnit také šifrovací klíč k mému účtu"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Dopad rotace Vašeho šifrovacího klíče"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Ve Vašem trezoru jsou staré přílohy vyžadující opravu před změnou šifrovacího klíče k Vašemu účtu."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Měnit šifrovací klíč"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Opravdu chcete měnit šifrovací klíč k Vašemu účtu?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Po aktualizace šifrovacího klíče dojde k odhlášení a budete se muset opětovně přihlásit do všech aplikací Bitwardenu, které aktuálně používáte (např. mobilní aplikace či rozšíření pro prohlížeč). Nezdaří-li se odhlášení a opětovné přihlášení (během něhož bude stažen nový šifrovací klíč), může dojít k poškození dat. Pokusíme se Vás automaticky odhlásit, nicméně, může to chvíli trvat."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Všechny uložené exporty s omezením účtu se stanou neplatnými."
+  },
   "confirmIdentityToContinue": {
     "message": "Pro pokračování potvrďte svou identitu"
   },
@@ -1296,8 +1467,8 @@
   "changeMasterPass": {
     "message": "Změnit hlavní heslo"
   },
-  "masterPasswordChanged": {
-    "message": "Hlavní heslo bylo uloženo"
+  "changeMasterPassword": {
+    "message": "Změnit hlavní heslo"
   },
   "continueToWebApp": {
     "message": "Pokračovat do webové aplikace?"
@@ -1477,18 +1648,6 @@
   },
   "enableTrayDesc": {
     "message": "Vždy bude zobrazovat ikonu v systémové liště."
-  },
-  "startToTray": {
-    "message": "Spustit do systémové lišty"
-  },
-  "startToTrayDesc": {
-    "message": "Při prvním spuštění aplikace zobrazí jen ikonu v systémové liště."
-  },
-  "startToMenuBar": {
-    "message": "Spustit minimalizované v panelu nabídek"
-  },
-  "startToMenuBarDesc": {
-    "message": "Při prvním spuštění aplikace zobrazí jen ikonu v panelu nabídek."
   },
   "openAtLogin": {
     "message": "Spustit automaticky při přihlášení"
@@ -1852,6 +2011,12 @@
     "message": "Výchozí zjišťování shody",
     "description": "Default URI match detection for auto-fill."
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Zobrazit detekci shody"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Skrýt detekci shody"
+  },
   "toggleOptions": {
     "message": "Přepnout volby"
   },
@@ -2102,6 +2267,15 @@
   "unsavedChangesTitle": {
     "message": "Neuložené změny"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Pokud nyní odejdete, Vaše změny nebudou uloženy. Nainstalujte aktualizaci později, abyste mohli zůstat a uložit změny."
+  },
+  "installLater": {
+    "message": "Nainstalovat později"
+  },
+  "continueWithInstall": {
+    "message": "Pokračovat s instalací"
+  },
   "clone": {
     "message": "Duplikovat"
   },
@@ -2211,6 +2385,9 @@
   "copyTOTP": {
     "message": "Kopírovat autentizační klíč (TOTP)"
   },
+  "copyNotes": {
+    "message": "Kopírovat poznámky"
+  },
   "totpHelperTitle": {
     "message": "Bezproblémové dvoufázové ověřování"
   },
@@ -2299,6 +2476,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Vaše nové hlavní heslo nesplňuje požadavky zásad."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Jedna nebo více zásad organizace vyžaduje, aby hlavní heslo splňovalo následující požadavky:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Dostávejte do své e-mailové schránky rady, oznámení a příležitosti k výzkumu od společnosti Bitwarden."
@@ -3501,6 +3681,63 @@
   "deviceTrusted": {
     "message": "Zařízení zařazeno mezi důvěryhodné"
   },
+  "device": {
+    "message": "Zařízení"
+  },
+  "devices": {
+    "message": "Zařízení"
+  },
+  "whatIsADevice": {
+    "message": "Co je to zařízení?"
+  },
+  "aDeviceIs": {
+    "message": "Zařízení je jedinečná instalace aplikace Bitwarden, ve které jste se přihlásili. Přeinstalování, vymazání dat aplikace nebo vymazání souborů cookie může vést k tomu, že se zařízení objeví vícekrát."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Váš účet byl přihlášen do každého z níže uvedených zařízení."
+  },
+  "loginStatus": {
+    "message": "Stav přihlášení"
+  },
+  "recentlyActive": {
+    "message": "Nedávná aktivita"
+  },
+  "recentlyActiveToday": {
+    "message": "Dnes"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Posledních 7 dnů"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Posledních 14 dnů"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Posledních 30 dnů"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Před více než 30 dny"
+  },
+  "firstLogin": {
+    "message": "První přihlášení"
+  },
+  "trusted": {
+    "message": "Důvěryhodný"
+  },
+  "currentSession": {
+    "message": "Aktuální relace"
+  },
+  "requestPending": {
+    "message": "Čekající požadavek"
+  },
+  "deviceIdMissing": {
+    "message": "Chybí ID zařízení"
+  },
+  "deviceTypeMissing": {
+    "message": "Chybí typ zařízení"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Chybí datum vytvoření zařízení"
+  },
   "trustOrganization": {
     "message": "Důvěřovat organizaci"
   },
@@ -3737,6 +3974,9 @@
     "message": "Vyberte soubor pro import"
   },
   "chooseFile": {
+    "message": "Vybrat soubor"
+  },
+  "chooseFileSentenceCase": {
     "message": "Vybrat soubor"
   },
   "noFileChosen": {
@@ -4669,6 +4909,15 @@
   "organizationIsSuspendedDesc": {
     "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
   },
+  "percentageCompleted": {
+    "message": "$PERCENT$ % dokončeno",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Žádné položky v koši"
   },
@@ -4724,7 +4973,132 @@
   "emailPlaceholder": {
     "message": "uživatel@bitwarden.com, uživatel@společnost.cz"
   },
+  "emailPlaceholderMultiple": {
+    "message": "user@bitwarden.com, user@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "Změnit pořadí $LABEL$. Použijte šipky pro posunutí položky nahoru nebo dolů.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Ověření uživatele se nezdařilo."
+  },
+  "bankAccount": {
+    "message": "Bankovní účet"
+  },
+  "bankName": {
+    "message": "Názov banky"
+  },
+  "nameOnAccount": {
+    "message": "Jméno na účtu"
+  },
+  "bankAccountType": {
+    "message": "Typ účtu"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Firma"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Jednotlivec"
+  },
+  "accountNumber": {
+    "message": "Číslo účtu"
+  },
+  "bankRoutingNumber": {
+    "message": "Variabilní symbol",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Číslo pobočky/Instituce"
+  },
+  "swiftCode": {
+    "message": "SWIFT kód"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Kontaktní telefon banky"
+  },
+  "searchBankAccount": {
+    "message": "Hledat bankovní účet"
+  },
+  "copyAccountNumber": {
+    "message": "Kopírovat číslo účtu"
+  },
+  "copyRoutingNumber": {
+    "message": "Kopírovat variabilní symbol"
+  },
+  "copyPin": {
+    "message": "Kopírovat PIN"
+  },
+  "copyIban": {
+    "message": "Kopírovat IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Kontrolování"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Úspory"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Vkladový list"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Úvěrový rámec"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investice/Zprostředkování"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Peněžní trh"
+  },
+  "bankAccountTypeOther": {
+    "message": "Ostatní"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Bezpečně uložte Vaše bankovní údaje"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Uložte informace o Vašem bankovním účtu pro snadný a bezpečný přístup ve všech Vašich zařízeních."
+  },
+  "discardEdits": {
+    "message": "Zahodit úpravy"
+  },
+  "discardEditsMessage": {
+    "message": "Pokud zavřete toto zobrazení, Vaše neuložené úpravy budou zahozeny"
+  },
+  "backToEditing": {
+    "message": "Zpět k úpravám"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Send má neuložené úpravy. Jste si jisti, že chcete odejít?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Ukládání úprav Send selhalo",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Vaše organizace vyžaduje viditelnost e-mailu. Zrušte zaškrtnutí \"Skrýt Vaši e-mailovou adresu\" pro uložení."
+  },
+  "sideNavigation": {
+    "message": "Boční navigace"
+  },
+  "skipLink": {
+    "message": "Přeskočit odkaz"
+  },
+  "callout": {
+    "message": "Popisek",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Ukazatel průběhu",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

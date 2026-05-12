@@ -12,7 +12,9 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { SendAddEditDialogComponent } from "@bitwarden/send-ui";
+import { DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
+import { SendAddEditDialogComponent, SendFormService } from "@bitwarden/send-ui";
 
 import { NewSendDropdownComponent } from "./new-send-dropdown.component";
 
@@ -23,18 +25,19 @@ describe("NewSendDropdownComponent", () => {
   const mockAccountService = mock<AccountService>();
   const mockConfigService = mock<ConfigService>();
   const mockI18nService = mock<I18nService>();
-  const mockPolicyService = mock<PolicyService>();
   const mockSendService = mock<SendService>();
   const mockPremiumUpgradePromptService = mock<PremiumUpgradePromptService>();
   const mockSendApiService = mock<SendApiService>();
+  const mockPolicyService = mock<PolicyService>();
 
   beforeAll(() => {
     mockBillingAccountProfileStateService.hasPremiumFromAnySource$.mockImplementation(() =>
       of(true),
     );
     mockAccountService.activeAccount$ = of({ id: "myTestAccount" } as Account);
-    mockPolicyService.policyAppliesToUser$.mockImplementation(() => of(false));
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
     mockPremiumUpgradePromptService.promptForPremium.mockImplementation(async () => {});
+    mockPolicyService.policyAppliesToUser$.mockReturnValue(of(false));
   });
 
   beforeEach(async () => {
@@ -49,10 +52,13 @@ describe("NewSendDropdownComponent", () => {
         { provide: AccountService, useValue: mockAccountService },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: I18nService, useValue: mockI18nService },
-        { provide: PolicyService, useValue: mockPolicyService },
         { provide: SendService, useValue: mockSendService },
         { provide: PremiumUpgradePromptService, useValue: mockPremiumUpgradePromptService },
         { provide: SendApiService, useValue: mockSendApiService },
+        { provide: LogService, useValue: mock<LogService>() },
+        { provide: SendFormService, useValue: mock<SendFormService>() },
+        { provide: PolicyService, useValue: mockPolicyService },
+        { provide: DialogService, useValue: mock<DialogService>() },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(NewSendDropdownComponent);

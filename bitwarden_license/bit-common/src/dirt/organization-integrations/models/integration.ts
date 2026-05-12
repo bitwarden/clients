@@ -28,4 +28,7 @@ export type Integration = {
 
   // OrganizationIntegration
   organizationIntegration?: OrganizationIntegration | null;
+
+  // URL tool-tip helper text
+  urlHelperLinkText?: string;
 };

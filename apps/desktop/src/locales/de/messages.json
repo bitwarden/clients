@@ -35,6 +35,39 @@
   "typeSshKey": {
     "message": "SSH-Schlüssel"
   },
+  "typeBankAccount": {
+    "message": "Bankkonto"
+  },
+  "typeLoginSubtitle": {
+    "message": "Website oder App"
+  },
+  "typeCardSubtitle": {
+    "message": "Kredit- oder Debitkarte"
+  },
+  "typeIdentitySubtitle": {
+    "message": "Persönliche Informationen"
+  },
+  "typeNoteSubtitle": {
+    "message": "Wichtiger Text"
+  },
+  "typeSshKeySubtitle": {
+    "message": "Server-Anmeldetoken"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Bankdaten"
+  },
+  "folderSubtitle": {
+    "message": "Organisiere deine Einträge"
+  },
+  "collectionSubtitle": {
+    "message": "Geteilte Einträge organisieren"
+  },
+  "chooseItemToAdd": {
+    "message": "Wähle einen Eintrag zum Hinzufügen aus"
+  },
+  "chooseItemToAddDesc": {
+    "message": "Wähle den Eintrags-Typ aus, den du zu deinem Tresor hinzufügen möchtest."
+  },
   "folders": {
     "message": "Ordner"
   },
@@ -86,6 +119,102 @@
   },
   "viewItem": {
     "message": "Eintrag anzeigen"
+  },
+  "viewItemHeaderLogin": {
+    "message": "Zugangsdaten anzeigen",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCard": {
+    "message": "Karte anzeigen",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentity": {
+    "message": "Identität anzeigen",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNote": {
+    "message": "Notiz anzeigen",
+    "description": "Header for view note item type"
+  },
+  "viewItemHeaderSshKey": {
+    "message": "SSH-Schlüssel anzeigen",
+    "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
+  "newItemHeaderLogin": {
+    "message": "Neue Zugangsdaten",
+    "description": "Header for new login item type"
+  },
+  "newItemHeaderCard": {
+    "message": "Neue Karte",
+    "description": "Header for new card item type"
+  },
+  "newItemHeaderIdentity": {
+    "message": "Neue Identität",
+    "description": "Header for new identity item type"
+  },
+  "newItemHeaderNote": {
+    "message": "Neue Notiz",
+    "description": "Header for new note item type"
+  },
+  "newItemHeaderSshKey": {
+    "message": "Neuer SSH-Schlüssel",
+    "description": "Header for new SSH key item type"
+  },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "editItemHeaderLogin": {
+    "message": "Zugangsdaten bearbeiten",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCard": {
+    "message": "Karte bearbeiten",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentity": {
+    "message": "Identität bearbeiten",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNote": {
+    "message": "Notiz bearbeiten",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSshKey": {
+    "message": "SSH-Schlüssel bearbeiten",
+    "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Name"
@@ -620,6 +749,24 @@
   "deleteAttachment": {
     "message": "Anhang löschen"
   },
+  "deleteAttachmentName": {
+    "message": "Anhang $NAME$ löschen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "$NAME$ herunterladen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
   "deleteItemConfirmation": {
     "message": "Soll dieser Eintrag wirklich in den Papierkorb verschoben werden?"
   },
@@ -921,6 +1068,9 @@
   "masterPassHintLabel": {
     "message": "Master-Passwort-Hinweis"
   },
+  "masterPasswordChanged": {
+    "message": "Master-Passwort gespeichert"
+  },
   "passwordStrengthScore": {
     "message": "Bewertung der Passwortstärke $SCORE$",
     "placeholders": {
@@ -1212,6 +1362,27 @@
   "updateEncryptionSettingsDesc": {
     "message": "Die neuen empfohlenen Verschlüsselungseinstellungen verbessern deine Kontosicherheit. Gib dein Master-Passwort ein, um sie zu aktualisieren."
   },
+  "rotateAccountEncKey": {
+    "message": "Auch den Verschlüsselungsschlüssel meines Kontos erneuern"
+  },
+  "impactOfRotatingYourEncryptionKey": {
+    "message": "Auswirkungen der Erneuerung deines Verschlüsselungsschlüssels"
+  },
+  "oldAttachmentsNeedFixDesc": {
+    "message": "Es gibt alte Dateianhänge in deinem Tresor, die repariert werden müssen, bevor du deinen Verschlüsselungsschlüssel erneuern kannst."
+  },
+  "rotateEncKeyTitle": {
+    "message": "Verschlüsselungsschlüssel erneuern"
+  },
+  "rotateEncKeyConfirmation": {
+    "message": "Bist du sicher, dass du deinen Verschlüsselungsschlüssel erneuern möchtest?"
+  },
+  "updateEncryptionKeyWarning": {
+    "message": "Nach der Aktualisierung deines Verschlüsselungsschlüssels musst du dich bei allen Bitwarden-Anwendungen, die du momentan benutzt, erneut anmelden (wie z.B. die mobile App oder die Browser-Erweiterungen). Fehler bei Ab- und Anmeldung (die deinen neuen Verschlüsselungsschlüssel herunterlädt) könnte zu einer Beschädigung der Daten führen. Wir werden versuchen dich automatisch abzumelden, was jedoch verzögert geschehen kann."
+  },
+  "updateEncryptionKeyAccountExportWarning": {
+    "message": "Alle von dir gespeicherten Exporte mit Konto-Beschränkungen werden ungültig."
+  },
   "confirmIdentityToContinue": {
     "message": "Bestätige deine Identität, um fortzufahren"
   },
@@ -1296,8 +1467,8 @@
   "changeMasterPass": {
     "message": "Master-Passwort ändern"
   },
-  "masterPasswordChanged": {
-    "message": "Master-Passwort gespeichert"
+  "changeMasterPassword": {
+    "message": "Master-Passwort ändern"
   },
   "continueToWebApp": {
     "message": "Weiter zur Web-App?"
@@ -1477,18 +1648,6 @@
   },
   "enableTrayDesc": {
     "message": "Dauerhaft ein Symbol in der Taskleiste anzeigen."
-  },
-  "startToTray": {
-    "message": "Minimiert im Infobereich starten"
-  },
-  "startToTrayDesc": {
-    "message": "Beim ersten Start der Anwendung nur minimiert in der Taskleiste anzeigen."
-  },
-  "startToMenuBar": {
-    "message": "In der Menüleiste starten"
-  },
-  "startToMenuBarDesc": {
-    "message": "Beim ersten Start der Anwendung nur ein Symbol in der Menüleiste anzeigen."
   },
   "openAtLogin": {
     "message": "Automatisch bei der Anmeldung starten"
@@ -1852,6 +2011,12 @@
     "message": "Standard-Übereinstimmungserkennung",
     "description": "Default URI match detection for auto-fill."
   },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung anzeigen"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Übereinstimmungserkennung ausblenden"
+  },
   "toggleOptions": {
     "message": "Optionen umschalten"
   },
@@ -2102,6 +2267,15 @@
   "unsavedChangesTitle": {
     "message": "Nicht gespeicherte Änderungen"
   },
+  "unsavedChangesUpdateBody": {
+    "message": "Wenn du jetzt gehst, werden deine Änderungen nicht gespeichert. Installiere die Aktualisierung später, damit du deine Änderungen speichern kannst."
+  },
+  "installLater": {
+    "message": "Später installieren"
+  },
+  "continueWithInstall": {
+    "message": "Mit der Installation fortfahren"
+  },
   "clone": {
     "message": "Duplizieren"
   },
@@ -2211,6 +2385,9 @@
   "copyTOTP": {
     "message": "Authenticator-Schlüssel kopieren (TOTP)"
   },
+  "copyNotes": {
+    "message": "Notizen kopieren"
+  },
   "totpHelperTitle": {
     "message": "Zwei-Faktor-Authentifizierung nahtlos gestalten"
   },
@@ -2299,6 +2476,9 @@
   },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Dein neues Masterpasswort entspricht nicht den Anforderungen der Richtlinie."
+  },
+  "changePasswordDelegationMasterPasswordPolicyInEffect": {
+    "message": "Eine oder mehrere Organisationsrichtlinien erfordern, dass dein Master-Passwort die folgenden Anforderungen erfüllt:"
   },
   "receiveMarketingEmailsV2": {
     "message": "Erhalte Ratschläge, Ankündigungen und Marktforschungsumfragen von Bitwarden in deinem Posteingang."
@@ -3501,6 +3681,63 @@
   "deviceTrusted": {
     "message": "Gerät wird vertraut"
   },
+  "device": {
+    "message": "Gerät"
+  },
+  "devices": {
+    "message": "Geräte"
+  },
+  "whatIsADevice": {
+    "message": "Was ist ein Gerät?"
+  },
+  "aDeviceIs": {
+    "message": "Ein Gerät ist eine einzigartige Installation der Bitwarden-App, in der du dich angemeldet hast. Eine Neuinstallation, das Löschen von App-Daten oder das Löschen von Cookies könnte dazu führen, dass ein Gerät mehrfach erscheint."
+  },
+  "deviceListDescriptionTemp": {
+    "message": "Dein Konto wurde bei jedem der unten aufgeführten Geräte angemeldet."
+  },
+  "loginStatus": {
+    "message": "Anmeldestatus"
+  },
+  "recentlyActive": {
+    "message": "Kürzlich aktiv"
+  },
+  "recentlyActiveToday": {
+    "message": "Heute"
+  },
+  "recentlyActivePast7Days": {
+    "message": "Letzte 7 Tage"
+  },
+  "recentlyActivePast14Days": {
+    "message": "Letzte 14 Tage"
+  },
+  "recentlyActivePast30Days": {
+    "message": "Letzte 30 Tage"
+  },
+  "recentlyActiveOver30Days": {
+    "message": "Vor mehr als 30 Tagen"
+  },
+  "firstLogin": {
+    "message": "Erste Anmeldung"
+  },
+  "trusted": {
+    "message": "Vertrauenswürdig"
+  },
+  "currentSession": {
+    "message": "Aktuelle Sitzung"
+  },
+  "requestPending": {
+    "message": "Anfrage ausstehend"
+  },
+  "deviceIdMissing": {
+    "message": "Geräte-ID fehlt"
+  },
+  "deviceTypeMissing": {
+    "message": "Gerätetyp fehlt"
+  },
+  "deviceCreationDateMissing": {
+    "message": "Geräteerstellungsdatum fehlt"
+  },
   "trustOrganization": {
     "message": "Organisation vertrauen"
   },
@@ -3737,6 +3974,9 @@
     "message": "Wähle die Import-Datei aus"
   },
   "chooseFile": {
+    "message": "Datei auswählen"
+  },
+  "chooseFileSentenceCase": {
     "message": "Datei auswählen"
   },
   "noFileChosen": {
@@ -4669,6 +4909,15 @@
   "organizationIsSuspendedDesc": {
     "message": "Auf Einträge in deaktivierten Organisationen kann nicht zugegriffen werden. Kontaktiere den Besitzer deiner Organisation, um Unterstützung zu erhalten."
   },
+  "percentageCompleted": {
+    "message": "Zu $PERCENT$% abgeschlossen",
+    "placeholders": {
+      "percent": {
+        "content": "$1",
+        "example": "75"
+      }
+    }
+  },
   "noItemsInTrash": {
     "message": "Keine Einträge im Papierkorb"
   },
@@ -4724,7 +4973,132 @@
   "emailPlaceholder": {
     "message": "benutzer@bitwarden.com, benutzer@acme.com"
   },
+  "emailPlaceholderMultiple": {
+    "message": "benutzer@bitwarden.com, benutzer@acme.com"
+  },
+  "reorderToggleButton": {
+    "message": "$LABEL$ umsortieren. Verwende die Pfeiltasten, um den Eintrag nach oben oder unten zu verschieben.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "Benutzerverifizierung fehlgeschlagen."
+  },
+  "bankAccount": {
+    "message": "Bankkonto"
+  },
+  "bankName": {
+    "message": "Bankname"
+  },
+  "nameOnAccount": {
+    "message": "Name des Kontoinhabers"
+  },
+  "bankAccountType": {
+    "message": "Kontoart"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Firma"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Einzelperson"
+  },
+  "accountNumber": {
+    "message": "Kontonummer"
+  },
+  "bankRoutingNumber": {
+    "message": "Bankleitzahl",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Filial-/Institutionsnummer"
+  },
+  "swiftCode": {
+    "message": "SWIFT-Code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Telefonnummer der Bank"
+  },
+  "searchBankAccount": {
+    "message": "Bankkonto suchen"
+  },
+  "copyAccountNumber": {
+    "message": "Kontonummer kopieren"
+  },
+  "copyRoutingNumber": {
+    "message": "Bankleitzahl kopieren"
+  },
+  "copyPin": {
+    "message": "PIN kopieren"
+  },
+  "copyIban": {
+    "message": "IBAN kopieren"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Wird überprüft"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ersparnisse"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Einlagenzertifikat"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Kreditrahmen"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Anlage/Wertpapierhandel"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Finanzmarkt"
+  },
+  "bankAccountTypeOther": {
+    "message": "Sonstige"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Deine Bankdaten sicher speichern"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Speicher deine Bankdaten, um auf allen deinen Geräten einfach und sicher darauf zugreifen zu können."
+  },
+  "discardEdits": {
+    "message": "Änderungen verwerfen"
+  },
+  "discardEditsMessage": {
+    "message": "Wenn du diese Ansicht schließt, werden deine ungespeicherten Änderungen verworfen"
+  },
+  "backToEditing": {
+    "message": "Zurück zur Bearbeitung"
+  },
+  "sendHasUnsavedEdits": {
+    "message": "Das Send hat ungespeicherte Änderungen. Möchtest du diese Ansicht wirklich verlassen?",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "saveSendEditsFailed": {
+    "message": "Speichern der Send-Änderungen fehlgeschlagen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Deine Organisation muss deine E-Mail-Adresse sehen können. Deaktiviere \"Deine E-Mail-Adresse vor Betrachtern verbergen\", um zu speichern."
+  },
+  "sideNavigation": {
+    "message": "Seitennavigation"
+  },
+  "skipLink": {
+    "message": "Link überspringen"
+  },
+  "callout": {
+    "message": "Meldung",
+    "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
+  },
+  "progressBar": {
+    "message": "Fortschrittsanzeige",
+    "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   }
 }

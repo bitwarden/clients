@@ -21,6 +21,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
+import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { KeyService } from "@bitwarden/key-management";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
@@ -43,6 +44,7 @@ export class EditCommand {
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
     private policyService: PolicyService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private cipherAuthorizationService: CipherAuthorizationService,
   ) {}
 
   async run(
@@ -101,6 +103,13 @@ export class EditCommand {
 
     if (cipher == null) {
       return Response.notFound();
+    }
+
+    const canEditCipher = await firstValueFrom(
+      this.cipherAuthorizationService.canEditCipher$(cipher),
+    );
+    if (!canEditCipher) {
+      return Response.noEditPermission();
     }
 
     let cipherView = await this.cipherService.decrypt(cipher, activeUserId);
@@ -216,6 +225,9 @@ export class EditCommand {
     }
     if (options.organizationId !== req.organizationId) {
       return Response.badRequest("`organizationid` option does not match request object.");
+    }
+    if (req.name == null || req.name.trim() === "") {
+      return Response.badRequest("Collection name is required.");
     }
     try {
       const orgKey = await firstValueFrom(

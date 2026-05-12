@@ -23,8 +23,7 @@ export const regularImportOptions = [
   { id: "dashlanejson", name: "Dashlane (json)" },
   { id: "roboformcsv", name: "RoboForm (csv)" },
   { id: "keepercsv", name: "Keeper (csv)" },
-  // Temporarily remove this option for the Feb release
-  // { id: "keeperjson", name: "Keeper (json)" },
+  { id: "keeperjson", name: "Keeper (json)" },
   { id: "enpasscsv", name: "Enpass (csv)" },
   { id: "enpassjson", name: "Enpass (json)" },
   { id: "protonpass", name: "ProtonPass (zip/json)" },

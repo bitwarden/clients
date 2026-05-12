@@ -1,14 +1,13 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [KitchenSinkSharedModule],
   template: `
     <bit-dialog title="Dialog Title" dialogSize="small">
@@ -82,12 +81,35 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   `,
 })
 export class KitchenSinkDialogComponent {
-  constructor(public dialogRef: DialogRef) {}
+  protected readonly dialogRef = inject(DialogRef);
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <bit-dialog title="Dialog Title" dialogSize="small">
+      <ng-container bitDialogContent>
+        <bit-form-field>
+          <bit-label>Username</bit-label>
+          <input bitInput [appAutofocus]="true" />
+        </bit-form-field>
+      </ng-container>
+      <ng-container bitDialogFooter>
+        <button type="button" bitButton buttonType="primary" (click)="dialogRef.close()">
+          Save
+        </button>
+        <button type="button" bitButton buttonType="secondary" bitDialogClose>Cancel</button>
+      </ng-container>
+    </bit-dialog>
+  `,
+  imports: [KitchenSinkSharedModule],
+})
+export class KitchenSinkDialogWithAutofocusComponent {
+  protected readonly dialogRef = inject(DialogRef);
+}
+
+@Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-tab-main",
   imports: [KitchenSinkSharedModule],
   template: `
@@ -103,7 +125,6 @@ export class KitchenSinkDialogComponent {
         [bitPopoverAnchorFor]="tourStep1"
         [popoverOpen]="tourService.tourStep() === 1"
         [spotlight]="true"
-        [spotlightPadding]="12"
         [position]="'below-center'"
       />
       <button
@@ -151,8 +172,7 @@ export class KitchenSinkDialogComponent {
   `,
 })
 export class KitchenSinkMainComponent {
-  constructor(public dialogService: DialogService) {}
-
+  protected readonly dialogService = inject(DialogService);
   protected readonly tourService = inject(KitchenSinkTourService);
 
   openDialog() {
@@ -160,10 +180,10 @@ export class KitchenSinkMainComponent {
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialogComponent);
+    void this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
-  navItems = [
+  protected readonly navItems = [
     { icon: "bwi-collection-shared", name: "Password Managers", route: "/" },
     { icon: "bwi-collection-shared", name: "Favorites", route: "/" },
   ];

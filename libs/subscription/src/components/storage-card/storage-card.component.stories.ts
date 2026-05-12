@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   ButtonModule,
   CardComponent,
-  ProgressModule,
+  ProgressBarComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { Storage, StorageCardComponent } from "@bitwarden/subscription";
@@ -22,7 +22,7 @@ export default {
         CommonModule,
         ButtonModule,
         CardComponent,
-        ProgressModule,
+        ProgressBarComponent,
         TypographyModule,
         I18nPipe,
       ],
@@ -38,6 +38,7 @@ export default {
                 storageFullDescription: `You have used all ${args[0]} GB of your encrypted storage. To continue storing files, add more storage.`,
                 addStorage: "Add storage",
                 removeStorage: "Remove storage",
+                progressBar: "Progress bar",
               };
               return translations[key] || key;
             },

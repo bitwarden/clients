@@ -63,7 +63,6 @@ import { SetKeyConnectorKeyRequest } from "../key-management/key-connector/model
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
-import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
@@ -72,6 +71,7 @@ import { DomainsResponse } from "../models/response/domains.response";
 import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
+import { UploadOptions } from "../platform/abstractions/file-upload/file-upload.service";
 import { FetchMiddleware } from "../platform/misc/fetch-middleware";
 import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
@@ -153,8 +153,6 @@ export abstract class ApiService {
   abstract getAccountRevisionDate(): Promise<number>;
   abstract postPasswordHint(request: PasswordHintRequest): Promise<any>;
   abstract postPremium(data: FormData): Promise<PaymentResponse>;
-  abstract postReinstatePremium(): Promise<any>;
-  abstract postAccountStorage(request: StorageRequest): Promise<PaymentResponse>;
   abstract postAccountLicense(data: FormData): Promise<any>;
   abstract postAccountKeys(request: KeysRequest): Promise<any>;
   abstract postAccountVerifyEmail(): Promise<any>;
@@ -255,7 +253,12 @@ export abstract class ApiService {
     id: string,
     attachmentId: string,
   ): Promise<AttachmentUploadDataResponse>;
-  abstract postAttachmentFile(id: string, attachmentId: string, data: FormData): Promise<any>;
+  abstract postAttachmentFile(
+    id: string,
+    attachmentId: string,
+    data: FormData,
+    options?: UploadOptions,
+  ): Promise<any>;
 
   abstract getUserCollections(): Promise<ListResponse<CollectionResponse>>;
   abstract getCollections(organizationId: string): Promise<ListResponse<CollectionResponse>>;
@@ -455,6 +458,10 @@ export abstract class ApiService {
   abstract getActiveBearerToken(userId: UserId): Promise<string>;
   abstract fetch(request: Request): Promise<Response>;
   abstract nativeFetch(request: Request): Promise<Response>;
+  abstract nativeXMLHttpRequest(
+    request: Request,
+    onProgress: (percentage: number) => void,
+  ): Promise<Response>;
 
   /**
    * Adds a middleware that wraps the fetch call. Middlewares can modify requests, inspect/modify

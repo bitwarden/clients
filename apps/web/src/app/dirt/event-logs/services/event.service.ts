@@ -11,6 +11,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EventType, EventResponse } from "@bitwarden/common/dirt/event-logs";
 import { DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { BitwardenIcon } from "@bitwarden/components";
 
 @Injectable()
 export class EventService {
@@ -89,7 +90,9 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("exportedVault");
         break;
       case EventType.User_UpdatedTempPassword:
-        msg = humanReadableMsg = this.i18nService.t("updatedTempPassword");
+        msg = humanReadableMsg = this.i18nService.t(
+          "userResetMasterPasswordThroughAccountRecovery",
+        );
         break;
       case EventType.User_MigratedKeyToKeyConnector:
         msg = humanReadableMsg = this.i18nService.t("migratedKeyConnector");
@@ -200,6 +203,34 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientToggledBankAccountNumberVisible:
+        msg = this.i18nService.t("viewedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientToggledBankAccountPinVisible:
+        msg = this.i18nService.t("viewedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedBankAccountPinItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountNumber:
+        msg = this.i18nService.t("copiedBankAccountNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedBankAccountPin:
+        msg = this.i18nService.t("copiedBankAccountPinItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedBankAccountPinItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
       // Collection
       case EventType.Collection_Created:
         msg = this.i18nService.t("createdCollectionId", this.formatCollectionId(ev));
@@ -293,9 +324,22 @@ export class EventService {
         );
         break;
       case EventType.OrganizationUser_AdminResetPassword:
-        msg = this.i18nService.t("eventAdminPasswordReset", this.formatOrgUserId(ev));
+        msg = this.i18nService.t(
+          "eventAccountRecoveryWithMasterPasswordInitiated",
+          this.formatOrgUserId(ev),
+        );
         humanReadableMsg = this.i18nService.t(
-          "eventAdminPasswordReset",
+          "eventAccountRecoveryWithMasterPasswordInitiated",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_AdminResetTwoFactor:
+        msg = this.i18nService.t(
+          "eventAccountRecoveryWithTwoStepLoginInitiated",
+          this.formatOrgUserId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "eventAccountRecoveryWithTwoStepLoginInitiated",
           this.getShortId(ev.organizationUserId),
         );
         break;
@@ -364,6 +408,23 @@ export class EventService {
         break;
       case EventType.OrganizationUser_SelfRevoked:
         msg = humanReadableMsg = this.i18nService.t("userSelfRevokedOrganizationOwnership");
+        break;
+      case EventType.OrganizationUser_Revoked_TwoFactorNonCompliance:
+        msg = this.i18nService.t("revokedUserIdTwoFactorNonCompliance", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdTwoFactorNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
+        break;
+      case EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance:
+        msg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.formatOrgUserId(ev),
+        );
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdSingleOrganizationNonCompliance",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       // Org
       case EventType.Organization_Updated:
@@ -466,7 +527,11 @@ export class EventService {
         msg = humanReadableMsg = this.i18nService.t("userAcceptedTransfer");
         break;
       case EventType.Organization_ItemOrganization_Declined:
-        msg = humanReadableMsg = this.i18nService.t("userDeclinedTransfer");
+        msg = this.i18nService.t("revokedUserIdDeclinedTransfer", this.formatOrgUserId(ev));
+        humanReadableMsg = this.i18nService.t(
+          "revokedUserIdDeclinedTransfer",
+          this.getShortId(ev.organizationUserId),
+        );
         break;
       case EventType.Organization_AutoConfirmEnabled_Admin:
         msg = humanReadableMsg = this.i18nService.t("autoConfirmEnabledByAdmin");
@@ -691,6 +756,19 @@ export class EventService {
           this.formatServiceAccountId(ev, options),
         );
         break;
+      case EventType.PhishingBlocker_SiteAccessed:
+        msg = this.i18nService.t("phishingBlockerSiteAccessed");
+        humanReadableMsg = this.i18nService.t("phishingBlockerSiteAccessed");
+        break;
+      case EventType.PhishingBlocker_SiteExited:
+        msg = this.i18nService.t("phishingBlockerSiteExited");
+        humanReadableMsg = this.i18nService.t("phishingBlockerSiteExited");
+        break;
+      case EventType.PhishingBlocker_Bypassed:
+        msg = this.i18nService.t("phishingBlockerBypassed");
+        humanReadableMsg = this.i18nService.t("phishingBlockerBypassed");
+        break;
+
       default:
         break;
     }
@@ -700,7 +778,7 @@ export class EventService {
     };
   }
 
-  private getAppInfo(ev: EventResponse): [string, string] {
+  private getAppInfo(ev: EventResponse): [BitwardenIcon, string] {
     if (ev.serviceAccountId) {
       return ["bwi-globe", this.i18nService.t("sdk")];
     }
@@ -958,7 +1036,7 @@ export class EventService {
 export class EventInfo {
   message: string;
   humanReadableMessage: string;
-  appIcon: string;
+  appIcon: BitwardenIcon;
   appName: string;
 }
 
