@@ -24,7 +24,7 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
 
   // Temporary workaround for dep cycle until we merge new biometrics work based on shared unlock.
   private unlockService: UnlockService | null = null;
-  public setUnlockService(unlockService: UnlockService) {
+  setUnlockService(unlockService: UnlockService) {
     this.unlockService = unlockService;
   }
 

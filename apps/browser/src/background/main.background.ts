@@ -304,6 +304,7 @@ import {
   DefaultStateService,
   InlineDerivedStateProvider,
 } from "@bitwarden/state-internal";
+import { DefaultUnlockService } from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -395,7 +396,6 @@ import CommandsBackground from "./commands.background";
 import IdleBackground from "./idle.background";
 import { NativeMessagingBackground } from "./nativeMessaging.background";
 import RuntimeBackground from "./runtime.background";
-import { DefaultUnlockService } from "@bitwarden/unlock";
 
 export default class MainBackground {
   messagingService: MessageSender;
@@ -948,11 +948,7 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
     );
 
-    this.pinService = new PinService(
-      this.sdkService,
-      this.registerSdkService,
-    );
-    
+    this.pinService = new PinService(this.sdkService, this.registerSdkService);
 
     const browserBiometricsService = new BackgroundBrowserBiometricsService(
       runtimeNativeMessagingBackground,
@@ -963,7 +959,19 @@ export default class MainBackground {
     );
     // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
     this.biometricsService = browserBiometricsService;
-    const unlockService = new DefaultUnlockService(this.registerSdkService, this.accountCryptographicStateService, this.kdfConfigService, this.accountService, this.masterPasswordService, this.stateProvider, this.logService, this.biometricsService, this.platformUtilsService, this.stateService, this.biometricStateService);
+    const unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.stateProvider,
+      this.logService,
+      this.biometricsService,
+      this.platformUtilsService,
+      this.stateService,
+      this.biometricStateService,
+    );
     browserBiometricsService.setUnlockService(unlockService);
 
     this.passwordStrengthService = new PasswordStrengthService();

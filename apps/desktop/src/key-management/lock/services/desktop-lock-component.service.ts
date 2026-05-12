@@ -55,12 +55,7 @@ export class DesktopLockComponentService implements LockComponentService {
       // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
       defer(() => this.biometricsService.getBiometricsStatusForUser(userId)),
       this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-      defer(() =>
-        timer(0, 1000).pipe(
-          switchMap(async () => await this.pinService.isPinDecryptionAvailable(userId)),
-          catchError(() => of(false)),
-        ),
-      ),
+      defer(() => this.pinService.isPinDecryptionAvailable(userId)),
     ]).pipe(
       map(([biometricsStatus, userDecryptionOptions, pinDecryptionAvailable]) => {
         const unlockOpts: UnlockOptions = {

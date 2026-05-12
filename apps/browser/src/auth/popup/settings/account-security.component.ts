@@ -262,7 +262,11 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
         concatMap(async (value) => {
           const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
           const pin = await this.pinService.getPin(userId);
-          await this.pinService.setPin(pin, value ? "AfterFirstUnlock" : "BeforeFirstUnlock", userId);
+          await this.pinService.setPin(
+            pin,
+            value ? "AfterFirstUnlock" : "BeforeFirstUnlock",
+            userId,
+          );
           this.refreshTimeoutSettings$.next();
         }),
         takeUntil(this.destroy$),
