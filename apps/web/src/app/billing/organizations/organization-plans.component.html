@@ -67,7 +67,7 @@
                     @if (hasPolicies) {
                       <li>{{ "includeEnterprisePolicies" | i18n }}</li>
                     }
-                    @if (effectiveTrial && createOrganization() && !upgradingFromPremium) {
+                    @if (showTrialOffer) {
                       <li>{{ "xDayFreeTrial" | i18n: effectiveTrial }}</li>
                     }
                   </ul>
@@ -77,7 +77,7 @@
                       <li>{{ "includeAllTeamsStarterFeatures" | i18n }}</li>
                       <li>{{ "chooseMonthlyOrAnnualBilling" | i18n }}</li>
                       <li>{{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</li>
-                      @if (effectiveTrial && createOrganization() && !upgradingFromPremium) {
+                      @if (showTrialOffer) {
                         <li>
                           {{ "xDayFreeTrial" | i18n: effectiveTrial }}
                         </li>
@@ -128,7 +128,7 @@
                       @if (tier != productTypes.Free) {
                         <li>{{ "priorityCustomerSupport" | i18n }}</li>
                       }
-                      @if (effectiveTrial && createOrganization() && !upgradingFromPremium) {
+                      @if (showTrialOffer) {
                         <li>{{ "xDayFreeTrial" | i18n: effectiveTrial }}</li>
                       }
                     </ul>
