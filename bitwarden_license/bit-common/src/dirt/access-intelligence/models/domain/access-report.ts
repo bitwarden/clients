@@ -6,15 +6,11 @@ import { OrganizationId, OrganizationReportId, UserId } from "@bitwarden/common/
 import { conditionalEncString } from "@bitwarden/common/vault/utils/domain-utils";
 
 import {
-  AccessReportPayload,
   DecryptedAccessReportData,
   AccessReportEncryptionService,
 } from "../../services/abstractions/access-report-encryption.service";
 import { AccessReportData } from "../data/access-report.data";
-import { ApplicationHealthData } from "../data/application-health.data";
-import { MemberRegistryEntryData } from "../data/member-registry-entry.data";
 import { AccessReportSettingsView } from "../view/access-report-settings.view";
-import { AccessReportSummaryView } from "../view/access-report-summary.view";
 import { AccessReportView } from "../view/access-report.view";
 import { ApplicationHealthView } from "../view/application-health.view";
 import { MemberRegistryEntryView } from "../view/member-registry-entry.view";
@@ -127,53 +123,7 @@ export class AccessReport extends Domain {
     encryptionService: AccessReportEncryptionService,
     context: { organizationId: OrganizationId; userId: UserId },
   ): Observable<AccessReport> {
-    const reportPayload: AccessReportPayload = {
-      reports: view.reports.map((r) => {
-        const data = new ApplicationHealthData();
-        data.applicationName = r.applicationName;
-        data.passwordCount = r.passwordCount;
-        data.atRiskPasswordCount = r.atRiskPasswordCount;
-        data.memberRefs = { ...r.memberRefs };
-        data.cipherRefs = { ...r.cipherRefs };
-        data.memberCount = r.memberCount;
-        data.atRiskMemberCount = r.atRiskMemberCount;
-        data.iconUri = r.iconUri;
-        data.iconCipherId = r.iconCipherId;
-        return data;
-      }),
-      memberRegistry: Object.fromEntries(
-        Object.entries(view.memberRegistry).map(([id, e]) => {
-          const data = new MemberRegistryEntryData();
-          data.id = e.id;
-          data.userName = e.userName;
-          data.email = e.email;
-          return [id, data];
-        }),
-      ),
-    };
-
-    const payload: DecryptedAccessReportData = {
-      reportData: reportPayload,
-      summaryData: AccessReportSummaryView.fromJSON({
-        totalMemberCount: view.summary.totalMemberCount,
-        totalAtRiskMemberCount: view.summary.totalAtRiskMemberCount,
-        totalApplicationCount: view.summary.totalApplicationCount,
-        totalAtRiskApplicationCount: view.summary.totalAtRiskApplicationCount,
-        totalCriticalMemberCount: view.summary.totalCriticalMemberCount,
-        totalCriticalAtRiskMemberCount: view.summary.totalCriticalAtRiskMemberCount,
-        totalCriticalApplicationCount: view.summary.totalCriticalApplicationCount,
-        totalCriticalAtRiskApplicationCount: view.summary.totalCriticalAtRiskApplicationCount,
-        totalPasswordCount: view.summary.totalPasswordCount,
-        totalAtRiskPasswordCount: view.summary.totalAtRiskPasswordCount,
-        totalCriticalPasswordCount: view.summary.totalCriticalPasswordCount,
-        totalCriticalAtRiskPasswordCount: view.summary.totalCriticalAtRiskPasswordCount,
-      }),
-      applicationData: view.applications.map((app) => ({
-        applicationName: app.applicationName,
-        isCritical: app.isCritical,
-        reviewedDate: app.reviewedDate?.toISOString(),
-      })),
-    };
+    const payload: DecryptedAccessReportData = view.toEncryptionPayload();
 
     return encryptionService.encryptReport$(context, payload, view.contentEncryptionKey).pipe(
       map((encryptedData) => {

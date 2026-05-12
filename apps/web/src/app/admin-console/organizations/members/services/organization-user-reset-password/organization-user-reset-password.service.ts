@@ -10,7 +10,6 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   EncryptedString,
@@ -18,7 +17,6 @@ import {
 } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -61,7 +59,6 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     private i18nService: I18nService,
     private accountService: AccountService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -136,30 +133,18 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
         resetPasswordDetails,
         request.organizationId,
       );
-
       // Prefer server-provided salt; fallback to normalized email for legacy servers
       // that don't yet return MasterPasswordSalt in the account-recovery details response.
       const salt: MasterPasswordSalt =
         (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt | undefined) ??
         this.masterPasswordService.emailToSalt(email);
 
-      const newApisEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-      );
-
-      ({ newMasterPasswordHash, key } = newApisEnabled
-        ? await this.buildResetPasswordRequestV2(
-            newMasterPassword,
-            salt,
-            kdfConfig,
-            existingUserKey,
-          )
-        : await this.buildMasterPasswordRequest(
-            newMasterPassword,
-            email,
-            kdfConfig,
-            existingUserKey,
-          ));
+      ({ newMasterPasswordHash, key } = await this.buildResetPasswordRequest(
+        newMasterPassword,
+        salt,
+        kdfConfig,
+        existingUserKey,
+      ));
     }
 
     await this.organizationUserApiService.putOrganizationUserRecoverAccount(
@@ -305,11 +290,7 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     )) as UserKey;
   }
 
-  /**
-   * Builds a reset password request using the new authentication APIs
-   * (feature flag PM27086_UpdateAuthenticationApisForInputPassword).
-   */
-  private async buildResetPasswordRequestV2(
+  private async buildResetPasswordRequest(
     newMasterPassword: string,
     salt: MasterPasswordSalt,
     kdfConfig: KdfConfig,
@@ -332,30 +313,6 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
     return {
       newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
       key: unlockData.masterKeyWrappedUserKey,
-    };
-  }
-
-  /** Builds a reset password request using the legacy crypto path. */
-  private async buildMasterPasswordRequest(
-    newMasterPassword: string,
-    email: string,
-    kdfConfig: KdfConfig,
-    existingUserKey: UserKey,
-  ): Promise<Pick<OrganizationUserResetPasswordRequest, "newMasterPasswordHash" | "key">> {
-    const newMasterKey = await this.keyService.makeMasterKey(
-      newMasterPassword,
-      email.trim().toLowerCase(),
-      kdfConfig,
-    );
-    const newMasterKeyHash = await this.keyService.hashMasterKey(newMasterPassword, newMasterKey);
-    const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      newMasterKey,
-      existingUserKey,
-    );
-
-    return {
-      newMasterPasswordHash: newMasterKeyHash,
-      key: newUserKey[1].encryptedString,
     };
   }
 }
