@@ -286,6 +286,7 @@ describe("MemberActionsService", () => {
   describe("bulkReinvite", () => {
     beforeEach(() => {
       memberDialogManager.openBulkProgressDialog.mockReturnValue({ closed: of(undefined) } as any);
+      memberDialogManager.openBulkReinviteFailureDialog.mockReturnValue(of([]));
     });
 
     it("should process users in a single batch when count equals REQUESTS_PER_BATCH", async () => {
