@@ -10,6 +10,7 @@ import { DriversLicenseExport } from "./drivers-license.export";
 import { FieldExport } from "./field.export";
 import { IdentityExport } from "./identity.export";
 import { LoginExport } from "./login.export";
+import { PassportExport } from "./passport.export";
 import { PasswordHistoryExport } from "./password-history.export";
 import { SecureNoteExport } from "./secure-note.export";
 import { SshKeyExport } from "./ssh-key.export";
@@ -85,6 +86,11 @@ export class CipherExport {
           view.driversLicense = DriversLicenseExport.toView(req.driversLicense)!;
         }
         break;
+      case CipherType.Passport:
+        if (req.passport != null) {
+          view.passport = PassportExport.toView(req.passport)!;
+        }
+        break;
     }
 
     if (req.passwordHistory != null) {
@@ -150,6 +156,11 @@ export class CipherExport {
           domain.driversLicense = DriversLicenseExport.toDomain(req.driversLicense);
         }
         break;
+      case CipherType.Passport:
+        if (req.passport != null) {
+          domain.passport = PassportExport.toDomain(req.passport);
+        }
+        break;
     }
 
     if (req.passwordHistory != null) {
@@ -178,6 +189,7 @@ export class CipherExport {
   sshKey?: SshKeyExport;
   bankAccount?: BankAccountExport;
   driversLicense?: DriversLicenseExport;
+  passport?: PassportExport;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   passwordHistory?: PasswordHistoryExport[];
   revisionDate?: Date;
@@ -226,6 +238,9 @@ export class CipherExport {
         break;
       case CipherType.DriversLicense:
         this.driversLicense = new DriversLicenseExport(o.driversLicense);
+        break;
+      case CipherType.Passport:
+        this.passport = new PassportExport(o.passport);
         break;
     }
 

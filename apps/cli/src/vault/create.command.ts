@@ -48,7 +48,7 @@ export class CreateCommand {
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   async run(
     object: string,
@@ -103,7 +103,8 @@ export class CreateCommand {
 
       if (
         cipherView.type === CipherType.BankAccount ||
-        cipherView.type === CipherType.DriversLicense
+        cipherView.type === CipherType.DriversLicense ||
+        cipherView.type === CipherType.Passport
       ) {
         const newItemTypesEnabled = await firstValueFrom(
           this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
@@ -179,7 +180,7 @@ export class CreateCommand {
     if (userKey == null) {
       return Response.error(
         "You must update your encryption key before you can use this feature. " +
-          "See https://help.bitwarden.com/article/update-encryption-key/",
+        "See https://help.bitwarden.com/article/update-encryption-key/",
       );
     }
 
@@ -247,14 +248,14 @@ export class CreateCommand {
         req.groups == null
           ? null
           : req.groups.map(
-              (g) => new SelectionReadOnlyRequest(g.id, g.readOnly, g.hidePasswords, g.manage),
-            );
+            (g) => new SelectionReadOnlyRequest(g.id, g.readOnly, g.hidePasswords, g.manage),
+          );
       const users =
         req.users == null
           ? [new SelectionReadOnlyRequest(currentOrgUserId, false, false, true)]
           : req.users.map(
-              (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
-            );
+            (u) => new SelectionReadOnlyRequest(u.id, u.readOnly, u.hidePasswords, u.manage),
+          );
       const request = new CreateCollectionRequest({
         name: await this.encryptService.encryptString(req.name, orgKey),
         externalId: req.externalId,
