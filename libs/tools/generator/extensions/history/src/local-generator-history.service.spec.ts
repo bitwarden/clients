@@ -14,7 +14,7 @@ import { Jsonify } from "type-fest";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DataPacker } from "@bitwarden/common/tools/state/data-packer.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
-import { Type } from "@bitwarden/generator-core";
+import { Algorithm, Type } from "@bitwarden/generator-core";
 
 import { FakeStateProvider, awaitAsync, mockAccountServiceWith } from "../../../../../common/spec";
 
@@ -102,6 +102,26 @@ describe("LocalGeneratorHistoryService", () => {
       const [result] = await firstValueFrom(history.credentials$(SomeUser));
 
       expect(result).toMatchObject({ credential: "example", category: Type.password });
+    });
+
+    it("stores the algorithm when provided", async () => {
+      const stateProvider = new FakeStateProvider(mockAccountServiceWith(SomeUser));
+      const history = new LocalGeneratorHistoryService(
+        stateProvider,
+        sdkService,
+        undefined,
+        mockDataPacker,
+      );
+
+      await history.track(SomeUser, "example", Type.password, undefined, Algorithm.passphrase);
+      await awaitAsync();
+      const [result] = await firstValueFrom(history.credentials$(SomeUser));
+
+      expect(result).toMatchObject({
+        credential: "example",
+        category: Type.password,
+        algorithm: Algorithm.passphrase,
+      });
     });
 
     it("stores a specific date when one is provided", async () => {
