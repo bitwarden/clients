@@ -5162,6 +5162,9 @@
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
+  "copyPassportNumber": {
+    "message": "Copy passport number"
+  },
   "bankAccountTypeChecking": {
     "message": "Checking"
   },

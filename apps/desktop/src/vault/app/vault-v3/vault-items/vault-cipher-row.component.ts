@@ -226,6 +226,11 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
           { field: "pin", title: "copyPin" },
           { field: "iban", title: "copyIban" },
         ];
+      case CipherType.Passport:
+        return [
+          { field: "passportNumber", title: "copyPassportNumber" },
+          { field: "nationalIdentificationNumber", title: "copyNationalIdentificationNumber" },
+        ];
       default:
         return [];
     }
