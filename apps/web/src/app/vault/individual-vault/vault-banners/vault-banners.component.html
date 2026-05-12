@@ -10,8 +10,8 @@
 @if (visibleBanners.includes(VisibleVaultBanner.OutdatedBrowser)) {
   <bit-banner
     id="update-browser-banner"
-    bannerType="warning"
-    (onClose)="dismissBanner(VisibleVaultBanner.OutdatedBrowser)"
+    variant="warning"
+    (dismiss)="dismissBanner(VisibleVaultBanner.OutdatedBrowser)"
   >
     {{ "updateBrowserDesc" | i18n }}
     <a
@@ -29,9 +29,9 @@
 @if (visibleBanners.includes(VisibleVaultBanner.PendingAuthRequest)) {
   <bit-banner
     id="pending-auth-request-banner"
-    bannerType="info"
+    variant="primary"
     icon="bwi-info-circle"
-    (onClose)="dismissBanner(VisibleVaultBanner.PendingAuthRequest)"
+    (dismiss)="dismissBanner(VisibleVaultBanner.PendingAuthRequest)"
   >
     {{ "youHaveAPendingLoginRequest" | i18n }}
     <a bitLink linkType="secondary" routerLink="/settings/security/device-management">
