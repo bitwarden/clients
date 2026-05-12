@@ -146,6 +146,9 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
     }
 
     this.internalForm.get("month")!.markAsTouched();
+    this.internalForm.get("day")!.markAsTouched();
+    this.internalForm.get("year")!.markAsTouched();
+    this.validateAllOrNothing();
   }
 
   /**
@@ -260,6 +263,8 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
         invalidYear: { message: this.i18nService.t("invalidYear") },
       });
       return;
+    } else {
+      yearCtrl.setErrors(this.removeError(yearCtrl.errors, "invalidYear"));
     }
 
     // Check if day is valid for the selected month/year

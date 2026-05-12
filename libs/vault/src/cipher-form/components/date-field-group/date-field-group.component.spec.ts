@@ -72,6 +72,48 @@ describe("DateFieldGroupComponent", () => {
   });
 
   describe("all-or-nothing validation", () => {
+    it("sets crossFieldRequired on day and year when only month is filled", fakeAsync(() => {
+      const monthCtrl = component.internalForm.get("month")!;
+      const dayCtrl = component.internalForm.get("day")!;
+      const yearCtrl = component.internalForm.get("year")!;
+
+      monthCtrl.setValue("4");
+      tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
+
+      expect(dayCtrl.hasError("crossFieldRequired")).toBe(true);
+      expect(yearCtrl.hasError("crossFieldRequired")).toBe(true);
+    }));
+
+    it("sets crossFieldRequired on month and year when only day is filled", fakeAsync(() => {
+      const monthCtrl = component.internalForm.get("month")!;
+      const dayCtrl = component.internalForm.get("day")!;
+      const yearCtrl = component.internalForm.get("year")!;
+
+      dayCtrl.setValue("15");
+      tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
+
+      expect(monthCtrl.hasError("crossFieldRequired")).toBe(true);
+      expect(yearCtrl.hasError("crossFieldRequired")).toBe(true);
+    }));
+
+    it("sets crossFieldRequired on month and day when only year is filled", fakeAsync(() => {
+      const monthCtrl = component.internalForm.get("month")!;
+      const dayCtrl = component.internalForm.get("day")!;
+      const yearCtrl = component.internalForm.get("year")!;
+
+      yearCtrl.setValue("2025");
+      tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
+
+      expect(monthCtrl.hasError("crossFieldRequired")).toBe(true);
+      expect(dayCtrl.hasError("crossFieldRequired")).toBe(true);
+    }));
+
     it("clears crossFieldRequired errors when all fields are filled", fakeAsync(() => {
       const monthCtrl = component.internalForm.get("month")!;
       const dayCtrl = component.internalForm.get("day")!;
@@ -246,6 +288,16 @@ describe("DateFieldGroupComponent", () => {
     });
   });
   describe("validate", () => {
+    it("returns errors when day is missing", fakeAsync(() => {
+      component.internalForm.patchValue({ month: "4", day: "", year: "2025" });
+      tick();
+
+      component.onGroupBlur(new FocusEvent("blur", { relatedTarget: document.body as any }));
+
+      const dayCtrl = component.internalForm.get("day")!;
+      expect(dayCtrl.hasError("crossFieldRequired")).toBe(true);
+    }));
+
     it("returns null when form is valid", fakeAsync(() => {
       component.internalForm.patchValue({ month: "4", day: "5", year: "2025" });
       tick();
@@ -255,7 +307,7 @@ describe("DateFieldGroupComponent", () => {
   });
 
   describe("onGroupBlur", () => {
-    it("marks month as touched when focus leaves the group", () => {
+    it("marks all fields as touched when focus leaves the group", () => {
       const monthCtrl = component.internalForm.get("month")!;
       const dayCtrl = component.internalForm.get("day")!;
       const yearCtrl = component.internalForm.get("year")!;
@@ -269,8 +321,8 @@ describe("DateFieldGroupComponent", () => {
       component.onGroupBlur(blurEvent);
 
       expect(monthCtrl.touched).toBe(true);
-      expect(dayCtrl.touched).toBe(false);
-      expect(yearCtrl.touched).toBe(false);
+      expect(dayCtrl.touched).toBe(true);
+      expect(yearCtrl.touched).toBe(true);
     });
 
     it("does not mark fields as touched if focus stays within the group", () => {
@@ -297,7 +349,7 @@ describe("DateFieldGroupComponent", () => {
       expect(yearCtrl.touched).toBe(false);
     });
 
-    it("marks month as touched when focus leaves and has partial values", fakeAsync(() => {
+    it("marks all fields as touched when focus leaves and has partial values", fakeAsync(() => {
       const monthCtrl = component.internalForm.get("month")!;
       const dayCtrl = component.internalForm.get("day")!;
       const yearCtrl = component.internalForm.get("year")!;
@@ -320,8 +372,8 @@ describe("DateFieldGroupComponent", () => {
       component.onGroupBlur(blurEvent);
 
       expect(monthCtrl.touched).toBe(true);
-      expect(dayCtrl.touched).toBe(false);
-      expect(yearCtrl.touched).toBe(false);
+      expect(dayCtrl.touched).toBe(true);
+      expect(yearCtrl.touched).toBe(true);
     }));
   });
 });
