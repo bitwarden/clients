@@ -94,6 +94,8 @@ export class RendererBiometricsService extends DesktopBiometricsService {
         userId,
         Utils.fromBufferToB64(keyId),
       );
+    } else {
+      await this.biometricStateService.setBiometricEnrolledKeyId(userId, null);
     }
   }
 

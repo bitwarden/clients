@@ -65,16 +65,5 @@ export class BiometricPersistentMigration implements EncryptedMigration {
 
     await this.biometricsService.enrollPersistent(userId, userKey);
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
-
-    await SdkLoadService.Ready;
-    const keyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
-    if (keyId != null) {
-      await this.biometricStateService.setBiometricEnrolledKeyId(
-        userId,
-        Utils.fromBufferToB64(keyId),
-      );
-    } else {
-      await this.biometricStateService.setBiometricEnrolledKeyId(userId, null);
-    }
   }
 }
