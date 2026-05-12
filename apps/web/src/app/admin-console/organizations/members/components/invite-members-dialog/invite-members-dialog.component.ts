@@ -127,7 +127,7 @@ export class InviteMembersDialogComponent {
     return this.byLinkTab()?.form.dirty ?? false;
   }
 
-  protected byLinkTabHasUrl(): Observable<boolean> {
+  protected get byLinkTabHasUrl$(): Observable<boolean> {
     return this.byLinkTab()?.hasInviteLinkUrl$ ?? of(false);
   }
 

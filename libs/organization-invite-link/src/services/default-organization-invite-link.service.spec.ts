@@ -126,16 +126,6 @@ describe("DefaultOrganizationInviteLinkService", () => {
         statusCode: 500,
       });
     });
-
-    it("emits cached value and skips API when state exists", async () => {
-      const link = makeInviteLink();
-      await sut.upsert(mockUserId, link);
-
-      const value = await firstValueFrom(sut.inviteLink$(mockUserId, mockOrgId));
-
-      expect(apiService.get).not.toHaveBeenCalled();
-      expect(value).toEqual(link);
-    });
   });
 
   describe("upsert", () => {

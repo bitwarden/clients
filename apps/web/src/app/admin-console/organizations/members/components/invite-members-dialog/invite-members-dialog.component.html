@@ -40,7 +40,7 @@
           bitButton
           buttonType="primary"
           [bitAction]="copyLink"
-          [disabled]="byLinkTabDirty() || !byLinkTabHasUrl()"
+          [disabled]="byLinkTabDirty() || !(byLinkTabHasUrl$ | async)"
         >
           {{ "copyLink" | i18n }}
         </button>
