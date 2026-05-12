@@ -3,7 +3,13 @@ import { of } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { UserId, CipherId, OrganizationId, CollectionId } from "@bitwarden/common/types/guid";
+import {
+  UserId,
+  CipherId,
+  EmergencyAccessId,
+  OrganizationId,
+  CollectionId,
+} from "@bitwarden/common/types/guid";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
@@ -24,10 +30,11 @@ describe("DefaultCipherSdkService", () => {
   let mockSdkClient: any;
   let mockCiphersSdk: any;
   let mockAdminSdk: any;
+  let mockAttachmentsSdk: any;
+  let mockAttachmentsAdminSdk: any;
   let mockVaultSdk: any;
 
   beforeEach(() => {
-    // Mock the SDK client chain for admin operations
     mockAdminSdk = {
       create: jest.fn(),
       edit: jest.fn(),
@@ -38,7 +45,6 @@ describe("DefaultCipherSdkService", () => {
       restore: jest.fn().mockResolvedValue(undefined),
       restore_many: jest.fn().mockResolvedValue(undefined),
       list_org_ciphers: jest.fn().mockResolvedValue({ ciphers: [], listViews: [] }),
-      delete_attachment: jest.fn().mockResolvedValue(undefined),
     };
     mockCiphersSdk = {
       create: jest.fn(),
@@ -54,11 +60,23 @@ describe("DefaultCipherSdkService", () => {
       decrypt_fido2_credentials: jest.fn(),
       decrypt_fido2_private_key: jest.fn(),
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
-      delete_attachment: jest.fn(),
       admin: jest.fn().mockReturnValue(mockAdminSdk),
+    };
+    mockAttachmentsAdminSdk = {
+      delete_attachment: jest.fn().mockResolvedValue(undefined),
+      get_attachment_download_url: jest.fn(),
+    };
+    mockAttachmentsSdk = {
+      create_attachment: jest.fn(),
+      delete_attachment: jest.fn(),
+      get_attachment_download_url: jest.fn(),
+      prepare_attachment_upgrade: jest.fn(),
+      renew_file_upload_url: jest.fn(),
+      admin: jest.fn().mockReturnValue(mockAttachmentsAdminSdk),
     };
     mockVaultSdk = {
       ciphers: jest.fn().mockReturnValue(mockCiphersSdk),
+      attachments: jest.fn().mockReturnValue(mockAttachmentsSdk),
     };
     const mockSdkValue = {
       vault: jest.fn().mockReturnValue(mockVaultSdk),
@@ -868,7 +886,7 @@ describe("DefaultCipherSdkService", () => {
 
     it("should delete attachment using SDK and return mapped cipher when asAdmin is false", async () => {
       const mockSdkCipher = createMockSdkCipher(testCipherId);
-      mockCiphersSdk.delete_attachment.mockResolvedValue(mockSdkCipher);
+      mockAttachmentsSdk.delete_attachment.mockResolvedValue(mockSdkCipher);
 
       const result = await cipherSdkService.deleteAttachmentWithServer(
         testCipherId,
@@ -878,16 +896,19 @@ describe("DefaultCipherSdkService", () => {
       );
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
-      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
-      expect(mockCiphersSdk.delete_attachment).toHaveBeenCalledWith(testCipherId, testAttachmentId);
-      expect(mockCiphersSdk.admin).not.toHaveBeenCalled();
+      expect(mockVaultSdk.attachments).toHaveBeenCalled();
+      expect(mockAttachmentsSdk.delete_attachment).toHaveBeenCalledWith(
+        testCipherId,
+        testAttachmentId,
+      );
+      expect(mockAttachmentsSdk.admin).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(Cipher);
       expect(result?.id).toBe(testCipherId);
     });
 
     it("should delete attachment using SDK admin API and return mapped cipher when asAdmin is true", async () => {
       const mockSdkCipher = createMockSdkCipher(testCipherId);
-      mockAdminSdk.delete_attachment.mockResolvedValue(mockSdkCipher);
+      mockAttachmentsAdminSdk.delete_attachment.mockResolvedValue(mockSdkCipher);
 
       const result = await cipherSdkService.deleteAttachmentWithServer(
         testCipherId,
@@ -897,16 +918,19 @@ describe("DefaultCipherSdkService", () => {
       );
 
       expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
-      expect(mockVaultSdk.ciphers).toHaveBeenCalled();
-      expect(mockCiphersSdk.admin).toHaveBeenCalled();
-      expect(mockAdminSdk.delete_attachment).toHaveBeenCalledWith(testCipherId, testAttachmentId);
-      expect(mockCiphersSdk.delete_attachment).not.toHaveBeenCalled();
+      expect(mockVaultSdk.attachments).toHaveBeenCalled();
+      expect(mockAttachmentsSdk.admin).toHaveBeenCalled();
+      expect(mockAttachmentsAdminSdk.delete_attachment).toHaveBeenCalledWith(
+        testCipherId,
+        testAttachmentId,
+      );
+      expect(mockAttachmentsSdk.delete_attachment).not.toHaveBeenCalled();
       expect(result).toBeInstanceOf(Cipher);
       expect(result?.id).toBe(testCipherId);
     });
 
     it("should throw error and log when SDK throws an error on user path", async () => {
-      mockCiphersSdk.delete_attachment.mockRejectedValue(new Error("SDK error"));
+      mockAttachmentsSdk.delete_attachment.mockRejectedValue(new Error("SDK error"));
 
       await expect(
         cipherSdkService.deleteAttachmentWithServer(testCipherId, testAttachmentId, userId),
@@ -917,13 +941,209 @@ describe("DefaultCipherSdkService", () => {
     });
 
     it("should throw error and log when SDK throws an error on admin path", async () => {
-      mockAdminSdk.delete_attachment.mockRejectedValue(new Error("SDK error"));
+      mockAttachmentsAdminSdk.delete_attachment.mockRejectedValue(new Error("SDK error"));
 
       await expect(
         cipherSdkService.deleteAttachmentWithServer(testCipherId, testAttachmentId, userId, true),
       ).rejects.toThrow();
       expect(logService.error).toHaveBeenCalledWith(
         expect.stringContaining("Failed to delete cipher attachment"),
+      );
+    });
+  });
+
+  describe("getAttachmentDownloadUrl()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+    const testAttachmentId = "uf7bkexzag04d3cw04jsbqqkbpbwhxs0";
+    const testEmergencyAccessId = "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d" as EmergencyAccessId;
+    const expectedUrl = "https://example.com/attachment/test";
+
+    it("calls the regular SDK method when no options are provided", async () => {
+      mockAttachmentsSdk.get_attachment_download_url.mockResolvedValue(expectedUrl);
+
+      const url = await cipherSdkService.getAttachmentDownloadUrl(
+        testCipherId,
+        testAttachmentId,
+        userId,
+      );
+
+      expect(mockAttachmentsSdk.get_attachment_download_url).toHaveBeenCalledWith(
+        testCipherId,
+        testAttachmentId,
+        undefined,
+      );
+      expect(mockAttachmentsAdminSdk.get_attachment_download_url).not.toHaveBeenCalled();
+      expect(url).toBe(expectedUrl);
+    });
+
+    it("calls the admin SDK method when asAdmin is true", async () => {
+      mockAttachmentsAdminSdk.get_attachment_download_url.mockResolvedValue(expectedUrl);
+
+      const url = await cipherSdkService.getAttachmentDownloadUrl(
+        testCipherId,
+        testAttachmentId,
+        userId,
+        { asAdmin: true },
+      );
+
+      expect(mockAttachmentsAdminSdk.get_attachment_download_url).toHaveBeenCalledWith(
+        testCipherId,
+        testAttachmentId,
+      );
+      expect(mockAttachmentsSdk.get_attachment_download_url).not.toHaveBeenCalled();
+      expect(url).toBe(expectedUrl);
+    });
+
+    it("passes emergencyAccessId through to the regular SDK method", async () => {
+      mockAttachmentsSdk.get_attachment_download_url.mockResolvedValue(expectedUrl);
+
+      const url = await cipherSdkService.getAttachmentDownloadUrl(
+        testCipherId,
+        testAttachmentId,
+        userId,
+        { emergencyAccessId: testEmergencyAccessId },
+      );
+
+      expect(mockAttachmentsSdk.get_attachment_download_url).toHaveBeenCalledWith(
+        testCipherId,
+        testAttachmentId,
+        testEmergencyAccessId,
+      );
+      expect(mockAttachmentsAdminSdk.get_attachment_download_url).not.toHaveBeenCalled();
+      expect(url).toBe(expectedUrl);
+    });
+
+    it("throws when asAdmin and emergencyAccessId are both provided", async () => {
+      await expect(
+        cipherSdkService.getAttachmentDownloadUrl(testCipherId, testAttachmentId, userId, {
+          asAdmin: true,
+          emergencyAccessId: testEmergencyAccessId,
+        }),
+      ).rejects.toThrow("asAdmin and emergencyAccessId are mutually exclusive");
+    });
+
+    it("throws and logs when the SDK throws", async () => {
+      mockAttachmentsSdk.get_attachment_download_url.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.getAttachmentDownloadUrl(testCipherId, testAttachmentId, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to get attachment download URL"),
+      );
+    });
+  });
+
+  describe("createAttachment()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+    const request = {
+      key: "2.encryptedKey",
+      fileName: "2.encryptedFileName",
+      fileSize: 65,
+      lastKnownRevisionDate: "2024-05-31T11:20:58.456Z",
+      asAdmin: false,
+    };
+    const created = {
+      attachmentId: "newatt9999999999999999999999999",
+      uploadUrl: "https://example.com/upload",
+      fileUploadType: "Direct" as const,
+    };
+
+    it("delegates to SDK attachments.create_attachment and returns its result", async () => {
+      mockAttachmentsSdk.create_attachment.mockResolvedValue(created);
+
+      const result = await cipherSdkService.createAttachment(testCipherId, request, userId);
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.attachments).toHaveBeenCalled();
+      expect(mockAttachmentsSdk.create_attachment).toHaveBeenCalledWith(testCipherId, request);
+      expect(result).toBe(created);
+    });
+
+    it("throws and logs when the SDK throws", async () => {
+      mockAttachmentsSdk.create_attachment.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.createAttachment(testCipherId, request, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to create attachment"),
+      );
+    });
+  });
+
+  describe("renewAttachmentUploadUrl()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+    const testAttachmentId = "uf7bkexzag04d3cw04jsbqqkbpbwhxs0";
+    const renewedUrl = "https://example.com/upload/renewed";
+
+    it("delegates to SDK attachments.renew_file_upload_url and returns the URL", async () => {
+      mockAttachmentsSdk.renew_file_upload_url.mockResolvedValue(renewedUrl);
+
+      const result = await cipherSdkService.renewAttachmentUploadUrl(
+        testCipherId,
+        testAttachmentId,
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.attachments).toHaveBeenCalled();
+      expect(mockAttachmentsSdk.renew_file_upload_url).toHaveBeenCalledWith(
+        testCipherId,
+        testAttachmentId,
+      );
+      expect(result).toBe(renewedUrl);
+    });
+
+    it("throws and logs when the SDK throws", async () => {
+      mockAttachmentsSdk.renew_file_upload_url.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.renewAttachmentUploadUrl(testCipherId, testAttachmentId, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to renew attachment upload URL"),
+      );
+    });
+  });
+
+  describe("prepareAttachmentUpgrade()", () => {
+    const testCipherId = "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22" as CipherId;
+    const testAttachmentId = "uf7bkexzag04d3cw04jsbqqkbpbwhxs0";
+    const upgrade = {
+      attachmentId: "newatt9999999999999999999999999",
+      uploadUrl: "https://example.com/upload",
+      fileUploadType: "Direct" as const,
+      encryptedFileName: "2.encryptedFileName",
+      encryptedContents: new Uint8Array([1, 2, 3, 4, 5]),
+    };
+
+    it("delegates to SDK attachments.prepare_attachment_upgrade and returns its result", async () => {
+      mockAttachmentsSdk.prepare_attachment_upgrade.mockResolvedValue(upgrade);
+
+      const result = await cipherSdkService.prepareAttachmentUpgrade(
+        testCipherId,
+        testAttachmentId,
+        userId,
+      );
+
+      expect(sdkService.userClient$).toHaveBeenCalledWith(userId);
+      expect(mockVaultSdk.attachments).toHaveBeenCalled();
+      expect(mockAttachmentsSdk.prepare_attachment_upgrade).toHaveBeenCalledWith(
+        testCipherId,
+        testAttachmentId,
+      );
+      expect(result).toBe(upgrade);
+    });
+
+    it("throws and logs when the SDK throws", async () => {
+      mockAttachmentsSdk.prepare_attachment_upgrade.mockRejectedValue(new Error("SDK error"));
+
+      await expect(
+        cipherSdkService.prepareAttachmentUpgrade(testCipherId, testAttachmentId, userId),
+      ).rejects.toThrow();
+      expect(logService.error).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to prepare attachment upgrade"),
       );
     });
   });
