@@ -9407,6 +9407,9 @@
   "inviteMember": {
     "message": "Invite member"
   },
+  "inviteMembers": {
+    "message": "Invite members"
+  },
   "addSponsorship": {
     "message": "Add sponsorship"
   },
