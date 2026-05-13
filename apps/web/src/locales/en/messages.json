@@ -4472,7 +4472,16 @@
       }
     }
   },
-   "viewedLicenseNumberItemId": {
+  "viewedPassportNumberItemId": {
+    "message": "Viewed passport number for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "viewedLicenseNumberItemId": {
     "message": "Viewed license number for item $ID$.",
     "placeholders": {
       "id": {
