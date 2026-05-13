@@ -5,7 +5,7 @@
     bitIconButton="bwi-close"
     buttonType="primaryGhost"
     size="default"
-    [attr.aria-label]="'close' | i18n"
+    [label]="'close' | i18n"
     (click)="close.emit()"
   ></button>
   <ng-content select="[bitDialogContent]" ngProjectAs="[bitDialogContent]"></ng-content>
