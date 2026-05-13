@@ -655,7 +655,6 @@ export class ServiceContainer {
       new SendApiService(this.apiService, this.fileUploadService, this.sendService),
       new SendSdkApiService(
         this.sdkService,
-        this.apiService,
         this.fileUploadService,
         this.sendService,
         this.accountService,

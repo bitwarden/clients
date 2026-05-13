@@ -7,10 +7,8 @@ import { ConfigService } from "../../../platform/abstractions/config/config.serv
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
-import { SendRequest } from "../models/request/send.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
-import { SendFileUploadDataResponse } from "../models/response/send-file-upload-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
 
@@ -70,22 +68,8 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return (await this.getService()).getSends();
   }
 
-  async postSend(request: SendRequest): Promise<SendResponse> {
-    return (await this.getService()).postSend(request);
-  }
-
-  async postFileTypeSend(request: SendRequest): Promise<SendFileUploadDataResponse> {
-    return (await this.getService()).postFileTypeSend(request);
-  }
-
-  async postSendFile(sendId: string, fileId: string, data: FormData): Promise<any> {
-    return (await this.getService()).postSendFile(sendId, fileId, data);
-  }
-
-  async putSend(id: string, request: SendRequest): Promise<SendResponse> {
-    return (await this.getService()).putSend(id, request);
-  }
-
+  // Note: the SDK path uses the V2 endpoint which removes all auth (password and any other
+  // auth type), not just the password.
   async putSendRemovePassword(id: string): Promise<SendResponse> {
     return (await this.getService()).putSendRemovePassword(id);
   }
@@ -108,12 +92,5 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
     return (await this.getService()).getSendFileDownloadDataV2(send, accessToken, apiUrl);
-  }
-
-  async renewSendFileUploadUrl(
-    sendId: string,
-    fileId: string,
-  ): Promise<SendFileUploadDataResponse> {
-    return (await this.getService()).renewSendFileUploadUrl(sendId, fileId);
   }
 }

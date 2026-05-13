@@ -12,7 +12,6 @@ import {
   SendViewType,
 } from "@bitwarden/sdk-internal";
 
-import { ApiService } from "../../../abstractions/api.service";
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { SendAccessToken } from "../../../auth/send-access";
 import { getUserId } from "../../../auth/services/account.service";
@@ -32,10 +31,8 @@ import { SendTextData } from "../models/data/send-text.data";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendAccessRequest } from "../models/request/send-access.request";
-import { SendRequest } from "../models/request/send.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
-import { SendFileUploadDataResponse } from "../models/response/send-file-upload-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
 import { SendView } from "../models/view/send.view";
@@ -48,7 +45,6 @@ import { InternalSendService } from "./send.service.abstraction";
 export class SendSdkApiService implements SendApiServiceAbstraction {
   constructor(
     private sdkService: SdkService,
-    private apiService: ApiService,
     private fileUploadService: FileUploadService,
     private sendService: InternalSendService,
     private accountService: AccountService,
@@ -89,6 +85,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     await this.sendService.delete(id);
   }
 
+  // Note: the SDK calls the V2 endpoint which removes all auth (password and any other
+  // auth type), not just the password.
   async removePassword(id: string): Promise<any> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const view = await firstValueFrom(
@@ -101,7 +99,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           return await ref.value.sends().remove_password(asUuid<SdkSendId>(id));
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to remove send password: ${error}`);
+          this.logService.error(`Failed to remove send auth: ${error}`);
           throw error;
         }),
       ),
@@ -169,25 +167,8 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new ListResponse({ data: views.map((v) => this.sdkSendViewToRawJson(v)) }, SendResponse);
   }
 
-  async postSend(request: SendRequest): Promise<SendResponse> {
-    const r = await this.apiService.send("POST", "/sends", request, true, true);
-    return new SendResponse(r);
-  }
-
-  async postFileTypeSend(request: SendRequest): Promise<SendFileUploadDataResponse> {
-    const r = await this.apiService.send("POST", "/sends/file/v2", request, true, true);
-    return new SendFileUploadDataResponse(r);
-  }
-
-  async postSendFile(sendId: string, fileId: string, data: FormData): Promise<any> {
-    return this.apiService.send("POST", "/sends/" + sendId + "/file/" + fileId, data, true, false);
-  }
-
-  async putSend(id: string, request: SendRequest): Promise<SendResponse> {
-    const r = await this.apiService.send("PUT", "/sends/" + id, request, true, true);
-    return new SendResponse(r);
-  }
-
+  // Note: the SDK calls the V2 endpoint which removes all auth (password and any other
+  // auth type), not just the password.
   async putSendRemovePassword(id: string): Promise<SendResponse> {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const view = await firstValueFrom(
@@ -200,7 +181,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           return await ref.value.sends().remove_password(asUuid<SdkSendId>(id));
         }),
         catchError((error: unknown) => {
-          this.logService.error(`Failed to remove send password: ${error}`);
+          this.logService.error(`Failed to remove send auth: ${error}`);
           throw error;
         }),
       ),
@@ -247,20 +228,6 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
     const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
     return new SendFileDownloadDataResponse(data);
-  }
-
-  async renewSendFileUploadUrl(
-    sendId: string,
-    fileId: string,
-  ): Promise<SendFileUploadDataResponse> {
-    const r = await this.apiService.send(
-      "GET",
-      "/sends/" + sendId + "/file/" + fileId,
-      null,
-      true,
-      true,
-    );
-    return new SendFileUploadDataResponse(r);
   }
 
   private async upload(

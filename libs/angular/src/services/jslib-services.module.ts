@@ -912,7 +912,6 @@ const safeProviders: SafeProvider[] = [
     useClass: SendSdkApiService,
     deps: [
       SdkService,
-      ApiServiceAbstraction,
       FileUploadServiceAbstraction,
       InternalSendService,
       AccountServiceAbstraction,
