@@ -2,6 +2,7 @@ import {
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
+  SHADOW_ROOT_CANDIDATE_SELECTOR,
 } from "@bitwarden/common/autofill/constants";
 
 import { stopwatch } from "../content/performance";
@@ -306,20 +307,12 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     const shadowRoots: ShadowRoot[] = [];
     for (const potentialShadowRoot of root.querySelectorAll("*")) {
-      // Fast path first: element.shadowRoot is cheap and works on any element with
-      // an open root. Fall back to chrome.dom.openOrClosedShadowRoot for closed
-      // roots — the expensive cross-boundary call — on any host element, since
-      // closed roots can be (and are) attached to plain HTML hosts in the wild.
-      let shadowRoot: ShadowRoot | null = potentialShadowRoot.shadowRoot;
-      if (!shadowRoot) {
-        shadowRoot = this.getShadowRoot(potentialShadowRoot);
-      }
-      if (!shadowRoot) {
-        continue;
+      const shadowRoot = this.getShadowRoot(potentialShadowRoot);
+      if (shadowRoot) {
+        shadowRoots.push(shadowRoot);
       }
 
-      shadowRoots.push(shadowRoot);
-      if (returnSingleShadowRoot) {
+      if (returnSingleShadowRoot && shadowRoots.length) {
         break;
       }
     }
@@ -340,10 +333,22 @@ export class DomQueryService implements DomQueryServiceInterface {
       return null;
     }
 
+    // Fast path first: element.shadowRoot is cheap and works on any element with
+    // an open root.
     if (node.shadowRoot) {
       return node.shadowRoot;
     }
 
+    // skip nodes that cannot contain shadow roots
+    const isCandidate =
+      SHADOW_ROOT_CANDIDATE_SELECTOR.has(node.nodeName) || node.nodeName.includes("-");
+    if (!isCandidate) {
+      return null;
+    }
+
+    // Fall back to chrome.dom.openOrClosedShadowRoot for closed
+    // roots — the expensive cross-boundary call — on any host element, since
+    // closed roots can be (and are) attached to plain HTML hosts in the wild.
     if ((chrome as any).dom?.openOrClosedShadowRoot) {
       try {
         return (chrome as any).dom.openOrClosedShadowRoot(node);
