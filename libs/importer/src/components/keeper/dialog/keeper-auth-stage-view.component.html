@@ -247,48 +247,29 @@
     </keeper-stage-shell>
   }
 
-  <!-- Cloud SSO. Browser extension auto-captures the token from the callback
-       page, so it just shows a spinner. Desktop/web open the IdP in the
-       system browser and the user pastes the token back. -->
+  <!-- Cloud SSO on desktop/web: the IdP opens in the system browser and the
+       user pastes the token back. The browser extension auto-captures the
+       token and skips this stage entirely. -->
   @case ("ssoToken") {
-    @if (autoCaptureSsoToken) {
-      <keeper-stage-shell
-        [title]="'ssoAuthRequired' | i18n"
-        [email]="email()"
-        [secondaryLabel]="'cancel' | i18n"
-        (secondary)="cancel()"
-        (close)="cancel()"
-      >
-        <div bitDialogContent>
-          <div class="tw-flex tw-flex-col tw-items-center tw-gap-4 tw-py-2">
-            <bit-spinner></bit-spinner>
-            <p bitTypography="body1" class="tw-text-center !tw-mb-0">
-              {{ "keeperSsoAutoCaptureDesc" | i18n }}
-            </p>
-          </div>
-        </div>
-      </keeper-stage-shell>
-    } @else {
-      <keeper-stage-shell
-        [title]="'ssoAuthRequired' | i18n"
-        [email]="email()"
-        [primaryLabel]="'continue' | i18n"
-        (primary)="submitSsoToken()"
-        [secondaryLabel]="'cancel' | i18n"
-        (secondary)="cancel()"
-        (close)="cancel()"
-      >
-        <div bitDialogContent>
-          <p bitTypography="body2">{{ "keeperSsoDesc" | i18n }}</p>
-          <form (ngSubmit)="submitSsoToken()">
-            <bit-form-field class="!tw-mb-0">
-              <bit-label>{{ "ssoToken" | i18n }}</bit-label>
-              <input bitInput type="text" [formControl]="ssoTokenControl" appInputVerbatim />
-            </bit-form-field>
-          </form>
-        </div>
-      </keeper-stage-shell>
-    }
+    <keeper-stage-shell
+      [title]="'ssoAuthRequired' | i18n"
+      [email]="email()"
+      [primaryLabel]="'continue' | i18n"
+      (primary)="submitSsoToken()"
+      [secondaryLabel]="'cancel' | i18n"
+      (secondary)="cancel()"
+      (close)="cancel()"
+    >
+      <div bitDialogContent>
+        <p bitTypography="body2">{{ "keeperSsoDesc" | i18n }}</p>
+        <form (ngSubmit)="submitSsoToken()">
+          <bit-form-field class="!tw-mb-0">
+            <bit-label>{{ "ssoToken" | i18n }}</bit-label>
+            <input bitInput type="text" [formControl]="ssoTokenControl" appInputVerbatim />
+          </bit-form-field>
+        </form>
+      </div>
+    </keeper-stage-shell>
   }
 
   <!-- Master password prompt. Server only requests it after device approval / 2FA. -->

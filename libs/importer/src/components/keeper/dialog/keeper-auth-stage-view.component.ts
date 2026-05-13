@@ -10,9 +10,7 @@ import {
 import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   CalloutModule,
   DialogModule,
@@ -63,12 +61,6 @@ export class KeeperAuthStageViewComponent {
   readonly triedAnother = output<void>();
   readonly resent = output<void>();
   readonly errorDismissed = output<void>();
-
-  // Browser extension uses BrowserKeeperSsoTabMonitor to auto-capture the
-  // token from the SSO callback page; no manual paste needed. Other clients
-  // open the IdP in the system browser and the user pastes the token back.
-  protected readonly autoCaptureSsoToken =
-    inject(PlatformUtilsService).getClientType() === ClientType.Browser;
 
   private readonly i18nService = inject(I18nService);
 

@@ -1,5 +1,7 @@
 import { Injectable, inject, signal } from "@angular/core";
 
+import { ClientType } from "@bitwarden/common/enums";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogRef, DialogService } from "@bitwarden/components";
 
 import {
@@ -54,6 +56,12 @@ type PendingResolver = (value: unknown) => void;
 export class KeeperDirectImportUIService implements Ui {
   private readonly dialogService = inject(DialogService);
   private readonly ssoTabMonitor = inject(KEEPER_SSO_TAB_MONITOR);
+
+  // Browser extension auto-captures the SSO token from the callback tab, so
+  // the parent import form's submit button (already in a loading state during
+  // the async validator) is the only progress indicator the user needs.
+  private readonly autoCaptureSsoToken =
+    inject(PlatformUtilsService).getClientType() === ClientType.Browser;
 
   private readonly _stage = signal<KeeperAuthStage>({ kind: "idle" });
 
@@ -270,15 +278,20 @@ export class KeeperDirectImportUIService implements Ui {
   //
 
   async ssoLogin(url: string): Promise<string | typeof Cancel> {
-    this.setStage({ kind: "ssoToken" });
+    // Browser extension: skip the dialog entirely — the Import button's
+    // loading state covers the wait, and the tab monitor delivers the token.
+    if (this.autoCaptureSsoToken) {
+      try {
+        return await this.ssoTabMonitor.launchAndWaitForToken(url, SSO_CALLBACK_URL_PATTERN);
+      } finally {
+        this.ssoTabMonitor.cancel();
+      }
+    }
 
-    // Race the auto-capture monitor against manual paste. If the monitor
-    // (browser extension only) finds the token first, submit() resolves the
-    // same promise waitForUser is awaiting. Errors from the monitor are
-    // swallowed so the user can still paste manually.
+    // Desktop / web: open the IdP and let the user paste the token back.
+    this.setStage({ kind: "ssoToken" });
     void this.ssoTabMonitor
       .launchAndWaitForToken(url, SSO_CALLBACK_URL_PATTERN)
-      .then((token) => this.submit(token))
       .catch((): void => undefined);
 
     try {
