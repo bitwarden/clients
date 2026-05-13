@@ -13,10 +13,7 @@
 
 <div class="tw-flex tw-items-start tw-gap-2">
   <bit-form-field class="tw-flex-1">
-    <bit-label
-      >{{ "allowedDomains" | i18n }}
-      <span class="tw-font-normal tw-text-sm">({{ "required" | i18n }})</span></bit-label
-    >
+    <bit-label> {{ "allowedDomains" | i18n }} </bit-label>
     <input bitInput type="text" [formControl]="form.controls.domains" />
     <bit-hint>{{ "allowedDomainsHint" | i18n }}</bit-hint>
   </bit-form-field>
@@ -42,4 +39,30 @@
       {{ "enterAllowedDomainsToGenerateInviteLink" | i18n }}
     </strong>
   </bit-callout>
+} @else {
+  @let inviteLinkUrl = inviteLinkUrl$ | async;
+  @if (inviteLinkUrl) {
+    <bit-form-field>
+      <bit-label>{{ "inviteLink" | i18n }}</bit-label>
+      <input bitInput type="text" disabled="true" [value]="inviteLinkUrl" />
+      <button
+        type="button"
+        bitSuffix
+        bitIconButton="bwi-refresh"
+        [label]="'regenerateInviteLink' | i18n"
+        [bitAction]="refreshLink"
+      ></button>
+      <button
+        type="button"
+        bitSuffix
+        bitIconButton="bwi-clone"
+        [label]="'copyLink' | i18n"
+        [bitAction]="copyLink"
+        [disabled]="form.dirty"
+      ></button>
+      <bit-hint>{{
+        "lastGenerated" | i18n: (inviteLink.creationDate | date: "shortDate")
+      }}</bit-hint>
+    </bit-form-field>
+  }
 }

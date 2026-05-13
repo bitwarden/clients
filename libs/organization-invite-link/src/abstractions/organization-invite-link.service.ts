@@ -31,14 +31,18 @@ export abstract class OrganizationInviteLinkService {
 
   /**
    * Refresh the invite link via the server endpoint.
-   * Emits the shareable URL once, then completes.
    */
   abstract refreshInviteLink(userId: UserId, orgId: OrganizationId): Promise<void>;
 
   /**
-   * Reconstruct and returns the shareable URL from OrganizationInviteLink in local state as a string
+   * Reconstruct and returns an Observable containing the shareable URL for the provided
+   * organization's invite link.
    */
-  abstract reconstructUrl(userId: UserId, orgId: OrganizationId): Promise<string>;
+  abstract reconstructUrl(
+    userId: UserId,
+    orgId: OrganizationId,
+    inviteLink: OrganizationInviteLink,
+  ): Observable<string>;
 
   /** Persist an invite link to local state */
   abstract upsert(userId: UserId, data: OrganizationInviteLink): Promise<void>;

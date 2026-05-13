@@ -1,5 +1,12 @@
 import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
@@ -108,11 +115,25 @@ export class InviteMembersDialogComponent {
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
 
+  private readonly byLinkTab = viewChild(ByLinkTabComponent);
+
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
   protected readonly selectedTabIndex = signal(0);
   protected readonly moreSettingsOpen = signal(false);
+
+  protected byLinkTabDirty(): boolean {
+    return this.byLinkTab()?.form.dirty ?? false;
+  }
+
+  protected get byLinkTabHasUrl$(): Observable<boolean> {
+    return this.byLinkTab()?.hasInviteLinkUrl$ ?? of(false);
+  }
+
+  readonly copyLink = async () => {
+    await this.byLinkTab()?.copyLink();
+  };
 
   protected readonly formGroup = this.formBuilder.group({
     emails: [""],

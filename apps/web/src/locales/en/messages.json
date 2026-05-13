@@ -5486,6 +5486,26 @@
   "domainsEdited": {
     "message": "Domains edited"
   },
+  "inviteLink": {
+    "message": "Invite link"
+  },
+  "lastGenerated": {
+    "message": "Last generated: $DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "Invite link copied"
+  },
+"inviteLinkRegenerated": {
+    "message": "Invite link regenerated"
+  },
+  "regenerateInviteLink": {
+    "message": "Regenerate invite link"
+  },
   "inviteByLinkDesc": {
     "message": "Invite members to your organization with a link. If no role has been specified yet, they’ll be added as a default user."
   },
@@ -9396,6 +9416,9 @@
   },
   "inviteMember": {
     "message": "Invite member"
+  },
+  "inviteMembers": {
+    "message": "Invite members"
   },
   "addSponsorship": {
     "message": "Add sponsorship"
