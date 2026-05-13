@@ -7,6 +7,7 @@ import {
   DeviceApprovalChannel,
   DnaMethod,
   DuoMethod,
+  ProvideApprovalCodeOptions,
   ProvideTwoFactorCodeOptions,
   Resend,
   TryAnother,
@@ -26,6 +27,7 @@ export type KeeperAuthStage =
       kind: "approvalCode";
       method: DeviceApprovalChannel;
       variant: "email" | "push" | "admin";
+      previousCodeRejected: boolean;
     }
   | { kind: "selectTwoFactor"; methods: TwoFactorMethod[] }
   | {
@@ -34,6 +36,7 @@ export type KeeperAuthStage =
       needsInput: boolean;
       hidden: boolean;
       canResend: boolean;
+      previousCodeRejected: boolean;
     }
   | { kind: "selectDuo"; methods: DuoMethod[]; phoneNumber: string }
   | { kind: "duoPush"; method: DuoMethod }
@@ -135,7 +138,7 @@ export class KeeperDirectImportUIService implements Ui {
 
   async provideApprovalCode(
     method: DeviceApprovalChannel,
-    _info?: string,
+    options?: ProvideApprovalCodeOptions,
   ): Promise<string | typeof Cancel | typeof Resend | typeof TryAnother> {
     const variant: "email" | "push" | "admin" =
       method === DeviceApprovalChannel.Email
@@ -144,7 +147,12 @@ export class KeeperDirectImportUIService implements Ui {
           ? "admin"
           : "push";
 
-    this.setStage({ kind: "approvalCode", method, variant });
+    this.setStage({
+      kind: "approvalCode",
+      method,
+      variant,
+      previousCodeRejected: options?.previousCodeRejected ?? false,
+    });
     return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
   }
 
@@ -191,6 +199,7 @@ export class KeeperDirectImportUIService implements Ui {
       needsInput,
       hidden: options?.hidden ?? false,
       canResend: options?.canResend ?? false,
+      previousCodeRejected: options?.previousCodeRejected ?? false,
     });
     return this.waitForUser<string | typeof Cancel | typeof Resend | typeof TryAnother>();
   }

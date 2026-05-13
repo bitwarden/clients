@@ -11,6 +11,7 @@ import { FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   CalloutModule,
@@ -69,6 +70,8 @@ export class KeeperAuthStageViewComponent {
   protected readonly autoCaptureSsoToken =
     inject(PlatformUtilsService).getClientType() === ClientType.Browser;
 
+  private readonly i18nService = inject(I18nService);
+
   protected readonly codeControl = new FormControl("", {
     nonNullable: true,
     validators: [Validators.required],
@@ -100,6 +103,26 @@ export class KeeperAuthStageViewComponent {
         this.duoMethodControl.setValue(current.methods[0]);
       } else if (current.kind === "selectDna" && current.methods.length > 0) {
         this.dnaMethodControl.setValue(current.methods[0]);
+      }
+
+      const codeStageRejected =
+        (current.kind === "approvalCode" && current.previousCodeRejected) ||
+        (current.kind === "twoFactorCode" && current.needsInput && current.previousCodeRejected);
+
+      if (codeStageRejected) {
+        // bit-input clears `touched` on input, so the error auto-hides as
+        // soon as the user starts typing a new code.
+        this.codeControl.setErrors({
+          keeperCodeRejected: { message: this.i18nService.t("invalidVerificationCode") },
+        });
+        this.codeControl.markAsTouched();
+      } else if (
+        current.kind === "approvalCode" ||
+        (current.kind === "twoFactorCode" && current.needsInput)
+      ) {
+        // Fresh prompt (initial or after Resend) — drop any stale rejection
+        // error left over from a prior attempt.
+        this.codeControl.reset("");
       }
     });
   }

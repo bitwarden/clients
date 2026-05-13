@@ -12,6 +12,13 @@ export interface ProvideTwoFactorCodeOptions {
   hidden?: boolean;
   /** True if the underlying method (e.g. SMS) supports re-sending a code. */
   canResend?: boolean;
+  /** True when re-prompting after the server rejected the previous code. */
+  previousCodeRejected?: boolean;
+}
+
+export interface ProvideApprovalCodeOptions {
+  /** True when re-prompting after the server rejected the previous code. */
+  previousCodeRejected?: boolean;
 }
 
 export interface Ui {
@@ -19,7 +26,7 @@ export interface Ui {
   selectApprovalMethod(method: DeviceApprovalChannel[]): Promise<DeviceApprovalChannel | Cancel>;
   provideApprovalCode(
     method: DeviceApprovalChannel,
-    info?: string,
+    options?: ProvideApprovalCodeOptions,
   ): Promise<string | Cancel | Resend | TryAnother>;
   closeApprovalDialog(): void;
 

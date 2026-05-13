@@ -485,44 +485,63 @@ export class Client {
           socketMessagePromise = socket.waitForMessage();
         }
 
-        const result = await Promise.race([
-          this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, triggerPush, true),
-          socketMessagePromise,
-        ]);
+        let previousCodeRejected = false;
+        let tryAnother = false;
+        let updatedToken: Uint8Array | undefined;
+        while (updatedToken === undefined) {
+          const result = await Promise.race([
+            this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, {
+              onResend: triggerPush,
+              hidden: true,
+              previousCodeRejected,
+            }),
+            socketMessagePromise,
+          ]);
+          previousCodeRejected = false;
 
-        if (result === TryAnother) {
-          continue;
+          if (result === TryAnother) {
+            tryAnother = true;
+            break;
+          }
+
+          if (typeof result === "object" && "messageType" in result) {
+            // Socket fired first: device approval came through via push.
+            socketMessagePromise = undefined;
+            const { messageType: mt, message: msg } = result as PushMessage;
+            const passcode = msg.passcode as string | undefined;
+            const event = msg.event as string | undefined;
+            const encryptedLoginToken = msg.encryptedLoginToken as string | undefined;
+
+            if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
+              // Server already validated the code from the watch; reuse the new token.
+              updatedToken = base64UrlDecode(encryptedLoginToken);
+            } else if (mt === MessageType.DNA && passcode) {
+              updatedToken = await this.validate2FA(
+                currentLoginToken,
+                passcode,
+                new Uint8Array(),
+                TwoFactorValueType.TWO_FA_CODE_NONE,
+              );
+            } else {
+              throw new Error("Device approval failed or timed out");
+            }
+          } else {
+            try {
+              updatedToken = await this.validate2FA(
+                currentLoginToken,
+                result,
+                new Uint8Array(),
+                TwoFactorValueType.TWO_FA_CODE_NONE,
+              );
+            } catch {
+              // Re-prompt with an inline error instead of aborting the import.
+              previousCodeRejected = true;
+            }
+          }
         }
 
-        let updatedToken: Uint8Array;
-        if (typeof result === "object" && "messageType" in result) {
-          // Socket fired first: device approval came through via push.
-          socketMessagePromise = undefined;
-          const { messageType: mt, message: msg } = result as PushMessage;
-          const passcode = msg.passcode as string | undefined;
-          const event = msg.event as string | undefined;
-          const encryptedLoginToken = msg.encryptedLoginToken as string | undefined;
-
-          if (mt === MessageType.DNA && event === "received_totp" && encryptedLoginToken) {
-            // Server already validated the code from the watch; reuse the new token.
-            updatedToken = base64UrlDecode(encryptedLoginToken);
-          } else if (mt === MessageType.DNA && passcode) {
-            updatedToken = await this.validate2FA(
-              currentLoginToken,
-              passcode,
-              new Uint8Array(),
-              TwoFactorValueType.TWO_FA_CODE_NONE,
-            );
-          } else {
-            throw new Error("Device approval failed or timed out");
-          }
-        } else {
-          updatedToken = await this.validate2FA(
-            currentLoginToken,
-            result,
-            new Uint8Array(),
-            TwoFactorValueType.TWO_FA_CODE_NONE,
-          );
+        if (tryAnother) {
+          continue;
         }
         return await this.resumeLogin(updatedToken, deviceToken, messageSessionUid);
       }
@@ -548,22 +567,17 @@ export class Client {
         socketMessagePromise = socket.waitForMessage();
       }
 
-      const promptMessage =
-        method === DeviceApprovalChannel.KeeperPush
-          ? "Approve the request on your Keeper device"
-          : method === DeviceApprovalChannel.AdminApproval
-            ? "Waiting for admin to approve the device request"
-            : "Check your email for the verification code";
-
       let restartOuter = false;
+      let previousCodeRejected = false;
       while (true) {
         const approvalResult = this.throwIfCancel(
           await Promise.race([
-            this.ui.provideApprovalCode(method, promptMessage),
+            this.ui.provideApprovalCode(method, { previousCodeRejected }),
             socketMessagePromise,
           ]),
           "Device approval",
         );
+        previousCodeRejected = false;
 
         if (approvalResult === TryAnother) {
           restartOuter = true;
@@ -579,7 +593,14 @@ export class Client {
         }
 
         if (typeof approvalResult === "string" && approvalResult.length > 0) {
-          await this.validateDeviceVerificationCode(username, approvalResult);
+          try {
+            await this.validateDeviceVerificationCode(username, approvalResult);
+          } catch {
+            // Server rejected the code (typically a wrong/expired email code).
+            // Re-prompt with an inline error instead of aborting the import.
+            previousCodeRejected = true;
+            continue;
+          }
           return await this.resumeLogin(currentLoginToken, deviceToken, messageSessionUid);
         }
 
@@ -758,17 +779,18 @@ export class Client {
       switch (method) {
         // Google Authenticator TOTP like codes
         case TwoFactorChannelType.TWO_FA_CT_TOTP: {
-          // TODO: We only give one attempt for TOTP codes at the moment. Should we allow retries?
-          const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp);
-          if (code === TryAnother) {
+          const updated = await this.submitTwoFactorCodeWithRetry(TwoFactorMethod.Totp, (code) =>
+            this.validate2FA(
+              currentLoginToken,
+              code,
+              channel.channelUid,
+              TwoFactorValueType.TWO_FA_CODE_TOTP,
+            ),
+          );
+          if (updated === TryAnother) {
             continue twoFactor;
           }
-          currentLoginToken = await this.validate2FA(
-            currentLoginToken,
-            code,
-            channel.channelUid,
-            TwoFactorValueType.TWO_FA_CODE_TOTP,
-          );
+          currentLoginToken = updated;
           break;
         }
 
@@ -777,16 +799,21 @@ export class Client {
           const sendSms = () =>
             this.send2FAPush(currentLoginToken, TwoFactorPushType.TWO_FA_PUSH_SMS);
           await sendSms();
-          const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Sms, sendSms);
-          if (code === TryAnother) {
+          const updated = await this.submitTwoFactorCodeWithRetry(
+            TwoFactorMethod.Sms,
+            (code) =>
+              this.validate2FA(
+                currentLoginToken,
+                code,
+                channel.channelUid,
+                TwoFactorValueType.TWO_FA_CODE_SMS,
+              ),
+            sendSms,
+          );
+          if (updated === TryAnother) {
             continue twoFactor;
           }
-          currentLoginToken = await this.validate2FA(
-            currentLoginToken,
-            code,
-            channel.channelUid,
-            TwoFactorValueType.TWO_FA_CODE_SMS,
-          );
+          currentLoginToken = updated;
           break;
         }
 
@@ -875,16 +902,18 @@ export class Client {
             // Duo Passcode: user needs to enter a passcode generated by the Duo mobile app.
             // It's a one-shot operation, no request is sent to the server to trigger it.
             case DuoMethod.Passcode: {
-              const code = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo);
-              if (code === TryAnother) {
+              const updated = await this.submitTwoFactorCodeWithRetry(TwoFactorMethod.Duo, (code) =>
+                this.validate2FA(
+                  currentLoginToken,
+                  code,
+                  channel.channelUid,
+                  TwoFactorValueType.TWO_FA_CODE_DUO,
+                ),
+              );
+              if (updated === TryAnother) {
                 continue twoFactor;
               }
-              currentLoginToken = await this.validate2FA(
-                currentLoginToken,
-                code,
-                channel.channelUid,
-                TwoFactorValueType.TWO_FA_CODE_DUO,
-              );
+              currentLoginToken = updated;
               break;
             }
 
@@ -895,16 +924,21 @@ export class Client {
               const sendSms = () =>
                 this.send2FAPush(currentLoginToken, this.duoMethodToPush.get(duoMethod)!);
               await sendSms();
-              const smsCode = await this.getTwoFactorCodeFromUi(TwoFactorMethod.Duo, sendSms);
-              if (smsCode === TryAnother) {
+              const updated = await this.submitTwoFactorCodeWithRetry(
+                TwoFactorMethod.Duo,
+                (code) =>
+                  this.validate2FA(
+                    currentLoginToken,
+                    code,
+                    channel.channelUid,
+                    TwoFactorValueType.TWO_FA_CODE_DUO,
+                  ),
+                sendSms,
+              );
+              if (updated === TryAnother) {
                 continue twoFactor;
               }
-              currentLoginToken = await this.validate2FA(
-                currentLoginToken,
-                smsCode,
-                channel.channelUid,
-                TwoFactorValueType.TWO_FA_CODE_DUO,
-              );
+              currentLoginToken = updated;
               break;
             }
             default:
@@ -923,12 +957,20 @@ export class Client {
 
   private async getTwoFactorCodeFromUi(
     method: TwoFactorMethod,
-    onResend?: () => Promise<void>,
-    hidden = false,
+    options: {
+      onResend?: () => Promise<void>;
+      hidden?: boolean;
+      previousCodeRejected?: boolean;
+    } = {},
   ): Promise<string | typeof TryAnother> {
+    let previousCodeRejected = options.previousCodeRejected ?? false;
     for (;;) {
       const result = this.throwIfCancel(
-        await this.ui.provideTwoFactorCode(method, { hidden, canResend: !!onResend }),
+        await this.ui.provideTwoFactorCode(method, {
+          hidden: options.hidden ?? false,
+          canResend: !!options.onResend,
+          previousCodeRejected,
+        }),
         "Two-factor authentication",
       );
 
@@ -938,8 +980,36 @@ export class Client {
 
       // Methods without a resend mechanism (TOTP, RSA, backup codes, Keeper DNA code)
       // silently re-prompt; SMS-style methods re-trigger the underlying push.
-      if (onResend) {
-        await onResend();
+      if (options.onResend) {
+        await options.onResend();
+      }
+      previousCodeRejected = false;
+    }
+  }
+
+  /**
+   * Prompts the user for a 2FA code, validates it, and retries with an inline
+   * error if the server rejects the code. Returns the updated login token or
+   * TryAnother if the user picked another method.
+   */
+  private async submitTwoFactorCodeWithRetry(
+    method: TwoFactorMethod,
+    validate: (code: string) => Promise<Uint8Array>,
+    onResend?: () => Promise<void>,
+  ): Promise<Uint8Array | typeof TryAnother> {
+    let previousCodeRejected = false;
+    while (true) {
+      const code = await this.getTwoFactorCodeFromUi(method, {
+        onResend,
+        previousCodeRejected,
+      });
+      if (code === TryAnother) {
+        return TryAnother;
+      }
+      try {
+        return await validate(code);
+      } catch {
+        previousCodeRejected = true;
       }
     }
   }
