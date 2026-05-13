@@ -2197,12 +2197,12 @@
     "message": "Nový pas",
     "description": "Header for new passport item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nový textový Send",
+  "newItemHeaderTextSendV2": {
+    "message": "Nový text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nový Send se soubory",
+  "newItemHeaderFileSendV2": {
+    "message": "Nový soubor",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2237,12 +2237,12 @@
     "message": "Upravit pas",
     "description": "Header for edit passport item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "Upravit textový Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Upravit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Upravit Send se soubory",
+  "editItemHeaderFileSendV2": {
+    "message": "Upravit soubor",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -3460,33 +3460,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportování osobního trezoru"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Budou exportovány jen osobní položky trezoru spojené s $EMAIL$. Položky trezoru organizace nebudou zahrnuty. Budou exportovány jen informace o položkách trezoru a nebudou zahrnuty související přílohy.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Budou exportovány jen osobní položky trezoru včetně příloh spojené s účtem $EMAIL$. Nebudou zahrnuty položky trezoru v organizaci.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Exportování trezoru organizace"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Exportován bude jen trezor organizace přidružený k položce $ORGANIZATION$. Osobní položky trezoru a položky z jiných organizací nebudou zahrnuty.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Exportovat se budou jen položky ve vašem individuálním trezoru."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Exportovat se budou jen položky spojené s trezorem $ORGANIZATION$. Položky v jednotlivých trezorech ne.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4576,6 +4561,18 @@
   },
   "exportError": {
     "message": "Při exportu dat Vašeho trezoru se vyskytla chyba"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 poškozená příloha byla při exportu přeskočena. Všechna ostatní data trezoru a přílohy byly úspěšně exportovány."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ poškozených příloh bylo při exportu přeskočeno. Všechna ostatní data trezoru a přílohy byly úspěšně exportovány.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "Přístupový klíč"
@@ -6431,6 +6428,29 @@
   },
   "downloadFailed": {
     "message": "Stažení se nezdařilo."
+  },
+  "maxAccessCount": {
+    "message": "Maximální počet přístupů",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Skrýt moji e-mailovou adresu před příjemci"
+  },
+  "viewTextSendHeader": {
+    "message": "Zobrazit text"
+  },
+  "viewFileSendHeader": {
+    "message": "Zobrazit soubor"
+  },
+  "sendCreated": {
+    "message": "Send byl vytvořen",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Vstup musí být číselný"
+  },
+  "integerInputError": {
+    "message": "Vstup musí být celé číslo"
   },
   "sideNavigation": {
     "message": "Boční navigace"

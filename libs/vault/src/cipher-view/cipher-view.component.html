@@ -88,6 +88,14 @@
     ></app-bank-account-view>
   }
 
+  <!-- DRIVER'S LICENSE SECTIONS -->
+  @if (hasDriversLicense()) {
+    <app-drivers-license-view
+      [driversLicense]="cipher()!.driversLicense"
+      [cipher]="cipher()!"
+    ></app-drivers-license-view>
+  }
+
   <!-- ADDITIONAL OPTIONS -->
   @if (cipher()?.notes) {
     <app-additional-options [notes]="cipher()!.notes"> </app-additional-options>
