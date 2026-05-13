@@ -75,7 +75,7 @@ import { Importer } from "../importers/importer";
 import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
 import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
 import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
-import { ImportOption, ImportType } from "../models";
+import { ImportOption, ImportResult, ImportType } from "../models";
 import {
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
