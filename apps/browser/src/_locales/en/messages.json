@@ -170,6 +170,15 @@
   "copyNationalIdentificationNumber": {
     "message": "Copy national identification number"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
@@ -2277,6 +2286,12 @@
   "typePassportSubtitle": {
     "message": "Travel document"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -2341,7 +2356,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -2381,7 +2396,7 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "View license",
     "description": "Header for view license item type"
   },
@@ -5115,12 +5130,6 @@
   "copyAddress": {
     "message": "Copy address"
   },
-  "copyFirstName": {
-    "message": "Copy first name"
-  },
-  "copyLastName": {
-    "message": "Copy last name"
-  },
   "myItems": {
     "message": "My Items"
   },
@@ -6467,6 +6476,9 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
   },
   "bankName": {
     "message": "Bank name"

@@ -27,6 +27,7 @@ import { PasswordHistoryView } from "../view/password-history.view";
 import { Attachment } from "./attachment";
 import { BankAccount } from "./bank-account";
 import { Card } from "./card";
+import { DriversLicense } from "./drivers-license";
 import { Field } from "./field";
 import { Identity } from "./identity";
 import { Login } from "./login";
@@ -57,6 +58,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   secureNote?: SecureNote;
   sshKey?: SshKey;
   bankAccount?: BankAccount;
+  driversLicense?: DriversLicense;
   passport?: Passport;
   attachments?: Attachment[];
   fields?: Field[];
@@ -113,6 +115,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
       case CipherType.BankAccount:
         this.bankAccount = new BankAccount(obj.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        this.driversLicense = new DriversLicense(obj.driversLicense);
         break;
       case CipherType.Passport:
         this.passport = new Passport(obj.passport);
@@ -196,6 +201,14 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       case CipherType.BankAccount:
         if (this.bankAccount != null) {
           model.bankAccount = await this.bankAccount.decrypt(
+            cipherDecryptionKey,
+            `Cipher Id: ${this.id}`,
+          );
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          model.driversLicense = await this.driversLicense.decrypt(
             cipherDecryptionKey,
             `Cipher Id: ${this.id}`,
           );
@@ -313,6 +326,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           c.bankAccount = this.bankAccount.toBankAccountData();
         }
         break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          c.driversLicense = this.driversLicense.toDriversLicenseData();
+        }
+        break;
       case CipherType.Passport:
         if (this.passport != null) {
           c.passport = this.passport.toPassportData();
@@ -405,6 +423,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           domain.bankAccount = BankAccount.fromJSON(obj.bankAccount);
         }
         break;
+      case CipherType.DriversLicense:
+        if (obj.driversLicense != null) {
+          domain.driversLicense = DriversLicense.fromJSON(obj.driversLicense);
+        }
+        break;
       case CipherType.Passport:
         if (obj.passport != null) {
           domain.passport = Passport.fromJSON(obj.passport);
@@ -494,6 +517,11 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           sdkCipher.bankAccount = this.bankAccount.toSdkBankAccount();
         }
         break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          sdkCipher.driversLicense = this.driversLicense.toSdkDriversLicense();
+        }
+        break;
       case CipherType.Passport:
         if (this.passport != null) {
           sdkCipher.passport = this.passport.toSdkPassport();
@@ -555,6 +583,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.identity = Identity.fromSdkIdentity(sdkCipher.identity);
     cipher.sshKey = SshKey.fromSdkSshKey(sdkCipher.sshKey);
     cipher.bankAccount = BankAccount.fromSdkBankAccount(sdkCipher.bankAccount);
+    cipher.driversLicense = DriversLicense.fromSdkDriversLicense(sdkCipher.driversLicense);
     cipher.passport = Passport.fromSdkPassport(sdkCipher.passport);
 
     return cipher;

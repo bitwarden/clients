@@ -95,6 +95,7 @@ export class NewItemNudgeComponent {
         this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
         return NudgeType.NewBankAccountItemStatus;
 
+      case CipherType.DriversLicense:
       case CipherType.Passport:
         return null;
 

@@ -111,6 +111,7 @@ describe("AddItemDialogComponent", () => {
     it('is "default" when the grid has fewer than 6 items', () => {
       restricted$.next([
         { cipherType: CipherType.Card, allowViewOrgIds: [] },
+        { cipherType: CipherType.DriversLicense, allowViewOrgIds: [] },
         { cipherType: CipherType.Passport, allowViewOrgIds: [] },
       ]);
       createComponent({
@@ -133,6 +134,7 @@ describe("AddItemDialogComponent", () => {
 
       restricted$.next([
         { cipherType: CipherType.Card, allowViewOrgIds: [] },
+        { cipherType: CipherType.DriversLicense, allowViewOrgIds: [] },
         { cipherType: CipherType.Passport, allowViewOrgIds: [] },
       ]);
       fixture.detectChanges();

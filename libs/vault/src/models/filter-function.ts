@@ -20,6 +20,9 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     if (filter.type === "card" && type !== CipherType.Card) {
       return false;
     }
+    if (filter.type === "driversLicense" && type !== CipherType.DriversLicense) {
+      return false;
+    }
     if (filter.type === "identity" && type !== CipherType.Identity) {
       return false;
     }

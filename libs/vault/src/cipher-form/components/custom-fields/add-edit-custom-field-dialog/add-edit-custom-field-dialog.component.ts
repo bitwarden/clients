@@ -73,14 +73,13 @@ export class AddEditCustomFieldDialogComponent {
       if (this.data.disallowHiddenField && option.value === FieldType.Hidden) {
         return false;
       }
-
-      const omitLinkedFieldForCipherTypes: number[] = [
+      const omitLinkedFieldTypeForCiphers: number[] = [
         CipherType.SecureNote,
         CipherType.SshKey,
+        CipherType.DriversLicense,
         CipherType.Passport,
       ];
-
-      if (omitLinkedFieldForCipherTypes.includes(this.data.cipherType)) {
+      if (omitLinkedFieldTypeForCiphers.includes(this.data.cipherType)) {
         return option.value !== FieldType.Linked;
       }
 

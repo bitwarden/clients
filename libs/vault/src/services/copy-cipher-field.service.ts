@@ -37,6 +37,10 @@ export type CopyAction =
   | "routingNumber"
   | "pin"
   | "iban"
+  | "firstName"
+  | "middleName"
+  | "lastName"
+  | "licenseNumber"
   | "passportNumber"
   | "nationalIdentificationNumber";
 
@@ -92,6 +96,14 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
   routingNumber: { typeI18nKey: "bankRoutingNumber", protected: false },
   pin: { typeI18nKey: "pin", protected: true, event: EventType.Cipher_ClientCopiedBankAccountPin },
   iban: { typeI18nKey: "iban", protected: true },
+  firstName: { typeI18nKey: "firstName", protected: true },
+  middleName: { typeI18nKey: "middleName", protected: true },
+  lastName: { typeI18nKey: "lastName", protected: true },
+  licenseNumber: {
+    typeI18nKey: "licenseNumber",
+    protected: true,
+    event: EventType.Cipher_ClientCopiedLicenseNumber,
+  },
   passportNumber: {
     typeI18nKey: "passportNumber",
     protected: true,

@@ -8,6 +8,7 @@ import { CipherResponse } from "../response/cipher.response";
 import { AttachmentData } from "./attachment.data";
 import { BankAccountData } from "./bank-account.data";
 import { CardData } from "./card.data";
+import { DriversLicenseData } from "./drivers-license.data";
 import { FieldData } from "./field.data";
 import { IdentityData } from "./identity.data";
 import { LoginData } from "./login.data";
@@ -35,6 +36,7 @@ export class CipherData {
   identity?: IdentityData;
   sshKey?: SshKeyData;
   bankAccount?: BankAccountData;
+  driversLicense?: DriversLicenseData;
   passport?: PassportData;
   fields?: FieldData[];
   attachments?: AttachmentData[];
@@ -89,6 +91,9 @@ export class CipherData {
         break;
       case CipherType.BankAccount:
         this.bankAccount = new BankAccountData(response.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        this.driversLicense = new DriversLicenseData(response.driversLicense);
         break;
       case CipherType.Passport:
         this.passport = new PassportData(response.passport);
