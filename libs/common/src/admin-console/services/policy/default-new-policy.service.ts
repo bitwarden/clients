@@ -27,16 +27,19 @@ export class DefaultNewPolicyService implements InternalNewPolicyService {
 
     return combineLatest([
       this.organizationService.organizations$(userId),
+      this.organizationService.acceptedOrganizations$(userId),
       this.policies$(userId),
       this.sdkService().client$,
     ]).pipe(
-      map(([organizations, policies, sdkClient]) => {
+      map(([confirmedOrganizations, acceptedOrganizations, policies, sdkClient]) => {
         if (!sdkClient) {
           throw new Error("SDK not available");
         }
 
         const sdkPolicies = policies.map((p) => p.toSdkPolicyView());
-        const sdkOrgs = organizations.map((o) => o.toSdkProfileOrganization());
+        const sdkOrgs = confirmedOrganizations
+          .concat(acceptedOrganizations)
+          .map((o) => o.toSdkProfileOrganization());
         const filteredViews = sdkClient.policies().filter_by_type(sdkPolicies, sdkOrgs, policyType);
 
         const result = filteredViews.map((v) => Policy.fromSdkPolicyView(v));
