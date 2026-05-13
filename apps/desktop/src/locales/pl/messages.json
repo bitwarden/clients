@@ -272,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Tekst wysyłki"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nowa wysyłka tekstu",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nowa wysyłka pliku",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edytuj tekst wysyłki",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edytuj plik wysyłki",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -2780,8 +2780,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "Oczekiwanie na klucz bezpieczeństwa..."
   },
-  "hideEmail": {
-    "message": "Ukryj mój adres e-mail przed odbiorcami."
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Co najmniej jedna zasada organizacji wpływa na ustawienia wysyłek."
@@ -3025,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Eksportowanie osobistego sejfu"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Wyeksportowane zostaną tylko osobiste elementy konta $EMAIL$. Elementy organizacji nie zostaną uwzględnione. Wyeksportowane zostaną tylko informacje o elementach sejfu i nie będą one zawierać powiązanych załączników.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Tylko osobisty sejf $EMAIL$ zostanie wyeksportowany. Elementy organizacji nie zostaną uwzględnione.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Eksportowanie sejfu organizacji"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Tylko sejf organizacji $ORGANIZATION$ zostanie wyeksportowany. Elementy innych sejfów nie zostaną uwzględnione.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Tylko osobiste elementy sejfu zostaną wyeksportowane."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3700,10 +3685,10 @@
     "message": "Status logowania"
   },
   "recentlyActive": {
-    "message": "Ostatnio aktywny"
+    "message": "Ostatnia aktywność"
   },
   "recentlyActiveToday": {
-    "message": "Dziś"
+    "message": "Dzisiaj"
   },
   "recentlyActivePast7Days": {
     "message": "Ostatnie 7 dni"
@@ -4009,6 +3994,18 @@
   },
   "exportError": {
     "message": "Wystąpił błąd podczas eksportowania danych sejfu"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Logowanie dwustopniowe zostało anulowane"
@@ -4805,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Session timeout"
   },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
+  },
   "resizeSideNavigation": {
     "message": "Zmień rozmiar nawigacji bocznej"
   },
@@ -4848,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
   },
   "upgrade": {
     "message": "Ulepsz"
@@ -5083,6 +5107,22 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "hideEmailPolicyInEffect": {
     "message": "Twoja organizacja wymaga widocznego adresu e-mail. Odznacz opcję „Ukryj mój adres e-mail przed odbiorcami”."

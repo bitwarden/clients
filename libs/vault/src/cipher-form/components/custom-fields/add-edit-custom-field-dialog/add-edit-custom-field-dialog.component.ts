@@ -60,13 +60,6 @@ export class AddEditCustomFieldDialogComponent {
     { name: this.i18nService.t("cfTypeLinked"), value: FieldType.Linked },
   ];
 
-  /** Cipher types that do not support the Linked field type */
-  private readonly cipherTypesWithoutLinkedField: CipherType[] = [
-    CipherType.SecureNote,
-    CipherType.SshKey,
-    CipherType.BankAccount,
-  ];
-
   FieldType = FieldType;
 
   constructor(
@@ -80,8 +73,13 @@ export class AddEditCustomFieldDialogComponent {
       if (this.data.disallowHiddenField && option.value === FieldType.Hidden) {
         return false;
       }
-
-      if (this.cipherTypesWithoutLinkedField.includes(this.data.cipherType)) {
+      const omitLinkedFieldTypeForCiphers: number[] = [
+        CipherType.SecureNote,
+        CipherType.SshKey,
+        CipherType.BankAccount,
+        CipherType.DriversLicense,
+      ];
+      if (omitLinkedFieldTypeForCiphers.includes(this.data.cipherType)) {
         return option.value !== FieldType.Linked;
       }
 

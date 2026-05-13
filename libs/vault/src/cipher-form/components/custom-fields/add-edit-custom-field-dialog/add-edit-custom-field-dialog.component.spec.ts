@@ -77,6 +77,7 @@ describe("AddEditCustomFieldDialogComponent", () => {
     ["SecureNote", CipherType.SecureNote],
     ["SshKey", CipherType.SshKey],
     ["BankAccount", CipherType.BankAccount],
+    ["DriversLicense", CipherType.DriversLicense],
   ])('filters out "Linked" field type for %s cipher type', (_, cipherType) => {
     dialogData.cipherType = cipherType;
 
