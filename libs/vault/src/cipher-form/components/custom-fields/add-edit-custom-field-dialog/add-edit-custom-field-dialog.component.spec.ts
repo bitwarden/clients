@@ -84,6 +84,17 @@ describe("AddEditCustomFieldDialogComponent", () => {
     );
   });
 
+  it('filters out "Linked" field type for Drivers License cipher type', () => {
+    dialogData.cipherType = CipherType.DriversLicense;
+
+    fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
+    component = fixture.componentInstance;
+
+    expect(component.fieldTypeOptions).not.toContainEqual(
+      expect.objectContaining({ value: FieldType.Linked }),
+    );
+  });
+
   it("does not filter out 'Hidden' field type when 'disallowHiddenField' is false", () => {
     dialogData.disallowHiddenField = false;
     fixture = TestBed.createComponent(AddEditCustomFieldDialogComponent);
