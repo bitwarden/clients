@@ -1080,8 +1080,9 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       request.coupons = this.eligibleCouponIds();
     }
 
-    if (this.trialLength() != null) {
-      request.trialLength = this.trialLength()!;
+    const trialLength = this.trialLength();
+    if (trialLength !== undefined) {
+      request.trialLength = trialLength;
     }
 
     if (this.hasProvider()) {
