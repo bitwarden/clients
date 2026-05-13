@@ -2,7 +2,6 @@ import {
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
-  SHADOW_ROOT_CANDIDATE_SELECTOR,
 } from "@bitwarden/common/autofill/constants";
 
 import { stopwatch } from "../content/performance";
@@ -306,22 +305,11 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
 
     const shadowRoots: ShadowRoot[] = [];
-
-    // use a generator to work around a limitation in the `nwsapi` polyfill
-    function* potentialShadowRoots() {
-      for (const potential of root.querySelectorAll(":defined")) {
-        yield potential;
-      }
-      for (const potential of root.querySelectorAll(SHADOW_ROOT_CANDIDATE_SELECTOR)) {
-        yield potential;
-      }
-    }
-    for (const potentialShadowRoot of potentialShadowRoots()) {
+    for (const potentialShadowRoot of root.querySelectorAll("*")) {
       // Fast path first: element.shadowRoot is cheap and works on any element with
       // an open root. Fall back to chrome.dom.openOrClosedShadowRoot for closed
       // roots — the expensive cross-boundary call — on any host element, since
       // closed roots can be (and are) attached to plain HTML hosts in the wild.
-
       let shadowRoot: ShadowRoot | null = potentialShadowRoot.shadowRoot;
       if (!shadowRoot) {
         shadowRoot = this.getShadowRoot(potentialShadowRoot);

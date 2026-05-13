@@ -44,7 +44,7 @@ export const AUTOFILL_ATTRIBUTES = {
   AUTOCOMPLETE_TYPE: "autocompletetype",
   X_AUTOCOMPLETE_TYPE: "x-autocompletetype",
   CHECKED: "checked",
-  // CLASS intentionally omitted because it can cause a callback storm on dynamic pages.
+  CLASS: "class",
   DATA_LABEL: "data-label",
   DATA_STRIPE: "data-stripe",
   DISABLED: "disabled",
@@ -151,27 +151,6 @@ export const CLEAR_NOTIFICATION_LOGIN_DATA_DURATION = 60 * 1000; // 1 minute
 export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
 
 export const DEEP_QUERY_SELECTOR_COMBINATOR = ">>>";
-
-export const SHADOW_ROOT_CANDIDATE_SELECTOR = [
-  "article",
-  "aside",
-  "blockquote",
-  "body",
-  "div",
-  "footer",
-  "h1",
-  "h2",
-  "h3",
-  "h4",
-  "h5",
-  "h6",
-  "header",
-  "main",
-  "nav",
-  "p",
-  "section",
-  "span",
-].join(", ");
 
 /**
  * Field keys for targeting rules. These MUST match the `fieldKey` enum in
