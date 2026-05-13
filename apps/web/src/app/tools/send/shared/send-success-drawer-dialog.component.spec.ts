@@ -31,8 +31,7 @@ describe("SendSuccessDrawerDialogComponent", () => {
   let sendView: SendView;
 
   // Translation Keys
-  const newTextSend = "New Text Send";
-  const newFileSend = "New File Send";
+  const sendCreated = "Send created";
   const oneHour = "1 hour";
   const oneDay = "1 day";
   const sendCreatedSuccessfully = "Send has been created successfully";
@@ -71,8 +70,7 @@ describe("SendSuccessDrawerDialogComponent", () => {
           provide: I18nService,
           useFactory: () => {
             return new I18nMockService({
-              newTextSend,
-              newFileSend,
+              sendCreated,
               sendCreatedSuccessfully,
               sendCreatedDescriptionEmail,
               sendCreatedDescriptionPassword,
@@ -101,18 +99,6 @@ describe("SendSuccessDrawerDialogComponent", () => {
 
   it("should create", () => {
     expect(component).toBeTruthy();
-  });
-
-  it("should have the correct title for text Sends", () => {
-    sendView.type = SendType.Text;
-    fixture.detectChanges();
-    expect(component.dialogTitle).toBe("newTextSend");
-  });
-
-  it("should have the correct title for file Sends", () => {
-    fixture.componentInstance.send.type = SendType.File;
-    fixture.detectChanges();
-    expect(component.dialogTitle).toBe("newFileSend");
   });
 
   it("should show the correct message for Sends with an expiration time of one hour from now", () => {

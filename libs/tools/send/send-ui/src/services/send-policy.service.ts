@@ -8,7 +8,16 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
+import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
+
+export const SendDisabledReason = Object.freeze({
+  /** Send is not disabled */
+  None: 0,
+  /** Send is disabled for a non-specific reason */
+  Other: 1,
+} as const);
+export type SendDisabledReason = (typeof SendDisabledReason)[keyof typeof SendDisabledReason];
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.
@@ -135,4 +144,11 @@ export class SendPolicyService {
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
+
+  async sendDisabledReason(send: SendView) {
+    if (!send.disabled) {
+      return SendDisabledReason.None;
+    }
+    return SendDisabledReason.Other;
+  }
 }

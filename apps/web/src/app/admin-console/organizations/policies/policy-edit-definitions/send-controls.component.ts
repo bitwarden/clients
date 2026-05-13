@@ -27,7 +27,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { SwitchComponent } from "@bitwarden/components";
+import { Option, SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -63,13 +63,13 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
 
-  protected readonly sendAccessOptions: { name: string; value: WhoCanAccessType }[] = [
-    { name: this.i18nService.t("all"), value: WhoCanAccessType.Any },
+  protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
+    { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
+    { label: this.i18nService.t("emailVerification"), value: WhoCanAccessType.SpecificPeople },
     {
-      name: this.i18nService.t("sendAccessOptionAnyoneWithAPassword"),
+      label: this.i18nService.t("sendAccessOptionAnyoneWithAPassword"),
       value: WhoCanAccessType.PasswordProtected,
     },
-    { name: this.i18nService.t("specificPeople"), value: WhoCanAccessType.SpecificPeople },
   ];
 
   /** Whether the allowed domains text area should be displayed */
@@ -80,10 +80,10 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       return (
         this.i18nService.t("allowedDomainsAutopopulateAlert") +
         " " +
-        this.i18nService.t("separateMultipleWithComma")
+        this.i18nService.t("separateDomainsWithComma")
       );
     } else {
-      return this.i18nService.t("separateMultipleWithComma");
+      return this.i18nService.t("separateDomainsWithComma");
     }
   });
 
@@ -103,15 +103,18 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         const allowedDomainsControl = this.data.get("allowedDomains");
+        if (!allowedDomainsControl) {
+          return;
+        }
         if (value === WhoCanAccessType.SpecificPeople) {
-          allowedDomainsControl?.setValidators([this.emailDomainValidator()]);
-          if (!allowedDomainsControl?.value) {
-            allowedDomainsControl?.setValue(this.claimedDomains());
+          allowedDomainsControl.setValidators([this.emailDomainValidator()]);
+          if (!allowedDomainsControl.value) {
+            allowedDomainsControl.setValue(this.claimedDomains());
           }
           this.showDomains.set(true);
         } else {
-          allowedDomainsControl?.clearValidators();
-          allowedDomainsControl?.patchValue(null);
+          allowedDomainsControl.clearValidators();
+          allowedDomainsControl.patchValue(null);
           this.showDomains.set(false);
         }
       });

@@ -73,39 +73,6 @@ export class VaultFilterComponent {
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  readonly allTypeFilters: CipherTypeFilter[] = [
-    {
-      id: "login",
-      name: this.i18nService.t("typeLogin"),
-      type: CipherType.Login,
-      icon: "bwi-globe",
-    },
-    {
-      id: "card",
-      name: this.i18nService.t("typeCard"),
-      type: CipherType.Card,
-      icon: "bwi-credit-card",
-    },
-    {
-      id: "identity",
-      name: this.i18nService.t("typeIdentity"),
-      type: CipherType.Identity,
-      icon: "bwi-id-card",
-    },
-    {
-      id: "note",
-      name: this.i18nService.t("note"),
-      type: CipherType.SecureNote,
-      icon: "bwi-sticky-note",
-    },
-    {
-      id: "sshKey",
-      name: this.i18nService.t("typeSshKey"),
-      type: CipherType.SshKey,
-      icon: "bwi-key",
-    },
-  ];
-
   get searchPlaceholder() {
     const filter = this.activeFilter();
     if (filter.isDeleted) {
@@ -117,6 +84,9 @@ export class VaultFilterComponent {
     if (filter.cipherType === CipherType.Card) {
       return "searchCard";
     }
+    if (filter.cipherType === CipherType.BankAccount) {
+      return "searchBankAccount";
+    }
     if (filter.cipherType === CipherType.Identity) {
       return "searchIdentity";
     }
@@ -125,6 +95,9 @@ export class VaultFilterComponent {
     }
     if (filter.cipherType === CipherType.SshKey) {
       return "searchSshKey";
+    }
+    if (filter.cipherType === CipherType.DriversLicense) {
+      return "searchDriversLicense";
     }
     if (filter.selectedCollectionNode?.node) {
       return "searchCollection";
@@ -174,14 +147,6 @@ export class VaultFilterComponent {
     filter.selectedCollectionNode = collectionNode;
   };
 
-  async buildAllFilters(): Promise<VaultFilterList> {
-    const builderFilter = {} as VaultFilterList;
-    builderFilter.typeFilter = await this.addTypeFilter(["favorites"], this.organization()?.id);
-    builderFilter.collectionFilter = await this.addCollectionFilter();
-    builderFilter.trashFilter = await this.addTrashFilter();
-    return builderFilter;
-  }
-
   protected async addCollectionFilter(): Promise<VaultFilterSection> {
     // Ensure the Collections filter is never collapsed in the org vault.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -227,8 +192,9 @@ export class VaultFilterComponent {
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
       this.ciphers$(),
+      this.vaultFilterService.cipherTypeFilters$,
     ]).pipe(
-      map(([restrictedTypes, ciphers]) => {
+      map(([restrictedTypes, ciphers, cipherTypeFilters]) => {
         const restrictedForUser = restrictedTypes
           .filter((r) => {
             if (r.allowViewOrgIds.length === 0) {
@@ -250,7 +216,7 @@ export class VaultFilterComponent {
           .map((r) => r.cipherType);
 
         const toExclude = [...excludeTypes, ...restrictedForUser];
-        return this.allTypeFilters.filter((f) => !toExclude.includes(f.type));
+        return cipherTypeFilters.filter((f) => !toExclude.includes(f.type));
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
       distinctUntilChanged(),
@@ -265,6 +231,16 @@ export class VaultFilterComponent {
       },
       action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
     };
+  }
+
+  async buildAllFilters(): Promise<VaultFilterList> {
+    const excludeTypes: CipherStatus[] = ["favorites"];
+
+    const builderFilter = {} as VaultFilterList;
+    builderFilter.typeFilter = await this.addTypeFilter(excludeTypes, this.organization()?.id);
+    builderFilter.collectionFilter = await this.addCollectionFilter();
+    builderFilter.trashFilter = await this.addTrashFilter();
+    return builderFilter;
   }
 
   protected async addTrashFilter(): Promise<VaultFilterSection> {

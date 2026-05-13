@@ -4,6 +4,8 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { EncryptionType } from "@bitwarden/common/platform/enums";
+import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -138,6 +140,15 @@ describe("DefaultAccessReportEncryptionService", () => {
       encryptedApplicationData: new EncString("encrypted-applications"),
     };
   });
+
+  function makeEncArrayBuffer(): EncArrayBuffer {
+    return EncArrayBuffer.fromParts(
+      EncryptionType.AesCbc256_HmacSha256_B64,
+      new Uint8Array(16),
+      new Uint8Array(32),
+      new Uint8Array(32),
+    );
+  }
 
   describe("encryptReport$", () => {
     it("should encrypt V2 data and return EncryptedDataWithKey", async () => {
@@ -440,6 +451,198 @@ describe("DefaultAccessReportEncryptionService", () => {
       ).rejects.toThrow(
         /Summary data validation failed.*This may indicate data corruption or tampering/,
       );
+    });
+  });
+
+  describe("encryptReportFile$", () => {
+    let mockEncArrayBuffer: EncArrayBuffer;
+
+    beforeEach(() => {
+      mockEncArrayBuffer = makeEncArrayBuffer();
+      mockEncryptService.encryptFileData.mockResolvedValue(mockEncArrayBuffer);
+    });
+
+    it("should encrypt report as EncArrayBuffer and return FileEncryptedDataWithKey", async () => {
+      const result = await firstValueFrom(
+        service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input),
+      );
+
+      expect(mockKeyService.orgKeys$).toHaveBeenCalledWith(userId);
+      expect(mockKeyGenerationService.createKey).toHaveBeenCalledWith(512);
+      expect(mockReportVersioningService.serialize).toHaveBeenCalledWith(mockV2Input.reportData);
+      expect(mockEncryptService.encryptFileData).toHaveBeenCalledWith(
+        expect.anything(),
+        contentEncryptionKey,
+      );
+      expect(mockEncryptService.wrapSymmetricKey).toHaveBeenCalledWith(
+        contentEncryptionKey,
+        orgKey,
+      );
+
+      expect(result.organizationId).toBe(orgId);
+      expect(result.encryptedReportData).toBe(mockEncArrayBuffer);
+      expect(result.encryptedFileName).toBeInstanceOf(EncString);
+      expect(result.encryptedSummaryData).toBeInstanceOf(EncString);
+      expect(result.encryptedApplicationData).toBeInstanceOf(EncString);
+      expect(result.contentEncryptionKey).toBeInstanceOf(EncString);
+    });
+
+    it("should encode the serialized report as UTF-8 bytes for file encryption", async () => {
+      await firstValueFrom(
+        service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input),
+      );
+
+      const [actualBytes] = mockEncryptService.encryptFileData.mock.calls[0] as [
+        Uint8Array,
+        SymmetricCryptoKey,
+      ];
+      expect(new TextDecoder().decode(actualBytes)).toBe(SERIALIZED_REPORT);
+    });
+
+    it("should encrypt the report filename as report-data.json", async () => {
+      await firstValueFrom(
+        service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input),
+      );
+
+      const filenameArg = mockEncryptService.encryptString.mock.calls.find(([str]) =>
+        str.endsWith(".json"),
+      )?.[0];
+      expect(filenameArg).toBe("report-data.json");
+    });
+
+    it("should reuse existing key when wrappedKey is provided", async () => {
+      await firstValueFrom(
+        service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input, mockKey),
+      );
+
+      expect(mockKeyGenerationService.createKey).not.toHaveBeenCalled();
+      expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
+    });
+
+    it("should throw if org key is not found", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(new BehaviorSubject({}));
+
+      await expect(
+        firstValueFrom(service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input)),
+      ).rejects.toThrow("Organization key not found");
+    });
+
+    it("should throw if key operation fails", async () => {
+      mockKeyGenerationService.createKey.mockRejectedValue(new Error("Key generation failed"));
+
+      await expect(
+        firstValueFrom(service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input)),
+      ).rejects.toThrow("Failed to get encryption key");
+    });
+
+    it("should throw when encrypted strings are empty", async () => {
+      mockEncryptService.encryptString.mockResolvedValue(new EncString(""));
+
+      await expect(
+        firstValueFrom(service.encryptReportFile$({ organizationId: orgId, userId }, mockV2Input)),
+      ).rejects.toThrow("Encryption failed, encrypted strings are null");
+    });
+  });
+
+  describe("decryptReportFile$", () => {
+    let encArrayBuffer: EncArrayBuffer;
+
+    beforeEach(() => {
+      encArrayBuffer = makeEncArrayBuffer();
+      mockEncryptService.decryptFileData.mockResolvedValue(new TextEncoder().encode("{}"));
+    });
+
+    it("should decrypt file blob and string blobs and return DecryptedAccessReportData", async () => {
+      const result = await firstValueFrom(
+        service.decryptReportFile$(
+          { organizationId: orgId, userId },
+          encArrayBuffer,
+          new EncString("encrypted-summary"),
+          new EncString("encrypted-applications"),
+          mockKey,
+        ),
+      );
+
+      expect(mockEncryptService.unwrapSymmetricKey).toHaveBeenCalledWith(mockKey, orgKey);
+      expect(mockEncryptService.decryptFileData).toHaveBeenCalledWith(
+        encArrayBuffer,
+        contentEncryptionKey,
+      );
+      expect(mockReportVersioningService.process).toHaveBeenCalled();
+      expect(mockSummaryVersioningService.process).toHaveBeenCalled();
+      expect(mockApplicationVersioningService.process).toHaveBeenCalled();
+
+      expect(result.reportData).toEqual(mockV2ReportData);
+      expect(result.summaryData).toEqual(mockSummaryView);
+      expect(result.applicationData).toEqual(mockV2ApplicationData);
+    });
+
+    it("should throw if org key is not found", async () => {
+      mockKeyService.orgKeys$.mockReturnValue(new BehaviorSubject({}));
+
+      await expect(
+        firstValueFrom(
+          service.decryptReportFile$(
+            { organizationId: orgId, userId },
+            encArrayBuffer,
+            new EncString("encrypted-summary"),
+            new EncString("encrypted-applications"),
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow("Organization key not found");
+    });
+
+    it("should throw if content encryption key is null after unwrap", async () => {
+      mockEncryptService.unwrapSymmetricKey.mockResolvedValue(
+        null as unknown as SymmetricCryptoKey,
+      );
+
+      await expect(
+        firstValueFrom(
+          service.decryptReportFile$(
+            { organizationId: orgId, userId },
+            encArrayBuffer,
+            new EncString("encrypted-summary"),
+            new EncString("encrypted-applications"),
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow("Encryption key not found");
+    });
+
+    it("should throw when file decryption fails", async () => {
+      mockEncryptService.decryptFileData.mockRejectedValue(new Error("File read error"));
+
+      await expect(
+        firstValueFrom(
+          service.decryptReportFile$(
+            { organizationId: orgId, userId },
+            encArrayBuffer,
+            new EncString("encrypted-summary"),
+            new EncString("encrypted-applications"),
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow("Report data decryption failed");
+    });
+
+    it("should throw when decrypted file bytes are not valid JSON", async () => {
+      mockEncryptService.decryptFileData.mockResolvedValue(
+        new TextEncoder().encode("not-valid-json"),
+      );
+
+      await expect(
+        firstValueFrom(
+          service.decryptReportFile$(
+            { organizationId: orgId, userId },
+            encArrayBuffer,
+            new EncString("encrypted-summary"),
+            new EncString("encrypted-applications"),
+            mockKey,
+          ),
+        ),
+      ).rejects.toThrow("Report data decryption failed");
     });
   });
 });

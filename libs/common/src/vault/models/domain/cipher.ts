@@ -25,7 +25,9 @@ import { FieldView } from "../view/field.view";
 import { PasswordHistoryView } from "../view/password-history.view";
 
 import { Attachment } from "./attachment";
+import { BankAccount } from "./bank-account";
 import { Card } from "./card";
+import { DriversLicense } from "./drivers-license";
 import { Field } from "./field";
 import { Identity } from "./identity";
 import { Login } from "./login";
@@ -54,6 +56,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   card?: Card;
   secureNote?: SecureNote;
   sshKey?: SshKey;
+  bankAccount?: BankAccount;
+  driversLicense?: DriversLicense;
   attachments?: Attachment[];
   fields?: Field[];
   passwordHistory?: Password[];
@@ -106,6 +110,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
       case CipherType.SshKey:
         this.sshKey = new SshKey(obj.sshKey);
+        break;
+      case CipherType.BankAccount:
+        this.bankAccount = new BankAccount(obj.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        this.driversLicense = new DriversLicense(obj.driversLicense);
         break;
       default:
         break;
@@ -181,6 +191,22 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       case CipherType.SshKey:
         if (this.sshKey != null) {
           model.sshKey = await this.sshKey.decrypt(cipherDecryptionKey, `Cipher Id: ${this.id}`);
+        }
+        break;
+      case CipherType.BankAccount:
+        if (this.bankAccount != null) {
+          model.bankAccount = await this.bankAccount.decrypt(
+            cipherDecryptionKey,
+            `Cipher Id: ${this.id}`,
+          );
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          model.driversLicense = await this.driversLicense.decrypt(
+            cipherDecryptionKey,
+            `Cipher Id: ${this.id}`,
+          );
         }
         break;
       default:
@@ -282,6 +308,16 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           c.sshKey = this.sshKey.toSshKeyData();
         }
         break;
+      case CipherType.BankAccount:
+        if (this.bankAccount != null) {
+          c.bankAccount = this.bankAccount.toBankAccountData();
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          c.driversLicense = this.driversLicense.toDriversLicenseData();
+        }
+        break;
       default:
         break;
     }
@@ -364,6 +400,16 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           domain.sshKey = SshKey.fromJSON(obj.sshKey);
         }
         break;
+      case CipherType.BankAccount:
+        if (obj.bankAccount != null) {
+          domain.bankAccount = BankAccount.fromJSON(obj.bankAccount);
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (obj.driversLicense != null) {
+          domain.driversLicense = DriversLicense.fromJSON(obj.driversLicense);
+        }
+        break;
       default:
         break;
     }
@@ -411,6 +457,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       card: undefined,
       secureNote: undefined,
       sshKey: undefined,
+      bankAccount: undefined,
+      driversLicense: undefined,
+      passport: undefined,
       data: undefined,
     };
 
@@ -438,6 +487,16 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       case CipherType.SshKey:
         if (this.sshKey != null) {
           sdkCipher.sshKey = this.sshKey.toSdkSshKey();
+        }
+        break;
+      case CipherType.BankAccount:
+        if (this.bankAccount != null) {
+          sdkCipher.bankAccount = this.bankAccount.toSdkBankAccount();
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          sdkCipher.driversLicense = this.driversLicense.toSdkDriversLicense();
         }
         break;
       default:
@@ -495,6 +554,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.card = Card.fromSdkCard(sdkCipher.card);
     cipher.identity = Identity.fromSdkIdentity(sdkCipher.identity);
     cipher.sshKey = SshKey.fromSdkSshKey(sdkCipher.sshKey);
+    cipher.bankAccount = BankAccount.fromSdkBankAccount(sdkCipher.bankAccount);
+    cipher.driversLicense = DriversLicense.fromSdkDriversLicense(sdkCipher.driversLicense);
 
     return cipher;
   }
