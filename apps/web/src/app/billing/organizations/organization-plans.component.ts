@@ -128,7 +128,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   readonly initialPlan = input<PlanType>(PlanType.Free);
 
   /** Custom trial length from the URL, overrides the plan's default trialPeriodDays for display and API calls. */
-  readonly trialLength = input<number | null>(null);
+  readonly trialLength = input<number | undefined>(undefined);
 
   // Derived signals
   readonly hasPremiumPersonally = toSignal(
