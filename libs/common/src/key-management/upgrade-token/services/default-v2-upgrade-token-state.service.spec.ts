@@ -107,12 +107,12 @@ describe("DefaultV2UpgradeTokenStateService", () => {
       expect(stored).toBeNull();
     });
 
-    it("succeeds when no token is stored", async () => {
+    it("does not write to disk when no token is stored", async () => {
       const fakeState = stateProvider.singleUser.getFake(userId, V2_UPGRADE_TOKEN);
 
       await sut.clearV2UpgradeToken(userId);
 
-      expect(fakeState.nextMock).toHaveBeenCalledWith(null);
+      expect(fakeState.nextMock).not.toHaveBeenCalled();
     });
 
     it("throws when userId is null", async () => {
