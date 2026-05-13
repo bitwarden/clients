@@ -2,7 +2,7 @@ import {
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
-  SHADOW_ROOT_CANDIDATE_SELECTOR,
+  SHADOW_ROOT_CANDIDATE_ELEMENTS,
 } from "@bitwarden/common/autofill/constants";
 
 import { stopwatch } from "../content/performance";
@@ -341,7 +341,7 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     // skip nodes that cannot contain shadow roots
     const isCandidate =
-      SHADOW_ROOT_CANDIDATE_SELECTOR.has(node.nodeName) || node.nodeName.includes("-");
+      SHADOW_ROOT_CANDIDATE_ELEMENTS.has(node.nodeName) || node.nodeName.includes("-");
     if (!isCandidate) {
       return null;
     }

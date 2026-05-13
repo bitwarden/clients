@@ -152,26 +152,26 @@ export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
 
 export const DEEP_QUERY_SELECTOR_COMBINATOR = ">>>";
 
-export const SHADOW_ROOT_CANDIDATE_SELECTOR = Object.freeze(
+export const SHADOW_ROOT_CANDIDATE_ELEMENTS = Object.freeze(
   new Set([
-    "article",
-    "aside",
-    "blockquote",
-    "body",
-    "div",
-    "footer",
-    "h1",
-    "h2",
-    "h3",
-    "h4",
-    "h5",
-    "h6",
-    "header",
-    "main",
-    "nav",
-    "p",
-    "section",
-    "span",
+    "ARTICLE",
+    "ASIDE",
+    "BLOCKQUOTE",
+    "BODY",
+    "DIV",
+    "FOOTER",
+    "H1",
+    "H2",
+    "H3",
+    "H4",
+    "H5",
+    "H6",
+    "HEADER",
+    "MAIN",
+    "NAV",
+    "P",
+    "SECTION",
+    "SPAN",
   ]),
 );
 
