@@ -1,0 +1,147 @@
+<section class="tw-mb-5 bit-compact:tw-mb-4">
+  <bit-section-header>
+    <h2 bitTypography="h6">{{ "driversLicenseDetails" | i18n }}</h2>
+  </bit-section-header>
+  <read-only-cipher-card>
+    @if (driversLicense().firstName) {
+      <bit-form-field>
+        <bit-label>{{ "firstName" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().firstName" aria-readonly="true" />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyFirstName' | i18n"
+          [appCopyClick]="driversLicense().firstName"
+          showToast
+          [valueLabel]="'firstName' | i18n"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (driversLicense().middleName) {
+      <bit-form-field>
+        <bit-label>{{ "middleName" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().middleName" aria-readonly="true" />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyMiddleName' | i18n"
+          [appCopyClick]="driversLicense().middleName"
+          showToast
+          [valueLabel]="'middleName' | i18n"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (driversLicense().lastName) {
+      <bit-form-field>
+        <bit-label>{{ "lastName" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().lastName" aria-readonly="true" />
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyLastName' | i18n"
+          [appCopyClick]="driversLicense().lastName"
+          showToast
+          [valueLabel]="'lastName' | i18n"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (driversLicense().licenseNumber) {
+      <bit-form-field>
+        <bit-label>{{ "licenseNumber" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="driversLicense().licenseNumber"
+          aria-readonly="true"
+          type="password"
+        />
+        <button
+          bitSuffix
+          type="button"
+          bitIconButton
+          bitPasswordInputToggle
+          [toggled]="revealLicenseNumber()"
+          (toggledChange)="toggleLicenseNumberVisible($event)"
+        ></button>
+        <button
+          bitIconButton="bwi-clone"
+          bitSuffix
+          type="button"
+          [label]="'copyLicenseNumber' | i18n"
+          appCopyField="licenseNumber"
+          [cipher]="cipher()"
+        ></button>
+      </bit-form-field>
+    }
+
+    @if (driversLicense().dateOfBirth) {
+      <bit-form-field>
+        <bit-label>{{ "dateOfBirth" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(driversLicense().dateOfBirth)"
+          aria-readonly="true"
+        />
+      </bit-form-field>
+    }
+
+    @if (driversLicense().issuingCountry) {
+      <bit-form-field>
+        <bit-label>{{ "issuingCountry" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().issuingCountry" aria-readonly="true" />
+      </bit-form-field>
+    }
+
+    @if (driversLicense().issuingState) {
+      <bit-form-field>
+        <bit-label>{{ "issuingState" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().issuingState" aria-readonly="true" />
+      </bit-form-field>
+    }
+
+    @if (driversLicense().issuingAuthority) {
+      <bit-form-field>
+        <bit-label>{{ "issuingAuthority" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().issuingAuthority" aria-readonly="true" />
+      </bit-form-field>
+    }
+
+    @if (driversLicense().issueDate) {
+      <bit-form-field>
+        <bit-label>{{ "issueDate" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(driversLicense().issueDate)"
+          aria-readonly="true"
+        />
+      </bit-form-field>
+    }
+
+    @if (driversLicense().expirationDate) {
+      <bit-form-field>
+        <bit-label>{{ "expirationDate" | i18n }}</bit-label>
+        <input
+          readonly
+          bitInput
+          [value]="formatDate(driversLicense().expirationDate)"
+          aria-readonly="true"
+        />
+      </bit-form-field>
+    }
+
+    @if (driversLicense().licenseClass) {
+      <bit-form-field>
+        <bit-label>{{ "licenseClass" | i18n }}</bit-label>
+        <input readonly bitInput [value]="driversLicense().licenseClass" aria-readonly="true" />
+      </bit-form-field>
+    }
+  </read-only-cipher-card>
+</section>

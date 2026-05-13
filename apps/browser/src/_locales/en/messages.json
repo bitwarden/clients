@@ -167,6 +167,15 @@
   "copyPassportNumber": {
     "message": "Copy passport number"
   },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
   "copyLicenseNumber": {
     "message": "Copy license number"
   },
@@ -2181,6 +2190,12 @@
   "typeBankAccountSubtitle": {
     "message": "Banking details"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -2245,7 +2260,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -2285,7 +2300,7 @@
     "message": "View bank account",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "View license",
     "description": "Header for view license item type"
   },
@@ -6365,6 +6380,24 @@
   },
   "userVerificationFailed": {
     "message": "User verification failed."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
   },
   "bankName": {
     "message": "Bank name"
