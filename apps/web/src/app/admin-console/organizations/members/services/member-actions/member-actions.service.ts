@@ -29,7 +29,6 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-export { REQUESTS_PER_BATCH } from "./member-actions.types";
 import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
 
 @Injectable()

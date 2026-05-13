@@ -8,22 +8,22 @@ import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/m
 import { Guid, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 export class OrganizationUserAdminView {
-  id: string;
-  userId: string;
-  organizationId: string;
+  id: Guid;
+  userId: UserId;
+  organizationId: OrganizationId;
   type: OrganizationUserType;
   status: OrganizationUserStatusType;
   externalId: string;
   ssoExternalId: string;
   permissions: PermissionsApi;
-  resetPasswordEnrolled: boolean = false;
-  hasMasterPassword: boolean = false;
-  managedByOrganization: boolean = false;
+  resetPasswordEnrolled: boolean;
+  hasMasterPassword: boolean;
+  managedByOrganization: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
 
-  accessSecretsManager: boolean = false;
+  accessSecretsManager: boolean;
 
   constructor(c: {
     id: Guid;

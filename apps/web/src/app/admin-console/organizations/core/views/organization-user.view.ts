@@ -9,8 +9,8 @@ import { CollectionAccessSelectionView } from "@bitwarden/common/admin-console/m
 import { Guid, UserId } from "@bitwarden/common/types/guid";
 
 export class OrganizationUserView {
-  id: string;
-  userId: string;
+  id: Guid;
+  userId: UserId;
   type: OrganizationUserType;
   revocationReason: RevocationReasonType;
   status: OrganizationUserStatusType;

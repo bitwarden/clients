@@ -37,7 +37,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import {
   DIALOG_DATA,
   DialogConfig,
@@ -94,7 +94,7 @@ export interface AddMemberDialogParams extends CommonMemberDialogParams {
 export interface EditMemberDialogParams extends CommonMemberDialogParams {
   kind: "Edit";
   name: string;
-  organizationUserId: string;
+  organizationUserId: Guid;
   usesKeyConnector: boolean;
   managedByOrganization?: boolean;
   initialTab: MemberDialogTab;
@@ -591,14 +591,17 @@ export class MemberDialogComponent implements OnDestroy {
       accessSecretsManager: userView.accessSecretsManager,
     });
 
-    await this.memberActionsService.invite(organization.id, request);
+    const result = await this.memberActionsService.invite(organization.id, request);
 
     this.toastService.showToast({
-      variant: "success",
+      variant: result.success ? "success" : "error",
       title: null,
-      message: this.i18nService.t("invitedUsers"),
+      message: result.success ? this.i18nService.t("invitedUsers") : result.error!,
     });
-    this.close(MemberDialogResult.Saved);
+
+    if (result.success) {
+      this.close(MemberDialogResult.Saved);
+    }
   }
 
   remove = async () => {
