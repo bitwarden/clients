@@ -27,6 +27,8 @@ export class DefaultV2UpgradeTokenStateService implements V2UpgradeTokenStateSer
   async clearV2UpgradeToken(userId: UserId): Promise<void> {
     assertNonNullish(userId, "userId");
 
-    await this.stateProvider.getUser(userId, V2_UPGRADE_TOKEN).update(() => null);
+    await this.stateProvider.getUser(userId, V2_UPGRADE_TOKEN).update(() => null, {
+      shouldUpdate: (previousValue) => previousValue !== null,
+    });
   }
 }
