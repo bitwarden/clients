@@ -7,6 +7,7 @@ import {
   POPUP_STYLE_DISK,
 } from "@bitwarden/common/platform/state";
 
+import { BrowserApi } from "../../browser/browser-api";
 import BrowserPopupUtils, {
   POPUP_WIDTH_STORAGE_KEY,
   PopupWidthOption,
@@ -80,10 +81,19 @@ export class PopupSizeService {
 
   private static async setStyle(width: PopupWidthOption) {
     const isInTab = await BrowserPopupUtils.isInTab();
+    const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
+
+    if (BrowserPopupUtils.inPopout(window)) {
+      const currentWindow = await BrowserApi.getCurrentWindow();
+      if (currentWindow.id != null) {
+        await BrowserApi.updateWindowProperties(currentWindow.id, { width: pxWidth });
+      }
+      return;
+    }
+
     if (!BrowserPopupUtils.inPopup(window) || isInTab) {
       return;
     }
-    const pxWidth = PopupWidthOptions[width] ?? PopupWidthOptions.default;
 
     document.body.style.width = `${pxWidth}px`;
   }
