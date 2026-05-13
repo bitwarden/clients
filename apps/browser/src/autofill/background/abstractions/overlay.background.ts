@@ -157,6 +157,7 @@ export type OverlayBackgroundExtensionMessage = {
   isOpeningFullInlineMenu?: boolean;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
+  filterValue?: string;
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &

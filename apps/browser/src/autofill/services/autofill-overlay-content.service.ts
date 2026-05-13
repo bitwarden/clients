@@ -22,7 +22,6 @@ import {
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
 import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
-  AutofillOverlayElement,
   InlineMenuAccountCreationFieldType,
   InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
@@ -57,9 +56,9 @@ import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import {
   AutoFillConstants,
-  loginQualifiers,
   cardQualifiers,
   identityQualifiers,
+  loginQualifiers,
 } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
@@ -796,7 +795,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers when the form field element receives an input event. This method will
    * store the modified form element data for use when the user attempts to add a new
-   * vault item. It also acts to remove the inline menu list while the user is typing.
+   * vault item. It also acts to filter the inline menu list while the user is typing.
    *
    * @param formFieldElement - The form field element that triggered the input event.
    */
@@ -813,14 +812,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.sendExtensionMessage("closeAutofillInlineMenu", {
-      overlayElement: AutofillOverlayElement.List,
-      forceCloseInlineMenu: true,
-    });
+    const currentValue = (formFieldElement as HTMLInputElement).value ?? "";
 
-    if (!formFieldElement?.value) {
-      await this.sendExtensionMessage("openAutofillInlineMenu");
-    }
+    // Filter ciphers without closing/reopening the list - this provides smooth filtering
+    await this.sendExtensionMessage("filterInlineMenuCiphers", {
+      filterValue: currentValue,
+    });
   }
 
   /**
