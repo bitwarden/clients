@@ -199,11 +199,11 @@ export class KeeperAuthStageViewComponent {
 
   protected async cancelAdminApproval(): Promise<void> {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pendingApprovalWillBeCanceled" },
+      title: { key: "approvalRequestWillBeCanceled" },
       content: { key: "pendingApprovalCancelConfirmation" },
-      acceptButtonText: { key: "continue" },
+      acceptButtonText: { key: "cancelRequest" },
       cancelButtonText: { key: "back" },
-      type: "warning",
+      type: "danger",
     });
 
     if (confirmed) {
