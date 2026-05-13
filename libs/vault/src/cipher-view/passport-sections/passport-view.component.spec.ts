@@ -49,7 +49,7 @@ describe("PassportViewComponent", () => {
   });
 
   describe("display", () => {
-    it("does not display passport fields when they have values", () => {
+    it("displays passport fields when values are present", () => {
       const passportView = new PassportView();
       passportView.surname = "Doe";
       passportView.givenName = "John";
@@ -84,7 +84,7 @@ describe("PassportViewComponent", () => {
       expect(inputs.length).toBe(0);
     });
 
-    it("does not render copy button for passport number when empty", () => {
+    it("renders copy button for passport number when present", () => {
       const passportView = new PassportView();
       passportView.passportNumber = "P123456";
 

@@ -1,6 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
 
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PassportView } from "@bitwarden/common/vault/models/view/passport.view";
 import {
@@ -31,6 +32,7 @@ import { ReadOnlyCipherCardComponent } from "../read-only-cipher-card/read-only-
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PassportViewComponent {
+  private readonly eventCollectionService = inject(EventCollectionService);
   private readonly datePipe = inject(DatePipe);
 
   readonly passport = input.required<PassportView>();
@@ -38,8 +40,17 @@ export class PassportViewComponent {
   readonly revealPassportNumber = signal(false);
   readonly revealNationalIdentificationNumber = signal(false);
 
-  togglePassportNumberVisible(event: boolean) {
+  async togglePassportNumberVisible(event: boolean) {
     this.revealPassportNumber.set(event);
+
+    if (event) {
+      await this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledPassportNumberVisible,
+        this.cipher().id,
+        false,
+        this.cipher().organizationId,
+      );
+    }
   }
 
   toggleNationalIdentificationNumberVisible(event: boolean) {
