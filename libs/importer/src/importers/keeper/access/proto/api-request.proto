@@ -1398,4 +1398,3 @@ message TranslationRequest {
 message TranslationResponse {
   repeated TranslationInfo translationInfo = 1;
 }
-

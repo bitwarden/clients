@@ -122,4 +122,3 @@ message FreePasswordScanRequest {
 message FreePasswordScanResponse {
   int64 passwordBreaches = 1;
 }
-

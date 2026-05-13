@@ -333,4 +333,3 @@ message BreachWatchGetSyncDataResponse {
 message GetAccountUidMapResponse {
   repeated User users = 1;
 }
-

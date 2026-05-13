@@ -1184,4 +1184,3 @@ message ClearSecurityDataRequest {
   bool allUsers = 2;
   ClearSecurityDataType type = 3;
 }
-

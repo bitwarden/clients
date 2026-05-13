@@ -121,4 +121,3 @@ message NotificationsSendRequest {
 message NotificationSyncRequest {
   int64 syncPoint = 1;
 }
-

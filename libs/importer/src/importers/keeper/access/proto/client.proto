@@ -39,4 +39,3 @@ message BWPassword {
   BWStatus status = 3;
   bytes euid = 4;
 }
-

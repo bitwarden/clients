@@ -52,4 +52,3 @@ message SnsMessage {
   MessageType messageType = 1;
   bytes message = 2;
 }
-

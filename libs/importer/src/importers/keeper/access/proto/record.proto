@@ -580,4 +580,3 @@ message TimeLimitedAccessResponse {
   repeated TimeLimitedAccessStatus teamAccessStatus = 3;
   repeated TimeLimitedAccessStatus recordAccessStatus = 4;
 }
-
