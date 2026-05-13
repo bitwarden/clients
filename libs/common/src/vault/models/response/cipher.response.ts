@@ -6,6 +6,7 @@ import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { BankAccountApi } from "../api/bank-account.api";
 import { CardApi } from "../api/card.api";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
+import { DriversLicenseApi } from "../api/drivers-license.api";
 import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
 import { LoginApi } from "../api/login.api";
@@ -34,6 +35,7 @@ export class CipherResponse extends BaseResponse {
   secureNote: SecureNoteApi;
   sshKey: SshKeyApi;
   bankAccount: BankAccountApi;
+  driversLicense: DriversLicenseApi;
   favorite: boolean;
   edit: boolean;
   viewPassword: boolean;
@@ -100,6 +102,11 @@ export class CipherResponse extends BaseResponse {
     const bankAccount = this.getResponseProperty("BankAccount");
     if (bankAccount != null) {
       this.bankAccount = new BankAccountApi(bankAccount);
+    }
+
+    const driversLicense = this.getResponseProperty("DriversLicense");
+    if (driversLicense != null) {
+      this.driversLicense = new DriversLicenseApi(driversLicense);
     }
 
     const fields = this.getResponseProperty("Fields");

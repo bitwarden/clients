@@ -27,6 +27,11 @@ export class NewItemNudgeComponent {
         return of(false);
       }
       const nudgeType = this.mapToNudgeType(cipherType);
+
+      if (!nudgeType) {
+        return of(false);
+      }
+
       return this.nudgesService.showNudgeSpotlight$(nudgeType, userId);
     }),
   );
@@ -44,7 +49,7 @@ export class NewItemNudgeComponent {
     private nudgesService: NudgesService,
   ) {}
 
-  mapToNudgeType(cipherType: CipherType | null): NudgeType {
+  mapToNudgeType(cipherType: CipherType | null): NudgeType | null {
     this.nudgeBodyBold = "";
     this.nudgeBodySuffix = "";
     this.nudgeBodyLinkText = "";
@@ -90,6 +95,9 @@ export class NewItemNudgeComponent {
         this.nudgeBody = this.i18nService.t("newBankAccountNudgeBody");
         return NudgeType.NewBankAccountItemStatus;
 
+      case CipherType.DriversLicense: {
+        return null;
+      }
       default:
         throw new Error("Unsupported cipher type");
     }

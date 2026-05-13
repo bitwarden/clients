@@ -56,6 +56,7 @@ import { Attachment } from "../models/domain/attachment";
 import { BankAccount } from "../models/domain/bank-account";
 import { Card } from "../models/domain/card";
 import { Cipher } from "../models/domain/cipher";
+import { DriversLicense } from "../models/domain/drivers-license";
 import { Fido2Credential } from "../models/domain/fido2-credential";
 import { Field } from "../models/domain/field";
 import { Identity } from "../models/domain/identity";
@@ -2155,6 +2156,27 @@ export class CipherService implements CipherServiceAbstraction {
             swiftCode: null,
             iban: null,
             bankContactPhone: null,
+          },
+          key,
+        );
+        return;
+      case CipherType.DriversLicense:
+        cipher.driversLicense = new DriversLicense();
+        await this.encryptObjProperty(
+          model.driversLicense,
+          cipher.driversLicense,
+          {
+            firstName: null,
+            middleName: null,
+            lastName: null,
+            dateOfBirth: null,
+            licenseNumber: null,
+            issuingCountry: null,
+            issuingState: null,
+            issueDate: null,
+            expirationDate: null,
+            issuingAuthority: null,
+            licenseClass: null,
           },
           key,
         );

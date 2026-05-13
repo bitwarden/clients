@@ -471,7 +471,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
         ? "editItemHeaderBankAccount"
         : "newItemHeaderBankAccount",
       [CipherType.DriversLicense]: isEditMode
-        ? "editItemHeaderDriversLicense"
+        ? "editItemHeaderLicense"
         : "newItemHeaderDriversLicense",
       [CipherType.Passport]: isEditMode ? "editItemHeaderPassport" : "newItemHeaderPassport",
     };

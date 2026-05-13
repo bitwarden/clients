@@ -235,6 +235,28 @@
             </button>
           }
 
+          @if (isDriversLicenseCipher) {
+            <button type="button" bitMenuItem appCopyField="firstName" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyFirstName" | i18n }}
+            </button>
+
+            <button type="button" bitMenuItem appCopyField="middleName" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyMiddleName" | i18n }}
+            </button>
+
+            <button type="button" bitMenuItem appCopyField="lastName" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyLastName" | i18n }}
+            </button>
+
+            <button type="button" bitMenuItem appCopyField="licenseNumber" [cipher]="cipher">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copyLicenseNumber" | i18n }}
+            </button>
+          }
+
           @if (showMenuDivider) {
             <bit-menu-divider></bit-menu-divider>
           }

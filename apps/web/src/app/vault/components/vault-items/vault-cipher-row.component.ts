@@ -382,6 +382,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get isDriversLicenseCipher(): boolean {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.DriversLicense && !this.isDeleted
+    );
+  }
+
   protected get hasVisibleSecureNoteOptions(): boolean {
     return (
       this.isSecureNoteCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "secureNote")
@@ -398,13 +404,24 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get hasVisibleDriversLicenseOptions(): boolean {
+    return (
+      this.isDriversLicenseCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "firstName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "middleName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "lastName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "licenseNumber"))
+    );
+  }
+
   protected get showMenuDivider(): boolean {
     return (
       this.hasVisibleLoginOptions ||
       this.hasVisibleCardOptions ||
       this.hasVisibleIdentityOptions ||
       this.hasVisibleSecureNoteOptions ||
-      this.hasBankAccountOptions
+      this.hasBankAccountOptions ||
+      this.hasVisibleDriversLicenseOptions
     );
   }
 

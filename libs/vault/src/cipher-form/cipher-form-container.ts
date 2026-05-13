@@ -10,6 +10,7 @@ import { AutofillOptionsComponent } from "./components/autofill-options/autofill
 import { BankAccountSectionComponent } from "./components/bank-account-section/bank-account-section.component";
 import { CardDetailsSectionComponent } from "./components/card-details-section/card-details-section.component";
 import { CustomFieldsComponent } from "./components/custom-fields/custom-fields.component";
+import { DriversLicenseSectionComponent } from "./components/drivers-license-section/drivers-license-section.component";
 import { IdentitySectionComponent } from "./components/identity/identity.component";
 import { ItemDetailsSectionComponent } from "./components/item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./components/login-details-section/login-details-section.component";
@@ -27,6 +28,7 @@ export type CipherForm = {
   identityDetails?: IdentitySectionComponent["identityForm"];
   sshKeyDetails?: SshKeySectionComponent["sshKeyForm"];
   bankAccountDetails?: BankAccountSectionComponent["bankAccountForm"];
+  driversLicenseDetails?: DriversLicenseSectionComponent["driversLicenseForm"];
   customFields?: CustomFieldsComponent["customFieldsForm"];
 };
 

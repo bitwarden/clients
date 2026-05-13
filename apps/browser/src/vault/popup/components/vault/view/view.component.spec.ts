@@ -93,6 +93,7 @@ describe("ViewComponent", () => {
     permissions: {},
     card: {},
     bankAccount: {},
+    driversLicense: {},
   } as unknown as CipherView;
 
   const mockPasswordRepromptService = {
