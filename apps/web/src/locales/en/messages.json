@@ -362,7 +362,7 @@
     "message": "Members with at risk passwords"
   },
   "membersWithAtRiskPasswordsAndForCriticalApplications": {
-    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical Applications",
+    "message": "$ATRISKAPPCOUNT$ Members with at risk passwords for $CRITICALAPPCOUNT$ Critical applications",
     "placeholders": {
       "atRiskAppCount": {
         "content": "$1",
