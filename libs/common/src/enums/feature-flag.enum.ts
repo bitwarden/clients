@@ -191,7 +191,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.SdkKeyRotation]: FALSE,
   [FeatureFlag.LinuxBiometricsV2]: FALSE,
   [FeatureFlag.NoLogoutOnKdfChange]: FALSE,
-  [FeatureFlag.NoLogoutOnKeyRotation]: FALSE,
+  [FeatureFlag.NoLogoutOnKeyUpgradeRotation]: FALSE,
   [FeatureFlag.PM27279_V2RegistrationTdeJit]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2KeyConnectorRegistration]: FALSE,
   [FeatureFlag.EnableAccountEncryptionV2JitPasswordRegistration]: FALSE,
