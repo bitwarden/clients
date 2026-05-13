@@ -2,6 +2,7 @@ import {
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
+  SHADOW_ROOT_CANDIDATE_SELECTOR,
 } from "@bitwarden/common/autofill/constants";
 
 import { stopwatch } from "../content/performance";
@@ -310,7 +311,7 @@ export class DomQueryService implements DomQueryServiceInterface {
     // an open root. Fall back to chrome.dom.openOrClosedShadowRoot for closed
     // roots — the expensive cross-boundary call — on any host element, since
     // closed roots can be (and are) attached to plain HTML hosts in the wild.
-    const potentialShadowRoots = root.querySelectorAll("*");
+    const potentialShadowRoots = root.querySelectorAll(SHADOW_ROOT_CANDIDATE_SELECTOR);
     for (const potentialShadowRoot of potentialShadowRoots) {
       let shadowRoot: ShadowRoot | null = potentialShadowRoot.shadowRoot;
       if (!shadowRoot) {

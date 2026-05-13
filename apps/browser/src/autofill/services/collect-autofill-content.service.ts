@@ -381,7 +381,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
         opid: formElement.opid,
         htmlAction: this.getFormActionAttribute(formElement),
         htmlName: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.NAME),
-        htmlClass: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.CLASS) ?? "",
+        htmlClass: this.getPropertyOrAttribute(formElement, "class") ?? "",
         htmlID: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.ID),
         htmlMethod: this.getPropertyOrAttribute(formElement, AUTOFILL_ATTRIBUTES.METHOD),
         htmlAncestorHeadings: this.getAncestorHeadings(formElement),
@@ -582,7 +582,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       viewable: await this.domElementVisibilityService.isElementViewable(element),
       htmlID: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.ID),
       htmlName: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.NAME),
-      htmlClass: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.CLASS),
+      htmlClass: this.getPropertyOrAttribute(element, "class"),
       tabindex: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TABINDEX),
       title: this.getPropertyOrAttribute(element, AUTOFILL_ATTRIBUTES.TITLE),
       tagName: this.getAttributeLowerCase(element, "tagName"),
@@ -1208,16 +1208,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.mutationObserver = new MutationObserver(this.handleMutationObserverMutation);
     this.mutationObserver.observe(document.documentElement, {
       attributes: true,
-      /**
-       * Mutations to node attributes NOT on this list will not be observed!
-       * `class` is intentionally excluded: it changes extremely frequently on
-       * modern pages (animations, hover states, framework re-renders) and fires
-       * the handler for every element in the entire subtree. The cached
-       * `htmlClass` value is refreshed on the next full page-detail collection.
-       */
-      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES).filter(
-        (attr) => attr !== AUTOFILL_ATTRIBUTES.CLASS,
-      ),
+      attributeFilter: Object.values(AUTOFILL_ATTRIBUTES),
       childList: true,
       subtree: true,
     });
