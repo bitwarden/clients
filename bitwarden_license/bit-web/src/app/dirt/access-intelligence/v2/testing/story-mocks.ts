@@ -127,7 +127,7 @@ export function createAccessIntelligenceI18nMock(): I18nMockService {
       m: string | undefined,
     ) => `${n} Members with at risk passwords for ${m} Critical applications`,
     ofCountTotal: (n: string | undefined) => `of ${n} total`,
-    sendNotifications: "Send notifications",
+    sendNotifications: "Send notifications to at-risk members",
 
     // --- Chip filter (used by ChipFilterComponent internally) ---
     viewItemsIn: (name: string | undefined) => `View items in ${name}`,
