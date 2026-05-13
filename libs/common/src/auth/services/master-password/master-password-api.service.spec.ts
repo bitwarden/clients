@@ -1,6 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
@@ -86,11 +93,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTempPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTempPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTempPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTempPassword(request);
