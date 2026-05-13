@@ -7,16 +7,17 @@ import { BrowserApi } from "../../../../platform/browser/browser-api";
 @Injectable({ providedIn: "root" })
 export class BrowserKeeperSsoTabMonitor implements KeeperSsoTabMonitor {
   private activeTabId: number | undefined;
-  private activeListener:
+  private activeUpdatedListener:
     | ((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => void)
     | undefined;
+  private activeRemovedListener: ((tabId: number) => void) | undefined;
 
   async launchAndWaitForToken(ssoUrl: string, callbackUrlPattern: RegExp): Promise<string> {
     const tab = await BrowserApi.createNewTab(ssoUrl, true);
     this.activeTabId = tab.id;
 
     return new Promise<string>((resolve, reject) => {
-      const listener = (
+      const updatedListener = (
         tabId: number,
         _changeInfo: chrome.tabs.OnUpdatedInfo,
         updatedTab: chrome.tabs.Tab,
@@ -69,8 +70,19 @@ export class BrowserKeeperSsoTabMonitor implements KeeperSsoTabMonitor {
           });
       };
 
-      this.activeListener = listener;
-      BrowserApi.addListener(chrome.tabs.onUpdated, listener);
+      const removedListener = (tabId: number) => {
+        if (tabId !== this.activeTabId) {
+          return;
+        }
+        this.detach();
+        this.activeTabId = undefined;
+        reject(new Error("SSO login tab was closed before completing"));
+      };
+
+      this.activeUpdatedListener = updatedListener;
+      this.activeRemovedListener = removedListener;
+      BrowserApi.addListener(chrome.tabs.onUpdated, updatedListener);
+      BrowserApi.addListener(chrome.tabs.onRemoved, removedListener);
     });
   }
 
@@ -83,9 +95,13 @@ export class BrowserKeeperSsoTabMonitor implements KeeperSsoTabMonitor {
   }
 
   private detach(): void {
-    if (this.activeListener) {
-      BrowserApi.removeListener(chrome.tabs.onUpdated, this.activeListener);
-      this.activeListener = undefined;
+    if (this.activeUpdatedListener) {
+      BrowserApi.removeListener(chrome.tabs.onUpdated, this.activeUpdatedListener);
+      this.activeUpdatedListener = undefined;
+    }
+    if (this.activeRemovedListener) {
+      BrowserApi.removeListener(chrome.tabs.onRemoved, this.activeRemovedListener);
+      this.activeRemovedListener = undefined;
     }
   }
 }
