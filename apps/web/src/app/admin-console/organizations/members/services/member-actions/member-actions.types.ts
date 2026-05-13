@@ -2,6 +2,13 @@ import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 
 export const REQUESTS_PER_BATCH = 500;
 
+/**
+ * A tagged union of either a
+ * {@link MemberActionSuccess}
+ * or
+ * {@link MemberActionFailure}.
+ * Use the "===" operator for narrowing.
+ */
 export type MemberActionResult = MemberActionSuccess | MemberActionFailure;
 
 interface MemberActionSuccess {
