@@ -766,32 +766,11 @@
   "cardExpiredMessage": {
     "message": "If you've renewed it, update the card's information"
   },
-  "birthDay": {
-    "message": "Birth day"
-  },
-  "birthMonth": {
-    "message": "Birth month"
-  },
-  "birthYear": {
-    "message": "Birth year"
-  },
-  "expirationDay": {
-    "message": "Expiration day"
-  },
   "expirationMonth": {
     "message": "Expiration month"
   },
   "expirationYear": {
     "message": "Expiration year"
-  },
-  "issueDay": {
-    "message": "Issue day"
-  },
-  "issueMonth": {
-    "message": "Issue month"
-  },
-  "issueYear": {
-    "message": "Issue year"
   },
   "authenticatorKeyTotp": {
     "message": "Authenticator key (TOTP)"
@@ -8174,21 +8153,6 @@
   "required": {
     "message": "required"
   },
-  "enterMonth": {
-    "message": "Enter month."
-  },
-  "enterDay": {
-    "message": "Enter day."
-  },
-  "enterYear": {
-    "message": "Enter year."
-  },
-  "invalidDay": {
-    "message": "Enter a valid day."
-  },
-  "invalidYear": {
-    "message": "Enter a valid year."
-  },
   "charactersCurrentAndMaximum": {
     "message": "$CURRENT$/$MAX$ character maximum",
     "placeholders": {
@@ -8743,6 +8707,21 @@
   },
   "inputRequired": {
     "message": "Input is required."
+  },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
   },
   "inputEmail": {
     "message": "Input is not an email address."
@@ -13917,6 +13896,15 @@
   "dateOfBirth": {
     "message": "Date of birth"
   },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
   "issuingCountry": {
     "message": "Issuing country"
   },
@@ -13925,6 +13913,18 @@
   },
   "issueDate": {
     "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
   },
   "issuingAuthority": {
     "message": "Issuing authority"
