@@ -115,6 +115,8 @@ export class CipherView implements View, InitializerMetadata {
         return this.bankAccount;
       case CipherType.DriversLicense:
         return this.driversLicense;
+      case CipherType.Passport:
+        return this.passport;
       default:
         break;
     }
