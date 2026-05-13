@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Organize shared items"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "chooseItemToAdd": {
     "message": "Choose item to add"
   },
@@ -148,6 +154,10 @@
     "message": "View license",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "View passport",
     "description": "Header for view passport item type"
@@ -208,7 +218,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -1754,6 +1764,10 @@
   "copyNumber": {
     "message": "Copy number",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "Copy email"
@@ -4805,7 +4819,7 @@
   },
   "sessionTimeoutHeader": {
     "message": "Session timeout"
-  }, 
+  },
   "browserAccessDenied": {
     "message": "Either an invalid browser directory was selected, or access was denied"
   },
@@ -5024,6 +5038,24 @@
       }
     }
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankAccount": {
     "message": "Bank account"
   },
@@ -5075,6 +5107,18 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -5163,5 +5207,47 @@
   },
   "makeACopy": {
     "message": "Make a copy"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }
