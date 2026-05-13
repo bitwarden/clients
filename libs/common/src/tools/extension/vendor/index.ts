@@ -5,6 +5,7 @@ import { Bitwarden } from "./bitwarden";
 import { DuckDuckGo, DuckDuckGoExtensions } from "./duckduckgo";
 import { Fastmail, FastmailExtensions } from "./fastmail";
 import { ForwardEmail, ForwardEmailExtensions } from "./forwardemail";
+import { MailFlusher, MailFlusherExtensions } from "./mailflusher";
 import { Mozilla, MozillaExtensions } from "./mozilla";
 import { SimpleLogin, SimpleLoginExtensions } from "./simplelogin";
 
@@ -16,6 +17,7 @@ export const Vendors = deepFreeze([
   ForwardEmail,
   Mozilla,
   SimpleLogin,
+  MailFlusher,
 ]);
 
 export const VendorExtensions = deepFreeze(
@@ -26,5 +28,6 @@ export const VendorExtensions = deepFreeze(
     ForwardEmailExtensions,
     MozillaExtensions,
     SimpleLoginExtensions,
+    MailFlusherExtensions,
   ].flat(),
 );

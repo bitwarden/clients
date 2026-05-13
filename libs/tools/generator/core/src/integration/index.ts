@@ -4,3 +4,4 @@ export * from "./fastmail";
 export * from "./firefox-relay";
 export * from "./forward-email";
 export * from "./simple-login";
+export * from "./mailflusher";

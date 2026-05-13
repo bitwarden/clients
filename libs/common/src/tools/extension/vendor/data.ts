@@ -8,4 +8,5 @@ export const Vendor = Object.freeze({
   forwardemail: "forwardemail" as VendorId,
   mozilla: "mozilla" as VendorId,
   simplelogin: "simplelogin" as VendorId,
+  mailflusher: "mailflusher" as VendorId,
 } as const);
