@@ -4800,6 +4800,12 @@
   "keeperPushSent": {
     "message": "Keeper Push sent"
   },
+  "pendingApprovalWillBeCanceled": {
+    "message": "Pending approval will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled"
+  },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"
   },

@@ -14,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   CalloutModule,
   DialogModule,
+  DialogService,
   FormFieldModule,
   IconButtonModule,
   LinkModule,
@@ -63,6 +64,7 @@ export class KeeperAuthStageViewComponent {
   readonly errorDismissed = output<void>();
 
   private readonly i18nService = inject(I18nService);
+  private readonly dialogService = inject(DialogService);
 
   protected readonly codeControl = new FormControl("", {
     nonNullable: true,
@@ -193,6 +195,20 @@ export class KeeperAuthStageViewComponent {
 
   protected cancel(): void {
     this.cancelled.emit();
+  }
+
+  protected async cancelAdminApproval(): Promise<void> {
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pendingApprovalWillBeCanceled" },
+      content: { key: "pendingApprovalCancelConfirmation" },
+      acceptButtonText: { key: "continue" },
+      cancelButtonText: { key: "back" },
+      type: "warning",
+    });
+
+    if (confirmed) {
+      this.cancelled.emit();
+    }
   }
 
   protected dismissError(): void {
