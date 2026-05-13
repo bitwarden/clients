@@ -1723,9 +1723,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       class: () => updateAttribute("htmlClass"),
       checked: () =>
         (dataTarget.checked = this.getAttributeBoolean(element, AUTOFILL_ATTRIBUTES.CHECKED)),
-      // Note: `class` is intentionally omitted — it is excluded from the
-      // MutationObserver attributeFilter to avoid callback storms on dynamic pages.
-      // htmlClass is refreshed on the next full page-detail collection.
       "data-label": () => updateAttribute("label-data"),
       "data-stripe": () => updateAttribute(AUTOFILL_ATTRIBUTES.DATA_STRIPE),
       disabled: () =>

@@ -44,7 +44,7 @@ export const AUTOFILL_ATTRIBUTES = {
   AUTOCOMPLETE_TYPE: "autocompletetype",
   X_AUTOCOMPLETE_TYPE: "x-autocompletetype",
   CHECKED: "checked",
-  // CLASS intentionally omitted - it causes a performance regression
+  // CLASS intentionally omitted because it can cause a callback storm on dynamic pages.
   DATA_LABEL: "data-label",
   DATA_STRIPE: "data-stripe",
   DISABLED: "disabled",
