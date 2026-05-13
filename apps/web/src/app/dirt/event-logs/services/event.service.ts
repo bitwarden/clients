@@ -231,6 +231,20 @@ export class EventService {
           this.getShortId(ev.cipherId),
         );
         break;
+      case EventType.Cipher_ClientToggledLicenseNumberVisible:
+        msg = this.i18nService.t("viewedLicenseNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "viewedLicenseNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
+      case EventType.Cipher_ClientCopiedLicenseNumber:
+        msg = this.i18nService.t("copiedLicenseNumberItemId", this.formatCipherId(ev, options));
+        humanReadableMsg = this.i18nService.t(
+          "copiedLicenseNumberItemId",
+          this.getShortId(ev.cipherId),
+        );
+        break;
       // Collection
       case EventType.Collection_Created:
         msg = this.i18nService.t("createdCollectionId", this.formatCollectionId(ev));
