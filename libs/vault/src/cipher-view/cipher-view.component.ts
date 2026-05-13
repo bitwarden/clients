@@ -13,6 +13,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
@@ -114,6 +116,7 @@ export class CipherViewComponent {
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
     private vaultSettingsService: VaultSettingsService,
+    private configService: ConfigService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -275,6 +278,9 @@ export class CipherViewComponent {
   );
 
   readonly showChangePasswordLink = computed(() => {
+    if (this.removeAtRiskCallout()) {
+      return false;
+    }
     return (
       this.hasLoginUri() &&
       (this.hadPendingChangePasswordTask() ||
@@ -287,6 +293,11 @@ export class CipherViewComponent {
 
   readonly showAtRiskPasswordNotifications = toSignal(
     this.vaultSettingsService.showAtRiskPasswordNotifications$,
+  );
+
+  readonly removeAtRiskCallout = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32016RemoveAtRiskCallout),
+    { initialValue: false },
   );
 
   protected readonly changePasswordUrl = resource({

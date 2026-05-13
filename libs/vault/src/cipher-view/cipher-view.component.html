@@ -5,7 +5,7 @@
     </bit-callout>
   }
 
-  @if (!hasLoginUri() && hadPendingChangePasswordTask()) {
+  @if (!hasLoginUri() && hadPendingChangePasswordTask() && !removeAtRiskCallout()) {
     <bit-callout type="warning" [title]="'missingWebsite' | i18n">
       {{ "changeAtRiskPasswordAndAddWebsite" | i18n }}
     </bit-callout>
