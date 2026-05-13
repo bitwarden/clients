@@ -250,7 +250,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         userKey,
       );
 
-    const request = UpdateTdeOffboardingPasswordRequest.newConstructorWithHint(
+    const request = new UpdateTdeOffboardingPasswordRequest(
       authenticationData,
       unlockData,
       newPasswordHint,

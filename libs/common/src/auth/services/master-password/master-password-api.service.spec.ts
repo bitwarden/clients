@@ -132,11 +132,27 @@ describe("MasterPasswordApiService", () => {
   describe("putUpdateTdeOffboardingPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
-      const request = {
-        masterPasswordHint: "masterPasswordHint",
-        newMasterPasswordHash: "newMasterPasswordHash",
-        key: "key",
-      } as UpdateTdeOffboardingPasswordRequest;
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+      );
+
+      const request = new UpdateTdeOffboardingPasswordRequest(
+        authenticationData,
+        unlockData,
+        "masterPasswordHint",
+      );
 
       // Act
       await sut.putUpdateTdeOffboardingPassword(request);
