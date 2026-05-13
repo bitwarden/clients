@@ -2132,8 +2132,14 @@
   "typeSshKey": {
     "message": "SSH விசை"
   },
+  "bankAccount": {
+    "message": "Bank account"
+  },
   "typeNote": {
     "message": "குறிப்பு"
+  },
+  "typeBankAccount": {
+    "message": "Bank account"
   },
   "typeLoginSubtitle": {
     "message": "Website or app"
@@ -2156,6 +2162,9 @@
   "collectionSubtitle": {
     "message": "Organize shared items"
   },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
+  },
   "newItemHeaderLogin": {
     "message": "புதிய உள்நுழைவு",
     "description": "Header for new login item type"
@@ -2176,12 +2185,24 @@
     "message": "புதிய SSH விசை",
     "description": "Header for new SSH key item type"
   },
-  "newItemHeaderTextSend": {
-    "message": "புதிய உரை அனுப்புதல்",
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "புதிய கோப்பு அனுப்புதல்",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2204,12 +2225,24 @@
     "message": "SSH விசையைத் திருத்து",
     "description": "Header for edit SSH key item type"
   },
-  "editItemHeaderTextSend": {
-    "message": "உரை அனுப்புதலைத் திருத்து",
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
+  },
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "கோப்பைத் திருத்து அனுப்பு",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2231,6 +2264,18 @@
   "viewItemHeaderSshKey": {
     "message": "SSH விசையைக் காண்க",
     "description": "Header for view SSH key item type"
+  },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -3415,33 +3460,18 @@
   "exportingPersonalVaultTitle": {
     "message": "தனிப்பட்ட பெட்டகத்தை ஏற்றுமதி செய்கிறது"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய தனிப்பட்ட பெட்டக பொருட்கள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன பெட்டக பொருட்கள் சேர்க்கப்படாது. பெட்டக பொருள் தகவல்கள் மட்டுமே ஏற்றுமதி செய்யப்படும் மற்றும் அதனுடன் தொடர்புடைய இணைப்புகள் சேர்க்கப்படாது.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "$EMAIL$ உடன் தொடர்புடைய இணைப்புகள் உட்பட தனிப்பட்ட பெட்டக பொருட்கள் மட்டுமே ஏற்றுமதி செய்யப்படும். நிறுவன பெட்டக பொருட்கள் சேர்க்கப்படாது",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "நிறுவன பெட்டகத்தை ஏற்றுமதி செய்கிறது"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "$ORGANIZATION$ உடன் தொடர்புடைய நிறுவன பெட்டகம் மட்டுமே ஏற்றுமதி செய்யப்படும். தனிப்பட்ட பெட்டகங்கள் அல்லது பிற நிறுவனங்களில் உள்ள பொருட்கள் சேர்க்கப்படாது.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -4498,6 +4528,9 @@
   "chooseFile": {
     "message": "கோப்பைத் தேர்ந்தெடு"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "கோப்பு எதுவும் தேர்ந்தெடுக்கப்படவில்லை"
   },
@@ -4528,6 +4561,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "typePasskey": {
     "message": "பாஸ்கி"
@@ -6305,8 +6350,107 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company (business)"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual (personal)"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "downloadFailed": {
     "message": "Failed to download."
+  },
+  "maxAccessCount": {
+    "message": "Maximum access count",
+    "description": "This text will be displayed after a Send has been accessed the maximum amount of times."
+  },
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
   },
   "sideNavigation": {
     "message": "Side navigation"
@@ -6321,5 +6465,12 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "saveSendEditsFailed": {
+    "message": "Saving Send edits failed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   }
 }
