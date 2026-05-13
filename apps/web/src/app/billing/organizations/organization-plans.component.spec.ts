@@ -2038,7 +2038,7 @@ describe("OrganizationPlansComponent", () => {
       expect(paymentDesc.length).toBeGreaterThan(0);
     });
 
-    it("should use paymentChargedWithTrialSpecificLength with DEFAULT_TRIAL_LENGTH_DAYS when on a trial plan and no custom trialLength", () => {
+    it("should use paymentChargedWithTrialSpecificLength with plan's trialPeriodDays when on a trial plan and no custom trialLength", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
       component.changedProduct();
 

@@ -667,7 +667,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     } else if (this.freeTrial() && this.createOrganization() && !this.canUpgradeFromPremium()) {
       return this.i18nService.t(
         "paymentChargedWithTrialSpecificLength",
-        this.trialLength() ?? DEFAULT_TRIAL_LENGTH_DAYS,
+        this.trialLength() ?? this.selectedPlan()?.trialPeriodDays ?? DEFAULT_TRIAL_LENGTH_DAYS,
       );
     } else {
       return this.i18nService.t("paymentCharged", this.i18nService.t(this.selectedPlanInterval()));
