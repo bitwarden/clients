@@ -1755,6 +1755,10 @@
     "message": "Copy number",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Copy email"
   },
