@@ -5,6 +5,7 @@ import {
   OnChanges,
   OnInit,
   SimpleChanges,
+  computed,
   input,
   model,
 } from "@angular/core";
@@ -45,6 +46,10 @@ export class AnonLayoutComponent implements OnInit, OnChanges {
   readonly hideCardWrapper = input<boolean>(false);
   readonly hideBackgroundIllustration = input<boolean>(false);
   readonly adjustedLayout = input<boolean>(false);
+
+  protected readonly footerLayoutClasses = computed(() =>
+    this.adjustedLayout() ? "tw-grid tw-gap-6" : "",
+  );
 
   /**
    * Max width of the anon layout title, subtitle, and content areas.
