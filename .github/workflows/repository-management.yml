@@ -449,12 +449,28 @@ jobs:
       - name: Commit version bumps with GPG signature
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
         run: |
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          BRANCH_NAME="version-bump-${TIMESTAMP}"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create branch and commit version bump
+        if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
+        env:
+          BRANCH_NAME: ${{ steps.create-branch-name.outputs.branch_name }}
+        run: |
+          git checkout -b "$BRANCH_NAME"
           git commit -m "Bumped client version(s)" -a
 
       - name: Push changes to main
         if: ${{ steps.version-changed.outputs.changes_to_commit == 'TRUE' }}
         run: |
-          git push
+          git push -u origin "$BRANCH_NAME"
+          gh pr create \
+            --title "Bump client version(s)" \
+            --body "Automated version bump created by repository-management workflow" \
+            --label "version update" \
+            --base main \
+            --head "$BRANCH_NAME"
 
   cut_branch:
     name: Cut branch
