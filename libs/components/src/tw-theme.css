@@ -100,6 +100,7 @@
   --color-brand-800: #0d43af;
   --color-brand-900: #0c3276;
   --color-brand-950: #162455;
+  --color-brand-800-rgb: 13, 67, 175;
   --color-brand-950-rgb: 22, 36, 85;
 
   /* Gray Colors */
@@ -391,13 +392,13 @@
   --color-nav-fg-secondary: var(--color-gray-900);
 
   /* Sidenav Background */
-  --color-nav-bg-primary: var(--color-brand-800);
+  --color-nav-bg-primary: var(--color-brand-900);
   --color-nav-bg-secondary: var(--color-gray-100);
   --color-nav-bg-primary-strong: var(--color-brand-900);
   --color-nav-bg-secondary-strong: var(--color-gray-300);
 
   /* Sidenav Hover */
-  --color-nav-bg-primary-hover: rgba(var(--color-black-rgb), 0.2);
+  --color-nav-bg-primary-hover: rgba(var(--color-brand-800-rgb), 0.6);
   --color-nav-bg-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
   --color-nav-bg-primary-hover-strong: rgba(var(--color-black-rgb), 0.45);
   --color-nav-bg-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);

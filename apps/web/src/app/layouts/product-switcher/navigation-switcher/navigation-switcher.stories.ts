@@ -140,13 +140,14 @@ export default {
   decorators: [
     positionFixedWrapperDecorator(),
     moduleMetadata({
-      declarations: [
+      declarations: [MockOrganizationService, MockProviderService, StoryContentComponent],
+      imports: [
+        NavigationModule,
+        RouterModule,
+        LayoutComponent,
+        I18nPipe,
         NavigationProductSwitcherComponent,
-        MockOrganizationService,
-        MockProviderService,
-        StoryContentComponent,
       ],
-      imports: [NavigationModule, RouterModule, LayoutComponent, I18nPipe],
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
         { provide: AccountService, useClass: MockAccountService },

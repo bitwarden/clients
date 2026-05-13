@@ -26,15 +26,14 @@
     >
       <div class="tw-flex tw-flex-col tw-min-h-full">
         <div class="tw-flex-1">
-          <ng-content></ng-content>
-        </div>
-        @if (open) {
+          <ng-content select="bit-nav-logo"></ng-content>
           <div
             class="tw-w-full tw-bg-bg-nav [@container_(min-height:600px)]:tw-sticky [@container_(min-height:600px)]:tw-bottom-0"
           >
             <ng-content select="[slot=product-switcher]"></ng-content>
           </div>
-        }
+          <ng-content></ng-content>
+        </div>
       </div>
     </div>
     <div class="tw-w-full tw-bg-bg-nav">

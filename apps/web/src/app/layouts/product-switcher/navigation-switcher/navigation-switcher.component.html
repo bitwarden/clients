@@ -1,16 +1,62 @@
 @let accessibleProducts = accessibleProducts$ | async;
+@let activeProduct = activeProduct$ | async;
 @if (accessibleProducts && accessibleProducts.length > 1) {
+  <div class="tw-px-2">
+    <button
+      [class.tw-p-3]="sideNavOpen()"
+      [class.tw-justify-between]="sideNavOpen()"
+      [class.tw-rounded-2xl]="sideNavOpen()"
+      [class.tw-p-1]="!sideNavOpen()"
+      [class.!tw-pe-0]="!sideNavOpen()"
+      [class.tw-rounded-lg]="!sideNavOpen()"
+      [class.tw-justify-center]="!sideNavOpen()"
+      class="tw-w-full focus-visible:!tw-ring-fg-nav focus-visible:!tw-ring-2 focus-visible:tw-outline-none focus-visible:tw-bg-bg-nav-hover hover:tw-bg-bg-nav-hover tw-flex tw-items-center"
+      type="button"
+      [bitMenuTriggerFor]="navSwitcherMenu"
+    >
+      <div class="tw-flex tw-items-center tw-gap-3">
+        <bit-icon-tile
+          [size]="sideNavOpen() ? 'base' : 'sm'"
+          [icon]="activeProduct?.icon"
+        ></bit-icon-tile>
+        @if (sideNavOpen()) {
+          {{ activeProduct?.name }}
+        }
+      </div>
+      <bit-icon name="bwi-up-down-btn"></bit-icon>
+    </button>
+  </div>
+  <bit-menu #navSwitcherMenu>
+    <div
+      class="tw-flex tw-flex-col tw-gap-1"
+      [style.width]="'calc(' + sideNavWidthRem() + 'rem - 32px)'"
+    >
+      @for (product of accessibleProducts; track product.name) {
+        <a
+          class="tw-ps-3"
+          [class.tw-bg-bg-brand-softer]="product.isActive"
+          bitMenuItem
+          [href]="product.appRoute"
+          [attr.icon]="product.icon"
+        >
+          <bit-icon slot="start" [name]="product.isActive ? 'bwi-check' : product.icon"></bit-icon>
+          {{ product.name }}
+        </a>
+      }
+    </div>
+  </bit-menu>
+  <!-- @for (product of accessibleProducts; track product.name) { -->
   <!-- [attr.icon] is used to keep the icon attribute on the bit-nav-item after prod mode is enabled. Matches other navigation items and assists in automated testing. -->
-  <bit-nav-item
-    *ngFor="let product of accessibleProducts"
-    [icon]="product.icon"
-    [text]="product.name"
-    [route]="product.appRoute"
-    [attr.icon]="product.icon"
-    [forceActiveStyles]="product.isActive"
-    focusAfterNavTarget="body"
-  >
-  </bit-nav-item>
+  <!-- <bit-nav-item
+      [icon]="product.icon"
+      [text]="product.name"
+      [route]="product.appRoute"
+      [attr.icon]="product.icon"
+      [forceActiveStyles]="product.isActive"
+      focusAfterNavTarget="body"
+    >
+    </bit-nav-item> -->
+  <!-- } -->
 }
 
 @if (shouldShowPremiumUpgradeButton$ | async) {
@@ -21,46 +67,45 @@
 @if (moreProducts && moreProducts.length > 0) {
   <section class="tw-mt-2 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0">
     <span class="tw-text-xs !tw-text-fg-nav tw-p-2 tw-pb-0">{{ "moreFromBitwarden" | i18n }}</span>
-    <ng-container *ngFor="let more of moreProducts">
+    @for (more of moreProducts; track more.name) {
       <div class="tw-ps-2 tw-pe-2">
-        <!-- <a> for when the marketing route is external -->
-        <a
-          *ngIf="more.marketingRoute.external"
-          [href]="more.marketingRoute.route"
-          target="_blank"
-          rel="noreferrer"
-          class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-font-medium !tw-text-fg-nav !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
-        >
-          <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
-          <div>
-            {{ more.otherProductOverrides?.name ?? more.name }}
-            <div
-              *ngIf="more.otherProductOverrides?.supportingText"
-              class="tw-text-xs tw-font-normal"
-            >
-              {{ more.otherProductOverrides.supportingText }}
+        @if (more.marketingRoute.external) {
+          <!-- <a> for when the marketing route is external -->
+          <a
+            [href]="more.marketingRoute.route"
+            target="_blank"
+            rel="noreferrer"
+            class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-font-medium !tw-text-fg-nav !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
+          >
+            <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
+            <div>
+              {{ more.otherProductOverrides?.name ?? more.name }}
+              @if (more.otherProductOverrides?.supportingText) {
+                <div class="tw-text-xs tw-font-normal">
+                  {{ more.otherProductOverrides.supportingText }}
+                </div>
+              }
             </div>
-          </div>
-        </a>
-        <!-- <a> for when the marketing route is internal, it needs to use [routerLink] instead of [href] like the external <a> uses. -->
-        <a
-          *ngIf="!more.marketingRoute.external"
-          [routerLink]="more.marketingRoute.route"
-          rel="noreferrer"
-          class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-font-medium !tw-text-fg-nav !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
-        >
-          <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
-          <div>
-            {{ more.otherProductOverrides?.name ?? more.name }}
-            <div
-              *ngIf="more.otherProductOverrides?.supportingText"
-              class="tw-text-xs tw-font-normal"
-            >
-              {{ more.otherProductOverrides.supportingText }}
+          </a>
+        } @else {
+          <!-- <a> for when the marketing route is internal, it needs to use [routerLink] instead of [href] like the external <a> uses. -->
+          <a
+            [routerLink]="more.marketingRoute.route"
+            rel="noreferrer"
+            class="tw-flex tw-px-3 tw-py-2 tw-rounded-md tw-font-medium !tw-text-fg-nav !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
+          >
+            <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
+            <div>
+              {{ more.otherProductOverrides?.name ?? more.name }}
+              @if (more.otherProductOverrides?.supportingText) {
+                <div class="tw-text-xs tw-font-normal">
+                  {{ more.otherProductOverrides.supportingText }}
+                </div>
+              }
             </div>
-          </div>
-        </a>
+          </a>
+        }
       </div>
-    </ng-container>
+    }
   </section>
 }
