@@ -404,6 +404,15 @@
       }
     }
   },
+  "ofCountTotal":{
+    "message": "of $TOTAL$ total",
+    "placeholders": {
+      "total": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
   "atRiskMemberDescription": {
     "message": "These members are logging into critical applications with weak, exposed, or reused passwords."
   },

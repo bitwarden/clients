@@ -45,9 +45,7 @@
               {{ criticalApplicationsCount() }}
             </span>
             <span bitTypography="body1" class="tw-text-muted">
-              {{ "of" | i18n }}
-              {{ totalApplicationsCount() }}
-              {{ "total" | i18n | lowercase }}
+              {{ "ofCountTotal" | i18n: totalApplicationsCount() }}
             </span>
           </div>
           <span bitTypography="body2" class="tw-text-muted">

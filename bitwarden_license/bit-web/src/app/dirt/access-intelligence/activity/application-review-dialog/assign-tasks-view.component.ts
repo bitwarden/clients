@@ -1,4 +1,3 @@
-import { LowerCasePipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 
 import {
@@ -25,7 +24,6 @@ import { DarkImageSourceDirective } from "@bitwarden/vault";
   selector: "dirt-assign-tasks-view",
   templateUrl: "./assign-tasks-view.component.html",
   imports: [
-    LowerCasePipe,
     ButtonModule,
     TypographyModule,
     I18nPipe,
