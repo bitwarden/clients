@@ -174,6 +174,43 @@ export class CipherRequest {
             ? cipher.identity.licenseNumber.encryptedString
             : null;
         break;
+      case CipherType.BankAccount:
+        this.bankAccount = new BankAccountApi();
+        this.bankAccount.bankName =
+          cipher.bankAccount.bankName != null ? cipher.bankAccount.bankName.encryptedString : null;
+        this.bankAccount.nameOnAccount =
+          cipher.bankAccount.nameOnAccount != null
+            ? cipher.bankAccount.nameOnAccount.encryptedString
+            : null;
+        this.bankAccount.accountType =
+          cipher.bankAccount.accountType != null
+            ? cipher.bankAccount.accountType.encryptedString
+            : null;
+        this.bankAccount.accountNumber =
+          cipher.bankAccount.accountNumber != null
+            ? cipher.bankAccount.accountNumber.encryptedString
+            : null;
+        this.bankAccount.routingNumber =
+          cipher.bankAccount.routingNumber != null
+            ? cipher.bankAccount.routingNumber.encryptedString
+            : null;
+        this.bankAccount.branchNumber =
+          cipher.bankAccount.branchNumber != null
+            ? cipher.bankAccount.branchNumber.encryptedString
+            : null;
+        this.bankAccount.pin =
+          cipher.bankAccount.pin != null ? cipher.bankAccount.pin.encryptedString : null;
+        this.bankAccount.swiftCode =
+          cipher.bankAccount.swiftCode != null
+            ? cipher.bankAccount.swiftCode.encryptedString
+            : null;
+        this.bankAccount.iban =
+          cipher.bankAccount.iban != null ? cipher.bankAccount.iban.encryptedString : null;
+        this.bankAccount.bankContactPhone =
+          cipher.bankAccount.bankContactPhone != null
+            ? cipher.bankAccount.bankContactPhone.encryptedString
+            : null;
+        break;
       case CipherType.DriversLicense:
         this.driversLicense = new DriversLicenseApi();
         this.driversLicense.firstName =
@@ -219,43 +256,6 @@ export class CipherRequest {
         this.driversLicense.licenseClass =
           cipher.driversLicense.licenseClass != null
             ? cipher.driversLicense.licenseClass.encryptedString
-            : null;
-        break;
-      case CipherType.BankAccount:
-        this.bankAccount = new BankAccountApi();
-        this.bankAccount.bankName =
-          cipher.bankAccount.bankName != null ? cipher.bankAccount.bankName.encryptedString : null;
-        this.bankAccount.nameOnAccount =
-          cipher.bankAccount.nameOnAccount != null
-            ? cipher.bankAccount.nameOnAccount.encryptedString
-            : null;
-        this.bankAccount.accountType =
-          cipher.bankAccount.accountType != null
-            ? cipher.bankAccount.accountType.encryptedString
-            : null;
-        this.bankAccount.accountNumber =
-          cipher.bankAccount.accountNumber != null
-            ? cipher.bankAccount.accountNumber.encryptedString
-            : null;
-        this.bankAccount.routingNumber =
-          cipher.bankAccount.routingNumber != null
-            ? cipher.bankAccount.routingNumber.encryptedString
-            : null;
-        this.bankAccount.branchNumber =
-          cipher.bankAccount.branchNumber != null
-            ? cipher.bankAccount.branchNumber.encryptedString
-            : null;
-        this.bankAccount.pin =
-          cipher.bankAccount.pin != null ? cipher.bankAccount.pin.encryptedString : null;
-        this.bankAccount.swiftCode =
-          cipher.bankAccount.swiftCode != null
-            ? cipher.bankAccount.swiftCode.encryptedString
-            : null;
-        this.bankAccount.iban =
-          cipher.bankAccount.iban != null ? cipher.bankAccount.iban.encryptedString : null;
-        this.bankAccount.bankContactPhone =
-          cipher.bankAccount.bankContactPhone != null
-            ? cipher.bankAccount.bankContactPhone.encryptedString
             : null;
         break;
       case CipherType.Passport:
