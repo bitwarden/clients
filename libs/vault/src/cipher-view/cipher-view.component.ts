@@ -278,9 +278,6 @@ export class CipherViewComponent {
   );
 
   readonly showChangePasswordLink = computed(() => {
-    if (this.removeAtRiskCallout()) {
-      return false;
-    }
     return (
       this.hasLoginUri() &&
       (this.hadPendingChangePasswordTask() ||
