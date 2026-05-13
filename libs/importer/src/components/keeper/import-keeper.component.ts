@@ -93,13 +93,19 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
         this.directSupported ? "direct" : "csv",
         { updateOn: "change" },
       ),
-      email: ["", [Validators.email]],
+      // The async validator is attached to the email control (not the group)
+      // so its errors render in the email's <bit-form-field> via <bit-error>.
+      // Csv/Json no-op the validator and go through the parent's file path.
+      email: [
+        "",
+        {
+          validators: [Validators.email],
+          asyncValidators: [this.validateAndEmitDirect()],
+        },
+      ],
       region: [KeeperRegion.Us],
     },
     {
-      // Only the direct flow uses this validator; csv/json go through the
-      // parent's conventional file-based import path.
-      asyncValidators: [this.validateAndEmitDirect()],
       updateOn: "submit",
     },
   );
