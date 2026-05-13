@@ -2,7 +2,7 @@ import {
   DEEP_QUERY_SELECTOR_COMBINATOR,
   EVENTS,
   MAX_DEEP_QUERY_RECURSION_DEPTH,
-  SHADOW_ROOT_CANDIDATE_ELEMENTS,
+  SHADOW_ROOT_CANDIDATE_NODE_NAMES,
 } from "@bitwarden/common/autofill/constants";
 
 import { stopwatch } from "../content/performance";
@@ -124,6 +124,8 @@ export class DomQueryService implements DomQueryServiceInterface {
   checkForNewShadowRoots = (): boolean => {
     // Short-circuit: if we have already confirmed the page has no shadow DOM,
     // skip the expensive querySelectorAll(":defined") + getShadowRoot scan entirely.
+    // FIXME: this disables all checks after the page initializes; introduce a
+    // less-expensive means to update `pageContainsShadowDom`.
     if (!this.pageContainsShadowDom) {
       return false;
     }
@@ -227,9 +229,10 @@ export class DomQueryService implements DomQueryServiceInterface {
     }
 
     // Re-use the already-discovered shadow roots when possible to avoid the
-    // expensive querySelectorAll("*") + tag-name scan on every call.  The set
-    // is populated during the first scan and cleared only on
-    // `resetObservedShadowRoots` (i.e. when the mutation observer is rebuilt).
+    // expensive querySelectorAll("*") + tag-name scan on every call.
+    // FIXME: shadow roots added to the main document after initialization are not
+    // included in this set until `resetObservedShadowRoots()` is called. (i.e.
+    // when the mutation observer is rebuilt)
     const shadowRoots =
       this.knownShadowRoots.size > 0
         ? Array.from(this.knownShadowRoots)
@@ -341,7 +344,7 @@ export class DomQueryService implements DomQueryServiceInterface {
 
     // skip nodes that cannot contain shadow roots
     const isCandidate =
-      SHADOW_ROOT_CANDIDATE_ELEMENTS.has(node.nodeName) || node.nodeName.includes("-");
+      SHADOW_ROOT_CANDIDATE_NODE_NAMES.has(node.nodeName) || node.nodeName.includes("-");
     if (!isCandidate) {
       return null;
     }

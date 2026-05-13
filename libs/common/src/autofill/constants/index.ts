@@ -152,7 +152,9 @@ export const MAX_DEEP_QUERY_RECURSION_DEPTH = 4;
 
 export const DEEP_QUERY_SELECTOR_COMBINATOR = ">>>";
 
-export const SHADOW_ROOT_CANDIDATE_ELEMENTS = Object.freeze(
+// this list is derived from the `attachShadow` candidate elements list
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/attachShadow
+export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
   new Set([
     "ARTICLE",
     "ASIDE",
