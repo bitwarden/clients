@@ -786,7 +786,7 @@ describe("AutofillInlineMenuContentService", () => {
 
       expect(observeSpy).toHaveBeenCalledWith(document.documentElement, {
         attributes: true,
-        attributeFilter: ["style", "hidden"],
+        attributeFilter: ["style", "hidden", "popover", "width", "height"],
       });
     });
 
@@ -800,7 +800,7 @@ describe("AutofillInlineMenuContentService", () => {
 
       expect(observeSpy).toHaveBeenCalledWith(document.body, {
         attributes: true,
-        attributeFilter: ["style", "hidden"],
+        attributeFilter: ["style", "hidden", "popover", "width", "height"],
       });
     });
   });
