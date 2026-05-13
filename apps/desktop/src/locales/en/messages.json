@@ -4117,7 +4117,7 @@
     "message": "Admin approval"
   },
   "adminDeviceApprovalPushDesc": {
-    "message": "A request has been sent to your Keeper administrator to approve this device. This dialog will close automatically when approved."
+    "message": "We've sent an admin approval request to your admin"
   },
   "method": {
     "message": "Method"
@@ -4171,7 +4171,10 @@
     "message": "Please check your email and enter the verification code below"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Login to the Keeper vault on any previous approved device to approve this request"
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
   },
   "keeperMFARequired": {
     "message": "Keeper two-factor authentication required"
