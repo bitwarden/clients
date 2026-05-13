@@ -27,7 +27,13 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KdfConfig, KeyService } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  DEFAULT_KDF_CONFIG,
+  KdfConfig,
+  KdfType,
+  KeyService,
+} from "@bitwarden/key-management";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 
@@ -617,6 +623,204 @@ describe("OrganizationUserResetPasswordService", () => {
         expect(
           organizationUserApiService.getOrganizationUserResetPasswordDetails,
         ).toHaveBeenCalledWith(orgId, orgUserId);
+      });
+    });
+
+    describe("validation when resetMasterPassword is true", () => {
+      it("should throw when newMasterPassword is undefined", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            email,
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("resetPasswordNewPasswordRequired");
+        expect(
+          organizationUserApiService.getOrganizationUserResetPasswordDetails,
+        ).not.toHaveBeenCalled();
+      });
+
+      it("should throw when newMasterPassword is whitespace", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword: "   ",
+            email,
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("resetPasswordNewPasswordRequired");
+      });
+
+      it("should throw when email is undefined", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("emailRequired");
+        expect(
+          organizationUserApiService.getOrganizationUserResetPasswordDetails,
+        ).not.toHaveBeenCalled();
+      });
+
+      it("should throw when email is whitespace", async () => {
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email: "   ",
+          }),
+        ).rejects.toThrow();
+
+        expect(i18nService.t).toHaveBeenCalledWith("emailRequired");
+      });
+    });
+
+    describe("KDF config", () => {
+      beforeEach(() => {
+        const mockDecryptedOrgKey = new SymmetricCryptoKey(new Uint8Array(64).fill(1)) as OrgKey;
+        keyService.orgKeys$.mockReturnValue(
+          of({ [orgId]: mockDecryptedOrgKey } as Record<OrganizationId, OrgKey>),
+        );
+        encryptService.unwrapDecapsulationKey.mockResolvedValue(new Uint8Array(64).fill(2));
+        encryptService.decapsulateKeyUnsigned.mockResolvedValue(
+          new SymmetricCryptoKey(new Uint8Array(64).fill(3)),
+        );
+
+        masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue({
+          salt: SERVER_SIDE_SALT,
+          kdf: DEFAULT_KDF_CONFIG,
+          masterPasswordAuthenticationHash:
+            "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+        });
+        masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue({
+          salt: SERVER_SIDE_SALT,
+          kdf: DEFAULT_KDF_CONFIG,
+          masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+        } as MasterPasswordUnlockData);
+      });
+
+      it("should construct an Argon2 KDF config when the response uses Argon2id", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: KdfType.Argon2id,
+            kdfIterations: 3,
+            kdfMemory: 64,
+            kdfParallelism: 4,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await sut.recoverAccount({
+          organizationUserId: orgUserId,
+          organizationId: orgId,
+          resetMasterPassword: true,
+          resetTwoFactor: false,
+          newMasterPassword,
+          email,
+        });
+
+        expect(
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData,
+        ).toHaveBeenCalledWith(newMasterPassword, expect.any(Argon2KdfConfig), SERVER_SIDE_SALT);
+        const passedConfig =
+          masterPasswordService.mock.makeMasterPasswordAuthenticationData.mock.calls[0][1];
+        expect(passedConfig).toEqual(
+          expect.objectContaining({ iterations: 3, memory: 64, parallelism: 4 }),
+        );
+      });
+
+      it("should throw when Argon2id config is missing kdfMemory", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: KdfType.Argon2id,
+            kdfIterations: 3,
+            kdfParallelism: 4,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow("Invalid KDF configuration");
+      });
+
+      it("should throw when Argon2id config is missing kdfParallelism", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: KdfType.Argon2id,
+            kdfIterations: 3,
+            kdfMemory: 64,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow("Invalid KDF configuration");
+      });
+
+      it("should throw when KDF type is unsupported", async () => {
+        organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
+          new OrganizationUserResetPasswordDetailsResponse({
+            organizationUserId: orgUserId,
+            kdf: 99 as unknown as KdfType,
+            kdfIterations: 100000,
+            masterPasswordSalt: SERVER_SIDE_SALT,
+            resetPasswordKey: "test-reset-password-key",
+            encryptedPrivateKey: "test-encrypted-private-key",
+          }),
+        );
+
+        await expect(
+          sut.recoverAccount({
+            organizationUserId: orgUserId,
+            organizationId: orgId,
+            resetMasterPassword: true,
+            resetTwoFactor: false,
+            newMasterPassword,
+            email,
+          }),
+        ).rejects.toThrow("Unsupported KDF type");
       });
     });
   });
