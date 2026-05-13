@@ -9,6 +9,7 @@ import {
   DeviceApprovalChannel,
   DnaMethod,
   DuoMethod,
+  PromptForPasswordOptions,
   ProvideApprovalCodeOptions,
   ProvideTwoFactorCodeOptions,
   Resend,
@@ -45,7 +46,7 @@ export type KeeperAuthStage =
   | { kind: "selectDna"; methods: DnaMethod[] }
   | { kind: "dnaPush" }
   | { kind: "ssoToken" }
-  | { kind: "password" }
+  | { kind: "password"; previousPasswordRejected: boolean }
   | { kind: "error"; message: string };
 
 type PendingResolver = (value: unknown) => void;
@@ -309,8 +310,11 @@ export class KeeperDirectImportUIService implements Ui {
   // Password prompt
   //
 
-  async promptForPassword(): Promise<string | typeof Cancel> {
-    this.setStage({ kind: "password" });
+  async promptForPassword(options?: PromptForPasswordOptions): Promise<string | typeof Cancel> {
+    this.setStage({
+      kind: "password",
+      previousPasswordRejected: options?.previousPasswordRejected ?? false,
+    });
     return this.waitForUser<string | typeof Cancel>();
   }
 

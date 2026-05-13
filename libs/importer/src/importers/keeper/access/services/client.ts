@@ -298,18 +298,25 @@ export class Client {
       throw new Error("No login token received from server");
     }
 
-    const passwordOrCancel = await this.ui.promptForPassword();
-    if (passwordOrCancel === Cancel) {
-      throw new Error("Authentication cancelled by user");
-    }
-
-    this.password = passwordOrCancel;
-
     const salt = new Uint8Array(response.salt[0].salt);
     const iterations = response.salt[0].iterations || 100000;
 
-    const authHash = await deriveV1KeyHash(this.password, salt, iterations);
-    return await this.validateAuthHash(authHash, response.encryptedLoginToken);
+    let previousPasswordRejected = false;
+    while (true) {
+      const passwordOrCancel = await this.ui.promptForPassword({ previousPasswordRejected });
+      if (passwordOrCancel === Cancel) {
+        throw new Error("Authentication cancelled by user");
+      }
+
+      this.password = passwordOrCancel;
+
+      const authHash = await deriveV1KeyHash(this.password, salt, iterations);
+      try {
+        return await this.validateAuthHash(authHash, response.encryptedLoginToken);
+      } catch {
+        previousPasswordRejected = true;
+      }
+    }
   }
 
   private async handleCloudSso(

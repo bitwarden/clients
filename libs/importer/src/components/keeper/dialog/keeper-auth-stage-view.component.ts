@@ -118,6 +118,15 @@ export class KeeperAuthStageViewComponent {
         // error left over from a prior attempt.
         this.codeControl.reset("");
       }
+
+      if (current.kind === "password" && current.previousPasswordRejected) {
+        this.passwordControl.setErrors({
+          keeperPasswordRejected: { message: this.i18nService.t("invalidMasterPassword") },
+        });
+        this.passwordControl.markAsTouched();
+      } else if (current.kind === "password") {
+        this.passwordControl.reset("");
+      }
     });
   }
 

@@ -21,6 +21,11 @@ export interface ProvideApprovalCodeOptions {
   previousCodeRejected?: boolean;
 }
 
+export interface PromptForPasswordOptions {
+  /** True when re-prompting after the server rejected the previous password. */
+  previousPasswordRejected?: boolean;
+}
+
 export interface Ui {
   // Device approval flow
   selectApprovalMethod(method: DeviceApprovalChannel[]): Promise<DeviceApprovalChannel | Cancel>;
@@ -52,7 +57,7 @@ export interface Ui {
   closeSsoDialog(): void;
 
   // Password prompt (deferred until server requests it)
-  promptForPassword(): Promise<string | Cancel>;
+  promptForPassword(options?: PromptForPasswordOptions): Promise<string | Cancel>;
 
   // Error display
   showError(message: string): Promise<void>;
