@@ -28,7 +28,8 @@ import { KeyService } from "@bitwarden/key-management";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-import { REQUESTS_PER_BATCH, MemberActionsService } from "./member-actions.service";
+import { MemberActionsService } from "./member-actions.service";
+import { REQUESTS_PER_BATCH } from "./member-actions.types";
 
 describe("MemberActionsService", () => {
   let service: MemberActionsService;

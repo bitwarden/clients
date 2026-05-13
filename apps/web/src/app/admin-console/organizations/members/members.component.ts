@@ -500,7 +500,7 @@ export class MembersComponent {
     user: OrganizationUserView,
     sideEffect?: () => void | Promise<void>,
   ) {
-    if (result.error != null) {
+    if (result.success === false) {
       this.toastService.showToast({
         variant: "error",
         message: result.error,

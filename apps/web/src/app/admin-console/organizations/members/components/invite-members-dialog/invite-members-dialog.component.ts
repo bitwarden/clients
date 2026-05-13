@@ -279,11 +279,15 @@ export class InviteMembersDialogComponent {
 
     const result = await this.memberActionsService.invite(organizationId, request);
 
-    this.toastService.showToast({
-      variant: result.success ? "success" : "error",
-      message: result.success ? this.i18nService.t("invitedUsers") : result.error!,
-    });
+    if (result.success === false) {
+      this.toastService.showToast({ variant: "error", message: result.error });
+      return;
+    }
 
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("invitedUsers"),
+    });
     this.close(MemberDialogResult.Saved);
   }
 

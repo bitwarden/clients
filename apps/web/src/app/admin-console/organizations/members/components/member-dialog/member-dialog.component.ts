@@ -593,15 +593,17 @@ export class MemberDialogComponent implements OnDestroy {
 
     const result = await this.memberActionsService.invite(organization.id, request);
 
-    this.toastService.showToast({
-      variant: result.success ? "success" : "error",
-      title: null,
-      message: result.success ? this.i18nService.t("invitedUsers") : result.error!,
-    });
-
-    if (result.success) {
-      this.close(MemberDialogResult.Saved);
+    if (result.success === false) {
+      this.toastService.showToast({ variant: "error", title: null, message: result.error });
+      return;
     }
+
+    this.toastService.showToast({
+      variant: "success",
+      title: null,
+      message: this.i18nService.t("invitedUsers"),
+    });
+    this.close(MemberDialogResult.Saved);
   }
 
   remove = async () => {
