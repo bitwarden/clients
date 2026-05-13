@@ -96,6 +96,9 @@ export class VaultFilterComponent {
     if (filter.cipherType === CipherType.SshKey) {
       return "searchSshKey";
     }
+    if (filter.cipherType === CipherType.DriversLicense) {
+      return "searchDriversLicense";
+    }
     if (filter.selectedCollectionNode?.node) {
       return "searchCollection";
     }
