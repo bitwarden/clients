@@ -255,7 +255,6 @@ export class DefaultSdkService implements SdkService {
     // Initialize the client managed repositories.
     await initializeClientManagedState(userId, client.platform().state(), this.stateProvider);
     await this.loadFeatureFlags(client);
-
     if (await this.configService.getFeatureFlag(FeatureFlag.UnlockViaSDK)) {
       await client.crypto().initialize_user_crypto({
         userId: asUuid(userId),

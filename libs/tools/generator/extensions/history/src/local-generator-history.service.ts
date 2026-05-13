@@ -36,7 +36,13 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
   private _credentialStates = new Map<UserId, SingleUserState<GeneratedCredential[]>>();
 
   /** {@link GeneratorHistoryService.track} */
-  track = async (userId: UserId, credential: string, category: CredentialType, date?: Date) => {
+  track = async (
+    userId: UserId,
+    credential: string,
+    category: CredentialType,
+    date?: Date,
+    algorithm?: string,
+  ) => {
     const state = this.getCredentialState(userId);
     let result: GeneratedCredential = null;
 
@@ -45,7 +51,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
         credentials = credentials ?? [];
 
         // add the result
-        result = new GeneratedCredential(credential, category, date ?? Date.now());
+        result = new GeneratedCredential(credential, category, date ?? Date.now(), algorithm);
         credentials.unshift(result);
 
         // trim history
