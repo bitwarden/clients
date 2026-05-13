@@ -1,5 +1,7 @@
 @let accessibleProducts = accessibleProducts$ | async;
 @let activeProduct = activeProduct$ | async;
+@let moreProducts = moreProducts$ | async;
+
 @if (accessibleProducts && accessibleProducts.length > 1) {
   <div class="tw-px-2">
     <button
@@ -44,6 +46,51 @@
         </a>
       }
     </div>
+
+    @if (moreProducts && moreProducts.length > 0) {
+      <div slot="footer">
+        @for (more of moreProducts; track more.name) {
+          <div class="tw-ps-2 tw-pe-2">
+            @if (more.marketingRoute.external) {
+              <!-- <a> for when the marketing route is external -->
+              <a
+                [href]="more.marketingRoute.route"
+                target="_blank"
+                rel="noreferrer"
+                class="tw-flex tw-bg-bg-primary tw-px-3 tw-py-2 tw-rounded-md tw-font-medium !tw-text-fg-body !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
+              >
+                <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
+                <div>
+                  {{ more.otherProductOverrides?.name ?? more.name }}
+                  @if (more.otherProductOverrides?.supportingText) {
+                    <div class="tw-text-xs tw-font-normal">
+                      {{ more.otherProductOverrides.supportingText }}
+                    </div>
+                  }
+                </div>
+              </a>
+            } @else {
+              <!-- <a> for when the marketing route is internal, it needs to use [routerLink] instead of [href] like the external <a> uses. -->
+              <a
+                [routerLink]="more.marketingRoute.route"
+                rel="noreferrer"
+                class="tw-flex tw-bg-bg-primary tw-px-3 tw-py-2 tw-rounded-md tw-font-medium tw-text-fg-body !tw-no-underline hover:tw-bg-hover-contrast [&>:not(.bwi)]:hover:tw-underline"
+              >
+                <i class="bwi bwi-fw {{ more.icon }} tw-mt-1 tw-mx-1"></i>
+                <div>
+                  {{ more.otherProductOverrides?.name ?? more.name }}
+                  @if (more.otherProductOverrides?.supportingText) {
+                    <div class="tw-text-xs tw-font-normal">
+                      {{ more.otherProductOverrides.supportingText }}
+                    </div>
+                  }
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </div>
+    }
   </bit-menu>
   <!-- @for (product of accessibleProducts; track product.name) { -->
   <!-- [attr.icon] is used to keep the icon attribute on the bit-nav-item after prod mode is enabled. Matches other navigation items and assists in automated testing. -->
@@ -63,7 +110,6 @@
   <app-upgrade-nav-button></app-upgrade-nav-button>
 }
 
-@let moreProducts = moreProducts$ | async;
 @if (moreProducts && moreProducts.length > 0) {
   <section class="tw-mt-2 tw-flex tw-w-full tw-flex-col tw-gap-2 tw-border-0">
     <span class="tw-text-xs !tw-text-fg-nav tw-p-2 tw-pb-0">{{ "moreFromBitwarden" | i18n }}</span>
