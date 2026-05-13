@@ -20,6 +20,7 @@ use ssh_key::{
     Signature,
 };
 
+use crate::server::SignFlags;
 pub use crate::storage::keydata::{QueryableKeyData, SSHKeyData};
 
 /// Represents an SSH private key.
@@ -37,6 +38,10 @@ pub enum PrivateKey {
 impl PrivateKey {
     /// Signs the provided data using this private key.
     ///
+    /// For RSA keys, `flags` selects the hash algorithm:
+    /// - [`SignFlags::RsaSha256`] → PKCS#1 v1.5 with SHA-256
+    /// - [`SignFlags::RsaSha512`] or `None` → PKCS#1 v1.5 with SHA-512 (default)
+    ///
     /// # Returns
     ///
     /// A [`Signature`] containing the algorithm identifier and raw signature bytes.
@@ -49,11 +54,32 @@ impl PrivateKey {
     /// following for more information.
     ///
     /// <https://docs.rs/signature/2.2.0/signature/trait.Signer.html>
-    pub fn sign(&self, data: &[u8]) -> Signature {
+    pub fn sign(&self, data: &[u8], flags: Option<SignFlags>) -> Signature {
         match self {
             Self::Ed25519(kp) => kp.sign(data),
-            Self::Rsa(kp) => kp.sign(data),
+            Self::Rsa(kp) => sign_rsa(kp, data, flags),
         }
+    }
+}
+
+fn sign_rsa(kp: &RsaKeypair, data: &[u8], flags: Option<SignFlags>) -> Signature {
+    match flags {
+        Some(flag @ SignFlags::RsaSha256) => {
+            // we don't expect this to fail because the RSA keypair was already validated at
+            // creation time.
+            let signing_key = rsa::pkcs1v15::SigningKey::<sha2::Sha256>::try_from(kp)
+                .expect("RSA keypair to convert to SHA-256 signing key");
+            let rsa_sig: Box<[u8]> = signing_key.sign(data).into();
+
+            Signature::new(
+                ssh_key::Algorithm::Rsa {
+                    hash: Some(flag.hash_alg()),
+                },
+                rsa_sig.to_vec(),
+            )
+            .expect("RSA-SHA256 signature construction should succeed")
+        }
+        Some(SignFlags::RsaSha512) | None => kp.sign(data),
     }
 }
 
@@ -127,6 +153,7 @@ mod tests {
     use super::*;
 
     const MIN_KEY_BIT_SIZE: usize = 2048;
+    const TEST_DATA: &[u8] = b"test data";
 
     fn create_valid_ed25519_key_string() -> String {
         let ed25519_keypair = Ed25519Keypair::random(&mut OsRng);
@@ -159,9 +186,8 @@ mod tests {
     fn test_privatekey_sign_ed25519_algorithm() {
         let keypair = Ed25519Keypair::random(&mut OsRng);
         let private_key = PrivateKey::Ed25519(keypair);
-        const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA);
+        let sig = private_key.sign(TEST_DATA, None);
 
         assert_eq!(sig.algorithm(), ssh_key::Algorithm::Ed25519);
     }
@@ -170,9 +196,8 @@ mod tests {
     fn test_privatekey_sign_rsa_algorithm() {
         let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
         let private_key = PrivateKey::Rsa(keypair);
-        const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA);
+        let sig = private_key.sign(TEST_DATA, None);
 
         assert_eq!(
             sig.algorithm(),
@@ -187,9 +212,8 @@ mod tests {
         let keypair = Ed25519Keypair::random(&mut OsRng);
         let public_key = keypair.public;
         let private_key = PrivateKey::Ed25519(keypair);
-        const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA);
+        let sig = private_key.sign(TEST_DATA, None);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
     }
@@ -199,10 +223,24 @@ mod tests {
         let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
         let public_key = keypair.public.clone(); // RsaKepair doesn't implement copy
         let private_key = PrivateKey::Rsa(keypair);
-        const TEST_DATA: &[u8] = b"test data";
 
-        let sig = private_key.sign(TEST_DATA);
+        let sig = private_key.sign(TEST_DATA, None);
 
         public_key.verify(TEST_DATA, &sig).unwrap();
+    }
+
+    #[test]
+    fn test_privatekey_sign_rsa_sha256_flag() {
+        let keypair = RsaKeypair::random(&mut OsRng, MIN_KEY_BIT_SIZE).unwrap();
+        let private_key = PrivateKey::Rsa(keypair);
+
+        let sig = private_key.sign(TEST_DATA, Some(crate::server::SignFlags::RsaSha256));
+
+        assert_eq!(
+            sig.algorithm(),
+            ssh_key::Algorithm::Rsa {
+                hash: Some(ssh_key::HashAlg::Sha256),
+            }
+        );
     }
 }

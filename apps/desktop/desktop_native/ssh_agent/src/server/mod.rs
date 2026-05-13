@@ -14,9 +14,10 @@ use std::sync::Arc;
 use anyhow::Result;
 pub(crate) use auth_policy::AuthPolicy;
 // external exports for napi
-pub use auth_policy::{AuthRequest, SIGNamespace, SignRequest};
+pub use auth_policy::{AuthRequest, SignRequest};
 use connection::{Connection, ConnectionHandler};
 pub(crate) use listener::Listener;
+pub use protocol::{SIGNamespace, SignFlags};
 use tokio::{sync::mpsc, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, info, warn};
@@ -136,7 +137,7 @@ where
         // this is necessary for the recv block below to exit when listeners exit.
         drop(tx);
 
-        info!("Accepting connections");
+        debug!("Accepting connections");
         loop {
             tokio::select! {
                 () = cancel_token.cancelled() => {
@@ -144,7 +145,7 @@ where
                     break;
                 }
                 conn = rx.recv() => if let Some(connection) = conn {
-                    info!(peer_info = ?connection.peer_info, "Connection accepted");
+                    debug!(peer_info = ?connection.peer_info, "Connection accepted");
 
                     let handler = ConnectionHandler::new(
                         keystore.clone(),

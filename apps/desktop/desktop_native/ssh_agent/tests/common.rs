@@ -14,6 +14,35 @@ AAAEAgAQkLDKjON00XO+Y09BoIBuQsAXAx6HUhQoTEodVzig5iivf6TICxdizawaKSZS6G
 nGZV/aEAZ3ZMrsrA3g32AAAAEHRlc3RAZXhhbXBsZS5jb20BAgMEBQ==
 -----END OPENSSH PRIVATE KEY-----";
 
+// Unencrypted 2048-bit RSA test key for testing only
+const TEST_RSA_PEM: &str = "-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
+NhAAAAAwEAAQAAAQEA8nnAt1NQAzh5C6lybBVgdfmhxL96Jddpl0Z4vlb7iysdW5oj7b09
+rWUpQmPrW+Qpc+pJWVF++FQvjyEtTQwV/FHJsqYMZIpS98dQVWC1IZeQbPdsa3Ey5YmM3S
+/tf9UpqCcKG5J2ZJYeayVSerfRZFKgMhu8wmLaGxPk153Z5lj6RkBFE28j058ivN55IZcX
+hd0qvbDIpvCV9W1Qo4x/ia7es3se3kJc+IwXu/rkE5KM0RDVzLmuZ5R1wOMXcTZ4ceG9by
+viJXvSIb6CYE1zGMt5gFvLtNHTyzExqtpsLe3DfufzSl5wN1HcRDcLyU949Lvf6XxHqWfc
+aWm26q3nYQAAA8j0V6qC9FeqggAAAAdzc2gtcnNhAAABAQDyecC3U1ADOHkLqXJsFWB1+a
+HEv3ol12mXRni+VvuLKx1bmiPtvT2tZSlCY+tb5Clz6klZUX74VC+PIS1NDBX8Ucmypgxk
+ilL3x1BVYLUhl5Bs92xrcTLliYzdL+1/1SmoJwobknZklh5rJVJ6t9FkUqAyG7zCYtobE+
+TXndnmWPpGQEUTbyPTnyK83nkhlxeF3Sq9sMim8JX1bVCjjH+Jrt6zex7eQlz4jBe7+uQT
+kozRENXMua5nlHXA4xdxNnhx4b1vK+Ile9IhvoJgTXMYy3mAW8u00dPLMTGq2mwt7cN+5/
+NKXnA3UdxENwvJT3j0u9/pfEepZ9xpabbqredhAAAAAwEAAQAAAQBQ/yLFGmtr5/1nS98R
+A8MJJa5IDr46zc5T3hKPYnb8chaIduDxlXl45oX1y3Lfa0P9mJGP6I1FXrnUUfzT8+mUM6
+3wo08YdqxoYIgRPRDEe+CexbfN3C5oRp5rdIsdXJNhvEjAFRi/WPYoTHtUyvqDTKZ+lo1j
+UaoRyX90FyKmswPR9dcG130M4MrKYWA8rz7XtnMaR1IbLb3AnlfOhfMKsOWklgNPBpDAoH
+HMeYVBhva+LN2+VpRVnLaZ2yM747UEMJymLR6gvVN+uAyOMZscOJ8wNKhnf59UfEZummA1
+k1Q+H+bkCoOcpx8MqT7mad+5dMCvU5oyGnjhZ00srEzBAAAAgDVKPCR0n4IC/wUCaPmniw
+x+H5HxG4NPRxdKQegRxCZjpZxxNFFbO3Kxfu/kppkAR9kI3y7OEszYJvDnnz69h+S2UBww
+Bdnv6VzEtAysx98X70KyoA4fUa8l1D6wNwwjC1Mfty6vsJ7fH8NylzlhkpiBt2ZmqvD4fz
+rJoMCqGE2PAAAAgQD7Vx7zZ+1xr+fzdmVEA5/NVFXLd7BmSDndUeUmOX1dlc1MH93PYtC6
+eoByaz9J/bibbJtExyBPq2J7yQbx/6tp4BJ1WkJNhNKfc1gNYiY0mhbV5/TOZOu33IcOk+
+USl3hJCuja+cL5O+txPUoxp+5CWx0yb69jTbYdjiz5eCj7dQAAAIEA9viPLqCgGdXoNXWS
+8y/XETvN4EVFg2kleUcabSb2jrJ9hEr6ERJ1bRWtIbnwHC2QUNjXF+41MYBbjpbf+BVEsl
+SP5DsnXG3RJCI4fE9sUM81avDnDXKbDH7IgbqRc8hHnhQnE2d2wBnpiDedVu4m6BKTGWKM
+vt8T5DsruwPs+r0AAAAQdGVzdEBleGFtcGxlLmNvbQECAw==
+-----END OPENSSH PRIVATE KEY-----";
+
 pub fn init_tracing() {
     let _ = tracing_subscriber::fmt().with_test_writer().try_init();
 }
@@ -44,11 +73,74 @@ pub fn test_ed25519_key() -> SSHKeyData {
     .expect("test PEM should be valid")
 }
 
+/// Returns the SSH wire-format public key blob for the test Ed25519 key.
+pub fn test_ed25519_key_blob() -> Vec<u8> {
+    ssh_key::PrivateKey::from_openssh(TEST_ED25519_PEM)
+        .expect("test PEM should be valid")
+        .public_key()
+        .to_bytes()
+        .expect("ed25519 public key encoding should succeed")
+}
+
+pub fn test_rsa_key() -> SSHKeyData {
+    SSHKeyData::from_private_key_pem(
+        TEST_RSA_PEM,
+        "Test RSA Key".to_string(),
+        "cipher-rsa-1".to_string(),
+    )
+    .expect("test RSA PEM should be valid")
+}
+
+/// Returns the SSH wire-format public key blob for the test RSA key.
+pub fn test_rsa_key_blob() -> Vec<u8> {
+    ssh_key::PrivateKey::from_openssh(TEST_RSA_PEM)
+        .expect("test RSA PEM should be valid")
+        .public_key()
+        .to_bytes()
+        .expect("RSA public key encoding should succeed")
+}
+
 /// Builds a framed SSH REQUEST_IDENTITIES message (type byte 11).
 pub fn framed_request_identities() -> Vec<u8> {
     let mut frame = 1u32.to_be_bytes().to_vec();
     frame.push(11u8);
     frame
+}
+
+/// Builds a framed SSH SIGN_REQUEST message (type byte 13).
+pub fn framed_sign_request(blob: &[u8], data: &[u8], flags: u32) -> Vec<u8> {
+    let mut body = vec![13u8]; // SSH2_AGENTC_SIGN_REQUEST
+    body.extend_from_slice(&(blob.len() as u32).to_be_bytes());
+    body.extend_from_slice(blob);
+    body.extend_from_slice(&(data.len() as u32).to_be_bytes());
+    body.extend_from_slice(data);
+    body.extend_from_slice(&flags.to_be_bytes());
+
+    let mut framed = (body.len() as u32).to_be_bytes().to_vec();
+    framed.extend(body);
+    framed
+}
+
+/// Extracts the algorithm name string from a SIGN_RESPONSE body.
+///
+/// SIGN_RESPONSE layout (after `read_framed_response`):
+/// - byte 0:   type (14)
+/// - bytes 1–4: outer signature string length
+/// - bytes 5–8: algorithm name length
+/// - bytes 9..: algorithm name
+pub fn parse_sign_response_algorithm(response: &[u8]) -> String {
+    let alg_len = u32::from_be_bytes(response[5..9].try_into().expect("4-byte slice")) as usize;
+    String::from_utf8(response[9..9 + alg_len].to_vec()).expect("valid UTF-8 algorithm name")
+}
+
+/// Creates an agent whose approval handler always denies sign requests.
+pub fn always_denying_agent() -> BitwardenSSHAgent<InMemoryEncryptedKeyStore, MockApprovalRequester>
+{
+    let mut requester = MockApprovalRequester::new();
+    requester
+        .expect_request_sign_approval()
+        .returning(|_| Ok(false));
+    BitwardenSSHAgent::new(InMemoryEncryptedKeyStore::new(), requester)
 }
 
 /// Reads a single length-prefixed response frame from any async reader.
