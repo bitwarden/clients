@@ -77,6 +77,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
@@ -292,6 +293,9 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "openSettings":
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
+            break;
+          case "openTroubleshootingDialog":
+            TroubleshootingDialogComponent.open(this.dialogService);
             break;
           case "openPremium":
             await this.premiumUpgradePromptService.promptForPremium();
@@ -745,7 +749,7 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
       await this.stateService.clean({ userId: userBeingLoggedOut });
-      await this.tokenService.clearAccessToken(userBeingLoggedOut);
+      await this.tokenService.clearTokens(userBeingLoggedOut);
       await this.accountService.clean(userBeingLoggedOut);
 
       // HACK: Wait for the user logging outs authentication status to transition to LoggedOut

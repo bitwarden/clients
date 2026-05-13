@@ -47,6 +47,12 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.Cipher_Restored,
     EventType.Cipher_ClientToggledCardNumberVisible,
     EventType.Cipher_ClientToggledTOTPSeedVisible,
+    EventType.Cipher_ClientCopiedBankAccountNumber,
+    EventType.Cipher_ClientCopiedBankAccountPin,
+    EventType.Cipher_ClientToggledBankAccountNumberVisible,
+    EventType.Cipher_ClientToggledBankAccountPinVisible,
+    EventType.Cipher_ClientCopiedLicenseNumber,
+    EventType.Cipher_ClientToggledLicenseNumberVisible,
   ],
   [EventCategory.CollectionEvents]: [
     EventType.Collection_Created,
@@ -78,6 +84,8 @@ export const EventCategoryEventTypes: Record<EventCategory, EventType[]> = {
     EventType.OrganizationUser_Deleted,
     EventType.OrganizationUser_Left,
     EventType.OrganizationUser_SelfRevoked,
+    EventType.OrganizationUser_Revoked_TwoFactorNonCompliance,
+    EventType.OrganizationUser_Revoked_SingleOrganizationNonCompliance,
   ],
   [EventCategory.OrganizationEvents]: [
     EventType.Organization_Updated,
