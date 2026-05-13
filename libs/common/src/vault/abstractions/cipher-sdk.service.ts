@@ -120,6 +120,34 @@ export abstract class CipherSdkService {
   abstract restoreManyWithServer(ids: string[], userId: UserId, orgId?: string): Promise<void>;
 
   /**
+   * Updates the collections for a cipher as an org admin using the SDK.
+   *
+   * @param cipherId The cipher ID to update
+   * @param collectionIds The new collection IDs to assign
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the updated cipher view
+   */
+  abstract saveCollectionsWithServerAdmin(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined>;
+
+  /**
+   * Updates the collections for a cipher using the SDK.
+   *
+   * @param cipherId The cipher ID to update
+   * @param collectionIds The new collection IDs to assign
+   * @param userId The user ID to use for SDK client
+   * @returns A promise that resolves to the updated cipher view, or undefined if unavailable
+   */
+  abstract saveCollectionsWithServer(
+    cipherId: string,
+    collectionIds: string[],
+    userId: UserId,
+  ): Promise<CipherView | undefined>;
+
+  /**
    * Shares a cipher with an organization using the SDK.
    * Handles encryption and API call in one operation.
    *
