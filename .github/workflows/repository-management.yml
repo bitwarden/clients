@@ -428,6 +428,7 @@ jobs:
           gh pr create \
             --title "Bump client version(s)" \
             --body "Automated version bump created by repository-management workflow" \
+            --label "version update" \
             --base main \
             --head "$BRANCH_NAME"
 
