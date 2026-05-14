@@ -1802,7 +1802,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         if (bounds) {
           ({ left, top } = bounds);
         }
-      } else if (this.focusedFieldData.isCursorFollowerTotp) {
+      } else if (
+        this.focusedFieldData.isCursorFollowerTotp &&
+        left !== undefined &&
+        width !== undefined &&
+        top !== undefined &&
+        height !== undefined
+      ) {
         // Single hidden cursor-following TOTP input (e.g. Stripe's CodePuncher).
         // Position the badge above the right edge of the container, matching the
         // above-and-right-aligned style used for multi-input TOTP forms.
