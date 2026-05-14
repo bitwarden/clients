@@ -147,7 +147,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
             groups: [],
             users: [],
             hidePasswords: false,
-          } as CollectionAccessDetailsResponse,
+          },
         ],
         continuationToken: "",
       } as any);
@@ -536,7 +536,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
             id: "col-1",
             users: [{ id: "user-1" }, { id: "user-2" }],
             groups: [{ id: "group-1" }],
-          } as CollectionAccessDetailsResponse,
+          },
         ],
       } as any);
       cipherService.getAllFromApiForOrganization.mockResolvedValue(testCiphers);
