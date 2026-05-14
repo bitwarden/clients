@@ -170,7 +170,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       if (i < segments.length - 1) {
         const next: Document | ShadowRoot | null =
           element instanceof HTMLIFrameElement
-            ? this.traverseIframeBoundary(element)
+            ? element.contentDocument
             : this.traverseShadowRootBoundary(element);
         if (!next) {
           return null;
@@ -230,17 +230,9 @@ export class DomQueryService implements DomQueryServiceInterface {
   }
 
   /**
-   * Returns the document inside a same-origin iframe, or null if the iframe
-   * is cross-origin or its document is otherwise inaccessible.
-   */
-  private traverseIframeBoundary(element: HTMLIFrameElement): Document | null {
-    return element.contentDocument;
-  }
-
-  /**
    * Returns the shadow root of an element, or null if no shadow root exists.
-   * Explicitly refuses to traverse iframe elements — callers must use
-   * traverseIframeBoundary for those.
+   * Explicitly refuses to traverse iframe elements — callers must read
+   * `contentDocument` directly for those.
    */
   private traverseShadowRootBoundary(element: Element): ShadowRoot | null {
     if (element instanceof HTMLIFrameElement) {
