@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-// eslint-disable-next-line
+// eslint-disable-next-line no-restricted-imports
 import {
   BiometricStateService,
   BiometricsService,
