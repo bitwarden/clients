@@ -516,7 +516,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     // via importCompleted. Csv/Json fall through to performImport() with an
     // effective format of keepercsv/keeperjson.
     if (this.isKeeperFormat && this.keeperMethod === "direct") {
-      await this.importKeeper?.submitDirect();
+      await this.importKeeper?.submitDirect(this.organizationId);
       return;
     }
 

@@ -22,6 +22,7 @@ import { ClientType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   CalloutModule,
   FormFieldModule,
@@ -124,7 +125,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
    * submit handler when the direct method is selected; csv/json fall through
    * to the parent's file-based path.
    */
-  async submitDirect(): Promise<void> {
+  async submitDirect(organizationId: OrganizationId | undefined): Promise<void> {
     if (this.formGroup.controls.method.value !== "direct") {
       return;
     }
@@ -140,6 +141,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
       const importResult = await this.keeperDirectImportService.handleImport(
         email.value!,
         this.formGroup.controls.region.value as KeeperRegion,
+        organizationId,
       );
       this.importCompleted.emit(importResult);
     } catch (error) {
