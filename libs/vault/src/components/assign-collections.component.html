@@ -9,32 +9,36 @@
   </p>
 
   <ul class="tw-list-disc tw-pl-5 tw-space-y-2 tw-break-words">
-    <li *ngIf="readonlyItemCount > 0">
-      <p>
-        {{ "bulkCollectionAssignmentWarning" | i18n: totalItemCount : readonlyItemCount }}
-      </p>
-    </li>
-    <li *ngIf="personalItemsCount > 0">
-      <p>
-        {{ transferWarningText(orgName, personalItemsCount) }}
-      </p>
-    </li>
+    @if (readonlyItemCount > 0) {
+      <li>
+        0">
+        <p>
+          {{ "bulkCollectionAssignmentWarning" | i18n: totalItemCount : readonlyItemCount }}
+        </p>
+      </li>
+    }
+    @if (personalItemsCount > 0) {
+      <li>
+        0">
+        <p>
+          {{ transferWarningText(orgName, personalItemsCount) }}
+        </p>
+      </li>
+    }
   </ul>
 
-  <div class="tw-flex" *ngIf="showOrgSelector">
-    <bit-form-field class="tw-grow tw-max-w-full">
-      <bit-label>{{ "moveToOrganization" | i18n }}</bit-label>
-      <bit-select formControlName="selectedOrg">
-        <bit-option
-          *ngFor="let org of organizations$ | async"
-          icon="bwi-business"
-          [value]="org.id"
-          [label]="org.name"
-        >
-        </bit-option>
-      </bit-select>
-    </bit-form-field>
-  </div>
+  @if (showOrgSelector) {
+    <div class="tw-flex">
+      <bit-form-field class="tw-grow tw-max-w-full">
+        <bit-label>{{ "moveToOrganization" | i18n }}</bit-label>
+        <bit-select formControlName="selectedOrg">
+          @for (org of organizations$ | async; track org.id) {
+            <bit-option icon="bwi-business" [value]="org.id" [label]="org.name"> </bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+    </div>
+  }
 
   <div class="tw-flex">
     <bit-form-field class="tw-grow tw-max-w-full" disableMargin>
@@ -44,9 +48,11 @@
         formControlName="collections"
         [baseItems]="availableCollections"
       ></bit-multi-select>
-      <bit-hint *ngIf="readOnlyCollectionNames.length > 0" data-testid="view-only-hint">
-        {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollectionNames.join(", ") }}
-      </bit-hint>
+      @if (readOnlyCollectionNames.length > 0) {
+        <bit-hint data-testid="view-only-hint">
+          {{ "cannotRemoveViewOnlyCollections" | i18n: readOnlyCollectionNames.join(", ") }}
+        </bit-hint>
+      }
     </bit-form-field>
   </div>
 </form>

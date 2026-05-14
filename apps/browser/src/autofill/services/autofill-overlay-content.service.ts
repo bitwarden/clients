@@ -1259,6 +1259,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       autofillFieldData.autoCompleteType || ([] as string[])
     ).includes("webauthn");
 
+    if (
+      this.inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(autofillFieldData)
+    ) {
+      return;
+    }
+
     this.qualifyAccountCreationFieldType(autofillFieldData);
   }
 

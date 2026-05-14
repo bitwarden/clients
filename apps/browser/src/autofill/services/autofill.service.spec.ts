@@ -2459,6 +2459,69 @@ describe("AutofillService", () => {
           );
         });
 
+        it("will not fill a candidate username field that carries a non-login signal on its parent form", async () => {
+          pageDetails.forms = {
+            validFormId: createAutofillFormMock({
+              opid: "validFormId",
+              htmlID: "newsletter-signup",
+            }),
+          };
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            usernameField,
+            options.cipher.login.username,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            emailField,
+            options.cipher.login.username,
+          );
+        });
+
+        it("will not fill a candidate username field when a same-form sibling carries a non-login signal", async () => {
+          const newsletterCheckbox = createAutofillFieldMock({
+            opid: "newsletter-optin",
+            type: "checkbox",
+            form: "validFormId",
+            htmlName: "newsletter",
+            elementNumber: 5,
+          });
+          pageDetails.fields = [
+            usernameField,
+            emailField,
+            telephoneField,
+            totpField,
+            nonViewableField,
+            newsletterCheckbox,
+          ];
+
+          await autofillService["generateLoginFillScript"](
+            fillScript,
+            pageDetails,
+            filledFields,
+            options,
+          );
+
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            usernameField,
+            options.cipher.login.username,
+          );
+          expect(AutofillService.fillByOpid).not.toHaveBeenCalledWith(
+            fillScript,
+            emailField,
+            options.cipher.login.username,
+          );
+        });
+
         it("will attempt to keyword match a totp field if totp autofill is allowed", async () => {
           options.allowTotpAutofill = true;
 

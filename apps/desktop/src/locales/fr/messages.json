@@ -35,6 +35,9 @@
   "typeSshKey": {
     "message": "Clé SSH"
   },
+  "typeBankAccount": {
+    "message": "Bank account"
+  },
   "typeLoginSubtitle": {
     "message": "Website or app"
   },
@@ -49,6 +52,9 @@
   },
   "typeSshKeySubtitle": {
     "message": "Server login token"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -134,6 +140,18 @@
     "message": "View SSH key",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "View bank account",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "View passport",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "New Login",
     "description": "Header for new login item type"
@@ -154,6 +172,18 @@
     "message": "New SSH key",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "New bank account",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "New license",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "New passport",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
     "message": "Edit Login",
     "description": "Header for edit login item type"
@@ -173,6 +203,18 @@
   "editItemHeaderSshKey": {
     "message": "Edit SSH key",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Edit bank account",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderDriversLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Edit passport",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Nom"
@@ -230,20 +272,20 @@
   "sendTypeTextToShare": {
     "message": "Texte à partager"
   },
-  "newItemHeaderTextSend": {
-    "message": "Nouveau Send de texte",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "Nouveau Send de fichier",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Modifier le Send de texte",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Modifier le Send de fichier",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -706,6 +748,24 @@
   },
   "deleteAttachment": {
     "message": "Supprimer la pièce jointe"
+  },
+  "deleteAttachmentName": {
+    "message": "Delete attachment $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Download $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Êtes-vous sûr de vouloir envoyer cet élément vers la corbeille ?"
@@ -1589,18 +1649,6 @@
   "enableTrayDesc": {
     "message": "Toujours afficher une icône dans la zone de notification."
   },
-  "startToTray": {
-    "message": "Démarrer dans la zone de notification"
-  },
-  "startToTrayDesc": {
-    "message": "Au premier démarrage de l'application, afficher uniquement une icône dans la zone de notification."
-  },
-  "startToMenuBar": {
-    "message": "Démarrer dans la barre de menu"
-  },
-  "startToMenuBarDesc": {
-    "message": "Au premier démarrage de l'application, afficher uniquement une icône dans la barre de menu."
-  },
   "openAtLogin": {
     "message": "Démarrer automatiquement à la connexion"
   },
@@ -1962,6 +2010,12 @@
   "defaultMatchDetection": {
     "message": "Détection de correspondance par défaut",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "toggleOptions": {
     "message": "Options de basculement"
@@ -2726,8 +2780,8 @@
   "awaitingSecurityKeyInteraction": {
     "message": "En attente de l'interaction de la clé de sécurité..."
   },
-  "hideEmail": {
-    "message": "Masquer mon adresse électronique aux destinataires."
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Une ou plusieurs politiques de sécurité de l'organisation affectent vos options Send."
@@ -2971,33 +3025,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Export du coffre personnel"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Seuls les éléments individuels du coffre associés à $EMAIL$ seront exportés. Les éléments du coffre de l'organisation ne seront pas inclus. Seules les informations sur les éléments du coffre seront exportées et n'incluront pas les pièces jointes associées.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Seuls les éléments individuels du coffre et les pièces jointes associées à $EMAIL$ seront exportés. Les éléments du coffre de l'organisation ne seront pas inclus",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Export du coffre-fort de l'organisation"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Seul le coffre de l'organisation associé à $ORGANIZATION$ sera exporté. Les coffres individuels ou d'autres organisations ne seront pas inclus.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3922,6 +3961,9 @@
   "chooseFile": {
     "message": "Choisir le fichier"
   },
+  "chooseFileSentenceCase": {
+    "message": "Choose file"
+  },
   "noFileChosen": {
     "message": "Aucun fichier choisi"
   },
@@ -3952,6 +3994,18 @@
   },
   "exportError": {
     "message": "Une erreur s'est produite lors de l'exportation des données de votre coffre-fort"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
@@ -4748,6 +4802,9 @@
   "sessionTimeoutHeader": {
     "message": "Délai d'expiration de la session"
   },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
+  },
   "resizeSideNavigation": {
     "message": "Ajuster la taille de la navigation latérale"
   },
@@ -4791,6 +4848,30 @@
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre"
+  },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
   },
   "upgrade": {
     "message": "Mettre à niveau"
@@ -4919,8 +5000,96 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "La vérification de l'utilisateur a échoué."
+  },
+  "bankAccount": {
+    "message": "Bank account"
+  },
+  "bankName": {
+    "message": "Bank name"
+  },
+  "nameOnAccount": {
+    "message": "Name on account"
+  },
+  "bankAccountType": {
+    "message": "Account type"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Company"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Individual"
+  },
+  "accountNumber": {
+    "message": "Account number"
+  },
+  "bankRoutingNumber": {
+    "message": "Routing number",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Branch/institution number"
+  },
+  "swiftCode": {
+    "message": "SWIFT code"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Bank contact phone"
+  },
+  "searchBankAccount": {
+    "message": "Search bank account"
+  },
+  "copyAccountNumber": {
+    "message": "Copy account number"
+  },
+  "copyRoutingNumber": {
+    "message": "Copy routing number"
+  },
+  "copyPin": {
+    "message": "Copy PIN"
+  },
+  "copyIban": {
+    "message": "Copy IBAN"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Checking"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Savings"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Certificate of deposit"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Line of credit"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Money market"
+  },
+  "bankAccountTypeOther": {
+    "message": "Other"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Securely store your bank details"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "discardEdits": {
     "message": "Discard edits"
@@ -4938,6 +5107,25 @@
   "saveSendEditsFailed": {
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
   "sideNavigation": {
     "message": "Side navigation"

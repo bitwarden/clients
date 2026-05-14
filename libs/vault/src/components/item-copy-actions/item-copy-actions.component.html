@@ -213,3 +213,46 @@
     </bit-menu>
   </bit-item-action>
 }
+
+@if (CipherViewLikeUtils.getType(_cipher) === CipherType.DriversLicense) {
+  <bit-item-action>
+    @if (singleCopyableDriversLicense) {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="'copyFieldCipherName' | i18n: singleCopyableDriversLicense.key : _cipher.name"
+        [appCopyField]="singleCopyableDriversLicense.field"
+        [cipher]="_cipher"
+        showToast
+      ></button>
+    } @else {
+      <button
+        type="button"
+        bitIconButton="bwi-clone"
+        size="small"
+        [label]="
+          hasDriversLicenseValues
+            ? ('copyInfoTitle' | i18n: _cipher.name)
+            : ('noValuesToCopy' | i18n)
+        "
+        [disabled]="!hasDriversLicenseValues"
+        [bitMenuTriggerFor]="driversLicenseOptions"
+      ></button>
+      <bit-menu #driversLicenseOptions>
+        <button type="button" bitMenuItem appCopyField="firstName" [cipher]="_cipher">
+          {{ "copyFirstName" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="middleName" [cipher]="_cipher">
+          {{ "copyMiddleName" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="lastName" [cipher]="_cipher">
+          {{ "copyLastName" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="licenseNumber" [cipher]="_cipher">
+          {{ "copyLicenseNumber" | i18n }}
+        </button>
+      </bit-menu>
+    }
+  </bit-item-action>
+}

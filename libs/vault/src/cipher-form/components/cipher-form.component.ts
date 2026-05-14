@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -44,6 +43,7 @@ import { CipherFormCacheService } from "../services/default-cipher-form-cache.se
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
 import { BankAccountSectionComponent } from "./bank-account-section/bank-account-section.component";
 import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
+import { DriversLicenseSectionComponent } from "./drivers-license-section/drivers-license-section.component";
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
@@ -76,7 +76,7 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     IdentitySectionComponent,
     SshKeySectionComponent,
     BankAccountSectionComponent,
-    NgIf,
+    DriversLicenseSectionComponent,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
     NewItemNudgeComponent,
