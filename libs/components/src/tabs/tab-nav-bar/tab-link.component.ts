@@ -60,7 +60,7 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   readonly route = input<string | any[]>();
   readonly label = input<string>();
   readonly berryValue = input<number>();
-  readonly trailingIcon = input<BitwardenIcon>();
+  readonly endIcon = input<BitwardenIcon>();
 
   readonly templateLabel = contentChild(TabLabelDirective);
 

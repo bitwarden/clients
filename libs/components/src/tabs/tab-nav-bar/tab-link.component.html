@@ -24,8 +24,8 @@
     @if (berryValue()) {
       <bit-berry [value]="berryValue()" />
     }
-    @if (trailingIcon()) {
-      <bit-icon [name]="trailingIcon()" class="tw-text-base" />
+    @if (endIcon()) {
+      <bit-icon [name]="endIcon()" class="tw-text-base" />
     }
     <ng-content select="[slot=end]"></ng-content>
   </span>

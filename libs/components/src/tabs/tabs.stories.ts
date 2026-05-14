@@ -136,7 +136,7 @@ export const NavigationTabs: Story = {
     props: args,
     template: `
       <bit-tab-nav-bar label="Main">
-        <bit-tab-link [route]="['active']" [berryValue]="3" [trailingIcon]="'bwi-check-circle'">Active</bit-tab-link>
+        <bit-tab-link [route]="['active']" [berryValue]="3" [endIcon]="'bwi-check-circle'">Active</bit-tab-link>
         <bit-tab-link [route]="['item-2']">Item 2</bit-tab-link>
         <bit-tab-link [route]="['item-3']">Item 3</bit-tab-link>
         <bit-tab-link [route]="['item-with-child-counter']">
@@ -157,7 +157,7 @@ export const OverflowNavigationTabs: Story = {
     props: args,
     template: `
       <bit-tab-nav-bar label="Main">
-        <bit-tab-link [route]="['active']" [berryValue]="3" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab-link [route]="['active']" [berryValue]="3" [endIcon]="'bwi-check-circle'">
           <ng-template bitTabLabel>
             <bit-icon name="bwi-check-circle" /> Active Long Named Tab
           </ng-template>
@@ -235,10 +235,10 @@ export const TabsWithIcons: Story = {
           </ng-template>
           First Tab Content
         </bit-tab>
-        <bit-tab label="Second Tab" [berryValue]="2" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Second Tab" [berryValue]="2" [endIcon]="'bwi-check-circle'">
           Second Tab Content
         </bit-tab>
-        <bit-tab label="Third Tab" [berryValue]="3" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Third Tab" [berryValue]="3" [endIcon]="'bwi-check-circle'">
           <ng-template bitTabLabel>
             <bit-icon name="bwi-check-circle" /> Third Tab Content
           </ng-template>
@@ -254,19 +254,19 @@ export const OverflowTabs: Story = {
     props: args,
     template: `
       <bit-tab-group label="Overflow Tabs" class="tw-text-main">
-        <bit-tab label="First Long Named Tab" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="First Long Named Tab" [endIcon]="'bwi-check-circle'">
           First Tab Content
         </bit-tab>
-        <bit-tab label="Second Long Named Tab" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Second Long Named Tab" [endIcon]="'bwi-check-circle'">
           Second Tab Content
         </bit-tab>
-        <bit-tab label="Third Long Named Tab" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Third Long Named Tab" [endIcon]="'bwi-check-circle'">
           Third Tab Content
         </bit-tab>
-        <bit-tab label="Fourth Long Named Tab" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Fourth Long Named Tab" [endIcon]="'bwi-check-circle'">
           Fourth Tab Content
         </bit-tab>
-        <bit-tab label="Another Even Longer Named Tab" [trailingIcon]="'bwi-check-circle'">
+        <bit-tab label="Another Even Longer Named Tab" [endIcon]="'bwi-check-circle'">
           Another Even Longer Tab Content
         </bit-tab>
       </bit-tab-group>
