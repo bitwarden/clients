@@ -4652,9 +4652,6 @@
   "userAcceptedTransfer": {
     "message": "Accepted transfer to organization ownership."
   },
-  "userDeclinedTransfer": {
-    "message": "Revoked for declining transfer to organization ownership."
-  },
   "invitedUserId": {
     "message": "Invited user $ID$.",
     "placeholders": {
