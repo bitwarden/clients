@@ -6,13 +6,16 @@ import { Component, HostListener, computed, inject, input, output, viewChild } f
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
+  BadgeModule,
   BitIconButtonComponent,
   MenuModule,
   MenuTriggerForDirective,
@@ -52,6 +55,7 @@ interface CopyFieldConfig {
     GetOrgNameFromIdPipe,
     IconComponent,
     LinkModule,
+    BadgeModule,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
@@ -141,6 +145,16 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected readonly decryptionFailure = computed(() => {
     return CipherViewLikeUtils.decryptionFailure(this.cipher());
+  });
+
+  // TODO: CardListView only exposes `brand`; remove this guard when the SDK
+  // adds expMonth/expYear to CardListView.
+  protected readonly isExpiredCard = computed(() => {
+    const card = CipherViewLikeUtils.getCard(this.cipher());
+    if (!(card instanceof CardView)) {
+      return false;
+    }
+    return isCardExpired(card);
   });
 
   protected readonly showFavorite = computed(() => {

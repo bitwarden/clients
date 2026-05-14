@@ -11,7 +11,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -207,14 +206,6 @@ export class CipherViewComponent {
 
     const { cardholderName, code, expMonth, expYear, number } = cipher.card;
     return cardholderName || code || expMonth || expYear || number;
-  });
-
-  readonly cardIsExpired = computed(() => {
-    const cipher = this.cipher();
-    if (cipher == null) {
-      return false;
-    }
-    return isCardExpired(cipher.card);
   });
 
   readonly hasLogin = computed(() => {

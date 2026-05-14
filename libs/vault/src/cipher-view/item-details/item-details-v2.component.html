@@ -20,6 +20,11 @@
       @if (showArchiveBadge()) {
         <span bitBadge> {{ "archived" | i18n }} </span>
       }
+      @if (showExpiredBadge()) {
+        <span bitBadge variant="danger" [startIcon]="null" class="tw-shrink-0">
+          {{ "expired" | i18n }}
+        </span>
+      }
     </div>
     <ng-container>
       <div class="tw-flex tw-flex-col tw-mt-2 md:tw-flex-row md:tw-flex-wrap">

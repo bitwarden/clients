@@ -15,6 +15,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -22,6 +23,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -342,6 +344,16 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected get isCardCipher(): boolean {
     return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Card && !this.isDeleted;
+  }
+
+  // TODO: CardListView only exposes `brand`; remove this guard when the SDK
+  // adds expMonth/expYear to CardListView.
+  protected get isExpiredCard(): boolean {
+    const card = CipherViewLikeUtils.getCard(this.cipher);
+    if (!(card instanceof CardView)) {
+      return false;
+    }
+    return isCardExpired(card);
   }
 
   protected get hasVisibleCardOptions(): boolean {
