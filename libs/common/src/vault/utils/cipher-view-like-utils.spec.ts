@@ -260,6 +260,9 @@ describe("CipherViewLikeUtils", () => {
 
         cipherListView.type = "bankAccount";
         expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.BankAccount);
+
+        cipherListView.type = "driversLicense";
+        expect(CipherViewLikeUtils.getType(cipherListView)).toBe(CipherType.DriversLicense);
       });
     });
   });
@@ -561,6 +564,19 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "pin")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "iban")).toBe(false);
       });
+
+      it("returns true for licenseNumber in a drivers license cipher when populated", () => {
+        const cipherView = createCipherView(CipherType.DriversLicense);
+        cipherView.driversLicense.licenseNumber = "D1234567";
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "licenseNumber")).toBe(true);
+      });
+
+      it("returns false for licenseNumber in a drivers license cipher when not populated", () => {
+        const cipherView = createCipherView(CipherType.DriversLicense);
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherView, "licenseNumber")).toBe(false);
+      });
     });
 
     describe("CipherListView", () => {
@@ -633,6 +649,24 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "phone")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "address")).toBe(false);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "publicKey")).toBe(false);
+      });
+
+      it("returns false for login username when copyableFields includes it but the value is empty", () => {
+        const cipherListView = {
+          type: { login: { username: "" } },
+          copyableFields: ["LoginUsername"],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(false);
+      });
+
+      it("returns false for login username when copyableFields includes it but the value is undefined", () => {
+        const cipherListView = {
+          type: { login: { username: undefined } },
+          copyableFields: ["LoginUsername"],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "username")).toBe(false);
       });
     });
   });

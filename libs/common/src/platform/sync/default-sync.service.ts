@@ -28,6 +28,7 @@ import {
 import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
@@ -91,6 +92,7 @@ export class DefaultSyncService extends CoreSyncService {
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
+    private newPolicyService: InternalNewPolicyService,
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
@@ -193,6 +195,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
+      await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -425,6 +428,24 @@ export class DefaultSyncService extends CoreSyncService {
       });
     }
     return await this.policyService.replace(policies, userId);
+  }
+
+  private async syncNewPolicies(
+    response: PolicyResponse[] | undefined,
+    fallback: PolicyResponse[] | undefined,
+    userId: UserId,
+  ) {
+    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
+    // feature flag is off) so the new service is always seeded with data.
+    const source = response != null && response.length > 0 ? response : fallback;
+    if (source == null || source.length === 0) {
+      return;
+    }
+    const policies: { [id: string]: PolicyData } = {};
+    source.forEach((p) => {
+      policies[p.id] = new PolicyData(p);
+    });
+    return await this.newPolicyService.replace(policies, userId);
   }
 
   private async syncUserDecryption(

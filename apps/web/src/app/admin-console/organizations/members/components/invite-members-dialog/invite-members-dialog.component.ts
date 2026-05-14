@@ -1,5 +1,12 @@
-import { AsyncPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
@@ -29,6 +36,7 @@ import {
   FormFieldModule,
   IconModule,
   LinkModule,
+  RadioButtonModule,
   SelectModule,
   TabsModule,
   ToastService,
@@ -55,6 +63,7 @@ import { commaSeparatedEmails } from "../member-dialog/validators/comma-separate
 import {
   getEmailBatchLimit,
   inputEmailLimitValidator,
+  isDynamicSeatPlan,
 } from "../member-dialog/validators/input-email-limit.validator";
 import { revokedEmailsValidator } from "../member-dialog/validators/revoked-emails.validator";
 
@@ -86,6 +95,8 @@ export interface InviteMembersDialogParams {
     FormFieldModule,
     I18nPipe,
     LinkModule,
+    NgTemplateOutlet,
+    RadioButtonModule,
     ReactiveFormsModule,
     SelectModule,
     TabsModule,
@@ -104,11 +115,25 @@ export class InviteMembersDialogComponent {
   private readonly organizationService = inject(OrganizationService);
   private readonly toastService = inject(ToastService);
 
+  private readonly byLinkTab = viewChild(ByLinkTabComponent);
+
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
   protected readonly isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
   protected readonly selectedTabIndex = signal(0);
   protected readonly moreSettingsOpen = signal(false);
+
+  protected byLinkTabDirty(): boolean {
+    return this.byLinkTab()?.form.dirty ?? false;
+  }
+
+  protected get byLinkTabHasUrl$(): Observable<boolean> {
+    return this.byLinkTab()?.hasInviteLinkUrl$ ?? of(false);
+  }
+
+  readonly copyLink = async () => {
+    await this.byLinkTab()?.copyLink();
+  };
 
   protected readonly formGroup = this.formBuilder.group({
     emails: [""],
@@ -167,6 +192,14 @@ export class InviteMembersDialogComponent {
 
   protected readonly remainingSeats$: Observable<number> = this.organization$.pipe(
     map((organization) => organization.seats - this.params.occupiedSeatCount),
+  );
+
+  protected readonly emailBatchLimit$: Observable<number> = this.organization$.pipe(
+    map((organization) => getEmailBatchLimit(organization, this.params.occupiedSeatCount)),
+  );
+
+  protected readonly isDynamicSeatPlan$: Observable<boolean> = this.organization$.pipe(
+    map((organization) => isDynamicSeatPlan(organization.productTierType)),
   );
 
   private readonly groups$: Observable<GroupDetailsView[]> = this.organization$.pipe(
