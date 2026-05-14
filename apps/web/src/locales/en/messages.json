@@ -13874,5 +13874,35 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "paymentSuccessful": {
+    "message": "Payment successful"
+  },
+  "paymentSuccessfulProcessingMessage": {
+    "message": "Your upgrade is being processed. It may be a few minutes before you see Premium features in Bitwarden."
+  },
+  "planPurchased": {
+    "message": "Plan purchased"
+  },
+  "renewalDate": {
+    "message": "Renewal date"
+  },
+  "upgradeStatus": {
+    "message": "Upgrade status"
+  },
+  "managePlanInWebApp": {
+    "message": "Manage plan in web app"
+  },
+  "subscriptionStatusProcessing": {
+    "message": "Processing"
+  },
+  "checkoutCanceled": {
+    "message": "Checkout canceled"
+  },
+  "checkoutCanceledMessage": {
+    "message": "Your checkout was canceled and you have not been charged. You can return to Bitwarden and try again whenever you're ready."
+  },
+  "returnToBitwarden": {
+    "message": "Return to Bitwarden"
   }
 }

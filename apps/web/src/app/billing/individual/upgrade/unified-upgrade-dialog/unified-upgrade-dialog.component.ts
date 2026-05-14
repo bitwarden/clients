@@ -58,7 +58,7 @@ const FROM_MARKETING_DEFAULT = "premium";
  * @property {PersonalSubscriptionPricingTierId | null} [selectedPlan] - Pre-selected subscription plan, if any.
  * @property {string | null} [dialogTitleMessageOverride] - Optional custom i18n key to override the default dialog title.
  * @property {boolean} [hideContinueWithoutUpgradingButton] - Whether to hide the "Continue without upgrading" button.
- * @property {boolean} [redirectOnCompletion] - Whether to redirect after successful upgrade. Premium upgrades redirect to subscription settings, Families upgrades redirect to organization vault.
+ * @property {boolean} [redirectOnCompletion] - Whether to redirect after successful upgrade. Premium upgrades redirect to the premium checkout success page, Families upgrades redirect to organization vault.
  */
 export type UnifiedUpgradeDialogParams = {
   account: Account;
@@ -198,7 +198,7 @@ export class UnifiedUpgradeDialogComponent implements OnInit {
       const redirectUrl =
         status === UnifiedUpgradeDialogStatus.UpgradedToFamilies
           ? `/organizations/${result.organizationId}/vault`
-          : "/settings/subscription/user-subscription";
+          : "/premium/checkout/success";
       await this.router.navigate([redirectUrl]);
     }
   }

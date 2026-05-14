@@ -1,0 +1,24 @@
+<div class="tw-flex tw-flex-col tw-items-center tw-gap-8 tw-text-center tw-max-w-[491px]">
+  <bit-icon-tile
+    icon="bwi-close"
+    variant="warning"
+    size="lg"
+    ariaLabel="{{ 'checkoutCanceled' | i18n }}"
+  ></bit-icon-tile>
+  <div class="tw-w-full">
+    <h1 bitTypography="h1" class="tw-mb-4">{{ "checkoutCanceled" | i18n }}</h1>
+    <p bitTypography="body1" class="tw-m-0 tw-text-fg-body">
+      {{ "checkoutCanceledMessage" | i18n }}
+    </p>
+  </div>
+
+  <button
+    bitButton
+    buttonType="primary"
+    type="button"
+    (click)="returnToBitwarden()"
+    data-testid="return-to-bitwarden-button"
+  >
+    {{ "returnToBitwarden" | i18n }}
+  </button>
+</div>
