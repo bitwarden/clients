@@ -2,11 +2,8 @@ import { Injectable, Optional } from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, Subject } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -25,9 +22,7 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
 
   constructor(
     private dialogService: DialogService,
-    private configService: ConfigService,
     private accountService: AccountService,
-    private apiService: ApiService,
     private syncService: SyncService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private platformUtilsService: PlatformUtilsService,
@@ -52,13 +47,9 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
       return;
     }
 
-    const showNewDialog = await this.configService.getFeatureFlag(
-      FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog,
-    );
-
     // Per conversation in PM-23713, retain the existing upgrade org flow for now, will be addressed
     //  as a part of https://bitwarden.atlassian.net/browse/PM-25507
-    if (showNewDialog && !organizationId) {
+    if (!organizationId) {
       await this.promptForPremiumVNext(account);
       return;
     }

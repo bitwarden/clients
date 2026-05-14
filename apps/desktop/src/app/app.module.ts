@@ -14,7 +14,7 @@ import { IconModule, SpinnerComponent } from "@bitwarden/components";
 
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
 import { PremiumComponent } from "../billing/app/accounts/premium.component";
-import { DesktopPremiumUpgradePromptService } from "../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../billing/services/desktop-premium-upgrade-prompt.service";
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";

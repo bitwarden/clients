@@ -2,11 +2,8 @@ import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { lastValueFrom, of } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
@@ -24,9 +21,7 @@ describe("WebVaultPremiumUpgradePromptService", () => {
   let dialogServiceMock: jest.Mocked<DialogService>;
   let routerMock: jest.Mocked<Router>;
   let dialogRefMock: jest.Mocked<DialogRef>;
-  let configServiceMock: jest.Mocked<ConfigService>;
   let accountServiceMock: jest.Mocked<AccountService>;
-  let apiServiceMock: jest.Mocked<ApiService>;
   let syncServiceMock: jest.Mocked<SyncService>;
   let billingAccountProfileServiceMock: jest.Mocked<BillingAccountProfileStateService>;
   let platformUtilsServiceMock: jest.Mocked<PlatformUtilsService>;
@@ -35,10 +30,6 @@ describe("WebVaultPremiumUpgradePromptService", () => {
     dialogServiceMock = {
       openSimpleDialog: jest.fn(),
     } as unknown as jest.Mocked<DialogService>;
-
-    configServiceMock = {
-      getFeatureFlag: jest.fn().mockReturnValue(false),
-    } as unknown as jest.Mocked<ConfigService>;
 
     accountServiceMock = {
       activeAccount$: of({ id: "user-123" }),
@@ -51,10 +42,6 @@ describe("WebVaultPremiumUpgradePromptService", () => {
     dialogRefMock = {
       close: jest.fn(),
     } as unknown as jest.Mocked<DialogRef<VaultItemDialogResult>>;
-
-    apiServiceMock = {
-      refreshIdentityToken: jest.fn().mockReturnValue({}),
-    } as unknown as jest.Mocked<ApiService>;
 
     syncServiceMock = {
       fullSync: jest.fn(),
@@ -74,9 +61,7 @@ describe("WebVaultPremiumUpgradePromptService", () => {
         { provide: DialogService, useValue: dialogServiceMock },
         { provide: Router, useValue: routerMock },
         { provide: DialogRef, useValue: dialogRefMock },
-        { provide: ConfigService, useValue: configServiceMock },
         { provide: AccountService, useValue: accountServiceMock },
-        { provide: ApiService, useValue: apiServiceMock },
         { provide: SyncService, useValue: syncServiceMock },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileServiceMock },
         { provide: PlatformUtilsService, useValue: platformUtilsServiceMock },
@@ -107,19 +92,27 @@ describe("WebVaultPremiumUpgradePromptService", () => {
     expect(dialogRefMock.close).toHaveBeenCalledWith(VaultItemDialogResult.PremiumUpgrade);
   });
 
-  it("prompts for premium upgrade and navigates to premium subscription if organizationId is not provided", async () => {
-    dialogServiceMock.openSimpleDialog.mockReturnValue(lastValueFrom(of(true)));
+  it("opens unified upgrade for premium upgrade if organizationId is not provided", async () => {
+    const unifiedDialogRefMock = {
+      closed: of({ status: UnifiedUpgradeDialogStatus.Closed }),
+      close: jest.fn(),
+    } as any;
+    const openSpy = jest
+      .spyOn(UnifiedUpgradeDialogComponent, "open")
+      .mockReturnValue(unifiedDialogRefMock);
 
     await service.promptForPremium();
 
-    expect(dialogServiceMock.openSimpleDialog).toHaveBeenCalledWith({
-      title: { key: "premiumRequired" },
-      content: { key: "premiumRequiredDesc" },
-      acceptButtonText: { key: "upgrade" },
-      type: "success",
+    expect(openSpy).toHaveBeenCalledWith(dialogServiceMock, {
+      data: {
+        account: { id: "user-123" },
+        planSelectionStepTitleOverride: "upgradeYourPlan",
+        hideContinueWithoutUpgradingButton: true,
+      },
     });
-    expect(routerMock.navigate).toHaveBeenCalledWith(["settings/subscription/premium"]);
-    expect(dialogRefMock.close).toHaveBeenCalledWith(VaultItemDialogResult.PremiumUpgrade);
+    expect(dialogServiceMock.openSimpleDialog).not.toHaveBeenCalled();
+
+    openSpy.mockRestore();
   });
 
   it("does not navigate or close dialog if upgrade is no action is taken", async () => {
@@ -132,23 +125,7 @@ describe("WebVaultPremiumUpgradePromptService", () => {
   });
 
   describe("premium status check", () => {
-    it("should not prompt if user already has premium (feature flag off)", async () => {
-      configServiceMock.getFeatureFlag.mockReturnValue(Promise.resolve(false));
-      billingAccountProfileServiceMock.hasPremiumFromAnySource$.mockReturnValue(of(true));
-
-      await service.promptForPremium();
-
-      expect(dialogServiceMock.openSimpleDialog).not.toHaveBeenCalled();
-      expect(routerMock.navigate).not.toHaveBeenCalled();
-    });
-
-    it("should not prompt if user already has premium (feature flag on)", async () => {
-      configServiceMock.getFeatureFlag.mockImplementation((flag: FeatureFlag) => {
-        if (flag === FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog) {
-          return Promise.resolve(true);
-        }
-        return Promise.resolve(false);
-      });
+    it("should not prompt if user already has premium", async () => {
       billingAccountProfileServiceMock.hasPremiumFromAnySource$.mockReturnValue(of(true));
 
       const unifiedDialogRefMock = {
@@ -166,15 +143,6 @@ describe("WebVaultPremiumUpgradePromptService", () => {
   });
 
   describe("new premium upgrade dialog with post-upgrade actions", () => {
-    beforeEach(() => {
-      configServiceMock.getFeatureFlag.mockImplementation((flag: FeatureFlag) => {
-        if (flag === FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog) {
-          return Promise.resolve(true);
-        }
-        return Promise.resolve(false);
-      });
-    });
-
     describe("when self-hosted", () => {
       beforeEach(() => {
         platformUtilsServiceMock.isSelfHost.mockReturnValue(true);
@@ -254,7 +222,6 @@ describe("WebVaultPremiumUpgradePromptService", () => {
             hideContinueWithoutUpgradingButton: true,
           },
         });
-        expect(apiServiceMock.refreshIdentityToken).not.toHaveBeenCalled();
         expect(syncServiceMock.fullSync).not.toHaveBeenCalled();
       });
 
