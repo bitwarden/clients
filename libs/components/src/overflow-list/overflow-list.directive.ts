@@ -109,23 +109,10 @@ export class OverflowListDirective {
     );
 
     afterNextRender(() => {
-      ro.observe(this.hostEl);
-      this.destroyRef.onDestroy(() => ro.disconnect());
-    });
-
-    // Measure once items have actually been stamped. afterNextRender can fire before
-    // contentChildren / projected items populate, so we wait inside an effect that
-    // reads items() and measures on the first non-empty pass.
-    let measured = false;
-    effect(() => {
-      const items = this.items();
-      if (measured || items.length === 0) {
-        return;
-      }
-      measured = true;
       // document.fonts is missing in JSDOM — fall back to an already-resolved promise.
       const fontsReady = document.fonts?.ready ?? Promise.resolve();
       void fontsReady.then(() => {
+        const items = this.items();
         this.itemWidths.set(
           items.map((item) =>
             Math.ceil(item.elementRef.nativeElement.getBoundingClientRect().width),
@@ -133,6 +120,8 @@ export class OverflowListDirective {
         );
         this.ready.set(true);
       });
+      ro.observe(this.hostEl);
+      this.destroyRef.onDestroy(() => ro.disconnect());
     });
 
     // Apply [hidden] to overflowed items, and flag the lone displayed item (if any)
