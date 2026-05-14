@@ -19,11 +19,10 @@ export class DefaultNewPolicyService implements InternalNewPolicyService {
   ) {}
 
   policiesByType$(policyType: PolicyType, userId: UserId): Observable<Policy[]> {
-    // I was using userClient$(userId), but it was never emitting.
-    // I suspect this is because it's called during login flow when the userClient
-    // may not be fully initialized. More work required to identify what exactly
-    // this problem is and to make sure it's not a bug. However, this is stateless for now
-    // so we can use client$.
+    // Uses the stateless SDK `client$` rather than `userClient$(userId)` because
+    // this is invoked during login before the user client is initialized.
+    // Safe for now because the policies crate is stateless, but will have to be
+    // revisited if we want SDK-managed state in the future.
 
     return combineLatest([
       this.organizationService.organizations$(userId),
