@@ -42,7 +42,13 @@ export type CopyAction =
   | "lastName"
   | "licenseNumber"
   | "passportNumber"
-  | "nationalIdentificationNumber";
+  | "nationalIdentificationNumber"
+  | "sex"
+  | "birthPlace"
+  | "nationality"
+  | "issuingCountry"
+  | "passportType"
+  | "issuingAuthority";
 
 /**
  * Copy actions that can be used with the appCopyField directive.
@@ -113,6 +119,12 @@ const CopyActions: Record<CopyAction, CopyActionInfo> = {
     typeI18nKey: "nationalIdentificationNumber",
     protected: true,
   },
+  sex: { typeI18nKey: "sex", protected: true },
+  birthPlace: { typeI18nKey: "birthPlace", protected: true },
+  nationality: { typeI18nKey: "nationality", protected: true },
+  issuingCountry: { typeI18nKey: "issuingCountry", protected: true },
+  passportType: { typeI18nKey: "passportType", protected: true },
+  issuingAuthority: { typeI18nKey: "issuingAuthority", protected: true },
   hiddenField: {
     typeI18nKey: "value",
     protected: true,
