@@ -154,10 +154,6 @@
     "message": "View license",
     "description": "Header for view license item type"
   },
-  "viewItemHeaderLicense": {
-    "message": "View license",
-    "description": "Header for view license item type"
-  },
   "viewItemHeaderPassport": {
     "message": "View passport",
     "description": "Header for view passport item type"
