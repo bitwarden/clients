@@ -10,6 +10,10 @@ on:
           - "Version Bump"
           - "Version Bump and Cut rc"
           - "Version Bump and Cut hotfix-rc"
+          - "Version Bump and Cut hotfix-rc-browser"
+          - "Version Bump and Cut hotfix-rc-cli"
+          - "Version Bump and Cut hotfix-rc-desktop"
+          - "Version Bump and Cut hotfix-rc-web"
         required: true
         type: choice
       bump_browser:
@@ -58,6 +62,14 @@ jobs:
             BRANCH="rc"
           elif [[ "$TASK" == "Version Bump and Cut hotfix-rc" ]]; then
             BRANCH="hotfix-rc"
+          elif [[ "$TASK" == "Version Bump and Cut hotfix-rc-browser" ]]; then
+            BRANCH="hotfix-rc-browser"
+          elif [[ "$TASK" == "Version Bump and Cut hotfix-rc-cli" ]]; then
+            BRANCH="hotfix-rc-cli"
+          elif [[ "$TASK" == "Version Bump and Cut hotfix-rc-desktop" ]]; then
+            BRANCH="hotfix-rc-desktop"
+          elif [[ "$TASK" == "Version Bump and Cut hotfix-rc-web" ]]; then
+            BRANCH="hotfix-rc-web"
           fi
 
           echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
@@ -174,14 +186,14 @@ jobs:
         working-directory: apps/browser
 
       - name: Calculate next Browser release version
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-browser-version
         uses: bitwarden/gh-actions/version-next@main
         with:
           version: ${{ steps.current-browser-version.outputs.version }}
 
       - name: Calculate next Browser hotfix release version
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-browser-hotfix-version
         env:
           CURRENT_VERSION: ${{ steps.current-browser-version.outputs.version }}
@@ -200,14 +212,14 @@ jobs:
         run: npm version --workspace=@bitwarden/browser "$VERSION"
 
       - name: Bump Browser Version - Automatic Calculation
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-browser-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-browser-version.outputs.version }}
         run: npm version --workspace=@bitwarden/browser "$VERSION"
 
       - name: Bump Browser Version - Automatic Hotfix Calculation
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-browser-version-hotfix
         env:
           VERSION: ${{ steps.calculate-next-browser-hotfix-version.outputs.version }}
@@ -221,14 +233,14 @@ jobs:
           version: ${{ inputs.version_number_override }}
 
       - name: Bump Browser Version - Manifest - Automatic Calculation
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         uses: bitwarden/gh-actions/version-bump@main
         with:
           file_path: "apps/browser/src/manifest.json"
           version: ${{ steps.calculate-next-browser-version.outputs.version }}
 
       - name: Bump Browser Version - Manifest - Automatic Hotfix Calculation
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         uses: bitwarden/gh-actions/version-bump@main
         with:
           file_path: "apps/browser/src/manifest.json"
@@ -242,14 +254,14 @@ jobs:
           version: ${{ inputs.version_number_override }}
 
       - name: Bump Browser Version - Manifest v3 - Automatic Calculation
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         uses: bitwarden/gh-actions/version-bump@main
         with:
           file_path: "apps/browser/src/manifest.v3.json"
           version: ${{ steps.calculate-next-browser-version.outputs.version }}
 
       - name: Bump Browser Version - Manifest v3 - Automatic Hotfix Calculation
-        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_browser == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         uses: bitwarden/gh-actions/version-bump@main
         with:
           file_path: "apps/browser/src/manifest.v3.json"
@@ -293,14 +305,14 @@ jobs:
         working-directory: apps/cli
 
       - name: Calculate next CLI release version
-        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-cli-version
         uses: bitwarden/gh-actions/version-next@main
         with:
           version: ${{ steps.current-cli-version.outputs.version }}
 
       - name: Calculate next CLI hotfix release version
-        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-cli-hotfix-version
         env:
           CURRENT_VERSION: ${{ steps.current-cli-version.outputs.version }}
@@ -319,14 +331,14 @@ jobs:
         run: npm version --workspace=@bitwarden/cli "$VERSION"
 
       - name: Bump CLI Version - Automatic Calculation
-        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-cli-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-cli-version.outputs.version }}
         run: npm version --workspace=@bitwarden/cli "$VERSION"
 
       - name: Bump CLI Version - Automatic Hotfix Calculation
-        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_cli == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-cli-version-hotfix
         env:
           VERSION: ${{ steps.calculate-next-cli-hotfix-version.outputs.version }}
@@ -363,14 +375,14 @@ jobs:
         working-directory: apps/desktop
 
       - name: Calculate next Desktop release version
-        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-desktop-version
         uses: bitwarden/gh-actions/version-next@main
         with:
           version: ${{ steps.current-desktop-version.outputs.version }}
 
       - name: Calculate next Desktop hotfix release version
-        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-desktop-hotfix-version
         env:
           CURRENT_VERSION: ${{ steps.current-desktop-version.outputs.version }}
@@ -389,14 +401,14 @@ jobs:
         run: npm version --workspace=@bitwarden/desktop "$VERSION"
 
       - name: Bump Desktop Version - Root - Automatic Calculation
-        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-desktop-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
         run: npm version --workspace=@bitwarden/desktop "$VERSION"
 
       - name: Bump Desktop Version - Root - Automatic Hotfix Calculation
-        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-desktop-version-hotfix
         env:
           VERSION: ${{ steps.calculate-next-desktop-hotfix-version.outputs.version }}
@@ -410,14 +422,14 @@ jobs:
         working-directory: "apps/desktop/src"
 
       - name: Bump Desktop Version - App - Automatic Calculation
-        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         env:
           VERSION: ${{ steps.calculate-next-desktop-version.outputs.version }}
         run: npm version "$VERSION"
         working-directory: "apps/desktop/src"
 
       - name: Bump Desktop Version - App - Automatic Hotfix Calculation
-        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_desktop == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         env:
           VERSION: ${{ steps.calculate-next-desktop-hotfix-version.outputs.version }}
         run: npm version "$VERSION"
@@ -454,14 +466,14 @@ jobs:
         working-directory: apps/web
 
       - name: Calculate next Web release version
-        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-web-version
         uses: bitwarden/gh-actions/version-next@main
         with:
           version: ${{ steps.current-web-version.outputs.version }}
 
       - name: Calculate next Web hotfix release version
-        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: calculate-next-web-hotfix-version
         env:
           CURRENT_VERSION: ${{ steps.current-web-version.outputs.version }}
@@ -480,14 +492,14 @@ jobs:
         run: npm version --workspace=@bitwarden/web-vault "$VERSION"
 
       - name: Bump Web Version - Automatic Calculation
-        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && needs.setup.outputs.branch != 'hotfix-rc' }}
+        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && !contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-web-version-automatic
         env:
           VERSION: ${{ steps.calculate-next-web-version.outputs.version }}
         run: npm version --workspace=@bitwarden/web-vault "$VERSION"
 
       - name: Bump Web Version - Automatic Hotfix Calculation
-        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && needs.setup.outputs.branch == 'hotfix-rc' }}
+        if: ${{ inputs.bump_web == true && inputs.version_number_override == '' && contains(needs.setup.outputs.branch, 'hotfix') }}
         id: bump-web-version-hotfix
         env:
           VERSION: ${{ steps.calculate-next-web-hotfix-version.outputs.version }}
@@ -574,7 +586,7 @@ jobs:
 
   cut_branch:
     name: Cut branch
-    if: ${{ needs.setup.outputs.branch == 'rc' || needs.setup.outputs.branch == 'hotfix-rc' }}
+    if: ${{ needs.setup.outputs.branch != 'none' }}
     needs:
       - setup
       - bump_version
@@ -615,9 +627,36 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: true
 
-      - name: Check if ${{ needs.setup.outputs.branch }} branch exists
+      - name: Resolve final branch name
+        id: resolve-branch-name
         env:
-          BRANCH_NAME: ${{ needs.setup.outputs.branch }}
+          BRANCH: ${{ needs.setup.outputs.branch }}
+          VERSION_BROWSER: ${{ needs.bump_version.outputs.version_browser }}
+          VERSION_CLI: ${{ needs.bump_version.outputs.version_cli }}
+          VERSION_DESKTOP: ${{ needs.bump_version.outputs.version_desktop }}
+          VERSION_WEB: ${{ needs.bump_version.outputs.version_web }}
+        run: |
+          if [[ "$BRANCH" == *hotfix* ]]; then
+            if [[ "$BRANCH" == *browser* ]]; then
+              VERSION="$VERSION_BROWSER"
+            elif [[ "$BRANCH" == *cli* ]]; then
+              VERSION="$VERSION_CLI"
+            elif [[ "$BRANCH" == *desktop* ]]; then
+              VERSION="$VERSION_DESKTOP"
+            elif [[ "$BRANCH" == *web* ]]; then
+              VERSION="$VERSION_WEB"
+            else
+              VERSION="${VERSION_BROWSER:-${VERSION_CLI:-${VERSION_DESKTOP:-$VERSION_WEB}}}"
+            fi
+            FINAL_BRANCH="${BRANCH}-${VERSION}"
+          else
+            FINAL_BRANCH="$BRANCH"
+          fi
+          echo "branch_name=$FINAL_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Check if ${{ steps.resolve-branch-name.outputs.branch_name }} branch exists
+        env:
+          BRANCH_NAME: ${{ steps.resolve-branch-name.outputs.branch_name }}
         run: |
           if [[ $(git ls-remote --heads origin "$BRANCH_NAME") ]]; then
             echo "$BRANCH_NAME already exists! Please delete $BRANCH_NAME before running again." >> "$GITHUB_STEP_SUMMARY"
@@ -626,7 +665,7 @@ jobs:
 
       - name: Cut branch
         env:
-          BRANCH_NAME: ${{ needs.setup.outputs.branch }}
+          BRANCH_NAME: ${{ steps.resolve-branch-name.outputs.branch_name }}
         run: |
           git switch --quiet --create "$BRANCH_NAME"
           git push --quiet --set-upstream origin "$BRANCH_NAME"
