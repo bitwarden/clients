@@ -1,7 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnChanges, Output } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  Output,
+} from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -88,35 +95,16 @@ export class PasswordStrengthV2Component implements OnChanges {
   constructor(
     private i18nService: I18nService,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnChanges(): void {
+    // Debounced re-render for email/name input changes. Password changes are
+    // handled synchronously in updatePasswordStrength, but ngOnChanges fires
+    // for all @Input changes so we still need to schedule a final render pass.
     this.passwordStrengthTimeout = setTimeout(() => {
-      this.scoreWidth = this.passwordScore == null ? 0 : (this.passwordScore + 1) * 20;
-
-      switch (this.passwordScore) {
-        case 4:
-          this.color = "success";
-          this.text = this.i18nService.t("strong");
-          break;
-        case 3:
-          this.color = "primary";
-          this.text = this.i18nService.t("good");
-          break;
-        case 2:
-          this.color = "warning";
-          this.text = this.i18nService.t("weak");
-          break;
-        default:
-          this.color = "danger";
-          this.text = this.passwordScore != null ? this.i18nService.t("weak") : null;
-          break;
-      }
-
-      this.passwordScoreTextWithColor.emit({
-        color: this.color,
-        text: this.text,
-      } as PasswordColorText);
+      this.applyVisuals();
+      this.cdr.markForCheck();
     }, 300);
   }
 
@@ -125,12 +113,47 @@ export class PasswordStrengthV2Component implements OnChanges {
       clearTimeout(this.passwordStrengthTimeout);
     }
 
-    const strengthResult = this.passwordStrengthService.getPasswordStrength(
-      password,
-      this.email,
-      this.name?.trim().toLowerCase().split(" "),
-    );
-    this.passwordScore = strengthResult == null ? null : strengthResult.score;
+    if (!password) {
+      this.passwordScore = null;
+    } else {
+      const strengthResult = this.passwordStrengthService.getPasswordStrength(
+        password,
+        this.email,
+        this.name?.trim().toLowerCase().split(" "),
+      );
+      this.passwordScore = strengthResult == null ? null : strengthResult.score;
+    }
+
     this.passwordStrengthScore.emit(this.passwordScore);
+    this.applyVisuals();
+    this.cdr.markForCheck();
+  }
+
+  private applyVisuals() {
+    this.scoreWidth = this.passwordScore == null ? 0 : (this.passwordScore + 1) * 20;
+
+    switch (this.passwordScore) {
+      case 4:
+        this.color = "success";
+        this.text = this.i18nService.t("strong");
+        break;
+      case 3:
+        this.color = "primary";
+        this.text = this.i18nService.t("good");
+        break;
+      case 2:
+        this.color = "warning";
+        this.text = this.i18nService.t("weak");
+        break;
+      default:
+        this.color = "danger";
+        this.text = this.passwordScore != null ? this.i18nService.t("weak") : null;
+        break;
+    }
+
+    this.passwordScoreTextWithColor.emit({
+      color: this.color,
+      text: this.text,
+    } as PasswordColorText);
   }
 }
