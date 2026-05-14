@@ -638,17 +638,16 @@ jobs:
         run: |
           if [[ "$BRANCH" == *hotfix* ]]; then
             if [[ "$BRANCH" == *browser* ]]; then
-              VERSION="$VERSION_BROWSER"
+              FINAL_BRANCH="${BRANCH}-${VERSION_BROWSER}"
             elif [[ "$BRANCH" == *cli* ]]; then
-              VERSION="$VERSION_CLI"
+              FINAL_BRANCH="${BRANCH}-${VERSION_CLI}"
             elif [[ "$BRANCH" == *desktop* ]]; then
-              VERSION="$VERSION_DESKTOP"
+              FINAL_BRANCH="${BRANCH}-${VERSION_DESKTOP}"
             elif [[ "$BRANCH" == *web* ]]; then
-              VERSION="$VERSION_WEB"
+              FINAL_BRANCH="${BRANCH}-${VERSION_WEB}"
             else
-              VERSION="${VERSION_BROWSER:-${VERSION_CLI:-${VERSION_DESKTOP:-$VERSION_WEB}}}"
+              FINAL_BRANCH="$BRANCH"
             fi
-            FINAL_BRANCH="${BRANCH}-${VERSION}"
           else
             FINAL_BRANCH="$BRANCH"
           fi
