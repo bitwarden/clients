@@ -27,9 +27,8 @@
 <bit-menu #overflowTabsMenu>
   @for (i of sortedTabs().overflow; track i) {
     @let tab = tabLabels()[i];
-    <button
+    <a
       bitMenuItem
-      type="button"
       [routerLink]="tab.disabled ? null : tab.route()"
       [disabled]="tab.disabled"
       [attr.aria-disabled]="tab.disabled || null"
@@ -45,6 +44,6 @@
           <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
         }
       </span>
-    </button>
+    </a>
   }
 </bit-menu>

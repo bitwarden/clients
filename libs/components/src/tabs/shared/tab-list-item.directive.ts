@@ -45,7 +45,7 @@ export class TabListItemDirective implements FocusableOption {
    */
   protected readonly textColorClassList = computed(() => {
     if (this.disabledInput()) {
-      return ["!tw-text-fg-disabled", "hover:!tw-text-fg-disabled"];
+      return ["!tw-text-fg-inactive", "hover:!tw-text-fg-inactive"];
     }
     if (this.active()) {
       return ["!tw-text-fg-brand"];
@@ -78,7 +78,7 @@ export class TabListItemDirective implements FocusableOption {
     "after:tw-opacity-0",
   ];
 
-  readonly disabledClassList: string[] = ["tw-cursor-not-allowed"];
+  readonly disabledClassList: string[] = ["tw-cursor-default"];
 
   readonly activeClassList: string[] = ["tw-font-semibold", "after:tw-opacity-100"];
 }
