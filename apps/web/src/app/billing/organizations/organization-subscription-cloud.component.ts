@@ -65,6 +65,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   showSelfHost = false;
   organizationIsManagedByConsolidatedBillingMSP = false;
   resellerSeatsRemainingMessage: string;
+  isResellerOrganizationOwnerExempt: boolean;
 
   protected readonly gearIcon = GearIcon;
   protected readonly teamsStarter = ProductTierType.TeamsStarter;
@@ -203,6 +204,9 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       this.sub.plan?.SecretsManager?.hasAdditionalSeatsOption &&
       !this.subscription.cancelled &&
       !this.subscriptionMarkedForCancel;
+
+    this.isResellerOrganizationOwnerExempt =
+      this.userOrg.hasReseller && !!this.sub?.exemptFromBillingAutomation;
 
     this.loading = false;
   }
