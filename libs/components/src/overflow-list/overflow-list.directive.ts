@@ -48,7 +48,6 @@ import { pack } from "./pack";
   exportAs: "bitOverflowList",
   host: {
     "[style.gap.px]": "gap()",
-    "[style.overflow]": "'hidden'",
   },
 })
 export class OverflowListDirective {
