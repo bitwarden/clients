@@ -35,6 +35,9 @@ export class SubscriptionStatusComponent {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) organizationSubscriptionResponse: OrganizationSubscriptionResponse;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() hideCallout = false;
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() reinstatementRequested = new EventEmitter<void>();
 
