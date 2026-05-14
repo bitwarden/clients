@@ -3479,6 +3479,7 @@ dependencies = [
  "rand 0.9.3",
  "rkyv",
  "serial_test",
+ "signature",
  "ssh-key",
  "sysinfo",
  "thiserror 2.0.17",

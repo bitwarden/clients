@@ -6,6 +6,7 @@ import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { BankAccountApi } from "../api/bank-account.api";
 import { CardApi } from "../api/card.api";
+import { DriversLicenseApi } from "../api/drivers-license.api";
 import { Fido2CredentialApi } from "../api/fido2-credential.api";
 import { FieldApi } from "../api/field.api";
 import { IdentityApi } from "../api/identity.api";
@@ -31,6 +32,7 @@ export class CipherRequest {
   identity: IdentityApi;
   sshKey: SshKeyApi;
   bankAccount: BankAccountApi;
+  driversLicense: DriversLicenseApi;
   fields: FieldApi[];
   passwordHistory: PasswordHistoryRequest[];
   // Deprecated, remove at some point and rename attachments2 to attachments
@@ -205,6 +207,53 @@ export class CipherRequest {
         this.bankAccount.bankContactPhone =
           cipher.bankAccount.bankContactPhone != null
             ? cipher.bankAccount.bankContactPhone.encryptedString
+            : null;
+        break;
+      case CipherType.DriversLicense:
+        this.driversLicense = new DriversLicenseApi();
+        this.driversLicense.firstName =
+          cipher.driversLicense.firstName != null
+            ? cipher.driversLicense.firstName.encryptedString
+            : null;
+        this.driversLicense.middleName =
+          cipher.driversLicense.middleName != null
+            ? cipher.driversLicense.middleName.encryptedString
+            : null;
+        this.driversLicense.lastName =
+          cipher.driversLicense.lastName != null
+            ? cipher.driversLicense.lastName.encryptedString
+            : null;
+        this.driversLicense.dateOfBirth =
+          cipher.driversLicense.dateOfBirth != null
+            ? cipher.driversLicense.dateOfBirth.encryptedString
+            : null;
+        this.driversLicense.licenseNumber =
+          cipher.driversLicense.licenseNumber != null
+            ? cipher.driversLicense.licenseNumber.encryptedString
+            : null;
+        this.driversLicense.issuingCountry =
+          cipher.driversLicense.issuingCountry != null
+            ? cipher.driversLicense.issuingCountry.encryptedString
+            : null;
+        this.driversLicense.issuingState =
+          cipher.driversLicense.issuingState != null
+            ? cipher.driversLicense.issuingState.encryptedString
+            : null;
+        this.driversLicense.issueDate =
+          cipher.driversLicense.issueDate != null
+            ? cipher.driversLicense.issueDate.encryptedString
+            : null;
+        this.driversLicense.expirationDate =
+          cipher.driversLicense.expirationDate != null
+            ? cipher.driversLicense.expirationDate.encryptedString
+            : null;
+        this.driversLicense.issuingAuthority =
+          cipher.driversLicense.issuingAuthority != null
+            ? cipher.driversLicense.issuingAuthority.encryptedString
+            : null;
+        this.driversLicense.licenseClass =
+          cipher.driversLicense.licenseClass != null
+            ? cipher.driversLicense.licenseClass.encryptedString
             : null;
         break;
       default:
