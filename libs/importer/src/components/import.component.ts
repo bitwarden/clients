@@ -640,7 +640,14 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   protected setImportOptions() {
     this.featuredImportOptions = [...this.importService.featuredImportOptions];
 
-    this.importOptions = [...this.importService.regularImportOptions].sort((a, b) => {
+    // The unified `keeper` entry covers csv/json via the Method dropdown,
+    // so hide the standalone variants from the UI. They remain in the option
+    // list for non-UI consumers (CLI) and for backward compatibility.
+    const visibleRegularOptions = this.importService.regularImportOptions.filter(
+      (o) => o.id !== "keepercsv" && o.id !== "keeperjson",
+    );
+
+    this.importOptions = [...visibleRegularOptions].sort((a, b) => {
       if (a.name == null && b.name != null) {
         return -1;
       }

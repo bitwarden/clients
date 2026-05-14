@@ -24,6 +24,8 @@ export const regularImportOptions = [
   { id: "1passwordmaccsv", name: "1Password 6 and 7 Mac (csv)" },
   { id: "dashlanejson", name: "Dashlane (json)" },
   { id: "roboformcsv", name: "RoboForm (csv)" },
+  { id: "keepercsv", name: "Keeper (csv)" },
+  { id: "keeperjson", name: "Keeper (json)" },
   { id: "enpasscsv", name: "Enpass (csv)" },
   { id: "enpassjson", name: "Enpass (json)" },
   { id: "protonpass", name: "ProtonPass (zip/json)" },
