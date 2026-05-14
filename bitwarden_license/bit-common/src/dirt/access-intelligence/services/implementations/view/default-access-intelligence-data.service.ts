@@ -445,7 +445,6 @@ export class DefaultAccessIntelligenceDataService extends AccessIntelligenceData
       ciphers: from(this.cipherService.getAllFromApiForOrganization(orgId)),
       apiUsers: from(
         this.organizationUserApiService.getAllUsers(orgId, {
-          includeCollections: true,
           includeGroups: true,
         }),
       ),
