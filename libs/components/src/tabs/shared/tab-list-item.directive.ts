@@ -1,6 +1,10 @@
 import { FocusableOption } from "@angular/cdk/a11y";
 import { Directive, ElementRef, computed, inject, input } from "@angular/core";
 
+/** Shared classes for the label content span inside a tab list item. */
+export const TAB_LABEL_CONTENT_CLASSES =
+  "tw-flex tw-items-center tw-gap-1.5 tw-h-6 tw-rounded group-focus-visible/tab-list-item:tw-ring-2 group-focus-visible/tab-list-item:tw-ring-border-focus";
+
 /**
  * Directive used for styling tab header items for both nav links (anchor tags)
  * and content tabs (button tags)
@@ -55,7 +59,6 @@ export class TabListItemDirective implements FocusableOption {
   readonly baseClassList: string[] = [
     "tw-block",
     "tw-relative",
-    "tw-shrink-0",
     "tw-h-full",
     "tw-whitespace-nowrap",
     "tw-pb-3",

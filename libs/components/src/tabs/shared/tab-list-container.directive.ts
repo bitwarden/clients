@@ -9,10 +9,10 @@ export const TAB_LIST_CONTAINER_GAP = 24;
 @Directive({
   selector: "[bitTabListContainer]",
   host: {
-    class: "tw-inline-flex tw-flex-nowrap tw-w-full tw-leading-5",
-    "[style.gap.px]": "gap",
+    // tw-min-w-0 lets this row shrink below its content's intrinsic min-width when it's
+    // a flex item next to siblings (e.g., the More button) — without it, default
+    // `min-width: auto` would pin the row to its largest tab's natural width.
+    class: "tw-inline-flex tw-flex-nowrap tw-w-full tw-min-w-0 tw-leading-5",
   },
 })
-export class TabListContainerDirective {
-  protected readonly gap = TAB_LIST_CONTAINER_GAP;
-}
+export class TabListContainerDirective {}

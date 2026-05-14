@@ -9,6 +9,7 @@ import {
   HostListener,
   Input,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -19,9 +20,9 @@ import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/r
 
 import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
+import { OverflowItemDirective } from "../../overflow-list";
 import type { BitwardenIcon } from "../../shared/icon";
-import { TabListItemDirective } from "../shared/tab-list-item.directive";
-import { TAB_LABEL_CONTENT_CLASSES } from "../shared/tab-utils";
+import { TAB_LABEL_CONTENT_CLASSES, TabListItemDirective } from "../shared/tab-list-item.directive";
 
 import { TabNavBarComponent } from "./tab-nav-bar.component";
 
@@ -29,8 +30,13 @@ import { TabNavBarComponent } from "./tab-nav-bar.component";
   selector: "bit-tab-link",
   templateUrl: "tab-link.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // OverflowItemDirective is registered on the host element so the parent
+  // bitOverflowList can discover this tab-link as one of its items.
+  hostDirectives: [OverflowItemDirective],
   host: {
-    class: "tw-inline-flex tw-items-center",
+    class: "tw-block",
+    "[class]":
+      "overflowItem.shouldShrink() ? 'tw-flex-1 tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'",
   },
   imports: [TabListItemDirective, RouterModule, BerryComponent, IconModule, NgTemplateOutlet],
 })
@@ -38,6 +44,11 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   protected readonly tabLabelContentClasses = TAB_LABEL_CONTENT_CLASSES;
   private readonly destroyRef = inject(DestroyRef);
   readonly elementRef = inject(ElementRef);
+
+  /** The OverflowItemDirective attached via hostDirectives. Public so the parent
+   *  nav-bar can collect items from its `contentChildren(TabLinkComponent)` query
+   *  and forward them to `[bitOverflowList]`. */
+  readonly overflowItem = inject(OverflowItemDirective, { host: true });
 
   readonly tabItem = viewChild.required(TabListItemDirective);
   readonly routerLinkActive = viewChild.required<RouterLinkActive>("rla");
@@ -71,16 +82,18 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   /** Reactive mirror of RouterLinkActive.isActive — used by TabNavBarComponent for overflow computation. */
   readonly isActive = signal(false);
 
-  /** Determines whether to truncate the tab label when this is the active tab and space is constrained. */
-  readonly truncate = signal(false);
-
   @HostListener("keydown", ["$event"]) onKeyDown(event: KeyboardEvent) {
     if (event.code === "Space") {
       this.tabItem().click();
     }
   }
 
-  constructor(private readonly _tabNavBar: TabNavBarComponent) {}
+  constructor(private readonly _tabNavBar: TabNavBarComponent) {
+    // Pin the active tab so the parent list keeps it visible during overflow.
+    effect(() => {
+      this.overflowItem.pinned.set(this.isActive());
+    });
+  }
 
   focus(): void {
     this.tabItem().focus();

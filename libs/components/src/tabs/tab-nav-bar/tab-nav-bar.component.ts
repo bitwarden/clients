@@ -4,13 +4,9 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  ElementRef,
   Injector,
-  afterNextRender,
   computed,
   contentChildren,
-  effect,
   forwardRef,
   inject,
   input,
@@ -24,15 +20,13 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
 import { MenuModule } from "../../menu";
+import { OverflowListDirective } from "../../overflow-list";
 import { TabHeaderComponent } from "../shared/tab-header.component";
-import { TabListContainerDirective } from "../shared/tab-list-container.directive";
-import { TabListItemDirective } from "../shared/tab-list-item.directive";
 import {
-  TAB_LABEL_CONTENT_CLASSES,
-  computeTabOverflow,
-  measureMoreButtonWidth,
-  measureTabWidths,
-} from "../shared/tab-utils";
+  TAB_LIST_CONTAINER_GAP,
+  TabListContainerDirective,
+} from "../shared/tab-list-container.directive";
+import { TAB_LABEL_CONTENT_CLASSES, TabListItemDirective } from "../shared/tab-list-item.directive";
 
 import { TabLinkComponent } from "./tab-link.component";
 
@@ -53,47 +47,23 @@ import { TabLinkComponent } from "./tab-link.component";
     IconModule,
     MenuModule,
     I18nPipe,
+    OverflowListDirective,
   ],
 })
 export class TabNavBarComponent implements AfterViewInit {
   protected readonly tabLabelContentClasses = TAB_LABEL_CONTENT_CLASSES;
+  protected readonly TAB_LIST_CONTAINER_GAP = TAB_LIST_CONTAINER_GAP;
 
   private readonly injector = inject(Injector);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly resizeObserver: ResizeObserver;
 
-  private readonly tabHeader = viewChild.required(TabHeaderComponent, { read: ElementRef });
-  private readonly moreButton = viewChild.required<ElementRef>("moreButton");
   private readonly moreButtonItem = viewChild.required("moreButton", {
     read: TabListItemDirective,
   });
 
   readonly tabLabels = contentChildren(forwardRef(() => TabLinkComponent));
+  /** Map projected tab-links to their host OverflowItemDirective for the parent list. */
+  protected readonly overflowItems = computed(() => this.tabLabels().map((t) => t.overflowItem));
   readonly label = input("");
-
-  private readonly tabHeaderWidth = signal(0);
-
-  /** Cached tab widths measured before any hiding, keyed by index. */
-  private readonly tabWidths = signal<number[]>([]);
-
-  /** Cached More button width measured before any hiding. */
-  private readonly moreButtonWidth = signal(0);
-
-  /** Whether the tab list has been rendered. Used to hide or display tab list container, preventing layout shifts. */
-  protected readonly tabListRendered = signal(false);
-
-  /** Determines which tabs are displayed and which overflow into the "More" menu. */
-  protected readonly sortedTabs = computed(() => {
-    const activeIndex = this.tabLabels().findIndex((t) => t.isActive());
-    return computeTabOverflow(
-      this.tabLabels().length,
-      this.tabListRendered(),
-      this.tabWidths(),
-      this.tabHeaderWidth(),
-      this.moreButtonWidth(),
-      activeIndex === -1 ? 0 : activeIndex,
-    );
-  });
 
   /**
    * Focus key manager for keeping tab controls accessible.
@@ -108,44 +78,19 @@ export class TabNavBarComponent implements AfterViewInit {
     FocusKeyManager<TabLinkComponent | TabListItemDirective> | undefined
   >(undefined);
 
-  constructor() {
-    this.resizeObserver = new ResizeObserver((entries) =>
-      this.tabHeaderWidth.set(entries[0].contentBoxSize[0].inlineSize),
-    );
-
-    afterNextRender(() => {
-      // Measure tab widths and more button width after fonts have loaded to ensure accurate measurements
-      void document.fonts.ready.then(() => {
-        this.moreButtonWidth.set(measureMoreButtonWidth(this.moreButton().nativeElement));
-        this.tabWidths.set(
-          measureTabWidths(this.tabLabels().map((tab) => tab.elementRef.nativeElement)),
-        );
-        this.tabListRendered.set(true);
-      });
-      this.resizeObserver.observe(this.tabHeader().nativeElement);
-      this.destroyRef.onDestroy(() => this.resizeObserver.disconnect());
-    });
-
-    // Hide/show tab link host elements based on overflow computation
-    effect(() => {
-      const { displayed, truncateTabIndex } = this.sortedTabs();
-      const displayedSet = new Set(displayed);
-      this.tabLabels().forEach((tab, i) => {
-        tab.elementRef.nativeElement.hidden = !displayedSet.has(i);
-        const shouldTruncate = i === truncateTabIndex;
-        tab.truncate.set(shouldTruncate);
-        tab.elementRef.nativeElement.classList.toggle("tw-flex-1", shouldTruncate);
-        tab.elementRef.nativeElement.classList.toggle("tw-overflow-hidden", shouldTruncate);
-      });
-    });
-  }
-
   ngAfterViewInit(): void {
     const km = new FocusKeyManager(this.allTabItems, this.injector)
       .withHorizontalOrientation("ltr")
       .withWrap()
       .withHomeAndEnd()
-      .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden);
+      // Skip disabled items, items the overflow directive hid via [hidden], and the
+      // visibility-hidden More button (aria-hidden="true" while no overflow exists).
+      .skipPredicate(
+        (item) =>
+          item.disabled ||
+          item.elementRef.nativeElement.hidden ||
+          item.elementRef.nativeElement.getAttribute("aria-hidden") === "true",
+      );
 
     this.keyManager.set(km);
   }
