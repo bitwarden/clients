@@ -31,6 +31,7 @@ export class TabComponent implements OnInit {
   readonly disabled = input(false);
   readonly textLabel = input("", { alias: "label" });
   readonly berryValue = input<number>();
+  readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
 
   /**

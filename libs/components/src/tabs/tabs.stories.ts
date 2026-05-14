@@ -117,10 +117,7 @@ export const ContentTabs: Story = {
         <bit-tab label="Second Tab">
           Second Tab Content
         </bit-tab>
-        <bit-tab>
-          <ng-template bitTabLabel>
-            <bit-icon name="bwi-check-circle" /> Third Tab
-          </ng-template>
+        <bit-tab label="Third Tab" startIcon="bwi-check-circle">
           Third Tab Content
         </bit-tab>
         <bit-tab [disabled]="true" label="Disabled Tab">
@@ -157,10 +154,7 @@ export const OverflowNavigationTabs: Story = {
     props: args,
     template: `
       <bit-tab-nav-bar label="Main">
-        <bit-tab-link [route]="['active']" [berryValue]="3" [endIcon]="'bwi-check-circle'">
-          <ng-template bitTabLabel>
-            <bit-icon name="bwi-check-circle" /> Active Long Named Tab
-          </ng-template>
+        <bit-tab-link [route]="['active']" label="Active Long Named Tab" startIcon="bwi-check-circle" [berryValue]="3" [endIcon]="'bwi-check-circle'">
         </bit-tab-link>
         <bit-tab-link label="Item 2 Long Named Tab" [route]="['item-2']">Item 2 Long Named Tab</bit-tab-link>
         <bit-tab-link label="Item 3 Long Named Tab" [route]="['item-3']">Item 3 Long Named Tab</bit-tab-link>
@@ -229,19 +223,13 @@ export const TabsWithIcons: Story = {
     props: args,
     template: `
       <bit-tab-group label="Tabs With Icons" class="tw-text-main">
-        <bit-tab label="First Tab">
-          <ng-template bitTabLabel>
-            <bit-icon name="bwi-check-circle" /> First Tab Content
-          </ng-template>
+        <bit-tab startIcon="bwi-check-circle" label="First Tab Content">
           First Tab Content
         </bit-tab>
         <bit-tab label="Second Tab" [berryValue]="2" [endIcon]="'bwi-check-circle'">
           Second Tab Content
         </bit-tab>
-        <bit-tab label="Third Tab" [berryValue]="3" [endIcon]="'bwi-check-circle'">
-          <ng-template bitTabLabel>
-            <bit-icon name="bwi-check-circle" /> Third Tab Content
-          </ng-template>
+        <bit-tab startIcon="bwi-check-circle" label="Third Tab Content" [berryValue]="3" [endIcon]="'bwi-check-circle'">
           Third Tab Content
         </bit-tab>
       </bit-tab-group>
