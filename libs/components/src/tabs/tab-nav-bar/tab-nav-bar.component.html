@@ -38,7 +38,7 @@
       @if (tab.startIcon()) {
         <bit-icon slot="start" [name]="tab.startIcon()" class="tw-text-base" />
       }
-      {{ tab.label() }}
+      {{ tab.displayText() }}
       <div slot="end" class="empty:tw-hidden tw-flex tw-items-center tw-gap-1">
         @if (tab.berryValue()) {
           <bit-berry [value]="tab.berryValue()" />

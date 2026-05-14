@@ -156,7 +156,7 @@ export const OverflowNavigationTabs: Story = {
       <bit-tab-nav-bar label="Main">
         <bit-tab-link [route]="['active']" label="Active Long Named Tab" startIcon="bwi-check-circle" [berryValue]="3" [endIcon]="'bwi-check-circle'">
         </bit-tab-link>
-        <bit-tab-link label="Item 2 Long Named Tab" [route]="['item-2']">Item 2 Long Named Tab</bit-tab-link>
+        <bit-tab-link [route]="['item-2']">Item 2 Long Named Tab</bit-tab-link>
         <bit-tab-link label="Item 3 Long Named Tab" [route]="['item-3']">Item 3 Long Named Tab</bit-tab-link>
         <bit-tab-link label="Item With Counter Long Named Tab" startIcon="bwi-check-circle" [berryValue]="3" endIcon="bwi-check-circle" [route]="['item-with-child-counter']">Item With Counter Long Named Tab</bit-tab-link>
         <bit-tab-link label="Disabled Long Named Tab" [route]="['disable']" [disabled]="true">Disabled Long Named Tab</bit-tab-link>

@@ -1,5 +1,3 @@
-@let labelContent = label();
-
 <a
   bitTabListItem
   [routerLink]="disabled ? null : route()"
@@ -20,8 +18,8 @@
       <bit-icon [name]="startIcon()" class="tw-text-base" />
     }
     <span #labelText [class]="truncate() ? 'tw-min-w-0 tw-truncate' : ''">
-      @if (labelContent) {
-        {{ labelContent }}
+      @if (label()) {
+        {{ label() }}
       } @else {
         <ng-content></ng-content>
       }
