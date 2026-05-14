@@ -8,7 +8,7 @@ import {
   output,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   ControlContainer,
   FormBuilder,
@@ -92,7 +92,10 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
         this.directSupported ? "direct" : "csv",
         { updateOn: "change" },
       ),
-      email: ["", [Validators.email]],
+      email: this.formBuilder.control({ value: "", disabled: !this.directSupported }, [
+        Validators.required,
+        Validators.email,
+      ]),
       region: [KeeperRegion.Us],
     },
     {
@@ -103,6 +106,19 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
   protected readonly method = toSignal(this.formGroup.controls.method.valueChanges, {
     initialValue: this.formGroup.controls.method.value as KeeperImportMethod,
   });
+
+  // Email is only relevant in direct mode. Disabling the control in csv/json
+  // mode keeps it out of the form's value and validity calculation.
+  private readonly toggleEmailEnabled = this.formGroup.controls.method.valueChanges
+    .pipe(takeUntilDestroyed())
+    .subscribe((method) => {
+      const email = this.formGroup.controls.email;
+      if (method === "direct") {
+        email.enable();
+      } else {
+        email.disable();
+      }
+    });
 
   private readonly importing = signal(false);
   protected readonly emailHint = computed(() =>
@@ -151,6 +167,7 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
           message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
         },
       });
+      email.markAsTouched();
     } finally {
       this.importing.set(false);
     }
