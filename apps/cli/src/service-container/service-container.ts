@@ -726,6 +726,7 @@ export class ServiceContainer {
       this.platformUtilsService,
       this.stateService,
       this.biometricStateService,
+      this.v2UpgradeTokenStateService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(

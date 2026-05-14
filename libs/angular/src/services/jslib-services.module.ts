@@ -986,6 +986,7 @@ const safeProviders: SafeProvider[] = [
       PlatformUtilsServiceAbstraction,
       StateServiceAbstraction,
       BiometricStateService,
+      V2UpgradeTokenStateService,
     ],
   }),
   safeProvider({
