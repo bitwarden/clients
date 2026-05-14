@@ -9,7 +9,10 @@ export const TAB_LIST_CONTAINER_GAP = 24;
 @Directive({
   selector: "[bitTabListContainer]",
   host: {
-    class: "tw-inline-flex tw-flex-nowrap tw-w-full tw-leading-5 tw-gap-6", // Ensure that `tw-gap-` class and `TAB_LIST_CONTAINER_GAP` value are equivalent
+    class: "tw-inline-flex tw-flex-nowrap tw-w-full tw-leading-5",
+    "[style.gap.px]": "gap",
   },
 })
-export class TabListContainerDirective {}
+export class TabListContainerDirective {
+  protected readonly gap = TAB_LIST_CONTAINER_GAP;
+}
