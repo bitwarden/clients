@@ -324,7 +324,7 @@ describe("CollectAutofillContentService", () => {
           __form__0: {
             opid: "__form__0",
             htmlAction: formAction,
-            htmlClass: null,
+            htmlClass: "",
             htmlName: formName,
             htmlID: formId,
             htmlMethod: formMethod,
@@ -552,7 +552,7 @@ describe("CollectAutofillContentService", () => {
         __form__0: {
           opid: "__form__0",
           htmlAction: formAction1,
-          htmlClass: null,
+          htmlClass: "",
           htmlName: formName1,
           htmlID: formId1,
           htmlMethod: formMethod1,
@@ -560,7 +560,7 @@ describe("CollectAutofillContentService", () => {
         __form__1: {
           opid: "__form__1",
           htmlAction: formAction2,
-          htmlClass: null,
+          htmlClass: "",
           htmlName: formName2,
           htmlID: formId2,
           htmlMethod: formMethod2,
@@ -2825,7 +2825,9 @@ describe("CollectAutofillContentService", () => {
       "id",
       "type",
       "autocomplete",
-      "class",
+      // Note: "class" is intentionally excluded from the mutation observer attribute filter
+      // to avoid callback storms on dynamic pages. htmlClass is refreshed on the next full
+      // page-detail collection instead.
       "tabindex",
       "title",
       "rel",
@@ -3076,7 +3078,7 @@ describe("CollectAutofillContentService", () => {
       };
 
       collectAutofillContentService["mutationsQueue"] = [[mutationRecord], [mutationRecord]];
-      jest.spyOn(collectAutofillContentService as any, "processMutationRecords");
+      jest.spyOn(collectAutofillContentService as any, "processMutationRecord");
 
       collectAutofillContentService["processMutations"]();
 
