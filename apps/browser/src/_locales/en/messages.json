@@ -6469,12 +6469,6 @@
   "bankAccountTypeOther": {
     "message": "Other"
   },
-  "newBankAccountNudgeTitle": {
-    "message": "Securely store your bank details"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Save your bank account information to access it easily and securely across your devices."
-  },
   "downloadFailed": {
     "message": "Failed to download."
   },
