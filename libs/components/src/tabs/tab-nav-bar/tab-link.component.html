@@ -16,6 +16,9 @@
   [class.tw-overflow-hidden]="truncate()"
 >
   <span [class]="tabLabelContentClasses">
+    @if (startIcon()) {
+      <bit-icon [name]="startIcon()" class="tw-text-base" />
+    }
     <span #labelText [class]="truncate() ? 'tw-min-w-0 tw-truncate' : ''">
       @if (labelContent) {
         {{ labelContent }}
