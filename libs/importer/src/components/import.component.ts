@@ -215,6 +215,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   private bitSubmit: BitSubmitDirective;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @ViewChild(ImportKeeperComponent)
+  private importKeeper?: ImportKeeperComponent;
+
+  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
   formLoading = new EventEmitter<boolean>();
@@ -507,10 +512,11 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
 
-    // Keeper direct method handles its own import via the importCompleted
-    // event, bypassing the file-based flow. Csv/Json fall through to the
-    // conventional performImport() with an effective format of keepercsv/keeperjson.
+    // Keeper direct method runs its own login/import flow and emits the result
+    // via importCompleted. Csv/Json fall through to performImport() with an
+    // effective format of keepercsv/keeperjson.
     if (this.isKeeperFormat && this.keeperMethod === "direct") {
+      await this.importKeeper?.submitDirect();
       return;
     }
 

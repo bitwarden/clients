@@ -3,20 +3,19 @@ import {
   Component,
   OnDestroy,
   OnInit,
+  computed,
   inject,
   output,
   signal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import {
-  AsyncValidatorFn,
   ControlContainer,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from "@angular/forms";
-import { map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ClientType } from "@bitwarden/common/enums";
@@ -87,22 +86,12 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
 
   protected readonly formGroup = this.formBuilder.group(
     {
-      // Method must update on change so the template can react before submit;
-      // the email validator runs on submit only.
+      // Method must update on change so the template can react before submit.
       method: this.formBuilder.nonNullable.control<KeeperImportMethod>(
         this.directSupported ? "direct" : "csv",
         { updateOn: "change" },
       ),
-      // The async validator is attached to the email control (not the group)
-      // so its errors render in the email's <bit-form-field> via <bit-error>.
-      // Csv/Json no-op the validator and go through the parent's file path.
-      email: [
-        "",
-        {
-          validators: [Validators.email],
-          asyncValidators: [this.validateAndEmitDirect()],
-        },
-      ],
+      email: ["", [Validators.email]],
       region: [KeeperRegion.Us],
     },
     {
@@ -114,16 +103,9 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
     initialValue: this.formGroup.controls.method.value as KeeperImportMethod,
   });
 
-  protected readonly emailHint = toSignal(
-    this.formGroup.controls.email.statusChanges.pipe(
-      map((status) => {
-        if (status === "PENDING") {
-          return this.i18nService.t("importingYourAccount");
-        }
-        return this.i18nService.t("keeperEmailHint");
-      }),
-    ),
-    { initialValue: this.i18nService.t("keeperEmailHint") },
+  private readonly importing = signal(false);
+  protected readonly emailHint = computed(() =>
+    this.i18nService.t(this.importing() ? "importingYourAccount" : "keeperEmailHint"),
   );
 
   readonly importCompleted = output<ImportResult>();
@@ -138,32 +120,38 @@ export class ImportKeeperComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * On submit in direct mode, logs into Keeper and emits the result. In
-   * csv/json mode this validator no-ops; the parent's performImport handles
-   * the file content via the conventional path.
+   * Logs into Keeper and emits the result. The parent invokes this from its
+   * submit handler when the direct method is selected; csv/json fall through
+   * to the parent's file-based path.
    */
-  private validateAndEmitDirect(): AsyncValidatorFn {
-    return async () => {
-      if (this.formGroup.controls.method.value !== "direct") {
-        return null;
-      }
+  async submitDirect(): Promise<void> {
+    if (this.formGroup.controls.method.value !== "direct") {
+      return;
+    }
 
-      try {
-        const importResult = await this.keeperDirectImportService.handleImport(
-          this.formGroup.controls.email.value!,
-          this.formGroup.controls.region.value as KeeperRegion,
-        );
-        this.importCompleted.emit(importResult);
-        return null;
-      } catch (error) {
-        this.logService.error(`Keeper importer error: ${error}`);
-        return {
-          errors: {
-            message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
-          },
-        };
-      }
-    };
+    const email = this.formGroup.controls.email;
+    if (email.invalid) {
+      return;
+    }
+
+    this.importing.set(true);
+    email.setErrors(null);
+    try {
+      const importResult = await this.keeperDirectImportService.handleImport(
+        email.value!,
+        this.formGroup.controls.region.value as KeeperRegion,
+      );
+      this.importCompleted.emit(importResult);
+    } catch (error) {
+      this.logService.error(`Keeper importer error: ${error}`);
+      email.setErrors({
+        errors: {
+          message: this.i18nService.t(this.getValidationErrorI18nKey(error)),
+        },
+      });
+    } finally {
+      this.importing.set(false);
+    }
   }
 
   private getValidationErrorI18nKey(error: unknown): string {
