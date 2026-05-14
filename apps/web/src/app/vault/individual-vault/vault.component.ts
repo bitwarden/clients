@@ -57,6 +57,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { cipherToSendTextView } from "@bitwarden/common/tools/send/cipher-to-send-text";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId, CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -77,6 +79,11 @@ import {
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
+import {
+  DefaultSendFormConfigService,
+  SendAddEditDialogComponent,
+  SendFormConfigService,
+} from "@bitwarden/send-ui";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -163,6 +170,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     RoutedVaultFilterService,
     RoutedVaultFilterBridgeService,
     DefaultCipherFormConfigService,
+    { provide: SendFormConfigService, useClass: DefaultSendFormConfigService },
     WebVaultPromptService,
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
   ],
@@ -323,6 +331,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     private policyService: PolicyService,
     private premiumUpgradePromptService: PremiumUpgradePromptService,
     private webVaultPromptService: WebVaultPromptService,
+    private sendFormConfigService: SendFormConfigService,
   ) {}
 
   async ngOnInit() {
@@ -638,6 +647,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           break;
         case "clone":
           await this.cloneCipher(event.item);
+          break;
+        case "shareViaSend":
+          await this.shareCipherViaSend(event.item);
           break;
         case "restore":
           if (event.items.length === 1) {
@@ -1278,6 +1290,46 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     }
 
     await this.editCipher(cipher, true);
+  }
+
+  async shareCipherViaSend(cipher: CipherView | CipherListView) {
+    if (
+      cipher.reprompt !== CipherRepromptType.None &&
+      !(await this.passwordRepromptService.showPasswordPrompt())
+    ) {
+      return;
+    }
+
+    const fullView = await this.getFullCipherView(cipher);
+    if (fullView == null) {
+      return;
+    }
+
+    const config = await this.sendFormConfigService.buildConfig("add", undefined, SendType.Text);
+    if (!config.areSendsAllowed) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("sendDisabled"),
+      });
+      return;
+    }
+    config.initialView = cipherToSendTextView(fullView);
+
+    SendAddEditDialogComponent.open(this.dialogService, { formConfig: config });
+  }
+
+  private async getFullCipherView(
+    cipher: CipherView | CipherListView,
+  ): Promise<CipherView | undefined> {
+    if (!CipherViewLikeUtils.isCipherListView(cipher)) {
+      return cipher;
+    }
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const encrypted = await this.cipherService.get(uuidAsString(cipher.id), activeUserId);
+    if (encrypted == null) {
+      return undefined;
+    }
+    return this.cipherService.decrypt(encrypted, activeUserId);
   }
 
   restore = async (c: CipherViewLike) => {

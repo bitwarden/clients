@@ -58,6 +58,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
+import { cipherToSendTextView } from "@bitwarden/common/tools/send/cipher-to-send-text";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId, OrganizationId, UserId, CollectionId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -76,6 +78,11 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { DialogRef, DialogService, ToastService, SearchModule } from "@bitwarden/components";
+import {
+  DefaultSendFormConfigService,
+  SendAddEditDialogComponent,
+  SendFormConfigService,
+} from "@bitwarden/send-ui";
 import {
   AddEditFolderDialogComponent,
   AddEditFolderDialogResult,
@@ -140,6 +147,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
     { provide: CipherFormConfigService, useClass: DefaultCipherFormConfigService },
+    { provide: SendFormConfigService, useClass: DefaultSendFormConfigService },
   ],
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
@@ -177,6 +185,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
+  private sendFormConfigService = inject(SendFormConfigService);
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
   protected activeFilter: VaultFilter = new VaultFilter();
@@ -503,6 +512,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         await this.cloneCipher(cipher);
         break;
       }
+      case "shareViaSend": {
+        const cipher = await this.cipherService.getFullCipherView(event.item);
+        await this.shareCipherViaSend(cipher);
+        break;
+      }
       case "restore": {
         const cipher = await this.cipherService.getFullCipherView(event.items[0]);
         await this.handleRestoreEvent(cipher);
@@ -612,6 +626,27 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       cipher.type,
     );
     await this.openDialog("form", formConfig);
+  }
+
+  async shareCipherViaSend(cipher: CipherView) {
+    if (cipher == null) {
+      return;
+    }
+    if (await this.shouldReprompt(cipher)) {
+      return;
+    }
+
+    const config = await this.sendFormConfigService.buildConfig("add", undefined, SendType.Text);
+    if (!config.areSendsAllowed) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("sendDisabled"),
+      });
+      return;
+    }
+    config.initialView = cipherToSendTextView(cipher);
+
+    await SendAddEditDialogComponent.openDrawer(this.dialogService, { formConfig: config });
   }
 
   async shareCipher(cipher: CipherView) {

@@ -49,6 +49,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { MessageListener } from "@bitwarden/messaging";
+import { SendFormConfigService } from "@bitwarden/send-ui";
 import {
   DefaultCipherFormConfigService,
   PasswordRepromptService,
@@ -291,6 +292,10 @@ describe("VaultComponent", () => {
             {
               provide: VaultItemsTransferService,
               useValue: mock<VaultItemsTransferService>(),
+            },
+            {
+              provide: SendFormConfigService,
+              useValue: { buildConfig: jest.fn() },
             },
           ],
         },

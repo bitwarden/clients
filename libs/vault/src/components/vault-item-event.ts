@@ -12,4 +12,5 @@ export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "archive"; items: C[] }
   | { type: "unarchive"; items: C[] }
   | { type: "toggleFavorite"; item: C }
-  | { type: "editCipher"; item: C };
+  | { type: "editCipher"; item: C }
+  | { type: "shareViaSend"; item: C };

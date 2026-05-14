@@ -246,6 +246,24 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     this.onEvent.emit({ type: "clone", item: this.cipher() });
   }
 
+  protected readonly showShareViaSend = computed(() => {
+    const cipher = this.cipher();
+    if (this.isDeleted() || CipherViewLikeUtils.isArchived(cipher)) {
+      return false;
+    }
+    if (CipherViewLikeUtils.getType(cipher) !== CipherType.Login) {
+      return false;
+    }
+    return (
+      CipherViewLikeUtils.hasCopyableValue(cipher, "username") ||
+      CipherViewLikeUtils.hasCopyableValue(cipher, "password")
+    );
+  });
+
+  protected shareViaSend() {
+    this.onEvent.emit({ type: "shareViaSend", item: this.cipher() });
+  }
+
   protected events() {
     this.onEvent.emit({ type: "viewEvents", item: this.cipher() });
   }
