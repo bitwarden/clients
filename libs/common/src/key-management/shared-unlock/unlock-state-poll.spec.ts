@@ -1,7 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
- 
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
@@ -58,7 +57,7 @@ describe("UnlockEventPoller", () => {
 
   it("does not re-fire on subsequent polls while the account stays unlocked", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.userKey$.mockReturnValueOnce(of(keyA));
+    keyService.userKey$.mockReturnValue(of(keyA));
 
     for (let i = 0; i < 6; i++) {
       await poller.poll();
@@ -97,7 +96,7 @@ describe("UnlockEventPoller", () => {
 
   it("does not fire when an account is locked from the start and stays locked", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.userKey$.mockReturnValueOnce(of(null));
+    keyService.userKey$.mockReturnValue(of(null));
 
     for (let i = 0; i < 10; i++) {
       await poller.poll();
@@ -124,7 +123,7 @@ describe("UnlockEventPoller", () => {
 
   it("clears internal tracking for accounts that disappear from accounts$", async () => {
     accounts$.next({ [userA]: accountInfo });
-    keyService.userKey$.mockReturnValueOnce(of(keyA));
+    keyService.userKey$.mockReturnValue(of(keyA));
 
     await poller.poll();
     expect(onUnlock).toHaveBeenCalledTimes(1);

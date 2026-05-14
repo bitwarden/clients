@@ -9,6 +9,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 
 /**
  * A poller that checks for all users whether they have transitioned from a locked state to an unlocked state.
+ * Note: This is a temporary solution and will be removed as soon as unlock service is rolled out fully.
  */
 export class UnlockEventPoller {
   private previousUserKeys = new Map<UserId, SymmetricCryptoKey | null>();
