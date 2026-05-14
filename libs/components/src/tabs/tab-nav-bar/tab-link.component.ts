@@ -4,7 +4,6 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  contentChild,
   DestroyRef,
   ElementRef,
   HostListener,
@@ -21,7 +20,6 @@ import { IsActiveMatchOptions, RouterLinkActive, RouterModule } from "@angular/r
 import { BerryComponent } from "../../berry";
 import { IconModule } from "../../icon";
 import type { BitwardenIcon } from "../../shared/icon";
-import { TabLabelDirective } from "../shared/tab-label.directive";
 import { TabListItemDirective } from "../shared/tab-list-item.directive";
 import { TAB_LABEL_CONTENT_CLASSES } from "../shared/tab-utils";
 
@@ -62,8 +60,6 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
   readonly berryValue = input<number>();
   readonly startIcon = input<BitwardenIcon>();
   readonly endIcon = input<BitwardenIcon>();
-
-  readonly templateLabel = contentChild(TabLabelDirective);
 
   // TODO: Skipped for signal migration because:
   //  This input overrides a field from a superclass, while the superclass field

@@ -4,11 +4,7 @@
       <bit-icon [name]="tab.startIcon()" class="tw-text-base" />
     }
     <span [class]="truncate ? 'tw-min-w-0 tw-truncate' : ''">
-      @if (tab.templateLabel()) {
-        <ng-container [ngTemplateOutlet]="tab.templateLabel()!.templateRef"></ng-container>
-      } @else {
-        {{ tab.textLabel() }}
-      }
+      {{ tab.textLabel() }}
     </span>
     @if (tab.berryValue()) {
       <bit-berry [value]="tab.berryValue()" />

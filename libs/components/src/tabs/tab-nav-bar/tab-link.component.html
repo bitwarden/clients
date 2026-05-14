@@ -1,3 +1,5 @@
+@let labelContent = label();
+
 <a
   bitTabListItem
   [routerLink]="disabled ? null : route()"
@@ -15,8 +17,8 @@
 >
   <span [class]="tabLabelContentClasses">
     <span #labelText [class]="truncate() ? 'tw-min-w-0 tw-truncate' : ''">
-      @if (templateLabel()) {
-        <ng-container [ngTemplateOutlet]="templateLabel()!.templateRef"></ng-container>
+      @if (labelContent) {
+        {{ labelContent }}
       } @else {
         <ng-content></ng-content>
       }
