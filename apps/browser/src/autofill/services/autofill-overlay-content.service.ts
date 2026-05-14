@@ -1020,10 +1020,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
 
     // Some TOTP forms (e.g. Stripe's CodePuncher) use a single hidden input that shrinks
-    // to single-digit-box width at focus time and physically moves to follow the active
-    // digit. Detect this by checking width <= height (normal inputs are always much wider
-    // than tall), then walk up to find the container spanning all digit boxes so the badge
-    // is positioned at the right edge of the full form rather than on the first digit.
+    // to single-digit-box width at focus time and repositions to follow the active digit.
+    // Detect this by checking width <= height (normal inputs are always much wider than
+    // tall), then walk up to find the container spanning all digit boxes so the inline
+    // menu list is aligned to the full form width and the badge is positioned above the
+    // right edge of the form rather than overlapping the first digit.
+    let isCursorFollowerTotp = false;
     if (
       autofillFieldData &&
       this.inlineMenuFieldQualificationService.isTotpField(autofillFieldData) &&
@@ -1033,6 +1035,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       if (containerRect) {
         left = containerRect.left;
         width = containerRect.width;
+        isCursorFollowerTotp = true;
       }
     }
 
@@ -1044,6 +1047,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
       focusedFieldForm: autofillFieldData?.form ?? undefined,
       focusedFieldOpid: autofillFieldData?.opid,
+      isCursorFollowerTotp,
     };
 
     const allFields = this.formFieldElements;
