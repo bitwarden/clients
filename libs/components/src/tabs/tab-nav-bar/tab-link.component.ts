@@ -80,10 +80,6 @@ export class TabLinkComponent implements FocusableOption, AfterViewInit {
     }
   }
 
-  get active() {
-    return this.isActive();
-  }
-
   constructor(private readonly _tabNavBar: TabNavBarComponent) {}
 
   focus(): void {

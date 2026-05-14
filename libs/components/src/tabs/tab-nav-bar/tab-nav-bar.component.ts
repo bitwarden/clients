@@ -154,7 +154,7 @@ export class TabNavBarComponent implements AfterViewInit {
     // Keep the keyManager in sync with active tabs
     const items = this.tabLabels();
     for (let i = 0; i < items.length; i++) {
-      if (items[i].active) {
+      if (items[i].isActive()) {
         this.keyManager()?.updateActiveItem(i);
       }
     }
