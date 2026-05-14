@@ -53,6 +53,7 @@ export class Policy extends Domain {
     policy.type = obj.type as PolicyType;
     policy.data = obj.data == null ? null : JSON.parse(obj.data);
     policy.enabled = obj.enabled;
+    policy.revisionDate = obj.revision_date == null ? undefined : new Date(obj.revision_date);
     return policy;
   }
 
@@ -63,6 +64,7 @@ export class Policy extends Domain {
       type: this.type as number,
       data: this.data == null ? undefined : JSON.stringify(this.data),
       enabled: this.enabled,
+      revision_date: this.revisionDate == null ? undefined : this.revisionDate.toISOString(),
     };
   }
 }

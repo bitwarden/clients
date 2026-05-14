@@ -86,6 +86,7 @@ describe("DefaultNewPolicyService", () => {
       organizationService.organizations$.calledWith(userId).mockReturnValue(of(confirmed));
       organizationService.acceptedOrganizations$.calledWith(userId).mockReturnValue(of(accepted));
 
+      const revisionDate = new Date("2026-01-15T12:00:00.000Z");
       const filterByType = jest.fn().mockReturnValue([
         {
           id: policyId1,
@@ -93,6 +94,7 @@ describe("DefaultNewPolicyService", () => {
           type: PolicyType.MaximumVaultTimeout as number,
           data: JSON.stringify({ minutes: 30 }),
           enabled: true,
+          revision_date: revisionDate.toISOString(),
         },
       ]);
       sdkService.client.policies.mockReturnValue({ filter_by_type: filterByType } as any);
@@ -115,6 +117,7 @@ describe("DefaultNewPolicyService", () => {
         type: PolicyType.MaximumVaultTimeout,
         data: { minutes: 30 },
         enabled: true,
+        revisionDate,
       });
     });
 
@@ -151,6 +154,7 @@ describe("DefaultNewPolicyService", () => {
             type: PolicyType.DisableSend as number,
             data: undefined,
             enabled: true,
+            revision_date: new Date().toISOString(),
           },
         ]),
       } as any);
