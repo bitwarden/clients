@@ -915,6 +915,60 @@ describe("CartSummaryComponent", () => {
   });
 });
 
+describe("CartSummaryComponent - Non-Latin locale (double-translation regression)", () => {
+  let fixture: ComponentFixture<CartSummaryComponent>;
+
+  const annualCart: Cart = {
+    passwordManager: {
+      seats: { quantity: 1, translationKey: "members", cost: 10 },
+    },
+    cadence: "annually",
+    estimatedTax: 0,
+  };
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [CartSummaryComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: {
+            t: (key: string) => {
+              // Simulate zh_CN: keys differ from their translations
+              const map: Record<string, string> = {
+                year: "年",
+                month: "月",
+                total: "总计",
+                members: "成员",
+                estimatedTax: "预估税",
+                expandPurchaseDetails: "展开购买详情",
+                collapsePurchaseDetails: "收起购买详情",
+              };
+              return map[key] ?? "";
+            },
+          },
+        },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(CartSummaryComponent);
+    fixture.componentRef.setInput("cart", annualCart);
+    fixture.detectChanges();
+  });
+
+  it("renders the localized term once (no double-translation) in the header span", () => {
+    const allSpans = fixture.debugElement.queryAll(By.css("span.tw-text-muted"));
+    const termSpan = allSpans.find((s) => s.nativeElement.textContent.includes("/"));
+    expect(termSpan).toBeTruthy();
+    expect(termSpan!.nativeElement.textContent.trim()).toBe("/ 年");
+  });
+
+  it("renders the localized term once (no double-translation) in the final-total section", () => {
+    const finalTotal = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+    expect(finalTotal.nativeElement.textContent).toMatch(/\/\s*年/);
+  });
+});
+
 describe("CartSummaryComponent - Custom Header Template", () => {
   @Component({
     template: `
