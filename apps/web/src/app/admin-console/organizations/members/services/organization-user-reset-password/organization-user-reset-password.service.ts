@@ -137,8 +137,9 @@ export class OrganizationUserResetPasswordService implements UserKeyRotationKeyR
       // that don't yet return MasterPasswordSalt in the account-recovery details response.
       // TODO: PM-32059 — When salt is disconnected from email (Stage 3) we will no longer fall back to email.
       const salt: MasterPasswordSalt =
-        (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt | undefined) ??
-        this.masterPasswordService.emailToSalt(email);
+        typeof resetPasswordDetails.masterPasswordSalt === "string"
+          ? (resetPasswordDetails.masterPasswordSalt as MasterPasswordSalt)
+          : this.masterPasswordService.emailToSalt(email);
 
       ({ newMasterPasswordHash, key } = await this.buildResetPasswordRequest(
         newMasterPassword,
