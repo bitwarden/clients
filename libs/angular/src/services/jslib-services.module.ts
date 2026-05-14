@@ -1325,6 +1325,7 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       OrganizationInviteLinkApiService,
       StateProvider,
+      EnvironmentService,
     ],
   }),
   safeProvider({

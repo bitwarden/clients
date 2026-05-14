@@ -42,7 +42,7 @@ describe("AddItemGridComponent", () => {
     fixture.detectChanges();
   }
 
-  it("renders all 5 cipher types when unrestricted and canCreateSshKey=true", () => {
+  it("renders all cipher types when unrestricted and canCreateSshKey=true", () => {
     createComponent({
       canCreateFolder: false,
       canCreateCollection: false,
@@ -50,13 +50,14 @@ describe("AddItemGridComponent", () => {
     });
 
     const items = component["items"]();
-    expect(items.length).toBe(6);
+    expect(items.length).toBe(7);
     expect(items.map((i) => i.labelKey)).toEqual(
       expect.arrayContaining([
         "typeLogin",
         "typeCard",
         "typeBankAccount",
         "typeIdentity",
+        "typeDriversLicense",
         "typeNote",
         "typeSshKey",
       ]),
