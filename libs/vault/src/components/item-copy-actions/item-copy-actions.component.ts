@@ -130,14 +130,10 @@ export class VaultItemCopyActionsComponent {
 
   get singleCopyablePassport(): CipherItem | null {
     const passportItems: CipherItem[] = [
+      { key: "givenName", field: "givenName" },
+      { key: "surname", field: "surname" },
       { key: "passportNumber", field: "passportNumber" },
       { key: "nationalIdentificationNumber", field: "nationalIdentificationNumber" },
-      { key: "sex", field: "sex" },
-      { key: "birthPlace", field: "birthPlace" },
-      { key: "nationality", field: "nationality" },
-      { key: "issuingCountry", field: "issuingCountry" },
-      { key: "passportType", field: "passportType" },
-      { key: "issuingAuthority", field: "issuingAuthority" },
     ];
     return this.findSingleCopyableItem(this.cipher(), passportItems);
   }
@@ -197,14 +193,10 @@ export class VaultItemCopyActionsComponent {
       return cipher.copyableFields.filter((field) => copyablePassportFields.includes(field)).length;
     }
     return [
+      cipher.passport?.givenName,
+      cipher.passport?.surname,
       cipher.passport?.passportNumber,
       cipher.passport?.nationalIdentificationNumber,
-      cipher.passport?.sex,
-      cipher.passport?.birthPlace,
-      cipher.passport?.nationality,
-      cipher.passport?.issuingCountry,
-      cipher.passport?.passportType,
-      cipher.passport?.issuingAuthority,
     ].filter(Boolean).length;
   }
 

@@ -281,6 +281,12 @@
         [bitMenuTriggerFor]="passportOptions"
       ></button>
       <bit-menu #passportOptions>
+        <button type="button" bitMenuItem appCopyField="givenName" [cipher]="_cipher">
+          {{ "copyFirstName" | i18n }}
+        </button>
+        <button type="button" bitMenuItem appCopyField="surname" [cipher]="_cipher">
+          {{ "copyLastName" | i18n }}
+        </button>
         <button type="button" bitMenuItem appCopyField="passportNumber" [cipher]="_cipher">
           {{ "copyPassportNumber" | i18n }}
         </button>
@@ -291,24 +297,6 @@
           [cipher]="_cipher"
         >
           {{ "copyNationalIdentificationNumber" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="sex" [cipher]="_cipher">
-          {{ "copySex" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="birthPlace" [cipher]="_cipher">
-          {{ "copyBirthPlace" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="nationality" [cipher]="_cipher">
-          {{ "copyNationality" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="issuingCountry" [cipher]="_cipher">
-          {{ "copyIssuingCountry" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="passportType" [cipher]="_cipher">
-          {{ "copyPassportType" | i18n }}
-        </button>
-        <button type="button" bitMenuItem appCopyField="issuingAuthority" [cipher]="_cipher">
-          {{ "copyIssuingAuthority" | i18n }}
         </button>
       </bit-menu>
     }

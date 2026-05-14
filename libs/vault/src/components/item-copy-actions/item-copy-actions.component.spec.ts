@@ -568,14 +568,10 @@ describe("VaultItemCopyActionsComponent", () => {
 
     it("returns the single populated passport field", () => {
       (component.cipher() as any).__copyable = {
+        givenName: false,
+        surname: false,
         passportNumber: true,
         nationalIdentificationNumber: false,
-        sex: false,
-        birthPlace: false,
-        nationality: false,
-        issuingCountry: false,
-        passportType: false,
-        issuingAuthority: false,
       };
 
       const result = component.singleCopyablePassport;
@@ -588,14 +584,10 @@ describe("VaultItemCopyActionsComponent", () => {
 
     it("returns null when multiple passport fields are populated", () => {
       (component.cipher() as any).__copyable = {
+        givenName: false,
+        surname: false,
         passportNumber: true,
         nationalIdentificationNumber: true,
-        sex: false,
-        birthPlace: false,
-        nationality: false,
-        issuingCountry: false,
-        passportType: false,
-        issuingAuthority: false,
       };
 
       const result = component.singleCopyablePassport;
@@ -605,14 +597,10 @@ describe("VaultItemCopyActionsComponent", () => {
 
     it("returns null when no passport fields are populated", () => {
       (component.cipher() as any).__copyable = {
+        givenName: false,
+        surname: false,
         passportNumber: false,
         nationalIdentificationNumber: false,
-        sex: false,
-        birthPlace: false,
-        nationality: false,
-        issuingCountry: false,
-        passportType: false,
-        issuingAuthority: false,
       };
 
       const result = component.singleCopyablePassport;
@@ -634,14 +622,10 @@ describe("VaultItemCopyActionsComponent", () => {
 
     it("returns false when all passport fields are empty", () => {
       (component.cipher() as any).passport = {
+        givenName: null,
+        surname: null,
         passportNumber: null,
         nationalIdentificationNumber: null,
-        sex: null,
-        birthPlace: null,
-        nationality: null,
-        issuingCountry: null,
-        passportType: null,
-        issuingAuthority: null,
       };
 
       expect(component.hasPassportValues).toBe(false);
