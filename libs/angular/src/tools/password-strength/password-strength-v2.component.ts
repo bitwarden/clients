@@ -8,6 +8,7 @@ import {
   Input,
   OnChanges,
   Output,
+  SimpleChanges,
 } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -98,10 +99,13 @@ export class PasswordStrengthV2Component implements OnChanges {
     private readonly cdr: ChangeDetectorRef,
   ) {}
 
-  ngOnChanges(): void {
-    // Debounced re-render for email/name input changes. Password changes are
-    // handled synchronously in updatePasswordStrength, but ngOnChanges fires
-    // for all @Input changes so we still need to schedule a final render pass.
+  ngOnChanges(changes: SimpleChanges): void {
+    // Password changes are handled synchronously by the setter; only debounce
+    // when email or name changed so we avoid a redundant render after each keystroke.
+    if (changes["password"]) {
+      return;
+    }
+
     this.passwordStrengthTimeout = setTimeout(() => {
       this.applyVisuals();
       this.cdr.markForCheck();
