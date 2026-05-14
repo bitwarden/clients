@@ -7,16 +7,16 @@ import { safeGetString } from "./utils";
 export class BankAccountExport {
   static template(): BankAccountExport {
     const req = new BankAccountExport();
-    req.bankName = "";
-    req.nameOnAccount = "";
-    req.accountType = "";
-    req.accountNumber = "";
-    req.routingNumber = "";
-    req.branchNumber = "";
-    req.pin = "";
-    req.swiftCode = "";
-    req.iban = "";
-    req.bankContactPhone = "";
+    req.bankName = "Acme Bank";
+    req.nameOnAccount = "John Doe";
+    req.accountType = "checking";
+    req.accountNumber = "000123456789";
+    req.routingNumber = "000000000";
+    req.branchNumber = "000";
+    req.pin = "1234";
+    req.swiftCode = "ACMEUS33";
+    req.iban = "GB00ACME12345600000001";
+    req.bankContactPhone = "1-800-123-4567";
     return req;
   }
 

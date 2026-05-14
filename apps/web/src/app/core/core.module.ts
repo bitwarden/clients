@@ -294,7 +294,6 @@ const safeProviders: SafeProvider[] = [
       KeyServiceAbstraction,
       AccountApiServiceAbstraction,
       MasterPasswordServiceAbstraction,
-      ConfigService,
       OrganizationInviteService,
       PolicyApiServiceAbstraction,
       LogService,
