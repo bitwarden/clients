@@ -1807,8 +1807,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         // Position the badge above the right edge of the container, matching the
         // above-and-right-aligned style used for multi-input TOTP forms.
         const containerRight = left + width;
-        top = top - height * 0.39;
-        left = containerRight - height * 0.1;
+        top = top - height * 0.5;
+        left = containerRight - height * 0.5; // center the badge on the right edge of the container
         width = height; // zeroes out (width - height) in the standard formula below
       }
     }
