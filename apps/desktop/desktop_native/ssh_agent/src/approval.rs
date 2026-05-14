@@ -31,14 +31,6 @@ pub struct SignApprovalRequest {
 #[cfg_attr(test, mockall::automock)]
 #[async_trait::async_trait]
 pub trait ApprovalRequester: Send + Sync {
-    /// Requests approval to unlock the vault.
-    ///
-    /// # Returns
-    ///
-    /// * `Ok(true)` - Unlock was approved
-    /// * `Ok(false)` - Unlock was denied
-    async fn request_unlock(&self) -> Result<bool, ApprovalError>;
-
     /// Requests approval for a signing operation.
     ///
     /// # Arguments

@@ -66,14 +66,6 @@ const BROWSER_INTEGRATION_ENABLED = new KeyDefinition<boolean>(
   },
 );
 
-const BROWSER_INTEGRATION_FINGERPRINT_ENABLED = new KeyDefinition<boolean>(
-  DESKTOP_SETTINGS_DISK,
-  "browserIntegrationFingerprintEnabled",
-  {
-    deserializer: (b) => b,
-  },
-);
-
 const SSH_AGENT_ENABLED = new KeyDefinition<boolean>(DESKTOP_SETTINGS_DISK, "sshAgentEnabled", {
   deserializer: (b) => b,
 });
@@ -155,16 +147,6 @@ export class DesktopSettingsService {
    * The application setting for whether or not the browser integration is enabled.
    */
   browserIntegrationEnabled$ = this.browserIntegrationEnabledState.state$.pipe(map(Boolean));
-
-  private readonly browserIntegrationFingerprintEnabledState = this.stateProvider.getGlobal(
-    BROWSER_INTEGRATION_FINGERPRINT_ENABLED,
-  );
-
-  /**
-   * The application setting for whether or not the fingerprint should be verified before browser communication.
-   */
-  browserIntegrationFingerprintEnabled$ =
-    this.browserIntegrationFingerprintEnabledState.state$.pipe(map(Boolean));
 
   private readonly sshAgentEnabledState = this.stateProvider.getGlobal(SSH_AGENT_ENABLED);
 
@@ -282,15 +264,6 @@ export class DesktopSettingsService {
    */
   async setBrowserIntegrationEnabled(value: boolean) {
     await this.browserIntegrationEnabledState.update(() => value);
-  }
-
-  /**
-   * Sets a setting for whether or not the browser fingerprint should be verified before
-   * communication with the browser integration should be done.
-   * @param value `true` if the fingerprint should be validated before use, `false` if it should not.
-   */
-  async setBrowserIntegrationFingerprintEnabled(value: boolean) {
-    await this.browserIntegrationFingerprintEnabledState.update(() => value);
   }
 
   /**
