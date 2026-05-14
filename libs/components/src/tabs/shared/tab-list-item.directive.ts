@@ -9,7 +9,6 @@ import { Directive, ElementRef, computed, inject, input } from "@angular/core";
   selector: "[bitTabListItem]",
   host: {
     "[attr.disabled]": "disabledInput() || null",
-    "[attr.aria-selected]": "active() === true",
     "[class]": "classList()",
   },
 })
