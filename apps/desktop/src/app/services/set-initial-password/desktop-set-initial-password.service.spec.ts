@@ -22,7 +22,13 @@ import { AccountCryptographicStateService } from "@bitwarden/common/key-manageme
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
-import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
+import {
+  MasterKeyWrappedUserKey,
+  MasterPasswordAuthenticationData,
+  MasterPasswordAuthenticationHash,
+  MasterPasswordSalt,
+  MasterPasswordUnlockData,
+} from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { KeysRequest } from "@bitwarden/common/models/request/keys.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -30,7 +36,7 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { DEFAULT_KDF_CONFIG, KdfConfigService, KeyService } from "@bitwarden/key-management";
 
@@ -108,13 +114,13 @@ describe("DesktopSetInitialPasswordService", () => {
 
     let userDecryptionOptions: UserDecryptionOptions;
     let userDecryptionOptionsSubject: BehaviorSubject<UserDecryptionOptions>;
+    let authenticationData: MasterPasswordAuthenticationData;
+    let unlockData: MasterPasswordUnlockData;
     let setPasswordRequest: SetPasswordRequest;
 
     beforeEach(() => {
       // Mock function parameters
       credentials = {
-        newMasterKey: new SymmetricCryptoKey(new Uint8Array(32).buffer as CsprngArray) as MasterKey,
-        newServerMasterKeyHash: "newServerMasterKeyHash",
         newPasswordHint: "newPasswordHint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         orgSsoIdentifier: "orgSsoIdentifier",
@@ -140,13 +146,29 @@ describe("DesktopSetInitialPasswordService", () => {
         userDecryptionOptionsSubject,
       );
 
+      authenticationData = {
+        salt: credentials.salt,
+        kdf: credentials.kdfConfig,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        authenticationData,
+      );
+
+      unlockData = {
+        salt: credentials.salt,
+        kdf: credentials.kdfConfig,
+        masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
+      } as MasterPasswordUnlockData;
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
+
       setPasswordRequest = new SetPasswordRequest(
-        credentials.newServerMasterKeyHash,
-        masterKeyEncryptedUserKey[1].encryptedString,
+        authenticationData,
+        unlockData,
         credentials.newPasswordHint,
         credentials.orgSsoIdentifier,
         keysRequest,
-        credentials.kdfConfig,
       );
     });
 
@@ -179,7 +201,7 @@ describe("DesktopSetInitialPasswordService", () => {
     describe("given the initial password was NOT successfully set (due to some error in setInitialPassword())", () => {
       it("should NOT send a 'redrawMenu' message", async () => {
         // Arrange
-        credentials.newMasterKey = null; // will trigger an error in setInitialPassword()
+        credentials.newPassword = null as unknown as string; // will trigger an error in setInitialPassword()
         setupMocks();
 
         // Act

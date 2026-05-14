@@ -40,16 +40,31 @@ describe("MasterPasswordApiService", () => {
   describe("setPassword", () => {
     it("should call apiService.send with the correct parameters", async () => {
       // Arrange
+      const salt = "salt" as MasterPasswordSalt;
+      const kdf = new PBKDF2KdfConfig(600_000);
+
+      const authenticationData: MasterPasswordAuthenticationData = {
+        salt,
+        kdf,
+        masterPasswordAuthenticationHash:
+          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
+      };
+
+      const unlockData = new MasterPasswordUnlockData(
+        salt,
+        kdf,
+        "masterKeyWrappedUserKey" as unknown as MasterKeyWrappedUserKey,
+      );
+
       const request = new SetPasswordRequest(
-        "masterPasswordHash",
-        "key",
+        authenticationData,
+        unlockData,
         "masterPasswordHint",
         "orgIdentifier",
         {
           publicKey: "publicKey",
           encryptedPrivateKey: "encryptedPrivateKey",
         },
-        new PBKDF2KdfConfig(600_000),
       );
 
       // Act
