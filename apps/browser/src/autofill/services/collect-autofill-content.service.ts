@@ -382,7 +382,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
 
       const formFieldElement = matchedElement as ElementWithOpId<FormFieldElement>;
-      const fieldId = `targeted_field_0_${fieldType}`;
+      const fieldId = `targeted_field_${i}_${fieldType}`;
       formFieldElement.opid = fieldId;
 
       const autofillField = this.buildTargetedAutofillField(
