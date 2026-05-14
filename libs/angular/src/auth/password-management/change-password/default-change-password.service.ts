@@ -6,7 +6,6 @@ import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/ma
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -39,187 +38,90 @@ export class DefaultChangePasswordService implements ChangePasswordService {
     throw new Error("changePasswordAndRotateUserKey() is only implemented in Web");
   }
 
-  async rotateUserKeyMasterPasswordAndEncryptedData(
-    currentPassword: string,
-    newPassword: string,
-    user: Account,
-    hint: string,
-  ): Promise<void> {
-    throw new Error("rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web");
-  }
+  async changePassword(passwordInputResult: PasswordInputResult, userId: UserId) {
+    const context = "Could not change password.";
+    assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", context);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", context);
+    assertTruthy(passwordInputResult.salt, "salt", context);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
 
-  /**
-   * @deprecated To be removed in PM-28143.
-   */
-  private async preparePasswordChange(
-    passwordInputResult: PasswordInputResult,
-    userId: UserId | null,
-    request: PasswordRequest | UpdateTempPasswordRequest,
-  ): Promise<[UserKey, EncString]> {
-    if (!userId) {
-      throw new Error("userId not found");
-    }
-    if (
-      !passwordInputResult.currentMasterKey ||
-      !passwordInputResult.currentServerMasterKeyHash ||
-      !passwordInputResult.newMasterKey ||
-      !passwordInputResult.newServerMasterKeyHash ||
-      passwordInputResult.newPasswordHint == null
-    ) {
-      throw new Error("invalid PasswordInputResult credentials, could not change password");
-    }
-
-    const decryptedUserKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-      passwordInputResult.currentMasterKey,
+    // Verify that the current password is correct
+    const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
+      passwordInputResult.currentPassword,
       userId,
     );
 
-    if (decryptedUserKey == null) {
-      throw new Error("Could not decrypt user key");
+    if (!currentPasswordVerified) {
+      throw new InvalidCurrentPasswordError();
     }
 
-    const newKeyValue = await this.keyService.encryptUserKeyWithMasterKey(
-      passwordInputResult.newMasterKey,
-      decryptedUserKey,
-    );
+    // Current password has been verified, so get the user key from state
+    const userKey = await firstValueFromOrThrow(this.keyService.userKey$(userId), "userKey");
 
-    if (request instanceof PasswordRequest) {
-      request.masterPasswordHash = passwordInputResult.currentServerMasterKeyHash;
-      request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
-      request.masterPasswordHint = passwordInputResult.newPasswordHint;
-    } else if (request instanceof UpdateTempPasswordRequest) {
-      request.newMasterPasswordHash = passwordInputResult.newServerMasterKeyHash;
-      request.masterPasswordHint = passwordInputResult.newPasswordHint;
-    }
-
-    return newKeyValue;
-  }
-
-  async changePassword(passwordInputResult: PasswordInputResult, userId: UserId) {
-    if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-      const context = "Could not change password.";
-      assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
-      assertTruthy(passwordInputResult.newPassword, "newPassword", context);
-      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", context);
-      assertTruthy(passwordInputResult.salt, "salt", context);
-      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
-
-      // Verify that the current password is correct
-      const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
+    // Use current password to make current auth data so we can send the current auth hash to the server
+    const currentAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
         passwordInputResult.currentPassword,
-        userId,
-      );
-
-      if (!currentPasswordVerified) {
-        throw new InvalidCurrentPasswordError();
-      }
-
-      // Current password has been verified, so get the user key from state
-      const userKey = await firstValueFromOrThrow(this.keyService.userKey$(userId), "userKey");
-
-      // Use current password to make current auth data so we can send the current auth hash to the server
-      const currentAuthenticationData =
-        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-          passwordInputResult.currentPassword,
-          passwordInputResult.kdfConfig,
-          passwordInputResult.salt,
-        );
-
-      // Use new password to make new auth and unlock data that we can send to the server
-      const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
-        passwordInputResult.newPassword,
         passwordInputResult.kdfConfig,
         passwordInputResult.salt,
-        userKey,
       );
 
-      const request = PasswordRequest.newConstructor(
-        currentAuthenticationData.masterPasswordAuthenticationHash,
-        newAuthenticationData,
-        newUnlockData,
-        passwordInputResult.newPasswordHint,
-      );
-
-      await this.masterPasswordApiService.postPassword(request);
-
-      return; // EARLY RETURN for flagged logic
-    }
-
-    const request = new PasswordRequest();
-
-    const newMasterKeyEncryptedUserKey = await this.preparePasswordChange(
-      passwordInputResult,
-      userId,
-      request,
+    // Use new password to make new auth and unlock data that we can send to the server
+    const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
+      passwordInputResult.newPassword,
+      passwordInputResult.kdfConfig,
+      passwordInputResult.salt,
+      userKey,
     );
 
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString as string;
+    const request = PasswordRequest.newConstructor(
+      currentAuthenticationData.masterPasswordAuthenticationHash,
+      newAuthenticationData,
+      newUnlockData,
+      passwordInputResult.newPasswordHint,
+    );
 
-    try {
-      await this.masterPasswordApiService.postPassword(request);
-    } catch {
-      throw new Error("Could not change password");
-    }
+    await this.masterPasswordApiService.postPassword(request);
   }
 
   async changePasswordForAccountRecovery(passwordInputResult: PasswordInputResult, userId: UserId) {
-    if (passwordInputResult.newApisWithInputPasswordFlagEnabled) {
-      const context = "Could not change password for account recovery.";
-      assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
-      assertTruthy(passwordInputResult.newPassword, "newPassword", context);
-      assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", context);
-      assertTruthy(passwordInputResult.salt, "salt", context);
-      assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
+    const context = "Could not change password for account recovery.";
+    assertTruthy(passwordInputResult.currentPassword, "currentPassword", context);
+    assertTruthy(passwordInputResult.newPassword, "newPassword", context);
+    assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", context);
+    assertTruthy(passwordInputResult.salt, "salt", context);
+    assertNonNullish(passwordInputResult.newPasswordHint, "newPasswordHint", context); // can have an empty string as a meaningful value, so check non-nullish
 
-      // Verify that the current password is correct
-      const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
-        passwordInputResult.currentPassword,
-        userId,
-      );
-
-      if (!currentPasswordVerified) {
-        throw new InvalidCurrentPasswordError();
-      }
-
-      // Current password has been verified, so get the user key from state
-      const userKey = await firstValueFromOrThrow(this.keyService.userKey$(userId), "userKey");
-
-      // Use new password to make new auth and unlock data that we can send to the server
-      const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
-        passwordInputResult.newPassword,
-        passwordInputResult.kdfConfig,
-        passwordInputResult.salt,
-        userKey,
-      );
-
-      const request = UpdateTempPasswordRequest.newConstructorWithHint(
-        newAuthenticationData,
-        newUnlockData,
-        passwordInputResult.newPasswordHint,
-      );
-
-      // TODO: PM-23047 will look to consolidate this into the change password endpoint.
-      await this.masterPasswordApiService.putUpdateTempPassword(request);
-
-      return; // EARLY RETURN for flagged logic
-    }
-
-    const request = new UpdateTempPasswordRequest();
-
-    const newMasterKeyEncryptedUserKey = await this.preparePasswordChange(
-      passwordInputResult,
+    // Verify that the current password is correct
+    const currentPasswordVerified = await this.masterPasswordUnlockService.proofOfDecryption(
+      passwordInputResult.currentPassword,
       userId,
-      request,
     );
 
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString as string;
-
-    try {
-      // TODO: PM-23047 will look to consolidate this into the change password endpoint.
-      await this.masterPasswordApiService.putUpdateTempPassword(request);
-    } catch {
-      throw new Error("Could not change password");
+    if (!currentPasswordVerified) {
+      throw new InvalidCurrentPasswordError();
     }
+
+    // Current password has been verified, so get the user key from state
+    const userKey = await firstValueFromOrThrow(this.keyService.userKey$(userId), "userKey");
+
+    // Use new password to make new auth and unlock data that we can send to the server
+    const { newAuthenticationData, newUnlockData } = await this.makeNewAuthAndUnlockData(
+      passwordInputResult.newPassword,
+      passwordInputResult.kdfConfig,
+      passwordInputResult.salt,
+      userKey,
+    );
+
+    const request = UpdateTempPasswordRequest.newConstructorWithHint(
+      newAuthenticationData,
+      newUnlockData,
+      passwordInputResult.newPasswordHint,
+    );
+
+    // TODO: PM-23047 will look to consolidate this into the change password endpoint.
+    await this.masterPasswordApiService.putUpdateTempPassword(request);
   }
 
   private async makeNewAuthAndUnlockData(

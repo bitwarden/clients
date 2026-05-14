@@ -139,6 +139,8 @@ describe("CollectAutofillContentService", () => {
         htmlName: formName,
         htmlID: formId,
         htmlMethod: formMethod,
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       const fieldElement = document.getElementById(
         usernameFieldId,
@@ -227,6 +229,8 @@ describe("CollectAutofillContentService", () => {
         htmlName: formName,
         htmlID: formId,
         htmlMethod: formMethod,
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       const fieldElement = document.getElementById(
         usernameFieldId,
@@ -324,10 +328,11 @@ describe("CollectAutofillContentService", () => {
           __form__0: {
             opid: "__form__0",
             htmlAction: formAction,
-            htmlClass: null,
+            htmlClass: "",
             htmlName: formName,
             htmlID: formId,
             htmlMethod: formMethod,
+            htmlAncestorHeadings: [],
           },
         },
         fields: [
@@ -505,6 +510,8 @@ describe("CollectAutofillContentService", () => {
         htmlName: formName,
         htmlID: formId,
         htmlMethod: formMethod,
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       collectAutofillContentService["_autofillFormElements"] = new Map([
         [formElement, existingAutofillForm],
@@ -552,20 +559,150 @@ describe("CollectAutofillContentService", () => {
         __form__0: {
           opid: "__form__0",
           htmlAction: formAction1,
-          htmlClass: null,
+          htmlClass: "",
           htmlName: formName1,
           htmlID: formId1,
           htmlMethod: formMethod1,
+          htmlAncestorHeadings: [],
         },
         __form__1: {
           opid: "__form__1",
           htmlAction: formAction2,
-          htmlClass: null,
+          htmlClass: "",
           htmlName: formName2,
           htmlID: formId2,
           htmlMethod: formMethod2,
+          htmlAncestorHeadings: [],
         },
       });
+    });
+  });
+
+  describe("getAncestorHeadings", () => {
+    it("returns an empty array when the form has no parent element", () => {
+      const orphanForm = document.createElement("form");
+
+      const result = collectAutofillContentService["getAncestorHeadings"](orphanForm);
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns an empty array when no semantic-section ancestor encloses the form", () => {
+      document.body.innerHTML = `
+        <div><div><form id="f"><input type="email" /></form></div></div>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual([]);
+    });
+
+    it("captures a single heading inside the form's nearest semantic-section ancestor (raw casing preserved)", () => {
+      document.body.innerHTML = `
+        <section>
+          <h2>Subscribe to our newsletter</h2>
+          <form id="f"><input type="email" /></form>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Subscribe to our newsletter"]);
+    });
+
+    it("captures a heading nested several wrapper ancestors above the form when a semantic section encloses both", () => {
+      document.body.innerHTML = `
+        <section>
+          <div>
+            <div>
+              <header>
+                <div>
+                  <h3>
+                    <span>Subscribe to our newsletter</span>
+                  </h3>
+                </div>
+              </header>
+              <div>
+                <div>
+                  <form id="f"><input type="email" /></form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toContain("Subscribe to our newsletter");
+    });
+
+    it("does not include headings that belong to a different sibling form within the same scope", () => {
+      document.body.innerHTML = `
+        <section>
+          <h2>Other form heading</h2>
+          <form id="other"><h3>Inside other form</h3><input type="text" /></form>
+          <form id="target"><input type="email" /></form>
+        </section>
+      `;
+      const formElement = document.getElementById("target") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Other form heading"]);
+    });
+
+    it("returns each heading as its own entry so keyword scans cannot match across boundaries", () => {
+      document.body.innerHTML = `
+        <section>
+          <h2>Newsletter</h2>
+          <h3>Sign-up</h3>
+          <form id="f"><input type="email" /></form>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Newsletter", "Sign-up"]);
+    });
+
+    it("scopes to the nearest semantic-section ancestor and excludes headings outside it", () => {
+      document.body.innerHTML = `
+        <h1>Page Title (outside the section)</h1>
+        <section>
+          <h2>Section Heading</h2>
+          <div><div><form id="f"><input type="email" /></form></div></div>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Section Heading"]);
+    });
+
+    it("orders headings by depth of common ancestor with the form, closest first", () => {
+      document.body.innerHTML = `
+        <article>
+          <h1>Article Heading</h1>
+          <div>
+            <h2>Container Heading</h2>
+            <div>
+              <h3>Form Heading</h3>
+              <form id="f"><input type="email" /></form>
+            </div>
+          </div>
+        </article>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Form Heading", "Container Heading", "Article Heading"]);
     });
   });
 
@@ -2580,6 +2717,8 @@ describe("CollectAutofillContentService", () => {
         htmlID: "formEl-id",
         htmlAction: "https://example.com",
         htmlMethod: "POST",
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       collectAutofillContentService["_autofillFormElements"] = new Map([
         [formElement, autofillForm],
@@ -2594,7 +2733,7 @@ describe("CollectAutofillContentService", () => {
       const fieldElement = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
       const autofillField: AutofillField = {
         elementNumber: 0,
-        htmlClass: "",
+        htmlClass: null,
         tabindex: "",
         title: "",
         viewable: false,
@@ -2686,6 +2825,8 @@ describe("CollectAutofillContentService", () => {
         htmlID: "formEl-id",
         htmlAction: "https://example.com",
         htmlMethod: "POST",
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       const mutationRecord: MutationRecord = {
         type: "attributes",
@@ -2718,7 +2859,7 @@ describe("CollectAutofillContentService", () => {
       targetNode.setAttribute("value", "jsmith");
       const autofillField: AutofillField = {
         elementNumber: 0,
-        htmlClass: "",
+        htmlClass: null,
         tabindex: "",
         title: "",
         viewable: false,
@@ -2768,6 +2909,8 @@ describe("CollectAutofillContentService", () => {
       htmlID: "formEl-id",
       htmlAction: "https://example.com",
       htmlMethod: "POST",
+      htmlClass: "",
+      htmlAncestorHeadings: [],
     };
     const updatedAttributes = ["action", "name", "id", "method"];
 
@@ -2825,7 +2968,9 @@ describe("CollectAutofillContentService", () => {
       "id",
       "type",
       "autocomplete",
-      "class",
+      // Note: "class" is intentionally excluded from the mutation observer attribute filter
+      // to avoid callback storms on dynamic pages. htmlClass is refreshed on the next full
+      // page-detail collection instead.
       "tabindex",
       "title",
       "rel",
@@ -3076,7 +3221,7 @@ describe("CollectAutofillContentService", () => {
       };
 
       collectAutofillContentService["mutationsQueue"] = [[mutationRecord], [mutationRecord]];
-      jest.spyOn(collectAutofillContentService as any, "processMutationRecords");
+      jest.spyOn(collectAutofillContentService as any, "processMutationRecord");
 
       collectAutofillContentService["processMutations"]();
 

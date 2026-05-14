@@ -385,10 +385,11 @@ describe("vault filter service", () => {
         );
       });
 
-      it("omits bankAccount", async () => {
+      it("omits new item types", async () => {
         const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
 
         expect(filters.map((f) => f.id)).not.toContain("bankAccount");
+        expect(filters.map((f) => f.id)).not.toContain("driversLicense");
       });
 
       it("uses bwi-globe for login", async () => {
@@ -414,6 +415,7 @@ describe("vault filter service", () => {
           "card",
           "bankAccount",
           "identity",
+          "driversLicense",
           "note",
           "sshKey",
         ]);
@@ -424,6 +426,13 @@ describe("vault filter service", () => {
 
         expect(filters[3].id).toBe("bankAccount");
         expect(filters[3].type).toBe(CipherType.BankAccount);
+      });
+
+      it("includes driversLicense as the 6th filter", async () => {
+        const filters = await firstValueFrom(vaultFilterService.cipherTypeFilters$);
+
+        expect(filters[5].id).toBe("driversLicense");
+        expect(filters[5].type).toBe(CipherType.DriversLicense);
       });
 
       it("uses bwi-lock for login", async () => {
