@@ -81,10 +81,18 @@
   @for (i of sortedTabs().overflow; track i) {
     @let tab = tabs()[i];
     <button bitMenuItem type="button" [disabled]="tab.disabled()" (click)="selectTab(i)">
-      <ng-container
-        [ngTemplateOutlet]="tabLabelContent"
-        [ngTemplateOutletContext]="{ tab: tab, truncate: sortedTabs().truncateTabIndex === i }"
-      ></ng-container>
+      @if (tab.startIcon()) {
+        <bit-icon slot="start" [name]="tab.startIcon()" class="tw-text-base" />
+      }
+      {{ tab.textLabel() }}
+      <div slot="end" class="empty:tw-hidden tw-flex tw-items-center tw-gap-1">
+        @if (tab.berryValue()) {
+          <bit-berry [value]="tab.berryValue()" />
+        }
+        @if (tab.endIcon()) {
+          <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
+        }
+      </div>
     </button>
   }
 </bit-menu>

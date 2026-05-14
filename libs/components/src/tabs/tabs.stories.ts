@@ -158,7 +158,7 @@ export const OverflowNavigationTabs: Story = {
         </bit-tab-link>
         <bit-tab-link label="Item 2 Long Named Tab" [route]="['item-2']">Item 2 Long Named Tab</bit-tab-link>
         <bit-tab-link label="Item 3 Long Named Tab" [route]="['item-3']">Item 3 Long Named Tab</bit-tab-link>
-        <bit-tab-link label="Item With Counter Long Named Tab" [route]="['item-with-child-counter']">Item With Counter Long Named Tab</bit-tab-link>
+        <bit-tab-link label="Item With Counter Long Named Tab" startIcon="bwi-check-circle" [berryValue]="3" endIcon="bwi-check-circle" [route]="['item-with-child-counter']">Item With Counter Long Named Tab</bit-tab-link>
         <bit-tab-link label="Disabled Long Named Tab" [route]="['disable']" [disabled]="true">Disabled Long Named Tab</bit-tab-link>
       </bit-tab-nav-bar>
       <div class="tw-bg-transparent tw-text-semibold tw-text-center tw-text-main tw-py-10">
@@ -254,7 +254,7 @@ export const OverflowTabs: Story = {
         <bit-tab label="Fourth Long Named Tab" [endIcon]="'bwi-check-circle'">
           Fourth Tab Content
         </bit-tab>
-        <bit-tab label="Another Even Longer Named Tab" [endIcon]="'bwi-check-circle'">
+        <bit-tab label="Another Even Longer Named Tab" [startIcon]="'bwi-check-circle'" [endIcon]="'bwi-check-circle'">
           Another Even Longer Tab Content
         </bit-tab>
       </bit-tab-group>

@@ -35,15 +35,18 @@
       (click)="!tab.disabled && overflowTabsMenu.closed.emit()"
       ariaCurrentWhenActive="page"
     >
-      <span [class]="tabLabelContentClasses">
-        {{ tab.displayText() }}
+      @if (tab.startIcon()) {
+        <bit-icon slot="start" [name]="tab.startIcon()" class="tw-text-base" />
+      }
+      {{ tab.label() }}
+      <div slot="end" class="empty:tw-hidden tw-flex tw-items-center tw-gap-1">
         @if (tab.berryValue()) {
           <bit-berry [value]="tab.berryValue()" />
         }
         @if (tab.endIcon()) {
           <bit-icon [name]="tab.endIcon()" class="tw-text-base" />
         }
-      </span>
+      </div>
     </a>
   }
 </bit-menu>
