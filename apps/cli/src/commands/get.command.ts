@@ -18,6 +18,7 @@ import { BankAccountExport } from "@bitwarden/common/models/export/bank-account.
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
+import { DriversLicenseExport } from "@bitwarden/common/models/export/drivers-license.export";
 import { FieldExport } from "@bitwarden/common/models/export/field.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { IdentityExport } from "@bitwarden/common/models/export/identity.export";
@@ -591,6 +592,16 @@ export class GetCommand extends DownloadCommand {
           return Response.badRequest("Bank account item type is not available.");
         }
         template = BankAccountExport.template();
+        break;
+      }
+      case "item.driverslicense": {
+        const newItemTypesEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+        );
+        if (!newItemTypesEnabled) {
+          return Response.badRequest("Driver's license item type is not available.");
+        }
+        template = DriversLicenseExport.template();
         break;
       }
       case "folder":
