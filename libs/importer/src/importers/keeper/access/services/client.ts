@@ -488,14 +488,11 @@ export class Client {
         const triggerPush = () => this.send2FAPush(currentLoginToken);
         await triggerPush();
 
-        if (socketMessagePromise === undefined) {
-          socketMessagePromise = socket.waitForMessage();
-        }
-
         let previousCodeRejected = false;
         let tryAnother = false;
         let updatedToken: Uint8Array | undefined;
         while (updatedToken === undefined) {
+          socketMessagePromise ??= socket.waitForMessage();
           const result = await Promise.race([
             this.getTwoFactorCodeFromUi(TwoFactorMethod.Totp, {
               onResend: triggerPush,
@@ -549,6 +546,9 @@ export class Client {
 
         if (tryAnother) {
           continue;
+        }
+        if (updatedToken === undefined) {
+          throw new Error("Device approval failed unexpectedly");
         }
         return await this.resumeLogin(updatedToken, deviceToken, messageSessionUid);
       }
