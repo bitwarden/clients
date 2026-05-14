@@ -90,6 +90,14 @@ export class Fido2ClientService<
       return false;
     }
 
+    const blockedInteractionsUris = await firstValueFrom(
+      this.domainSettingsService.blockedInteractionsUris$,
+    );
+    const isBlockedDomain = blockedInteractionsUris != null && hostname in blockedInteractionsUris;
+    if (isBlockedDomain) {
+      return false;
+    }
+
     const neverDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
 
     const isExcludedDomain = neverDomains != null && hostname in neverDomains;
