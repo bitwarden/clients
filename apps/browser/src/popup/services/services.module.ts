@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
-import { merge, of, Subject } from "rxjs";
+import { firstValueFrom, merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
@@ -86,6 +86,7 @@ import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
@@ -206,6 +207,7 @@ import { AutofillService as AutofillServiceAbstraction } from "../../autofill/se
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
+import { createInlineMenuFieldQualificationService } from "../../autofill/services/qualification/qualification-service.factory";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
@@ -259,6 +261,11 @@ const DISK_BACKUP_LOCAL_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService
 >("DISK_BACKUP_LOCAL_STORAGE");
 
+// Resolved by an APP_INITIALIZER below before the InlineMenuFieldQualificationService
+// provider is first injected. Angular factory providers cannot be async, so the
+// flag is awaited during bootstrap and stashed here for the sync factory to read.
+let autofillQualificationEngineEnabled = false;
+
 /**
  * Provider definitions used in the ngModule.
  * Add your provider definition here using the safeProvider function as a wrapper. This will give you type safety.
@@ -269,7 +276,21 @@ const safeProviders: SafeProvider[] = [
   safeProvider(DebounceNavigationService),
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
-  safeProvider(InlineMenuFieldQualificationService),
+  safeProvider({
+    provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
+    useFactory: (configService: ConfigService) => async () => {
+      autofillQualificationEngineEnabled = await firstValueFrom(
+        configService.getFeatureFlag$(FeatureFlag.AutofillQualificationEngine),
+      );
+    },
+    deps: [ConfigService],
+    multi: true,
+  }),
+  safeProvider({
+    provide: InlineMenuFieldQualificationService,
+    useFactory: () => createInlineMenuFieldQualificationService(autofillQualificationEngineEnabled),
+    deps: [],
+  }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,
     useValue: VaultTimeoutStringType.OnRestart,

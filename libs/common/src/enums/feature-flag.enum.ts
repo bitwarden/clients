@@ -32,6 +32,8 @@ export enum FeatureFlag {
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
+  EnableAutofillTriage = "enable-autofill-triage",
+  AutofillQualificationEngine = "autofill-qualification-engine",
 
   /* Desktop Native */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -155,6 +157,8 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
+  [FeatureFlag.EnableAutofillTriage]: FALSE,
+  [FeatureFlag.AutofillQualificationEngine]: FALSE,
 
   /* Desktop Native */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,
