@@ -37,7 +37,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
   beforeEach(() => {
     // Create mocks
     cipherService = {
-      getAllFromApiForOrganization: jest.fn(),
+      getAllFromApiForOrganization: jest.fn().mockResolvedValue([]),
     } as any;
 
     organizationUserApiService = {
@@ -435,6 +435,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
   describe("Organization Switching", () => {
     it("should reset state when switching organizations", async () => {
+      cipherService.getAllFromApiForOrganization.mockResolvedValue([]);
       reportPersistenceService.loadLastReport$.mockReturnValue(
         of({ report: testReport, hadLegacyBlobs: false }),
       );

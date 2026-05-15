@@ -147,9 +147,10 @@ export class AccessIntelligencePageComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
-  private readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
+  protected readonly ciphers = toSignal(this.accessIntelligenceService.ciphers$, {
     initialValue: [],
   });
+
   protected readonly hasCiphers = computed(() => this.ciphers().length > 0);
 
   protected readonly invokedFrom = signal<{ source: string; status: string } | null>(null);

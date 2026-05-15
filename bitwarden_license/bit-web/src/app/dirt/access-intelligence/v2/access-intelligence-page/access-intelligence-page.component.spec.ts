@@ -1,7 +1,7 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ActivatedRoute, Router } from "@angular/router";
-import { BehaviorSubject, of, throwError } from "rxjs";
+import { BehaviorSubject, Observable, of, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
@@ -44,6 +44,7 @@ type MockAccessIntelligenceDataService = {
   error$: BehaviorSubject<string | null>;
   reportProgress$: BehaviorSubject<ReportProgress | null>;
   ciphers$: BehaviorSubject<CipherView[]>;
+  hasCiphers$: Observable<boolean>;
   initializeForOrganization$: jest.Mock;
   generateNewReport$: jest.Mock;
 };
@@ -62,6 +63,7 @@ describe("AccessIntelligencePageComponent", () => {
     paramMap: BehaviorSubject<any>;
     queryParams: BehaviorSubject<any>;
   };
+  let hasCiphersSubject: BehaviorSubject<boolean>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -86,6 +88,8 @@ describe("AccessIntelligencePageComponent", () => {
   });
 
   beforeEach(async () => {
+    hasCiphersSubject = new BehaviorSubject<boolean>(false);
+
     // Create mock services
     mockAccessIntelligenceService = {
       report$: new BehaviorSubject<AccessReportView | null>(null),
@@ -95,6 +99,7 @@ describe("AccessIntelligencePageComponent", () => {
       initializeForOrganization$: jest.fn(),
       generateNewReport$: jest.fn(),
       ciphers$: new BehaviorSubject<CipherView[]>([]),
+      hasCiphers$: hasCiphersSubject.asObservable(),
     };
 
     mockDrawerStateService = {
@@ -420,7 +425,9 @@ describe("AccessIntelligencePageComponent", () => {
     });
 
     it("should report ciphers present when vault has items", async () => {
-      mockAccessIntelligenceService.ciphers$.next([new CipherView()]);
+      mockAccessIntelligenceService.ciphers$.next([
+        { id: "c1", name: "Test Cipher", type: 1 } as CipherView,
+      ]);
 
       await component.ngOnInit();
       fixture.detectChanges();
