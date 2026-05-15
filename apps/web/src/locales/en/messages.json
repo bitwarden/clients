@@ -13874,5 +13874,89 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pamGovernanceTitle": {
+    "message": "Credential leasing governance"
+  },
+  "pamGovernanceDescription": {
+    "message": "Review every leasing-enabled collection, its policy, and current leasing activity for this organization."
+  },
+  "pamLeasingEnabledCollections": {
+    "message": "Leasing-enabled collections"
+  },
+  "pamPendingRequests": {
+    "message": "Pending requests"
+  },
+  "pamActiveLeases": {
+    "message": "Active leases"
+  },
+  "pamPolicySummary": {
+    "message": "Policy"
+  },
+  "pamPolicySummaryTooltip": {
+    "message": "Open the collection's leasing settings to inspect or edit the policy."
+  },
+  "pamColumnRequireLease": {
+    "message": "Members requiring a lease"
+  },
+  "pamColumnPending": {
+    "message": "Pending"
+  },
+  "pamColumnActive": {
+    "message": "Active"
+  },
+  "pamColumnLastActivity": {
+    "message": "Last activity"
+  },
+  "pamNoActivity": {
+    "message": "No activity yet"
+  },
+  "pamPolicyNone": {
+    "message": "No policy configured"
+  },
+  "pamPolicyHumanApproval": {
+    "message": "Human approval"
+  },
+  "pamPolicyIpAllowlist": {
+    "message": "IP allowlist, $COUNT$ ranges",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamPolicyTimeOfDay": {
+    "message": "Time-of-day, $COUNT$ windows",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamPolicyAllOf": {
+    "message": "All of $COUNT$ checks",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamPolicyEmpty": {
+    "message": "No checks configured"
+  },
+  "pamPolicySeparator": {
+    "message": " + "
+  },
+  "pamGovernanceEmptyTitle": {
+    "message": "No leasing-enabled collections"
+  },
+  "pamGovernanceEmptyMessage": {
+    "message": "Turn on credential leasing for a collection to start governing privileged access here."
+  },
+  "pamGovernanceLoadError": {
+    "message": "We couldn't load the governance summary. Try again in a moment."
   }
 }

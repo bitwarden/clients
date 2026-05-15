@@ -3,6 +3,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
 import { PamApiService } from "../abstractions/pam-api.service";
 import { CollectionLeasingConfigResponse } from "../abstractions/responses/collection-leasing.response";
+import { OrganizationGovernanceSummaryResponse } from "../abstractions/responses/governance-summary.response";
 import { LeaseRequestResponse } from "../abstractions/responses/lease-request.response";
 
 import { CollectionLeasingRequest } from "./requests/collection-leasing.request";
@@ -63,6 +64,14 @@ export class DefaultPamApiService implements PamApiService {
   ): Promise<CollectionLeasingConfigResponse> {
     return new CollectionLeasingConfigResponse(
       await this.send("PUT", `/collections/${id}/leasing`, request, true),
+    );
+  }
+
+  async getGovernanceSummary(
+    organizationId: string,
+  ): Promise<OrganizationGovernanceSummaryResponse> {
+    return new OrganizationGovernanceSummaryResponse(
+      await this.send("GET", `/organizations/${organizationId}/leasing/governance`, null, true),
     );
   }
 

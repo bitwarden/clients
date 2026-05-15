@@ -1,0 +1,122 @@
+<bit-section>
+  <bit-section-header>
+    <h1 bitTypography="h1">{{ "pamGovernanceTitle" | i18n }}</h1>
+  </bit-section-header>
+
+  <p bitTypography="body1" class="tw-mb-4 tw-text-muted">
+    {{ "pamGovernanceDescription" | i18n }}
+  </p>
+
+  <!--
+    PM-37278: a kill-switch (organization-wide leasing disable) lives here.
+    Reserving the slot keeps layout stable when the follow-up story lands.
+  -->
+  <div class="tw-mb-4 tw-flex tw-items-center tw-gap-2" data-testid="pam-kill-switch-slot">
+    <ng-content select="[pamKillSwitchSlot]"></ng-content>
+  </div>
+
+  <div class="tw-mb-6 tw-grid tw-grid-cols-1 tw-gap-4 md:tw-grid-cols-3">
+    <div
+      class="tw-rounded tw-border tw-border-secondary-300 tw-p-4"
+      data-testid="strip-collections"
+    >
+      <div class="tw-text-sm tw-text-muted">{{ "pamLeasingEnabledCollections" | i18n }}</div>
+      <div class="tw-text-2xl tw-font-semibold">{{ collectionTotal() }}</div>
+    </div>
+    <div class="tw-rounded tw-border tw-border-secondary-300 tw-p-4" data-testid="strip-pending">
+      <div class="tw-text-sm tw-text-muted">{{ "pamPendingRequests" | i18n }}</div>
+      <div class="tw-text-2xl tw-font-semibold">{{ pendingTotal() }}</div>
+    </div>
+    <div class="tw-rounded tw-border tw-border-secondary-300 tw-p-4" data-testid="strip-active">
+      <div class="tw-text-sm tw-text-muted">{{ "pamActiveLeases" | i18n }}</div>
+      <div class="tw-text-2xl tw-font-semibold">{{ activeTotal() }}</div>
+    </div>
+  </div>
+
+  @switch (status()) {
+    @case ("loading") {
+      <p class="tw-text-muted">{{ "loading" | i18n }}</p>
+    }
+    @case ("error") {
+      <bit-callout type="danger" [title]="'errorOccurred' | i18n">
+        {{ "pamGovernanceLoadError" | i18n }}
+      </bit-callout>
+    }
+    @case ("empty") {
+      <bit-callout type="info" [title]="'pamGovernanceEmptyTitle' | i18n">
+        {{ "pamGovernanceEmptyMessage" | i18n }}
+      </bit-callout>
+    }
+    @case ("ready") {
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "collection" | i18n }}</th>
+            <th bitCell>{{ "pamPolicySummary" | i18n }}</th>
+            <th bitCell>{{ "pamColumnRequireLease" | i18n }}</th>
+            <th bitCell>{{ "pamColumnPending" | i18n }}</th>
+            <th bitCell>{{ "pamColumnActive" | i18n }}</th>
+            <th bitCell>{{ "pamColumnLastActivity" | i18n }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body>
+          @for (row of rows(); track row.collectionId) {
+            <tr bitRow>
+              <td bitCell>
+                <span [title]="row.collectionName">{{ row.collectionName }}</span>
+              </td>
+              <td bitCell>
+                <span
+                  class="tw-text-sm"
+                  [bitTooltip]="'pamPolicySummaryTooltip' | i18n"
+                  data-testid="policy-summary"
+                >
+                  {{ renderPolicy(row) }}
+                </span>
+              </td>
+              <td bitCell>
+                <a
+                  bitLink
+                  [routerLink]="membersUrl"
+                  [queryParams]="collectionQuery(row.collectionId)"
+                  data-testid="link-require-lease"
+                >
+                  {{ row.requireLeaseMemberCount }}
+                </a>
+              </td>
+              <td bitCell>
+                <a
+                  bitLink
+                  [routerLink]="pendingUrl"
+                  [queryParams]="collectionQuery(row.collectionId)"
+                  data-testid="link-pending"
+                >
+                  {{ row.pendingRequestCount }}
+                </a>
+              </td>
+              <td bitCell>
+                <a
+                  bitLink
+                  [routerLink]="activeUrl"
+                  [queryParams]="collectionQuery(row.collectionId)"
+                  data-testid="link-active"
+                >
+                  {{ row.activeLeaseCount }}
+                </a>
+              </td>
+              <td bitCell>
+                @if (row.lastActivityAt) {
+                  <span [title]="row.lastActivityAt">{{
+                    row.lastActivityAt | date: "medium"
+                  }}</span>
+                } @else {
+                  <span class="tw-text-muted">{{ "pamNoActivity" | i18n }}</span>
+                }
+              </td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    }
+  }
+</bit-section>

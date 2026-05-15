@@ -6,6 +6,7 @@ import { LeaseRevokeRequest } from "../services/requests/lease-revoke.request";
 
 import { GatedCipherFetchResult } from "./gated-cipher-fetch-result";
 import { CollectionLeasingConfigResponse } from "./responses/collection-leasing.response";
+import { OrganizationGovernanceSummaryResponse } from "./responses/governance-summary.response";
 import { LeaseRequestResponse } from "./responses/lease-request.response";
 
 export abstract class PamApiService {
@@ -25,4 +26,12 @@ export abstract class PamApiService {
     id: string,
     request: CollectionLeasingRequest,
   ): Promise<CollectionLeasingConfigResponse>;
+  /**
+   * Fetch the leasing governance summary for an organization — org-wide totals
+   * and a row per leasing-enabled collection. Org-admin only on the server.
+   * See PM-37277.
+   */
+  abstract getGovernanceSummary(
+    organizationId: string,
+  ): Promise<OrganizationGovernanceSummaryResponse>;
 }

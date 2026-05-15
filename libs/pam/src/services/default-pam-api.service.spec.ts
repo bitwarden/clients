@@ -142,4 +142,69 @@ describe("DefaultPamApiService", () => {
       expect(result.policy?.kind).toBe("human_approval");
     });
   });
+
+  describe("getGovernanceSummary", () => {
+    it("GETs /organizations/{id}/leasing/governance and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        OrganizationId: "org-1",
+        LeasingEnabledCollectionCount: 2,
+        TotalPendingRequestCount: 1,
+        TotalActiveLeaseCount: 3,
+        Collections: [
+          {
+            CollectionId: "col-1",
+            CollectionName: "Servers",
+            Policy: { Kind: "human_approval" },
+            RequireLeaseMemberCount: 4,
+            PendingRequestCount: 1,
+            ActiveLeaseCount: 2,
+            LastActivityAt: "2026-05-01T12:00:00Z",
+          },
+          {
+            CollectionId: "col-2",
+            CollectionName: "Databases",
+            Policy: null,
+            RequireLeaseMemberCount: 0,
+            PendingRequestCount: 0,
+            ActiveLeaseCount: 1,
+            LastActivityAt: null,
+          },
+        ],
+      });
+
+      const result = await service.getGovernanceSummary("org-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/organizations/org-1/leasing/governance",
+        null,
+        true,
+        true,
+      );
+      expect(result.organizationId).toBe("org-1");
+      expect(result.leasingEnabledCollectionCount).toBe(2);
+      expect(result.totalPendingRequestCount).toBe(1);
+      expect(result.totalActiveLeaseCount).toBe(3);
+      expect(result.collections).toHaveLength(2);
+      expect(result.collections[0].collectionId).toBe("col-1");
+      expect(result.collections[0].policy?.kind).toBe("human_approval");
+      expect(result.collections[0].requireLeaseMemberCount).toBe(4);
+      expect(result.collections[0].pendingRequestCount).toBe(1);
+      expect(result.collections[0].activeLeaseCount).toBe(2);
+      expect(result.collections[0].lastActivityAt).toBe("2026-05-01T12:00:00Z");
+      expect(result.collections[1].policy).toBeNull();
+      expect(result.collections[1].lastActivityAt).toBeNull();
+    });
+
+    it("tolerates a missing Collections array and missing counts", async () => {
+      apiService.send.mockResolvedValue({ OrganizationId: "org-1" });
+
+      const result = await service.getGovernanceSummary("org-1");
+
+      expect(result.collections).toEqual([]);
+      expect(result.leasingEnabledCollectionCount).toBe(0);
+      expect(result.totalPendingRequestCount).toBe(0);
+      expect(result.totalActiveLeaseCount).toBe(0);
+    });
+  });
 });
