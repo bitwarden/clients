@@ -109,3 +109,9 @@
     }
   }
 </ng-container>
+@if (isDevMode || adoptionUxImprovementsEnabled) {
+  <dirt-dev-menu
+    (beginTour)="beginOnboardingTour()"
+    (importData)="goToImportPage()"
+  ></dirt-dev-menu>
+}
