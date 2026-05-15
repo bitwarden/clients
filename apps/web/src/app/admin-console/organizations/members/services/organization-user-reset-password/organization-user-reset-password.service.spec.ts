@@ -225,7 +225,12 @@ describe("OrganizationUserResetPasswordService", () => {
         expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
           orgId,
           orgUserId,
-          expect.objectContaining({ resetMasterPassword: false, resetTwoFactor: true }),
+          expect.objectContaining({
+            resetMasterPassword: false,
+            resetTwoFactor: true,
+            authenticationData: undefined,
+            unlockData: undefined,
+          }),
         );
       });
 
@@ -373,8 +378,8 @@ describe("OrganizationUserResetPasswordService", () => {
           expect.objectContaining({
             resetMasterPassword: true,
             resetTwoFactor: false,
-            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-            key: unlockData.masterKeyWrappedUserKey,
+            authenticationData,
+            unlockData,
           }),
         );
       });
@@ -453,8 +458,8 @@ describe("OrganizationUserResetPasswordService", () => {
           expect.objectContaining({
             resetMasterPassword: true,
             resetTwoFactor: true,
-            newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-            key: unlockData.masterKeyWrappedUserKey,
+            authenticationData,
+            unlockData,
           }),
         );
       });
