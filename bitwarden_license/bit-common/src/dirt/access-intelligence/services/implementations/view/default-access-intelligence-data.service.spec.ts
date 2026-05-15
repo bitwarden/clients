@@ -182,7 +182,6 @@ describe("DefaultAccessIntelligenceDataService", () => {
 
       expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId);
       expect(organizationUserApiService.getAllUsers).toHaveBeenCalledWith(orgId, {
-        includeCollections: true,
         includeGroups: true,
       });
       expect(reportGenerationService.generateReport$).toHaveBeenCalled();
