@@ -5,7 +5,6 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { CollectionAccessDetailsResponse } from "@bitwarden/common/admin-console/models/collections";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
