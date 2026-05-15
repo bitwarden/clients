@@ -1,7 +1,7 @@
 @let organization = organization$ | async;
 <form [formGroup]="formGroup" [bitSubmit]="submit">
   <bit-dialog dialogSize="large" [disablePadding]="organization.useInviteLinks">
-    <span bitDialogTitle>{{ "inviteMember" | i18n }}</span>
+    <span bitDialogTitle>{{ "inviteMembers" | i18n }}</span>
     <div bitDialogContent>
       @if (organization.useInviteLinks) {
         <bit-tab-group
@@ -24,15 +24,27 @@
       }
     </div>
     <ng-container bitDialogFooter>
-      <button
-        type="submit"
-        bitButton
-        bitFormButton
-        buttonType="primary"
-        [disabled]="selectedTabIndex() === 0 && formGroup.controls.emails.invalid"
-      >
-        {{ selectedTabIndex() === 0 ? ("invite" | i18n) : ("copyLink" | i18n) }}
-      </button>
+      @if (selectedTabIndex() === 0) {
+        <button
+          type="submit"
+          bitButton
+          bitFormButton
+          buttonType="primary"
+          [disabled]="formGroup.controls.emails.invalid"
+        >
+          {{ "invite" | i18n }}
+        </button>
+      } @else {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="copyLink"
+          [disabled]="byLinkTabDirty() || !(byLinkTabHasUrl$ | async)"
+        >
+          {{ "copyLink" | i18n }}
+        </button>
+      }
       <button type="button" bitButton buttonType="secondary" (click)="cancel()">
         {{ "cancel" | i18n }}
       </button>
