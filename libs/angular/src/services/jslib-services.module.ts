@@ -566,6 +566,10 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       MasterPasswordServiceAbstraction,
       SyncService,
+      KeyService,
+      BiometricsService,
+      BiometricStateService,
+      PlatformUtilsServiceAbstraction,
     ],
   }),
   safeProvider({
