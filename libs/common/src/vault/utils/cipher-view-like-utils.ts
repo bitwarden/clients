@@ -132,12 +132,16 @@ export class CipherViewLikeUtils {
         return CipherType.SshKey;
       case cipher.type === "bankAccount":
         return CipherType.BankAccount;
+      case cipher.type === "passport":
+        return CipherType.Passport;
       case cipher.type === "identity":
         return CipherType.Identity;
       case typeof cipher.type === "object" && "card" in cipher.type:
         return CipherType.Card;
       case typeof cipher.type === "object" && "login" in cipher.type:
         return CipherType.Login;
+      case cipher.type === "driversLicense":
+        return CipherType.DriversLicense;
       default:
         throw new Error(`Unknown cipher type: ${cipher.type}`);
     }
@@ -290,6 +294,18 @@ export class CipherViewLikeUtils {
         return !!cipher.bankAccount?.pin;
       case "iban":
         return !!cipher.bankAccount?.iban;
+      case "firstName":
+        return !!cipher.driversLicense?.firstName;
+      case "middleName":
+        return !!cipher.driversLicense?.middleName;
+      case "lastName":
+        return !!cipher.driversLicense?.lastName;
+      case "licenseNumber":
+        return !!cipher.driversLicense?.licenseNumber;
+      case "passportNumber":
+        return !!cipher.passport?.passportNumber;
+      case "nationalIdentificationNumber":
+        return !!cipher.passport?.nationalIdentificationNumber;
       default:
         return false;
     }
@@ -397,6 +413,8 @@ const copyActionToCopyableFieldMap: Record<string, CopyableCipherFields> = {
   routingNumber: "BankAccountRoutingNumber",
   pin: "BankAccountPin",
   iban: "BankAccountIban",
+  licenseNumber: "DriversLicenseLicenseNumber",
+  passportNumber: "PassportPassportNumber",
 };
 
 /** Converts a `LoginListUriView` to a `LoginUriView`. */

@@ -293,6 +293,48 @@ describe("VaultItemCopyActionsComponent", () => {
     });
   });
 
+  describe("singleCopyableDriversLicense", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(CipherViewLikeUtils, "hasCopyableValue")
+        .mockImplementation(
+          (cipher: CipherViewLike & { __copyable?: Record<string, boolean> }, field) => {
+            return Boolean(cipher.__copyable?.[field]);
+          },
+        );
+    });
+
+    it("returns the only copyable drivers license field", () => {
+      (component.cipher() as any).__copyable = {
+        firstName: false,
+        middleName: false,
+        lastName: false,
+        licenseNumber: true,
+      };
+
+      const result = component.singleCopyableDriversLicense;
+
+      expect(result).toEqual({
+        key: "translated-licenseNumber",
+        field: "licenseNumber",
+      });
+      expect(i18nService.t).toHaveBeenCalledWith("licenseNumber");
+    });
+
+    it("returns null when multiple drivers license fields are available", () => {
+      (component.cipher() as any).__copyable = {
+        firstName: true,
+        middleName: false,
+        lastName: true,
+        licenseNumber: false,
+      };
+
+      const result = component.singleCopyableDriversLicense;
+
+      expect(result).toBeNull();
+    });
+  });
+
   describe("has*Values in non-list view", () => {
     beforeEach(() => {
       jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
@@ -391,6 +433,26 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasSshKeyValues).toBe(false);
     });
+
+    it("computes hasDriversLicenseValues from driversLicense fields", () => {
+      (component.cipher() as CipherView).driversLicense = {
+        firstName: "John",
+        middleName: null,
+        lastName: null,
+        licenseNumber: null,
+      } as any;
+
+      expect(component.hasDriversLicenseValues).toBe(true);
+
+      (component.cipher() as CipherView).driversLicense = {
+        firstName: null,
+        middleName: null,
+        lastName: null,
+        licenseNumber: null,
+      } as any;
+
+      expect(component.hasDriversLicenseValues).toBe(false);
+    });
   });
 
   describe("has*Values in list view", () => {
@@ -462,6 +524,20 @@ describe("VaultItemCopyActionsComponent", () => {
       ] as CopyableCipherFields[];
 
       expect(component.hasSshKeyValues).toBe(false);
+    });
+
+    it("uses copyableFields for drivers license values", () => {
+      (component.cipher() as CipherListView).copyableFields = [
+        "DriversLicenseLicenseNumber",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasDriversLicenseValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "LoginUsername",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasDriversLicenseValues).toBe(false);
     });
   });
 });
