@@ -149,7 +149,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.Milestone11AppPageImprovements]: FALSE,
   [FeatureFlag.AccessIntelligenceTrendChart]: FALSE,
   [FeatureFlag.AccessIntelligenceNewArchitecture]: FALSE,
-  [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: true,
+  [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
