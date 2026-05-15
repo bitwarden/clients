@@ -54,7 +54,7 @@ export class PremiumCheckoutSuccessComponent {
   protected readonly AuthenticationStatus = AuthenticationStatus;
 
   protected readonly authStatus = toSignal(this.authService.activeAccountStatus$, {
-    initialValue: null as AuthenticationStatus | null,
+    initialValue: null,
   });
 
   // Stripe appends `session_id={CHECKOUT_SESSION_ID}` to the success redirect. We keep it
@@ -62,7 +62,7 @@ export class PremiumCheckoutSuccessComponent {
   // can't be correlated with the Stripe session.
   private readonly checkoutSessionId = toSignal(
     this.activatedRoute.queryParamMap.pipe(map((params) => params.get("session_id"))),
-    { initialValue: null as string | null },
+    { initialValue: null },
   );
 
   protected readonly subscription = signal<BitwardenSubscription | null>(null);

@@ -25,7 +25,7 @@ export class PremiumCheckoutCancelComponent {
   protected readonly AuthenticationStatus = AuthenticationStatus;
 
   protected readonly authStatus = toSignal(this.authService.activeAccountStatus$, {
-    initialValue: null as AuthenticationStatus | null,
+    initialValue: null,
   });
 
   protected readonly returnToBitwarden = async (): Promise<void> => {
