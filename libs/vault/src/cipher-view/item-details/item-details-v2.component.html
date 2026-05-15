@@ -21,7 +21,7 @@
         <span bitBadge> {{ "archived" | i18n }} </span>
       }
       @if (showExpiredBadge()) {
-        <span bitBadge variant="danger" [startIcon]="null" class="tw-shrink-0">
+        <span bitBadge variant="warning" [startIcon]="null" class="tw-shrink-0">
           {{ "expired" | i18n }}
         </span>
       }
