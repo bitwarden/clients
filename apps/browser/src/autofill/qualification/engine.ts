@@ -9,7 +9,6 @@ import { synthesizeScenario } from "./scenario";
 import { buildFieldUnits } from "./signals";
 import {
   ClassificationReason,
-  Distribution,
   FieldRole,
   FormCategory,
   FormKind,
@@ -65,9 +64,8 @@ function classifyField(cluster: FieldCluster): ClassifiedField {
 }
 
 function classifyForm(cluster: FormClusterUnit): ClassifiedFormCluster {
-  const scores: Partial<Record<FormKind | "unknown", number>> = {};
+  const distribution: Partial<Record<FormKind, number>> = {};
   const reasons: ClassificationReason[] = [];
-  let maxScore = 0;
   for (const archetype of ARCHETYPES) {
     const scoreResult = archetype.score(cluster);
     reasons.push(...scoreResult.reasons);
@@ -83,24 +81,13 @@ function classifyForm(cluster: FormClusterUnit): ClassifiedFormCluster {
       reasons.push(...ambient.reasons);
       adjusted = Math.max(0, scoreResult.score + ambient.boost);
     }
-    scores[archetype.kind] = adjusted;
-    if (adjusted > maxScore) {
-      maxScore = adjusted;
+    if (adjusted > FORM_KIND_EPSILON) {
+      distribution[archetype.kind] = adjusted;
     }
   }
-  scores.unknown = Math.max(0, 1 - maxScore);
-
-  const distribution: Partial<Record<FormKind | "unknown", number>> = {};
-  for (const [k, v] of Object.entries(scores) as Array<[FormKind | "unknown", number]>) {
-    if (v > FORM_KIND_EPSILON) {
-      distribution[k] = v;
-    }
-  }
-  if (Object.keys(distribution).length === 0) {
-    distribution.unknown = 1;
-  }
-
-  return { cluster, distribution: distribution as Distribution<FormKind>, reasons };
+  // No "unknown" fallback: an empty distribution means "no archetype claimed
+  // this form." `argmax` reports `kind: "unknown"` as the sentinel for that.
+  return { cluster, distribution, reasons };
 }
 
 export function createScoringQualificationEngine(): QualificationEngine {

@@ -116,10 +116,7 @@ function collectMatchedRoles(
   parentInternalKind: FormKind | "unknown",
 ): ReadonlySet<FieldRole> {
   const roles = new Set<FieldRole>();
-  for (const [k, v] of Object.entries(distribution) as Array<[FieldRole | "unknown", number]>) {
-    if (k === "unknown") {
-      continue;
-    }
+  for (const [k, v] of Object.entries(distribution) as Array<[FieldRole, number]>) {
     if (typeof v === "number" && isAboveMatchedFloor(v)) {
       roles.add(k);
       // UpdateCurrentPassword: emit when EITHER signal source agrees.
@@ -146,8 +143,8 @@ function fieldHasUpdatePasswordEvidence(field: AutofillField): boolean {
 
 function collectFieldScores(distribution: Distribution<FieldRole>): ReadonlyArray<RoleScore> {
   const out: RoleScore[] = [];
-  for (const [k, v] of Object.entries(distribution) as Array<[FieldRole | "unknown", number]>) {
-    if (k === "unknown" || typeof v !== "number") {
+  for (const [k, v] of Object.entries(distribution) as Array<[FieldRole, number]>) {
+    if (typeof v !== "number") {
       continue;
     }
     out.push({ role: k, score: v });
@@ -230,8 +227,8 @@ function projectFormClassification(classified: ClassifiedFormCluster): FormClass
 
 function collectMatchedCategories(distribution: Distribution<FormKind>): ReadonlySet<FormCategory> {
   const categories = new Set<FormCategory>();
-  for (const [k, v] of Object.entries(distribution) as Array<[FormKind | "unknown", number]>) {
-    if (k === "unknown" || typeof v !== "number" || !isAboveFormMatchedFloor(v)) {
+  for (const [k, v] of Object.entries(distribution) as Array<[FormKind, number]>) {
+    if (typeof v !== "number" || !isAboveFormMatchedFloor(v)) {
       continue;
     }
     const category = toFormCategory(k);
@@ -244,8 +241,8 @@ function collectMatchedCategories(distribution: Distribution<FormKind>): Readonl
 
 function collectFormScores(distribution: Distribution<FormKind>): ReadonlyArray<CategoryScore> {
   const out: CategoryScore[] = [];
-  for (const [k, v] of Object.entries(distribution) as Array<[FormKind | "unknown", number]>) {
-    if (k === "unknown" || typeof v !== "number") {
+  for (const [k, v] of Object.entries(distribution) as Array<[FormKind, number]>) {
+    if (typeof v !== "number") {
       continue;
     }
     const category = toFormCategory(k);
@@ -265,14 +262,8 @@ function pickTopCategory(argmaxKind: FormKind | "unknown"): FormCategory | null 
 }
 
 function isFullyVetoed(classified: ClassifiedFormCluster): boolean {
-  const distribution = classified.distribution as Record<string, number>;
-  for (const k of Object.keys(distribution)) {
-    if (k === "unknown") {
-      continue;
-    }
-    if ((distribution[k] ?? 0) > 0) {
-      return false;
-    }
-  }
-  return true;
+  // Refined `Distribution<FormKind>` never contains "unknown" and never holds
+  // entries at or below epsilon (engine.ts filters at the boundary). Empty
+  // distribution ≡ every archetype scored zero ≡ fully vetoed.
+  return Object.keys(classified.distribution).length === 0;
 }

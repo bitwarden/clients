@@ -1,6 +1,12 @@
 import { FieldCluster, FieldUnit, SignalSnapshot } from "./internal";
 import { Cue, CUES_BY_KIND, UNKNOWN_BASELINE_LOGIT } from "./likelihood-ratios";
-import { ClassificationReason, ConfidenceBand, Distribution, FieldRole } from "./types";
+import {
+  ClassificationReason,
+  ConfidenceBand,
+  Distribution,
+  FieldRole,
+  RawDistribution,
+} from "./types";
 
 const DISTRIBUTION_EPSILON = 0.001;
 
@@ -71,7 +77,19 @@ function classifyUnit(unit: FieldUnit): FieldClassificationResult {
     }
   }
 
-  return { distribution: softmax(logits) as Distribution<FieldRole>, reasons };
+  const raw = softmax(logits) as RawDistribution<FieldRole>;
+  return { distribution: withoutUnknown(raw), reasons };
+}
+
+function withoutUnknown<K extends string>(raw: RawDistribution<K>): Distribution<K> {
+  const out: Partial<Record<K, number>> = {};
+  for (const [k, v] of Object.entries(raw) as Array<[K | "unknown", number]>) {
+    if (k === "unknown" || typeof v !== "number") {
+      continue;
+    }
+    out[k] = v;
+  }
+  return out;
 }
 
 function matchesCue(signals: SignalSnapshot, cue: Cue): boolean {

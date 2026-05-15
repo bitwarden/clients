@@ -47,7 +47,14 @@ export const PageScenarioKind = Object.freeze({
 } as const);
 export type PageScenarioKind = (typeof PageScenarioKind)[keyof typeof PageScenarioKind];
 
-export type Distribution<K extends string> = Readonly<Partial<Record<K | "unknown", number>>>;
+// Probability distribution over a closed set of real labels. Engine internals
+// produce a `RawDistribution<K>` from softmax — that shape carries the
+// "unknown" baseline as a key. Stripping it at the boundary gives consumers
+// `Distribution<K>`, which can be iterated without per-site filtering. Argmax
+// continues to return `K | "unknown"`, using "unknown" as the no-winner
+// sentinel (empty distribution, or every key vetoed).
+export type RawDistribution<K extends string> = Readonly<Partial<Record<K | "unknown", number>>>;
+export type Distribution<K extends string> = Readonly<Partial<Record<K, number>>>;
 
 export type ClusterMembership = {
   readonly id: string;
