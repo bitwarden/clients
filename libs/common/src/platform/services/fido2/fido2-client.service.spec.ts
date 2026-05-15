@@ -85,6 +85,7 @@ describe("FidoAuthenticatorService", () => {
     configService.serverConfig$ = of({ environment: { vault: VaultUrl } } as any);
     vaultSettingsService.enablePasskeys$ = of(true);
     domainSettingsService.neverDomains$ = of({});
+    domainSettingsService.blockedInteractionsUris$ = of({});
     authService.activeAccountStatus$ = of(AuthenticationStatus.Unlocked);
     windowReference = Utils.newGuid();
   });
@@ -709,6 +710,52 @@ describe("FidoAuthenticatorService", () => {
         signature: randomBytes(64),
       };
     }
+  });
+
+  describe("isFido2FeatureEnabled", () => {
+    const hostname = "sub.example.com";
+    const origin = "https://sub.example.com";
+
+    it("returns false when the hostname exactly matches a `blockedInteractionsUris` entry", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "sub.example.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(false);
+    });
+
+    it("returns true when the hostname is a subdomain of a `blockedInteractionsUris` entry", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "example.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when `blockedInteractionsUris` is empty", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({});
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true when no `blockedInteractionsUris` entry matches the hostname", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "bitwarden.com": null });
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(true);
+    });
+
+    it("rejects via `blockedInteractionsUris` regardless of `neverDomains` state", async () => {
+      domainSettingsService.blockedInteractionsUris$ = of({ "sub.example.com": null });
+      domainSettingsService.neverDomains$ = of({});
+
+      const result = await client.isFido2FeatureEnabled(hostname, origin);
+
+      expect(result).toBe(false);
+    });
   });
 });
 

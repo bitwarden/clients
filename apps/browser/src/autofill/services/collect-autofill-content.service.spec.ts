@@ -2968,7 +2968,9 @@ describe("CollectAutofillContentService", () => {
       "id",
       "type",
       "autocomplete",
-      "class",
+      // Note: "class" is intentionally excluded from the mutation observer attribute filter
+      // to avoid callback storms on dynamic pages. htmlClass is refreshed on the next full
+      // page-detail collection instead.
       "tabindex",
       "title",
       "rel",
@@ -3219,7 +3221,7 @@ describe("CollectAutofillContentService", () => {
       };
 
       collectAutofillContentService["mutationsQueue"] = [[mutationRecord], [mutationRecord]];
-      jest.spyOn(collectAutofillContentService as any, "processMutationRecords");
+      jest.spyOn(collectAutofillContentService as any, "processMutationRecord");
 
       collectAutofillContentService["processMutations"]();
 
