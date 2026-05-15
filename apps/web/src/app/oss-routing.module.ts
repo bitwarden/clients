@@ -49,11 +49,13 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
+import { DefaultPamApiService, PamApiService } from "@bitwarden/pam";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
@@ -96,6 +98,12 @@ import { BrowserExtensionPromptComponent } from "./vault/components/browser-exte
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
+
+// Provider factory for the lazy-loaded "My requests" PAM route. Keeps PamApiService
+// out of the root injector so it lives or dies with the PAM feature surfaces.
+function pamApiServiceFactory(apiService: ApiService): PamApiService {
+  return new DefaultPamApiService(apiService);
+}
 
 const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
@@ -633,6 +641,17 @@ const routes: Routes = [
     component: UserLayoutComponent,
     canActivate: [deepLinkGuard(), authGuard],
     children: [
+      {
+        path: "vault/my-requests",
+        // Top-level placement under /vault is provisional; IA owner may relocate
+        // post-launch. Tracked in the PM-37267 tech breakdown.
+        data: { titleId: "pamMyRequestsPageTitle" } satisfies RouteDataProperties,
+        loadComponent: () =>
+          import("./pam/my-requests/my-requests.component").then((m) => m.MyRequestsComponent),
+        providers: [
+          { provide: PamApiService, useFactory: pamApiServiceFactory, deps: [ApiService] },
+        ],
+      },
       {
         path: "vault",
         canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],

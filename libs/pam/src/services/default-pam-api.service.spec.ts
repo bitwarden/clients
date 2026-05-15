@@ -118,6 +118,38 @@ describe("DefaultPamApiService", () => {
     });
   });
 
+  describe("listMyRequests", () => {
+    it("GETs /leasing/requests/mine and unwraps the ListResponse", async () => {
+      apiService.send.mockResolvedValue({
+        Data: [
+          { Id: "req-a", Status: "pending" },
+          { Id: "req-b", Status: "approved" },
+        ],
+      });
+
+      const result = await service.listMyRequests();
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/leasing/requests/mine",
+        null,
+        true,
+        true,
+      );
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe("req-a");
+      expect(result[1].id).toBe("req-b");
+    });
+
+    it("returns an empty array when the server omits Data", async () => {
+      apiService.send.mockResolvedValue({});
+
+      const result = await service.listMyRequests();
+
+      expect(result).toEqual([]);
+    });
+  });
+
   describe("setCollectionLeasingConfig", () => {
     it("PUTs /collections/{id}/leasing and wraps the response", async () => {
       apiService.send.mockResolvedValue({

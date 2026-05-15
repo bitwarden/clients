@@ -25,4 +25,5 @@ export abstract class PamApiService {
     id: string,
     request: CollectionLeasingRequest,
   ): Promise<CollectionLeasingConfigResponse>;
+  abstract listMyRequests(): Promise<LeaseRequestResponse[]>;
 }

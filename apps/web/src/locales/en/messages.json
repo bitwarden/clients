@@ -13874,5 +13874,98 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pamMyRequestsPageTitle": {
+    "message": "My requests"
+  },
+  "pamMyRequestsPendingSection": {
+    "message": "Pending"
+  },
+  "pamMyRequestsRecentSection": {
+    "message": "Recent (last 7 days)"
+  },
+  "pamMyRequestsPendingEmpty": {
+    "message": "No pending requests."
+  },
+  "pamMyRequestsRecentEmpty": {
+    "message": "No requests resolved in the last 7 days."
+  },
+  "pamMyRequestsEmptyTitle": {
+    "message": "No access requests yet"
+  },
+  "pamMyRequestsEmptyDescription": {
+    "message": "When you request access to a leased credential, it will show up here."
+  },
+  "pamMyRequestsLoadError": {
+    "message": "Couldn't load your access requests. Try again later."
+  },
+  "pamMyRequestsCancelSuccess": {
+    "message": "Request cancelled."
+  },
+  "pamMyRequestsCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "pamStatusApproved": {
+    "message": "Approved"
+  },
+  "pamStatusDenied": {
+    "message": "Denied"
+  },
+  "pamStatusCancelled": {
+    "message": "Cancelled"
+  },
+  "pamStatusExpired": {
+    "message": "Expired"
+  },
+  "pamStatusPending": {
+    "message": "Pending"
+  },
+  "pamColumnItem": {
+    "message": "Item"
+  },
+  "pamColumnRequestedWindow": {
+    "message": "Requested window"
+  },
+  "pamColumnSubmitted": {
+    "message": "Submitted"
+  },
+  "pamColumnApprovers": {
+    "message": "Approvers"
+  },
+  "pamColumnStatus": {
+    "message": "Status"
+  },
+  "pamColumnResolver": {
+    "message": "Resolver"
+  },
+  "pamColumnComment": {
+    "message": "Comment"
+  },
+  "pamColumnResolved": {
+    "message": "Resolved"
+  },
+  "pamApproversTbd": {
+    "message": "Awaiting approval"
+  },
+  "pamResolverPolicy": {
+    "message": "Policy"
+  },
+  "pamWindowUntil": {
+    "message": "Until $TIME$",
+    "placeholders": {
+      "time": {
+        "content": "$1",
+        "example": "1/5/26, 3:30 PM"
+      }
+    }
+  },
+  "pamWindowTtlSeconds": {
+    "message": "$SECONDS$s",
+    "placeholders": {
+      "seconds": {
+        "content": "$1",
+        "example": "3600"
+      }
+    }
   }
 }

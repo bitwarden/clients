@@ -1,4 +1,5 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
 
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
 import { PamApiService } from "../abstractions/pam-api.service";
@@ -64,6 +65,11 @@ export class DefaultPamApiService implements PamApiService {
     return new CollectionLeasingConfigResponse(
       await this.send("PUT", `/collections/${id}/leasing`, request, true),
     );
+  }
+
+  async listMyRequests(): Promise<LeaseRequestResponse[]> {
+    const response = await this.send("GET", "/leasing/requests/mine", null, true);
+    return new ListResponse(response, LeaseRequestResponse).data;
   }
 
   private send(method: HttpMethod, path: string, body: unknown, hasResponse: boolean) {
