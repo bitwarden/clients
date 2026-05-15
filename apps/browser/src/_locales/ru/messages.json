@@ -167,8 +167,17 @@
   "copyPassportNumber": {
     "message": "Скопировать номер паспорта"
   },
+  "copyFirstName": {
+    "message": "Скопировать имя"
+  },
+  "copyMiddleName": {
+    "message": "Скопировать отчество"
+  },
+  "copyLastName": {
+    "message": "Скопировать фамилию"
+  },
   "copyLicenseNumber": {
-    "message": "Скопировать номер лицензии"
+    "message": "Скопировать номер водительского удостоверения"
   },
   "copyPrivateKey": {
     "message": "Скопировать приватный ключ"
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "Оценить расширение"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "experiencingAnIssue": {
+    "message": "Испытываете проблемы?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Скачайте, а затем поделитесь диагностическим отчетом с"
+  },
+  "bitwardenSupport": {
+    "message": "поддержкой Bitwarden",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Скачать"
   },
   "browserNotSupportClipboard": {
     "message": "Ваш браузер не поддерживает копирование данных в буфер обмена. Скопируйте вручную."
@@ -2076,7 +2101,7 @@
     "message": "Номер паспорта"
   },
   "licenseNumber": {
-    "message": "ИНН"
+    "message": "Номер водительского удостоверения"
   },
   "email": {
     "message": "Email"
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "Банковские реквизиты"
   },
+  "typeDriversLicense": {
+    "message": "Водительское удостоверение"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Водительское удостоверение или ID"
+  },
+  "driversLicenseDetails": {
+    "message": "Детали водительского удостоверения"
+  },
+  "dateOfBirth": {
+    "message": "Дата рождения"
+  },
+  "birthMonth": {
+    "message": "Месяц рождения"
+  },
+  "birthDay": {
+    "message": "День рождения"
+  },
+  "birthYear": {
+    "message": "Год рождения"
+  },
+  "issuingCountry": {
+    "message": "Страна выдачи"
+  },
+  "issuingState": {
+    "message": "Республика / область выдачи"
+  },
+  "issuingAuthority": {
+    "message": "Выдавший орган"
+  },
+  "issueDate": {
+    "message": "Дата выдачи"
+  },
+  "issueMonth": {
+    "message": "Месяц выдачи"
+  },
+  "issueDay": {
+    "message": "День выдачи"
+  },
+  "issueYear": {
+    "message": "Год выдачи"
+  },
+  "expirationDay": {
+    "message": "Срок действия"
+  },
+  "licenseClass": {
+    "message": "Категории водительского удостоверения"
+  },
   "newItemHeaderLogin": {
     "message": "Новый логин",
     "description": "Header for new login item type"
@@ -2190,7 +2263,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "Новая лицензия",
+    "message": "Новое водительское удостоверение",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -2229,8 +2302,8 @@
     "message": "Изменить банковский счет",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
-    "message": "Изменить лицензию",
+  "editItemHeaderLicense": {
+    "message": "Изменить водительское удостоверение",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
@@ -2269,8 +2342,8 @@
     "message": "Просмотреть банковский счет",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
-    "message": "Просмотреть лицензию",
+  "viewItemHeaderLicense": {
+    "message": "Просмотреть водительское удостоверение",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "Проверка пользователя не удалась."
   },
+  "enterMonth": {
+    "message": "Введите месяц."
+  },
+  "enterDay": {
+    "message": "Введите день."
+  },
+  "enterYear": {
+    "message": "Введите год."
+  },
+  "invalidDay": {
+    "message": "Введите правильный день."
+  },
+  "invalidYear": {
+    "message": "Введите правильный год."
+  },
+  "searchDriversLicense": {
+    "message": "Поиск водительских удостоверений"
+  },
   "bankName": {
     "message": "Название банка"
   },
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "Прочее"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "Надежно храните свои банковские реквизиты"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "Сохраните данные своего банковского счета, чтобы иметь к ним удобный и безопасный доступ со всех своих устройств."
   },
   "downloadFailed": {
     "message": "Не удалось загрузить."
