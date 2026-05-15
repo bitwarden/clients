@@ -982,6 +982,59 @@ describe("OverlayBackground", () => {
       });
     });
 
+    it.each([
+      {
+        description: "for the standard inline menu path",
+        focusedFieldData: createFocusedFieldDataMock({ tabId: tab.id }),
+        ciphersForUrl: [loginCipher1],
+        expectedShowInlineMenuAccountCreation: false,
+      },
+      {
+        description: "for the account creation path",
+        focusedFieldData: createFocusedFieldDataMock({
+          tabId: tab.id,
+          accountCreationFieldType: "text",
+          inlineMenuFillType: InlineMenuFillTypes.AccountCreationUsername,
+        }),
+        ciphersForUrl: [loginCipher1, identityCipher],
+        expectedShowInlineMenuAccountCreation: true,
+      },
+    ])(
+      "uses current environment icons URL when updating ciphers $description",
+      async ({ focusedFieldData, ciphersForUrl, expectedShowInlineMenuAccountCreation }) => {
+        environmentMock$.next(
+          new CloudEnvironment({
+            key: Region.EU,
+            domain: "example.com",
+            urls: { icons: "https://icons-secondary.example.com/" },
+          }),
+        );
+
+        overlayBackground["focusedFieldData"] = focusedFieldData;
+        cipherService.getAllDecryptedForUrl.mockResolvedValue(ciphersForUrl);
+        cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+        getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+
+        await overlayBackground.updateOverlayCiphers();
+        await flushPromises();
+
+        expect(listPortSpy.postMessage).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            command: "updateAutofillInlineMenuListCiphers",
+            showInlineMenuAccountCreation: expectedShowInlineMenuAccountCreation,
+            ciphers: expect.arrayContaining([
+              expect.objectContaining({
+                type: CipherType.Login,
+                icon: expect.objectContaining({
+                  image: "https://icons-secondary.example.com//jest-testing-website.com/icon.png",
+                }),
+              }),
+            ]),
+          }),
+        );
+      },
+    );
+
     it("updates the inline menu list with card ciphers", async () => {
       overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
         tabId: tab.id,
