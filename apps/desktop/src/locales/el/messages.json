@@ -12,7 +12,7 @@
     "message": "Αγαπημένα"
   },
   "unfavorite": {
-    "message": "Unfavorite"
+    "message": "Αφαίρεση από τα αγαπημένα"
   },
   "types": {
     "message": "Τύποι"
@@ -35,29 +35,41 @@
   "typeSshKey": {
     "message": "Κλειδί SSH"
   },
+  "typeBankAccount": {
+    "message": "Τραπεζικός λογαριασμός"
+  },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Ιστότοπος ή εφαρμογή"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Πιστωτική ή χρεωστική κάρτα"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Προσωπικές πληροφορίες"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Σημαντικό κείμενο"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "Διακριτικό σύνδεσης διακομιστή"
+  },
+  "typeBankAccountSubtitle": {
+    "message": "Banking details"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Οργανώστε τα στοιχεία σας"
   },
   "collectionSubtitle": {
-    "message": "Organize shared items"
+    "message": "Οργάνωση κοινόχρηστων στοιχείων"
+  },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Επιλέξτε στοιχείο προς προσθήκη"
   },
   "chooseItemToAddDesc": {
     "message": "Select the item type you want to add to your vault."
@@ -100,7 +112,7 @@
     }
   },
   "noEditPermissions": {
-    "message": "You don't have permission to edit this item"
+    "message": "Δεν έχετε δικαίωμα να επεξεργαστείτε αυτό το στοιχείο"
   },
   "welcomeBack": {
     "message": "Καλωσορίσατε και πάλι"
@@ -115,64 +127,104 @@
     "message": "Προβολή στοιχείου"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Προβολή σύνδεσης",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Προβολή κάρτας",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Προβολή ταυτότητας",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Προβολή σημείωσης",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Προβολή κλειδιού SSH",
     "description": "Header for view SSH key item type"
   },
+  "viewItemHeaderBankAccount": {
+    "message": "Προβολή τραπεζικού λογαριασμού",
+    "description": "Header for view bank account item type"
+  },
+  "viewItemHeaderDriversLicense": {
+    "message": "Προβολή άδειας",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
+  "viewItemHeaderPassport": {
+    "message": "Προβολή διαβατηρίου",
+    "description": "Header for view passport item type"
+  },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Νέα σύνδεση",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Νέα κάρτα",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Νέα ταυτότητα",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Νέα σημείωση",
     "description": "Header for new note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Νέο κλειδί SSH",
     "description": "Header for new SSH key item type"
   },
+  "newItemHeaderBankAccount": {
+    "message": "Νέος τραπεζικός λογαριασμός",
+    "description": "Header for new bank account item type"
+  },
+  "newItemHeaderDriversLicense": {
+    "message": "Νέα άδεια",
+    "description": "Header for new license item type"
+  },
+  "newItemHeaderPassport": {
+    "message": "Νέο διαβατήριο",
+    "description": "Header for new passport item type"
+  },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Επεξεργασία σύνδεσης",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Επεξεργασία κάρτας",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Επεξεργασία ταυτότητας",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Επεξεργασία σημείωσης",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Επεξεργασία κλειδιού SSH",
     "description": "Header for edit SSH key item type"
+  },
+  "editItemHeaderBankAccount": {
+    "message": "Επεξεργασία τραπεζικού λογαριασμού",
+    "description": "Header for edit bank account item type"
+  },
+  "editItemHeaderLicense": {
+    "message": "Edit license",
+    "description": "Header for edit license item type"
+  },
+  "editItemHeaderPassport": {
+    "message": "Επεξεργασία διαβατηρίου",
+    "description": "Header for edit passport item type"
   },
   "name": {
     "message": "Όνομα"
@@ -191,14 +243,14 @@
     }
   },
   "deletionDateDescV2": {
-    "message": "The Send will be permanently deleted on this date.",
+    "message": "Το Send θα διαγραφεί οριστικά σε αυτήν την ημερομηνία.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Αρχείο προς κοινοποίηση"
   },
   "hideTextByDefault": {
-    "message": "Hide text by default"
+    "message": "Απόκρυψη κειμένου από προεπιλογή"
   },
   "hideYourEmail": {
     "message": "Hide your email address from viewers."
@@ -207,7 +259,7 @@
     "message": "Περιορισμός προβολών"
   },
   "limitSendViewsCount": {
-    "message": "$ACCESSCOUNT$ views left",
+    "message": "Απομένουν $ACCESSCOUNT$ προβολές",
     "description": "Displayed under the limit views field on Send",
     "placeholders": {
       "accessCount": {
@@ -224,26 +276,26 @@
     "message": "Ιδιωτική σημείωση"
   },
   "sendDetails": {
-    "message": "Send details",
+    "message": "Στοιχεία Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendTypeTextToShare": {
-    "message": "Text to share"
+    "message": "Κείμενο προς κοινοποίηση"
   },
-  "newItemHeaderTextSend": {
-    "message": "New Text Send",
+  "newItemHeaderTextSendV2": {
+    "message": "New text",
     "description": "Header for new text send"
   },
-  "newItemHeaderFileSend": {
-    "message": "New File Send",
+  "newItemHeaderFileSendV2": {
+    "message": "New file",
     "description": "Header for new file send"
   },
-  "editItemHeaderTextSend": {
-    "message": "Edit Text Send",
+  "editItemHeaderTextSendV2": {
+    "message": "Edit text",
     "description": "Header for edit text send"
   },
-  "editItemHeaderFileSend": {
-    "message": "Edit File Send",
+  "editItemHeaderFileSendV2": {
+    "message": "Edit file",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -425,7 +477,7 @@
     "message": "Για να χρησιμοποιήσετε αυτή τη λειτουργία, απαιτείται η Premium συνδρομή."
   },
   "syncWithBrowser": {
-    "message": "Sync with browser"
+    "message": "Συγχρονισμός με πρόγραμμα περιήγησης"
   },
   "acquireCookieSpeedbumpContent": {
     "message": "To connect to $VAULTURL$, you need to sync your default browser with the Bitwarden app. You’ll be redirected back to this app once your browser is synced.",
@@ -438,7 +490,7 @@
     }
   },
   "launchBrowser": {
-    "message": "Launch browser"
+    "message": "Εκκίνηση προγράμματος περιήγησης"
   },
   "errorOccurred": {
     "message": "Παρουσιάστηκε σφάλμα."
@@ -622,7 +674,7 @@
     "message": "Επεξεργασία πεδίου"
   },
   "permanentlyDeleteAttachmentConfirmation": {
-    "message": "Are you sure you want to permanently delete this attachment?"
+    "message": "Θέλετε σίγουρα να διαγράψετε οριστικά αυτό το συνημμένο;"
   },
   "fieldType": {
     "message": "Τύπος πεδίου"
@@ -634,16 +686,16 @@
     "message": "Προσθήκη"
   },
   "textHelpText": {
-    "message": "Use text fields for data like security questions"
+    "message": "Χρησιμοποιήστε τα πεδία κειμένου για δεδομένα όπως ερωτήσεις ασφαλείας"
   },
   "hiddenHelpText": {
-    "message": "Use hidden fields for sensitive data like a password"
+    "message": "Χρησιμοποιήστε τα κρυφά πεδία για ευαίσθητα δεδομένα όπως κωδικούς πρόσβασης"
   },
   "checkBoxHelpText": {
-    "message": "Use checkboxes if you'd like to autofill a form's checkbox, like a remember email"
+    "message": "Χρησιμοποιήστε τα πλαίσια επιλογής αν επιθυμείτε την αυτόματη συμπλήρωση του πλαισίου επιλογής μιας φόρμας, όπως της επιλογής για απομνημόνευση διεύθυνσης email"
   },
   "linkedHelpText": {
-    "message": "Use a linked field when you are experiencing autofill issues for a specific website."
+    "message": "Χρησιμοποιήστε ένα συνδεδεμένο πεδίο όταν αντιμετωπίζετε προβλήματα αυτόματης συμπλήρωσης για έναν συγκεκριμένο ιστότοπο."
   },
   "linkedLabelHelpText": {
     "message": "Enter the the field's html id, name, aria-label, or placeholder."
@@ -693,10 +745,10 @@
     "message": "Το αντικείμενο αποθηκεύτηκε"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Το στοιχείο προστέθηκε στα αγαπημένα"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Το στοιχείο αφαιρέθηκε από τα αγαπημένα"
   },
   "deleteItem": {
     "message": "Διαγραφή στοιχείου"
@@ -706,6 +758,24 @@
   },
   "deleteAttachment": {
     "message": "Διαγραφή συνημμένου"
+  },
+  "deleteAttachmentName": {
+    "message": "Διαγραφή συνημμένου «$NAME$»",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
+  },
+  "downloadAttachmentName": {
+    "message": "Λήψη του «$NAME$»",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Attachment Name"
+      }
+    }
   },
   "deleteItemConfirmation": {
     "message": "Σίγουρα θέλετε να το μετακινήσετε στον κάδο;"
@@ -894,7 +964,7 @@
     "message": "This file is using an outdated encryption method."
   },
   "attachmentUpdated": {
-    "message": "Attachment updated"
+    "message": "Το συνημμένο ενημερώθηκε"
   },
   "maxFileSizeSansPunctuation": {
     "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB"
@@ -909,7 +979,7 @@
     "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB."
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "Η κρυπτογράφηση παλαιού τύπου δεν υποστηρίζεται πλέον. Επικοινωνήστε με την υποστήριξη για να ανακτήσετε τον λογαριασμό σας."
   },
   "editedFolder": {
     "message": "Ο φάκελος αποθηκεύτηκε"
@@ -948,10 +1018,10 @@
     "message": "Εισάγετε τον κωδικό που στάλθηκε στο email σας"
   },
   "enterTheCodeFromYourAuthenticatorApp": {
-    "message": "Enter the code from your authenticator app"
+    "message": "Εισαγάγετε τον κωδικό μίας χρήσης από την εφαρμογή ελέγχου ταυτότητας"
   },
   "pressYourYubiKeyToAuthenticate": {
-    "message": "Press your YubiKey to authenticate"
+    "message": "Πιέστε το YubiKey σας για ταυτοποίηση"
   },
   "logInWithPasskey": {
     "message": "Σύνδεση με κλειδί πρόσβασης"
@@ -963,7 +1033,7 @@
     "message": "Χρήση single sign-on"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Ο οργανισμός σας απαιτεί καθολική σύνδεση (SSO)."
   },
   "submit": {
     "message": "Υποβολή"
@@ -1009,10 +1079,10 @@
     "message": "Υπόδειξη κύριου κωδικού πρόσβασης"
   },
   "masterPasswordChanged": {
-    "message": "Master password saved"
+    "message": "Ο κύριος κωδικός πρόσβασης αποθηκεύτηκε"
   },
   "passwordStrengthScore": {
-    "message": "Password strength score $SCORE$",
+    "message": "Βαθμολογία ισχύος κωδικού πρόσβασης: $SCORE$",
     "placeholders": {
       "score": {
         "content": "$1",
@@ -1103,7 +1173,7 @@
     "message": "Απρόσμενο σφάλμα"
   },
   "closeThisBitwardenWindow": {
-    "message": "Close this Bitwarden window and try again."
+    "message": "Κλείστε αυτό το παράθυρο του Bitwarden και δοκιμάστε ξανά."
   },
   "itemInformation": {
     "message": "Πληροφορίες αντικειμένου"
@@ -1139,7 +1209,7 @@
     "message": "Μη έγκυρος κωδικός επαλήθευσης"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Μη έγκυρο email ή κωδικός επαλήθευσης"
   },
   "continue": {
     "message": "Συνέχεια"
@@ -1154,14 +1224,14 @@
     }
   },
   "dontAskAgainOnThisDeviceFor30Days": {
-    "message": "Don't ask again on this device for 30 days"
+    "message": "Να μην ερωτηθώ ξανά σε αυτήν τη συσκευή για 30 ημέρες"
   },
   "selectAnotherMethod": {
-    "message": "Select another method",
+    "message": "Επιλογή άλλης μεθόδου",
     "description": "Select another two-step login method"
   },
   "useYourRecoveryCode": {
-    "message": "Use your recovery code"
+    "message": "Χρήση κωδικού ανάκτησης"
   },
   "insertU2f": {
     "message": "Εισάγετε το κλειδί ασφαλείας στη θύρα USB του υπολογιστή σας. Αν έχει κουμπί, πατήστε το."
@@ -1191,7 +1261,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
-    "message": "Verify your Identity"
+    "message": "Επαληθεύστε την ταυτότητά σας"
   },
   "weDontRecognizeThisDevice": {
     "message": "Δεν αναγνωρίζουμε αυτή τη συσκευή. Εισάγετε τον κωδικό που στάλθηκε στο email σας για να επαληθεύσετε την ταυτότητά σας."
@@ -1224,7 +1294,7 @@
     "message": "Επιλογές σύνδεσης δύο βημάτων"
   },
   "selectTwoStepLoginMethod": {
-    "message": "Select two-step login method"
+    "message": "Επιλογή μεθόδου δύο παραγόντων για σύνδεση"
   },
   "selfHostedEnvironment": {
     "message": "Αυτο-φιλοξενούμενο περιβάλλον"
@@ -1239,7 +1309,7 @@
     "message": "Πρέπει να προσθέσετε είτε το βασικό URL του διακομιστή ή τουλάχιστον ένα προσαρμοσμένο περιβάλλον."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "Οι διευθύνσεις URL πρέπει να χρησιμοποιούν HTTPS."
   },
   "customEnvironment": {
     "message": "Προσαρμοσμένο περιβάλλον"
@@ -1294,19 +1364,19 @@
     "message": "Μάθετε περισσότερα"
   },
   "migrationsFailed": {
-    "message": "An error occurred updating the encryption settings."
+    "message": "Προέκυψε σφάλμα κατά την ενημέρωση των ρυθμίσεων κρυπτογράφησης."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Ενημέρωση ρυθμίσεων κρυπτογράφησης"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "Οι νέες προτεινόμενες ρυθμίσεις κρυπτογράφησης θα βελτιώσουν την ασφάλεια του λογαριασμού σας. Εισαγάγετε τον κύριο κωδικό πρόσβασής σας για να κάνετε ενημέρωση τώρα."
   },
   "rotateAccountEncKey": {
     "message": "Also rotate my account's encryption key"
   },
   "impactOfRotatingYourEncryptionKey": {
-    "message": "Impact of rotating your encryption key"
+    "message": "Αντίκτυπος της περιστροφής του κλειδιού κρυπτογράφησης"
   },
   "oldAttachmentsNeedFixDesc": {
     "message": "There are old file attachments in your vault that need to be fixed before you can rotate your account's encryption key."
@@ -1330,7 +1400,7 @@
     "message": "Enter your master password"
   },
   "updateSettings": {
-    "message": "Update settings"
+    "message": "Ενημέρωση ρυθμίσεων"
   },
   "featureUnavailable": {
     "message": "Μη διαθέσιμη λειτουργία"
@@ -1402,13 +1472,13 @@
     "message": "Ακολουθήστε μας"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Συγχρονισμός τώρα"
   },
   "changeMasterPass": {
     "message": "Αλλαγή κύριου κωδικού πρόσβασης"
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Αλλαγή κύριου κωδικού πρόσβασης"
   },
   "continueToWebApp": {
     "message": "Συνέχεια στη διαδικτυακή εφαρμογή;"
@@ -1589,18 +1659,6 @@
   "enableTrayDesc": {
     "message": "Να εμφανίζεται πάντα ένα εικονίδιο στην περιοχή ειδοποιήσεων."
   },
-  "startToTray": {
-    "message": "Έναρξη σε εικονίδιο περιοχής ειδοποιήσεων"
-  },
-  "startToTrayDesc": {
-    "message": "Όταν ξεκινάει για πρώτη φορά η εφαρμογή, να εμφανίζεται μόνο ένα εικονίδιο στην περιοχή ειδοποιήσεων."
-  },
-  "startToMenuBar": {
-    "message": "Έναρξη στη γραμμή μενού"
-  },
-  "startToMenuBarDesc": {
-    "message": "Όταν ξεκινήσει η εφαρμογή, εμφανίζεται μόνο ένα εικονίδιο στη γραμμή μενού."
-  },
   "openAtLogin": {
     "message": "Εκκίνηση αυτόματα κατά τη σύνδεση"
   },
@@ -1689,16 +1747,16 @@
     "message": "Άγνωστο"
   },
   "copyAddress": {
-    "message": "Copy address"
+    "message": "Αντιγραφή διεύθυνσης"
   },
   "copyPhone": {
-    "message": "Copy phone"
+    "message": "Αντιγραφή τηλεφώνου"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Αντιγραφή σημείωσης"
   },
   "copyVerificationCode": {
-    "message": "Copy verification code"
+    "message": "Αντιγραφή κωδικού επαλήθευσης"
   },
   "copyUsername": {
     "message": "Αντιγραφή ονόματος χρήστη"
@@ -1706,6 +1764,10 @@
   "copyNumber": {
     "message": "Αντιγραφή αριθμού",
     "description": "Copy credit card number"
+  },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
   },
   "copyEmail": {
     "message": "Αντιγραφή διεύθυνσης ηλ. ταχυδρομείου"
@@ -1784,16 +1846,16 @@
     }
   },
   "month": {
-    "message": "month"
+    "message": "μήνας"
   },
   "monthly": {
-    "message": "Monthly"
+    "message": "Μηνιαία"
   },
   "year": {
-    "message": "year"
+    "message": "έτος"
   },
   "annually": {
-    "message": "Annually"
+    "message": "Ετησίως"
   },
   "annual": {
     "message": "Annual"
@@ -1962,6 +2024,12 @@
   "defaultMatchDetection": {
     "message": "Προεπιλεγμένος εντοπισμός αντιστοίχισης",
     "description": "Default URI match detection for auto-fill."
+  },
+  "showMatchDetectionNoPlaceholder": {
+    "message": "Show match detection"
+  },
+  "hideMatchDetectionNoPlaceholder": {
+    "message": "Hide match detection"
   },
   "toggleOptions": {
     "message": "Εναλλαγή επιλογών"
@@ -2217,7 +2285,7 @@
     "message": "If you leave now, your changes will not be saved. Install the update later so you can stay and save your changes."
   },
   "installLater": {
-    "message": "Install later"
+    "message": "Εγκατάσταση αργότερα"
   },
   "continueWithInstall": {
     "message": "Continue with install"
@@ -2249,13 +2317,13 @@
     "message": "Αναζήτηση κάδου απορριμμάτων"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Αναζήτηση αρχειοθήκης"
   },
   "searchLogin": {
-    "message": "Search login"
+    "message": "Αναζήτηση συνδέσεων"
   },
   "searchCard": {
-    "message": "Search card"
+    "message": "Αναζήτηση καρτών"
   },
   "searchIdentity": {
     "message": "Search identity"
@@ -2474,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Δυστυχώς, η ενσωμάτωση του browser δεν υποστηρίζεται αυτήν τη στιγμή στην έκδοση linux."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Απαιτείται επαλήθευση για ολοκλήρωση περιηγητή"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Προσθέστε ένα πρόσθετο επίπεδο ασφάλειας απαιτώντας επιβεβαίωση φράσης δακτυλικών αποτυπωμάτων κατά τη δημιουργία μιας σύνδεσης μεταξύ της επιφάνειας εργασίας σας και του περιηγητή σας. Αυτό απαιτεί ενέργεια χρήστη και επαλήθευση κάθε φορά που δημιουργείται μια σύνδεση."
-  },
   "enableHardwareAcceleration": {
     "message": "Χρήση επιτάχυνσης υλικού"
   },
@@ -2488,12 +2550,6 @@
   },
   "approve": {
     "message": "Έγκριση"
-  },
-  "verifyBrowserTitle": {
-    "message": "Επαλήθευση σύνδεσης περιηγητή"
-  },
-  "verifyBrowserDesc": {
-    "message": "Βεβαιωθείτε ότι το εμφανιζόμενο δακτυλικό αποτύπωμα είναι ταυτόσημο με το δακτυλικό αποτύπωμα που εμφανίζεται στην επέκταση του προγράμματος περιήγησης."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ θέλει να συνδεθεί με το Bitwarden",
@@ -2569,7 +2625,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "me": {
-    "message": "Me"
+    "message": "Εγώ"
   },
   "myVault": {
     "message": "Η κρύπτη μου"
@@ -2675,7 +2731,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLink": {
-    "message": "Copy Send link",
+    "message": "Αντιγραφή συνδέσμου Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
@@ -2724,10 +2780,10 @@
     "message": "Read security key"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Awaiting security key interaction..."
+    "message": "Σε αναμονή για αλληλεπίδραση με το κλειδί ασφαλείας..."
   },
-  "hideEmail": {
-    "message": "Απόκρυψη της διεύθυνσης email μου από τους παραλήπτες."
+  "hideMyEmail": {
+    "message": "Hide my email address from recipients."
   },
   "sendOptionsPolicyInEffect": {
     "message": "Μία ή περισσότερες οργανωτικές πολιτικές επηρεάζουν τις επιλογές send σας."
@@ -2751,7 +2807,7 @@
     "message": "Αυτή η ενέργεια προστατεύεται. Για να συνεχίσετε, πληκτρολογήστε ξανά τον κύριο κωδικό πρόσβασης για να επαληθεύσετε την ταυτότητά σας."
   },
   "masterPasswordSuccessfullySet": {
-    "message": "Master password successfully set"
+    "message": "Ο κύριος κωδικός πρόσβασης ορίστηκε επιτυχώς"
   },
   "updatedMasterPassword": {
     "message": "Ενημερώθηκε ο κύριος κωδικός πρόσβασης"
@@ -2766,13 +2822,13 @@
     "message": "Ο κύριος κωδικός πρόσβασής σας δεν πληροί μία ή περισσότερες πολιτικές του οργανισμού σας. Για να αποκτήσετε πρόσβαση στο θησαυ/κιο, πρέπει να ενημερώσετε τον κύριο κωδικό πρόσβασής σας τώρα. Η διαδικασία θα σας αποσυνδέσει από την τρέχουσα συνεδρία σας, απαιτώντας από εσάς να συνδεθείτε ξανά. Οι ενεργές συνεδρίες σε άλλες συσκευές ενδέχεται να συνεχίσουν να είναι ενεργές για μία ώρα."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "Αφού αλλάξετε τον κωδικό πρόσβασής σας, θα πρέπει να συνδεθείτε με τον νέο σας κωδικό πρόσβασης. Οι ενεργές συνεδρίες σε άλλες συσκευές θα αποσυνδεθούν εντός μίας ώρας."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "Αλλάξτε τον κύριο κωδικό πρόσβασης για να ολοκληρώσετε την ανάκτηση του λογαριασμού."
   },
   "updateMasterPasswordSubtitle": {
-    "message": "Your master password does not meet this organization’s requirements. Change your master password to continue."
+    "message": "Ο κύριος κωδικός πρόσβασής σας δεν πληροί τις απαιτήσεις αυτού του οργανισμού. Αλλάξτε τον κύριο κωδικό πρόσβασης για να συνεχίσετε."
   },
   "tdeDisabledMasterPasswordRequired": {
     "message": "Ο οργανισμός σας έχει απενεργοποιήσει την κρυπτογράφηση αξιόπιστης συσκευής. Παρακαλώ ορίστε έναν κύριο κωδικό πρόσβασης για να αποκτήσετε πρόσβαση στο θησαυροφυλάκιο σας."
@@ -2971,33 +3027,18 @@
   "exportingPersonalVaultTitle": {
     "message": "Εξαγωγή ατομικού θησαυ/κίου"
   },
-  "exportingIndividualVaultDescription": {
-    "message": "Μόνο τα ατομικά αντικείμενα θησαυ/κίου που σχετίζονται με το $EMAIL$ θα εξαχθούν. Τα αντικείμενα θησαυ/κίου του οργανισμού δε θα συμπεριληφθούν. Μόνο πληροφορίες αντικειμένων θησαυ/κίου θα εξαχθούν και δε θα περιλαμβάνουν συσχετιζόμενα συνημμένα.",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
-  "exportingIndividualVaultWithAttachmentsDescription": {
-    "message": "Only the individual vault items including attachments associated with $EMAIL$ will be exported. Organization vault items will not be included",
-    "placeholders": {
-      "email": {
-        "content": "$1",
-        "example": "name@example.com"
-      }
-    }
-  },
   "exportingOrganizationVaultTitle": {
     "message": "Εξαγωγή θησαυ/κίου οργανισμού"
   },
-  "exportingOrganizationVaultDesc": {
-    "message": "Μόνο το θησαυ/κιο του οργανισμού που σχετίζεται με το $ORGANIZATION$ θα εξαχθεί. Αντικείμενα σε ατομικά θησαυ/κια ή άλλους οργανισμούς δε θα συμπεριληφθούν.",
+  "exportingIndividualVaultScopeDescription": {
+    "message": "Only items in your individual vault will export."
+  },
+  "exportingOrganizationVaultScopeDescription": {
+    "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
     "placeholders": {
       "organization": {
         "content": "$1",
-        "example": "ACME Moving Co."
+        "example": "My Org Name"
       }
     }
   },
@@ -3413,14 +3454,14 @@
     "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
   },
   "webApp": {
-    "message": "Web app"
+    "message": "Εφαρμογή ιστού"
   },
   "mobile": {
     "message": "Mobile",
     "description": "Mobile app"
   },
   "extension": {
-    "message": "Extension",
+    "message": "Επέκταση",
     "description": "Browser extension/addon"
   },
   "desktop": {
@@ -3438,7 +3479,7 @@
     "message": "Διακομιστής"
   },
   "loginRequest": {
-    "message": "Login request"
+    "message": "Αίτημα σύνδεσης"
   },
   "deviceType": {
     "message": "Τύπος Συσκευής"
@@ -3628,13 +3669,13 @@
     "message": "Αξιόπιστη συσκευή"
   },
   "device": {
-    "message": "Device"
+    "message": "Συσκευή"
   },
   "devices": {
-    "message": "Devices"
+    "message": "Συσκευές"
   },
   "whatIsADevice": {
-    "message": "What is a device?"
+    "message": "Τι είναι μια συσκευή;"
   },
   "aDeviceIs": {
     "message": "A device is a unique installation of the Bitwarden app where you have logged in. Reinstalling, clearing app data, or clearing your cookies could result in a device appearing multiple times."
@@ -3643,37 +3684,37 @@
     "message": "Your account was logged in to each of the devices below."
   },
   "loginStatus": {
-    "message": "Login status"
+    "message": "Κατάσταση σύνδεσης"
   },
   "recentlyActive": {
     "message": "Recently active"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "Σήμερα"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Τελευταίες 7 ημέρες"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Τελευταίες 14 ημέρες"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Τελευταίες 30 ημέρες"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Πάνω από 30 ημέρες πριν"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Πρώτη σύνδεση"
   },
   "trusted": {
     "message": "Trusted"
   },
   "currentSession": {
-    "message": "Current session"
+    "message": "Τρέχουσα συνεδρία"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Αίτημα σε εκκρεμότητα"
   },
   "deviceIdMissing": {
     "message": "Device ID is missing"
@@ -3922,6 +3963,9 @@
   "chooseFile": {
     "message": "Επιλογή Αρχείου"
   },
+  "chooseFileSentenceCase": {
+    "message": "Επιλογή αρχείου"
+  },
   "noFileChosen": {
     "message": "Δεν επιλέχθηκε κανένα αρχείο"
   },
@@ -3952,6 +3996,18 @@
   },
   "exportError": {
     "message": "An error occurred while exporting your vault data"
+  },
+  "exportSuccessSkippedAttachment": {
+    "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
+  },
+  "exportSuccessSkippedAttachments": {
+    "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   },
   "multifactorAuthenticationCancelled": {
     "message": "Η αυθεντικοποίηση πολλών παραγόντων ακυρώθηκε"
@@ -4008,10 +4064,10 @@
     "message": "Παρακαλούμε συνεχίστε τη σύνδεση χρησιμοποιώντας τα στοιχεία της εταιρείας σας."
   },
   "importDirectlyFromBrowser": {
-    "message": "Import directly from browser"
+    "message": "Εισαγωγή απευθείας από το πρόγραμμα περιήγησης"
   },
   "browserProfile": {
-    "message": "Browser Profile"
+    "message": "Προφίλ προγράμματος περιήγησης"
   },
   "seeDetailedInstructions": {
     "message": "Δείτε λεπτομερείς οδηγίες στη βοηθητική ιστοσελίδα μας στο",
@@ -4065,6 +4121,22 @@
   },
   "troubleshooting": {
     "message": "Αντιμετώπιση προβλημάτων"
+  },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
   },
   "disableHardwareAccelerationRestart": {
     "message": "Απενεργοποίηση επιτάχυνσης υλικού και επανεκκίνηση"
@@ -4199,7 +4271,7 @@
     "message": "Warning: Agent Forwarding"
   },
   "agentForwardingWarningText": {
-    "message": "This request comes from a remote device that you are logged into"
+    "message": "Αυτό το αίτημα προέρχεται από μια απομακρυσμένη συσκευή στην οποία έχετε συνδεθεί"
   },
   "sshkeyApprovalMessageInfix": {
     "message": "ζητά πρόσβαση σε"
@@ -4229,16 +4301,16 @@
     "message": "Εισαγωγή κλειδιού από το πρόχειρο"
   },
   "sshKeyImported": {
-    "message": "SSH key imported successfully"
+    "message": "Επιτυχής εισαγωγή κλειδιού SSH"
   },
   "fileSavedToDevice": {
     "message": "Το αρχείο αποθηκεύτηκε στη συσκευή. Διαχείριση από τις λήψεις της συσκευής σας."
   },
   "importantNotice": {
-    "message": "Important notice"
+    "message": "Σημαντική ειδοποίηση"
   },
   "setupTwoStepLogin": {
-    "message": "Set up two-step login"
+    "message": "Ρύθμιση σύνδεσης δύο βημάτων"
   },
   "newDeviceVerificationNoticeContentPage1": {
     "message": "Bitwarden will send a code to your account email to verify logins from new devices starting in February 2025."
@@ -4247,7 +4319,7 @@
     "message": "You can set up two-step login as an alternative way to protect your account or change your email to one you can access."
   },
   "remindMeLater": {
-    "message": "Remind me later"
+    "message": "Υπενθύμιση αργότερα"
   },
   "newDeviceVerificationNoticePageOneFormContent": {
     "message": "Do you have reliable access to your email, $EMAIL$?",
@@ -4259,28 +4331,28 @@
     }
   },
   "newDeviceVerificationNoticePageOneEmailAccessNo": {
-    "message": "No, I do not"
+    "message": "Όχι, δεν έχω"
   },
   "newDeviceVerificationNoticePageOneEmailAccessYes": {
     "message": "Yes, I can reliably access my email"
   },
   "turnOnTwoStepLogin": {
-    "message": "Turn on two-step login"
+    "message": "Ενεργοποίηση σύνδεσης δύο βημάτων"
   },
   "changeAcctEmail": {
-    "message": "Change account email"
+    "message": "Αλλαγή email λογαριασμού"
   },
   "passkeyLogin": {
-    "message": "Log in with passkey?"
+    "message": "Σύνδεση με κλειδί πρόσβασης;"
   },
   "savePasskeyQuestion": {
-    "message": "Save passkey?"
+    "message": "Αποθήκευση κλειδιού πρόσβασης;"
   },
   "saveNewPasskey": {
-    "message": "Save as new login"
+    "message": "Αποθήκευση ως νέα σύνδεση"
   },
   "savePasskeyNewLogin": {
-    "message": "Save passkey as new login"
+    "message": "Αποθήκευση κλειδιού πρόσβασης ως νέας σύνδεσης"
   },
   "noMatchingLoginsForSite": {
     "message": "No matching logins for this site"
@@ -4301,10 +4373,10 @@
     "message": "This application does not support duplicates."
   },
   "closeThisWindow": {
-    "message": "Close this window"
+    "message": "Κλείσιμο παραθύρου"
   },
   "allowScreenshots": {
-    "message": "Allow screen capture"
+    "message": "Να επιτρέπεται η καταγραφή οθόνης"
   },
   "allowScreenshotsDesc": {
     "message": "Allow the Bitwarden desktop application to be captured in screenshots and viewed in remote desktop sessions. Disabling this will prevent access on some external displays."
@@ -4328,10 +4400,10 @@
     "message": "This login is at-risk and missing a website. Add a website and change the password for stronger security."
   },
   "vulnerablePassword": {
-    "message": "Vulnerable password."
+    "message": "Ευάλωτος κωδικός πρόσβασης."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Αλλαγή τώρα"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -4392,7 +4464,7 @@
     "description": "Aria label for the body content of the generator nudge"
   },
   "newLoginNudgeTitle": {
-    "message": "Save time with autofill"
+    "message": "Εξοικονομήστε χρόνο με την αυτόματη συμπλήρωση"
   },
   "newLoginNudgeBodyOne": {
     "message": "Include a",
@@ -4441,13 +4513,13 @@
     "example": "Store your keys and connect with the SSH agent for fast, encrypted authentication. Learn more about SSH agent"
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Σχετικά με αυτήν τη ρύθμιση"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Ανάθεση σε συλλογές"
   },
   "assignToTheseCollections": {
     "message": "Ανάθεση σε αυτές τις συλλογές"
@@ -4462,7 +4534,7 @@
     "message": "No collections have been assigned"
   },
   "assign": {
-    "message": "Assign"
+    "message": "Ανάθεση"
   },
   "bulkCollectionAssignmentDialogDescription": {
     "message": "Only organization members with access to these collections will be able to see the items."
@@ -4505,10 +4577,10 @@
     }
   },
   "personalItemTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected organization. You will no longer own this item."
+    "message": "1 στοιχείο θα μεταφερθεί οριστικά στον επιλεγμένο οργανισμό. Δεν θα είστε πλέον κάτοχος αυτού του στοιχείου."
   },
   "personalItemWithOrgTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to $ORG$. You will no longer own this item.",
+    "message": "1 στοιχείο θα μεταφερθεί οριστικά στο $ORG$. Δεν θα είστε πλέον κάτοχος αυτού του στοιχείου.",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -4517,13 +4589,13 @@
     }
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Επιτυχής ανάθεση συλλογών"
   },
   "nothingSelected": {
-    "message": "You have not selected anything."
+    "message": "Δεν έχετε επιλέξει τίποτα."
   },
   "itemsMovedToOrg": {
-    "message": "Items moved to $ORGNAME$",
+    "message": "Τα στοιχεία μεταφέρθηκαν στο $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4541,7 +4613,7 @@
     }
   },
   "movedItemsToOrg": {
-    "message": "Selected items moved to $ORGNAME$",
+    "message": "Τα επιλεγμένα στοιχεία μεταφέρθηκαν στο $ORGNAME$",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -4581,35 +4653,35 @@
     }
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Εμφάνιση περισσότερων"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Εμφάνιση λιγότερων"
   },
   "enableAutotypeDescription": {
     "message": "Bitwarden does not validate input locations, be sure you are in the right window and field before using the shortcut."
   },
   "typeShortcut": {
-    "message": "Type shortcut"
+    "message": "Συντόμευση πληκτρολογίου"
   },
   "editAutotypeKeyboardModifiersDescription": {
-    "message": "Include one or two of the following modifiers: Ctrl, Alt, Win, and a letter."
+    "message": "Συμπεριλάβετε ένα ή δύο από τα εξής πλήκτρα τροποποίησης: Ctrl, Alt, Win και ένα γράμμα."
   },
   "invalidShortcut": {
-    "message": "Invalid shortcut"
+    "message": "Μη έγκυρη συντόμευση"
   },
   "moreBreadcrumbs": {
     "message": "More breadcrumbs",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {
-    "message": "Next"
+    "message": "Επόμενο"
   },
   "confirmKeyConnectorDomain": {
     "message": "Confirm Key Connector domain"
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "Επιβεβαίωση"
   },
   "enableAutotypeShortcutPreview": {
     "message": "Enable autotype shortcut (Feature Preview)"
@@ -4618,27 +4690,27 @@
     "message": "Be sure you are in the correct field before using the shortcut to avoid filling data into the wrong place."
   },
   "editShortcut": {
-    "message": "Edit shortcut"
+    "message": "Επεξεργασία συντόμευσης"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Αρχειοθήκη",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Αρχειοθέτηση",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Αναίρεση αρχειοθέτησης"
   },
   "archived": {
     "message": "Archived"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Στοιχεία στην αρχειοθήκη"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Δεν υπάρχουν στοιχεία στην αρχειοθήκη"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
@@ -4650,7 +4722,7 @@
     "message": "Item unarchived"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Αρχειοθέτηση στοιχείου"
   },
   "archiveItemDialogContent": {
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
@@ -4659,7 +4731,7 @@
     "message": "Unarchive and save"
   },
   "restartPremium": {
-    "message": "Restart Premium"
+    "message": "Επανεκκίνηση του Premium"
   },
   "premiumSubscriptionEnded": {
     "message": "Your Premium subscription ended"
@@ -4671,34 +4743,34 @@
     "message": "Item has been restored"
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Ταχυδρομικός κώδικας"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Αριθμός κάρτας"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Αναβάθμιση τώρα"
   },
   "builtInAuthenticator": {
-    "message": "Built-in authenticator"
+    "message": "Ενσωματωμένος έλεγχος ταυτότητας"
   },
   "secureFileStorage": {
-    "message": "Secure file storage"
+    "message": "Ασφαλής χώρος αποθήκευσης αρχείων"
   },
   "emergencyAccess": {
-    "message": "Emergency access"
+    "message": "Πρόσβαση έκτακτης ανάγκης"
   },
   "breachMonitoring": {
-    "message": "Breach monitoring"
+    "message": "Εποπτεία παραβιάσεων"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "Και πολλά άλλα!"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Προηγμένη διαδικτυακή ασφάλεια"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Αναβάθμιση στο Premium"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
@@ -4710,7 +4782,7 @@
     "message": "Do not continue"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Τομέας"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -4728,7 +4800,7 @@
     "message": "If you don't verify your organization, your access to the organization will be revoked."
   },
   "leaveNow": {
-    "message": "Leave now"
+    "message": "Αποχώρηση τώρα"
   },
   "verifyYourDomainToLogin": {
     "message": "Verify your domain to log in"
@@ -4740,13 +4812,16 @@
     "message": "To continue with log in, verify the organization and domain."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Ενέργεια λήξης χρονικού ορίου"
   },
   "errorCannotDecrypt": {
-    "message": "Error: Cannot decrypt"
+    "message": "Σφάλμα: Αδυναμία αποκρυπτογράφησης"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Χρονικό όριο λήξης συνεδρίας"
+  },
+  "browserAccessDenied": {
+    "message": "Either an invalid browser directory was selected, or access was denied"
   },
   "resizeSideNavigation": {
     "message": "Resize side navigation"
@@ -4787,16 +4862,40 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On restart"
+    "message": "Κατά την επανεκκίνηση"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
   },
+  "chromiumImporterBrowserNotInstalled": {
+    "message": "$BROWSER$ is not installed. Please install $BROWSER$ before importing passwords from it.",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerMessage": {
+    "message": "Please select your $BROWSER$ data folder",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
+  "chromiumImporterPickerExpectedLocation": {
+    "message": "Expected location:"
+  },
+  "chromiumImporterPickerPrompt": {
+    "message": "Grant Access"
+  },
   "upgrade": {
-    "message": "Upgrade"
+    "message": "Αναβάθμιση"
   },
   "leaveConfirmationDialogTitle": {
-    "message": "Are you sure you want to leave?"
+    "message": "Θέλετε σίγουρα να αποχωρήσετε;"
   },
   "leaveConfirmationDialogContentOne": {
     "message": "By declining, your personal items will stay in your account, but you'll lose access to shared items and organization features."
@@ -4841,10 +4940,10 @@
     "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
-    "message": "Accept transfer"
+    "message": "Αποδοχή μεταφοράς"
   },
   "declineAndLeave": {
-    "message": "Decline and leave"
+    "message": "Απόρριψη και αποχώρηση"
   },
   "organizationIsSuspended": {
     "message": "Organization is suspended"
@@ -4905,7 +5004,7 @@
     "message": "Who can view"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Συγκεκριμένα άτομα"
   },
   "emailVerificationDesc": {
     "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
@@ -4919,17 +5018,135 @@
   "emailPlaceholderMultiple": {
     "message": "user@bitwarden.com, user@acme.com"
   },
+  "reorderToggleButton": {
+    "message": "Reorder $LABEL$. Use arrow key to move item up or down.",
+    "placeholders": {
+      "label": {
+        "content": "$1",
+        "example": "Custom field"
+      }
+    }
+  },
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
+  "bankAccount": {
+    "message": "Τραπεζικός λογαριασμός"
+  },
+  "bankName": {
+    "message": "Όνομα τράπεζας"
+  },
+  "nameOnAccount": {
+    "message": "Όνομα κατόχου"
+  },
+  "bankAccountType": {
+    "message": "Τύπος λογαριασμού"
+  },
+  "bankAccountTypeCompany": {
+    "message": "Εταιρεία"
+  },
+  "bankAccountTypeIndividual": {
+    "message": "Ιδιώτης"
+  },
+  "accountNumber": {
+    "message": "Αριθμός λογαριασμού"
+  },
+  "bankRoutingNumber": {
+    "message": "Αριθμός υποκαταστήματος",
+    "description": "Used in the bank account cipher type"
+  },
+  "branchNumber": {
+    "message": "Αριθμός υποκαταστήματος/ιδρύματος"
+  },
+  "swiftCode": {
+    "message": "Κωδικός SWIFT"
+  },
+  "iban": {
+    "message": "IBAN"
+  },
+  "bankContactPhone": {
+    "message": "Τηλέφωνο επικοινωνίας τράπεζας"
+  },
+  "searchBankAccount": {
+    "message": "Αναζήτηση τραπεζικών λογαριασμών"
+  },
+  "copyAccountNumber": {
+    "message": "Αντιγραφή αριθμού λογαριασμού"
+  },
+  "copyRoutingNumber": {
+    "message": "Αντιγραφή αριθμού υποκαταστήματος"
+  },
+  "copyPin": {
+    "message": "Αντιγραφή PIN"
+  },
+  "copyIban": {
+    "message": "Αντιγραφή IBAN"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
+  },
+  "bankAccountTypeChecking": {
+    "message": "Τρεχούμενος"
+  },
+  "bankAccountTypeSavings": {
+    "message": "Ταμιευτηρίου"
+  },
+  "bankAccountTypeCertificateOfDeposit": {
+    "message": "Αποδεικτικό κατάθεσης"
+  },
+  "bankAccountTypeLineOfCredit": {
+    "message": "Πιστωτικό όριο"
+  },
+  "bankAccountTypeInvestmentBrokerage": {
+    "message": "Investment/brokerage"
+  },
+  "bankAccountTypeMoneyMarket": {
+    "message": "Χρηματαγορά"
+  },
+  "bankAccountTypeOther": {
+    "message": "Άλλο"
+  },
+  "newBankAccountNudgeTitle": {
+    "message": "Αποθηκεύστε με ασφάλεια τα τραπεζικά σας στοιχεία"
+  },
+  "newBankAccountNudgeBody": {
+    "message": "Save your bank account information to access it easily and securely across your devices."
+  },
   "discardEdits": {
-    "message": "Discard edits"
+    "message": "Απόρριψη επεξεργασιών"
   },
   "discardEditsMessage": {
     "message": "If you close this view, your unsaved edits will be discarded"
   },
   "backToEditing": {
-    "message": "Back to editing"
+    "message": "Πίσω στην επεξεργασία"
   },
   "sendHasUnsavedEdits": {
     "message": "Send has unsaved edits. Are you sure you want to leave?",
@@ -4939,6 +5156,25 @@
     "message": "Saving Send edits failed",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
+  "viewTextSendHeader": {
+    "message": "View text"
+  },
+  "viewFileSendHeader": {
+    "message": "View file"
+  },
+  "sendCreated": {
+    "message": "Send created",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "numericInputError": {
+    "message": "Input must be numeric"
+  },
+  "integerInputError": {
+    "message": "Input must be a whole number"
+  },
+  "hideEmailPolicyInEffect": {
+    "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
+  },
   "sideNavigation": {
     "message": "Side navigation"
   },
@@ -4946,11 +5182,53 @@
     "message": "Skip link"
   },
   "callout": {
-    "message": "Callout",
+    "message": "Επεξήγηση",
     "description": "'Callout' is a noun. It is the name of a page component that displays at the top of a page and contains information like an alert or notification. This string will be used to label the callout for a screenreader when multiple callouts are on a page, like 'Callout 1' and 'Callout 2'."
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Γραμμή προόδου",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }
