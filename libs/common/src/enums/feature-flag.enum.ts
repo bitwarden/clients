@@ -40,7 +40,6 @@ export enum FeatureFlag {
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
-  PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
 
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
@@ -62,6 +61,7 @@ export enum FeatureFlag {
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendControls = "pm-31885-send-controls",
+  SendEventLogging = "pm-36560-send-event-logging",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -139,6 +139,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
+  [FeatureFlag.SendEventLogging]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,
@@ -179,7 +180,6 @@ export const DefaultFeatureFlagValue = {
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
-  [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
 
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 

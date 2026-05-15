@@ -2539,8 +2539,11 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Unfortunately browser integration is currently not supported in the Microsoft Store version."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Unfortunately browser integration is currently not supported in the linux version."
+  "enableBrowserIntegrationFingerprint": {
+    "message": "Require verification for browser integration"
+  },
+  "enableBrowserIntegrationFingerprintDesc": {
+    "message": "Add an additional layer of security by requiring fingerprint phrase confirmation when establishing a link between your desktop and browser. This requires user action and verification each time a connection is created."
   },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
