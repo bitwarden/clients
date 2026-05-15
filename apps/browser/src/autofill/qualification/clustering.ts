@@ -78,6 +78,12 @@ function looksLikeOtpDigit(unit: FieldUnit): boolean {
 }
 
 function adjacentByElementNumber(prev: FieldUnit, next: FieldUnit): boolean {
+  // Pairing fields without an elementNumber is meaningless — bail explicitly
+  // rather than rely on `undefined - undefined === NaN` and `NaN > 0 === false`
+  // for accidental robustness.
+  if (prev.source.elementNumber == null || next.source.elementNumber == null) {
+    return false;
+  }
   const gap = next.source.elementNumber - prev.source.elementNumber;
   return gap > 0 && gap <= OTP_MAX_ELEMENT_NUMBER_GAP;
 }
