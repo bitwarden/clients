@@ -1,11 +1,15 @@
 import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 
 import { BrowserApi } from "./browser-api";
-import BrowserPopupUtils, { PopupWidthOptions } from "./browser-popup-utils";
+import BrowserPopupUtils, {
+  POPUP_WIDTH_STORAGE_KEY,
+  PopupWidthOptions,
+} from "./browser-popup-utils";
 
 describe("BrowserPopupUtils", () => {
   afterEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
   describe("inSidebar", () => {
@@ -287,6 +291,50 @@ describe("BrowserPopupUtils", () => {
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
       });
+    });
+
+    it("uses the narrow width when localStorage has the narrow setting", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      localStorage.setItem(POPUP_WIDTH_STORAGE_KEY, "narrow");
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          width: PopupWidthOptions.narrow,
+        }),
+      );
+    });
+
+    it("uses the wide width when localStorage has the wide setting", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      localStorage.setItem(POPUP_WIDTH_STORAGE_KEY, "wide");
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          width: PopupWidthOptions.wide,
+        }),
+      );
+    });
+
+    it("falls back to chrome.storage width when localStorage has no stored width", async () => {
+      const url = "popup/index.html";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      (chrome.storage.local.get as jest.Mock).mockResolvedValueOnce({
+        "global_popupStyle_popup-width": { __json__: true, value: '"narrow"' },
+      });
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          width: PopupWidthOptions.narrow,
+        }),
+      );
     });
 
     it("omits position when on Linux with Wayland-like coordinates (left=0, top=0)", async () => {
