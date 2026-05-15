@@ -1,5 +1,15 @@
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Component,
+  DestroyRef,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewChild,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ReactiveFormsModule, FormBuilder, Validators, FormControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -203,7 +213,9 @@ export class InputPasswordComponent implements OnInit {
   constructor(
     private auditService: AuditService,
     private cipherService: CipherService,
+    private readonly cdr: ChangeDetectorRef,
     private dialogService: DialogService,
+    private readonly destroyRef: DestroyRef,
     private formBuilder: FormBuilder,
     private i18nService: I18nService,
     private kdfConfigService: KdfConfigService,
@@ -218,6 +230,10 @@ export class InputPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.addFormFieldsIfNecessary();
     this.setButtonText();
+
+    this.formGroup.controls.newPassword.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.cdr.markForCheck());
   }
 
   private addFormFieldsIfNecessary() {
