@@ -166,6 +166,7 @@ const v2Providers = [
     provide: AccessIntelligenceDataService,
     useClass: DefaultAccessIntelligenceDataService,
     deps: [
+      ApiService,
       CipherService,
       OrganizationUserApiService,
       ReportGenerationService,
