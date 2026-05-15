@@ -3,6 +3,12 @@ import { ClassifiedFormCluster } from "./internal";
 import { FormKind, PageScenario, PageScenarioKind } from "./types";
 import { toPageScenario } from "./vocabulary";
 
+type Candidate = {
+  readonly cluster: ClassifiedFormCluster;
+  readonly kind: FormKind;
+  readonly confidence: number;
+};
+
 export function synthesizeScenario(
   clusters: ReadonlyArray<ClassifiedFormCluster>,
 ): PageScenario | null {
@@ -15,22 +21,22 @@ export function synthesizeScenario(
       const { kind, confidence } = argmax(c.distribution);
       return { cluster: c, kind, confidence };
     })
-    .filter((w) => w.kind !== "unknown" && bandFor(w.confidence) !== "none");
+    .filter((w): w is Candidate => w.kind !== "unknown" && bandFor(w.confidence) !== "none");
 
   if (aboveFloor.length === 0) {
     return null;
   }
 
   const distinctKinds = new Set(aboveFloor.map((w) => w.kind));
-  const dominant = aboveFloor.reduce((best, current) =>
-    current.confidence > best.confidence ? current : best,
-  );
-
   if (distinctKinds.size > 1) {
     return null;
   }
 
-  const scenarioKind: PageScenarioKind | "unknown" = internalScenarioFor(dominant.kind as FormKind);
+  const dominant = aboveFloor.reduce((best, current) =>
+    current.confidence > best.confidence ? current : best,
+  );
+
+  const scenarioKind = internalScenarioFor(dominant.kind);
   if (scenarioKind === "unknown") {
     return null;
   }
