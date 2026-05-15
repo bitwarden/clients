@@ -25,8 +25,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
+import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
-import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { Option, SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
@@ -54,7 +54,6 @@ export class SendControlsPolicy extends BasePolicyEditDefinition {
 })
 export class SendControlsPolicyComponent extends BasePolicyEditComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  readonly restrictSendTypeOptions = signal<{ label: string; value: SendType | null }[]>([]);
 
   readonly data: FormGroup<ControlsOf<SendControlsPolicyData>> = this.formBuilder.group(
     new SendControlsPolicyData(),
@@ -62,6 +61,10 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   private readonly dataFormValue = toSignal(this.data.valueChanges);
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
+
+  protected readonly restrictSendTypeOptions = signal<
+    { label: string; value: SendTypeRestriction | null }[]
+  >([]);
 
   protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
     { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
@@ -127,8 +130,14 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     });
     this.restrictSendTypeOptions.set([
       { label: this.i18nService.t("sendRestrictSendTypeTextAndFile"), value: null },
-      { label: this.i18nService.t("sendRestrictSendTypeTextOnly"), value: SendType.Text },
-      { label: this.i18nService.t("sendRestrictSendTypeFileOnly"), value: SendType.File },
+      {
+        label: this.i18nService.t("sendRestrictSendTypeTextOnly"),
+        value: SendTypeRestriction.TextOnly,
+      },
+      {
+        label: this.i18nService.t("sendRestrictSendTypeFileOnly"),
+        value: SendTypeRestriction.FileOnly,
+      },
     ]);
     super.ngOnInit();
   }

@@ -6,12 +6,14 @@
     [backAction]="onBackClick.bind(this)"
   ></popup-header>
 
-  @if (this.config.originalSend?.disabled) {
-    <bit-callout type="info" [title]="'sendNotCompliantWithYourOrgsPolicy' | i18n">
-      <div>{{ "sendDisabledNonCompliantBannerMessage" | i18n }}</div>
-      <button class="tw-mt-4" , type="button" bitButton buttonType="primary" (click)="makeCopy()">
-        {{ "makeACopy" | i18n }}
-      </button>
+  @if (disabledSendConfig()) {
+    <bit-callout type="info" [title]="disabledSendConfig().title | i18n">
+      <div>{{ disabledSendConfig().message | i18n }}</div>
+      @if (disabledSendConfig().showMakeCopyButton) {
+        <button class="tw-mt-4" type="button" bitButton buttonType="primary" (click)="makeCopy()">
+          {{ "makeACopy" | i18n }}
+        </button>
+      }
     </bit-callout>
   }
 
@@ -27,11 +29,21 @@
   </tools-send-form>
 
   <popup-footer slot="footer">
-    @if (config.originalSend?.disabled) {
-      <button type="button" bitButton buttonType="primary" (click)="makeCopy()">
-        {{ "makeACopy" | i18n }}
-      </button>
+    <!-- Send is disabled -->
+    @if (disabledSendConfig()) {
+      <!-- User is allowed to make a copy of the Send -->
+      @if (disabledSendConfig().showMakeCopyButton) {
+        <button type="button" bitButton buttonType="primary" (click)="makeCopy()">
+          {{ "makeACopy" | i18n }}
+        </button>
+      } @else {
+        <button type="button" bitButton buttonType="danger" [bitAction]="deleteSend">
+          {{ "delete" | i18n }}
+        </button>
+      }
+      <!-- Send is enabled -->
     } @else {
+      <!-- Send is actively being edited -->
       @if (editing()) {
         <button bitButton type="submit" form="sendForm" buttonType="primary" #submitBtn>
           {{ "save" | i18n }}
@@ -45,8 +57,11 @@
         </button>
       }
     }
-    @if (config?.mode !== "add") {
+    @if (
+      disabledSendConfig()?.showMakeCopyButton || (!disabledSendConfig() && config?.mode !== "add")
+    ) {
       <button
+        class="tw-ml-auto"
         type="button"
         buttonType="dangerGhost"
         slot="end"

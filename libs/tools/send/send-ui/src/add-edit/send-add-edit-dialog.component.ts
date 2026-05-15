@@ -7,6 +7,7 @@ import { FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -87,6 +88,14 @@ export type SendItemDialogResult = {
   ],
 })
 export class SendAddEditDialogComponent {
+  SendDisabledReason = SendDisabledReason;
+
+  protected readonly disabledSendConfig = signal<{
+    title: string;
+    message: string;
+    showMakeCopyButton: boolean;
+  } | null>(null);
+
   readonly sendFormComponent = viewChild(SendFormComponent);
   readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
   /**
@@ -160,8 +169,35 @@ export class SendAddEditDialogComponent {
     private dialogService: DialogService,
     private sendFormService: SendFormService,
   ) {
-    this.config = params.formConfig;
-    this.disableForm = params.disableForm ?? this.config.originalSend?.disabled ?? false;
+    void this.init();
+  }
+
+  async init() {
+    this.config = this.params.formConfig;
+    this.disableForm = this.params.disableForm ?? this.config.originalSend?.disabled ?? false;
+    if (this.config.originalSend) {
+      const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
+        this.config.originalSend,
+      );
+      if (sendDisabledReason === SendDisabledReason.RestrictedType) {
+        this.disabledSendConfig.set({
+          title:
+            this.config.originalSend.type === SendType.Text
+              ? "orgDoesNotAllowTextSends"
+              : "orgDoesNotAllowFileSends",
+          message: "sendWillAutomaticallyExpire",
+          showMakeCopyButton: false,
+        });
+      } else if (sendDisabledReason === SendDisabledReason.Other) {
+        this.disabledSendConfig.set({
+          title: "sendNotCompliantWithYourOrgsPolicy",
+          message: "sendDisabledNonCompliantBannerMessage",
+          showMakeCopyButton: true,
+        });
+      } else {
+        this.disabledSendConfig.set(null);
+      }
+    }
     this.editing.set(this.config.mode === "add");
   }
 

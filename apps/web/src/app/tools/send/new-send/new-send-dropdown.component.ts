@@ -7,6 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   ButtonModule,
@@ -118,9 +119,11 @@ export class NewSendDropdownComponent {
    * Called when the send type is restricted — directly creates the allowed type.
    */
   async onRestrictedClick() {
-    const type = this.restrictedSendType();
-    if (type != null) {
-      await this.createSend(type);
+    const restriction = this.restrictedSendType();
+    if (restriction != null) {
+      const sendType: SendType =
+        restriction === SendTypeRestriction.FileOnly ? SendType.File : SendType.Text;
+      await this.createSend(sendType);
     }
   }
 }

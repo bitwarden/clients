@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -7,17 +7,12 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
+import { SendTypeRestriction } from "@bitwarden/common/tools/models/send-send-type-restriction";
 import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
+import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-
-export const SendDisabledReason = Object.freeze({
-  /** Send is not disabled */
-  None: 0,
-  /** Send is disabled for a non-specific reason */
-  Other: 1,
-} as const);
-export type SendDisabledReason = (typeof SendDisabledReason)[keyof typeof SendDisabledReason];
 
 /**
  * Service for evaluating Send-related policy restrictions for the current user.
@@ -123,11 +118,8 @@ export class SendPolicyService {
   /**
    * Emits the only allowed `SendType` when a "restrict send type" policy is active,
    * or `null` when no restriction is in effect.
-   *   - `SendType.Text` → user may only create Text sends.
-   *   - `SendType.File` → user may only create File sends.
-   *   - `null` → no restriction (both types allowed).
    */
-  readonly restrictedSendType$: Observable<SendType | null> = this.flagAndUser$.pipe(
+  readonly restrictedSendType$: Observable<SendTypeRestriction | null> = this.flagAndUser$.pipe(
     switchMap(([sendControlsEnabled, userId]) => {
       if (!sendControlsEnabled) {
         return of(null);
@@ -135,19 +127,23 @@ export class SendPolicyService {
       return this.policyService.policiesByType$(PolicyType.SendControls, userId).pipe(
         map((policies) => {
           const policy = policies?.find((p) => p.data?.restrictSendType != null);
-          if (!policy) {
-            return null;
-          }
-          return policy.data.restrictSendType as SendType;
+          return (policy?.data?.restrictSendType as SendTypeRestriction) ?? null;
         }),
       );
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  async sendDisabledReason(send: SendView) {
+  async sendDisabledReason(send: SendView | Send) {
     if (!send.disabled) {
       return SendDisabledReason.None;
+    }
+    const sendTypeRestriction = await firstValueFrom(this.restrictedSendType$);
+    if (
+      (sendTypeRestriction === SendTypeRestriction.TextOnly && send.type !== SendType.Text) ||
+      (sendTypeRestriction === SendTypeRestriction.FileOnly && send.type !== SendType.File)
+    ) {
+      return SendDisabledReason.RestrictedType;
     }
     return SendDisabledReason.Other;
   }
