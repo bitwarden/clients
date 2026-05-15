@@ -63,21 +63,26 @@ pub mod ipc {
                 }
             });
 
-            let path = desktop_core::ipc::path(&name);
+            let paths = desktop_core::ipc::all_paths(&name);
 
-            let server = desktop_core::ipc::server::Server::start(&path, send).map_err(|e| {
-                napi::Error::from_reason(format!(
-                    "Error listening to server - Path: {path:?} - Error: {e:?}"
-                ))
-            })?;
+            let server =
+                desktop_core::ipc::server::Server::start(paths.clone(), send).map_err(|e| {
+                    napi::Error::from_reason(format!(
+                        "Error listening to server - Path: {paths:?} - Error: {e:?}"
+                    ))
+                })?;
 
             Ok(NativeIpcServer { server })
         }
 
-        /// Return the path to the IPC server.
+        /// Return the paths to the IPC server.
         #[napi]
-        pub fn get_path(&self) -> String {
-            self.server.path.to_string_lossy().to_string()
+        pub fn get_paths(&self) -> Vec<String> {
+            self.server
+                .paths
+                .iter()
+                .filter_map(|p| p.to_string_lossy().into_owned().into())
+                .collect()
         }
 
         /// Stop the IPC server.

@@ -2525,9 +2525,6 @@
   "browserIntegrationWindowsStoreDesc": {
     "message": "Unfortunately browser integration is currently not supported in the Windows Store version."
   },
-  "browserIntegrationLinuxDesc": {
-    "message": "Unfortunately browser integration is currently not supported in the linux version."
-  },
   "enableBrowserIntegrationFingerprint": {
     "message": "Require verification for browser integration"
   },
