@@ -40,7 +40,6 @@ export enum FeatureFlag {
   /* Billing */
   PM29108_EnablePersonalDiscounts = "pm-29108-enable-personal-discounts",
   PM24032_NewNavigationPremiumUpgradeButton = "pm-24032-new-navigation-premium-upgrade-button",
-  PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog = "pm-23713-premium-badge-opens-new-premium-upgrade-dialog",
 
   PM29593_PremiumToOrganizationUpgrade = "pm-29593-premium-to-organization-upgrade",
 
@@ -179,7 +178,6 @@ export const DefaultFeatureFlagValue = {
   /* Billing */
   [FeatureFlag.PM29108_EnablePersonalDiscounts]: FALSE,
   [FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton]: FALSE,
-  [FeatureFlag.PM23713_PremiumBadgeOpensNewPremiumUpgradeDialog]: FALSE,
 
   [FeatureFlag.PM29593_PremiumToOrganizationUpgrade]: FALSE,
 
