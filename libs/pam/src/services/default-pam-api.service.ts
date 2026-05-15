@@ -3,6 +3,8 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { GatedCipherFetchResult } from "../abstractions/gated-cipher-fetch-result";
 import { PamApiService } from "../abstractions/pam-api.service";
 import { CollectionLeasingConfigResponse } from "../abstractions/responses/collection-leasing.response";
+import { InboxBadgeCountResponse } from "../abstractions/responses/inbox-badge-count.response";
+import { InboxLeaseRequestResponse } from "../abstractions/responses/inbox-lease-request.response";
 import { LeaseRequestResponse } from "../abstractions/responses/lease-request.response";
 
 import { CollectionLeasingRequest } from "./requests/collection-leasing.request";
@@ -63,6 +65,25 @@ export class DefaultPamApiService implements PamApiService {
   ): Promise<CollectionLeasingConfigResponse> {
     return new CollectionLeasingConfigResponse(
       await this.send("PUT", `/collections/${id}/leasing`, request, true),
+    );
+  }
+
+  async listInboxRequests(): Promise<InboxLeaseRequestResponse[]> {
+    const response = (await this.send("GET", "/leasing/requests/inbox", null, true)) as unknown;
+    const rows = Array.isArray(response) ? response : [];
+    return rows.map((row) => new InboxLeaseRequestResponse(row));
+  }
+
+  async submitDecision(
+    requestId: string,
+    request: LeaseDecisionRequest,
+  ): Promise<LeaseRequestResponse> {
+    return this.decideLeaseRequest(requestId, request);
+  }
+
+  async getInboxBadgeCount(): Promise<InboxBadgeCountResponse> {
+    return new InboxBadgeCountResponse(
+      await this.send("GET", "/leasing/requests/inbox/count", null, true),
     );
   }
 

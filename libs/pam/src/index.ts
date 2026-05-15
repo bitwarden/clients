@@ -7,6 +7,8 @@ export {
 } from "./abstractions/leasing-policy";
 export { PamApiService } from "./abstractions/pam-api.service";
 export { CollectionLeasingConfigResponse } from "./abstractions/responses/collection-leasing.response";
+export { InboxBadgeCountResponse } from "./abstractions/responses/inbox-badge-count.response";
+export { InboxLeaseRequestResponse } from "./abstractions/responses/inbox-lease-request.response";
 export {
   LeaseRequestResponse,
   LeaseRequestStatus,

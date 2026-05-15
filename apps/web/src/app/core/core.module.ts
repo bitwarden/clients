@@ -129,6 +129,7 @@ import {
   DefaultWebAuthnPrfUnlockService,
   SessionTimeoutSettingsComponentService,
 } from "@bitwarden/key-management-ui";
+import { DefaultPamApiService, PamApiService } from "@bitwarden/pam";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UserCryptoManagementModule } from "@bitwarden/user-crypto-management";
 import {
@@ -512,6 +513,11 @@ const safeProviders: SafeProvider[] = [
       ApiService,
       KeyServiceAbstraction,
     ],
+  }),
+  safeProvider({
+    provide: PamApiService,
+    useFactory: (apiService: ApiService) => new DefaultPamApiService(apiService),
+    deps: [ApiService],
   }),
 ];
 

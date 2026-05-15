@@ -142,4 +142,91 @@ describe("DefaultPamApiService", () => {
       expect(result.policy?.kind).toBe("human_approval");
     });
   });
+
+  describe("listInboxRequests", () => {
+    it("GETs /leasing/requests/inbox and wraps each row", async () => {
+      apiService.send.mockResolvedValue([
+        {
+          Id: "req-1",
+          CipherId: "cipher-1",
+          CollectionId: "col-1",
+          RequesterUserId: "user-2",
+          Status: "pending",
+          RequestedTtlSeconds: 3600,
+          SubmittedAt: "2026-05-15T12:00:00Z",
+          CipherName: "Prod DB",
+          CollectionName: "Production",
+          RequesterName: "Bob",
+          RequesterEmail: "bob@example.com",
+        },
+      ]);
+
+      const result = await service.listInboxRequests();
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/leasing/requests/inbox",
+        null,
+        true,
+        true,
+      );
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("req-1");
+      expect(result[0].cipherName).toBe("Prod DB");
+      expect(result[0].collectionName).toBe("Production");
+      expect(result[0].requesterName).toBe("Bob");
+      expect(result[0].requesterEmail).toBe("bob@example.com");
+    });
+
+    it("returns an empty array when the server returns nothing iterable", async () => {
+      apiService.send.mockResolvedValue(undefined);
+
+      const result = await service.listInboxRequests();
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("submitDecision", () => {
+    it("delegates to decideLeaseRequest", async () => {
+      apiService.send.mockResolvedValue({ Id: "req-1", Status: "approved" });
+      const req = new LeaseDecisionRequest({ decision: "approve", comment: "ok" });
+
+      const result = await service.submitDecision("req-1", req);
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "POST",
+        "/leasing/requests/req-1/decision",
+        req,
+        true,
+        true,
+      );
+      expect(result.status).toBe("approved");
+    });
+  });
+
+  describe("getInboxBadgeCount", () => {
+    it("GETs /leasing/requests/inbox/count and wraps the response", async () => {
+      apiService.send.mockResolvedValue({ Count: 3 });
+
+      const result = await service.getInboxBadgeCount();
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/leasing/requests/inbox/count",
+        null,
+        true,
+        true,
+      );
+      expect(result.count).toBe(3);
+    });
+
+    it("defaults to zero when the server omits Count", async () => {
+      apiService.send.mockResolvedValue({});
+
+      const result = await service.getInboxBadgeCount();
+
+      expect(result.count).toBe(0);
+    });
+  });
 });

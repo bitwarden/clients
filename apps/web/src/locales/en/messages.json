@@ -4077,7 +4077,7 @@
   "inviteUserDesc": {
     "message": "Invite a new user to your organization by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account."
   },
-  "inviteUserDescription":{
+  "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
   },
   "inviteMultipleEmailDesc": {
@@ -4415,7 +4415,7 @@
       }
     }
   },
-   "viewedLicenseNumberItemId": {
+  "viewedLicenseNumberItemId": {
     "message": "Viewed license number for item $ID$.",
     "placeholders": {
       "id": {
@@ -5533,7 +5533,7 @@
   "inviteLinkCopied": {
     "message": "Invite link copied"
   },
-"inviteLinkRegenerated": {
+  "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
   "regenerateInviteLink": {
@@ -8565,10 +8565,10 @@
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
-  "scimDescriptionV2":{
+  "scimDescriptionV2": {
     "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
   },
-  "scimLearnMore":{
+  "scimLearnMore": {
     "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
@@ -8638,7 +8638,7 @@
       }
     }
   },
-  "anotherIntegrationWithSameTypeExists":{
+  "anotherIntegrationWithSameTypeExists": {
     "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
     "placeholders": {
       "type": {
@@ -8646,7 +8646,6 @@
         "example": "HEC"
       }
     }
-
   },
   "inputRequired": {
     "message": "Input is required."
@@ -11202,7 +11201,7 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
-  "integrationConnectedSuccessfully":{
+  "integrationConnectedSuccessfully": {
     "message": "$INTEGRATION$ connected successfully.",
     "placeholders": {
       "integration": {
@@ -13369,7 +13368,7 @@
   "transferItemsToOrganizationAction": {
     "message": "Click accept to transfer ownership of your items."
   },
-   "openTransferItemsHelpArticle": {
+  "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
@@ -13874,5 +13873,128 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pamInboxNav": {
+    "message": "Access requests"
+  },
+  "pamInboxTitle": {
+    "message": "Access requests"
+  },
+  "pamInboxSubtitle": {
+    "message": "Approve or deny lease requests for the collections you manage."
+  },
+  "pamInboxInCollection": {
+    "message": "in $COLLECTION$",
+    "placeholders": {
+      "collection": {
+        "content": "$1",
+        "example": "Production"
+      }
+    }
+  },
+  "pamInboxRequester": {
+    "message": "Requester"
+  },
+  "pamInboxWindow": {
+    "message": "Requested window"
+  },
+  "pamInboxWindowAsap": {
+    "message": "As soon as possible"
+  },
+  "pamInboxDurationHours": {
+    "message": "$HOURS$ hours",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "pamInboxReason": {
+    "message": "Reason"
+  },
+  "pamInboxReasonMissing": {
+    "message": "(no reason given)"
+  },
+  "pamInboxApprove": {
+    "message": "Approve"
+  },
+  "pamInboxDeny": {
+    "message": "Deny"
+  },
+  "pamInboxConfirmApprove": {
+    "message": "Approve this request?"
+  },
+  "pamInboxConfirmDeny": {
+    "message": "Deny this request?"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Confirm approve"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Confirm deny"
+  },
+  "pamInboxCommentLabel": {
+    "message": "Comment (optional)"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Optional message for the requester"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Request approved"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Request denied"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Couldn't submit your decision. Try again."
+  },
+  "pamInboxLoadFailed": {
+    "message": "Couldn't load the inbox."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "No requests waiting."
+  },
+  "pamInboxEmptyDescription": {
+    "message": "When someone requests access to a vault item in a collection you manage, it'll show up here."
+  },
+  "pamInboxNotApproverTitle": {
+    "message": "You're not designated to approve requests for any collections."
+  },
+  "pamInboxNotApproverDescription": {
+    "message": "Ask an organization admin to grant you Manage on collections that use leasing."
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "You can't approve your own requests."
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "just now"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$COUNT$ min ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$COUNT$ h ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedDays": {
+    "message": "$COUNT$ d ago",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
   }
 }
