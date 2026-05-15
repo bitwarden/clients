@@ -1225,6 +1225,10 @@
   "noItemsInList": {
     "message": "There are no items to list."
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "sendVerificationCode": {
     "message": "Send a verification code to your email"
   },

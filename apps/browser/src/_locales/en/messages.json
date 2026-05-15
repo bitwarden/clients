@@ -5142,6 +5142,10 @@
       }
     }
   },
+  "noValueEntered": {
+    "message": "No value entered",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
   "noValuesToCopy": {
     "message": "No values to copy"
   },
