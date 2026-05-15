@@ -118,6 +118,29 @@ describe("DefaultPamApiService", () => {
     });
   });
 
+  describe("getCollectionLeasingConfig", () => {
+    it("GETs /collections/{id}/leasing and wraps the response", async () => {
+      apiService.send.mockResolvedValue({
+        CollectionId: "col-1",
+        LeasingEnabled: false,
+        Policy: null,
+      });
+
+      const result = await service.getCollectionLeasingConfig("col-1");
+
+      expect(apiService.send).toHaveBeenCalledWith(
+        "GET",
+        "/collections/col-1/leasing",
+        null,
+        true,
+        true,
+      );
+      expect(result.collectionId).toBe("col-1");
+      expect(result.leasingEnabled).toBe(false);
+      expect(result.policy).toBeNull();
+    });
+  });
+
   describe("setCollectionLeasingConfig", () => {
     it("PUTs /collections/{id}/leasing and wraps the response", async () => {
       apiService.send.mockResolvedValue({

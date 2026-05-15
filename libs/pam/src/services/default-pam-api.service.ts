@@ -66,6 +66,12 @@ export class DefaultPamApiService implements PamApiService {
     );
   }
 
+  async getCollectionLeasingConfig(id: string): Promise<CollectionLeasingConfigResponse> {
+    return new CollectionLeasingConfigResponse(
+      await this.send("GET", `/collections/${id}/leasing`, null, true),
+    );
+  }
+
   private send(method: HttpMethod, path: string, body: unknown, hasResponse: boolean) {
     return this.apiService.send(method, path, body, true, hasResponse);
   }

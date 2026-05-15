@@ -36,6 +36,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -52,6 +53,7 @@ import {
 } from "@bitwarden/components";
 
 import { openChangePlanDialog } from "../../../../../billing/organizations/change-plan-dialog.component";
+import { CollectionLeasingTabComponent } from "../../../../../pam/collection-leasing-tab/collection-leasing-tab.component";
 import { SharedModule } from "../../../../../shared";
 import { GroupApiService, GroupView } from "../../../core";
 import { freeOrgCollectionLimitValidator } from "../../validators/free-org-collection-limit.validator";
@@ -71,6 +73,7 @@ import { AccessSelectorModule } from "../access-selector/access-selector.module"
 export enum CollectionDialogTabType {
   Info = 0,
   Access = 1,
+  Leasing = 2,
 }
 
 /**
@@ -122,13 +125,20 @@ export enum CollectionDialogAction {
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "collection-dialog.component.html",
-  imports: [SharedModule, AccessSelectorModule, SelectModule],
+  imports: [SharedModule, AccessSelectorModule, SelectModule, CollectionLeasingTabComponent],
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   protected organizations$: Observable<Organization[]>;
 
   protected tabIndex: CollectionDialogTabType;
+  /**
+   * Whether to render the Leasing tab. Gated by the `Pam` feature flag and
+   * requires `manage` permission on the collection. The Leasing tab is only
+   * meaningful when editing an existing collection — there is nothing to lease
+   * out of a collection that does not exist yet.
+   */
+  protected showLeasingTab$: Observable<boolean>;
   protected loading = true;
   protected organization?: Organization;
   protected collection?: CollectionAdminView;
@@ -168,6 +178,15 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
     this.initialPermission = params.initialPermission ?? CollectionPermission.View;
+    this.showLeasingTab$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
+  }
+
+  protected switchToAccessTab(): void {
+    this.tabIndex = CollectionDialogTabType.Access;
+  }
+
+  protected get canManageCollection(): boolean {
+    return this.editMode && this.collection?.manage === true && !this.dialogReadonly;
   }
 
   async ngOnInit() {

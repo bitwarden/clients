@@ -115,6 +115,16 @@
             [emptySelectionText]="'noMembersAdded' | i18n"
           ></bit-access-selector>
         </bit-tab>
+        <bit-tab
+          *ngIf="editMode && canManageCollection && (showLeasingTab$ | async)"
+          [label]="'pamLeasingTabLabel' | i18n"
+        >
+          <pam-collection-leasing-tab
+            [collectionId]="collectionId"
+            [canManage]="canManageCollection"
+            (switchToAccess)="switchToAccessTab()"
+          ></pam-collection-leasing-tab>
+        </bit-tab>
       </bit-tab-group>
     </div>
     <ng-container bitDialogFooter>
