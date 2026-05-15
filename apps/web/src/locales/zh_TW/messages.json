@@ -997,6 +997,12 @@
   "typeSshKey": {
     "message": "SSH 金鑰"
   },
+  "typeDriversLicense": {
+    "message": "駕照"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "駕照或身分證件"
+  },
   "typeLoginSubtitle": {
     "message": "網站或應用程式"
   },
@@ -1166,9 +1172,9 @@
     "message": "編輯銀行帳戶",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "編輯駕照",
-    "description": "Header for edit driver's license item type"
+    "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
     "message": "編輯護照",
@@ -1206,9 +1212,9 @@
     "message": "檢視銀行帳戶",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "檢視駕照",
-    "description": "Header for view driver's license item type"
+    "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
     "message": "檢視護照",
@@ -1316,6 +1322,15 @@
   },
   "copyPassportNumber": {
     "message": "複製護照號碼"
+  },
+  "copyFirstName": {
+    "message": "複製名字"
+  },
+  "copyMiddleName": {
+    "message": "複製中間名"
+  },
+  "copyLastName": {
+    "message": "複製姓氏"
   },
   "copyLicenseNumber": {
     "message": "複製駕照號碼"
@@ -4400,6 +4415,24 @@
       }
     }
   },
+  "viewedLicenseNumberItemId": {
+    "message": "已檢視項目 $ID$ 的駕照號碼。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
+  "copiedLicenseNumberItemId": {
+    "message": "已複製項目 $ID$ 的駕照號碼。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "autofilledItemId": {
     "message": "項目 $ID$ 已自動填入。",
     "placeholders": {
@@ -5486,6 +5519,26 @@
   "domainsEdited": {
     "message": "已編輯網域"
   },
+  "inviteLink": {
+    "message": "邀請連結"
+  },
+  "lastGenerated": {
+    "message": "上次產生時間：$DATE$",
+    "placeholders": {
+      "date": {
+        "content": "$1"
+      }
+    }
+  },
+  "inviteLinkCopied": {
+    "message": "已複製邀請連結"
+  },
+  "inviteLinkRegenerated": {
+    "message": "已重新產生邀請連結"
+  },
+  "regenerateInviteLink": {
+    "message": "重新產生邀請連結"
+  },
   "inviteByLinkDesc": {
     "message": "透過連結邀請成員加入您的組織。若尚未指定角色，他們將以預設使用者身分加入。"
   },
@@ -6194,6 +6247,19 @@
   },
   "downloadAttachments": {
     "message": "下載附件"
+  },
+  "troubleshooting": {
+    "message": "疑難排解"
+  },
+  "troubleshootingDiagnosticReport": {
+    "message": "遇到問題嗎？請下載並將診斷報告分享給"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden 支援團隊",
+    "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "下載"
   },
   "sendAccessPasswordTitle": {
     "message": "輸入密碼以查看此 Send 內容",
@@ -8584,6 +8650,21 @@
   "inputRequired": {
     "message": "必須輸入內容。"
   },
+  "enterMonth": {
+    "message": "請輸入月份。"
+  },
+  "enterDay": {
+    "message": "請輸入日期。"
+  },
+  "enterYear": {
+    "message": "請輸入年份。"
+  },
+  "invalidDay": {
+    "message": "請輸入有效的日期。"
+  },
+  "invalidYear": {
+    "message": "請輸入有效的年份。"
+  },
   "inputEmail": {
     "message": "輸入的不是電子郵件地址。"
   },
@@ -9381,6 +9462,9 @@
     "message": "成員狀態篩選器"
   },
   "inviteMember": {
+    "message": "邀請成員"
+  },
+  "inviteMembers": {
     "message": "邀請成員"
   },
   "addSponsorship": {
@@ -13735,6 +13819,51 @@
   "progressBar": {
     "message": "進度條",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "searchDriversLicense": {
+    "message": "搜尋駕照"
+  },
+  "driversLicenseDetails": {
+    "message": "駕照詳細資訊"
+  },
+  "dateOfBirth": {
+    "message": "出生日期"
+  },
+  "birthMonth": {
+    "message": "出生月份"
+  },
+  "birthDay": {
+    "message": "出生日期"
+  },
+  "birthYear": {
+    "message": "出生年份"
+  },
+  "issuingCountry": {
+    "message": "簽發國家"
+  },
+  "issuingState": {
+    "message": "簽發州／省"
+  },
+  "issueDate": {
+    "message": "簽發日期"
+  },
+  "issueMonth": {
+    "message": "簽發月份"
+  },
+  "issueDay": {
+    "message": "簽發日期"
+  },
+  "issueYear": {
+    "message": "簽發年份"
+  },
+  "expirationDay": {
+    "message": "到期日"
+  },
+  "issuingAuthority": {
+    "message": "簽發機關"
+  },
+  "licenseClass": {
+    "message": "駕照類別"
   },
   "copy": {
     "message": "複製"
