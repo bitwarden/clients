@@ -36,6 +36,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -148,6 +149,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   protected showAddAccessWarning = false;
   protected buttonDisplayName: ButtonType = ButtonType.Save;
   protected initialPermission: CollectionPermission;
+  protected pamEnabled = false;
+  protected currentMemberId: string | null = null;
   private orgExceedingCollectionLimit!: Organization;
 
   constructor(
@@ -171,6 +174,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    this.pamEnabled = await this.configService.getFeatureFlag(FeatureFlag.Pam);
     // Opened from the individual vault
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
     if (this.params.showOrgSelector) {
@@ -255,6 +259,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
       .subscribe(({ organization, collections: allCollections, groups, users }) => {
         this.organization = organization;
+        this.currentMemberId =
+          users.data.find((u) => u.userId === organization?.userId)?.id ?? null;
 
         if (this.params.collectionId) {
           this.collection = allCollections.find((c) => c.id === this.collectionId);
@@ -549,11 +555,13 @@ function mapToAccessSelections(collectionDetails: CollectionAdminView): AccessIt
       id: selection.id,
       type: AccessItemType.Group,
       permission: convertToPermission(selection),
+      requireLease: selection.requireLease ?? false,
     })),
     collectionDetails.users.map<AccessItemValue>((selection) => ({
       id: selection.id,
       type: AccessItemType.Member,
       permission: convertToPermission(selection),
+      requireLease: selection.requireLease ?? false,
     })),
   );
 }
@@ -601,6 +609,7 @@ function mapUserToAccessItemView(
   user: OrganizationUserUserMiniResponse,
   collection: CollectionAdminView,
 ): AccessItemView {
+  const existing = collection?.users.find((u) => u.id === user.id);
   return {
     id: user.id,
     type: AccessItemType.Member,
@@ -612,10 +621,9 @@ function mapUserToAccessItemView(
     readonly: false,
     readonlyPermission:
       collection != null
-        ? convertToPermission(
-            new CollectionAccessSelectionView(collection.users.find((u) => u.id === user.id)),
-          )
+        ? convertToPermission(new CollectionAccessSelectionView(existing))
         : undefined,
+    initialRequireLease: existing?.requireLease ?? false,
   };
 }
 

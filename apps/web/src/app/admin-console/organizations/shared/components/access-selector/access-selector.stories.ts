@@ -293,3 +293,117 @@ export const DisabledCollectionAccess: Story = {
     `,
   }),
 };
+
+// PAM (Privileged Access Manager) story variants — exercise the require_lease column and
+// surrounding flows. These stories are gated behind FeatureFlag.Pam at the application level;
+// inside Storybook the column is rendered unconditionally for visual inspection.
+const pamMembers = itemsFactory(4, AccessItemType.Member).map((m, i) => ({
+  ...m,
+  // First member starts with require_lease already on, others off
+  initialRequireLease: i === 0,
+}));
+
+const pamRender: Story["render"] = (args) => ({
+  props: {
+    valueChanged: actionsData.onValueChanged,
+    bulkApplied: () => {
+      // eslint-disable-next-line no-console
+      console.log("bulkRequireLeaseApplied");
+    },
+    ...args,
+  },
+  template: `
+    <bit-access-selector
+      (ngModelChange)="valueChanged($event)"
+      (bulkRequireLeaseApplied)="bulkApplied()"
+      [ngModel]="initialValue"
+      [items]="items"
+      [columnHeader]="columnHeader"
+      [selectorLabelText]="selectorLabelText"
+      [emptySelectionText]="emptySelectionText"
+      [permissionMode]="permissionMode"
+      [showMemberRoles]="showMemberRoles"
+      [showRequireLeaseColumn]="showRequireLeaseColumn"
+      [currentMemberId]="currentMemberId"
+    ></bit-access-selector>
+  `,
+});
+
+/**
+ * Collection access list with the Privileged Access Manager `require_lease` column rendered
+ * for every selected row. Use the bulk button at the top of the table to apply require_lease
+ * to every current member; a confirmation dialog gates the change.
+ */
+export const PamRequireLeaseColumn: Story = {
+  args: {
+    permissionMode: PermissionMode.Edit,
+    showMemberRoles: false,
+    columnHeader: "Members",
+    selectorLabelText: "Select members",
+    emptySelectionText: "No members added",
+    showRequireLeaseColumn: true,
+    currentMemberId: null,
+    initialValue: [
+      {
+        id: "0m",
+        type: AccessItemType.Member,
+        permission: CollectionPermission.Manage,
+        requireLease: true,
+      },
+      {
+        id: "1m",
+        type: AccessItemType.Member,
+        permission: CollectionPermission.Edit,
+        requireLease: false,
+      },
+      {
+        id: "2m",
+        type: AccessItemType.Member,
+        permission: CollectionPermission.View,
+        requireLease: false,
+      },
+    ],
+    items: pamMembers,
+  },
+  render: pamRender,
+};
+
+/**
+ * Same as `PamRequireLeaseColumn`, but with the column hidden. Confirms the table layout
+ * doesn't shift when the feature flag is off.
+ */
+export const PamRequireLeaseColumnHidden: Story = {
+  args: {
+    ...PamRequireLeaseColumn.args,
+    showRequireLeaseColumn: false,
+  },
+  render: pamRender,
+};
+
+/**
+ * Demonstrates the self-toggle confirmation. The "current user" is set to `0m`; turning on
+ * `require_lease` for that row should surface a confirmation dialog explaining that the user
+ * will need to lease their own access after this.
+ */
+export const PamSelfToggleConfirm: Story = {
+  args: {
+    ...PamRequireLeaseColumn.args,
+    currentMemberId: "0m",
+    initialValue: [
+      {
+        id: "0m",
+        type: AccessItemType.Member,
+        permission: CollectionPermission.Manage,
+        requireLease: false,
+      },
+      {
+        id: "1m",
+        type: AccessItemType.Member,
+        permission: CollectionPermission.Edit,
+        requireLease: false,
+      },
+    ],
+    items: pamMembers.map((m) => ({ ...m, initialRequireLease: false })),
+  },
+  render: pamRender,
+};

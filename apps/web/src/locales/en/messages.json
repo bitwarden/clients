@@ -4077,7 +4077,7 @@
   "inviteUserDesc": {
     "message": "Invite a new user to your organization by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account."
   },
-  "inviteUserDescription":{
+  "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
   },
   "inviteMultipleEmailDesc": {
@@ -4415,7 +4415,7 @@
       }
     }
   },
-   "viewedLicenseNumberItemId": {
+  "viewedLicenseNumberItemId": {
     "message": "Viewed license number for item $ID$.",
     "placeholders": {
       "id": {
@@ -5533,7 +5533,7 @@
   "inviteLinkCopied": {
     "message": "Invite link copied"
   },
-"inviteLinkRegenerated": {
+  "inviteLinkRegenerated": {
     "message": "Invite link regenerated"
   },
   "regenerateInviteLink": {
@@ -8565,10 +8565,10 @@
     "message": "Automatically provision users and groups with your preferred identity provider via SCIM provisioning",
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
-  "scimDescriptionV2":{
+  "scimDescriptionV2": {
     "message": "Automatically provision users and groups by configuring your preferred identity provider with the SCIM URL and API key."
   },
-  "scimLearnMore":{
+  "scimLearnMore": {
     "message": "Learn more about SCIM"
   },
   "scimIntegrationDescription": {
@@ -8638,7 +8638,7 @@
       }
     }
   },
-  "anotherIntegrationWithSameTypeExists":{
+  "anotherIntegrationWithSameTypeExists": {
     "message": "Another integration with the same type ($TYPE$) already exists. Refresh the browser and try again.",
     "placeholders": {
       "type": {
@@ -8646,7 +8646,6 @@
         "example": "HEC"
       }
     }
-
   },
   "inputRequired": {
     "message": "Input is required."
@@ -11202,7 +11201,7 @@
   "huntressEventIntegrationDesc": {
     "message": "Send event data to your Huntress SIEM instance"
   },
-  "integrationConnectedSuccessfully":{
+  "integrationConnectedSuccessfully": {
     "message": "$INTEGRATION$ connected successfully.",
     "placeholders": {
       "integration": {
@@ -13369,7 +13368,7 @@
   "transferItemsToOrganizationAction": {
     "message": "Click accept to transfer ownership of your items."
   },
-   "openTransferItemsHelpArticle": {
+  "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
@@ -13874,5 +13873,35 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "requireLease": {
+    "message": "Require lease"
+  },
+  "requireLeaseTooltip": {
+    "message": "When on, this member needs an approved lease to view ciphers in this collection."
+  },
+  "requireLeaseAriaLabel": {
+    "message": "Require lease for"
+  },
+  "bulkRequireLeaseButton": {
+    "message": "Set require-lease on all current members"
+  },
+  "bulkRequireLeaseConfirmTitle": {
+    "message": "Require lease for all current members?"
+  },
+  "bulkRequireLeaseConfirmContent": {
+    "message": "Everyone currently assigned to this collection will need an approved lease to view ciphers. This does not affect future members."
+  },
+  "applyToAll": {
+    "message": "Apply to all"
+  },
+  "requireLeaseSelfConfirmTitle": {
+    "message": "Require a lease for yourself?"
+  },
+  "requireLeaseSelfConfirmContent": {
+    "message": "You'll need to lease your own access after this."
+  },
+  "yesTurnOn": {
+    "message": "Yes, turn on"
   }
 }
