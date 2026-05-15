@@ -144,8 +144,8 @@
   "sendReminders": {
     "message": "Send reminders"
   },
-  "onceYouMarkApplicationsCriticalTheyWillDisplayHere": {
-    "message": "Once you mark applications critical, they will display here."
+  "noCriticalApplicationsMarkedYet": {
+    "message": "You haven't marked any critical applications yet. Head to Review applications to get started."
   },
   "viewAtRiskMembers": {
     "message": "View at-risk members"
