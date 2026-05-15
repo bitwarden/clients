@@ -61,6 +61,7 @@ export enum FeatureFlag {
   UseSdkPasswordGenerators = "pm-19976-use-sdk-password-generators",
   SendUIRefresh = "pm-28175-send-ui-refresh",
   SendControls = "pm-31885-send-controls",
+  SendEventLogging = "pm-36560-send-event-logging",
 
   /* DIRT */
   EventManagementForBlumira = "event-management-for-blumira",
@@ -138,6 +139,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseSdkPasswordGenerators]: FALSE,
   [FeatureFlag.SendUIRefresh]: FALSE,
   [FeatureFlag.SendControls]: FALSE,
+  [FeatureFlag.SendEventLogging]: FALSE,
 
   /* DIRT */
   [FeatureFlag.EventManagementForBlumira]: FALSE,

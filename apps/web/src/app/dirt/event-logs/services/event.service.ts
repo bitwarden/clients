@@ -782,6 +782,25 @@ export class EventService {
         msg = this.i18nService.t("phishingBlockerBypassed");
         humanReadableMsg = this.i18nService.t("phishingBlockerBypassed");
         break;
+      // Send
+      case EventType.Send_Created_Text:
+        msg = humanReadableMsg = this.i18nService.t("createdTextSend");
+        break;
+      case EventType.Send_Created_Text_WithEmailVerification:
+        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithEmailVerification");
+        break;
+      case EventType.Send_Created_Text_WithPasswordProtection:
+        msg = humanReadableMsg = this.i18nService.t("createdTextSendWithPasswordProtection");
+        break;
+      case EventType.Send_Created_File:
+        msg = humanReadableMsg = this.i18nService.t("createdFileSend");
+        break;
+      case EventType.Send_Created_File_WithEmailVerification:
+        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithEmailVerification");
+        break;
+      case EventType.Send_Created_File_WithPasswordProtection:
+        msg = humanReadableMsg = this.i18nService.t("createdFileSendWithPasswordProtection");
+        break;
 
       default:
         break;
