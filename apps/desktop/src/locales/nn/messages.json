@@ -62,6 +62,12 @@
   "collectionSubtitle": {
     "message": "Organize shared items"
   },
+  "typeDriversLicense": {
+    "message": "License"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "Drivers license or ID"
+  },
   "chooseItemToAdd": {
     "message": "Choose item to add"
   },
@@ -148,6 +154,10 @@
     "message": "View license",
     "description": "Header for view license item type"
   },
+  "viewItemHeaderLicense": {
+    "message": "View license",
+    "description": "Header for view license item type"
+  },
   "viewItemHeaderPassport": {
     "message": "View passport",
     "description": "Header for view passport item type"
@@ -208,7 +218,7 @@
     "message": "Edit bank account",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "Edit license",
     "description": "Header for edit license item type"
   },
@@ -1755,6 +1765,10 @@
     "message": "Kopier nummer",
     "description": "Copy credit card number"
   },
+  "copyName": {
+    "message": "Copy name",
+    "description": "Copy cardholder name"
+  },
   "copyEmail": {
     "message": "Copy email"
   },
@@ -2528,12 +2542,6 @@
   "browserIntegrationLinuxDesc": {
     "message": "Unfortunately browser integration is currently not supported in the linux version."
   },
-  "enableBrowserIntegrationFingerprint": {
-    "message": "Require verification for browser integration"
-  },
-  "enableBrowserIntegrationFingerprintDesc": {
-    "message": "Add an additional layer of security by requiring fingerprint phrase confirmation when establishing a link between your desktop and browser. This requires user action and verification each time a connection is created."
-  },
   "enableHardwareAcceleration": {
     "message": "Use hardware acceleration"
   },
@@ -2542,12 +2550,6 @@
   },
   "approve": {
     "message": "Godkjenn"
-  },
-  "verifyBrowserTitle": {
-    "message": "Verify browser connection"
-  },
-  "verifyBrowserDesc": {
-    "message": "Please ensure the shown fingerprint is identical to the fingerprint showed in the browser extension."
   },
   "verifyNativeMessagingConnectionTitle": {
     "message": "$APPID$ wants to connect to Bitwarden",
@@ -4120,6 +4122,22 @@
   "troubleshooting": {
     "message": "Troubleshooting"
   },
+  "downloadDiagnosticReport": {
+    "message": "Download diagnostic report"
+  },
+  "experiencingAnIssue": {
+    "message": "Experiencing an issue?"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "Download then share the diagnostic report with"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden support",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "Download"
+  },
   "disableHardwareAccelerationRestart": {
     "message": "Disable hardware acceleration and restart"
   },
@@ -5012,6 +5030,24 @@
   "userVerificationFailed": {
     "message": "User verification failed."
   },
+  "enterMonth": {
+    "message": "Enter month."
+  },
+  "enterDay": {
+    "message": "Enter day."
+  },
+  "enterYear": {
+    "message": "Enter year."
+  },
+  "invalidDay": {
+    "message": "Enter a valid day."
+  },
+  "invalidYear": {
+    "message": "Enter a valid year."
+  },
+  "searchDriversLicense": {
+    "message": "Search licenses"
+  },
   "bankAccount": {
     "message": "Bank account"
   },
@@ -5063,6 +5099,18 @@
   },
   "copyIban": {
     "message": "Copy IBAN"
+  },
+  "copyFirstName": {
+    "message": "Copy first name"
+  },
+  "copyMiddleName": {
+    "message": "Copy middle name"
+  },
+  "copyLastName": {
+    "message": "Copy last name"
+  },
+  "copyLicenseNumber": {
+    "message": "Copy license number"
   },
   "bankAccountTypeChecking": {
     "message": "Checking"
@@ -5140,5 +5188,47 @@
   "progressBar": {
     "message": "Progress bar",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "licenseClass": {
+    "message": "License class"
   }
 }

@@ -167,8 +167,17 @@
   "copyPassportNumber": {
     "message": "复制护照号码"
   },
+  "copyFirstName": {
+    "message": "复制名字"
+  },
+  "copyMiddleName": {
+    "message": "复制中间名"
+  },
+  "copyLastName": {
+    "message": "复制姓氏"
+  },
   "copyLicenseNumber": {
-    "message": "复制许可证号码"
+    "message": "复制驾驶证号码"
   },
   "copyPrivateKey": {
     "message": "复制私钥"
@@ -707,6 +716,22 @@
   },
   "rateExtension": {
     "message": "为本扩展打分"
+  },
+  "troubleshooting": {
+    "message": "故障排除"
+  },
+  "experiencingAnIssue": {
+    "message": "遇到问题了吗？"
+  },
+  "downloadDiagnosticReportWith": {
+    "message": "下载诊断报告然后将其分享给"
+  },
+  "bitwardenSupport": {
+    "message": "Bitwarden 支持",
+    "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
+  },
+  "download": {
+    "message": "下载"
   },
   "browserNotSupportClipboard": {
     "message": "您的网页浏览器不支持简单剪贴板复制，请手动复制。"
@@ -2052,13 +2077,13 @@
     "message": "Mx"
   },
   "firstName": {
-    "message": "名"
+    "message": "名字"
   },
   "middleName": {
     "message": "中间名"
   },
   "lastName": {
-    "message": "姓"
+    "message": "姓氏"
   },
   "fullName": {
     "message": "全名"
@@ -2076,7 +2101,7 @@
     "message": "护照号码"
   },
   "licenseNumber": {
-    "message": "许可证号码"
+    "message": "驾驶证号码"
   },
   "email": {
     "message": "电子邮箱"
@@ -2109,7 +2134,7 @@
     "message": "ZIP / 邮政编码"
   },
   "country": {
-    "message": "国家"
+    "message": "国家 / 地区"
   },
   "type": {
     "message": "类型"
@@ -2165,6 +2190,54 @@
   "typeBankAccountSubtitle": {
     "message": "银行详细信息"
   },
+  "typeDriversLicense": {
+    "message": "驾驶证"
+  },
+  "typeDriversLicenseSubtitle": {
+    "message": "驾驶证或 ID"
+  },
+  "driversLicenseDetails": {
+    "message": "License details"
+  },
+  "dateOfBirth": {
+    "message": "Date of birth"
+  },
+  "birthMonth": {
+    "message": "Birth month"
+  },
+  "birthDay": {
+    "message": "Birth day"
+  },
+  "birthYear": {
+    "message": "Birth year"
+  },
+  "issuingCountry": {
+    "message": "Issuing country"
+  },
+  "issuingState": {
+    "message": "Issuing state / province"
+  },
+  "issuingAuthority": {
+    "message": "Issuing authority"
+  },
+  "issueDate": {
+    "message": "Issue date"
+  },
+  "issueMonth": {
+    "message": "Issue month"
+  },
+  "issueDay": {
+    "message": "Issue day"
+  },
+  "issueYear": {
+    "message": "Issue year"
+  },
+  "expirationDay": {
+    "message": "Expiration day"
+  },
+  "licenseClass": {
+    "message": "License class"
+  },
   "newItemHeaderLogin": {
     "message": "新增登录",
     "description": "Header for new login item type"
@@ -2190,7 +2263,7 @@
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "新增许可证",
+    "message": "新增驾驶证",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
@@ -2198,11 +2271,11 @@
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "新建文本",
+    "message": "新增文本 Send",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "新建文件",
+    "message": "新增文件 Send",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2229,7 +2302,7 @@
     "message": "编辑银行账户",
     "description": "Header for edit bank account item type"
   },
-  "editItemHeaderDriversLicense": {
+  "editItemHeaderLicense": {
     "message": "编辑许可证",
     "description": "Header for edit license item type"
   },
@@ -2238,11 +2311,11 @@
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "编辑文本",
+    "message": "编辑文本 Send",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "编辑文件",
+    "message": "编辑文件 Send",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2269,7 +2342,7 @@
     "message": "查看银行账户",
     "description": "Header for view bank account item type"
   },
-  "viewItemHeaderDriversLicense": {
+  "viewItemHeaderLicense": {
     "message": "查看许可证",
     "description": "Header for view license item type"
   },
@@ -5128,7 +5201,7 @@
     "message": "项目历史记录"
   },
   "lastEdited": {
-    "message": "最后编辑于"
+    "message": "上次编辑"
   },
   "ownerYou": {
     "message": "所有者：您"
@@ -6350,6 +6423,24 @@
   "userVerificationFailed": {
     "message": "用户验证失败。"
   },
+  "enterMonth": {
+    "message": "输入月份。"
+  },
+  "enterDay": {
+    "message": "输入日期。"
+  },
+  "enterYear": {
+    "message": "输入年份。"
+  },
+  "invalidDay": {
+    "message": "请输入有效的日期。"
+  },
+  "invalidYear": {
+    "message": "请输入有效的年份。"
+  },
+  "searchDriversLicense": {
+    "message": "搜索许可证"
+  },
   "bankName": {
     "message": "银行名称"
   },
@@ -6406,10 +6497,10 @@
     "message": "储蓄"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "定期存单"
+    "message": "定期存款"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "循环信用额度"
+    "message": "信用额度"
   },
   "bankAccountTypeInvestmentBrokerage": {
     "message": "投资/证券"
@@ -6419,12 +6510,6 @@
   },
   "bankAccountTypeOther": {
     "message": "其他"
-  },
-  "newBankAccountNudgeTitle": {
-    "message": "安全地存储您的银行详细信息"
-  },
-  "newBankAccountNudgeBody": {
-    "message": "保存您的银行账户信息，以在您的所有设备上轻松且安全地访问。"
   },
   "downloadFailed": {
     "message": "下载失败。"
@@ -6437,20 +6522,20 @@
     "message": "对接收者隐藏我的电子邮箱地址。"
   },
   "viewTextSendHeader": {
-    "message": "查看文本"
+    "message": "查看文本 Send"
   },
   "viewFileSendHeader": {
-    "message": "查看文件"
+    "message": "查看文件 Send"
   },
   "sendCreated": {
     "message": "Send 已创建",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
-    "message": "请输入数字"
+    "message": "必须输入数字"
   },
   "integerInputError": {
-    "message": "请输入整数"
+    "message": "必须输入整数"
   },
   "sideNavigation": {
     "message": "侧边导航"
